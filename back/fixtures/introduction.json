@@ -1,0 +1,26 @@
+[
+{
+  "model": "introductions.introduction",
+  "pk": 1,
+  "fields": {
+    "name": "Our founder and CEO",
+    "tags": "[]",
+    "created": "2020-06-04T00:30:53.206Z",
+    "updated": "2020-06-04T00:30:53.206Z",
+    "template": true,
+    "intro_person": 1
+  }
+},
+{
+  "model": "introductions.introduction",
+  "pk": 2,
+  "fields": {
+    "name": "Your HR go-to person!",
+    "tags": "[]",
+    "created": "2020-06-04T00:31:33.868Z",
+    "updated": "2020-06-04T00:31:33.868Z",
+    "template": true,
+    "intro_person": 17
+  }
+}
+]

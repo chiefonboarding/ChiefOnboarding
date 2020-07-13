@@ -1,0 +1,93 @@
+[
+{
+  "model": "preboarding.preboarding",
+  "pk": 2,
+  "fields": {
+    "name": "Welcome",
+    "tags": "[]",
+    "created": "2020-06-04T00:33:04.078Z",
+    "updated": "2020-06-04T00:33:04.078Z",
+    "template": true,
+    "form": [],
+    "picture": "",
+    "content": [
+      25,
+      26,
+      27,
+      28,
+      29
+    ]
+  }
+},
+{
+  "model": "preboarding.preboarding",
+  "pk": 3,
+  "fields": {
+    "name": "We want to get to know YOU!",
+    "tags": "[]",
+    "created": "2020-06-04T00:34:29.979Z",
+    "updated": "2020-06-04T00:34:29.979Z",
+    "template": true,
+    "form": [
+      {
+        "id": "f087",
+        "text": "What's your favorite color?",
+        "type": "input"
+      },
+      {
+        "id": "7264",
+        "text": "If we would give you $10,000. What would you do with it?",
+        "type": "text"
+      },
+      {
+        "id": "887a",
+        "text": "What do you prefer?",
+        "type": "select",
+        "options": [
+          {
+            "id": "bc97",
+            "name": "Mangos"
+          },
+          {
+            "id": "4221",
+            "name": "Banana"
+          },
+          {
+            "id": "94bf",
+            "name": "Grapefruit"
+          }
+        ]
+      },
+      {
+        "id": "0466",
+        "text": "Upload your headshot",
+        "type": "upload"
+      }
+    ],
+    "picture": "",
+    "content": [
+      30
+    ]
+  }
+},
+{
+  "model": "preboarding.preboarding",
+  "pk": 4,
+  "fields": {
+    "name": "Your first few days",
+    "tags": "[]",
+    "created": "2020-06-04T00:36:33.714Z",
+    "updated": "2020-06-04T00:36:33.714Z",
+    "template": true,
+    "form": [],
+    "picture": "",
+    "content": [
+      31,
+      32,
+      33,
+      34,
+      35
+    ]
+  }
+}
+]

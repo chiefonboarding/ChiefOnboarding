@@ -1,0 +1,4 @@
+.env
+.idea
+dump.rdb
+.idea/dataSources.local.xml

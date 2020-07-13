@@ -1,0 +1,10 @@
+FROM python:latest
+ENV PATH /home/django/.local/bin:$PATH
+
+RUN groupadd -r django && useradd -m -g -r django django
+USER django:django
+
+WORKDIR /home/django/app
+COPY --chown=django:django . /home/django/app
+RUN pip install --user -r requirements.txt
+RUN python manage.py collectstatic --noinput --clear

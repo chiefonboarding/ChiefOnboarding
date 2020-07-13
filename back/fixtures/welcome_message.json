@@ -1,0 +1,317 @@
+[
+{
+  "model": "organization.welcomemessage",
+  "pk": 1,
+  "fields": {
+    "message": "We set up an online webpage for you to become a bit more familiar with us and get you onboarded smoothlyClick on the button below to see it",
+    "language": "en",
+    "message_type": 0
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 2,
+  "fields": {
+    "message": " We hebben een online webpagina voor u gemaakt om ons beter te leren kennen.  Klik op de onderstaande knop om het te zien!",
+    "language": "nl",
+    "message_type": 0
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 3,
+  "fields": {
+    "message": " Nous avons mis en place une page Web en ligne qui vous permettra de vous familiariser un peu plus avec vous et de vous int\u00e9grer facilement.  Cliquez sur le bouton ci-dessous pour le voir!",
+    "language": "fr",
+    "message_type": 0
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 4,
+  "fields": {
+    "message": " Wir haben eine Online-Webseite eingerichtet, damit Sie sich ein wenig mit uns vertraut machen und reibungslos einsteigen k\u00f6nnen.  Klicken Sie auf die Schaltfl\u00e4che unten, um sie anzuzeigen!",
+    "language": "de",
+    "message_type": 0
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 5,
+  "fields": {
+    "message": " Bize biraz daha a\u015fina olman\u0131z ve sizi sorunsuz bir \u015fekilde kullanman\u0131z i\u00e7in bir \u00e7evrimi\u00e7i web sayfas\u0131 haz\u0131rlad\u0131k.  G\u00f6rmek i\u00e7in a\u015fa\u011f\u0131daki d\u00fc\u011fmeye t\u0131klay\u0131n!",
+    "language": "tr",
+    "message_type": 0
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 6,
+  "fields": {
+    "message": " Criamos uma p\u00e1gina da Web on-line para voc\u00ea se familiarizar um pouco com voc\u00ea e incorpor\u00e1-la sem problemas.  Clique no bot\u00e3o abaixo para ver!",
+    "language": "pt",
+    "message_type": 0
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 7,
+  "fields": {
+    "message": " Configuramos una p\u00e1gina web en l\u00ednea para que usted se familiarice un poco m\u00e1s con nosotros y lo incorpore sin problemas.  Haga clic en el bot\u00f3n de abajo para verlo.",
+    "language": "es",
+    "message_type": 0
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 8,
+  "fields": {
+    "message": "We set up an online webpage for you to become a bit more familiar with us and get you onboarded smoothly. Your login credentials are",
+    "language": "en",
+    "message_type": 1
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 9,
+  "fields": {
+    "message": " We hebben een online webpagina voor u opgezet om ons wat beter te leren kennen en u vlot te kunnen inwerken. Uw inloggegevens zijn:",
+    "language": "nl",
+    "message_type": 1
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 10,
+  "fields": {
+    "message": " Nous avons mis en place une page Web en ligne pour que vous puissiez vous familiariser davantage avec nous et vous int\u00e9grer facilement. Vos identifiants de connexion sont:",
+    "language": "fr",
+    "message_type": 1
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 11,
+  "fields": {
+    "message": " Wir haben eine Online-Webseite eingerichtet, damit Sie sich ein wenig mit uns vertraut machen und reibungslos mit uns in Kontakt treten k\u00f6nnen. Ihre Anmeldeinformationen lauten:",
+    "language": "de",
+    "message_type": 1
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 12,
+  "fields": {
+    "message": " Bize biraz daha a\u015fina olman\u0131z ve sizi sorunsuz bir \u015fekilde kullanman\u0131z i\u00e7in bir \u00e7evrimi\u00e7i web sayfas\u0131 haz\u0131rlad\u0131k. Giri\u015f bilgileriniz:",
+    "language": "tr",
+    "message_type": 1
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 13,
+  "fields": {
+    "message": " Criamos uma p\u00e1gina da Web on-line para voc\u00ea se familiarizar um pouco com voc\u00ea e fazer com que voc\u00ea se integre sem problemas. Suas credenciais de login s\u00e3o:",
+    "language": "pt",
+    "message_type": 1
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 14,
+  "fields": {
+    "message": " Creamos una p\u00e1gina web en l\u00ednea para que usted se familiarice un poco m\u00e1s con nosotros y lo incorpore sin problemas. Sus credenciales de inicio de sesi\u00f3n son:",
+    "language": "es",
+    "message_type": 1
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 15,
+  "fields": {
+    "message": "Welcome to the team, {{first_name}}. We are happy to have you. To make sure that you are prepared for your first few days, please click this link:",
+    "language": "en",
+    "message_type": 2
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 16,
+  "fields": {
+    "message": "Welkom bij het team, {{first_name}}. We zijn blij je te hebben. Klik op deze link om ervoor te zorgen dat u de eerste paar dagen bent voorbereid:",
+    "language": "nl",
+    "message_type": 2
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 17,
+  "fields": {
+    "message": "Bienvenue dans l'\u00e9quipe, {{first_name}}. Nous sommes heureux de vous avoir. Pour vous assurer que vous \u00eates pr\u00eat pour vos premiers jours, veuillez cliquer sur ce lien:",
+    "language": "fr",
+    "message_type": 2
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 18,
+  "fields": {
+    "message": "Willkommen im Team, {{first_name}}. Wir freuen uns, Sie zu haben. Um sicherzugehen, dass Sie f\u00fcr die ersten Tage ger\u00fcstet sind, klicken Sie bitte auf diesen Link:",
+    "language": "de",
+    "message_type": 2
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 19,
+  "fields": {
+    "message": "{{first_name}} adl\u0131 tak\u0131ma ho\u015f geldin. Size sahip oldu\u011fumuz i\u00e7in mutluyuz. \u0130lk birka\u00e7 g\u00fcn\u00fcn\u00fcze haz\u0131r oldu\u011funuzdan emin olmak i\u00e7in l\u00fctfen bu ba\u011flant\u0131y\u0131 t\u0131klay\u0131n:",
+    "language": "tr",
+    "message_type": 2
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 20,
+  "fields": {
+    "message": "Bem-vindo \u00e0 equipe, {{first_name}}. Estamos felizes em ter voc\u00ea. Para ter certeza de que voc\u00ea est\u00e1 preparado para os primeiros dias, clique neste link:",
+    "language": "pt",
+    "message_type": 2
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 21,
+  "fields": {
+    "message": "Bienvenido al equipo, {{first_name}}. Estamos felices de tenerte. Para asegurarse de que est\u00e1 preparado para sus primeros d\u00edas, haga clic en este enlace:",
+    "language": "es",
+    "message_type": 2
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 22,
+  "fields": {
+    "message": "Welcome! We are very excited to have you with us. I am Onboardingbot and I will help you through the onboarding process. I will provide you with all the information you need and I will get back to you each day with the tasks you need to complete that day. If you want to know what I can do for you, type: help.\nHave an awesome time with us, my friend!",
+    "language": "en",
+    "message_type": 3
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 23,
+  "fields": {
+    "message": "Welkom! We zijn erg verheugd je bij ons te hebben. Ik ben Onboardingbot en ik zal je helpen bij het onboarding-proces. Ik zal je alle informatie geven die je nodig hebt en ik zal elke dag contact met je opnemen met de taken die je nodig hebt om die dag te voltooien. Als je wilt weten wat ik voor je kan doen, typ je: help. \nHeb een geweldige tijd met ons, mijn vriend!",
+    "language": "nl",
+    "message_type": 3
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 24,
+  "fields": {
+    "message": "Bienvenue! Nous sommes tr\u00e8s heureux de vous avoir avec nous. Je suis Onboardingbot et je vous aiderai tout au long du processus d\u2019int\u00e9gration. Je vous fournirai toutes les informations dont vous avez besoin et je vous rappellerai chaque jour les t\u00e2ches \u00e0 accomplir pour la terminer. Si vous voulez savoir ce que je peux faire pour vous, tapez: aide. \nVivez une exp\u00e9rience formidable avec nous, mon ami!",
+    "language": "fr",
+    "message_type": 3
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 25,
+  "fields": {
+    "message": "Herzlich willkommen! Wir freuen uns sehr, Sie bei uns zu haben. Ich bin Onboardingbot und helfe Ihnen beim Onboarding. Ich versorge Sie mit allen Informationen, die Sie ben\u00f6tigen, und melde mich jeden Tag mit den Aufgaben, die Sie an diesem Tag erledigen m\u00fcssen. Wenn Sie wissen m\u00f6chten, was ich f\u00fcr Sie tun kann, geben Sie Folgendes ein: help. \nHaben Sie eine tolle Zeit mit uns, mein Freund!",
+    "language": "de",
+    "message_type": 3
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 26,
+  "fields": {
+    "message": "Ho\u015fgeldiniz! Bizimle birlikte oldu\u011funuz i\u00e7in \u00e7ok heyecanl\u0131y\u0131z. Ben Onboardingbot'um ve size onboarding s\u00fcrecinde yard\u0131mc\u0131 olaca\u011f\u0131m. \u0130htiyac\u0131n\u0131z olan t\u00fcm bilgileri size sunaca\u011f\u0131m ve o g\u00fcn\u00fc tamamlaman\u0131z gereken g\u00f6revlerle her g\u00fcn size geri d\u00f6nece\u011fim. Sizin i\u00e7in neler yapabilece\u011fimi bilmek istiyorsan\u0131z, \u015funu yaz\u0131n: yard\u0131m. \nBizimle harika bir zaman ge\u00e7irin dostum!",
+    "language": "tr",
+    "message_type": 3
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 27,
+  "fields": {
+    "message": "Bem vinda! Estamos muito animados em ter voc\u00ea conosco. Eu sou o Onboardingbot e vou ajud\u00e1-lo no processo de integra\u00e7\u00e3o. Fornecerei todas as informa\u00e7\u00f5es necess\u00e1rias e voltarei a voc\u00ea todos os dias com as tarefas necess\u00e1rias para concluir esse dia. Se voc\u00ea quiser saber o que eu posso fazer por voc\u00ea, digite: help. \nTenha um \u00f3timo tempo com a gente, meu amigo!",
+    "language": "pt",
+    "message_type": 3
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 28,
+  "fields": {
+    "message": "\u00a1Bienvenido! Estamos muy emocionados de tenerte con nosotros. Soy Onboardingbot y te ayudar\u00e9 en el proceso de incorporaci\u00f3n. Le proporcionar\u00e9 toda la informaci\u00f3n que necesita y le responder\u00e9 todos los d\u00edas con las tareas que debe completar ese d\u00eda. Si quieres saber qu\u00e9 puedo hacer por ti, escribe: ayuda. \n\u00a1Pasa un tiempo incre\u00edble con nosotros, amigo!",
+    "language": "es",
+    "message_type": 3
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 29,
+  "fields": {
+    "message": "Hi! I have a knowledge base available for you! Click the button below to see what's in it. Or just ask me a question and I will try to find you an answer :)",
+    "language": "en",
+    "message_type": 4
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 30,
+  "fields": {
+    "message": "Hoi! Ik heb een kennisbank voor u beschikbaar! Klik op de onderstaande knop om te zien wat erin staat. Of stel me een vraag en ik zal proberen om een antwoord voor je te vinden :)",
+    "language": "nl",
+    "message_type": 4
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 31,
+  "fields": {
+    "message": "Salut! J'ai une base de connaissances disponible pour vous! Cliquez sur le bouton ci-dessous pour voir ce qu'il contient. Ou posez-moi simplement une question et j'essaierai de vous trouver une r\u00e9ponse :)",
+    "language": "fr",
+    "message_type": 4
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 32,
+  "fields": {
+    "message": "Hallo! Ich habe eine Wissensbasis f\u00fcr Sie! Klicken Sie auf die Schaltfl\u00e4che unten, um zu sehen, was sich darin befindet. Oder stell mir einfach eine Frage und ich werde versuchen, dir eine Antwort zu finden :)",
+    "language": "de",
+    "message_type": 4
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 33,
+  "fields": {
+    "message": "Merhaba! Senin i\u00e7in uygun bir bilgi birikimim var! \u0130\u00e7inde ne oldu\u011funu g\u00f6rmek i\u00e7in a\u015fa\u011f\u0131daki d\u00fc\u011fmeye t\u0131klay\u0131n. Ya da sadece bana bir soru sorun, size bir cevap bulmaya \u00e7al\u0131\u015faca\u011f\u0131m :)",
+    "language": "tr",
+    "message_type": 4
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 34,
+  "fields": {
+    "message": "Oi! Eu tenho uma base de conhecimento dispon\u00edvel para voc\u00ea! Clique no bot\u00e3o abaixo para ver o que h\u00e1 nele. Ou apenas me fa\u00e7a uma pergunta e tentarei encontrar uma resposta para voc\u00ea :)",
+    "language": "pt",
+    "message_type": 4
+  }
+},
+{
+  "model": "organization.welcomemessage",
+  "pk": 35,
+  "fields": {
+    "message": "\u00a1Hola! \u00a1Tengo una base de conocimiento disponible para ti! Haga clic en el bot\u00f3n de abajo para ver qu\u00e9 hay en \u00e9l. O simplemente hazme una pregunta y tratar\u00e9 de encontrarte una respuesta :)",
+    "language": "es",
+    "message_type": 4
+  }
+}
+]

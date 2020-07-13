@@ -1,0 +1,17 @@
+[
+{
+  "model": "admin_tasks.admintask",
+  "pk": 1,
+  "fields": {
+    "new_hire": 3,
+    "assigned_to": 1,
+    "name": "Set up a tour!",
+    "option": 0,
+    "slack_user": null,
+    "email": null,
+    "completed": true,
+    "date": null,
+    "priority": 1
+  }
+}
+]

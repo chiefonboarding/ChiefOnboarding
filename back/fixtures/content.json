@@ -1,0 +1,786 @@
+[
+{
+  "model": "misc.content",
+  "pk": 2,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "Let's do this!<br>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 6,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "Let's do this!<br>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 16,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>We use Slack to communicate in our team. Make sure you create your Slack account with the invitation email we sent you earlier.</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 17,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>Your very first assignment. Please create a project in navision and assign user 'test1' to it. Then set the status: 'waiting for customer' on it and wait for two days to see what happens. <br></p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 18,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>We have a couple of policies here to read for you. Please go over all of them and then fill in the secret word you found in one of them.</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 19,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>This is your first training, {{first_name}}.</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 20,
+  "fields": {
+    "type": "youtube",
+    "items": [],
+    "content": "https://www.youtube.com/watch?v=t9il52dlnnc",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 21,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>We have a couple of policies here to read for you. Please go over all of them and then fill in the secret word you found in one of them.</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 22,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>Since you have watched the first training session, you can now do you first cold call. We know this is scary, but just do it and it will become easier after time. Also, don't expect to make a sale. Don't even try to. Try to get them interested. We picked a company and number for you, it's (000) 123 456. John will be picking up the phone.</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 23,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>So, {{first_name}}, you have been with us for one month now. How has it been so far?</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 24,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>Okay, so your first week is almost over. How did you experience it? We would love to know how we can improve.</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 25,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>Whoohoo! You just said yes to our job offer and we are very happy to have you with us. In this online portal, we will help you get ready for the first few days. Please go through this and fill in and/or sign files were needed.</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 26,
+  "fields": {
+    "type": "h2",
+    "items": [],
+    "content": "Our story<br>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 27,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>You might have heard about this during the interview sessions, but we are a completely bootstrapped organization. We currently have over 50 employees and are hoping to expand to 150 before the end of the year. One year ago, we were just a bunch of friends creating some cool stuff. Right now, we are a company with a vision.</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 28,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>Have you seen our video introduction, yet?</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 29,
+  "fields": {
+    "type": "youtube",
+    "items": [],
+    "content": "https://www.youtube.com/watch?v=2YBtspm8j8M",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 30,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>We would really love to get to you know you, {{first_name}}. We value a team spirit and we think that a great team spirit can only be achieve when people know eachother. Please fill in the form underneath so we know a bit more about you!</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 31,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>Alright. Monday is your first day and here is a quick overview of what you should expect:</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 32,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<b>Monday</b>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 33,
+  "fields": {
+    "type": "ul",
+    "items": [
+      {
+        "type": "p",
+        "content": "Meeting with your buddy<br>"
+      },
+      {
+        "type": "p",
+        "content": "Informational sessions<br>"
+      },
+      {
+        "type": "p",
+        "content": "Lunch with the founder (lunch is on us!)<br>"
+      },
+      {
+        "type": "p",
+        "content": "Personality quiz<br>"
+      },
+      {
+        "type": "p",
+        "content": "Some funny games with colleagues<br>"
+      }
+    ],
+    "content": "",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 34,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<b>Tuesday</b>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 35,
+  "fields": {
+    "type": "ul",
+    "items": [
+      {
+        "type": "p",
+        "content": "Learning internal systems<br>"
+      },
+      {
+        "type": "p",
+        "content": "Lunch with the team<br>"
+      },
+      {
+        "type": "p",
+        "content": "Your first small assessment!<br>"
+      }
+    ],
+    "content": "",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 36,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "Well done, {{first_name}}! Your first task is now completed. We hope you do just as well for the other tasks!",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 37,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "Here is our floorplan!<br>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 38,
+  "fields": {
+    "type": "image",
+    "items": [],
+    "content": "",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 39,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>We have 2 types of perfomance reviews. Those are:</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 40,
+  "fields": {
+    "type": "ul",
+    "items": [
+      {
+        "type": "p",
+        "content": "Your performance (one-on-one)<br>"
+      },
+      {
+        "type": "p",
+        "content": "Company performance (team session)<br>"
+      }
+    ],
+    "content": "",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 41,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>Your performance reviews are reviews that are focussed on <strong><em>YOU. </em></strong>We want you to grow in the company and grow as a person. Company performance reviews are focussed on our ability to improve company culture. <br></p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 42,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>Click on the menu items on the left to find out more about those. <br></p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 43,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "Here is our floorplan!<br>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 44,
+  "fields": {
+    "type": "image",
+    "items": [],
+    "content": "",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 45,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>Here are some of the perks and benefits that you get with us.</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 46,
+  "fields": {
+    "type": "ul",
+    "items": [
+      {
+        "type": "p",
+        "content": "Flexible working hours<br>"
+      },
+      {
+        "type": "p",
+        "content": "Work from wherever you want<br>"
+      },
+      {
+        "type": "p",
+        "content": "Free internet. Always.<br>"
+      },
+      {
+        "type": "p",
+        "content": "Education - courses are on us!<br>"
+      },
+      {
+        "type": "p",
+        "content": "Paid vacation days<br>"
+      },
+      {
+        "type": "p",
+        "content": "Unlimited sick days<br>"
+      },
+      {
+        "type": "p",
+        "content": "Health insurance<br>"
+      },
+      {
+        "type": "p",
+        "content": "401k"
+      },
+      {
+        "type": "p",
+        "content": "Family leave<br>"
+      }
+    ],
+    "content": "",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 47,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>We have 2 types of perfomance reviews. Those are:</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 48,
+  "fields": {
+    "type": "ul",
+    "items": [
+      {
+        "type": "p",
+        "content": "Your performance (one-on-one)<br>"
+      },
+      {
+        "type": "p",
+        "content": "Company performance (team session)<br>"
+      }
+    ],
+    "content": "",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 49,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>Your performance reviews are reviews that are focussed on <strong><em>YOU. </em></strong>We want you to grow in the company and grow as a person. Company performance reviews are focussed on our ability to improve company culture. <br></p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 50,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>Click on the menu items on the left to find out more about those. <br></p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 51,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>Here are some of the perks and benefits that you get with us.</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 52,
+  "fields": {
+    "type": "ul",
+    "items": [
+      {
+        "type": "p",
+        "content": "Flexible working hours<br>"
+      },
+      {
+        "type": "p",
+        "content": "Work from wherever you want<br>"
+      },
+      {
+        "type": "p",
+        "content": "Free internet. Always.<br>"
+      },
+      {
+        "type": "p",
+        "content": "Education - courses are on us!<br>"
+      },
+      {
+        "type": "p",
+        "content": "Paid vacation days<br>"
+      },
+      {
+        "type": "p",
+        "content": "Unlimited sick days<br>"
+      },
+      {
+        "type": "p",
+        "content": "Health insurance<br>"
+      },
+      {
+        "type": "p",
+        "content": "401k"
+      },
+      {
+        "type": "p",
+        "content": "Family leave<br>"
+      }
+    ],
+    "content": "",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 53,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>Your very first assignment. Please create a project in navision and assign user 'test1' to it. Then set the status: 'waiting for customer' on it and wait for two days to see what happens. <br></p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 54,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "Well done, {{first_name}}! Your first task is now completed. We hope you do just as well for the other tasks!",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 55,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>We use Slack to communicate in our team. Make sure you create your Slack account with the invitation email we sent you earlier.</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 56,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>In this resource, you will find how to request a pass for a visitor. A visitor is anyone that doesn't come in the office every day and isn't an employee. He/She will have access to the building for one day. At the end of the day, they should hand in their pass at the reception. Your visitor should never walk alone through the building. He or she should always be guided by someone with a temporary pass.</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 57,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>First of all, you have to request a pass at the reception. You can easily do that by sending an email to reception@ourdomain.com. To process this correctly, they will need this information:</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 58,
+  "fields": {
+    "type": "ul",
+    "items": [
+      {
+        "type": "p",
+        "content": "Your badge number and last name<br>"
+      },
+      {
+        "type": "p",
+        "content": "Your guest's name<br>"
+      },
+      {
+        "type": "p",
+        "content": "The name of your guest's employer<br>"
+      },
+      {
+        "type": "p",
+        "content": "The estimated time of arrival of the guest<br>"
+      },
+      {
+        "type": "p",
+        "content": "The reason for visit<br>"
+      }
+    ],
+    "content": "",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 59,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>You will get a confirmation email from our reception within 24 hours.</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 60,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>The email from the reception should have an invitation link for your guest. Make sure your guest fills in this form and submits it before they get to the reception to collect their badge.</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 61,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>For this last step, make sure your guest returns the badge. It's important this is done right before they leave the building. If your guest doesn't return the badge, we consider the badge lost and you will have to pay for a replacement. <br></p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 62,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>So make sure you don't forget! If you don't trust your guest enough, you can also hand in the badge by yourself.</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 63,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>In this resource, you will find how to request a pass for a visitor. A visitor is anyone that doesn't come in the office every day and isn't an employee. He/She will have access to the building for one day. At the end of the day, they should hand in their pass at the reception. Your visitor should never walk alone through the building. He or she should always be guided by someone with a temporary pass.</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 64,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>First of all, you have to request a pass at the reception. You can easily do that by sending an email to reception@ourdomain.com. To process this correctly, they will need this information:</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 65,
+  "fields": {
+    "type": "ul",
+    "items": [
+      {
+        "type": "p",
+        "content": "Your badge number and last name<br>"
+      },
+      {
+        "type": "p",
+        "content": "Your guest's name<br>"
+      },
+      {
+        "type": "p",
+        "content": "The name of your guest's employer<br>"
+      },
+      {
+        "type": "p",
+        "content": "The estimated time of arrival of the guest<br>"
+      },
+      {
+        "type": "p",
+        "content": "The reason for visit<br>"
+      }
+    ],
+    "content": "",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 66,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>You will get a confirmation email from our reception within 24 hours.</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 67,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>The email from the reception should have an invitation link for your guest. Make sure your guest fills in this form and submits it before they get to the reception to collect their badge.</p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 68,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>For this last step, make sure your guest returns the badge. It's important this is done right before they leave the building. If your guest doesn't return the badge, we consider the badge lost and you will have to pay for a replacement. <br></p>",
+    "answer": "",
+    "files": []
+  }
+},
+{
+  "model": "misc.content",
+  "pk": 69,
+  "fields": {
+    "type": "p",
+    "items": [],
+    "content": "<p>So make sure you don't forget! If you don't trust your guest enough, you can also hand in the badge by yourself.</p>",
+    "answer": "",
+    "files": []
+  }
+}
+]

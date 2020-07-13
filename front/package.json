@@ -1,0 +1,53 @@
+{
+  "name": "ChiefOnboarding",
+  "version": "1.0.0",
+  "description": "Open source employee onboarding system",
+  "author": "ChiefOnboarding",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate",
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
+    "lintfix": "eslint --fix --ext .js,.vue --ignore-path .gitignore .",
+    "test": "jest",
+    "postinstall": "npm run build && node ./postinstall.js"
+  },
+  "dependencies": {
+    "@babel/core": "^7.10.4",
+    "@nuxtjs/eslint-module": "^1.2.0",
+    "@fortawesome/fontawesome-free-brands": "^5.0.13",
+    "@fortawesome/fontawesome-free-regular": "^5.0.13",
+    "@fortawesome/fontawesome-free-solid": "^5.0.13",
+    "@fortawesome/fontawesome-svg-core": "^1.2.29",
+    "@fortawesome/vue-fontawesome": "^0.1.10",
+    "@nuxtjs/auth": "^4.9.1",
+    "@nuxtjs/axios": "^5.11.0",
+    "@nuxtjs/vuetify": "^1.11.2",
+    "fibers": "^5.0.0",
+    "jquery": "^3.5.1",
+    "md5": "^2.2.1",
+    "medium-editor": "^5.23.3",
+    "moment": "^2.27.0",
+    "moment-timezone": "^0.5.31",
+    "mustache": "^4.0.1",
+    "nuxt": "^2.13.1",
+    "vue-drag-drop": "^1.1.4",
+    "vue-i18n": "^8.18.2",
+    "vuedraggable": "^2.23.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.10.4",
+    "@nuxtjs/eslint-config": "^1.0.1",
+    "@nuxtjs/eslint-module": "^1.2.0",
+    "@nuxtjs/vuetify": "^1.11.2",
+    "@vue/test-utils": "^1.0.3",
+    "babel-eslint": "^10.1.0",
+    "babel-jest": "^24.1.0",
+    "eslint": "^6.1.0",
+    "eslint-plugin-nuxt": "^1.0.0",
+    "jest": "^24.1.0",
+    "vue-jest": "^4.0.0-beta.3"
+  }
+}

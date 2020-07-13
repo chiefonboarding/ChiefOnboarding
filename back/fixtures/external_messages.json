@@ -1,0 +1,38 @@
+[
+{
+  "model": "sequences.externalmessage",
+  "pk": 7,
+  "fields": {
+    "name": "Manager: new hire completed task",
+    "content": "Hey {{manager}},  {{first_name}}, your new hire completed their first task!",
+    "content_json": [],
+    "send_via": 2,
+    "send_to": null,
+    "person_type": 1
+  }
+},
+{
+  "model": "sequences.externalmessage",
+  "pk": 8,
+  "fields": {
+    "name": "Buddy: new hire is starting",
+    "content": "Your new hire is starting tomorrow!",
+    "content_json": [],
+    "send_via": 2,
+    "send_to": null,
+    "person_type": 1
+  }
+},
+{
+  "model": "sequences.externalmessage",
+  "pk": 9,
+  "fields": {
+    "name": "Buddy: new hire is starting",
+    "content": "Your new hire is starting tomorrow!",
+    "content_json": [],
+    "send_via": 2,
+    "send_to": null,
+    "person_type": 3
+  }
+}
+]

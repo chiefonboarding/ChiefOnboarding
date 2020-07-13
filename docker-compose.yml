@@ -1,0 +1,79 @@
+version: '3'
+
+services:
+  db:
+    restart: always
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    expose:
+      - "5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  web:
+    restart: always
+    build: ./back
+    expose:
+      - "8000"
+    ports:
+      - "8000:8000"
+    links:
+      - db:db
+      - redis:redis
+    volumes:
+      - ./back:/app
+    environment:
+      DEBUG: 'true'
+      VIRTUAL_HOST: localhost
+    command: python manage.py runserver 0.0.0.0:8000
+    depends_on:
+      - db
+
+
+  redis:
+    restart: always
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+
+  celery:
+    build: ./back
+    command: /usr/local/bin/celery -A back worker -l info
+    volumes:
+      - web-django:/usr/src/app
+    depends_on:
+      - redis
+
+  nuxt:
+    image: node:latest
+    working_dir: "/var/www/app"
+    environment:
+      - HOST=0.0.0.0
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./front:/var/www/app
+    command: bash -c "npm install && npm run dev"
+    depends_on:
+      - web
+
+  celery-beat:
+    build: ./back
+    command: /usr/local/bin/celery -A back beat -l info
+    volumes:
+      - web-django:/usr/src/app
+    depends_on:
+      - redis
+
+volumes:
+  web-django:
+  web-static:
+  pgdata:
+  redisdata:

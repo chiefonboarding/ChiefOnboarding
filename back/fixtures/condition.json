@@ -1,0 +1,258 @@
+[
+{
+  "model": "sequences.condition",
+  "pk": 4,
+  "fields": {
+    "sequence": null,
+    "condition_type": 0,
+    "days": 1,
+    "time": "08:00:00",
+    "condition_to_do": [],
+    "to_do": [],
+    "badges": [],
+    "resources": [],
+    "admin_tasks": [],
+    "external_messages": [
+      3
+    ]
+  }
+},
+{
+  "model": "sequences.condition",
+  "pk": 5,
+  "fields": {
+    "sequence": null,
+    "condition_type": 0,
+    "days": 1,
+    "time": "08:00:00",
+    "condition_to_do": [],
+    "to_do": [],
+    "badges": [],
+    "resources": [],
+    "admin_tasks": [],
+    "external_messages": [
+      3,
+      8
+    ]
+  }
+},
+{
+  "model": "sequences.condition",
+  "pk": 8,
+  "fields": {
+    "sequence": null,
+    "condition_type": 1,
+    "days": 1,
+    "time": "08:00:00",
+    "condition_to_do": [],
+    "to_do": [],
+    "badges": [],
+    "resources": [],
+    "admin_tasks": [],
+    "external_messages": [
+      4
+    ]
+  }
+},
+{
+  "model": "sequences.condition",
+  "pk": 12,
+  "fields": {
+    "sequence": null,
+    "condition_type": 2,
+    "days": 4,
+    "time": "08:00:00",
+    "condition_to_do": [],
+    "to_do": [],
+    "badges": [],
+    "resources": [],
+    "admin_tasks": [],
+    "external_messages": [
+      5,
+      6
+    ]
+  }
+},
+{
+  "model": "sequences.condition",
+  "pk": 13,
+  "fields": {
+    "sequence": null,
+    "condition_type": 1,
+    "days": 1,
+    "time": "08:00:00",
+    "condition_to_do": [],
+    "to_do": [],
+    "badges": [],
+    "resources": [],
+    "admin_tasks": [],
+    "external_messages": [
+      4
+    ]
+  }
+},
+{
+  "model": "sequences.condition",
+  "pk": 16,
+  "fields": {
+    "sequence": 2,
+    "condition_type": 2,
+    "days": 1,
+    "time": "08:00:00",
+    "condition_to_do": [],
+    "to_do": [],
+    "badges": [],
+    "resources": [],
+    "admin_tasks": [],
+    "external_messages": [
+      8
+    ]
+  }
+},
+{
+  "model": "sequences.condition",
+  "pk": 17,
+  "fields": {
+    "sequence": 2,
+    "condition_type": 1,
+    "days": 1,
+    "time": "08:00:00",
+    "condition_to_do": [
+      11
+    ],
+    "to_do": [
+      12
+    ],
+    "badges": [
+      1
+    ],
+    "resources": [],
+    "admin_tasks": [],
+    "external_messages": [
+      7
+    ]
+  }
+},
+{
+  "model": "sequences.condition",
+  "pk": 18,
+  "fields": {
+    "sequence": null,
+    "condition_type": 1,
+    "days": 1,
+    "time": "08:00:00",
+    "condition_to_do": [
+      11
+    ],
+    "to_do": [
+      12
+    ],
+    "badges": [
+      1
+    ],
+    "resources": [],
+    "admin_tasks": [],
+    "external_messages": [
+      7
+    ]
+  }
+},
+{
+  "model": "sequences.condition",
+  "pk": 19,
+  "fields": {
+    "sequence": null,
+    "condition_type": 2,
+    "days": 1,
+    "time": "08:00:00",
+    "condition_to_do": [],
+    "to_do": [
+      11
+    ],
+    "badges": [],
+    "resources": [],
+    "admin_tasks": [],
+    "external_messages": [
+      8
+    ]
+  }
+},
+{
+  "model": "sequences.condition",
+  "pk": 20,
+  "fields": {
+    "sequence": null,
+    "condition_type": 1,
+    "days": 1,
+    "time": "08:00:00",
+    "condition_to_do": [
+      11
+    ],
+    "to_do": [
+      12
+    ],
+    "badges": [
+      1
+    ],
+    "resources": [],
+    "admin_tasks": [],
+    "external_messages": [
+      7
+    ]
+  }
+},
+{
+  "model": "sequences.condition",
+  "pk": 21,
+  "fields": {
+    "sequence": 3,
+    "condition_type": 0,
+    "days": 1,
+    "time": "08:00:00",
+    "condition_to_do": [],
+    "to_do": [
+      11
+    ],
+    "badges": [],
+    "resources": [],
+    "admin_tasks": [],
+    "external_messages": []
+  }
+},
+{
+  "model": "sequences.condition",
+  "pk": 22,
+  "fields": {
+    "sequence": 4,
+    "condition_type": 2,
+    "days": 10,
+    "time": "08:00:00",
+    "condition_to_do": [],
+    "to_do": [],
+    "badges": [],
+    "resources": [],
+    "admin_tasks": [
+      1
+    ],
+    "external_messages": []
+  }
+},
+{
+  "model": "sequences.condition",
+  "pk": 23,
+  "fields": {
+    "sequence": null,
+    "condition_type": 2,
+    "days": 10,
+    "time": "08:00:00",
+    "condition_to_do": [],
+    "to_do": [],
+    "badges": [],
+    "resources": [],
+    "admin_tasks": [
+      1
+    ],
+    "external_messages": []
+  }
+}
+]

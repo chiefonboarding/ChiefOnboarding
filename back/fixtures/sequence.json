@@ -1,0 +1,40 @@
+[
+{
+  "model": "sequences.sequence",
+  "pk": 2,
+  "fields": {
+    "name": "For everyone",
+    "preboarding": [],
+    "to_do": [
+      11
+    ],
+    "resources": [],
+    "introductions": [],
+    "appointments": []
+  }
+},
+{
+  "model": "sequences.sequence",
+  "pk": 3,
+  "fields": {
+    "name": "Add slack after one day",
+    "preboarding": [],
+    "to_do": [],
+    "resources": [],
+    "introductions": [],
+    "appointments": []
+  }
+},
+{
+  "model": "sequences.sequence",
+  "pk": 4,
+  "fields": {
+    "name": "Something cool here!",
+    "preboarding": [],
+    "to_do": [],
+    "resources": [],
+    "introductions": [],
+    "appointments": []
+  }
+}
+]

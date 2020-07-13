@@ -1,0 +1,17 @@
+[
+{
+  "model": "badges.badge",
+  "pk": 1,
+  "fields": {
+    "name": "Hero",
+    "tags": "[]",
+    "created": "2020-06-04T00:37:44.717Z",
+    "updated": "2020-06-04T00:37:44.717Z",
+    "template": true,
+    "image": null,
+    "content": [
+      36
+    ]
+  }
+}
+]
