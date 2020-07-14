@@ -1,7 +1,7 @@
 FROM python:latest
 ENV PATH /home/django/.local/bin:$PATH
 
-RUN groupadd -r django && useradd -m -g -r django django
+RUN groupadd -r django && useradd -r -m -g django django
 USER django:django
 
 WORKDIR /home/django/app

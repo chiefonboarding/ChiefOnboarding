@@ -34,9 +34,9 @@ ChiefOnboarding is a free and open source employee onboarding platform. You can 
 
 ## Getting started with self-hosting
 
-You can easily deploy ChiefOnboarding through Docker. Deployment is done through Dokku (based on Docker).
+You can easily deploy ChiefOnboarding through Docker. Deployment is done through Docker-compose. Make sure that both Docker and Docker-compose are installed as well as g++ build-essentials.
 
-Let's install Dokku, Postgres, and Redis. Run this on your server (recommended: ubuntu 18.04 LTS with Docker-compose installed):
+Let's install Node (for building the front end) and setting some environment variables. Run this on your server:
 
 ```
 git clone https://github.com/chiefonboarding/chiefonboarding
@@ -46,8 +46,7 @@ chmod +x server_script.sh
 sudo ./server_script.sh YOURDOMAIN
 ```
 
-That should get your server up and running. Up next, you will have to add some environment variables to configure it. Please see `back/back/.env.example` for the example.
-Then start Django shell:
+That should get your server up and running. Then start Django shell:
 
 ```
 docker-compose run web python3 manage.py shell

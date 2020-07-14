@@ -36,10 +36,7 @@ services:
     restart: always
     build: ./nginx/
     volumes:
-      - type: volume
-        source: static
-        target: /var/www/static:ro
-        read_only: true
+      - static:/var/www/static:ro
     ports:
       - "80:80"
     depends_on:
