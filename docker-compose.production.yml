@@ -22,11 +22,13 @@ services:
       dockerfile: Dockerfile.prod
     expose:
       - "8000"
+    env_file:
+     - ./prod.env
     links:
       - db:db
       - redis:redis
     volumes:
-      - /home/django/app
+      - ./:/home/django/app
       - static:/home/django/app/static
     command: /home/django/.local/bin/gunicorn back.wsgi:application -b :8000
     depends_on:
@@ -36,13 +38,30 @@ services:
     restart: always
     build: ./nginx/
     volumes:
+      - ./back/static:/var/www/html
+      - ./certbot/etc:/etc/letsencrypt
+      - ./certbot/var:/var/lib/letsencrypt
+      - ./certbot/dhparam:/etc/ssl/certs
       - static:/var/www/static:ro
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - web
     links:
       - web:web
+
+  certbot:
+    image: certbot/certbot
+    env_file:
+     - ./prod.env
+    volumes:
+      - ./certbot/etc:/etc/letsencrypt
+      - ./certbot/var:/var/lib/letsencrypt
+      - ./back/static:/var/www/html
+    depends_on:
+      - web
+    command: certonly --webroot --webroot-path=/var/www/html --email test@gmail.com --agree-tos --no-eff-email --staging -d $BASE_URL
 
   redis:
     restart: always

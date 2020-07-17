@@ -9,14 +9,13 @@ npm install
 npm run postinstall
 cd ../
 
-# rewrite url in nginx conf file
-sed "s/localhost/$1/g" ./nginx/sites-enabled/django_project
+# Replace the values in the env file and the nginx conf file
+randval=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 
-# add environment variables
-export BASE_URL=$1
-export ALLOWED_HOSTS=$1
-export DEBUG=False
-export SECRET_KEY=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+sed -e "s/%1/$1/g" -e "s/%2/$randval/g" ./prod.env.example > ./prod.env 
+
+#sed "s/%host/$1/g" ./nginx/django_project.example > ./nginx/sites-enabled/django_project
+sed "s/%host/$1/g" ./nginx/django_project_ssl.example > ./nginx/sites-enabled/django_project_ssl
 
 mkdir back/staticfiles
 
