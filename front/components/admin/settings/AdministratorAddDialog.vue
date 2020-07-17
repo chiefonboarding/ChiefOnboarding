@@ -85,12 +85,6 @@
 <script>
 export default {
   name: 'AdminDialog',
-  props: {
-    id: {
-      type: Number,
-      required: true
-    }
-  },
   data: () => ({
     valid: true,
     dialog: false,

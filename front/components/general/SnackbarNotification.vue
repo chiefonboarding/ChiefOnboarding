@@ -6,13 +6,16 @@
     :top="true"
   >
     {{ $store.state.snackbarText }}
-    <v-btn
-      @click="$store.commit('setSnackbar', '')"
-      color="primary"
-      text
-    >
-      {{ $t('buttons.close') }}
-    </v-btn>
+    <template v-slot:action="{ attrs }">
+      <v-btn
+        @click="$store.commit('setSnackbar', '')"
+        v-bind="attrs"
+        color="primary"
+        text
+      >
+        {{ $t('buttons.close') }}
+      </v-btn>
+    </template>
   </v-snackbar>
 </template>
 

@@ -90,7 +90,7 @@
                     {{ $t('buttons.remind') }}
                   </v-btn>
                 </template>
-                <span><span v-if="item.reminded !== undefined">{{ item.reminded }}</span><span v-else>{{ $t('buttons.noRemind') }}</span></span>
+                <span><span v-if="item.reminded !== null">{{ item.reminded }}</span><span v-else>{{ $t('buttons.noRemind') }}</span></span>
               </v-tooltip>
               <v-btn
                 v-else
@@ -174,8 +174,18 @@ export default {
   }),
   mounted () {
     this.$newhires.getProgress(this.$route.params.id).then((items) => {
+      items.to_do.forEach((item) => {
+        if (item.reminded !== null) {
+          item.reminded = this.$t('newhires.lastReminded') + ' ' + Moment(item.reminded).format('llll')
+        }
+      })
       this.toDoItems = items.to_do
       this.courseItems = items.resources
+      this.courseItems.forEach((item) => {
+        if (item.reminded !== null) {
+          item.reminded = this.$t('newhires.lastReminded') + ' ' + Moment(item.reminded).format('llll')
+        }
+      })
       this.courseItems.forEach((userBook) => {
         let totalQuestions = 0
         let correctAnswers = 0

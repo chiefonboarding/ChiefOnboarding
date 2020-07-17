@@ -354,8 +354,8 @@ class SlackChannelsView(APIView):
     """
 
     def get(self, request):
-        if not AccessToken.objects.filter(integration=0).exists():
-            return Response()
+        if not AccessToken.objects.filter(integration=0, active=True).exists():
+            return Response([])
         s = Slack()
         return Response(s.get_channels())
 

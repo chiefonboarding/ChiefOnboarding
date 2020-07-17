@@ -106,11 +106,7 @@ export default {
     },
     addCollectionToEmployee (value) {
       this.$employees.addCollection(this.$route.params.id, value.id).then((data) => {
-        this.$employees.getEmployee(this.$route.params.id).then((employee) => {
-          this.value.tasks = employee.tasks
-        }).catch((error) => {
-          this.$store.dispatch('showSnackbar', this.$t('employee.addedTasksButNoNewHire'))
-        })
+        this.resources = data
       })
     },
     getEmployeeResources () {

@@ -342,7 +342,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             user.resources.add(book)
         if 'sequence' in self.request.data:
             seq = get_object_or_404(Sequence, id=request.data['sequence'])
-            for i in seq.resources:
+            for i in seq.resources.all():
                 user.resources.add(i)
         return Response(ResourceSlimSerializer(self.get_object().resources, many=True).data)
 
