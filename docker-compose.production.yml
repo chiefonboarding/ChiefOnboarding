@@ -63,7 +63,7 @@ services:
     restart: always
     image: redis:latest
     ports:
-      - "6370:6379"
+      - "6379:6379"
 
   celery:
     build: ./back
