@@ -131,7 +131,7 @@ export default {
     }
   },
   generate: {
-    // dir: '../back/static/js/'
-    dir: 'dist'
+    dir: '../back/static/js/'
+    // dir: 'dist'
   }
 }
