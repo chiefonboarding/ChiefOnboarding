@@ -5,13 +5,13 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
 
 RUN apt install -y nodejs
 RUN npm install -g npm@latest
+ENV NODE_OPTIONS "--max-old-space-size=1024"
 COPY front /usr/src/front
 COPY back /usr/src/back
 WORKDIR /usr/src/front
 
 RUN npm install
 RUN npm run build
-RUN npm run generate
 
 ENV PATH /home/django/.local/bin:$PATH
 WORKDIR /usr/src/back
@@ -22,4 +22,4 @@ RUN cp ./static/js/index.html ./organization/templates/index.html
 RUN python manage.py collectstatic --noinput --clear
 
 EXPOSE 8000
-CMD ["gunicorn", "back.wsgi:application", "-b :8000"]
+

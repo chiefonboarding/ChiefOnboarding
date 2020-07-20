@@ -12,6 +12,7 @@ randval=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 
 sed -e "s/%1/$1/g" -e "s/%2/$randval/g" ./prod.env.example > ./prod.env 
 
+mkdir -p ./nginx/sites-enabled/
 #sed "s/%host/$1/g" ./nginx/django_project.example > ./nginx/sites-enabled/django_project.conf
 sed "s/%host/$1/g" ./nginx/django_project_ssl.example > ./nginx/sites-enabled/django_project_ssl.conf
 
