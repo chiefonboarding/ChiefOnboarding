@@ -25,10 +25,8 @@
             v-model="showPicker"
             :close-on-content-click="false"
             :nudge-right="40"
-            lazy
             transition="scale-transition"
             offset-y
-            full-width
             min-width="290px"
           >
             <template v-slot:activator="{ on }">
@@ -65,21 +63,20 @@
             v-model="menu2"
             :close-on-content-click="false"
             :nudge-right="40"
-            lazy
             transition="scale-transition"
             offset-y
-            full-width
             max-width="290px"
             min-width="290px"
             class="mt-2"
           >
-            <template v-slot:activator="{ on }">
+            <template v-slot:activator="{ on, attrs }">
               <v-text-field
                 v-model="value.time"
                 :label="$t('forms.chooseTime')"
                 :error-messages="errorMessages.time"
                 @change="errorMessages.time=''"
                 v-on="on"
+                v-bind="attrs"
                 prepend-icon="access_time"
                 readonly
               />
@@ -88,7 +85,6 @@
               v-if="menu2"
               v-model="time"
               @change="$refs.menu.save(time)"
-              full-width
             />
           </v-menu>
         </v-col>

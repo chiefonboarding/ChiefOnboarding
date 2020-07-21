@@ -27,7 +27,7 @@ export default {
       saving: false,
       errors: {},
       employee: {},
-      appointment: { name: '', date: '', content: '', tags: [], time: '', on_day: 0, fixed_date: false }
+      appointment: { name: '', date: '', content: [], tags: [], time: '', on_day: 0, fixed_date: false }
     }
   },
   methods: {
