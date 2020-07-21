@@ -128,7 +128,7 @@ export default {
       if (this.value.date) {
         date = moment(this.value.date)
       }
-      if (this.$store.state.org.user_language === 'nl') {
+      if (this.$store.state.org.language === 'nl') {
         return date.format('dddd, D MMMM YYYY')
       } else {
         return date.format('dddd, MMMM Do YYYY')

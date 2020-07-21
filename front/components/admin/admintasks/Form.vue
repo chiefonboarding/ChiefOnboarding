@@ -163,7 +163,7 @@ export default {
       } else {
         return date
       }
-      if (this.$store.state.org.user_language === 'nl') {
+      if (this.$store.state.org.language === 'nl') {
         return date.format('dddd, D MMMM YYYY')
       } else {
         return date.format('dddd, MMMM Do YYYY')
