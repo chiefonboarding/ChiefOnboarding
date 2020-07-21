@@ -23,8 +23,6 @@ services:
       dockerfile: Dockerfile.web
     ports:
       - "8000:8000"
-    env_file:
-     - ./prod.env
     links:
       - db:db
       - redis:redis
