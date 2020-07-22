@@ -1,5 +1,5 @@
 #!/bin/bash
 
-docker-compose --no-ansi run certbot renew
-docker-compose --no-ansi kill -s SIGHUP web
-
+docker-compose -f docker-compose.production.yml --no-ansi run certbot renew
+docker restart web
+docker restart nginx
