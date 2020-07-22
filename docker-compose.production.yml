@@ -17,32 +17,46 @@ services:
 
   web:
     restart: always
+    container_name: web
     build:
-      context: ./back
-      dockerfile: Dockerfile.prod
-    expose:
-      - "8000"
+      context: .
+      dockerfile: Dockerfile.web
+    ports:
+      - "8000:8000"
     links:
       - db:db
       - redis:redis
-    volumes:
-      - /home/django/app
-      - static:/home/django/app/static
-    command: /home/django/.local/bin/gunicorn back.wsgi:application -b :8000
+    command: gunicorn back.wsgi:application -b :8000
     depends_on:
       - db
-
+    
   nginx:
     restart: always
+    container_name: nginx
     build: ./nginx/
     volumes:
-      - static:/var/www/static:ro
+      - ./nginx/html:/var/www/html
+      - ./certbot/etc:/etc/letsencrypt
+      - ./certbot/var:/var/lib/letsencrypt
+      - ./certbot/dhparam:/etc/ssl/certs
+      - ./nginx/sites-enabled:/etc/nginx/conf.d
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - web
     links:
       - web:web
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/etc:/etc/letsencrypt
+      - ./certbot/var:/var/lib/letsencrypt
+      - ./nginx/html:/var/www/html
+    depends_on:
+      - web
+    command: certonly --webroot --keep-until-expiring --webroot-path=/var/www/html --email $BASE_EMAIL --agree-tos --no-eff-email -d $BASE_URL
 
   redis:
     restart: always

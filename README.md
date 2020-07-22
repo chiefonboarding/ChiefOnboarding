@@ -31,19 +31,20 @@ ChiefOnboarding is a free and open source employee onboarding platform. You can 
 - File links are all temporary (signed) and therefore do expire.
 - Twilio is used for sending text messages.
 - Anymail is used for sending emails. You can choose between a wide variety of [email providers](https://anymail.readthedocs.io/en/stable/esps/#supported-esps). 
+- Let's encrypt will automatically be set up for a secure connection.
 
 ## Getting started with self-hosting
 
-You can easily deploy ChiefOnboarding through Docker. Deployment is done through Docker-compose. Make sure that both Docker and Docker-compose are installed as well as g++ build-essentials.
+You can easily deploy ChiefOnboarding through Docker (Docker-compose). Make sure that both Docker and Docker-compose are installed.
 
-Let's install Node (for building the front end) and setting some environment variables. Run this on your server:
+Point your domain name to your IP address and then run this on your server:
 
 ```
 git clone https://github.com/chiefonboarding/chiefonboarding
-cd chiefonboarding
-chmod +x server_script.sh
-# Replace YOURDOMAIN with your domain. example: onboarding.yourcompany.com 
-sudo ./server_script.sh YOURDOMAIN
+cd ChiefOnboarding
+chmod +x server_script.sh ssl_renew.sh
+# Replace YOURDOMAIN with your domain. example: onboarding.yourcompany.com and EMAIL with your email address. 
+sudo ./server_script.sh YOURDOMAIN EMAIL
 ```
 
 That should get your server up and running. Then start Django shell:
@@ -67,7 +68,7 @@ At last, we need to add a bit of default data into the database:
 docker-compose run web python3 manage.py loaddata welcome_message.json
 ```
 
-That's it to get the base running!
+That's it to get the base running! The SSL certificate needs to be renewed every so often, it's generally a good idea to set up a cron job for `ssl_renew.sh` to automate that.
 
 Up next, you might want to configure a few things, like AWS, Google, Slack, and Twilio. If you don't, then feel free to skip this section.
 I want to emphasise here that ChiefOnboarding does not ping home. Unless you set up error tracking through, there are no analytics, tracking, or data mining things in place. You can check this by yourself through the source code.
