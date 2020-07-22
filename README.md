@@ -31,6 +31,7 @@ ChiefOnboarding is a free and open source employee onboarding platform. You can 
 - File links are all temporary (signed) and therefore do expire.
 - Twilio is used for sending text messages.
 - Anymail is used for sending emails. You can choose between a wide variety of [email providers](https://anymail.readthedocs.io/en/stable/esps/#supported-esps). 
+- Let's encrypt will automatically be set up for a secure connection.
 
 ## Getting started with self-hosting
 
@@ -42,8 +43,8 @@ Let's install Node (for building the front end) and setting some environment var
 git clone https://github.com/chiefonboarding/chiefonboarding
 cd chiefonboarding
 chmod +x server_script.sh
-# Replace YOURDOMAIN with your domain. example: onboarding.yourcompany.com 
-sudo ./server_script.sh YOURDOMAIN
+# Replace YOURDOMAIN with your domain. example: onboarding.yourcompany.com and EMAIL with your email address. 
+sudo ./server_script.sh YOURDOMAIN EMAIL
 ```
 
 That should get your server up and running. Then start Django shell:
