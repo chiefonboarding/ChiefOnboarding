@@ -39,6 +39,7 @@ services:
       - ./certbot/etc:/etc/letsencrypt
       - ./certbot/var:/var/lib/letsencrypt
       - ./certbot/dhparam:/etc/ssl/certs
+      - ./nginx/sites-enabled:/etc/nginx/conf.d
     ports:
       - "80:80"
       - "443:443"
@@ -55,7 +56,7 @@ services:
       - ./nginx/html:/var/www/html
     depends_on:
       - web
-    command: certonly --webroot --keep-until-expiring --webroot-path=/var/www/html --email $BASE_EMAIL --agree-tos --no-eff-email --staging -d $BASE_URL
+    command: certonly --webroot --keep-until-expiring --webroot-path=/var/www/html --email $BASE_EMAIL --agree-tos --no-eff-email -d $BASE_URL
 
   redis:
     restart: always
