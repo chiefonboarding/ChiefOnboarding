@@ -55,7 +55,7 @@ services:
       - ./nginx/html:/var/www/html
     depends_on:
       - web
-    command: certonly --webroot --webroot-path=/var/www/html --email $BASE_EMAIL --agree-tos --no-eff-email --staging -d $BASE_URL
+    command: certonly --webroot --keep-until-expiring --webroot-path=/var/www/html --email $BASE_EMAIL --agree-tos --no-eff-email --staging -d $BASE_URL
 
   redis:
     restart: always

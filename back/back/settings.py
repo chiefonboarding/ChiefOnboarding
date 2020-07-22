@@ -302,3 +302,8 @@ if env('SENTRY', default=False):
         # django.contrib.auth) you may enable sending PII data.
         send_default_pii=False
     )
+
+if not env('DEBUG', default=False):
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
