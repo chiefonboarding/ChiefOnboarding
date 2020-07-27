@@ -151,10 +151,6 @@ class User(AbstractBaseUser):
                 if not User.objects.filter(unique_url=unique_string).exists():
                     break
             self.unique_url = unique_string
-            if self.role == 1:  # admin auto generate password
-                pwd = get_random_string(length=12)
-                self.set_password(pwd)
-                email_new_admin_cred(self, pwd)
         super(User, self).save(*args, **kwargs)
 
     def workday(self):
