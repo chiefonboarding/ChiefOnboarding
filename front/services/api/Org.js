@@ -93,7 +93,7 @@ export default (axios, store) => ({
     })
   },
   updatePreboardingEmail (email, id) {
-    return axios.post('/api/settings/email_without/', { 'text': email, id }).then((res) => {
+    return axios.post('/api/org/welcome_message', { 'message': email, 'language': id, 'message_type': 0 }).then((res) => {
       return true
     }).catch((e) => {
       store.dispatch('showSnackbar', 'Oh no. We couldn\'t change this template')
@@ -101,7 +101,7 @@ export default (axios, store) => ({
     })
   },
   updateNewHireEmail (email, id) {
-    return axios.post('/api/settings/email/', { 'text': email, id }).then((res) => {
+    return axios.post('/api/org/welcome_message', { 'message': email, 'language': id, 'message_type': 1 }).then((res) => {
       return true
     }).catch((e) => {
       store.dispatch('showSnackbar', 'Oh no. We couldn\'t change this template')
@@ -109,7 +109,7 @@ export default (axios, store) => ({
     })
   },
   updateText (text, id) {
-    return axios.post('/api/settings/text_message/', { text, id: 'id' }).then((res) => {
+    return axios.post('/api/org/welcome_message', { 'message': text, 'language': id, 'message_type': 2 }).then((res) => {
       return true
     }).catch((e) => {
       store.dispatch('showSnackbar', 'Oh no. We couldn\'t change this template')
@@ -117,7 +117,7 @@ export default (axios, store) => ({
     })
   },
   updateSlackMessage (text, id) {
-    return axios.post('/api/settings/slack_message/', { text, id }).then((res) => {
+    return axios.post('/api/org/welcome_message', { 'message': text, 'language': id, 'message_type': 3 }).then((res) => {
       return true
     }).catch((e) => {
       store.dispatch('showSnackbar', 'Oh no. We couldn\'t change this slack message')
@@ -125,7 +125,7 @@ export default (axios, store) => ({
     })
   },
   updateSlackKnowMessage (text, id) {
-    return axios.post('/api/settings/slack_know_message/', { text, id }).then((res) => {
+    return axios.post('/api/org/welcome_message', { 'message': text, 'language': id, 'message_type': 4 }).then((res) => {
       return true
     }).catch((e) => {
       store.dispatch('showSnackbar', 'Oh no. We couldn\'t change this slack message')

@@ -51,6 +51,14 @@ class WelcomeMessageView(APIView):
         serializer = WelcomeMessageSerializer(welcome_messages, many=True)
         return Response(serializer.data)
 
+    def post(self, request):
+        serializer = WelcomeMessageSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        welcome_message = WelcomeMessage.objects.get(language=serializer.data['language'], message_type=serializer.data['message_type'])
+        welcome_message.message = serializer.data['message']
+        welcome_message.save()
+        return Response(serializer.data)
+
 
 class TagView(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
