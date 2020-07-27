@@ -474,7 +474,7 @@
                             {% include 'email/block.html' with text=i.text %}
                           {% endif %}
                           {% if i.type == 'button' %}
-                            {% include 'email/block.html' with text=i.text url=i.url %}
+                            {% include 'email/button.html' with text=i.text url=i.url %}
                           {% endif %}
                           {% if i.type == 'hr' %}
                             <hr />

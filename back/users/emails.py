@@ -44,7 +44,7 @@ def email_reopen_task(task, message, user):
         }, {
             "type": "button",
             "text": "Dashboard",
-            "URL": settings.BASE_URL
+            "url": settings.BASE_URL
         }
     ]
     html_message = render_to_string("email/base.html", {'org': org, 'content': content})
@@ -65,7 +65,7 @@ def send_reminder_email(task):
         }, {
             "type": "button",
             "text": "Dashboard",
-            "URL": settings.BASE_URL
+            "url": settings.BASE_URL
         }
     ]
     html_message = render_to_string("email/base.html", {'org': org, 'content': content})
@@ -90,7 +90,7 @@ def send_new_hire_cred(new_hire, message):
         }, {
             "type": "button",
             "text": "Dashboard",
-            "URL": settings.BASE_URL
+            "url": settings.BASE_URL
         }
     ]
     html_message = render_to_string("email/base.html",
@@ -102,9 +102,18 @@ def send_new_hire_cred(new_hire, message):
 def send_new_hire_preboarding(new_hire, message):
     org = Organization.object.get()
     subject = _("Welcome to " + org.name + "!")
-    message = new_hire.personalize(message)
+    content = [
+        {
+            "type": "p",
+            "text": new_hire.personalize(message)
+        }, {
+            "type": "button",
+            "text": "See pages",
+            "url": settings.BASE_URL + '/#/preboarding/auth?token=' + new_hire.unique_url
+        }
+    ]
     html_message = render_to_string("email/base.html",
-                                    {'org': org, 'content': [{'type': 'p', 'text': message}]})
+                                    {'org': org, 'content': content})
     message = ""
     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [new_hire.email], html_message=html_message)
 
