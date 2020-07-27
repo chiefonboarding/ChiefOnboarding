@@ -306,3 +306,5 @@ if env('SENTRY', default=False):
 if not env('DEBUG', default=False):
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+
+FIXTURE_DIRS = ['fixtures']
