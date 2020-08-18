@@ -211,7 +211,7 @@ if env('ANYMAIL', default=False):
         EMAIL_BACKEND = "anymail.backends.sparkpost.EmailBackend"
 
 
-DEFAULT_FROM_EMAIL = 'Hello <hello@chiefonboarding.com>'
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 OLD_PASSWORD_FIELD_ENABLED = True
 
 # CACHES = {
