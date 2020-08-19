@@ -47,7 +47,7 @@ class BaseOrganizationSerializer(serializers.ModelSerializer):
 
 
 class DetailOrganizationSerializer(BaseOrganizationSerializer):
-    logo = FileSerializer(allow_null=True)
+    logo = FileSerializer(read_only=True)
 
     class Meta:
         model = Organization
