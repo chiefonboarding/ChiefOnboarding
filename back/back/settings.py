@@ -308,3 +308,7 @@ if not env('DEBUG', default=False):
     CSRF_COOKIE_SECURE = True
 
 FIXTURE_DIRS = ['fixtures']
+
+if env('SSL_REDIRECT', default=False):
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True

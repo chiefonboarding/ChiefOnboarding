@@ -222,6 +222,11 @@ If you want to contribute (this makes you pretty awesome, imho) or just play aro
 docker-compose up
 ```
 
+## Q&A
+
+### I am not using Let's encrypt, can I still redirect everyone to https?
+Yes, just set `SSL_REDIRECT` to `True` in your environment variables. This will redirect http queries on application level.
+
 ## Authors
 See the list of [contributors](https://github.com/ChiefOnboarding/ChiefOnboarding/graphs/contributors). A big thanks to anyone that contributes!
 
