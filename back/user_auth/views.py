@@ -11,6 +11,7 @@ from users.serializers import NewHireSerializer
 from django.utils.translation import gettext_lazy as _
 from integrations.models import AccessToken
 from google_auth_oauthlib.flow import Flow
+from organization.models import Organization
 
 
 class LoginView(APIView):
@@ -35,6 +36,7 @@ class GoogleLoginView(APIView):
 
     def get(self, request):
         access_code = AccessToken.objects.filter(integration=3)
+        org = Organization.objects.get()
         if access_code.exists():
             access_code = access_code.first()
             # TODO: proper error handling necessary.
@@ -56,7 +58,7 @@ class GoogleLoginView(APIView):
                 return redirect('/#/?error=not_found')
             if 'email' in results:
                 user = get_user_model().objects.filter(email=results['email'].lower())
-                if user.exists() and user.org.google_login:
+                if user.exists() and org.google_login:
                     user.backend = 'django.contrib.auth.backends.ModelBackend'
                     login(request, user)
                     if user.role == 1 or user.role == 2:

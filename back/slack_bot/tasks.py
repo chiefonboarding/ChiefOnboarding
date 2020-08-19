@@ -160,7 +160,7 @@ def first_day_reminder():
     user = get_user_model().objects.filter(role=1).first()
     us_state = user.get_local_time()
     new_hires_starting_today = get_user_model().objects.filter(start_day=datetime.now().date(), role=0)
-    if us_state.hour == 8 and user.org.send_new_hire_start_reminder and new_hires_starting_today.exists():
+    if us_state.hour == 8 and org.send_new_hire_start_reminder and new_hires_starting_today.exists():
         text = ''
         if new_hires_starting_today.count() == 1:
             text = _("Just a quick reminder: It's ") + user.full_name + _("'s first day today!")
