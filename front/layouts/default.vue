@@ -7,8 +7,8 @@
             <v-card>
               <LoadingIcon :is-loading="loading" />
               <v-card-text v-if="!loading">
-                <v-row v-if="'brandiamge' in $store.state.org" align="center" justify="center" fill-height>
-                  <img :src="$store.state.org.brandimage" style="max-width:100%;" alt="logo">
+                <v-row v-if="'logo' in $store.state.org" align="center" justify="center" fill-height>
+                  <img :src="$store.state.org.logo" style="max-width:100%;" alt="logo">
                 </v-row>
                 <nuxt />
               </v-card-text>

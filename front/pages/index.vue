@@ -43,6 +43,7 @@
     </v-col>
     <v-col sm="12" class="pt-0">
       <v-btn
+        v-if="$store.state.org.google_login_key"
         :href="google_url"
         style="width: 100%; margin: 5px 0; border: 1px solid #dedede !important"
         color="white"
