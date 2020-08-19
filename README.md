@@ -122,7 +122,7 @@ We just set up our authentication screen for people that want to sign in. Up nex
 7. Click on 'Create credentials' at the top of the page and choose Client-ID OAuth.
 8. You will be asked for the type of app. Pick 'Web application'.
 9. Under "Authorized JavaScript-sources" enter the domain name of where ChiefOnboarding is running on.
-10. Under "Authorized redirect-URLs" enter this: `https://YOURDOMAIN/api/integrations/google_login`.
+10. Under "Authorized redirect-URLs" enter this: `https://YOURDOMAIN/api/auth/google_login`.
 11. Click on 'Create' and you will get the `Client-ID` and `Client-secret` that you need to fill in on your ChiefOnboarding instance.
 12. Submit the form on ChiefOnboarding and enable the Google login integration in settings->global and you should be good to go.
 
