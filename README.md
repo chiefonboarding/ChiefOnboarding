@@ -82,13 +82,13 @@ This is the bot that will ping your new hires and colleagues with things they ha
 Since there is no centralized app, you will have to create an app in Slack yourself. The benefit of this is that you can use your own profile picture and name for the bot.
 
 1. Go to https://api.slack.com/apps and click on 'Create New App' (big green button, can't be missed). Give it a fancy name and pick the Slack team you are in. Click on 'Submit'.
-2. Scroll a bit on the new page and notice the `App credentials` part. You need the information there to fill in on the settings/integrations page in your ChiefOnboarding instance.
-3. Fill in the details accordingly. The only thing you can't fill in is the 'Redirect URL'. This URL depends on your instances domain name. You will need to fill this in there: `https://YOURDOMAIN/api/integrations/slack`. **DON'T SUBMIT THE FORM YET.**
-4. To make the bot work, we need to enabled a few things in the newly created Slack bot.
-5. Go to "Interactivity & Shortcuts" and enable interactivity. Then add this `https://YOURDOMAIN/api/slack/callback`. Enter `https://YOURDOMAIN/api/integrations/slack` as the 'Redirect URL'. 
-6. Go to "OAuth & Permissions" and under "Scopes" enable: `chat.write`, `im:read`, `im:write`, `users:read`, `users:read.email`. 
-7. Go to "Event Subscription" and enable it. Use `https://YOURDOMAIN/api/slack/bot` as the request url. Under "Subscribe to event on behalf of users" and add `im_created` and `message.im`.
-8. Now go back to your ChiefOnboarding instance and submit the form. You will get back a Slack button. Click it and verify that you want to install your bot in your Slack team.
+2. To make the bot work, we need to enabled a few things in the newly created Slack bot.
+3. Go to "Interactivity & Shortcuts" and enable interactivity. Then add this `https://YOURDOMAIN/api/slack/callback`.
+4. Go to "OAuth & Permissions". Enter `https://YOURDOMAIN/api/integrations/slack` as the 'Redirect URL'. And under "Scopes" enable: `chat:write`, `im:read`, `im:write`, `users:read`, `users:read.email`. Under 'User Token Scope', add `im:history` and `im:read`.
+5. Go to "Event Subscription" and enable it. Use `https://YOURDOMAIN/api/slack/bot` as the request url. Under 'Subscribe to bot events' add `message:im`. Under "Subscribe to event on behalf of users" and add `im_created` and `message.im`.
+6. Go back to "Basic Info" and scroll a bit on the new page and notice the `App credentials` part. You need the information there to fill in on the settings/integrations page in your ChiefOnboarding instance.
+7. Fill in the details accordingly. The only thing you can't fill in is the 'Redirect URL'. This URL depends on your instances domain name. You will need to fill this in there: `https://YOURDOMAIN/api/integrations/slack`.
+8. Submit the form. You will get back a Slack button. Click it and verify that you want to install your bot in your Slack team. (Try to say 'hello' to it)
 
 That's it!
 
