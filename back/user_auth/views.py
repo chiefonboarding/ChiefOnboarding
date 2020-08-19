@@ -57,8 +57,9 @@ class GoogleLoginView(APIView):
             except:
                 return redirect('/#/?error=not_found')
             if 'email' in results:
-                user = get_user_model().objects.filter(email=results['email'].lower())
-                if user.exists() and org.google_login:
+                users = get_user_model().objects.filter(email=results['email'].lower())
+                if users.exists() and org.google_login:
+                    user = users.first()
                     user.backend = 'django.contrib.auth.backends.ModelBackend'
                     login(request, user)
                     if user.role == 1 or user.role == 2:
