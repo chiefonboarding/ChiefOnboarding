@@ -164,16 +164,17 @@ This is required to be able to save files uploaded by new hires or yourself.
 4. Keep everything at the default and click on 'Next'.
 5. Click on 'Create bucket'.
 6. In the bucket, go to 'Permissions' and then to 'CORS'.
-7. Add this CORS configuration there:
+7. Add this CORS configuration there (again, change YOURDOMAIN):
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <CORSConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
 <CORSRule>
-    <AllowedOrigin>YOURDOMAIN</AllowedOrigin>
+    <AllowedOrigin>https://YOURDOMAIN</AllowedOrigin>
     <AllowedMethod>PUT</AllowedMethod>
     <AllowedMethod>POST</AllowedMethod>
     <AllowedMethod>DELETE</AllowedMethod>
+    <AllowedMethod>GET</AllowedMethod>
     <AllowedHeader>*</AllowedHeader>
 </CORSRule>
 </CORSConfiguration>
