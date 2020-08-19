@@ -191,7 +191,7 @@ The bucket is now created. Up next, we need to create a user to be able to post 
 13. Click on 'Add'.
 14. Click on 'Review policy'.
 15. Give it a fancy name and click on 'Create policy'.
-16. Go back to the set up screen of your IAM suer and click on the refresh button to refresh policies. 
+16. Go back to the set up screen of your IAM user and click on the refresh button to refresh policies. 
 17. Add your newly created policy to the user and click on 'Next'.
 18. Click on 'Next' again. Twice.
 19. You will now get to see the Access key ID and the Secret access key. Add those to your environment variables or .env file. 
