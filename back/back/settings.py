@@ -213,6 +213,7 @@ if env('ANYMAIL', default=False):
 
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 OLD_PASSWORD_FIELD_ENABLED = True
+REST_SESSION_LOGIN = True
 
 # CACHES = {
 #     "default": {
