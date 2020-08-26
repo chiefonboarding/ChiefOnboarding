@@ -41,7 +41,7 @@ export default {
     save () {
       this.saving = true
       this.$org.import(JSON.parse(this.jsonData)).then((data) => {
-        this.dialog = true
+        this.$store.dispatch('showSnackbar', 'Data has been imported')
       }).catch((error) => {
         this.errors = error
       }).finally(() => {
