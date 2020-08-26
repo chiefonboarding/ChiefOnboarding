@@ -102,7 +102,7 @@ export default {
         this.editor.subscribe('focus', (event, editable) => {
           this.editor.restoreSelection()
         })
-      }, 250)
+      }, 500)
     },
     focus () {
       document.getElementsByClassName(this.id)[0].focus()
