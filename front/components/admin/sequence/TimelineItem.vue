@@ -60,9 +60,9 @@
           {{ $t('sequence.addToAdmin') }}
         </v-chip>
         <CardLine :index="index" :items="i.admin_tasks" @openItem="openModal" type="admin_tasks" />
-        <CardLine :index="index" :items="getAdminItems(1)" @openItem="openModal" type="text_messages" />
+        <CardLine :index="index" :items="getAdminItems(2)" @openItem="openModal" type="text_messages" />
         <CardLine :index="index" :items="getAdminItems(0)" @openItem="openModal" type="emails" />
-        <CardLine :index="index" :items="getAdminItems(2)" @openItem="openModal" type="slack_messages" />
+        <CardLine :index="index" :items="getAdminItems(1)" @openItem="openModal" type="slack_messages" />
 
         <v-row v-if="!someItems">
           <v-col sm="12">
