@@ -5,6 +5,8 @@
       <v-col sm="6">
         <GeneralPart :org="org" />
         <LanguageTemplates :org="org" />
+        <ExportPart />
+        <ImportPart />
       </v-col>
       <v-col sm="6">
         <CustomizationPart :org="org" />
@@ -18,20 +20,23 @@ import GeneralPart from '@/components/admin/settings/global/GeneralPart'
 import LanguageTemplates from '@/components/admin/settings/global/LanguageTemplates'
 import CustomizationPart from '@/components/admin/settings/global/CustomizationPart'
 import AdditionalSettings from '@/components/admin/settings/global/AdditionalSettings'
+import ExportPart from '@/components/admin/settings/global/ExportPart'
+import ImportPart from '@/components/admin/settings/global/ImportPart'
+
 export default {
   layout: 'admin',
   components: {
     AdditionalSettings,
     GeneralPart,
     LanguageTemplates,
-    CustomizationPart
+    CustomizationPart,
+    ExportPart,
+    ImportPart
   },
-  data () {
-    return {
-      loading: false,
-      org: {}
-    }
-  },
+  data: () => ({
+    loading: false,
+    org: {}
+  }),
   mounted () {
     this.loading = true
     this.$org.getDetailOrgInfo().then((org) => {

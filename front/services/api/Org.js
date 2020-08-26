@@ -200,5 +200,19 @@ export default (axios, store) => ({
     }).catch((error) => {
       return Promise.reject(error.response.data)
     })
+  },
+  export (type) {
+    return axios.post(`/api/org/export`, { 'export_model': type }).then((res) => {
+      return res.data
+    }).catch((error) => {
+      return Promise.reject(error.response.data)
+    })
+  },
+  import (items) {
+    return axios.post(`/api/org/import`, { 'records': items }).then((res) => {
+      return res.data
+    }).catch((error) => {
+      return Promise.reject(error.response.data)
+    })
   }
 })

@@ -65,3 +65,12 @@ class WelcomeMessageSerializer(serializers.ModelSerializer):
         model = WelcomeMessage
         fields = '__all__'
 
+
+class ExportSerializer(serializers.Serializer):
+    export_model = serializers.CharField(max_length=200)
+
+    def validate_export_model(self, value):
+        options = ['preboarding', 'badges', 'to_do', 'resources', 'introductions', 'sequences', 'users', 'admin_tasks', 'appointments']
+        if value not in options:
+            raise serializers.ValidationError('Not a valid option')
+        return value
