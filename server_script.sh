@@ -8,12 +8,16 @@ fi
 export BASE_URL=$1
 export BASE_EMAIL=$2
 # Replace the values in the env file and the nginx conf file
-randval=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+secret_key=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+
+export POSTGRES_DB=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+export POSTGRES_USER=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+export POSTGRES_PASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 
 # Generate dhparam file
 openssl dhparam -out ./certbot/dhparam/dhparam-2048.pem 2048
 
-sed -e "s/%1/$1/g" -e "s/%2/$randval/g" ./prod.env.example > ./back/back/.env
+sed -e "s/%1/$1/g" -e "s/%2/$secret_key/g" -e "s/%db_user/$POSTGRES_USER/g" -e "s/%db_name/$POSTGRES_DB/g" -e "s/%db_pass/$POSTGRES_PASS/g" ./prod.env.example > ./back/back/.env
 sed -i "s/process.env.BASE_URL/'https:\/\/$1'/g" ./front/nuxt.config.js
 mkdir -p ./nginx/sites-enabled/
 sed "s/%host/$1/g" ./nginx/django_project.example > ./nginx/sites-enabled/django_project.conf
