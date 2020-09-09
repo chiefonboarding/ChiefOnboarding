@@ -150,7 +150,7 @@ export default {
       this.createNewHireLoading = true
       this.newHire.sequences = this.sequences
       this.$newhires.create(this.newHire).then((newHire) => {
-        this.newHire = newHire
+        this.newHire.id = newHire.id
         this.$newhires.checkPastSequenceItems(newHire.id, this.sequences.map(a => a.id)).then((conditionItems) => {
           if (conditionItems.length) {
             this.neverTriggeredModal = true
