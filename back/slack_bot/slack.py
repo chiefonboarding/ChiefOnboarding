@@ -18,6 +18,7 @@ class Slack:
         self.client = slack.WebClient(token=self.team.bot_token)
         self.org = Organization.object.get()
         self.user_obj = None
+        self.channel = None
 
         if response is not None:
             if 'event' in response:
