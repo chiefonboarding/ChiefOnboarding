@@ -6,7 +6,6 @@
         <GeneralPart :org="org" />
         <LanguageTemplates :org="org" />
         <ExportPart />
-        <ImportPart />
       </v-col>
       <v-col sm="6">
         <CustomizationPart :org="org" />
@@ -21,7 +20,6 @@ import LanguageTemplates from '@/components/admin/settings/global/LanguageTempla
 import CustomizationPart from '@/components/admin/settings/global/CustomizationPart'
 import AdditionalSettings from '@/components/admin/settings/global/AdditionalSettings'
 import ExportPart from '@/components/admin/settings/global/ExportPart'
-import ImportPart from '@/components/admin/settings/global/ImportPart'
 
 export default {
   layout: 'admin',
@@ -30,8 +28,7 @@ export default {
     GeneralPart,
     LanguageTemplates,
     CustomizationPart,
-    ExportPart,
-    ImportPart
+    ExportPart
   },
   data: () => ({
     loading: false,
