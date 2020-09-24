@@ -24,7 +24,7 @@ ChiefOnboarding is a free and open source employee onboarding platform. You can 
 
 ### Technical features
 - Easy deployment through Docker (server recommendation is at least 2GB of RAM and 1 vCPU).
-- Build on Django (version 3.0.x) with NuxtJS (version 2.13.x) as the front end (VueJS).
+- Build on Django (version 3.1.x) with NuxtJS (version 2.14.x) as the front end (VueJS).
 - Celery is used for background tasks.
 - Easily connect Sentry for error tracking. Obviously, this is disabled by default.
 - File storage is done through the S3 adapter. You can use AWS, but it's compatible with other object storages that follow S3 standards. 
