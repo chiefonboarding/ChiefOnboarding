@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from .emails import send_email_new_assigned_admin, send_email_notification_to_external_person, send_email_new_comment
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from slack_bot.slack import Slack
 
