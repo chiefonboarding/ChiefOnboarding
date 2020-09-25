@@ -41,12 +41,12 @@ def remove_file(sender, instance, **kwargs):
 
 class Content(models.Model):
     type = models.CharField(choices=CONTENT_OPTIONS, max_length=100)
-    items = JSONField(models.CharField(max_length=100000), default=list)
-    content = models.CharField(max_length=100000, blank=True)
+    items = JSONField(models.TextField(blank=True), default=list)
+    content = models.TextField(blank=True)
     files = models.ManyToManyField(File)
 
     # for courses
-    answer = models.CharField(max_length=10000, blank=True)
+    answer = models.TextField(blank=True)
 
     def to_slack_block(self):
         content = self.content.replace('<p>', '').replace('</p>', '').replace('<br>', '')

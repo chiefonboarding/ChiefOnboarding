@@ -9,10 +9,10 @@ from misc.models import Content
 class ToDo(BaseTemplate):
     content = models.ManyToManyField(Content)
     due_on_day = models.IntegerField(default=0)
-    form = JSONField(models.CharField(max_length=100000, default='[]'))
+    form = JSONField(models.TextField(default='[]'))
     # Chat bot specific actions
     send_back = models.BooleanField(default=False)
-    channel = models.CharField(max_length=10000, null=True, blank=True)
+    channel = models.TextField(blank=True)
 
     def get_slack_form(self):
         slack_form_items = []

@@ -99,11 +99,11 @@ class User(AbstractBaseUser):
     phone = models.CharField(max_length=300, null=True, blank=True)
     slack_user_id = models.CharField(max_length=100, null=True, blank=True)
     slack_channel_id = models.CharField(max_length=100, null=True, blank=True)
-    message = models.CharField(default='', max_length=100000, null=True, blank=True)
+    message = models.TextField(default='', blank=True)
     profile_image = models.ForeignKey(File, on_delete=models.CASCADE, null=True)
-    linkedin = models.CharField(default='', max_length=100, null=True, blank=True)
-    facebook = models.CharField(default='', max_length=100, null=True, blank=True)
-    twitter = models.CharField(default='', max_length=100, null=True, blank=True)
+    linkedin = models.CharField(default='', max_length=100, blank=True)
+    facebook = models.CharField(default='', max_length=100, blank=True)
+    twitter = models.CharField(default='', max_length=100, blank=True)
     timezone = models.CharField(default='', max_length=1000)
     language = models.CharField(default='en', choices=LANGUAGE_CHOICES, max_length=5)
     role = models.IntegerField(choices=ROLE_CHOICES, default=3)
@@ -200,7 +200,7 @@ class ToDoUser(models.Model):
     user = models.ForeignKey(get_user_model(), related_name='to_do_new_hire', on_delete=models.CASCADE)
     to_do = models.ForeignKey(ToDo, related_name='to_do', on_delete=models.CASCADE)
     completed = models.BooleanField(default=False)
-    form = JSONField(models.CharField(max_length=100000, default='[]'), default=list)
+    form = JSONField(models.TextField(default='[]'), default=list)
     reminded = models.DateTimeField(null=True)
 
     def mark_completed(self):
@@ -231,7 +231,7 @@ class ToDoUser(models.Model):
 class PreboardingUser(models.Model):
     user = models.ForeignKey(get_user_model(), related_name='new_hire_preboarding', on_delete=models.CASCADE)
     preboarding = models.ForeignKey(Preboarding, related_name='preboarding_new_hire', on_delete=models.CASCADE)
-    form = JSONField(models.CharField(max_length=100000, default='[]'), default=list)
+    form = JSONField(models.TextField(max_length=100000, default='[]'), default=list)
     completed = models.BooleanField(default=False)
 
 

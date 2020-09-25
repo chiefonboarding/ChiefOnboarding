@@ -68,4 +68,4 @@ class Chapter(models.Model):
 
 class CourseAnswer(models.Model):
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
-    answers = JSONField(models.CharField(max_length=100000, default="[]"), default=list)
+    answers = JSONField(models.TextField(default="[]"), default=list)
