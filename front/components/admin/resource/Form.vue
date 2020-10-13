@@ -74,7 +74,7 @@
         </v-col>
         <v-col v-else cols="12" class="pa-0">
           <div v-if="chapter.type === 0">
-            <Editor v-model="chapter.content" />
+            <Editor v-model="chapter.content" ref="edit" />
           </div>
           <ResourceQuestions v-model="chapter.content" v-else />
         </v-col>
@@ -152,6 +152,9 @@ export default {
     getChapter () {
       this.findParent(this.value.chapters, this.tree[0])
       this.chapter = (this.parent === null) ? {} : this.parent.find(a => a.id === this.tree[0])
+      if (this.$refs.edit !== undefined && 'content' in this.chapter) {
+        this.$refs.edit.formatDataToEditorHTML(this.chapter.content)
+      }
     },
     add (item, contentType) {
       this.findParent(this.value.chapters, item.id)

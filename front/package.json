@@ -33,6 +33,9 @@
     "moment-timezone": "^0.5.31",
     "mustache": "^4.0.1",
     "nuxt": "^2.14.4",
+    "tippy.js": "^6.2.6",
+    "tiptap": "^1.30.0",
+    "tiptap-extensions": "^1.33.0",
     "vue-drag-drop": "^1.1.4",
     "vue-i18n": "^8.21.0",
     "vuedraggable": "^2.24.1"
