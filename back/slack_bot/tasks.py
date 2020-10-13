@@ -117,7 +117,7 @@ def link_slack_users():
     return True
 
 
-@periodic_task(run_every=(crontab(minute='*/15')), name="link_slack_users", ignore_result=True)
+@periodic_task(run_every=(crontab(minute='10')), name="update_new_hire", ignore_result=True)
 def update_new_hire():
     if not AccessToken.objects.filter(integration=0).exists():
         return
