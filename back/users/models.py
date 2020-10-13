@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 
 import pytz
 from django.contrib.auth import get_user_model
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser
@@ -200,7 +199,7 @@ class ToDoUser(models.Model):
     user = models.ForeignKey(get_user_model(), related_name='to_do_new_hire', on_delete=models.CASCADE)
     to_do = models.ForeignKey(ToDo, related_name='to_do', on_delete=models.CASCADE)
     completed = models.BooleanField(default=False)
-    form = JSONField(models.TextField(default='[]'), default=list)
+    form = models.JSONField(models.TextField(default='[]'), default=list)
     reminded = models.DateTimeField(null=True)
 
     def mark_completed(self):
@@ -231,7 +230,7 @@ class ToDoUser(models.Model):
 class PreboardingUser(models.Model):
     user = models.ForeignKey(get_user_model(), related_name='new_hire_preboarding', on_delete=models.CASCADE)
     preboarding = models.ForeignKey(Preboarding, related_name='preboarding_new_hire', on_delete=models.CASCADE)
-    form = JSONField(models.TextField(max_length=100000, default='[]'), default=list)
+    form = models.JSONField(models.TextField(max_length=100000, default='[]'), default=list)
     completed = models.BooleanField(default=False)
 
 

@@ -1,4 +1,3 @@
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 import uuid
 
@@ -41,7 +40,7 @@ def remove_file(sender, instance, **kwargs):
 
 class Content(models.Model):
     type = models.CharField(choices=CONTENT_OPTIONS, max_length=100)
-    items = JSONField(models.TextField(blank=True), default=list)
+    items = models.JSONField(models.TextField(blank=True), default=list)
     content = models.TextField(blank=True)
     files = models.ManyToManyField(File)
 

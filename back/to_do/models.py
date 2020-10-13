@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 
 from organization.models import BaseTemplate
@@ -9,7 +8,7 @@ from misc.models import Content
 class ToDo(BaseTemplate):
     content = models.ManyToManyField(Content)
     due_on_day = models.IntegerField(default=0)
-    form = JSONField(models.TextField(default='[]'))
+    form = models.JSONField(models.TextField(default='[]'))
     # Chat bot specific actions
     send_back = models.BooleanField(default=False)
     channel = models.TextField(blank=True)

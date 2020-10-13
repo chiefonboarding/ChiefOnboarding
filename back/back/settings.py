@@ -260,7 +260,6 @@ AXES_META_PRECEDENCE_ORDER = [
    'REMOTE_ADDR',
 ]
 AXES_HANDLER = 'axes.handlers.database.AxesDatabaseHandler'
-AXES_LOGGER = 'axes.watch_login'
 AXES_FAILURE_LIMIT = 20
 AXES_LOCK_OUT_AT_FAILURE = True
 AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = False
