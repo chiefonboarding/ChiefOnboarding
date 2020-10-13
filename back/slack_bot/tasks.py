@@ -125,7 +125,7 @@ def update_new_hire():
 
     for user in get_user_model().objects.filter(slack_user_id__isnull=False, role=0):
         local_datetime = user.get_local_time()
-        if local_datetime.hour == 8 and local_datetime.weekday() < 5 and local_datetime.date() >= user.start_date:
+        if local_datetime.hour == 8 and local_datetime.weekday() < 5 and local_datetime.date() >= user.start_day:
             s.set_user(user)
             # overdue items
             tasks = ToDoUser.objects.filter(
