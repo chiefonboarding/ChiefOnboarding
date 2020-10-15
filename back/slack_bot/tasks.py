@@ -127,6 +127,7 @@ def update_new_hire():
         local_datetime = user.get_local_time()
         if local_datetime.hour == 8 and local_datetime.weekday() < 5 and local_datetime.date() >= user.start_day:
             s.set_user(user)
+            translation.activate(user.language)
             # overdue items
             tasks = ToDoUser.objects.filter(
                 user=user,
