@@ -182,6 +182,13 @@ if env('ANYMAIL', default=False):
 
     if env('MAILJET', default=False):
         ANYMAIL = {
+            "MAILJET_API_KEY": env('MAILJET_API_KEY', default="")
+            "MAILJET_SECRET_KEY": env('MAILJET_SECRET_KEY', default="")
+        }
+        EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
+
+    if env('MANDRILL', default=False):
+        ANYMAIL = {
             "MANDRILL_API_KEY": env('MANDRILL_KEY', default="")
         }
         EMAIL_BACKEND = "anymail.backends.mandrill.EmailBackend"
