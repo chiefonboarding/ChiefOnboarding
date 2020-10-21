@@ -74,7 +74,7 @@
         </v-col>
         <v-col v-else cols="12" class="pa-0">
           <div v-if="chapter.type === 0">
-            <Editor v-model="chapter.content" ref="edit" />
+            <Editor ref="edit" v-model="chapter.content" />
           </div>
           <ResourceQuestions v-model="chapter.content" v-else />
         </v-col>

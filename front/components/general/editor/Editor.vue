@@ -205,9 +205,7 @@
         </button>
       </div>
     </editor-floating-menu>
-
     <editor-content :editor="editor" class="editor__content" />
-
   </div>
 </template>
 
@@ -241,6 +239,7 @@ export default {
     Icon
   },
   props: {
+    // eslint-disable-next-line
     value: {
       required: true
     }
