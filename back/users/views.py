@@ -334,6 +334,11 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         books = ResourceSlimSerializer(self.get_object().resources, many=True)
         return Response(books.data)
 
+    @action(detail=False, methods=['get'])
+    def departments(self, request):
+        departments = get_user_model().objects.all().distinct('department').exclude(department='').values_list('department')
+        return Response(departments)
+
     @action(detail=True, methods=['post'])
     def add_resource(self, request, pk):
         user = self.get_object()

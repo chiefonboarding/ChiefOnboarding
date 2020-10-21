@@ -81,7 +81,7 @@ class EmployeeSerializer(BaseUserSerializer):
         model = get_user_model()
         fields = ('id', 'first_name', 'last_name', 'email', 'position', 'phone', 'full_name', 'slack_user_id',
                   'has_pwd', 'search_type', 'twitter', 'facebook', 'linkedin', 'message', 'profile_image',
-                  'profile_image_id', 'name', 'role', 'slack_loading', 'email_loading')
+                  'profile_image_id', 'name', 'role', 'slack_loading', 'email_loading', 'department')
 
     def get_has_pwd(self, obj):
         return obj.password != ''

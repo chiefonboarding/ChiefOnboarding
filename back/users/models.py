@@ -104,6 +104,7 @@ class User(AbstractBaseUser):
     facebook = models.CharField(default='', max_length=100, blank=True)
     twitter = models.CharField(default='', max_length=100, blank=True)
     timezone = models.CharField(default='', max_length=1000)
+    department = models.TextField(default='', blank=True)
     language = models.CharField(default='en', choices=LANGUAGE_CHOICES, max_length=5)
     role = models.IntegerField(choices=ROLE_CHOICES, default=3)
     is_active = models.BooleanField(default=True)
