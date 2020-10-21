@@ -290,6 +290,7 @@ AXES_NEVER_LOCKOUT_GET = False
 AXES_ONLY_WHITELIST = False
 AXES_IP_WHITELIST = None
 AXES_IP_BLACKLIST = None
+AXES_LOCK_OUT_BY_USER_OR_IP = False
 # message to show when locked out and have cooloff enabled
 AXES_COOLOFF_MESSAGE = "Account locked: too many login attempts. Please try again later"
 AXES_PERMALOCK_MESSAGE = "Account locked: too many login attempts. Contact an admin to unlock your account."
