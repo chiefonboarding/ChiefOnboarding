@@ -28,7 +28,6 @@
     "fibers": "^5.0.0",
     "jquery": "^3.5.1",
     "md5": "^2.3.0",
-    "medium-editor": "^5.23.3",
     "moment": "^2.27.0",
     "moment-timezone": "^0.5.31",
     "mustache": "^4.0.1",
