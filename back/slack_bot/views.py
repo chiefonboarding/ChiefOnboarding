@@ -43,7 +43,7 @@ class BotView(APIView):
         if s.text == 'hello':
             s.send_message(text='hi')
         elif 'to do' in s.text:
-            tasks = ToDoUser.objects.filter(user=s.user_obj, completed=False, to_do__due_on_day__gte=1)
+            tasks = ToDoUser.objects.filter(user=s.user_obj, completed=False)
             if 'today' in s.text:
                 tasks = tasks.filter(to_do__due_on_day=s.user_obj.workday())
             if 'overdue' in s.text:
@@ -176,7 +176,7 @@ class CallbackView(APIView):
                     to_do_user = ToDoUser.objects.get(id=value.split(':')[2])
                     blocks = []
                     for i in to_do_user.to_do.content.all():
-                        blocks.append(i.to_slack_block())
+                        blocks.append(i.to_slack_block(s.user_obj))
                     blocks.extend(to_do_user.to_do.get_slack_form())
                     private_metadata = [x['block_id'] for x in response['message']['blocks']]
                     private_metadata[0] = response['message']['blocks'][0]['text']['text']
@@ -248,7 +248,7 @@ class CallbackView(APIView):
                     })
 
                     for i in book_user.resource.chapters.first().content.all():
-                        blocks.append(i.to_slack_block())
+                        blocks.append(i.to_slack_block(s.user_obj))
                     resource = book_user.resource.next_chapter(-1, 'course' in value)
                     s.open_modal(
                         response['trigger_id'],
