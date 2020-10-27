@@ -26,15 +26,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install wheel
         pip install -r requirements.txt
+        pip install pytest
     - name: Run migrations
       run: |
         cd back
+        mv back/.env.example back/.env
         python manage.py migrate
     - name: Test with pytest
-      run: |
-        pip install pytest
-        cd back
-        mv back/.env.example back/.env
-        pytest
+      run: pytest
 
 # credits: https://hacksoft.io/github-actions-in-action-setting-up-django-and-postgres/
