@@ -17,4 +17,5 @@ jobs:
       run: |
         pip install pytest
         cd back
+        mv back/.env.example back/.env
         pytest
