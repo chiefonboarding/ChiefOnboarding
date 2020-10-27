@@ -7,7 +7,7 @@ from rest_auth.views import (
 )
 
 urlpatterns = [
-    path('login', views.LoginView.as_view()),
+    path('login', views.LoginView.as_view(), name='login-url'),
     path('google_login', views.GoogleLoginView.as_view()),
     path('password/reset', PasswordResetView.as_view()),
     path('password/reset/confirm', PasswordResetConfirmView.as_view()),
