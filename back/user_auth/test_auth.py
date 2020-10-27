@@ -1,5 +1,6 @@
 import pytest
 from django.urls import reverse
+from users.models import User
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
