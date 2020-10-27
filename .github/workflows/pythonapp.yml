@@ -33,6 +33,8 @@ jobs:
         mv back/.env.example back/.env
         python manage.py migrate
     - name: Test with pytest
-      run: pytest
+      run: |
+        cd back
+        pytest
 
 # credits: https://hacksoft.io/github-actions-in-action-setting-up-django-and-postgres/
