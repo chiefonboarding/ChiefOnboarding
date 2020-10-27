@@ -28,15 +28,12 @@ jobs:
         pip install -r requirements.txt
         pip install pytest
     - name: Run migrations
-      env:
-        POSTGRES_HOST: 127.0.0.1
       run: |
         cd back
         mv back/.env.example back/.env
+        sed -i "s/db:5432/127.0.0.1:5432/" back/.env
         python manage.py migrate
     - name: Test with pytest
-      env:
-        POSTGRES_HOST: 127.0.0.1
       run: |
         cd back
         pytest
