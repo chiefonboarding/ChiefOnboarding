@@ -23,7 +23,7 @@
           <TagsSelector v-model="value.tags" class="pt-2" />
         </v-col>
       </v-col>
-      <v-col sm="8" class="pl-4 py-0">
+      <v-col sm="8" class="pl-4">
         <Editor ref="editor" v-model="value.content" />
         <CustomForm v-if="'form' in value" v-model="value.form" />
         <v-col v-if="$store.state.org.slack_key && 'form' in value && value.form.length" sm="12">

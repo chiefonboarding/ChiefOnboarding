@@ -1,9 +1,9 @@
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 import uuid
 
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
+from .urlparser import URLParser
 
 from .s3 import S3
 import json
@@ -41,15 +41,38 @@ def remove_file(sender, instance, **kwargs):
 
 class Content(models.Model):
     type = models.CharField(choices=CONTENT_OPTIONS, max_length=100)
-    items = JSONField(models.CharField(max_length=100000), default=list)
-    content = models.CharField(max_length=100000, blank=True)
+    items = models.JSONField(models.TextField(blank=True), default=list)
+    content = models.TextField(blank=True)
     files = models.ManyToManyField(File)
 
     # for courses
-    answer = models.CharField(max_length=10000, blank=True)
+    answer = models.TextField(blank=True)
 
-    def to_slack_block(self):
-        content = self.content.replace('<p>', '').replace('</p>', '').replace('<br>', '')
+    def to_slack_block(self, user):
+        replacements = (
+            ("<p>", ""),
+            ("</p>", ""),
+            ("<br>", ""),
+            ("<br />", ""),
+            ("<b>", "*"),
+            ("</b>", "*"),
+            ("</i>", "_"),
+            ("<i>", "_"),
+            ("<i>", "_"),
+            ("<u>", ""),
+            ("</u>", ""),
+            ("<code>", "`"),
+            ("</code>", "`"),
+            ("</strike>", "~"),
+            ("<strike>", "~")
+        )
+        content = user.personalize(self.content)
+        for r in replacements:
+            content = content.replace(*r)
+        parser = URLParser()
+        parser.feed(content)
+        for i in parser.get_links():
+            content = content.replace(i['original_tag'] + i['text'] + '</a>', '<' + i['url'] + '|' + i['text'] + '>')
         text = {
             "type": "section",
             "text": {
@@ -60,16 +83,25 @@ class Content(models.Model):
         if self.type == 'h1' or self.type == 'h2' or self.type == 'h3':
             text['text']['text'] = '*' + content + '*'
         elif self.type == 'quote':
+            return {
+                "type": "context",
+                "elements": {
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": content
+                    }
+                }
+            }
             text['type'] = 'context'
         elif self.type == 'ul':
             ul_list = ''
             for idx, val in enumerate(self.items):
-                ul_list += str(idx + 1) + '. ' + val['content'] + '\n'
+                ul_list += str(idx + 1) + '. ' + user.personalize(val['content']) + '\n'
             text['text']['text'] = ul_list
         elif self.type == 'ol':
             ol_list = ''
             for val in self.items:
-                ol_list += '* ' + val['content'] + '\n'
+                ol_list += '* ' + user.personalize(val['content']) + '\n'
             text['text']['text'] = ol_list
         elif self.type == 'hr':
             return {"type": "divider"}
@@ -90,7 +122,7 @@ class Content(models.Model):
                 options.append({
                     "text": {
                         "type": "plain_text",
-                        "text": i['text'],
+                        "text": user.personalize(i['text']),
                         "emoji": True
                     },
                     "value": i['id']

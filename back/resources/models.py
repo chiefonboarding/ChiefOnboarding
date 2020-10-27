@@ -1,4 +1,3 @@
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 
 from organization.models import BaseTemplate
@@ -68,4 +67,4 @@ class Chapter(models.Model):
 
 class CourseAnswer(models.Model):
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
-    answers = JSONField(models.CharField(max_length=100000, default="[]"), default=list)
+    answers = models.JSONField(models.TextField(default="[]"), default=list)

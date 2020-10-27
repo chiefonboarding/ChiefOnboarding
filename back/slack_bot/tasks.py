@@ -117,7 +117,7 @@ def link_slack_users():
     return True
 
 
-@periodic_task(run_every=(crontab(minute='*/15')), name="link_slack_users", ignore_result=True)
+@periodic_task(run_every=(crontab(minute='10')), name="update_new_hire", ignore_result=True)
 def update_new_hire():
     if not AccessToken.objects.filter(integration=0).exists():
         return
@@ -125,8 +125,9 @@ def update_new_hire():
 
     for user in get_user_model().objects.filter(slack_user_id__isnull=False, role=0):
         local_datetime = user.get_local_time()
-        if local_datetime.hour == 8 and local_datetime.weekday() < 5 and local_datetime.date() >= user.start_date:
+        if local_datetime.hour == 8 and local_datetime.weekday() < 5 and local_datetime.date() >= user.start_day:
             s.set_user(user)
+            translation.activate(user.language)
             # overdue items
             tasks = ToDoUser.objects.filter(
                 user=user,

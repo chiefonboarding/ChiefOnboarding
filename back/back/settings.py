@@ -182,6 +182,13 @@ if env('ANYMAIL', default=False):
 
     if env('MAILJET', default=False):
         ANYMAIL = {
+            "MAILJET_API_KEY": env('MAILJET_API_KEY', default=""),
+            "MAILJET_SECRET_KEY": env('MAILJET_SECRET_KEY', default="")
+        }
+        EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
+
+    if env('MANDRILL', default=False):
+        ANYMAIL = {
             "MANDRILL_API_KEY": env('MANDRILL_KEY', default="")
         }
         EMAIL_BACKEND = "anymail.backends.mandrill.EmailBackend"
@@ -260,7 +267,6 @@ AXES_META_PRECEDENCE_ORDER = [
    'REMOTE_ADDR',
 ]
 AXES_HANDLER = 'axes.handlers.database.AxesDatabaseHandler'
-AXES_LOGGER = 'axes.watch_login'
 AXES_FAILURE_LIMIT = 20
 AXES_LOCK_OUT_AT_FAILURE = True
 AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = False
@@ -284,6 +290,7 @@ AXES_NEVER_LOCKOUT_GET = False
 AXES_ONLY_WHITELIST = False
 AXES_IP_WHITELIST = None
 AXES_IP_BLACKLIST = None
+AXES_LOCK_OUT_BY_USER_OR_IP = False
 # message to show when locked out and have cooloff enabled
 AXES_COOLOFF_MESSAGE = "Account locked: too many login attempts. Please try again later"
 AXES_PERMALOCK_MESSAGE = "Account locked: too many login attempts. Contact an admin to unlock your account."

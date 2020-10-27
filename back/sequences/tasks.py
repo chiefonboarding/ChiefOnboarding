@@ -26,6 +26,7 @@ def timed_triggers():
                 items = i.process_condition(user)
                 if user.slack_user_id is not None:
                     s = Slack()
+                    s.set_user(user)
                     s.send_sequence_triggers(items, None)
                 else:
                     send_sequence_update_message(user, items)

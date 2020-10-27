@@ -15,13 +15,13 @@
         <v-text-field
           v-if="j.type === 'input'"
           :label="j.text"
-          :value="j.value"
+          :value="j.answer"
           disabled
         />
         <v-textarea
           v-if="j.type === 'text'"
           :label="j.text"
-          :value="j.value"
+          :value="j.answer"
           disabled
         />
         <div v-if="j.type === 'upload' && 'value' in j">
@@ -42,7 +42,7 @@
           </div>
         </div>
         <div v-if="j.type === 'select'">
-          <v-radio-group v-model="j.value" :label="j.text">
+          <v-radio-group v-model="j.answer" :label="j.text">
             <v-radio
               v-for="(h, index) in j.options"
               :key="index"

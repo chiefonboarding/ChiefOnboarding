@@ -49,7 +49,7 @@
           </v-card>
         </v-dialog>
       </v-col>
-      <v-col sm="8" class="pt-0">
+      <v-col sm="8">
         <Editor ref="editor" v-model="value.content" />
         <CustomForm v-model="value.form" />
       </v-col>

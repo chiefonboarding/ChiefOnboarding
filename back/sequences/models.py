@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 
 from preboarding.models import Preboarding
@@ -203,7 +202,7 @@ class Condition(models.Model):
                 s.set_user(i.get_user(user))
                 blocks = []
                 for j in i.content_json:
-                    blocks.append(j.to_slack_block())
+                    blocks.append(j.to_slack_block(user))
                 s.send_message(blocks=blocks)
             else:  # text
                 if user.phone is not None and user.phone != "":

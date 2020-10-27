@@ -87,7 +87,17 @@ export default (axios, store) => ({
       store.dispatch('showSnackbar', 'We couldn\'t remove this resource from this employee. Please try again.')
     })
   },
+  getDepartments (id, resourceId) {
+    return axios.get(`/api/users/employee/departments`).then((response) => {
+      return response.data
+    }).catch((error) => {
+      return Promise.reject(error.response.data)
+    })
+  },
   submitForm (id, payload) {
+    if (payload.profile_image_id === null) {
+      delete payload.profile_image_id
+    }
     return axios.put(`/api/users/employee/${id}`, payload).then((response) => {
       return true
     }).catch((error) => {

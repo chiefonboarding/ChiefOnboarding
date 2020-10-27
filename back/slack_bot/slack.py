@@ -18,6 +18,7 @@ class Slack:
         self.client = slack.WebClient(token=self.team.bot_token)
         self.org = Organization.object.get()
         self.user_obj = None
+        self.channel = None
 
         if response is not None:
             if 'event' in response:
@@ -95,7 +96,7 @@ class Slack:
             else:
                 channel = self.channel
         if text is not None:
-            blocks = self.format_simple_text('hi')
+            blocks = self.format_simple_text(text)
         return self.client.chat_postMessage(channel=channel, blocks=blocks, as_user=True,
                                             username=self.team.bot_id)
 
@@ -160,7 +161,7 @@ class Slack:
         }]
         for i in items:
             if i.to_do.valid_for_slack():
-                text = '*' + i.to_do.name + '*\n' + self.footer_text(i.to_do)
+                text = '*' + self.personalize(i.to_do.name) + '*\n' + self.footer_text(i.to_do)
                 value = "dialog:to_do:" + str(i.id)
                 action_text = "View details"
             else:
@@ -209,7 +210,7 @@ class Slack:
                 "block_id": str(i.id),
                 "text": {
                     "type": "mrkdwn",
-                    "text": "*" + i.resource.name + "*"
+                    "text": "*" + self.personalize(i.resource.name) + "*"
                 },
                 "accessory": {
                     "type": "button",
@@ -230,7 +231,7 @@ class Slack:
             "callback_id": callback,
             "title": {
                 "type": "plain_text",
-                "text": title
+                "text": title if len(title) < 24 else title[:20] + '...'
             },
             "submit": {
                 "type": "plain_text",
@@ -257,11 +258,11 @@ class Slack:
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": "*Congrats, you unlocked: " + i.name + "*"
+                        "text": "*Congrats, you unlocked: " + self.personalize(i.name) + "*"
                     }
                 }]
                 for j in i.content.all():
-                    blocks.append(j.to_slack_block())
+                    blocks.append(j.to_slack_block(self.user_obj))
                 self.send_message(blocks=blocks)
         if to_do_user is not None and to_do_user.to_do.send_back:
             blocks = [
@@ -324,7 +325,7 @@ class Slack:
             }
         })
         for i in chapter.content.all():
-            blocks.append(i.to_slack_block())
+            blocks.append(i.to_slack_block(self.user_obj))
         view['blocks'] = blocks
         del view['team_id']
         del view['state']

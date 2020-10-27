@@ -34,6 +34,14 @@
       />
     </v-col>
     <v-col cols="12" class="py-0">
+      <v-combobox
+        v-model="value.department"
+        :items="departments"
+        :loading="loadingDepartments"
+        label="Department"
+      />
+    </v-col>
+    <v-col cols="12" class="py-0">
       <v-text-field
         v-model="value.phone"
         :label="$t('forms.phone')"
@@ -100,7 +108,9 @@ export default {
   },
   data: () => ({
     employee: '',
-    search: ''
+    search: '',
+    departments: [],
+    loadingDepartments: true
   }),
   computed: {
     errorMessages () {
@@ -117,6 +127,15 @@ export default {
     'value.profile_image' (value) {
       this.value.profile_image_id = value.id
     }
+  },
+  mounted () {
+    this.$employees.getDepartments(this.$route.params.id).then((departments) => {
+      this.departments = departments
+    }).catch((error) => {
+      this.$store.dispatch('showSnackbar', 'Departments could not be loaded.')
+    }).finally(() => {
+      this.loadingDepartments = false
+    })
   }
 }
 </script>

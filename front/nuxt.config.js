@@ -22,16 +22,6 @@ export default {
       {
         rel: 'stylesheet',
         href:
-          '//cdn.jsdelivr.net/npm/medium-editor@latest/dist/css/medium-editor.min.css'
-      },
-      {
-        rel: 'stylesheet',
-        href:
-          'https://cdnjs.cloudflare.com/ajax/libs/medium-editor/5.23.3/css/themes/beagle.min.css'
-      },
-      {
-        rel: 'stylesheet',
-        href:
           'https://use.fontawesome.com/releases/v5.0.13/css/all.css'
       }
     ]
