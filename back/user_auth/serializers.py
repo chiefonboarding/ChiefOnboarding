@@ -1,5 +1,5 @@
 from rest_auth.serializers import PasswordResetSerializer as OldPasswordResetSerializer
-
+from rest_framework import serializers
 
 class PasswordResetSerializer(OldPasswordResetSerializer):
     def save(self):
@@ -14,3 +14,7 @@ class PasswordResetSerializer(OldPasswordResetSerializer):
             'subject_template_name': 'email/reset_subject.txt'
         }
         self.reset_form.save(**opts)
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.EmailField(max_length=200)
+    password = serializers.CharField(max_length=10000)
