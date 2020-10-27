@@ -12,23 +12,23 @@ from django.utils.translation import gettext_lazy as _
 from integrations.models import AccessToken
 from google_auth_oauthlib.flow import Flow
 from organization.models import Organization
+from .serializers import LoginSerializer
 
 
 class LoginView(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
-        username = request.data['username'].strip()
-        password = request.data['password'].strip()
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            translation.activate(request.user.language)
-            user = NewHireSerializer(request.user)
-            return Response(user.data)
-        else:
-            return Response({'error': _('Username and password do not match. Please try again.')},
-                            status=status.HTTP_400_BAD_REQUEST)
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            user = authenticate(request, username=serializer.data['username'], password=serializer.data['password'])
+            if user is not None:
+                login(request, user)
+                translation.activate(request.user.language)
+                user = NewHireSerializer(request.user)
+                return Response(user.data)
+        return Response({'error': _('Username and password do not match. Please try again.')},
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 class GoogleLoginView(APIView):
