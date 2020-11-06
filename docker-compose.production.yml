@@ -11,9 +11,9 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_DB=$POSTGRES_DB
-      - POSTGRES_USER=$POSTGRES_USER
-      - POSTGRES_PASSWORD=$POSTGRES_PASS
+      - POSTGRES_DB=POS_DB
+      - POSTGRES_USER=POS_USER
+      - POSTGRES_PASSWORD=POS_PASS
 
   web:
     restart: always

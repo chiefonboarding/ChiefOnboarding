@@ -10,8 +10,7 @@ COPY front /usr/src/front
 COPY back /usr/src/back
 WORKDIR /usr/src/front
 
-RUN npm install
-RUN npm run build
+RUN npm install && npm install --save -g nuxt && nuxt build
 
 ENV PATH /home/django/.local/bin:$PATH
 WORKDIR /usr/src/back
