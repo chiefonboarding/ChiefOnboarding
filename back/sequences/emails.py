@@ -11,10 +11,7 @@ def send_sequence_message(new_hire, message):
     org = Organization.object.get()
     subject = _("Here is an update!")
     for i in message:
-        t = Template(i['text'])
-        i['text'] = t.render(Context(
-            {'manager': new_hire.manager.full_name(), 'buddy': new_hire.buddy.full_name(), 'position': new_hire.position,
-             'last_name': new_hire.last_name, 'first_name': new_hire.first_name, 'email': new_hire.email}))
+        i['text'] = new_hire.personalize(i['text'])
     html_message = render_to_string("email/base.html",
                                     {'org': org, 'content': message})
     send_mail(subject, '', settings.DEFAULT_FROM_EMAIL, [new_hire.email], html_message=html_message)
