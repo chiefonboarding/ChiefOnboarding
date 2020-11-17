@@ -255,7 +255,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         user = self.get_object()
         s = SlackBot()
         response = s.find_by_email(user.email)
-        if response['ok']:
+        if response:
             user.slack_user_id = response['user']['id']
             user.save()
             translation.activate(user.language)
