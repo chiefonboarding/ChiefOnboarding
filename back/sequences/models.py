@@ -201,7 +201,7 @@ class Condition(models.Model):
                 s = Slack()
                 s.set_user(i.get_user(user))
                 blocks = []
-                for j in i.content_json:
+                for j in i.content_json.all():
                     blocks.append(j.to_slack_block(user))
                 s.send_message(blocks=blocks)
             else:  # text
