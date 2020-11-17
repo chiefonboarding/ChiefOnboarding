@@ -88,6 +88,10 @@ class Slack:
         return t.render(c)
 
     def send_message(self, attachments=None, blocks=None, channel=None, text=None):
+        # if user is unknown in system, don't send message
+        if channel is None and self.channel is None and self.user is None:
+            return False
+
         if blocks is None:
             blocks = []
         if channel is None:
