@@ -97,11 +97,8 @@ class Slack:
                 channel = self.channel
         if text is not None:
             blocks = self.format_simple_text(text)
-        try:
-            return self.client.chat_postMessage(channel=channel, blocks=blocks, as_user=True,
-                                                username=self.team.bot_id)
-        except:
-            return False
+        return self.client.chat_postMessage(channel=channel, blocks=blocks, as_user=True,
+                                            username=self.team.bot_id)
 
     def update_message(self, ts, blocks=None):
         if blocks is None:
