@@ -123,13 +123,13 @@ class ExternalMessage(models.Model):
         return email_data
 
     def get_user(self, new_hire):
-        if self.send_via == 0:
+        if self.person_type == 0:
             return new_hire
-        elif self.send_via == 1:
+        elif self.person_type == 1:
             return new_hire.manager
-        elif self.send_via == 2:
+        elif self.person_type == 2:
             return new_hire.buddy
-        elif self.send_via == 3:
+        elif self.person_type == 3:
             return self.send_to
 
 
