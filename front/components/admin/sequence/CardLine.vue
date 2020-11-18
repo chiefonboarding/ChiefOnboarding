@@ -6,7 +6,7 @@
         <span v-if="type === 'task'">{{ item.todo }}</span>
         <span v-else>{{ item.name }}</span>
         <v-btn
-          v-if="remind && !item.checked"
+          v-if="remind && !item.completed"
           :disabled="!('task_id' in item)"
           :loading="item.loading"
           @click="remindNewHire(item)"
