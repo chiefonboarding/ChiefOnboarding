@@ -12,19 +12,16 @@
         @removeItem="removeItem"
       />
     </div>
-    <SequenceModal v-model="openedModal" :items="conditionItems" />
   </div>
 </template>
 
 <script>
 import CollectionForm from '@/components/admin/collection/Form'
-import SequenceModal from '@/components/admin/newhire/SequenceModal'
 export default {
-  components: { CollectionForm, SequenceModal },
+  components: { CollectionForm },
   data: () => ({
     items: [],
     loading: true,
-    openedModal: false,
     errors: {},
     dates: [],
     conditionItems: [],

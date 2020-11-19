@@ -91,7 +91,6 @@
         </v-row>
       </v-card>
     </v-col>
-    <SequenceModal v-model="openedModal" :items="conditionItems" :id="newHire.id" />
     <SequenceitemsNeverTriggeredModal
       v-model="neverTriggeredModal"
       :conditions="conditionItems"
@@ -104,17 +103,15 @@
 <script>
 import moment from 'moment-timezone'
 import NewHireForm from '@/components/admin/newhire/Form'
-import SequenceModal from '@/components/admin/newhire/SequenceModal'
 import SequenceitemsNeverTriggeredModal from '@/components/admin/sequence/modals/SequenceItemsNeverTriggeredModal'
 
 export default {
   layout: 'admin',
-  components: { SequenceitemsNeverTriggeredModal, NewHireForm, SequenceModal },
+  components: { SequenceitemsNeverTriggeredModal, NewHireForm },
   data: vm => ({
     loading: false,
     createNewHireLoading: false,
     isAddingCollections: false,
-    openedModal: false,
     rules: {
       emailMatch: v => (v.includes('@') && v.includes('.')) || 'The email you entered isn\'t valid'
     },
