@@ -72,7 +72,7 @@ export default {
     triggerConditions () {
       const idArray = this.conditions.filter(a => a.checked).map(a => a.id)
       this.$newhires.triggerItems(this.newHire.id, idArray).then((data) => {
-        this.$emit('value', false)
+        this.$emit('input', false)
         this.$emit('completed')
         this.$store.dispatch('showSnackbar', this.$t('sequence.completedConditions'))
       })
