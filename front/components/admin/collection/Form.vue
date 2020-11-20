@@ -70,10 +70,6 @@ export default {
     errors: {
       type: Object,
       default: () => { return {} }
-    },
-    isCollection: {
-      type: Boolean,
-      default: false
     }
   },
   data: vm => ({
@@ -126,40 +122,25 @@ export default {
       this.item = item
     },
     addItem (value) {
-      if (this.isCollection) {
-        const tempValue = JSON.parse(JSON.stringify(this.value))
-        tempValue[this.templateSelectorChoice].push(value)
-        this.$store.dispatch('showSnackbar', this.$t('collection.addedItem'))
-        this.$emit('input', tempValue)
-      } else {
-        this.$emit('onAdd', { 'type': this.templateSelectorChoice, 'item': value })
-      }
+      this.$emit('onAdd', { 'type': this.templateSelectorChoice, 'item': value })
     },
     remove (value, objType) {
       this.value[objType].splice(this.value[objType].findIndex(a => a.id === value.id), 1)
-      if (!this.isCollection) {
-        this.$emit('removeItem', { 'type': objType, 'item': value })
-      }
+      this.$emit('removeItem', { 'type': objType, 'item': value })
     },
     changedItem (type, value) {
-      if (this.isCollection) {
-        if (value.remove !== -1) { this.value[type].splice(this.value[type].findIndex(a => a.task_id === value.remove), 1) }
-        this.value[type].push(value.add)
-        this.$emit('input', this.value)
-      } else {
-        const tempType = type
-        this.value[tempType].splice(this.value[tempType].findIndex(a => a.id === this.item.id), 1)
-        this.$emit('onChange', {
-          'remove': {
-            'type': tempType,
-            'item': this.item
-          },
-          'add': {
-            'type': tempType,
-            'item': value.add
-          }
-        })
-      }
+      const tempType = type
+      this.value[tempType].splice(this.value[tempType].findIndex(a => a.id === this.item.id), 1)
+      this.$emit('onChange', {
+        'remove': {
+          'type': tempType,
+          'item': this.item
+        },
+        'add': {
+          'type': tempType,
+          'item': value.add
+        }
+      })
     }
   }
 }

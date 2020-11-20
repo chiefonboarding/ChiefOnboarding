@@ -6,7 +6,7 @@
       outlined
     >
       <v-img
-        v-if="user.image !== null"
+        v-if="user.profile_image !== null"
         :src="user.profile_image.file_url"
         class="white--text align-end"
         height="200px"

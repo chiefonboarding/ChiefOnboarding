@@ -62,7 +62,7 @@ export default {
     tempResource: {
       name: '',
       tags: [],
-      resources: [{
+      chapters: [{
         id: 'iower23',
         name: 'New item',
         content: [],
@@ -78,7 +78,7 @@ export default {
   watch: {
     value (value) {
       if (Object.entries(this.resource).length === 0) {
-        this.tempResource = { name: '', tags: [], resources: [], course: false, on_day: 0, category: null, remove_on_complete: false }
+        this.tempResource = { name: '', tags: [], chapters: [{ id: 'iower23', name: 'New item', content: [], type: 0, files: [] }], course: false, on_day: 0, category: null, remove_on_complete: false }
       } else {
         this.tempResource1 = JSON.parse(JSON.stringify(this.resource))
         if (this.tempResource1.category !== null) {
@@ -96,6 +96,7 @@ export default {
         this.tempResource1.chapters = items
         this.tempResource = this.tempResource1
       }
+      this.$store.commit('refreshEditor')
     }
   },
   methods: {

@@ -75,6 +75,7 @@ export default {
       }
       setTimeout(() => {
         this.$refs.form.getChapter(0, -1, true)
+        this.$store.commit('refreshEditor')
       }, 100)
     }
   },

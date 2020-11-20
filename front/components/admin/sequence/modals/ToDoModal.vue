@@ -76,6 +76,7 @@ export default {
         this.tempToDo = JSON.parse(JSON.stringify(this.toDo))
         delete this.tempToDo.id
       }
+      this.$store.commit('refreshEditor')
     }
   },
   methods: {

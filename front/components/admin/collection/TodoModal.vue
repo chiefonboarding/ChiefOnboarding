@@ -60,6 +60,7 @@ export default {
         this.tempToDo = JSON.parse(JSON.stringify(this.toDo))
         this.tempToDo.template = false
       }
+      this.$store.commit('refreshEditor')
     }
   },
   methods: {

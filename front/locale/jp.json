@@ -370,6 +370,9 @@
     "sideBar": {
         "blocks": "ブロック",
         "addBlock": "Adblock",
+        "addPreboarding":"プレボーディングブロックの追加",
+        "unconditioned":"無条件",
+        "addUnconditionedBlock":"無条件ブロック",
         "items": "アイテム（ドラッグアンドドロップ",
         "goBack": "戻る",
         "newItem": "新商品",
@@ -385,12 +388,12 @@
         "waitFor": "これらの項目が完成するのを待ちます。",
         "toDo": "テンプレートを実行する",
         "resource": "リソーステンプレート",
+        "introduction": "導入テンプレート",
         "badge": "バッジテンプレート",
         "admin": "アイテムを管理する管理者",
         "text": "メール",
         "email": "Eメール",
         "slack": "スラックメッセージ"
-
     },
     "selectTemplate": {
         "pick": "いくつかのテンプレートを選ぶ"
@@ -482,6 +485,7 @@
         "start": "開始",
         "end": "終わり",
         "beforeStart": "開始日の前にやること、リソース、バッジのアイテムを追加することはできません。",
+        "unconditionedError":"ここでは、ToDo、リソース、紹介項目を追加するだけです。",
         "all": "全シーケンステンプレート",
         "waitFor": "これらの項目が完成するのを待ちます。",
         "onDay": "その日に",

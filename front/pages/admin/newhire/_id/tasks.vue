@@ -6,7 +6,6 @@
         ref="form"
         v-model="items"
         :errors="errors"
-        :is-collection="false"
         @onAdd="addingItem"
         @onChange="changeItem"
         @removeItem="removeItem"

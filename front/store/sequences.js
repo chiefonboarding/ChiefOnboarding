@@ -4,6 +4,8 @@ export const state = () => ({
   all: [],
   sequence: {},
   collection: {},
+  hasPreboarding: false,
+  hasAutoAdd: false,
   item: {
     'preboarding': [],
     'to_do': [],
@@ -19,6 +21,15 @@ export const mutations = {
   },
   setSequenceFull (state, seq) {
     state.item = seq
+  },
+  hasPreboarding (state) {
+    state.hasPreboarding = !state.hasPreboarding
+  },
+  resetPreboarding (state) {
+    state.hasPreboarding = false
+  },
+  setAutoAdd (state) {
+    state.hasAutoAdd = !state.hasAutoAdd
   },
   setCollection (state, col) {
     state.collection = col

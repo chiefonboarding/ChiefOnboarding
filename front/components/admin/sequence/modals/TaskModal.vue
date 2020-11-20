@@ -74,6 +74,7 @@ export default {
           this.hrTask.slack = this.hrTask.email_slack
         }
       }
+      this.$store.commit('refreshEditor')
     }
   },
   methods: {
