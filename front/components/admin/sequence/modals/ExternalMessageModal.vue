@@ -146,6 +146,7 @@ export default {
         this.tempItem = JSON.parse(JSON.stringify(this.item))
         delete this.tempItem.id
       }
+      this.$store.commit('refreshEditor')
     }
   },
   methods: {

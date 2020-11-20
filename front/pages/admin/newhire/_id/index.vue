@@ -2,39 +2,13 @@
   <v-container>
     <LoadingIcon :is-loading="loading" />
     <v-timeline v-if="!loading" align-top style="padding-top: 0px;" dense>
-      <v-timeline-item
-        v-if="beforeStartingDate"
-        color="dark"
-        icon="fas fa-star"
-      >
-        <v-card
-          color="dark"
-          dark
-        >
-          <v-card-title class="title" style="padding-bottom: 5px; padding-top: 5px;">
-            <v-row>
-              <v-col>Pre-boarding</v-col>
-              <v-col>
-                <v-btn @click="dialog = true" color="secondary" small class="ma-0" style="float:right">
-                  {{ $t('newhires.preview') }}
-                </v-btn>
-                <v-btn @click="preboardingDialog = true" color="secondary" small class="ma-0" style="float:right; margin-right: 11px !important;">
-                  {{ $t('newhires.giveAccess') }}
-                </v-btn>
-              </v-col>
-            </v-row>
-          </v-card-title>
-          <v-card-text class="white text--primary pt-3">
-            <div v-for="(i, index) in preboardingItems" :key="index" style="height: 25px; cursor: pointer">
-              <i class="fas fa-align-left mar7" />{{ i.name }}
-            </div>
-            <p v-if="preboardingItems.length === 0">
-              {{ $t('newhires.noItemsYet') }}
-            </p>
-          </v-card-text>
-        </v-card>
-      </v-timeline-item>
-
+      <PreboardingPart
+        v-model="preboardingItems"
+        v-if="preboardingItems.length"
+        @openPreview="dialog = true"
+        @openAccessModal="preboardingDialog = true"
+        onNewHirePage
+      />
       <v-timeline-item
         v-if="itemsOverdue.length"
         class="mb-1"
@@ -94,9 +68,10 @@ import NewHireTimeLine from '@/components/admin/newhire/TimeLine'
 import SendPreboardingModal from '@/components/admin/preboarding/SendPreboardingModal'
 import CardLine from '@/components/admin/sequence/CardLine'
 import PreboardingPage from '@/components/preboarding/Page'
+import PreboardingPart from '@/components/admin/sequence/PreboardingPart'
 export default {
   name: 'NewHireDetailOverview',
-  components: { PreboardingPage, NewHireTimeLine, CardLine, SendPreboardingModal },
+  components: { PreboardingPage, PreboardingPart, NewHireTimeLine, CardLine, SendPreboardingModal },
   data: () => ({
     newHire: {},
     dialog: false,

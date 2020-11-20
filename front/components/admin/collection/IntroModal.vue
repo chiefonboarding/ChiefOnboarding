@@ -70,7 +70,7 @@ export default {
       let remove = -1
       if (JSON.stringify(this.tempIntro) !== JSON.stringify(this.intro)) {
         if ('id' in this.tempIntro) {
-          remove = this.tempIntro.task_id
+          remove = this.tempIntro.id
           delete this.tempIntro.id
         }
         this.tempIntro.template = false

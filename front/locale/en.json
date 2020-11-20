@@ -365,7 +365,10 @@
  ],
  "sideBar":{
     "blocks":"BLOCKS",
-    "addBlock":"Add block",
+    "addBlock":"Add sequence block",
+    "addPreboarding":"Add preboarding block",
+    "unconditioned":"Unconditioned",
+    "addUnconditionedBlock":"Add unconditioned block",
     "items":"ITEMS (drag and drop)",
     "goBack":"Go back",
     "newItem":"New item",
@@ -381,12 +384,12 @@
     "waitFor":"Wait for these to do items to be completed:",
     "toDo":"To do templates",
     "resource":"Resource templates",
+    "introduction": "Introduction templates",
     "badge":"Badge templates",
     "admin":"Admin to do item",
     "text":"Text message",
     "email":"Email",
     "slack":"Slack message"
-
  },
  "selectTemplate":{
     "pick":"Pick a few templates"
@@ -478,6 +481,7 @@
     "start":"START",
     "end":"END",
     "beforeStart":"You can't add a to do, resource, or badge item before their start date",
+    "unconditionedError":"You can only add a to do, resource, or introduction item here",
     "all":"All sequence templates",
     "waitFor":"Wait for these to do items to be completed:",
     "onDay":"On day",

@@ -31,7 +31,7 @@
           <button
             :class="{ 'is-active': isActive.bold() }"
             @click="commands.bold"
-            class="menubar__button"
+            class="menubar__button floating__b"
           >
             <icon name="bold">
               <symbol id="icon--bold" view-box="0 0 24 24" style="color: white">
@@ -43,7 +43,7 @@
           <button
             :class="{ 'is-active': isActive.italic() }"
             @click="commands.italic"
-            class="menubar__button"
+            class="menubar__button floating__b"
           >
             <icon name="italic">
               <symbol id="icon--italic" view-box="0 0 24 24" style="color: white">
@@ -55,7 +55,7 @@
           <button
             :class="{ 'is-active': isActive.strike() }"
             @click="commands.strike"
-            class="menubar__button"
+            class="menubar__button floating__b"
           >
             <icon name="strike">
               <symbol id="icon--strike" view-box="0 0 24 24" style="color: white">
@@ -67,7 +67,7 @@
           <button
             :class="{ 'is-active': isActive.underline() }"
             @click="commands.underline"
-            class="menubar__button"
+            class="menubar__button floating__b"
           >
             <icon name="underline">
               <symbol id="icon--underline" view-box="0 0 24 24" style="color: white">
@@ -226,6 +226,7 @@ import {
   Strike,
   Underline
 } from 'tiptap-extensions'
+// import _ from 'lodash'
 import Icon from './EditorIcon' // eslint-disable-line
 import Image from './ImageUploader' // eslint-disable-line
 import FileUploader from './FileUploader' // eslint-disable-line
@@ -290,6 +291,11 @@ export default {
       console.log(getJSON())
       this.$emit('input', this.formatToData(getJSON()))
     })
+  },
+  watch: {
+    '$store.state.refreshEditor' () {
+      this.formatDataToEditorHTML(this.value)
+    }
   },
   beforeDestroy () {
     this.editor.destroy()
@@ -482,6 +488,9 @@ $color-white: #ffffff;
 $color-grey: #dddddd;
 .menubar__button {
   padding: 3px 8px;
+}
+.floating__b {
+  color: white;
 }
 .menubar__button:hover {
   background-color: lightgray;

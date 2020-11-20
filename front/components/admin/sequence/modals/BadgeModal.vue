@@ -67,6 +67,7 @@ export default {
       } else {
         this.tempBadge = JSON.parse(JSON.stringify(this.badge))
       }
+      this.$store.commit('refreshEditor')
     }
   },
   methods: {

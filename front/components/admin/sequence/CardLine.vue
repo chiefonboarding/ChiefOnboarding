@@ -68,7 +68,11 @@ export default {
   },
   methods: {
     remove (itemId) {
-      this.$store.commit('sequences/removeItem', { block: this.index, id: itemId, type: this.type })
+      if (this.index !== -1) {
+        this.$store.commit('sequences/removeItem', { block: this.index, id: itemId, type: this.type })
+      } else {
+        this.$emit('removeUnconditionedItem', { id: itemId, type: this.type })
+      }
     },
     sendToParent (index, itemId) {
       this.$emit('openItem', { index: this.index, _index: index, type: this.type, id: itemId })

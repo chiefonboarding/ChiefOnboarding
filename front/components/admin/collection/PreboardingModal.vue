@@ -56,6 +56,7 @@ export default {
       } else {
         this.tempPreboarding = JSON.parse(JSON.stringify(this.preboarding))
       }
+      this.$store.commit('refreshEditor')
     }
   },
   methods: {
@@ -72,7 +73,7 @@ export default {
       let remove = -1
       if (JSON.stringify(this.tempPreboarding) !== JSON.stringify(this.preboarding)) {
         if ('id' in this.tempPreboarding) {
-          remove = this.tempPreboarding.task_id
+          remove = this.tempPreboarding.id
           delete this.tempPreboarding.id
         }
         this.tempPreboarding.template = false

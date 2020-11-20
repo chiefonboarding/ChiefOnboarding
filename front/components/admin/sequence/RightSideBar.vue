@@ -25,6 +25,34 @@
           </v-list-item-content>
         </drag>
       </v-list-item>
+      <v-list-item
+        @click="togglePreboarding"
+        class="menu-side"
+      >
+        <drag :transfer-data="{type: 'block'}" :draggable="false" style="display: flex; width: 100%;" class="dragging">
+          <v-list-item-action>
+            <v-icon>fas fa-align-left</v-icon>
+          </v-list-item-action>
+
+          <v-list-item-content>
+            <v-list-item-title> {{ $t('sideBar.addPreboarding') }}</v-list-item-title>
+          </v-list-item-content>
+        </drag>
+      </v-list-item>
+      <v-list-item
+        @click="toggleAutoAdd"
+        class="menu-side"
+      >
+        <drag :transfer-data="{type: 'block'}" :draggable="false" style="display: flex; width: 100%;" class="dragging">
+          <v-list-item-action>
+            <v-icon>fas fa-angle-double-right</v-icon>
+          </v-list-item-action>
+
+          <v-list-item-content>
+            <v-list-item-title> {{ $t('sideBar.addUnconditionedBlock') }}</v-list-item-title>
+          </v-list-item-content>
+        </drag>
+      </v-list-item>
       <v-subheader>
         {{ $t('sideBar.items') }}
       </v-subheader>
@@ -186,6 +214,7 @@ export default {
     sideBarItems: [
       { id: 1, icon: 'fas fa-check', title: vm.$t('sideBar.toDo'), arrow: true },
       { id: 2, icon: 'far fa-folder', title: vm.$t('sideBar.resource'), arrow: true },
+      { id: 8, icon: 'far fa-user-circle', title: vm.$t('sideBar.introduction'), arrow: true },
       { id: 3, icon: 'far fa-arrow-alt-circle-right', title: vm.$t('sideBar.badge'), arrow: true },
       { id: 4, icon: 'fa fa-tasks', title: vm.$t('sideBar.admin'), arrow: false, type: 'admin_tasks' },
       { id: 5, icon: 'far fa-comment', title: vm.$t('sideBar.text'), arrow: false, type: 2 },
@@ -212,14 +241,23 @@ export default {
       } else if (item.id === 3) {
         this.items = this.$store.state.badges.all
         this.type = 'badges'
+      } else if (item.id === 8) {
+        this.items = this.$store.state.intros.all
+        this.type = 'introductions'
       }
-      if (item.id === 1 || item.id === 2 || item.id === 3) {
+      if (item.id === 1 || item.id === 2 || item.id === 3 || item.id === 8) {
         this.mainMenu = false
       }
     },
     backToMain (item) {
       this.mainMenu = true
       this.search = ''
+    },
+    togglePreboarding (item) {
+      this.$store.commit('sequences/hasPreboarding')
+    },
+    toggleAutoAdd (item) {
+      this.$store.commit('sequences/setAutoAdd')
     },
     addBlock () {
       const toDoItems = []

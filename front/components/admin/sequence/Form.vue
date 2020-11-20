@@ -11,55 +11,45 @@
           />
         </v-col>
       </v-row>
-      <v-tabs
-        v-model="active"
-        dark
-        grow
-        slider-color="yellow"
-      >
-        <v-tab ripple>
-          {{ $t('sequence.addWithoutTrigger') }}
-        </v-tab>
-        <v-tab ripple>
-          {{ $t('sequence.addWithTrigger') }}
-        </v-tab>
-        <v-tab-item>
-          <CollectionForm
-            v-if="'preboarding' in collection"
+      <v-row v-if="!$store.state.sequences.sequence.length && !$store.state.sequences.hasPreboarding && !$store.state.sequences.hasAutoAdd" align="center" justify="center" row fill-height>
+        <p> {{ $t('sequence.startByAdding') }}</p>
+      </v-row>
+      <v-timeline v-else align-top style="padding-top: 0px;" dense>
+        <v-timeline-item
+          fill-dot
+          class="white--text mb-5"
+          color="primary"
+          large
+        >
+          <span slot="icon">{{ $t('sequence.start') }}</span>
+        </v-timeline-item>
+        <PreboardingPart
+          v-model="collection.preboarding"
+          v-if="$store.state.sequences.hasPreboarding"
+          @openPreview="dialog = true"
+          @openAccessModal="preboardingDialog = true"
+        />
+        <drop @drop="handleUnconditionedDrop(...arguments)">
+          <AutoAddTimeLineItem
             v-model="collection"
-            :is-collection="true"
+            v-if="$store.state.sequences.hasAutoAdd"
+            @sendBack="openItem"
           />
-        </v-tab-item>
-        <v-tab-item class="pa-4">
-          <v-row v-if="!$store.state.sequences.sequence.length" align="center" justify="center" row fill-height>
-            <p> {{ $t('sequence.startByAdding') }}</p>
-          </v-row>
-          <v-timeline v-else align-top style="padding-top: 0px;" dense>
-            <v-timeline-item
-              fill-dot
-              class="white--text mb-5"
-              color="primary"
-              large
-            >
-              <span slot="icon">{{ $t('sequence.start') }}</span>
-            </v-timeline-item>
-
-            <div v-for="(i, index) in $store.state.sequences.sequence" :key="index">
-              <drop @drop="handleDrop(index, ...arguments)">
-                <TimelineItem :i="i" :index="index" @sendBack="openItem" />
-              </drop>
-            </div>
-            <v-timeline-item
-              fill-dot
-              class="white--text mt-5"
-              color="primary"
-              large
-            >
-              <span slot="icon">{{ $t('sequence.end') }}</span>
-            </v-timeline-item>
-          </v-timeline>
-        </v-tab-item>
-      </v-tabs>
+        </drop>
+        <div v-for="(i, index) in $store.state.sequences.sequence" :key="index">
+          <drop @drop="handleDrop(index, ...arguments)">
+            <TimelineItem :i="i" :index="index" @sendBack="openItem" />
+          </drop>
+        </div>
+        <v-timeline-item
+          fill-dot
+          class="white--text mt-5"
+          color="primary"
+          large
+        >
+          <span slot="icon">{{ $t('sequence.end') }}</span>
+        </v-timeline-item>
+      </v-timeline>
     </v-container>
     <ExternalMessageModal v-model="openExternalMessageModal" :item="item" :send-via="externalType" :index="index" />
     <TaskModal v-model="openTaskModal" :task="adminTask" :index="index" :child-index="childIndex" />
@@ -76,9 +66,10 @@ import ResourceModal from './modals/ResourceModal'
 import BadgeModal from './modals/BadgeModal'
 import ExternalMessageModal from './modals/ExternalMessageModal'
 import ToDoModal from './modals/ToDoModal'
-import CollectionForm from '@/components/admin/collection/Form'
+import PreboardingPart from './PreboardingPart'
+import AutoAddTimeLineItem from './AutoAddTimeLineItem'
 export default {
-  components: { ExternalMessageModal, TimelineItem, TaskModal, ResourceModal, BadgeModal, ToDoModal, CollectionForm },
+  components: { ExternalMessageModal, TimelineItem, TaskModal, ResourceModal, BadgeModal, ToDoModal, PreboardingPart, AutoAddTimeLineItem },
   props: {
     errors: {
       required: true,
@@ -95,6 +86,7 @@ export default {
     openResourceModal: false,
     openToDoModal: false,
     adminTask: {},
+    preboardingItem: [],
     childIndex: -1,
     index: -1,
     active: 0,
@@ -112,11 +104,15 @@ export default {
       introductions: JSON.parse(JSON.stringify(vm.$store.state.sequences.item.introductions)) || []
     }
   }),
+  mounted () {
+    this.$store.commit('setRightSideBar', true)
+    this.$store.commit('toggleLeftDrawer', true)
+    this.$store.commit('sequences/resetPreboarding')
+    if (this.$store.state.sequences.item.preboarding.length) {
+      this.$store.commit('sequences/hasPreboarding')
+    }
+  },
   watch: {
-    active (value) {
-      this.$store.commit('setRightSideBar', value === 1)
-      this.$store.commit('toggleLeftDrawer', value === 1)
-    },
     errors (value) {
       this.tempErrors = JSON.parse(JSON.stringify(value))
     }
@@ -127,6 +123,10 @@ export default {
       this.$store.commit('sequences/setSequenceName', value.target.value)
     },
     handleDrop (index, data) {
+      if (data.type === 'introductions') {
+        this.$store.dispatch('showSnackbar', 'You can\'t add introductions here')
+        return
+      }
       this.index = index
       this.childIndex = -1
       const conditionType = this.$store.state.sequences.sequence[index].condition_type
@@ -145,8 +145,8 @@ export default {
         this.openToDoModal = true
         this.toDo = {}
       } else if (data.type === 'resources' && data.item.id === -1) {
-        this.openResourceModal = true
         this.resource = {}
+        this.openResourceModal = true
       } else if (data.type === 'badges' && data.item.id === -1) {
         this.openBadgeModal = true
         this.badge = {}
@@ -154,7 +154,25 @@ export default {
         this.$store.commit('sequences/addItem', { block: this.index, item: data.item, type: data.type })
       }
     },
+    handleUnconditionedDrop (data) {
+      if (!(['to_do', 'resources', 'introductions'].includes(data.type))) {
+        this.$store.dispatch('showSnackbar', this.$t('sequence.unconditionedError'))
+        return false
+      }
+      if (data.type === 'to_do' && data.item.id === -1) {
+        this.$store.dispatch('showSnackbar', 'You can\'t do this right now. Soon!')
+      } else if (data.type === 'resources' && data.item.id === -1) {
+        this.$store.dispatch('showSnackbar', 'You can\'t do this right now. Soon!')
+      } else if (data.type === 'introductions' && data.item.id === -1) {
+        this.$store.dispatch('showSnackbar', 'You can\'t do this right now. Soon!')
+      } else {
+        this.collection[data.type].push(data.item)
+      }
+    },
     openItem (item) {
+      if (item.index === -1) {
+        return
+      }
       this.index = item.index
       this.childIndex = item._index
       if (item.type === 'text_messages' || item.type === 'emails' || item.type === 'slack_messages') {
