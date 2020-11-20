@@ -8,6 +8,9 @@ from .serializers import SequenceSerializer, ExternalMessageSerializer, Sequence
 from to_do.models import ToDo
 
 from django.apps import apps
+from .emails import send_sequence_message
+from slack_bot.slack import Slack
+
 
 
 class SequenceViewSet(viewsets.ModelViewSet):
@@ -96,6 +99,21 @@ class SaveExternalMessage(APIView):
         external_message.is_valid(raise_exception=True)
         external_message.save()
         return Response(external_message.data)
+
+
+class SendTestMessage(APIView):
+    def post(self, request, id):
+        ext_message = ExternalMessage.objects.get(id=id)
+        if ext_message.send_via == 0:  # email
+            send_sequence_message(request.user, ext_message.email_message())
+        elif ext_message.send_via == 1:  # slack
+            s = Slack()
+            s.set_user(request.user)
+            blocks = []
+            for j in ext_message.content_json.all():
+                blocks.append(j.to_slack_block(request.user))
+            s.send_message(blocks=blocks)
+        return Response()
 
 
 class SaveAdminTask(APIView):

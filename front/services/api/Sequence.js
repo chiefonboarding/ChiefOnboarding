@@ -43,6 +43,13 @@ export default (axios, store) => ({
       return Promise.reject(error.response.data)
     })
   },
+  sendTestMessage (id) {
+    return axios.post(`api/send_test_message/${id}`).then((response) => {
+      return response.data
+    }).catch((error) => {
+      return Promise.reject(error.response.data)
+    })
+  },
   createAdminTask (payload) {
     if (payload.date === '') {
       delete payload.date

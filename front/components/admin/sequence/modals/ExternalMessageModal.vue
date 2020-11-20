@@ -8,9 +8,34 @@
     >
       <v-card>
         <v-card-title class="headline">
-          <span v-if="sendVia===2">{{ $t('sequence.text') }}</span>
-          <span v-if="sendVia===1">{{ $t('sequence.slack') }}</span>
-          <span v-if="sendVia===0">{{ $t('sequence.emailModal') }}</span>
+          <v-row>
+            <v-col cols="6">
+              <span v-if="sendVia===2">{{ $t('sequence.text') }}</span>
+              <span v-if="sendVia===1">{{ $t('sequence.slack') }}</span>
+              <span v-if="sendVia===0">{{ $t('sequence.emailModal') }}</span>
+            </v-col>
+            <v-col cols="6" class="text-right" v-if="'id' in item && sendVia !== 2">
+              <v-menu bottom left>
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    v-on="on"
+                    icon
+                    style="font-size: 20px"
+                  >
+                    <v-icon>settings</v-icon>
+                  </v-btn>
+                </template>
+
+                <v-list>
+                  <v-list-item
+                    @click="sendTestMessage"
+                  >
+                    <v-list-item-title>Send test message</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </v-col>
+          </v-row>
         </v-card-title>
         <v-card-text>
           <v-col sm="12" class="pa-0">
@@ -162,6 +187,13 @@ export default {
         this.errors = errors
       }).finally(() => {
         this.loading = false
+      })
+    },
+    sendTestMessage () {
+      this.$sequences.sendTestMessage(this.item.id).then((data) => {
+        this.$store.dispatch('showSnackbar', 'Message has been sent!')
+      }).catch((error) => {
+        this.$store.dispatch('showSnackbar', 'Something went wrong...')
       })
     }
   }
