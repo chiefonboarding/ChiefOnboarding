@@ -302,9 +302,10 @@ if env('SENTRY', default=False):
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.integrations.celery import CeleryIntegration
+    from sentry_sdk.integrations.aiohttp import AioHttpIntegration
     sentry_sdk.init(
         dsn=env('SENTRY_URL', default=""),
-        integrations=[DjangoIntegration(), CeleryIntegration()],
+        integrations=[DjangoIntegration(), CeleryIntegration(), AioHttpIntegration()],
 
         # If you wish to associate users to errors (assuming you are using
         # django.contrib.auth) you may enable sending PII data.

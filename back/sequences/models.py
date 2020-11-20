@@ -195,17 +195,19 @@ class Condition(models.Model):
                     AdminTaskComment.objects.create(content=comment, comment_by=task.assigned_to, admin_task=task)
 
         for i in self.external_messages.all():
+            if i.get_user(user) == None:
+                continue
             if i.send_via == 0:  # email
                 send_sequence_message(i.get_user(user), i.email_message())
             elif i.send_via == 1:  # slack
                 s = Slack()
                 s.set_user(i.get_user(user))
                 blocks = []
-                for j in i.content_json:
+                for j in i.content_json.all():
                     blocks.append(j.to_slack_block(user))
                 s.send_message(blocks=blocks)
             else:  # text
-                if user.phone is not None and user.phone != "":
+                if i.get_user(user).phone is not None and i.get_user(user).phone != "":
                     client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
                     client.messages.create(
                         to=i.get_user(user).phone,

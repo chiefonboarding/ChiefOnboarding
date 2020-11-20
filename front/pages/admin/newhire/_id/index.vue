@@ -136,7 +136,7 @@ export default {
         })
         const conditionsBasedOnTime = items.conditions.filter(a => a.condition_type !== 1)
         const conditionsBasedOnToDo = items.conditions.filter(a => a.condition_type === 1)
-        this.itemsOverdue = [].concat.apply([], conditionsBasedOnTime.filter(a => moment().subtract(1, 'days') > moment(a.date)).map(a => a.to_do_due))
+        this.itemsOverdue = [].concat.apply([], conditionsBasedOnTime.filter(a => moment().subtract(1, 'days') > moment(a.date)).map(a => a.to_do_due)).filter(a => !a.completed)
         const timeline = conditionsBasedOnTime.filter(a => moment().subtract(1, 'days') <= moment(a.date))
         conditionsBasedOnToDo.forEach((itemBasedOnToDo) => {
           let counter = 0

@@ -28,7 +28,7 @@
               {{ item.full_name }}
             </template>
             <template v-slot:item.start="{ item }">
-              {{ item.start | dateTimeFormat }}
+              {{ item.start_day | dateTimeFormat }}
             </template>
             <template v-slot:item.percentage="{ item }">
               <v-tooltip top>

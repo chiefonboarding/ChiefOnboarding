@@ -76,6 +76,8 @@ class Content(models.Model):
         parser.feed(content)
         for i in parser.get_links():
             content = content.replace(i['original_tag'] + i['text'] + '</a>', '<' + i['url'] + '|' + i['text'] + '>')
+        if content == '':
+            content = '-'
         text = {
             "type": "section",
             "text": {
