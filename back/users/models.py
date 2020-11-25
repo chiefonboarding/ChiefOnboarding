@@ -209,7 +209,8 @@ class ToDoUser(models.Model):
         items_added = {
             'to_do': [],
             'resources': [],
-            'badges': []
+            'badges': [],
+            'introudctions': []
         }
         conditions = self.user.conditions.filter(condition_to_do=self.to_do)
         for i in conditions:
@@ -224,6 +225,7 @@ class ToDoUser(models.Model):
                 items_added['to_do'].extend(new_items['to_do'])
                 items_added['resources'].extend(new_items['resources'])
                 items_added['badges'].extend(new_items['badges'])
+                items_added['introductions'].extend(new_items['introductions'])
 
         return items_added
 
