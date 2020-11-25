@@ -19,7 +19,7 @@ class AdminTaskViewSet(viewsets.ModelViewSet):
         admin_task = serializer.save()
 
         if 'comment' in request.data:
-            comment = CommentPostSerializer(data=request.data)
+            comment = CommentPostSerializer(data={'content': request.data['comment']})
             if comment.is_valid():
                 comment.save(admin_task=admin_task, comment_by=request.user)
 
