@@ -38,14 +38,11 @@
         small
       >
         <v-row justify-space-between>
-          <v-col xs="7" style="vertical-align:middle">
+          <v-col xs="12" style="vertical-align:middle">
             {{ i.content }}
             <div class="caption">
-              - {{ i.comment_by.full_name }}
+              - {{ i.comment_by.full_name }} ({{ i.date | timeAgo }})
             </div>
-          </v-col>
-          <v-col xs="5" class="text-right">
-            {{ i.date | timeAgo }}
           </v-col>
         </v-row>
       </v-timeline-item>
