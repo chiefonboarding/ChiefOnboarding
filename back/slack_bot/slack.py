@@ -76,8 +76,8 @@ class Slack:
                 'email': self.user_obj.email,
                 'position': self.user_obj.position,
                 'start': self.user_obj.start_day,
-                'manager': self.user_obj.manager.name if self.user_obj.manager is not None else '',
-                'buddy': self.user_obj.buddy.name if self.user_obj.buddy is not None else '',
+                'manager': self.user_obj.manager.full_name() if self.user_obj.manager is not None else '',
+                'buddy': self.user_obj.buddy.full_name() if self.user_obj.buddy is not None else '',
             })
         else:
             c = Context({'first_name': '', 'last_name': '',
