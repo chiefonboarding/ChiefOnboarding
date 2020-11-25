@@ -166,7 +166,8 @@ class Condition(models.Model):
         items_added = {
             'to_do': [],
             'resources': [],
-            'badges': []
+            'badges': [],
+            'introductions': []
         }
         for i in self.to_do.all():
             if not user.to_do.filter(pk=i.pk).exists():
