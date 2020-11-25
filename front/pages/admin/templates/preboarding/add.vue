@@ -34,7 +34,7 @@ export default {
       this.saving = true
       this.$preboarding.create(this.preboarding).then((data) => {
         this.$router.push({ name: 'admin-templates-preboarding' })
-        this.$store.dispatch('showSnackbar', this.$t('createdPreboarding'))
+        this.$store.dispatch('showSnackbar', this.$t('preboarding.createdPreboarding'))
       }).catch((error) => {
         this.errors = error
       }).finally(() => {
