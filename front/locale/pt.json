@@ -476,7 +476,7 @@
       "start": "START",
       "end": "END",
       "beforeStart": "Você não pode adicionar um item de fazer, recurso ou badge antes de sua data de início",
-      "unconditionedError":"Só pode acrescentar aqui um item para fazer, recurso, ou introdução",
+      "unconditionedError":"Só pode acrescentar aqui um item para fazer ou recurso",
       "all": "Todos os modelos de sequência",
       "waitFor": "Aguarde que estes itens sejam concluídos:",
       "onDay": "No dia",

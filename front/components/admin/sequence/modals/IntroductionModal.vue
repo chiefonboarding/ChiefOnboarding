@@ -6,11 +6,11 @@
   >
     <v-card>
       <v-card-title class="headline">
-        {{ $t('todo.item') }}
+        {{ $t('intro.item') }}
       </v-card-title>
 
       <v-card-text class="pa-0">
-        <TodoForm v-model="tempToDo" :errors="errors" :inline="true" />
+        <IntroForm v-model="tempIntro" :errors="errors" :inline="true" />
       </v-card-text>
 
       <v-card-actions>
@@ -23,9 +23,9 @@
         </v-btn>
         <v-btn
           :loading="loading"
-          @click="addToDoItem"
+          @click="addIntroItem"
         >
-          <span v-if="Object.entries(toDo).length">
+          <span v-if="Object.entries(intro).length">
             {{ $t('buttons.update') }}
           </span>
           <span v-else>
@@ -37,12 +37,12 @@
   </v-dialog>
 </template>
 <script>
-import TodoForm from '@/components/admin/todo/Form'
+import IntroForm from '@/components/admin/intro/Form'
 export default {
-  name: 'ToDoModal',
-  components: { TodoForm },
+  name: 'IntroductionModal',
+  components: { IntroForm },
   props: {
-    toDo: {
+    intro: {
       type: Object,
       default: () => { return {} }
     },
@@ -58,50 +58,41 @@ export default {
   data: () => ({
     loading: false,
     errors: {},
-    tempToDo: { name: '', data: [], due_on_day: 0, content: [], tags: [], form: [], send_back: false, channel: '' }
+    tempIntro: { name: '', intro_person: '', tags: [] }
   }),
   watch: {
     value (value) {
-      if (Object.entries(this.toDo).length === 0) {
-        this.tempToDo = {
-          name: '',
-          form: [],
-          content: [],
-          due_on_day: '',
-          tags: [],
-          send_back: false,
-          channel: ''
-        }
+      if (Object.entries(this.intro).length === 0) {
+        this.tempIntro = { name: '', intro_person: '', tags: [] }
       } else {
-        this.tempToDo = JSON.parse(JSON.stringify(this.toDo))
-        delete this.tempToDo.id
+        this.tempIntro = JSON.parse(JSON.stringify(this.intro))
       }
-      this.$store.commit('refreshEditor')
     }
   },
   methods: {
-    addToDoItem () {
-      this.tempToDo.template = false
+    addIntroItem () {
+      this.tempIntro.template = false
       this.loading = true
-      this.$todos.create(this.tempToDo).then((data) => {
+      delete this.tempIntro.id
+      this.$intros.create(this.tempIntro).then((data) => {
         if (this.index === -1) {
           // unconditioned item
-          this.$emit('updateUnconditionedItem', { id: this.toDo.id || -1, type: 'to_do', item: data })
+          this.$emit('updateUnconditionedItem', { id: this.intro.id || -1, type: 'introduction', item: data })
           this.$emit('input', false)
           return
         }
-        if ('id' in this.toDo) {
+        if ('id' in this.intro) {
           this.$store.commit('sequences/removeItem', {
             block: this.index,
-            type: 'to_do',
-            id: this.toDo.id
+            type: 'introductions',
+            id: this.intro.id
           })
         }
-        this.$store.commit('sequences/addItem', { block: this.index, type: 'to_do', item: data })
+        this.$store.commit('sequences/addItem', { block: this.index, type: 'introductions', item: data })
         this.$emit('input', false)
       }).catch((error) => {
         this.errors = error
-        this.$store.dispatch('showSnackbar', this.$t('todo.couldNotSave'))
+        this.$store.dispatch('showSnackbar', this.$t('intro.couldNotSave'))
       }).finally(() => {
         this.loading = false
       })

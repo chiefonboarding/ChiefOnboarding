@@ -52,10 +52,11 @@
       </v-timeline>
     </v-container>
     <ExternalMessageModal v-model="openExternalMessageModal" :item="item" :send-via="externalType" :index="index" />
-    <TaskModal v-model="openTaskModal" :task="adminTask" :index="index" :child-index="childIndex" />
-    <ToDoModal v-model="openToDoModal" :to-do="toDo" :index="index" :child-index="childIndex" />
-    <BadgeModal v-model="openBadgeModal" :badge="badge" :index="index" :child-index="childIndex" />
-    <ResourceModal v-model="openResourceModal" :resource="resource" :index="index" :child-index="childIndex" />
+    <TaskModal v-model="openTaskModal" :task="adminTask" :index="index" />
+    <ToDoModal v-model="openToDoModal" :to-do="toDo" :index="index" @updateUnconditionedItem="updateUnconditionedItem" />
+    <BadgeModal v-model="openBadgeModal" :badge="badge" :index="index" />
+    <ResourceModal v-model="openResourceModal" :resource="resource" :index="index" @updateUnconditionedItem="updateUnconditionedItem" />
+    <IntroductionModal v-model="openIntroModal" :intro="intro" :index="index" @updateUnconditionedItem="updateUnconditionedItem" />
   </div>
 </template>
 
@@ -66,10 +67,11 @@ import ResourceModal from './modals/ResourceModal'
 import BadgeModal from './modals/BadgeModal'
 import ExternalMessageModal from './modals/ExternalMessageModal'
 import ToDoModal from './modals/ToDoModal'
+import IntroductionModal from './modals/IntroductionModal'
 import PreboardingPart from './PreboardingPart'
 import AutoAddTimeLineItem from './AutoAddTimeLineItem'
 export default {
-  components: { ExternalMessageModal, TimelineItem, TaskModal, ResourceModal, BadgeModal, ToDoModal, PreboardingPart, AutoAddTimeLineItem },
+  components: { ExternalMessageModal, TimelineItem, IntroductionModal, TaskModal, ResourceModal, BadgeModal, ToDoModal, PreboardingPart, AutoAddTimeLineItem },
   props: {
     errors: {
       required: true,
@@ -85,23 +87,22 @@ export default {
     openBadgeModal: false,
     openResourceModal: false,
     openToDoModal: false,
+    openIntroModal: false,
     adminTask: {},
     preboardingItem: [],
-    childIndex: -1,
     index: -1,
     active: 0,
     items: { name: '', collection_items: [] },
     item: {},
     toDo: {},
+    intro: {},
     resource: {},
     badge: {},
     externalType: 0,
     collection: {
       preboarding: JSON.parse(JSON.stringify(vm.$store.state.sequences.item.preboarding)) || [],
       to_do: JSON.parse(JSON.stringify(vm.$store.state.sequences.item.to_do)) || [],
-      resources: JSON.parse(JSON.stringify(vm.$store.state.sequences.item.resources)) || [],
-      appointments: JSON.parse(JSON.stringify(vm.$store.state.sequences.item.appointments)) || [],
-      introductions: JSON.parse(JSON.stringify(vm.$store.state.sequences.item.introductions)) || []
+      resources: JSON.parse(JSON.stringify(vm.$store.state.sequences.item.resources)) || []
     }
   }),
   mounted () {
@@ -110,6 +111,10 @@ export default {
     this.$store.commit('sequences/resetPreboarding')
     if (this.$store.state.sequences.item.preboarding.length) {
       this.$store.commit('sequences/hasPreboarding')
+    }
+    this.$store.commit('sequences/resetAutoAdd')
+    if (this.$store.state.sequences.item.to_do.length || this.$store.state.sequences.item.resources.length) {
+      this.$store.commit('sequences/setAutoAdd')
     }
   },
   watch: {
@@ -123,12 +128,7 @@ export default {
       this.$store.commit('sequences/setSequenceName', value.target.value)
     },
     handleDrop (index, data) {
-      if (data.type === 'introductions') {
-        this.$store.dispatch('showSnackbar', 'You can\'t add introductions here')
-        return
-      }
       this.index = index
-      this.childIndex = -1
       const conditionType = this.$store.state.sequences.sequence[index].condition_type
       if (conditionType === 2 && (['to_do', 'resources', 'badges'].includes(data.type))) {
         this.$store.dispatch('showSnackbar', this.$t('sequence.beforeStart'))
@@ -150,31 +150,52 @@ export default {
       } else if (data.type === 'badges' && data.item.id === -1) {
         this.openBadgeModal = true
         this.badge = {}
+      } else if (data.type === 'introductions' && data.item.id === -1) {
+        this.openIntroModal = true
+        this.intro = {}
       } else {
         this.$store.commit('sequences/addItem', { block: this.index, item: data.item, type: data.type })
       }
     },
     handleUnconditionedDrop (data) {
-      if (!(['to_do', 'resources', 'introductions'].includes(data.type))) {
+      if (!(['to_do', 'resources'].includes(data.type))) {
         this.$store.dispatch('showSnackbar', this.$t('sequence.unconditionedError'))
         return false
       }
       if (data.type === 'to_do' && data.item.id === -1) {
-        this.$store.dispatch('showSnackbar', 'You can\'t do this right now. Soon!')
+        this.openToDoModal = true
+        this.toDo = {}
       } else if (data.type === 'resources' && data.item.id === -1) {
-        this.$store.dispatch('showSnackbar', 'You can\'t do this right now. Soon!')
+        this.resource = {}
+        this.openResourceModal = true
       } else if (data.type === 'introductions' && data.item.id === -1) {
         this.$store.dispatch('showSnackbar', 'You can\'t do this right now. Soon!')
       } else {
         this.collection[data.type].push(data.item)
       }
     },
+    updateUnconditionedItem (data) {
+      if (data.id === -1) {
+        this.collection[data.type].push(data.item)
+      } else {
+        const index = this.collection[data.type].findIndex(a => a.id === data.id)
+        this.collection[data.type].splice(index, 1, data.item)
+      }
+    },
     openItem (item) {
       if (item.index === -1) {
+        const obj = this.collection[item.type].find(a => a.id === item.id)
+        if (item.type === 'to_do') {
+          this.toDo = obj
+          this.openToDoModal = true
+        }
+        if (item.type === 'resources') {
+          this.resource = obj
+          this.openResourceModal = true
+        }
         return
       }
       this.index = item.index
-      this.childIndex = item._index
       if (item.type === 'text_messages' || item.type === 'emails' || item.type === 'slack_messages') {
         this.item = this.$store.state.sequences.sequence[item.index].external_messages.find(a => a.id === item.id)
         if (item.type === 'text_messages') { this.externalType = 2 }
@@ -190,6 +211,9 @@ export default {
       } else if (item.type === 'resources') {
         this.resource = this.$store.state.sequences.sequence[item.index][item.type].find(a => a.id === item.id)
         this.openResourceModal = true
+      } else if (item.type === 'introductions') {
+        this.intro = this.$store.state.sequences.sequence[item.index][item.type].find(a => a.id === item.id)
+        this.openIntroModal = true
       } else if (item.type === 'badges') {
         this.badge = this.$store.state.sequences.sequence[item.index][item.type].find(a => a.id === item.id)
         this.openBadgeModal = true
@@ -198,7 +222,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-
-</style>

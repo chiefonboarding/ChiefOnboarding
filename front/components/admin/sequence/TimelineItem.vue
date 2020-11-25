@@ -52,6 +52,7 @@
         <CardLine :index="index" :items="i.to_do" @openItem="openModal" type="to_do" />
         <CardLine :index="index" :items="i.resources" @openItem="openModal" type="resources" />
         <CardLine :index="index" :items="i.badges" @openItem="openModal" type="badges" />
+        <CardLine :index="index" :items="i.introductions" @openItem="openModal" type="introductions" />
         <CardLine :index="index" :items="getNewHireItems(1)" @openItem="openModal" type="slack_messages" />
         <CardLine :index="index" :items="getNewHireItems(2)" @openItem="openModal" type="text_messages" />
         <CardLine :index="index" :items="getNewHireItems(0)" @openItem="openModal" type="emails" />
@@ -108,7 +109,7 @@ export default {
   }),
   computed: {
     hasNewHireItems () {
-      return this.i.to_do.length || this.i.resources.length || this.i.badges.length ||
+      return this.i.to_do.length || this.i.resources.length || this.i.badges.length || this.i.introductions.length ||
         this.i.external_messages.filter(a => a.person_type === 0).length
     },
     hasAdminItems () {

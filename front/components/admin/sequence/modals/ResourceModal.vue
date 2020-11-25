@@ -102,6 +102,12 @@ export default {
   methods: {
     addResource () {
       this.$resources.create(this.tempResource).then((data) => {
+        if (this.index === -1) {
+          // unconditioned item
+          this.$emit('updateUnconditionedItem', { id: this.tempResource.id || -1, type: 'resources', item: data })
+          this.$emit('input', false)
+          return
+        }
         if ('id' in this.tempResource) {
           this.$store.commit('sequences/removeItem', {
             block: this.index,

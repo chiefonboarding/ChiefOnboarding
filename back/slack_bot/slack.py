@@ -6,6 +6,7 @@ from django.conf import settings
 from integrations.models import AccessToken
 from organization.models import Organization
 from django.template import Context, Template
+from introductions.models import Introduction
 
 from resources.models import Chapter
 
@@ -227,6 +228,31 @@ class Slack:
             })
         return blocks
 
+    def format_into_block(self, intro):
+        text = '*' + intro.name + ':* ' + intro.intro_person.full_name() + '\n'
+        if intro.intro_person.position is not None and intro.intro_person.position != '':
+            text += intro.intro_person.position + '\n'
+        if intro.intro_person.message is not None and intro.intro_person.message != "":
+            text += '_' + s.personalize(intro.intro_person.message) + '_\n'
+        if intro.intro_person.email is not None and intro.intro_person.email != "":
+            text += intro.intro_person.email + ' '
+        if intro.intro_person.phone is not None and intro.intro_person.phone != "":
+            text += intro.intro_person.phone
+        block = {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": text
+            }
+        }
+        if intro.intro_person.profile_image is not None:
+            block["accessory"] = {
+                "type": "image",
+                "image_url": intro.intro_person.profile_image.get_url(),
+                "alt_text": "profile image"
+            }
+        return block
+
     def open_modal(self, trigger_id, title, blocks, callback, private_metadata, submit_name):
         if submit_name is None:
             submit_name = 'Done'
@@ -248,6 +274,21 @@ class Slack:
 
     def send_sequence_triggers(self, items, to_do_user):
         from users.models import ToDoUser
+        if len(items['introductions']):
+            for i in items['introductions']:
+                blocks.append(s.format_intro_block(Introduction.objects.get(id=i.id)))
+            self.send_message(blocks=blocks)
+        for i in items['badges']:
+            blocks = [{
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": "*Congrats, you unlocked: " + self.personalize(i.name) + "*"
+                }
+            }]
+            for j in i.content.all():
+                blocks.append(j.to_slack_block(self.user_obj))
+            self.send_message(blocks=blocks)
         if len(items['to_do']):
             to_do = [ToDoUser.objects.get(user=self.user_obj, to_do=i) for i in items['to_do']]
             if len(items['to_do']) > 1:
@@ -256,18 +297,7 @@ class Slack:
                 pre_message = "We have just added a new to do item for you:"
             blocks = self.format_to_do_block(pre_message=pre_message, items=to_do)
             self.send_message(blocks=blocks)
-        if len(items['badges']):
-            for i in items['badges']:
-                blocks = [{
-                    "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": "*Congrats, you unlocked: " + self.personalize(i.name) + "*"
-                    }
-                }]
-                for j in i.content.all():
-                    blocks.append(j.to_slack_block(self.user_obj))
-                self.send_message(blocks=blocks)
+        # send response from to do item back to channel
         if to_do_user is not None and to_do_user.to_do.send_back:
             blocks = [
                 {

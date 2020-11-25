@@ -65,6 +65,7 @@ class ConditionSerializer(serializers.ModelSerializer):
     resources = ResourceSerializer(many=True)
     admin_tasks = PendingAdminTaskSerializer(many=True)
     external_messages = ExternalMessageSerializer(many=True)
+    introductions = IntroductionSerializer(many=True)
 
     class Meta:
         model = Condition
@@ -76,7 +77,6 @@ class SequenceSerializer(serializers.ModelSerializer):
     preboarding = PreboardingSerializer(many=True)
     to_do = ToDoSerializer(many=True)
     resources = ResourceSerializer(many=True)
-    introductions = IntroductionSerializer(many=True)
     appointments = AppointmentSerializer(many=True)
 
     conditions = ConditionSerializer(many=True)

@@ -15,9 +15,8 @@
       <v-card-text class="white text--primary pt-3">
         <CardLine :index="-1" :items="value.to_do" @openItem="openModal" @removeUnconditionedItem="removeItem" type="to_do" />
         <CardLine :index="-1" :items="value.resources" @openItem="openModal" @removeUnconditionedItem="removeItem" type="resources" />
-        <CardLine :index="-1" :items="value.introductions" @openItem="openModal" @removeUnconditionedItem="removeItem" type="introductions" />
 
-        <v-row v-if="!value.to_do.length && !value.resources.length && !value.introductions.length">
+        <v-row v-if="!value.to_do.length && !value.resources.length">
           <v-col sm="12">
             {{ $t('sequence.startByDropping') }}
           </v-col>
@@ -47,7 +46,6 @@ export default {
     selfRemove () {
       this.value.to_do = []
       this.value.resources = []
-      this.value.introductions = []
       this.$store.commit('sequences/setAutoAdd')
     },
     removeItem (item) {

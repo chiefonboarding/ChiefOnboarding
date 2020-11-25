@@ -9,9 +9,7 @@ export const state = () => ({
   item: {
     'preboarding': [],
     'to_do': [],
-    'resources': [],
-    'appointments': [],
-    'introductions': []
+    'resources': []
   }
 })
 
@@ -30,6 +28,9 @@ export const mutations = {
   },
   setAutoAdd (state) {
     state.hasAutoAdd = !state.hasAutoAdd
+  },
+  resetAutoAdd (state) {
+    state.hasAutoAdd = false
   },
   setCollection (state, col) {
     state.collection = col

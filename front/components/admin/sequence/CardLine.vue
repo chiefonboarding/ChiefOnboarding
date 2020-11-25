@@ -52,6 +52,7 @@ export default {
       { name: 'slack_messages', icon: 'fab fa-slack-hash' },
       { name: 'to_do', icon: 'far fa-check-square' },
       { name: 'resources', icon: 'far fa-folder' },
+      { name: 'introductions', icon: 'far fa-user-circle' },
       { name: 'badges', icon: 'far fa-arrow-alt-circle-right' },
       { name: 'text_messages', icon: 'far fa-comment' },
       { name: 'emails', icon: 'far fa-envelope' },

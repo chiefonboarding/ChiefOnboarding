@@ -475,7 +475,7 @@
       "start": "START",
       "emd": "FIN",
       "beforeStart": "Vous ne pouvez pas ajouter d'élément à faire, une ressource ou un badge avant leur date de début",
-      "unconditionedError":"Vous pouvez seulement ajouter un élément à faire, une ressource ou une introduction ici",
+      "unconditionedError":"Vous pouvez seulement ajouter un élément à faire ou une ressource ici",
       "all": "Tous les modèles de séquence",
       "waitFor": "Attendez que ces éléments soient terminés:",
       "onDay": "le jour",

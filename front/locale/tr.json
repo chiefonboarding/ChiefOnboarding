@@ -476,7 +476,7 @@
       "start": "START",
       "end": "END",
       "beforeStart": "Başlangıç ​​tarihinden önce yapılacaklar, kaynaklar veya rozetleri ekleyemezsiniz",
-      "unconditionedError":"Buraya yalnızca yapılacaklar, kaynak veya tanıtım öğesi ekleyebilirsiniz",
+      "unconditionedError":"Buraya yalnızca yapılacaklar, kaynak veya tanıtım",
       "all": "Tüm sıralama şablonları",
       "waitFor": "Bunların tamamlanacak öğeleri yapmalarını bekleyin:",
       "onDay": "Gündüz",

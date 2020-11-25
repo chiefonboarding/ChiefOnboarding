@@ -473,7 +473,7 @@
       "start": "START",
       "end": "END",
       "beforeStart": "Sie können ein Aufgaben-, Ressourcen- oder Abzeichenelement nicht vor dem Startdatum hinzufügen",
-      "unconditionedError":"Sie können hier nur einen Aufgaben-, Ressourcen- oder Einführungspunkt hinzufügen",
+      "unconditionedError":"Sie können hier nur einen Aufgaben- oder Ressourcenpunkt hinzufügen",
       "all": "Alle Sequenzvorlagen",
       "waitFor": "Warten Sie, bis diese Aufgaben erledigt sind:",
       "onDay": "Am Tag",

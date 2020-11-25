@@ -271,6 +271,7 @@ export default {
         resources: [],
         appointments: [],
         badges: [],
+        introductions: [],
         admin_tasks: [],
         external_messages: [],
         days: this.amountOfDays,

@@ -481,7 +481,7 @@
     "start":"START",
     "end":"END",
     "beforeStart":"You can't add a to do, resource, or badge item before their start date",
-    "unconditionedError":"You can only add a to do, resource, or introduction item here",
+    "unconditionedError":"You can only add a to do or resource item here",
     "all":"All sequence templates",
     "waitFor":"Wait for these to do items to be completed:",
     "onDay":"On day",

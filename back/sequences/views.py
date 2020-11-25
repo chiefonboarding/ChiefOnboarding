@@ -28,8 +28,8 @@ class SequenceViewSet(viewsets.ModelViewSet):
             {'app': 'resources', 'model': 'Resource', 'item': 'resources', 'c_model': c.resources},
             {'app': 'sequences', 'model': 'PendingAdminTask', 'item': 'admin_tasks', 'c_model': c.admin_tasks},
             {'app': 'badges', 'model': 'Badge', 'item': 'badges', 'c_model': c.badges},
-            {'app': 'sequences', 'model': 'ExternalMessage', 'item': 'external_messages',
-             'c_model': c.external_messages}
+            {'app': 'sequences', 'model': 'ExternalMessage', 'item': 'external_messages', 'c_model': c.external_messages},
+            {'app': 'introductions', 'model': 'Introduction', 'item': 'introductions', 'c_model': c.introductions}
         ]
 
     def _save_sequence(self, data, sequence=None):
@@ -39,10 +39,7 @@ class SequenceViewSet(viewsets.ModelViewSet):
         items = [
             {'app': 'to_do', 'model': 'ToDo', 'item': 'to_do', 's_model': sequence.to_do},
             {'app': 'resources', 'model': 'Resource', 'item': 'resources', 's_model': sequence.resources},
-            {'app': 'preboarding', 'model': 'Preboarding', 'item': 'preboarding', 's_model': sequence.preboarding},
-            {'app': 'appointments', 'model': 'Appointment', 'item': 'appointments', 's_model': sequence.appointments},
-            {'app': 'introductions', 'model': 'Introduction', 'item': 'introductions',
-             's_model': sequence.introductions}
+            {'app': 'preboarding', 'model': 'Preboarding', 'item': 'preboarding', 's_model': sequence.preboarding}
         ]
         for j in items:
             for i in data['collection'][j['item']]:
@@ -82,7 +79,6 @@ class SequenceViewSet(viewsets.ModelViewSet):
         instance.resources.clear()
         instance.preboarding.clear()
         instance.appointments.clear()
-        instance.introductions.clear()
         data = self._save_sequence(request.data, instance)
         if data:
             return Response(data, status=status.HTTP_400_BAD_REQUEST)

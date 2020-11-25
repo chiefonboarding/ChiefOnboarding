@@ -476,7 +476,7 @@
       "start": "COMIENZO",
       "end": "FIN",
       "beforeStart": "No puede agregar un elemento para hacer, recurso o distintivo antes de su fecha de inicio",
-      "unconditionedError":"Sólo puedes añadir una tarea, un recurso o una introducción aquí",
+      "unconditionedError":"Sólo puedes añadir una tarea o un recurso aquí",
       "all": "Todas las plantillas de secuencia",
       "waitFor": "Espere a que se completen los elementos:",
       "onDay": "en el día",

@@ -4,6 +4,7 @@ from django.db import models
 from preboarding.models import Preboarding
 from resources.models import Resource
 from to_do.models import ToDo
+from introductions.models import Introduction
 from appointments.models import Appointment
 from introductions.models import Introduction
 
@@ -26,7 +27,6 @@ class Sequence(models.Model):
     preboarding = models.ManyToManyField(Preboarding)
     to_do = models.ManyToManyField(ToDo)
     resources = models.ManyToManyField(Resource)
-    introductions = models.ManyToManyField(Introduction)
     appointments = models.ManyToManyField(Appointment)
 
     def assign_to_user(self, user):
@@ -34,8 +34,6 @@ class Sequence(models.Model):
             {'u_model': user.to_do, 's_model': self.to_do},
             {'u_model': user.resources, 's_model': self.resources},
             {'u_model': user.preboarding, 's_model': self.preboarding},
-            {'u_model': user.appointments, 's_model': self.appointments},
-            {'u_model': user.introductions, 's_model': self.introductions}
         ]
         # check for every one if they are already there, if not -> adding it.
         for j in a:
@@ -160,6 +158,7 @@ class Condition(models.Model):
     resources = models.ManyToManyField(Resource)
     admin_tasks = models.ManyToManyField(PendingAdminTask)
     external_messages = models.ManyToManyField(ExternalMessage)
+    introductions = models.ManyToManyField(Introduction)
 
     def process_condition(self, user):
         from sequences.serializers import PendingAdminTaskSerializer
@@ -183,6 +182,11 @@ class Condition(models.Model):
             if not user.badges.filter(pk=i.pk).exists():
                 items_added['badges'].append(i)
                 user.badges.add(i)
+
+        for i in self.introductions.all():
+            if not user.introductions.filter(pk=i.pk).exists():
+                items_added['introductions'].append(i)
+                user.introductions.add(i)
 
         for i in self.admin_tasks.all():
             if not AdminTask.objects.filter(new_hire=user, assigned_to=i.assigned_to, name=i.name).exists():

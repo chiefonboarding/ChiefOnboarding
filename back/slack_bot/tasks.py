@@ -71,32 +71,9 @@ def link_slack_users():
 
             # adding introduction items
             introductions = user.introductions.all()
-            if introductions.exists():
-                for i in introductions:
-                    text = '*' + i.name + ':* ' + i.intro_person.full_name() + '\n'
-                    if i.intro_person.position is not None and i.intro_person.position != '':
-                        text += i.intro_person.position + '\n'
-                    if i.intro_person.message is not None and i.intro_person.message != "":
-                        text += '_' + s.personalize(i.intro_person.message) + '_\n'
-                    if i.intro_person.email is not None and i.intro_person.email != "":
-                        text += i.intro_person.email + ' '
-                    if i.intro_person.phone is not None and i.intro_person.phone != "":
-                        text += i.intro_person.phone
-                    block = {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": text
-                        }
-                    }
-                    if i.intro_person.profile_image is not None:
-                        block["accessory"] = {
-                            "type": "image",
-                            "image_url": i.intro_person.profile_image.get_url(),
-                            "alt_text": "profile image"
-                        }
+            for i in introductions:
+                blocks.append(s.format_intro_block(i))
 
-                    blocks.append(block)
             res = s.send_message(
                 blocks=blocks,
                 channel=response['user']['id']
