@@ -100,21 +100,25 @@ export default {
     badge: {},
     externalType: 0,
     collection: {
-      preboarding: JSON.parse(JSON.stringify(vm.$store.state.sequences.item.preboarding)) || [],
-      to_do: JSON.parse(JSON.stringify(vm.$store.state.sequences.item.to_do)) || [],
-      resources: JSON.parse(JSON.stringify(vm.$store.state.sequences.item.resources)) || []
+      preboarding: [],
+      to_do: [],
+      resources: []
     }
   }),
   mounted () {
     this.$store.commit('setRightSideBar', true)
     this.$store.commit('toggleLeftDrawer', true)
-    this.$store.commit('sequences/resetPreboarding')
     if (this.$store.state.sequences.item.preboarding.length) {
       this.$store.commit('sequences/hasPreboarding')
     }
     this.$store.commit('sequences/resetAutoAdd')
     if (this.$store.state.sequences.item.to_do.length || this.$store.state.sequences.item.resources.length) {
       this.$store.commit('sequences/setAutoAdd')
+    }
+    this.collection = {
+      preboarding: JSON.parse(JSON.stringify(this.$store.state.sequences.item.preboarding)) || [],
+      to_do: JSON.parse(JSON.stringify(this.$store.state.sequences.item.to_do)) || [],
+      resources: JSON.parse(JSON.stringify(this.$store.state.sequences.item.resources)) || []
     }
   },
   watch: {

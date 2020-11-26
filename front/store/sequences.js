@@ -45,6 +45,13 @@ export const mutations = {
     items = items.concat(seq.filter(a => a.condition_type === 1))
     state.sequence = items
   },
+  resetItem (state) {
+    state.item = {
+      'preboarding': [],
+      'to_do': [],
+      'resources': []
+    }
+  },
   removeItem (state, item) {
     state.sequence[item.block][item.type] = state.sequence[item.block][item.type].filter(a => a.id !== item.id)
   },

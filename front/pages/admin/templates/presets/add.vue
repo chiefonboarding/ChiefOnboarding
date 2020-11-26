@@ -40,6 +40,7 @@ export default {
   mounted () {
     this.$store.commit('sequences/setSequence', [])
     this.$store.commit('sequences/setSequenceFull', this.sequence)
+    this.$store.commit('sequences/resetItem')
   },
   methods: {
     createSequence () {
