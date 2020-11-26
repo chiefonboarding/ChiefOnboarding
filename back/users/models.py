@@ -210,7 +210,7 @@ class ToDoUser(models.Model):
             'to_do': [],
             'resources': [],
             'badges': [],
-            'introudctions': []
+            'introductions': []
         }
         conditions = self.user.conditions.filter(condition_to_do=self.to_do)
         for i in conditions:
