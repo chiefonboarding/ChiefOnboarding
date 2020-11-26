@@ -264,7 +264,7 @@ class CallbackView(APIView):
             if 'to_do:external' in value:
                 to_do_user = ToDoUser.objects.get(id=value.split(':')[2], user=s.user_obj)
                 if len(to_do_user.form) == 0:
-                    s.send_message("Please complete the form first. Click on 'View details' to complete it.")
+                    s.send_message(text="Please complete the form first. Click on 'View details' to complete it.")
                     return Response()
                 items = to_do_user.mark_completed()
                 s.send_sequence_triggers(items, to_do_user)
