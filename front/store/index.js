@@ -23,12 +23,14 @@ export const state = () => ({
   showNewHireMenu: true,
   snackbar: false,
   snackbarText: '',
-  refreshEditor: false
+  refreshEditor: false,
+  refreshSequence: false
 })
 
 export const mutations = {
   setCSRFToken (state, token) { state.token = token },
   refreshEditor (state) { state.refreshEditor = !state.refreshEditor },
+  toggleRefreshSequence (state) { state.refreshSequence = !state.refreshSequence },
   setSnackbar (state, text) {
     state.snackbarText = text
     state.snackbar = !state.snackbar

@@ -90,11 +90,20 @@ export default {
     }
   },
   mounted () {
-    this.getNewHire().then((data) => {
-      this.getTasksTimeLine()
-    })
+    this.loadNewHire()
+  },
+  watch: {
+    '$store.state.refreshSequence' () {
+      this.loadNewHire()
+    }
   },
   methods: {
+    loadNewHire () {
+      this.loading = true
+      this.getNewHire().then((data) => {
+        this.getTasksTimeLine()
+      })
+    },
     getTasksTimeLine () {
       this.$newhires.getTasks(this.$route.params.id).then((items) => {
         this.loading = false

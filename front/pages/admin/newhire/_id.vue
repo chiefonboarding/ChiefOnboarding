@@ -238,6 +238,7 @@ export default {
             this.neverTriggeredModal = true
             this.conditionItems = conditionItems
           }
+          this.$store.commit('toggleRefreshSequence')
         })
         this.addSequence = false
         this.$store.dispatch('showSnackbar', 'Sequence has been added.')
