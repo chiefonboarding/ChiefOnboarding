@@ -235,6 +235,13 @@ class PreboardingUser(models.Model):
     preboarding = models.ForeignKey(Preboarding, related_name='preboarding_new_hire', on_delete=models.CASCADE)
     form = models.JSONField(models.TextField(max_length=100000, default='[]'), default=list)
     completed = models.BooleanField(default=False)
+    order = models.IntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+        # adding order number when record is not created yet (always the last item in the list)
+        if not self.pk:
+            self.order = PreboardingUser.objects.filter(user=self.user, preboarding=self.preboarding).count()
+        super(PreboardingUser, self).save(*args, **kwargs)
 
 
 class ResourceUser(models.Model):

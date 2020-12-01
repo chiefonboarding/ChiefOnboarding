@@ -189,7 +189,7 @@ class PreboardingView(APIView):
     permission_classes = (NewHirePermission,)
 
     def get(self, request):
-        preboarding_items = PreboardingUserSerializer(PreboardingUser.objects.filter(user=request.user), many=True)
+        preboarding_items = PreboardingUserSerializer(PreboardingUser.objects.filter(user=request.user).order_by('order'), many=True)
         return Response(preboarding_items.data)
 
     def post(self, request):

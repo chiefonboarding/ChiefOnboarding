@@ -24,7 +24,7 @@
           <span slot="icon">{{ $t('sequence.start') }}</span>
         </v-timeline-item>
         <PreboardingPart
-          v-model="collection.preboarding"
+          v-model="preboarding"
           v-if="$store.state.sequences.hasPreboarding"
           @openPreview="dialog = true"
           @openAccessModal="preboardingDialog = true"
@@ -97,6 +97,7 @@ export default {
     toDo: {},
     intro: {},
     resource: {},
+    preboarding: {},
     badge: {},
     externalType: 0,
     collection: {
@@ -108,6 +109,7 @@ export default {
   mounted () {
     this.$store.commit('setRightSideBar', true)
     this.$store.commit('toggleLeftDrawer', true)
+    this.$store.commit('sequences/resetPreboarding')
     if (this.$store.state.sequences.item.preboarding.length) {
       this.$store.commit('sequences/hasPreboarding')
     }
@@ -120,6 +122,7 @@ export default {
       to_do: JSON.parse(JSON.stringify(this.$store.state.sequences.item.to_do)) || [],
       resources: JSON.parse(JSON.stringify(this.$store.state.sequences.item.resources)) || []
     }
+    this.preboarding = JSON.parse(JSON.stringify(this.$store.state.sequences.item.preboarding)) || []
   },
   watch: {
     errors (value) {

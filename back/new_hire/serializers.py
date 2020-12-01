@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from users.models import ToDoUser, ResourceUser
+from users.models import ToDoUser, ResourceUser, PreboardingUser
 
 from to_do.models import ToDo
 from resources.serializers import ChapterSerializer, CourseAnswerSerializer, ResourceSerializer, ResourceCourseSerializer
@@ -34,8 +34,8 @@ class PreboardingUserSerializer(serializers.ModelSerializer):
     preboarding = PreboardingSerializer(read_only=True)
 
     class Meta:
-        model = ToDoUser
-        fields = ('id', 'preboarding', 'form', 'completed')
+        model = PreboardingUser
+        fields = ('id', 'preboarding', 'form', 'completed', 'order')
 
 
 class NewHireResourceSerializer(serializers.ModelSerializer):

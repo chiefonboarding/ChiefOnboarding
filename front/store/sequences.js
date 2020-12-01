@@ -9,7 +9,8 @@ export const state = () => ({
   item: {
     'preboarding': [],
     'to_do': [],
-    'resources': []
+    'resources': [],
+    'name': ''
   }
 })
 
@@ -49,7 +50,8 @@ export const mutations = {
     state.item = {
       'preboarding': [],
       'to_do': [],
-      'resources': []
+      'resources': [],
+      'name': ''
     }
   },
   removeItem (state, item) {

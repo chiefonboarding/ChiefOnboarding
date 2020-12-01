@@ -204,5 +204,12 @@ export default (axios, store) => ({
     }).catch((error) => {
       return Promise.reject(error.response.data)
     })
+  },
+  changePreboardingOrder (id, payload) {
+    return axios.post(`api/users/new_hire/${id}/change_preboarding_order`, payload).then((response) => {
+      return response.data
+    }).catch((error) => {
+      return Promise.reject(error.response.data)
+    })
   }
 })

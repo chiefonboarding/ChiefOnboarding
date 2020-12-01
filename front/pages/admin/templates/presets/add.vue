@@ -48,6 +48,8 @@ export default {
       this.postSeq = JSON.parse(JSON.stringify(this.sequence))
       this.postSeq.conditions = JSON.parse(JSON.stringify(this.$store.state.sequences.sequence))
       this.postSeq.collection = this.$refs.seq.collection
+      this.postSeq.collection.preboarding = this.$refs.seq.preboarding
+      this.postSeq.name = this.$store.state.sequences.item.name
       this.$sequences.create(this.postSeq).then((data) => {
         this.$router.push({ name: 'admin-templates-presets' })
         this.$store.dispatch('showSnackbar', this.$t('sequence.created'))

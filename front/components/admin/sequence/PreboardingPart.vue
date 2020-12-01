@@ -43,19 +43,21 @@
         </v-row>
       </v-card-title>
       <v-card-text class="white text--primary pt-3">
-        <v-row
-          v-for="(i, index) in value"
-          :key="index"
-          style="cursor: pointer"
-          @click="editItem(i)"
-        >
-          <v-col sm="11" class="py-0">
-            <i class="fas fa-align-left mr-3" />{{ i.name }}
-          </v-col>
-          <v-col @click.stop="removeItem(i.id)" sm="1" class="red-remove py-0">
-            <i class="far fa-times-circle pointer" />
-          </v-col>
-        </v-row>
+        <draggable v-model="value" @change="updateOrder" :disabled="!this.onNewHirePage">
+          <v-row
+            v-for="(i, index) in value"
+            :key="index"
+            style="cursor: pointer"
+            @click="editItem(i)"
+          >
+            <v-col sm="11" class="py-0">
+              <i class="fas fa-align-left mr-3" />{{ i.name }}
+            </v-col>
+            <v-col @click.stop="removeItem(i.id)" sm="1" class="red-remove py-0">
+              <i class="far fa-times-circle pointer" />
+            </v-col>
+          </v-row>
+        </draggable>
         <p v-if="value.length === 0">
           {{ $t('newhires.noItemsYet') }}
         </p>
@@ -67,11 +69,12 @@
 </template>
 
 <script>
+import draggable from 'vuedraggable'
 import PreboardingModal from '@/components/admin/collection/PreboardingModal'
 
 export default {
   name: 'PreboardingPart',
-  components: { PreboardingModal },
+  components: { draggable, PreboardingModal },
   props: {
     value: {
       required: true,
@@ -96,6 +99,16 @@ export default {
       this.$newhires.addTask(this.$route.params.id, { type: 'preboarding', item: preboardingItem }).then((data) => {
         this.value.push(data)
       })
+    },
+    updateOrder (value) {
+      if (this.onNewHirePage) {
+        this.value.forEach((one, index) => {
+          one.order = index
+        })
+        this.$newhires.changePreboardingOrder(this.$route.params.id, this.value)
+      } else {
+        this.$emit('input', this.value)
+      }
     },
     changedItem (value) {
       this.removeItem(value.remove)

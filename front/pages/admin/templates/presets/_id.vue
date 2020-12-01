@@ -64,6 +64,7 @@ export default {
     updateSequence () {
       this.saving = true
       this.updatedSequence.collection = this.$refs.seq.collection
+      this.updatedSequence.collection.preboarding = this.$refs.seq.preboarding
       this.updatedSequence.name = this.$store.state.sequences.item.name
       this.updatedSequence.conditions = this.$store.state.sequences.sequence
       this.$sequences.update(this.$route.params.id, this.updatedSequence).then((data) => {

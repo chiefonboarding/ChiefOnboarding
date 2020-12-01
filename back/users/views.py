@@ -31,6 +31,7 @@ from appointments.serializers import AppointmentSerializer
 from sequences.serializers import ConditionSerializer
 from sequences.models import Condition, Sequence
 from resources.models import Resource
+from preboarding.models import Preboarding
 from slack_bot.slack import Slack as SlackBot
 from integrations.slack import Slack, PaidOnlyError, Error
 from integrations.models import ScheduledAccess
@@ -171,6 +172,16 @@ class NewHireViewSet(viewsets.ModelViewSet):
         user = self.get_object()
         for i in request.data['condition_ids']:
             Condition.objects.get(id=i).process_condition(user)
+        return Response()
+
+    @action(detail=True, methods=['post'])
+    def change_preboarding_order(self, request, pk=None):
+        user = self.get_object()
+        for idx, i in enumerate(request.data):
+            pre = Preboarding.objects.get(id=i['id'])
+            pre_user = PreboardingUser.objects.get(preboarding=pre, user=user)
+            pre_user.order = idx
+            pre_user.save()
         return Response()
 
     @action(detail=True, methods=['post', 'put'])
