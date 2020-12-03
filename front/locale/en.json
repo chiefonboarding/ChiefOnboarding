@@ -581,7 +581,11 @@
        "customNotSaved":"We couldn't save these settings. Please try again.",
        "billingSaved":"Billing information has been saved succesfully.",
        "billingNotSaved":"Billing information could not be saved.",
-       "amountOfNewHires":"Amount of new hires:"
+       "amountOfNewHires":"Amount of new hires:",
+       "autoCreateUser": "Automatically create new hire when joining Slack",
+       "withoutConfirm": "New hires are created without manual approval",
+       "confirmPerson": "Person to ask permission from:",
+       "addSequences": "Always add these default sequences:"
     },
     "form":{
        "paymentHeader":"Payments",

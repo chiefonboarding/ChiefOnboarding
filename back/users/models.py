@@ -12,8 +12,6 @@ from django.db.models import Q
 from django.template import Template, Context
 from django.utils.crypto import get_random_string
 
-from users.emails import email_new_admin_cred
-
 from resources.models import Resource
 from appointments.models import Appointment
 from to_do.models import ToDo
@@ -24,10 +22,8 @@ from misc.models import File
 from resources.models import CourseAnswer
 from sequences.models import Condition
 
-# from back.introductions.models import Introduction
 from introductions.models import Introduction
 from datetime import date, timedelta
-from organization.models import Organization
 
 LANGUAGE_CHOICES = (
     ('en', 'English'),
@@ -55,7 +51,7 @@ class CustomUserManager(BaseUserManager):
             raise ValueError('The given email must be set')
         email = self.normalize_email(email)
         user = self.model(first_name=first_name, last_name=last_name, email=email, role=role,
-                          date_joined=now, **extra_fields)
+                          date_joined=now, start_day=now.date(), **extra_fields)
         if password is not None:
             user.set_password(password)
         user.save(using=self._db)
@@ -171,6 +167,7 @@ class User(AbstractBaseUser):
         return (self.start_day - date.today()).days
 
     def get_local_time(self, date=None):
+        from organization.models import Organization
         local_tz = pytz.timezone("UTC")
         org = Organization.object.get()
         us_tz = pytz.timezone(

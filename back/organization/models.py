@@ -1,7 +1,7 @@
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from misc.models import File
-
+from django.conf import settings
 
 LANGUAGES_OPTIONS = (
     ('en', 'English'),
@@ -40,9 +40,14 @@ class Organization(models.Model):
     new_hire_email = models.BooleanField(default=True)
     new_hire_email_reminders = models.BooleanField(default=True)
     new_hire_email_overdue_reminders = models.BooleanField(default=False)
+
+    # Slack specific
     slack_buttons = models.BooleanField(default=True)
     ask_colleague_welcome_message = models.BooleanField(default=True)
     send_new_hire_start_reminder = models.BooleanField(default=False)
+    auto_create_user = models.BooleanField(default=False)
+    create_new_hire_without_confirm = models.BooleanField(default=False)
+    slack_confirm_person = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
 
     object = ObjectManager()
     objects = models.Manager()

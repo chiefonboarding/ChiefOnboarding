@@ -585,7 +585,11 @@
             "customNotSaved": "これらの設定を保存できませんでした。もう一度やり直してください。",
             "billingSaved": "請求情報は正常に保存されました。",
             "billingNotSaved": "請求情報を保存できませんでした。",
-            "amountOfNewHires": "新規採用人数："
+            "amountOfNewHires": "新規採用人数：",
+            "autoCreateUser": "Slack入社時に自動的に新規採用者を作成",
+            "withoutConfirm": "新規採用者は手動での承認なしに作成される",
+            "confirmPerson": "許可を求める人。",
+            "addSequences": "必ずこれらのデフォルトシーケンスを追加してください。"
         },
         "form": {
 

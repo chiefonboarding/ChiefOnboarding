@@ -572,7 +572,11 @@
         "customNotSaved": "Diese Einstellungen konnten nicht gespeichert werden. Bitte versuchen Sie es erneut.",
         "billingSaved": "Rechnungsinformationen wurden erfolgreich gespeichert.",
         "billingNotSaved": "Rechnungsinformationen konnten nicht gespeichert werden.",
-        "amountOfNewHires": "Anzahl der Neueinstellungen:"
+        "amountOfNewHires": "Anzahl der Neueinstellungen:",
+        "autoCreateUser": "Beim Beitritt zu Slack automatisch neue Mitarbeiter anlegen",
+        "withoutConfirm": "Neue Einstellungen werden ohne manuelle Genehmigung erstellt",
+        "confirmPerson": "Person, die um Erlaubnis fragen muss:",
+        "addSequences": "Fügen Sie immer diese Standardsequenzen hinzu:"
       },
       "form": {
         "paymentHeader": "Zahlungen",

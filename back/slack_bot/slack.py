@@ -68,6 +68,14 @@ class Slack:
             return False
         return response
 
+    def find_user_by_id(self, id):
+        print(self.client.api_call("users.info", data={'user': id}))
+        try:
+            response = self.client.api_call("users.info", data={'user': id})['user']
+        except Exception:
+            return False
+        return response
+
     def personalize(self, message):
         if self.user_obj is not None:
             c = Context({
@@ -344,6 +352,39 @@ class Slack:
                     }
                 ]
             })
+        return blocks
+
+    def format_account_approval_approval(self, user, user_id):
+        blocks = [{
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Would you like to put this new hire through onboarding?\n*Name:* " + user['profile']['real_name']
+            }
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Yeah!"
+                    },
+                    "style": "primary",
+                    "value": "create:newhire:approve:" + str(user_id)
+                },
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Nope"
+                    },
+                    "style": "danger",
+                    "value": "create:newhire:deny:" + str(user_id)
+                }
+            ]
+        }]
         return blocks
 
     def create_updated_view(self, value, view, course_completed):

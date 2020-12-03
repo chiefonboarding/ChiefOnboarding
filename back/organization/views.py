@@ -17,6 +17,7 @@ from .serializers import BaseOrganizationSerializer, DetailOrganizationSerialize
 from misc.serializers import FileSerializer
 from users.permissions import NewHirePermission, AdminPermission
 from django.core import management
+from sequences.models import Sequence
 
 
 def home(request):
@@ -40,6 +41,13 @@ class OrgDetailView(APIView):
     def patch(self, request):
         serializer = DetailOrganizationSerializer(Organization.object.get(), data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
+        Sequence.objects.all().update(auto_add=False)
+        if 'auto_add_sequence' in request.data:
+            for i in request.data['auto_add_sequence']:
+                seq = Sequence.objects.get(id=i)
+                seq.auto_add = True
+                seq.save()
+
         serializer.save()
         return Response(serializer.data)
 

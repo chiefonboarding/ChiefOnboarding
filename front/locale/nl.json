@@ -558,7 +558,11 @@
           "customNotSaved": "Instelingen konden niet worden opgeslagen",
           "billingSaved": "Factuurinfo is geüpdated",
           "billingNotSaved": "Factuurinfo kon niet worden geüpdated",
-          "amountOfNewHires": "Hoeveel nieuwe medewerkers:"
+          "amountOfNewHires": "Hoeveel nieuwe medewerkers:",
+          "autoCreateUser": "Maak automatisch nieuwe medewerker aan bij aanmelden Slack",
+          "withoutConfirm": "Nieuwe medewerkers worden aangemakt zonder toestemming",
+          "confirmPerson": "Persoon om toestemming van te vragen:",
+          "addSequences": "Deze workflows altijd toevoegen:"
         },
         "form": {
           "paymentHeader": "Betalingen",

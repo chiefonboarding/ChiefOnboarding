@@ -14,7 +14,10 @@ from resources.models import Category, Chapter, CourseAnswer
 from misc.serializers import ContentSerializer
 from admin_tasks.models import AdminTask
 from fuzzywuzzy import process
-
+from organization.models import Organization
+from users.models import User
+from sequences.models import Sequence
+from datetime import datetime
 
 class BotView(APIView):
     """
@@ -27,13 +30,50 @@ class BotView(APIView):
         if 'type' in request.data and request.data['type'] == 'url_verification':
             return Response(request.data['challenge'])
         # avoid bot requests
-        if 'event' in request.data and (
-                'bot_id' in request.data['event'] or request.data['event']['type'] != 'message'):
+        if 'bot_id' in request.data['event'] or not 'event' in request.data or 'subtype' in request.data['event'] or (request.data['event']['type'] != 'message' and request.data['event']['type'] != 'team_join'):
             return Response('ok')
 
         # avoid second requests
         if 'X-Slack-Retry-Num' in request.META:
             return Response('ok')
+
+
+        # whenever a person joins Slack
+        if request.data['event']['type'] == 'team_join':
+            org = Organization.object.get()
+            s = Slack()
+            user = s.find_user_by_id(request.data['event']['user']['id'])
+            if org.auto_create_user and not User.objects.filter(email=user['profile']['email']).exists():
+                if len(user['profile']['real_name'].split(' ')) > 1:
+                    first_name = user['profile']['real_name'].split(' ')[0]
+                    last_name = user['profile']['real_name'].split(' ')[1]
+                else:
+                    first_name = user['profile']['real_name']
+                    last_name = ''
+
+                user = User.objects._create_user(
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=user['profile']['email'],
+                    password=None,
+                    role=3,
+                    timezone=user['tz']
+                )
+                if org.create_new_hire_without_confirm:
+                    user.role = 0
+                    user.save()
+                    # adding default sequences
+                    for i in Sequence.objects.filter(auto_add=True):
+                        i.assign_to_user(user)
+
+                else:
+                    # needs approval for new hire account
+                    s = Slack()
+                    s.set_user(org.slack_confirm_person)
+                    blocks = s.format_account_approval_approval(request.data['event']['user'], user.id)
+                    s.send_message(blocks=blocks)
+            return Response('ok')
+
 
         s = Slack(request.data)
         if not s.has_account():
@@ -166,6 +206,50 @@ class CallbackView(APIView):
                 if tasks.exists():
                     blocks = s.format_resource_block(items=tasks)
                     s.send_message(blocks=blocks)
+                return Response()
+
+            # responding to approving new hires directly from Slack (people that joined Slack)
+            if 'create:newhire' in value:
+                if 'deny' in value:
+                    # delete message when it's denied to not clutter things up
+                    s.client.chat_delete(
+                        channel=s.channel,
+                        ts=response['message']['ts']
+                    )
+                if 'approve' in value:
+                    options = []
+                    for i in Sequence.objects.all()[:100]:
+                        options.append({
+                          "text": {
+                            "type": "plain_text",
+                            "text": i.name
+                          },
+                          "value": str(i.id)
+                        })
+                    s.open_modal(
+                        trigger_id=response['trigger_id'],
+                        callback="approve:newhire" + ':' + s.container['message_ts'],
+                        title="New hire options",
+                        blocks=[{
+                            "type": "input",
+                            "block_id": "seq",
+                            "label": {
+                                "type": "plain_text",
+                                "text": "Select sequences",
+                            },
+                            "element": {
+                                "type": "multi_static_select",
+                                "placeholder": {
+                                    "type": "plain_text",
+                                    "text": "Select sequences"
+                                },
+                                "options": options,
+                                "action_id": "answers"
+                            }
+                        }],
+                        private_metadata=value.split(':')[3],
+                        submit_name='Create new hire'
+                    )
                 return Response()
 
             # open modal
@@ -344,6 +428,20 @@ class CallbackView(APIView):
                     return Response()
                 view = s.create_updated_view(resource.id, response['view'], book_user.completed_course)
                 return Response({"response_action": "update", "view": view})
+
+            if 'approve:newhire' in value:
+                new_hire = User.objects.get(id=int(response['view']['private_metadata']))
+                new_hire.role = 0
+                new_hire.save()
+                for i in response['view']['state']['values']['seq']['answers']['selected_options']:
+                    seq = Sequence.objects.get(id=i['value'])
+                    seq.assign_to_user(new_hire)
+                s.client.chat_delete(
+                    channel=s.channel,
+                    ts=value.split(':')[2]
+                )
+                
+
 
         return Response()
 

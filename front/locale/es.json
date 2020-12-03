@@ -575,7 +575,11 @@
         "customNotSaved": "No pudimos guardar esta configuración. Inténtalo de nuevo.",
         "billingSaved": "La información de facturación se ha guardado correctamente.",
         "billingNotSaved": "No se pudo guardar la información de facturación.",
-        "amountOfNewHires": "Cantidad de nuevas contrataciones:"
+        "amountOfNewHires": "Cantidad de nuevas contrataciones:",
+        "autoCreateUser": "Crear automáticamente una nueva contratación al unirse a Slack",
+        "withoutConfirm": "Las nuevas contrataciones se crean sin aprobación manual",
+        "confirmPerson": "Persona a la que pedir permiso:",
+        "addSequences": "Añade siempre estas secuencias predeterminadas:"
       },
       "form": {
         "paymentHeader": "Payments",

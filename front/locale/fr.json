@@ -574,7 +574,11 @@
         "customNotSaved": "Nous n'avons pas pu enregistrer ces paramètres. Veuillez réessayer.",
         "billingSaved": "Les informations de facturation ont été sauvegardées avec succès.",
         "billingNotSaved": "Les informations de facturation n'ont pas pu être enregistrées.",
-        "amountOfNewHires": "Nombre de nouvelles embauches:"
+        "amountOfNewHires": "Nombre de nouvelles embauches:",
+        "autoCreateUser": "Créer automatiquement une nouvelle embauche en rejoignant Slack",
+        "withoutConfirm": "Les nouvelles embauches sont créées sans approbation manuelle",
+        "confirmPerson": "Personne à qui demander la permission:",
+        "addSequences": "Ajoutez toujours ces séquences par défaut:"
       },
       "form": {
         "paymentHeader": "Paiements",

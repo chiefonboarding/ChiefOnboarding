@@ -3,6 +3,8 @@ from .models import Organization, Tag, WelcomeMessage
 from integrations.models import AccessToken
 from misc.serializers import FileSerializer
 from django.conf import settings
+from sequences.models import Sequence
+from sequences.serializers import SequenceListSerializer
 
 
 class BaseOrganizationSerializer(serializers.ModelSerializer):
@@ -13,12 +15,14 @@ class BaseOrganizationSerializer(serializers.ModelSerializer):
     google_login_client_id = serializers.SerializerMethodField(read_only=True)
     logo = serializers.SerializerMethodField(read_only=True)
     base_url = serializers.SerializerMethodField(read_only=True)
+    auto_add_sequence = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Organization
         fields = ('name', 'timezone', 'language', 'base_color', 'accent_color', 'credentials_login',
                   'google_login', 'slack_login', 'slack_key', 'slack_account_key', 'google_key', 'google_login_key',
-                  'logo', 'google_login_client_id', 'base_url')
+                  'logo', 'google_login_client_id', 'base_url', 'auto_create_user', 'create_new_hire_without_confirm',
+                  'slack_confirm_person', 'auto_add_sequence')
 
     def get_slack_key(self, obj):
         return AccessToken.objects.filter(integration=0, active=True).exists()
@@ -39,6 +43,9 @@ class BaseOrganizationSerializer(serializers.ModelSerializer):
         if AccessToken.objects.filter(integration=3, active=True).exists():
             return AccessToken.objects.get(integration=3).client_id
         return ''
+
+    def get_auto_add_sequence(self, obj):
+        return SequenceListSerializer(Sequence.objects.filter(auto_add=True), many=True).data
 
     def get_logo(self, obj):
         if obj.logo is None:

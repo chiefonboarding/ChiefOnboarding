@@ -27,7 +27,7 @@ class SequenceListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Sequence
-        fields = ('id', 'name', 'search_type')
+        fields = ('id', 'name', 'search_type', 'auto_add')
 
 
 class ExternalMessageSerializer(serializers.ModelSerializer):

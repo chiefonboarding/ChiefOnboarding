@@ -42,6 +42,14 @@
           </template>
           <span>{{ $t('settings.global.sendReminderWhenDue') }}</span>
         </v-tooltip>
+        <v-select
+          v-model="company.auto_add_sequence"
+          :items="$store.state.sequences.all"
+          :label="$t('settings.global.addSequences')"
+          item-value="id"
+          item-text="name"
+          multiple
+          />
         <div v-if="$store.state.org.slack_key">
           <h2> {{ $t('settings.global.slackOptions') }}</h2>
           <v-tooltip top>
@@ -74,6 +82,24 @@
             </template>
             <span>{{ $t('settings.global.sendReminderNewHireIsStarting') }}</span>
           </v-tooltip>
+          <v-switch
+            v-model="company.auto_create_user"
+            :label="$t('settings.global.autoCreateUser')"
+          />
+          <v-switch
+            :disabled="!company.auto_create_user"
+            v-model="company.create_new_hire_without_confirm"
+            :label="$t('settings.global.withoutConfirm')"
+          />
+          <v-select
+            :disabled="company.create_new_hire_without_confirm || !company.auto_create_user"
+            v-model="company.slack_confirm_person"
+            :items="$store.state.employees.all.filter(a => a.slack_user_id !== null && a.slack_user_id !== '')"
+            :label="$t('settings.global.confirmPerson')"
+            item-value="id"
+            item-text="full_name"
+          />
+
         </div>
       </v-card-text>
       <v-card-actions>

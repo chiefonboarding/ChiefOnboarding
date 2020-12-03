@@ -28,6 +28,7 @@ class Sequence(models.Model):
     to_do = models.ManyToManyField(ToDo)
     resources = models.ManyToManyField(Resource)
     appointments = models.ManyToManyField(Appointment)
+    auto_add = models.BooleanField(default=False)
 
     def assign_to_user(self, user):
         a = [

@@ -575,7 +575,11 @@
         "customNotSaved": "Bu ayarları kaydedemedik. Lütfen tekrar deneyin.",
         "billingSaved": "Fatura bilgileri başarıyla kaydedildi.",
         "billingNotSaved": "Fatura bilgileri kaydedilemedi.",
-        "amountOfNewHires": "Yeni işe alım sayısı:"
+        "amountOfNewHires": "Yeni işe alım sayısı:",
+        "autoCreateUser": "Slack'e katılırken otomatik olarak yeni işe alım oluştur",
+        "withoutConfirm": "Yeni işe alımlar manuel onay olmadan oluşturulur",
+        "confirmPerson": "İzin alınacak kişi:",
+        "addSequences": "Her zaman şu varsayılan dizileri ekleyin:"
       },
       "form": {
         "paymentHeader": "Ödemeler",
