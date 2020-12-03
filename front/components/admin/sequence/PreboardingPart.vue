@@ -43,12 +43,12 @@
         </v-row>
       </v-card-title>
       <v-card-text class="white text--primary pt-3">
-        <draggable v-model="value" @change="updateOrder" :disabled="!this.onNewHirePage">
+        <draggable v-model="value" @change="updateOrder" :disabled="!onNewHirePage">
           <v-row
             v-for="(i, index) in value"
             :key="index"
-            style="cursor: pointer"
             @click="editItem(i)"
+            style="cursor: pointer"
           >
             <v-col sm="11" class="py-0">
               <i class="fas fa-align-left mr-3" />{{ i.name }}

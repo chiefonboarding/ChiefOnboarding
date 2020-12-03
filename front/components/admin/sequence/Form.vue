@@ -106,6 +106,11 @@ export default {
       resources: []
     }
   }),
+  watch: {
+    errors (value) {
+      this.tempErrors = JSON.parse(JSON.stringify(value))
+    }
+  },
   mounted () {
     this.$store.commit('setRightSideBar', true)
     this.$store.commit('toggleLeftDrawer', true)
@@ -123,11 +128,6 @@ export default {
       resources: JSON.parse(JSON.stringify(this.$store.state.sequences.item.resources)) || []
     }
     this.preboarding = JSON.parse(JSON.stringify(this.$store.state.sequences.item.preboarding)) || []
-  },
-  watch: {
-    errors (value) {
-      this.tempErrors = JSON.parse(JSON.stringify(value))
-    }
   },
   methods: {
     updateSequenceName (value) {

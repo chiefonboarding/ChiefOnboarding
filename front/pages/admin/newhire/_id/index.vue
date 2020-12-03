@@ -7,7 +7,7 @@
         v-if="preboardingItems.length"
         @openPreview="dialog = true"
         @openAccessModal="preboardingDialog = true"
-        onNewHirePage
+        on-new-hire-page
       />
       <v-timeline-item
         v-if="itemsOverdue.length"
@@ -89,13 +89,13 @@ export default {
       return moment(this.newHire.start_day) > moment()
     }
   },
-  mounted () {
-    this.loadNewHire()
-  },
   watch: {
     '$store.state.refreshSequence' () {
       this.loadNewHire()
     }
+  },
+  mounted () {
+    this.loadNewHire()
   },
   methods: {
     loadNewHire () {

@@ -6,7 +6,7 @@
     <v-card color="#f5f5f5">
       <v-card-title class="title" style="padding-bottom: 0px; padding-top: 5px; max-height: 70px">
         <span style="font-size: 15px;">
-          {{ $t('sideBar.unconditioned')}}
+          {{ $t('sideBar.unconditioned') }}
         </span>
         <div @click="selfRemove" class="red-remove" style="position: absolute; right: 15px;">
           <i style="cursor:pointer;" class="far fa-times-circle" />

@@ -14,7 +14,7 @@
               <span v-if="sendVia===1">{{ $t('sequence.slack') }}</span>
               <span v-if="sendVia===0">{{ $t('sequence.emailModal') }}</span>
             </v-col>
-            <v-col cols="6" class="text-right" v-if="'id' in item && sendVia !== 2">
+            <v-col v-if="'id' in item && sendVia !== 2" cols="6" class="text-right">
               <v-menu bottom left>
                 <template v-slot:activator="{ on }">
                   <v-btn

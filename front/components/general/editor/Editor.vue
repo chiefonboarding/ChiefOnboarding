@@ -283,6 +283,11 @@ export default {
       return this.query || this.hasResults
     }
   },
+  watch: {
+    '$store.state.refreshEditor' () {
+      this.formatDataToEditorHTML(this.value)
+    }
+  },
   mounted () {
     this.formatDataToEditorHTML(this.value)
     this.editor.on('update', ({ getJSON }) => {
@@ -291,11 +296,6 @@ export default {
       console.log(getJSON())
       this.$emit('input', this.formatToData(getJSON()))
     })
-  },
-  watch: {
-    '$store.state.refreshEditor' () {
-      this.formatDataToEditorHTML(this.value)
-    }
   },
   beforeDestroy () {
     this.editor.destroy()

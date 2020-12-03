@@ -49,7 +49,7 @@
           item-value="id"
           item-text="name"
           multiple
-          />
+        />
         <div v-if="$store.state.org.slack_key">
           <h2> {{ $t('settings.global.slackOptions') }}</h2>
           <v-tooltip top>
@@ -99,7 +99,6 @@
             item-value="id"
             item-text="full_name"
           />
-
         </div>
       </v-card-text>
       <v-card-actions>
