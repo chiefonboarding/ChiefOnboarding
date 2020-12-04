@@ -51,7 +51,7 @@ class CustomUserManager(BaseUserManager):
             raise ValueError('The given email must be set')
         email = self.normalize_email(email)
         user = self.model(first_name=first_name, last_name=last_name, email=email, role=role,
-                          date_joined=now, start_day=now.date(), **extra_fields)
+                          date_joined=now, **extra_fields)
         if password is not None:
             user.set_password(password)
         user.save(using=self._db)

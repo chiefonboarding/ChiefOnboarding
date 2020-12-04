@@ -57,7 +57,8 @@ class BotView(APIView):
                     email=user['profile']['email'],
                     password=None,
                     role=3,
-                    timezone=user['tz']
+                    timezone=user['tz'],
+                    start_day=datetime.now()
                 )
                 if org.create_new_hire_without_confirm:
                     user.role = 0
