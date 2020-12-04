@@ -60,6 +60,11 @@ INSTALLED_APPS = [
     'back'
 ]
 
+if env('API_ACCESS', default=False):
+    INSTALLED_APPS += [
+        'rest_framework.authtoken'
+    ]
+
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -165,6 +170,10 @@ REST_FRAMEWORK = {
         'anon': '100/day'
     }
 }
+
+
+if env('API_ACCESS', default=False):
+    REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'].append('rest_framework.authentication.TokenAuthentication')
 
 
 REST_AUTH_SERIALIZERS = {
