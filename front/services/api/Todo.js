@@ -37,7 +37,7 @@ export default (axios, store) => ({
     })
   },
   duplicate (id) {
-    return axios.post(`api/duplicate_todo/${id}`).then((response) => {
+    return axios.post(`api/to_do/${id}/duplicate`).then((response) => {
       return response.data
     }).catch((error) => {
       return Promise.reject(error.response.data)

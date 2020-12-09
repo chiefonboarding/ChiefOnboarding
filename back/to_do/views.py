@@ -17,5 +17,8 @@ class ToDoViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def duplicate(self, request, pk):
-        self.get_object().duplicate()
+        obj = self.get_object()
+        obj.pk = None
+        obj.save()
         return Response()
+
