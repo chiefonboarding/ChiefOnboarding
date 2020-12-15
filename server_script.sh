@@ -18,8 +18,8 @@ export POSTGRES_PASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head
 openssl dhparam -out ./certbot/dhparam/dhparam-2048.pem 2048
 
 sed -e "s/%1/$1/g" -e "s/%2/$secret_key/g" -e "s/%db_user/$POSTGRES_USER/g" -e "s/%db_name/$POSTGRES_DB/g" -e "s/%db_pass/$POSTGRES_PASS/g" ./prod.env.example > ./back/back/.env
-sed -i '' -e "s/POS_DB/$POSTGRES_DB/" -e "s/POS_USER/$POSTGRES_USER/" -e "s/POS_PASS/$POSTGRES_PASS/" docker-compose.production.yml
-sed -i ''  "s/process.env.BASE_URL/'https:\/\/$1'/g" ./front/nuxt.config.js
+sed -i "s/POS_DB/$POSTGRES_DB/; s/POS_USER/$POSTGRES_USER/; s/POS_PASS/$POSTGRES_PASS/" docker-compose.production.yml
+sed -i "s/process.env.BASE_URL/'https:\/\/$1'/g" ./front/nuxt.config.js
 mkdir -p ./nginx/sites-enabled/
 sed "s/%host/$1/g" ./nginx/django_project.example > ./nginx/sites-enabled/django_project.conf
 
