@@ -50,40 +50,6 @@
           </template>
         </v-autocomplete>
         <v-row>
-          <v-col v-if="$store.state.org.google_key" cols="6" class="py-0">
-            <v-checkbox
-              v-model="newHire.google.create"
-              label="Create Google account"
-            />
-          </v-col>
-          <v-col cols="6" class="py-0">
-            <v-text-field
-              v-if="newHire.google.create"
-              v-model="newHire.google.email"
-              :rules="[rules.emailMatch]"
-              label="Email address"
-              type="email"
-              hint="The email address we will send the new email credentials to"
-            />
-          </v-col>
-          <v-col v-if="$store.state.org.slack_account_key" cols="6" class="py-0">
-            <v-checkbox
-              v-model="newHire.slack.create"
-              label="Create Slack account"
-            />
-          </v-col>
-          <v-col cols="6" class="py-0">
-            <v-text-field
-              v-if="newHire.slack.create"
-              v-model="newHire.slack.email"
-              :rules="[rules.emailMatch]"
-              label="Email address"
-              type="email"
-              hint="The email address we will send the new invite to"
-            />
-          </v-col>
-        </v-row>
-        <v-row>
           <v-spacer />
           <v-btn :loading="createNewHireLoading" @click="createNewHire" color="primary">
             {{ $t('newhires.continue') }}
@@ -128,15 +94,7 @@ export default {
       start_day: moment().format('YYYY-MM-DD'),
       buddy: null,
       manager: null,
-      timezone: vm.$store.state.org.timezone,
-      google: {
-        create: false,
-        email: ''
-      },
-      slack: {
-        create: false,
-        email: ''
-      }
+      timezone: vm.$store.state.org.timezone
     },
     errors: {},
     conditionItems: [],

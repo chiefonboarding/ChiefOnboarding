@@ -34,3 +34,9 @@ class ScheduledAccessSerializer(serializers.ModelSerializer):
     class Meta:
         model = ScheduledAccess
         fields = ('new_hire_id', 'integration', 'status', 'integration', 'email')
+
+
+class AsanaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AccessToken
+        fields = ('integration', 'token')

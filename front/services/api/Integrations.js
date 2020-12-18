@@ -21,6 +21,20 @@ export default (axios, store) => ({
       return Promise.reject(error.response.data)
     })
   },
+  saveAsanaToken (payload) {
+    return axios.post('api/integrations/asana', payload).then((response) => {
+      return response.data
+    }).catch((error) => {
+      return Promise.reject(error.response.data)
+    })
+  },
+  getAsanaTeams () {
+    return axios.get('api/integrations/asana_teams').then((response) => {
+      return response.data
+    }).catch((error) => {
+      return Promise.reject(error.response.data)
+    })
+  },
   removeIntegration (id) {
     return axios.delete(`api/integrations/token/${id}`).then((response) => {
       return response.data

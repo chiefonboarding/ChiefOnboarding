@@ -59,7 +59,8 @@ export default {
       { name: 'admin_tasks', icon: 'fas fa-tasks' },
       { name: 'appointments', icon: 'far fa-calendar-alt' },
       { name: 'preboarding', icon: 'fas fa-align-left' },
-      { name: 'introductions', icon: 'far fa-user-circle' }
+      { name: 'introductions', icon: 'far fa-user-circle' },
+      { name: 'integrations', icon: 'fas fa-bolt' }
     ]
   }),
   computed: {

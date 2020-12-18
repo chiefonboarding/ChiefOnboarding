@@ -63,6 +63,7 @@ export const mutations = {
   },
   setIntegrations (state, integrations) { state.integrations = integrations },
   setGoogleKey (state) { state.org.google_key = true },
+  setAsanaKey (state) { state.org.asana = true },
   setGoogleLoginKey (state) { state.org.google_login_key = true }
 }
 

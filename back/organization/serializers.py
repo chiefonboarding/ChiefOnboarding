@@ -13,6 +13,7 @@ class BaseOrganizationSerializer(serializers.ModelSerializer):
     google_key = serializers.SerializerMethodField(read_only=True)
     google_login_key = serializers.SerializerMethodField(read_only=True)
     google_login_client_id = serializers.SerializerMethodField(read_only=True)
+    asana = serializers.SerializerMethodField(read_only=True)
     logo = serializers.SerializerMethodField(read_only=True)
     base_url = serializers.SerializerMethodField(read_only=True)
     auto_add_sequence = serializers.SerializerMethodField(read_only=True)
@@ -22,7 +23,7 @@ class BaseOrganizationSerializer(serializers.ModelSerializer):
         fields = ('name', 'timezone', 'language', 'base_color', 'accent_color', 'credentials_login',
                   'google_login', 'slack_login', 'slack_key', 'slack_account_key', 'google_key', 'google_login_key',
                   'logo', 'google_login_client_id', 'base_url', 'auto_create_user', 'create_new_hire_without_confirm',
-                  'slack_confirm_person', 'auto_add_sequence')
+                  'slack_confirm_person', 'auto_add_sequence', 'asana')
 
     def get_slack_key(self, obj):
         return AccessToken.objects.filter(integration=0, active=True).exists()
@@ -35,6 +36,9 @@ class BaseOrganizationSerializer(serializers.ModelSerializer):
 
     def get_google_login_key(self, obj):
         return AccessToken.objects.filter(integration=3, active=True).exists()
+    
+    def get_asana(self, obj):
+        return AccessToken.objects.filter(integration=4, active=True).exists()
 
     def get_base_url(self, obj):
         return settings.BASE_URL

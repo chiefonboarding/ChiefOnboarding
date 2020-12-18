@@ -68,6 +68,39 @@
           </div>
         </div>
       </v-col>
+      <v-col
+        v-if="$store.state.org.asana"
+        sm="6"
+      >
+        <div class="border">
+          <div>
+            <h3>Asana</h3>
+            <p>Asana account creation</p>
+            <v-btn v-if="asana.status === 'not_found'" @click="addGoogleModal = true" color="secondary" class="ma-0">
+              {{ $t("newhires.giveAccess") }}
+            </v-btn>
+            <v-menu v-else offset-y>
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  :class="{'primary': asana.status === 'pending', 'green': asana.status === 'exists'}"
+                  :loading="loadingGoogle"
+                  v-on="on"
+                  class="ma-0"
+                >
+                  <span v-if="asana.status === 'pending'">{{ $t("buttons.pending") }}</span><span v-else style="color:white">{{ $t("buttons.active") }}</span>
+                </v-btn>
+              </template>
+              <v-list>
+                <v-list-item
+                  @click="removeGoogle"
+                >
+                  <v-list-item-title>{{ $t("buttons.remove") }}</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </div>
+        </div>
+      </v-col>
     </v-row>
     <v-dialog v-model="addSlackModal" max-width="500">
       <v-card>
@@ -129,6 +162,7 @@ export default {
     loading: false,
     slack: {},
     google: {},
+    asana: {},
     googleEmail: '',
     addSlackModal: false,
     slackEmail: '',
@@ -201,6 +235,13 @@ export default {
       if (this.$store.state.org.google_key) {
         this.$newhires.getAccess(this.newHire.id, 2).then((data) => {
           this.google = data
+        }).finally(() => {
+          this.loadingGoogle = false
+        })
+      }
+      if (this.$store.state.org.asana) {
+        this.$newhires.getAccess(this.newHire.id, 4).then((data) => {
+          this.asana = data
         }).finally(() => {
           this.loadingGoogle = false
         })

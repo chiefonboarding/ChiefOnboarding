@@ -60,6 +60,13 @@ export default (axios, store) => ({
       return Promise.reject(error.response.data)
     })
   },
+  createAsana (payload) {
+    return axios.post(`api/sequence/asana`, payload).then((response) => {
+      return response.data
+    }).catch((error) => {
+      return Promise.reject(error.response.data)
+    })
+  },
   duplicate (id) {
     return axios.post(`api/${id}/duplicate`).then((response) => {
       return response.data

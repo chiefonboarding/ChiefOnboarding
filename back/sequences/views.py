@@ -2,9 +2,9 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Sequence, ExternalMessage, Condition, PendingAdminTask
+from .models import Sequence, ExternalMessage, Condition, PendingAdminTask, AccountCreation
 from .serializers import SequenceSerializer, ExternalMessageSerializer, SequenceListSerializer, \
-    PendingAdminTaskSerializer
+    PendingAdminTaskSerializer, IntegrationSerializer
 from to_do.models import ToDo
 
 from django.apps import apps
@@ -29,7 +29,8 @@ class SequenceViewSet(viewsets.ModelViewSet):
             {'app': 'sequences', 'model': 'PendingAdminTask', 'item': 'admin_tasks', 'c_model': c.admin_tasks},
             {'app': 'badges', 'model': 'Badge', 'item': 'badges', 'c_model': c.badges},
             {'app': 'sequences', 'model': 'ExternalMessage', 'item': 'external_messages', 'c_model': c.external_messages},
-            {'app': 'introductions', 'model': 'Introduction', 'item': 'introductions', 'c_model': c.introductions}
+            {'app': 'introductions', 'model': 'Introduction', 'item': 'introductions', 'c_model': c.introductions},
+            {'app': 'sequences', 'model': 'AccountCreation', 'item': 'integrations', 'c_model': c.integrations}
         ]
 
     def _save_sequence(self, data, sequence=None):
@@ -43,8 +44,6 @@ class SequenceViewSet(viewsets.ModelViewSet):
         ]
         for j in items:
             for i in data['collection'][j['item']]:
-                print(i['id'])
-                print(j['s_model'].all())
                 item = apps.get_model(app_label=j['app'], model_name=j['model']).objects.get(id=i['id'])
                 j['s_model'].add(item)
 
@@ -124,3 +123,15 @@ class SaveAdminTask(APIView):
         pending_task.is_valid(raise_exception=True)
         pending_task.save()
         return Response(pending_task.data)
+
+
+class saveAsanaView(APIView):
+    def post(self, request):
+        if 'id' in request.data:
+            account_creation_obj = AccountCreation.objects.get(id=request.data['id'])
+            integration = IntegrationSerializer(account_creation_obj, data=request.data, partial=True)
+        else:
+            integration = IntegrationSerializer(data=request.data)
+        integration.is_valid(raise_exception=True)
+        integration.save()
+        return Response(integration.data)

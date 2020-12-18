@@ -2,7 +2,7 @@ import os
 import slack
 from django.contrib.auth import get_user_model
 
-from .emails import slack_error_email
+from .emails import IntegrationEmail
 from .models import AccessToken
 import json
 import requests
@@ -47,7 +47,6 @@ class Slack:
         elif 'error' in r.json() and (r.json()['error'] == 'already_in_team' or r.json()['error'] == 'already_invited'):
             return
         elif 'error' in r.json() and r.json()['error'] == 'token_revoked':
-            slack_error_email(get_user_model().objects.filter(role=1).order_by('date_joined').first())
             self.record.active = False
             self.record.save()
             raise UnauthorizedError

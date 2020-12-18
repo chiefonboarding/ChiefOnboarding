@@ -20,6 +20,13 @@ from twilio.rest import Client
 
 from .emails import send_sequence_message
 from slack_bot.slack import Slack
+from integrations.slack import Slack as SlackAccount
+
+from integrations.asana import Asana
+from integrations.google import Google
+from django.contrib.auth import get_user_model
+from integrations.emails import IntegrationEmail
+
 
 
 class Sequence(models.Model):
@@ -143,6 +150,16 @@ class PendingAdminTask(models.Model):
     priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
 
 
+class AccountCreation(models.Model):
+    INTEGRATION_OPTIONS = (
+        ('asana', 'Add Asana account to team'),
+        ('google', 'Create Google account'),
+        ('slack', 'Create Slack account')
+    )
+    integration_type = models.CharField(max_length=10, choices=INTEGRATION_OPTIONS)
+    additional_data = models.JSONField(models.TextField(blank=True), default=dict)
+
+
 class Condition(models.Model):
     CONDITION_TYPE = (
         (0, 'after'),
@@ -160,6 +177,7 @@ class Condition(models.Model):
     admin_tasks = models.ManyToManyField(PendingAdminTask)
     external_messages = models.ManyToManyField(ExternalMessage)
     introductions = models.ManyToManyField(Introduction)
+    integrations = models.ManyToManyField(AccountCreation)
 
     def process_condition(self, user):
         from sequences.serializers import PendingAdminTaskSerializer
@@ -170,6 +188,42 @@ class Condition(models.Model):
             'badges': [],
             'introductions': []
         }
+        # always start with Google as that is likely the base account
+        if self.integrations.filter(integration_type='google').exists():
+            g = Google()
+            password = get_user_model().objects.make_random_password()
+            userinfo = {
+                "primaryEmail": user.email,
+                "name": {
+                    "givenName": user.first_name,
+                    "familyName": user.last_name
+                },
+                "password": password,
+                "changePasswordAtNextLogin": True
+            }
+            try:
+                g.add_user(userinfo)
+                IntegrationEmail(user).send_access_email(password, user.personal_email)
+            except EmailAddressNotValidError:
+                # need to be replaced with a decent error handling
+                pass
+            except UnauthorizedError:
+                IntegrationEmail(get_user_model().objects.filter(role=1).order_by('date_joined').first()).google_auth_error_email()
+
+        for i in self.integrations.exclude(integration_type='google'):
+            if i.integration_type == 'asana':
+                try:
+                    Asana().add_user(user)
+                except:
+                    IntegrationEmail(get_user_model().objects.filter(role=1).order_by('date_joined').first()).asana_error_email()
+
+            if i.integration_type == 'slack':
+                try:
+                    s = SlackAccount()
+                    s.add_user(user.email)
+                except Exception:
+                    IntegrationEmail(get_user_model().objects.filter(role=1).order_by('date_joined').first()).slack_error_email()
+
         for i in self.to_do.all():
             if not user.to_do.filter(pk=i.pk).exists():
                 items_added['to_do'].append(i)

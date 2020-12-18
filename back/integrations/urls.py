@@ -10,6 +10,8 @@ router.register('access', views.AccessViewSet, 'access')
 urlpatterns = [
     path('', include(router.urls)),
     path('slack_token', views.SlackTokenCreateView.as_view()),
+    path('asana', views.AsanaCreateView.as_view()),
+    path('asana_teams', views.AsanaTeamsView.as_view()),
     path('google', views.GoogleTokenCreateView.as_view()),
     path('google_login', views.GoogleLoginTokenCreateView.as_view()),
     path('google_token', views.GoogleAddTokenView.as_view()),

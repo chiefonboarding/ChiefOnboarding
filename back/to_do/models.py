@@ -6,9 +6,13 @@ from misc.models import Content
 
 
 class ToDo(BaseTemplate):
+    INTEGRATION_CHOICES = (
+        ('github', 'Github'),
+    )
     content = models.ManyToManyField(Content)
     due_on_day = models.IntegerField(default=0)
     form = models.JSONField(models.TextField(default='[]'))
+    integration = models.CharField(max_length=10, choices=INTEGRATION_CHOICES, blank=True, default='')
     # Chat bot specific actions
     send_back = models.BooleanField(default=False)
     channel = models.TextField(blank=True)

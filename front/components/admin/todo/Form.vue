@@ -25,7 +25,7 @@
       </v-col>
       <v-col sm="8" class="pl-4">
         <Editor ref="editor" v-model="value.content" />
-        <CustomForm v-if="'form' in value" v-model="value.form" />
+        <CustomForm v-if="'form' in value" v-model="value.form" add-integrations />
         <v-col v-if="$store.state.org.slack_key && 'form' in value && value.form.length" sm="12">
           <v-checkbox
             v-model="value.send_back"

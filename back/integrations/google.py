@@ -76,6 +76,8 @@ class Google:
         if response.status_code == 403 or response.status_code == 404:
             raise EmailAddressNotValidError
         if response.status_code == 401:
+            self.record.active = False
+            self.record.save()
             raise UnauthorizedError
         if response.status_code == 200:
             return

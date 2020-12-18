@@ -259,6 +259,12 @@
     "sendEmailMessageTo":"Send email message to:",
     "sendTextMessageTo":"Send text message to:"
  },
+ "integrations": {
+    "asana": {
+        "missingTeams": "Please add at least one team.",
+        "couldNotSave": "Asana item could not be saved."
+    }
+ },
  "form":{
     "options":"Form options",
     "small":"Small text",
@@ -279,6 +285,7 @@
     "checkboxGroupName":"Checkbox group name",
     "checkboxItemName":"Checkbox item name",
     "addFormItem": "Add form item",
+    "integrations": "Integrations",
     "fileNotSupported":"This filetype is not supported. Only .png and .jp(e)g are supported.",
     "multiFileNotSupported":"One or more files have not been uploaded. Only .doc(x), .xls(x), .pdf, .ptt(x), .png, .jp(e)g are supported."
  },
@@ -385,6 +392,7 @@
     "toDo":"To do templates",
     "resource":"Resource templates",
     "introduction": "Introduction templates",
+    "integrations": "Integrations",
     "badge":"Badge templates",
     "admin":"Admin to do item",
     "text":"Text message",
@@ -614,7 +622,9 @@
        "googleLogin":"Google login",
        "googleLoginDescr":"Let users sign in through Google",
        "googleAccountsDescr":"Connect Google to automatically create new Google accounts for new hires.",
+       "asanaDescr": "Connect Asana to let new hires join your team.",
        "client_id": "Client ID",
+       "account_id": "Account ID",
        "app_id": "App ID",
        "token": "Token",
        "client_secret": "Client Secret",

@@ -49,6 +49,7 @@
         <v-chip v-if="hasNewHireItems" label small style="margin: 5px 0px;">
           {{ $t('sequence.addToNewHire') }}
         </v-chip>
+        <CardLine :index="index" :items="i.integrations" @openItem="openModal" type="integrations" />
         <CardLine :index="index" :items="i.to_do" @openItem="openModal" type="to_do" />
         <CardLine :index="index" :items="i.resources" @openItem="openModal" type="resources" />
         <CardLine :index="index" :items="i.badges" @openItem="openModal" type="badges" />
@@ -110,7 +111,7 @@ export default {
   computed: {
     hasNewHireItems () {
       return this.i.to_do.length || this.i.resources.length || this.i.badges.length || this.i.introductions.length ||
-        this.i.external_messages.filter(a => a.person_type === 0).length
+        this.i.external_messages.filter(a => a.person_type === 0).length || this.i.integrations.length
     },
     hasAdminItems () {
       return this.i.admin_tasks.length || this.i.external_messages.filter(a => a.person_type !== 0).length

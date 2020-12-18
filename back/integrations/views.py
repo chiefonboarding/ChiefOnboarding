@@ -9,8 +9,8 @@ import json
 
 from .models import AccessToken, ScheduledAccess
 from .serializers import SlackTokenSerializer, GoogleAPITokenSerializer, GoogleOAuthTokenSerializer, \
-    ScheduledAccessSerializer
-
+    ScheduledAccessSerializer, AsanaSerializer
+from .asana import Asana
 
 class SlackTokenCreateView(generics.CreateAPIView, generics.RetrieveAPIView):
     queryset = AccessToken.objects.all()
@@ -20,6 +20,11 @@ class SlackTokenCreateView(generics.CreateAPIView, generics.RetrieveAPIView):
 class GoogleTokenCreateView(generics.CreateAPIView):
     queryset = AccessToken.objects.all()
     serializer_class = GoogleAPITokenSerializer
+
+
+class AsanaCreateView(generics.CreateAPIView):
+    queryset = AccessToken.objects.all()
+    serializer_class = AsanaSerializer
 
 
 class GoogleAddTokenView(APIView):
@@ -99,6 +104,12 @@ class TokenRemoveView(APIView):
     def delete(self, request, id):
         AccessToken.objects.filter(integration=id).delete()
         return Response()
+
+
+class AsanaTeamsView(APIView):
+    def get(self, request):
+        teams = Asana().get_teams()
+        return Response(teams)
 
 
 class AccessViewSet(viewsets.ModelViewSet):

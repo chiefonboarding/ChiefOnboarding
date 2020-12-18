@@ -125,6 +125,30 @@
         >
           {{ item.name }}
         </v-chip>
+          <v-menu
+            bottom
+            left
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                icon
+                v-bind="attrs"
+                v-on="on"
+              >
+                <v-icon>fas fa-plus</v-icon>
+              </v-btn>
+            </template>
+
+            <v-list>
+              <v-list-item
+                v-for="i in integrations"
+                :key="i.type"
+                @click="addIntegration(i)"
+              >
+                <v-list-item-title>Add {{ i.name }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
       </v-col>
     </v-row>
   </v-container>
@@ -138,6 +162,10 @@ export default {
     value: {
       type: Array,
       default: () => { return [] }
+    },
+    addIntegrations: {
+      type: Boolean,
+      default: false
     }
   },
   data: vm => ({
@@ -156,8 +184,14 @@ export default {
       group: 'description',
       disabled: false,
       ghostClass: 'ghost'
-    }
+    },
+    integrations: [
+      { type: 'asana', name: 'Asana' }
+    ]
   }),
+  mounted () {
+    // checking if integrations are enabled
+  },
   watch: {
     value: {
       handler (value) {
@@ -174,6 +208,11 @@ export default {
         this.value.push({ type: 'check', text: '', items: [{ name: '', id: this.getRandomString() }], id: this.getRandomString() })
       } else {
         this.value.push({ type: name, text: '', id: this.getRandomString() })
+      }
+    },
+    addIntegration (i) {
+      if (i.type === 'asana') {
+        // pass
       }
     },
     getRandomString () {

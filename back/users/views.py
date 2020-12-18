@@ -34,10 +34,10 @@ from resources.models import Resource
 from preboarding.models import Preboarding
 from slack_bot.slack import Slack as SlackBot
 from integrations.slack import Slack, PaidOnlyError, Error
-from integrations.models import ScheduledAccess
 from sequences.utils import get_task_items
 from organization.models import WelcomeMessage
 from integrations.google import Google
+from integrations.asana import Asana
 
 
 class NewHireViewSet(viewsets.ModelViewSet):
@@ -54,17 +54,11 @@ class NewHireViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         sequences = request.data.pop('sequences')
-        google = request.data.pop('google')
-        slack = request.data.pop('slack')
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         new_hire = serializer.save()
         for i in sequences:
             Sequence.objects.get(id=i['id']).assign_to_user(new_hire)
-        if slack['create']:
-            ScheduledAccess.objects.create(new_hire=new_hire, integration=1, status=0, email=slack['email'])
-        if google['create']:
-            ScheduledAccess.objects.create(new_hire=new_hire, integration=2, status=0, email=google['email'])
         new_hire_time = new_hire.get_local_time()
         if new_hire_time.date() >= new_hire.start_day and new_hire_time.hour >= 7 and new_hire_time.weekday() < 5:
             send_new_hire_credentials.apply_async([new_hire.id], countdown=3)
@@ -194,7 +188,12 @@ class NewHireViewSet(viewsets.ModelViewSet):
                 email=request.data['email']
             )
             return Response({'status': 'pending'})
-        s = SlackBot() if request.data['integration'] == 1 else Google()
+        if request.data['integration'] == 1:
+            s = SlackBot()
+        elif request.data['integration'] == 2:
+            s = Google()
+        elif request.data['integration'] == 4:
+            s = Asana()
         if s.find_by_email(new_hire.email):
             return Response({'status': 'exists'})
         items = ScheduledAccess.objects.filter(new_hire=new_hire, integration=request.data['integration']).exclude(
