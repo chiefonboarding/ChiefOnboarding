@@ -26,6 +26,17 @@
             :error-messages="errorMessages.email"
             @keyup="errorMessages.email=''"
             hint="Business email address"
+            persistent-hint
+          />
+        </v-col>
+        <v-col cols="6" class="py-0">
+          <v-text-field
+            v-model="value.personal_meail"
+            :label="$t('forms.email')"
+            :error-messages="errorMessages.email"
+            @keyup="errorMessages.email=''"
+            hint="Personal email address"
+            persistent-hint
           />
         </v-col>
         <v-col cols="6" class="py-0">
@@ -74,6 +85,7 @@
             />
           </v-menu>
         </v-col>
+        <v-col cols="6" class="py-0" />
         <v-col v-if="$store.state.org.slack_key" cols="12" class="py-0">
           <v-textarea
             v-model="value.message"

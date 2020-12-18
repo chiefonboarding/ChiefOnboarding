@@ -41,6 +41,14 @@
         >
           <GoogleLoginConnectDialog />
         </IntegrationItem>
+        <IntegrationItem
+          :description="$t('settings.integrations.asanaDescr')"
+          :integration="4"
+          :connected="$store.state.org.asana"
+          title="Asana"
+        >
+          <AsanaDialog />
+        </IntegrationItem>
       </v-row>
     </v-container>
   </v-col>
@@ -50,9 +58,10 @@ import IntegrationItem from '@/components/admin/settings/global/integrations/Int
 import SlackConnectDialog from '@/components/admin/settings/global/integrations/SlackConnectDialog'
 import GoogleAPIConnectDialog from '@/components/admin/settings/global/integrations/GoogleAPIConnectDialog'
 import GoogleLoginConnectDialog from '@/components/admin/settings/global/integrations/GoogleLoginConnectDialog'
+import AsanaDialog from '@/components/admin/settings/global/integrations/AsanaDialog'
 export default {
   layout: 'admin',
-  components: { GoogleLoginConnectDialog, SlackConnectDialog, IntegrationItem, GoogleAPIConnectDialog },
+  components: { GoogleLoginConnectDialog, SlackConnectDialog, IntegrationItem, GoogleAPIConnectDialog, AsanaDialog },
   data: () => ({
     dialog: false,
     loading: false

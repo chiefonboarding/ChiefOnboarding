@@ -10,7 +10,8 @@ INTEGRATION_OPTIONS = (
     (0, 'Slack'),
     (1, 'Slack Account'),
     (2, 'Google'),
-    (3, 'Google Login')
+    (3, 'Google Login'),
+    (4, 'Asana')
 )
 STATUS = (
     (0, 'pending'),

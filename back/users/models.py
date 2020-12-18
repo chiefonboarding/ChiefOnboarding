@@ -87,6 +87,7 @@ class User(AbstractBaseUser):
     first_name = models.CharField(max_length=200)
     last_name = models.CharField(max_length=200)
     email = models.EmailField(max_length=200, unique=True)
+    personal_email = models.EmailField(max_length=200, blank=True, default='')
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)

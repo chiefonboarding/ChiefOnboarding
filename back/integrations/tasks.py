@@ -2,7 +2,7 @@ from celery.schedules import crontab
 from celery.task import periodic_task
 from django.contrib.auth import get_user_model
 from integrations.models import ScheduledAccess, AccessToken
-from integrations.emails import send_access_email, google_error_email, slack_error_email
+from integrations.emails import IntegrationEmail
 import requests
 from integrations.google import Google, EmailAddressNotValidError, UnauthorizedError
 
@@ -40,7 +40,7 @@ def create_accounts():
                 }
                 try:
                     g.add_user(userinfo)
-                    send_access_email(i.new_hire, password, i.email)
+                    IntegrationEmail(i.new_hire).send_access_email(password, i.email)
                     i.status = 2
                     i.save()
                 except EmailAddressNotValidError:
@@ -50,7 +50,7 @@ def create_accounts():
                     a = AccessToken.objects.filter(active=True, integration=2).first()
                     a.active = False
                     a.save()
-                    google_error_email(get_user_model().objects.filter(role=1).order_by('date_joined').first())
+                    IntegrationEmail(get_user_model().objects.filter(role=1).order_by('date_joined').first()).google_auth_error()
                 else:
                     i.status = 2
                     i.save()

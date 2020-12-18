@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.relations import PrimaryKeyRelatedField
 
-from .models import Sequence, Condition, ExternalMessage, PendingAdminTask
+from .models import Sequence, Condition, ExternalMessage, PendingAdminTask, AccountCreation
 from preboarding.serializers import PreboardingSerializer
 from to_do.serializers import ToDoSerializer
 from resources.serializers import ResourceSerializer
@@ -42,6 +42,17 @@ class ExternalMessageSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class IntegrationSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = AccountCreation
+        fields = '__all__'
+
+    def get_name(self, obj):
+        return obj.get_integration_type_display()
+
+
 class PendingAdminTaskSerializer(serializers.ModelSerializer):
     assigned_to = SeqEmployeeSerializer(read_only=True)
     assigned_to_id = serializers.PrimaryKeyRelatedField(
@@ -66,6 +77,7 @@ class ConditionSerializer(serializers.ModelSerializer):
     admin_tasks = PendingAdminTaskSerializer(many=True)
     external_messages = ExternalMessageSerializer(many=True)
     introductions = IntroductionSerializer(many=True)
+    integrations = IntegrationSerializer(many=True)
 
     class Meta:
         model = Condition

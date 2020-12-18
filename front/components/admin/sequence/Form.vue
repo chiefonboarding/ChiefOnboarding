@@ -57,6 +57,7 @@
     <BadgeModal v-model="openBadgeModal" :badge="badge" :index="index" />
     <ResourceModal v-model="openResourceModal" :resource="resource" :index="index" @updateUnconditionedItem="updateUnconditionedItem" />
     <IntroductionModal v-model="openIntroModal" :intro="intro" :index="index" @updateUnconditionedItem="updateUnconditionedItem" />
+    <AsanaIntegrationModal v-if="$store.state.org.asana" v-model="openAsanaIntegrationModal" :asana="asana" :index="index" @updateUnconditionedItem="updateUnconditionedItem" />
   </div>
 </template>
 
@@ -70,8 +71,9 @@ import ToDoModal from './modals/ToDoModal'
 import IntroductionModal from './modals/IntroductionModal'
 import PreboardingPart from './PreboardingPart'
 import AutoAddTimeLineItem from './AutoAddTimeLineItem'
+import AsanaIntegrationModal from './modals/AsanaIntegrationModal'
 export default {
-  components: { ExternalMessageModal, TimelineItem, IntroductionModal, TaskModal, ResourceModal, BadgeModal, ToDoModal, PreboardingPart, AutoAddTimeLineItem },
+  components: { ExternalMessageModal, TimelineItem, IntroductionModal, TaskModal, ResourceModal, BadgeModal, ToDoModal, PreboardingPart, AutoAddTimeLineItem, AsanaIntegrationModal },
   props: {
     errors: {
       required: true,
@@ -87,6 +89,7 @@ export default {
     openBadgeModal: false,
     openResourceModal: false,
     openToDoModal: false,
+    openAsanaIntegrationModal: false,
     openIntroModal: false,
     adminTask: {},
     preboardingItem: [],
@@ -95,6 +98,7 @@ export default {
     items: { name: '', collection_items: [] },
     item: {},
     toDo: {},
+    asana: {},
     intro: {},
     resource: {},
     preboarding: {},
@@ -160,6 +164,11 @@ export default {
       } else if (data.type === 'introductions' && data.item.id === -1) {
         this.openIntroModal = true
         this.intro = {}
+      } else if (data.type === 'integrations' && data.item.id === -1) {
+        if (data.item.integration_type === 'asana') {
+          this.openAsanaIntegrationModal = true
+          this.asana = {}
+        }
       } else {
         this.$store.commit('sequences/addItem', { block: this.index, item: data.item, type: data.type })
       }
@@ -190,6 +199,7 @@ export default {
       }
     },
     openItem (item) {
+      console.log(item)
       if (item.index === -1) {
         const obj = this.collection[item.type].find(a => a.id === item.id)
         if (item.type === 'to_do') {
@@ -224,6 +234,12 @@ export default {
       } else if (item.type === 'badges') {
         this.badge = this.$store.state.sequences.sequence[item.index][item.type].find(a => a.id === item.id)
         this.openBadgeModal = true
+      } else if (item.type === 'integrations') {
+        const obj = this.$store.state.sequences.sequence[item.index][item.type].find(a => a.id === item.id)
+        if (obj.integration_type === 'asana') {
+          this.openAsanaIntegrationModal = true
+          this.asana = this.$store.state.sequences.sequence[item.index][item.type].find(a => a.id === item.id)
+        }
       }
     }
   }

@@ -19,6 +19,7 @@
             </v-col>
             <v-col class="pt-8">
               <CardLine :index="0" :removable="false" :items="i.to_do" type="to_do" />
+              <CardLine :index="0" :removable="false" :items="i.integrations" type="integrations" />
               <CardLine :index="0" :removable="false" :items="i.resources" type="resources" />
               <CardLine :index="0" :removable="false" :items="i.badges" type="badges" />
               <CardLine :index="0" :removable="false" :items="i.admin_tasks" type="admin_tasks" />

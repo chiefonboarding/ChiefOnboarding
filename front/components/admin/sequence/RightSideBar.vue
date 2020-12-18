@@ -104,6 +104,7 @@
       </v-list-item>
       <v-divider />
       <v-list-item
+        v-if="type !== 'integrations'"
         class="menu-side"
       >
         <drag :transfer-data="{item: {id: -1}, type: type}" class="dragging">
@@ -216,6 +217,7 @@ export default {
       { id: 2, icon: 'far fa-folder', title: vm.$t('sideBar.resource'), arrow: true },
       { id: 8, icon: 'far fa-user-circle', title: vm.$t('sideBar.introduction'), arrow: true },
       { id: 3, icon: 'far fa-arrow-alt-circle-right', title: vm.$t('sideBar.badge'), arrow: true },
+      { id: 9, icon: 'fas fa-bolt', title: vm.$t('sideBar.integrations'), arrow: true },
       { id: 4, icon: 'fa fa-tasks', title: vm.$t('sideBar.admin'), arrow: false, type: 'admin_tasks' },
       { id: 5, icon: 'far fa-comment', title: vm.$t('sideBar.text'), arrow: false, type: 2 },
       { id: 6, icon: 'far fa-envelope', title: vm.$t('sideBar.email'), arrow: false, type: 0 },
@@ -244,8 +246,20 @@ export default {
       } else if (item.id === 8) {
         this.items = this.$store.state.intros.all
         this.type = 'introductions'
+      } else if (item.id === 9) {
+        this.items = []
+        if (this.$store.state.org.google_key) {
+          this.items.push({ name: 'Create Google account', tags: [], integration_type: 'google', id: 1 })
+        }
+        if (this.$store.state.org.slack_account_key) {
+          this.items.push({ name: 'Create Slack account', tags: [], integration_type: 'slack', id: 2 })
+        }
+        if (this.$store.state.org.asana) {
+          this.items.push({ name: 'Create Asana account', tags: [], integration_type: 'asana', id: -1 })
+        }
+        this.type = 'integrations'
       }
-      if (item.id === 1 || item.id === 2 || item.id === 3 || item.id === 8) {
+      if ([1, 2, 3, 8, 9].includes(item.id)) {
         this.mainMenu = false
       }
     },
@@ -274,6 +288,7 @@ export default {
         introductions: [],
         admin_tasks: [],
         external_messages: [],
+        integrations: [],
         days: this.amountOfDays,
         condition_to_do: toDoItems,
         condition_type: this.condition
