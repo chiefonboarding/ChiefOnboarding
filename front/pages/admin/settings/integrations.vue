@@ -39,6 +39,7 @@
               :title="$t('settings.integrations.googleLogin')"
               :description="$t('settings.integrations.googleLoginDescr')"
               :integration="2"
+              :integration="3"
               :connected="$store.state.org.google_login_key"
             >
               <GoogleLoginConnectDialog />
