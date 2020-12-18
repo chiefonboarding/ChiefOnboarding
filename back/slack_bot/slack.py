@@ -236,12 +236,12 @@ class Slack:
             })
         return blocks
 
-    def format_into_block(self, intro):
+    def format_intro_block(self, intro):
         text = '*' + intro.name + ':* ' + intro.intro_person.full_name() + '\n'
         if intro.intro_person.position is not None and intro.intro_person.position != '':
             text += intro.intro_person.position + '\n'
         if intro.intro_person.message is not None and intro.intro_person.message != "":
-            text += '_' + s.personalize(intro.intro_person.message) + '_\n'
+            text += '_' + self.personalize(intro.intro_person.message) + '_\n'
         if intro.intro_person.email is not None and intro.intro_person.email != "":
             text += intro.intro_person.email + ' '
         if intro.intro_person.phone is not None and intro.intro_person.phone != "":
@@ -284,7 +284,7 @@ class Slack:
         from users.models import ToDoUser
         if len(items['introductions']):
             for i in items['introductions']:
-                blocks.append(s.format_intro_block(Introduction.objects.get(id=i.id)))
+                blocks.append(self.format_intro_block(Introduction.objects.get(id=i.id)))
             self.send_message(blocks=blocks)
         for i in items['badges']:
             blocks = [{
