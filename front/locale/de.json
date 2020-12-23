@@ -254,6 +254,12 @@
       "sendEmailMessageTo": "E-Mail senden an:",
       "sendTextMessageTo": "Textnachricht senden an:"
     },
+    "integrations": {
+      "asana": {
+        "missingTeams": "Bitte fügen Sie mindestens ein Team hinzu.",
+        "couldNotSave": "Das Asana-Element konnte nicht gespeichert werden."
+      }
+    },
     "form": {
       "options": "Formularoptionen",
       "small": "kleiner Text",
@@ -379,6 +385,7 @@
       "toDo": "Vorlagen erstellen",
       "resource": "Ressourcenvorlagen",
       "introduction": "Einführungsvorlagen",
+      "integrations": "Integrationen",
       "badge": "Abzeichenvorlagen",
       "admin": "Admin, um Artikel zu tun",
       "text": "SMS",

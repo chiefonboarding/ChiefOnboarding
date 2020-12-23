@@ -257,6 +257,12 @@
       "sendEmailMessageTo": "E-posta mesajı gönder:",
       "sendTextMessageTo": "Kısa mesaj gönder:"
     },
+    "integrations": {
+      "asana": {
+        "missingTeams": "Lütfen en az bir ekip ekleyin.",
+        "couldNotSave": "Asana öğesi kaydedilemedi."
+      }
+    },
     "form": {
       "options": "Form seçenekleri",
       "small": "Küçük metin",
@@ -382,6 +388,7 @@
       "toDo": "Şablonlar yapmak",
       "resource": "Kaynak şablonları",
       "introduction": "Tanıtım şablonları",
+      "integrations": "Entegrasyonlar",
       "badge": "Rozet şablonları",
       "admin": "Öğeyi yapmak için yönetici",
       "text": "Kısa mesaj",
