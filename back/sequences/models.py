@@ -182,6 +182,7 @@ class Condition(models.Model):
     def process_condition(self, user):
         from sequences.serializers import PendingAdminTaskSerializer
         from admin_tasks.models import AdminTaskComment
+        admin_to_notify = get_user_model().objects.filter(role=1).order_by('date_joined').first()
         items_added = {
             'to_do': [],
             'resources': [],
@@ -208,21 +209,23 @@ class Condition(models.Model):
                 # need to be replaced with a decent error handling
                 pass
             except UnauthorizedError:
-                IntegrationEmail(get_user_model().objects.filter(role=1).order_by('date_joined').first()).google_auth_error_email()
+                IntegrationEmail(admin_to_notify).google_auth_error_email()
 
         for i in self.integrations.exclude(integration_type='google'):
             if i.integration_type == 'asana':
                 try:
-                    Asana().add_user(user)
+                    Asana().add_user_to_workspace(user)
+                    for team in i.addition_data.teams:
+                        Asana(team.id).add_user_to_team(user)
                 except:
-                    IntegrationEmail(get_user_model().objects.filter(role=1).order_by('date_joined').first()).asana_error_email()
+                    IntegrationEmail(admin_to_notify).asana_error_email()
 
             if i.integration_type == 'slack':
                 try:
                     s = SlackAccount()
                     s.add_user(user.email)
                 except Exception:
-                    IntegrationEmail(get_user_model().objects.filter(role=1).order_by('date_joined').first()).slack_error_email()
+                    IntegrationEmail(admin_to_notify).slack_error_email()
 
         for i in self.to_do.all():
             if not user.to_do.filter(pk=i.pk).exists():
