@@ -35,14 +35,31 @@ class Asana:
         else:
             raise UnauthorizedError
 
-    def add_user(self, email):
+    def add_user_to_workspace(self, email):
         data = {
           "data": {
             "user": email
           }
         }
         r = requests.post(
-            self.BASE_URL + "teams/" + str(self.team_id) + "/addUser", headers=self.headers, data=str(data))
+            self.BASE_URL + "workspaces/" + str(self.asana_obj.account_id) + "/addUser", headers=self.headers, data=json.dumps(data))
+        if r.status_code == 200:
+            return True
+        if r.status_code == 401:
+            # token is not valid anymore
+            self.asana_obj.active = False
+            self.asana_obj.save()
+            raise UnauthorizedError
+        return False
+
+    def add_user_to_team(self, email):
+        data = {
+          "data": {
+            "user": email
+          }
+        }
+        r = requests.post(
+            self.BASE_URL + "teams/" + str(self.team_id) + "/addUser", headers=self.headers, data=json.dumps(data))
         if r.status_code == 200:
             return True
         if r.status_code == 401:

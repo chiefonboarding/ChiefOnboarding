@@ -27,7 +27,6 @@ class Google:
 
     def __init__(self):
         google_code = AccessToken.objects.filter(active=True, integration=2)
-        print(google_code)
         if google_code.exists():
             self.record = google_code.first()
             self.credentials = google.oauth2.credentials.Credentials(token=self.record.token,
@@ -51,7 +50,6 @@ class Google:
     def find_by_email(self, email):
         response = self.auth_session.get(
             'https://www.googleapis.com/admin/directory/v1/users?customer=my_customer&query=email%3D' + email.lower())
-        print(response.json())
         if 'users' in response.json():
             return True
         return False
