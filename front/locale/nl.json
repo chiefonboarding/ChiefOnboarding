@@ -260,6 +260,12 @@
         "sendEmailMessageTo": "Verzend e-mail bericht naar:",
         "sendTextMessageTo": "Verzend SMS bericht naar:"
       },
+      "integrations": {
+        "asana": {
+          "missingTeams": "Voeg ten minste 1 team toe",
+          "couldNotSave": "Asana item kon niet worden opgeslagen."
+        }
+      },
       "form": {
         "options": "Formulier opties",
         "small": "Klein tekstvak",
@@ -365,6 +371,7 @@
         "toDo": "Te doen",
         "resource": "Artikelen",
         "introduction": "Introducties",
+        "integrations": "Integraties",
         "badge": "Beloningen",
         "admin": "Admin te doen item",
         "text": "SMS bericht",

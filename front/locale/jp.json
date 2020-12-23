@@ -260,9 +260,13 @@
         "sendEmailMessageTo": "に電子メールメッセージを送りなさい：",
         "sendTextMessageTo": "にテキストメッセージを送りなさい："
     },
-
+    "integrations": {
+      "asana": {
+        "missingTeams": "1チーム以上の追加をお願いします。",
+        "couldNotSave": "Asanaのアイテムを保存できませんでした。"
+      }
+    },
     "form": {
-
         "options": "フォームオプション",
         "small": "小さなテキスト",
         "long": "ロングテキスト",
@@ -389,6 +393,7 @@
         "toDo": "テンプレートを実行する",
         "resource": "リソーステンプレート",
         "introduction": "導入テンプレート",
+        "integrations": "統合",
         "badge": "バッジテンプレート",
         "admin": "アイテムを管理する管理者",
         "text": "メール",

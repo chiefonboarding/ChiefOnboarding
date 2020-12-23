@@ -257,6 +257,12 @@
       "sendEmailMessageTo": "Enviar mensaje de correo electrónico a:",
       "sendTextMessageTo": "Enviar mensaje de texto a:"
     },
+    "integrations": {
+      "asana": {
+        "missingTeams": "Por favor, agregue al menos un equipo.",
+        "couldNotSave": "El artículo de Asana no pudo ser salvado."
+      }
+    },
     "form": {
       "options": "opciones de formulario",
       "small": "texto pequeño",
@@ -382,6 +388,7 @@
       "toDo": "Hacer plantillas",
       "resource": "plantillas de recursos",
       "introduction": "plantillas de introducción",
+      "integrations": "Integraciones",
       "badge": "Plantillas de insignia",
       "admin": "Admin para hacer elemento",
       "text": "mensaje de texto",

@@ -256,6 +256,12 @@
       "sendEmailMessageTo": "Envoyer un message électronique à:",
       "sendTextMessageTo": "Envoyer un message texte à:"
     },
+    "integrations": {
+      "asana": {
+        "missingTeams": "Veuillez ajouter au moins une équipe.",
+        "couldNotSave": "L'objet Asana n'a pas pu être sauvé."
+      }
+    },
     "form": {
       "options": "Options de formulaire",
       "small": "Petit texte",
@@ -381,6 +387,7 @@
       "toDo": "faire des modèles",
       "resource": "Modèles de ressources",
       "introduction": "modèles d'introduction",
+      "integrations": "Intégrations",
       "badge": "Modèles de badge",
       "admin": "Admin doit faire l'élément",
       "text": "Message texte",
