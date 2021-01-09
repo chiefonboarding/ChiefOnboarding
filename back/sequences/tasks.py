@@ -17,9 +17,10 @@ def timed_triggers():
             amount_days = user.workday()
             amount_days_before = user.days_before_starting()
             # check if it's before or after they start
+            conditions = []
             if amount_days == 0:
                 conditions = Condition.objects.filter(condition_type=2, days=amount_days_before)
-            else:
+            elif user.get_local_time().weekday() < 5:
                 conditions = Condition.objects.filter(condition_type=0, days=amount_days)
             # process conditions and send it through Slack/email
             for i in conditions:
