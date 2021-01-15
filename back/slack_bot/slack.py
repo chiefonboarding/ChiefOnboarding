@@ -282,6 +282,7 @@ class Slack:
 
     def send_sequence_triggers(self, items, to_do_user):
         from users.models import ToDoUser
+        blocks = []
         if len(items['introductions']):
             for i in items['introductions']:
                 blocks.append(self.format_intro_block(Introduction.objects.get(id=i.id)))
