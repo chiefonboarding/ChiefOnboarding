@@ -264,7 +264,7 @@ class ResourceUser(models.Model):
                 break
 
     def is_course(self):
-        return self.resource.course and self.resource.chapters.count() is not self.step - 1
+        return self.resource.course and self.resource.chapters.count() is not self.step + 1
 
 
 class NewHireWelcomeMessage(models.Model):

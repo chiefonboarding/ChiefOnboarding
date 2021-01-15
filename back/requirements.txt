@@ -26,6 +26,7 @@ django-redis==4.12.1
 django-rest-auth==0.9.5
 djangorestframework==3.12.2
 docutils==0.15.2
+freezegun==1.0.0
 fuzzywuzzy==0.18.0
 google-auth==1.23.0
 google-auth-oauthlib==0.4.2
