@@ -32,7 +32,7 @@ def link_slack_users():
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": WelcomeMessage.objects.get(language=user.language, message_type=3).message
+                    "text": s.personalize(WelcomeMessage.objects.get(language=user.language, message_type=3).message)
                 },
             }]
             # check if extra buttons need to be send with it as well
