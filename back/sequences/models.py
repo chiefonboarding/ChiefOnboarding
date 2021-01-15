@@ -47,7 +47,7 @@ class Sequence(models.Model):
             original_record = Condition.objects.get(id=i.id)
             # checking if this condition is already
             if original_record.condition_type == 0 or original_record.condition_type == 2:
-                condition = user.conditions.filter(days=original_record.days).first()
+                condition = user.conditions.filter(condition_type=original_record.condition_type, days=original_record.days).first()
             else:
                 conditions = user.conditions.filter(condition_type=1)
                 condition = None
