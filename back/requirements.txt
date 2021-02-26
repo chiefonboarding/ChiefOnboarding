@@ -1,5 +1,5 @@
 aiocontextvars==0.2.2
-aiohttp==3.6.2
+aiohttp==3.7.4
 amqp==2.6.1
 asgiref==3.2.10
 async-timeout==3.0.1
