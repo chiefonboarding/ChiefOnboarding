@@ -29,6 +29,11 @@ class BotView(APIView):
         # verify Slack request endpoint
         if 'type' in request.data and request.data['type'] == 'url_verification':
             return Response(request.data['challenge'])
+
+        # verify Slack request endpoint
+        if 'token' not in request.data or not AccessToken.objects.filter(verification_token=request.data['token']).exists():
+            return Response()
+
         # avoid bot requests
         if 'bot_id' in request.data['event'] or not 'event' in request.data or 'subtype' in request.data['event'] or (request.data['event']['type'] != 'message' and request.data['event']['type'] != 'team_join'):
             return Response('ok')
