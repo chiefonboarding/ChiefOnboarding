@@ -115,8 +115,11 @@ export default {
         this.items = items
         items.conditions.forEach((one) => {
           one.follow_up_condition = []
-          if (one.condition_type === 0 || one.condition_type === 2) {
+          if (one.condition_type === 0) {
             one.date = this.addWeekdays(moment(this.newHire.start_day), one.days - 1).format('YYYY-MM-DD')
+          }
+          if (one.condition_type === 2) {
+            one.date = moment(this.newHire.start_day).subtract(one.days, 'days').format('YYYY-MM-DD')
           }
           one.to_do_due = []
         })

@@ -42,9 +42,9 @@
           {{ $t('sequence.addToAdmin') }}
         </v-chip>
         <CardLine :index="index" :removable="false" :items="i.admin_tasks" type="admin_tasks" />
-        <CardLine :index="index" :removable="false" :items="getAdminItems(1)" type="text_messages" />
+        <CardLine :index="index" :removable="false" :items="getAdminItems(2)" type="text_messages" />
         <CardLine :index="index" :removable="false" :items="getAdminItems(0)" type="emails" />
-        <CardLine :index="index" :removable="false" :items="getAdminItems(2)" type="slack_messages" />
+        <CardLine :index="index" :removable="false" :items="getAdminItems(1)" type="slack_messages" />
 
         <v-chip v-if="i.to_do_due.length" label small style="margin: 7px 0px;">
           {{ $t('newhires.due') }}
