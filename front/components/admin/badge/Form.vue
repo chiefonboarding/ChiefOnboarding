@@ -1,5 +1,5 @@
 <template>
-  <v-container :class="{'pa-4 grid-list-md' : !inline, 'pa-0': inline}">
+  <v-container class="py-4 px-0">
     <v-row>
       <v-col cols="6" class="py-0">
         <v-col xs="12" class="py-0">
@@ -19,7 +19,7 @@
           />
         </v-col>
         <v-col xs="12" class="py-0">
-          <label> {{ $t('badge.image') }} </label>
+          <v-subheader> {{ $t('badge.image') }} </v-subheader>
           <v-file v-model="value.image" style="margin: 0" />
         </v-col>
       </v-col>

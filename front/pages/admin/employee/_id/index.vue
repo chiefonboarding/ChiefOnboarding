@@ -2,7 +2,7 @@
   <v-row>
     <v-col sm="12" mb="8" offset-mb="2" md="10" offset-sm="1">
       <div>
-        <v-row mb-4>
+        <v-row class="mb-4">
           <v-col sm="6">
             <h1 class="heading" style="margin-top: 10px;">
               {{ employee.first_name }} {{ employee.last_name }}
@@ -14,8 +14,8 @@
             </v-btn>
           </v-col>
         </v-row>
-        <v-container grid-list-md pa-0>
-          <v-row mb-4>
+        <v-container class="md pa-0">
+          <v-row class="mb-4">
             <v-col sm="6">
               <v-card class="mb-4 first">
                 <LoadingIcon :is-loading="loading" />

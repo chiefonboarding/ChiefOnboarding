@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-row mb-4>
+    <v-row class="mb-4">
       <v-col sm="12">
         <h1 class="heading" style="margin-top: 5px;">
           {{ $t('settings.global.custom') }}
@@ -77,7 +77,7 @@
         </v-btn>
       </v-card-actions>
     </v-card>
-    <v-row mb-4>
+    <v-row class="mb-4">
       <v-col sm="12">
         <h1 class="heading" style="margin-top: 5px;">
           {{ $t('settings.global.otherSettings') }}

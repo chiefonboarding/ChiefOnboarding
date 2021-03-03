@@ -158,6 +158,7 @@ export default {
       { type: 'to_do', text: vm.$t('templates.todo'), url: 'admin-templates-todos-id' },
       { type: 'resource', text: vm.$t('templates.resource'), url: 'admin-templates-resources-id' },
       { type: 'appointment', text: vm.$t('templates.appointment'), url: 'admin-templates-appointments-id' },
+      { type: 'introduction', text: vm.$t('templates.intro'), url: 'admin-templates-intros-id' },
       { type: 'badge', text: vm.$t('templates.badge'), url: 'admin-templates-badges-id' },
       { type: 'new_hire', text: vm.$t('sequence.newHire'), url: 'admin-newhire-id' },
       { type: 'sequence', text: vm.$t('templates.sequence'), url: 'admin-templates-presets-id' },
@@ -290,7 +291,10 @@ export default {
       })
     },
     getType (item) {
-      return this.searchItems.find(a => a.type === item.search_type).text
+      if (this.searchItems.find(a => a.type === item.search_type) !== undefined) {
+        return this.searchItems.find(a => a.type === item.search_type).text
+      }
+      return ''
     },
     goTo (item) {
       if ('to' in item) {

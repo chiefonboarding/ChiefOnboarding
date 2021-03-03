@@ -1,7 +1,7 @@
 <template>
   <v-row>
     <v-col sm="12" mb="6" offset-mb="3" md="6" offset-sm="3">
-      <v-row mb-4>
+      <v-row class="mb-4">
         <v-col sm="6">
           <h1 class="heading" style="margin-top: 5px;">
             {{ $t('settings.admin') }}

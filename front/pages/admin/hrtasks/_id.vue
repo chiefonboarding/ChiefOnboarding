@@ -1,69 +1,67 @@
 <template>
-  <v-row>
-    <v-col xs="12" mb="8" offset-mb="2" sm="10" offset-sm="1">
-      <div>
-        <v-row mb-4>
-          <v-col sm="6">
-            <h1 class="heading" style="margin-top: 10px;">
-              {{ adminTask.name }}
-            </h1>
+  <v-col xs="12" mb="8" offset-mb="2" sm="10" offset-sm="1">
+    <div>
+      <v-row class="mb-4">
+        <v-col sm="6">
+          <h1 class="heading" style="margin-top: 10px;">
+            {{ adminTask.name }}
+          </h1>
+        </v-col>
+        <v-col sm="6">
+          <v-btn v-if="$store.state.admin.fullAccess" :loading="removing" @click="removeAdminTask" style="float:right; margin-top: 14px; margin-right: 0px;" class="error">
+            {{ $t('buttons.remove') }}
+          </v-btn>
+          <v-btn :loading="completing" @click="completeAdminTask" style="float:right; margin-top: 14px; margin-right: 0px;" color="secondary">
+            <span v-if="!adminTask.completed">{{ $t('buttons.complete') }}</span><span v-else>{{ $t('buttons.reopen') }}</span>
+          </v-btn>
+        </v-col>
+      </v-row>
+      <v-container class="md pa-0">
+        <v-row class="mb-4">
+          <v-col xs="4">
+            <v-card class="mb-4 first">
+              <LoadingIcon :is-loading="loading" />
+              <v-col v-if="!loading">
+                <v-container grid-list-md fluid wrap>
+                  <v-row wrap>
+                    <AdminTaskForm
+                      v-model="adminTask"
+                      :errors="errors"
+                      :new-hire-read-only="true"
+                      :show-last-field="false"
+                      :full-read-only="adminTask.completed"
+                    />
+                    <v-col xs="12" mt-2>
+                      <v-btn
+                        v-if="!adminTask.completed"
+                        :loading="submittingForm"
+                        @click="submitForm"
+                        class="success"
+                        style="float:right;margin-right:0px"
+                      >
+                        {{ $t('buttons.save') }}
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-col>
+            </v-card>
           </v-col>
-          <v-col sm="6">
-            <v-btn v-if="$store.state.admin.fullAccess" :loading="removing" @click="removeAdminTask" style="float:right; margin-top: 14px; margin-right: 0px;" class="error">
-              {{ $t('buttons.remove') }}
-            </v-btn>
-            <v-btn :loading="completing" @click="completeAdminTask" style="float:right; margin-top: 14px; margin-right: 0px;" color="secondary">
-              <span v-if="!adminTask.completed">{{ $t('buttons.complete') }}</span><span v-else>{{ $t('buttons.reopen') }}</span>
-            </v-btn>
+          <v-col xs="8">
+            <v-card class="mb-4 second pa-3">
+              <LoadingIcon :is-loading="loading" />
+              <v-col v-if="!loading">
+                <AdminTaskUpdates
+                  v-model="adminTask"
+                  :full-read-only="adminTask.completed"
+                />
+              </v-col>
+            </v-card>
           </v-col>
         </v-row>
-        <v-container grid-list-md pa-0>
-          <v-row mb-4>
-            <v-col xs="4">
-              <v-card class="mb-4 first">
-                <LoadingIcon :is-loading="loading" />
-                <v-col v-if="!loading">
-                  <v-container grid-list-md fluid wrap>
-                    <v-row wrap>
-                      <AdminTaskForm
-                        v-model="adminTask"
-                        :errors="errors"
-                        :new-hire-read-only="true"
-                        :show-last-field="false"
-                        :full-read-only="adminTask.completed"
-                      />
-                      <v-col xs="12" mt-2>
-                        <v-btn
-                          v-if="!adminTask.completed"
-                          :loading="submittingForm"
-                          @click="submitForm"
-                          class="success"
-                          style="float:right;margin-right:0px"
-                        >
-                          {{ $t('buttons.save') }}
-                        </v-btn>
-                      </v-col>
-                    </v-row>
-                  </v-container>
-                </v-col>
-              </v-card>
-            </v-col>
-            <v-col xs="8">
-              <v-card class="mb-4 second pa-3">
-                <LoadingIcon :is-loading="loading" />
-                <v-col v-if="!loading">
-                  <AdminTaskUpdates
-                    v-model="adminTask"
-                    :full-read-only="adminTask.completed"
-                  />
-                </v-col>
-              </v-card>
-            </v-col>
-          </v-row>
-        </v-container>
-      </div>
-    </v-col>
-  </v-row>
+      </v-container>
+    </div>
+  </v-col>
 </template>
 
 <script>
