@@ -1,5 +1,5 @@
 export default {
-  mode: 'spa',
+  ssr: false,
   telemetry: false,
   /*
   ** Headers of the page

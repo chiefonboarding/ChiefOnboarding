@@ -1,6 +1,6 @@
 <template>
   <div style="width: 100%;">
-    <v-container pa-0>
+    <v-container class="pa-0">
       <v-row>
         <v-col cols="6" class="py-0">
           <v-text-field

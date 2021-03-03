@@ -1,5 +1,5 @@
 <template>
-  <v-container class="grid-list-md fluid wrap mx-5 my-3">
+  <v-container class="pa-4">
     <LoadingIcon :is-loading="loading" />
     <p v-if="items.length === 0 && !loading" style="margin-bottom: 0px;">
       {{ $t('newhires.noWelcomeMessage') }}

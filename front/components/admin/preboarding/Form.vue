@@ -1,5 +1,5 @@
 <template>
-  <v-container :class="{'pa-4 pt-0 grid-list-md' : !inline, 'pa-0': inline}">
+  <v-container class="py-2 px-0">
     <v-row>
       <v-col sm="4">
         <v-col sm="12" class="py-0">
