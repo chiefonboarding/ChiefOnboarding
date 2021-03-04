@@ -204,7 +204,10 @@ class Condition(models.Model):
             if i.get_user(user) == None:
                 continue
             if i.send_via == 0:  # email
-                send_sequence_message(i.get_user(user), i.email_message())
+                try:
+                    send_sequence_message(i.get_user(user), i.email_message())
+                except:
+                    pass
             elif i.send_via == 1:  # slack
                 s = Slack()
                 s.set_user(i.get_user(user))
