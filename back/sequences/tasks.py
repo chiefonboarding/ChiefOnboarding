@@ -31,6 +31,9 @@ def timed_triggers():
                     s.set_user(user)
                     s.send_sequence_triggers(items, None)
                 else:
-                    send_sequence_update_message(user, items)
+                    try:
+                        send_sequence_update_message(user, items)
+                    except:
+                        pass
 
     return
