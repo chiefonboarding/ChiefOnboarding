@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -25,7 +25,7 @@ def home(request):
 
 
 class OrgView(APIView):
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (AllowAny,)
 
     def get(self, request):
         org = BaseOrganizationSerializer(Organization.object.get())
@@ -53,7 +53,6 @@ class OrgDetailView(APIView):
 
 
 class WelcomeMessageView(APIView):
-    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self, request):
         welcome_messages = WelcomeMessage.objects.all()
@@ -70,7 +69,6 @@ class WelcomeMessageView(APIView):
 
 
 class TagView(APIView):
-    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self, request):
         tags = [i.name for i in Tag.objects.all()]
