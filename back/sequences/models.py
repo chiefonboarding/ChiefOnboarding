@@ -103,21 +103,18 @@ class ExternalMessage(models.Model):
 
     def email_message(self):
         email_data = []
-        for i in self.content_json.filter(type__in=['p', 'quote', 'hr']):
-            if i.type == 'p':
+        for i in self.content_json.filter(type__in=['p', 'quote', 'hr', 'ul', 'ol', 'h1', 'h2', 'h3']):
+            if i.type in ['p', 'ol', 'ul', 'h1', 'h2', 'h3', 'hr']:
                 email_data.append({
-                    "type": 'p',
-                    "text": i.content
+                    "type": i.type,
+                    "text": i.content,
+                    "items": i.items
                 })
+                
             elif i.type == 'quote':
                 email_data.append({
                     "type": 'block',
                     "text": i.content
-                })
-            elif i.type == 'hr':
-                email_data.append({
-                    "type": 'hr',
-                    "text": ''
                 })
         return email_data
 
