@@ -484,12 +484,12 @@
                             {% include 'email/block.html' with text=i.text %}
                           {% endif %}
                           {% if i.type == 'image' %}
-		                    <img src="{{ i.files.0.file_url }}" />	
+                            <img width="100%" src="{{ i.files.0.file_url }}" />	
                           {% endif %}
                           {% if i.type == 'file' %}
-						    {% for j in i.files %}
-								<a href="{{ j.file_url }}">{{ j.name }}</a><br />
-							{% endfor %}
+                            {% for j in i.files %}
+                              <a href="{{ j.file_url }}">{{ j.name }}</a><br />
+                            {% endfor %}
                           {% endif %}
                           {% if i.type == 'button' %}
                             {% include 'email/button.html' with text=i.text url=i.url %}
