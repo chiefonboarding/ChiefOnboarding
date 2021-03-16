@@ -111,8 +111,8 @@ class ExternalMessage(models.Model):
                 })
             else:
                 files = []
-                if len(i.files):
-                    files = FileSerializer(i.files, many=True).data
+                if i.files.all().exists():
+                    files = FileSerializer(i.files.all(), many=True).data
                 email_data.append({
                     "type": i.type,
                     "text": i.content,
