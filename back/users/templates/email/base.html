@@ -471,7 +471,7 @@
                             {% include 'email/paragraph.html' with text=i.text %}
                           {% endif %}
                           {% if i.type == 'h1' or i.type == 'h2' or i.type == 'h3' %}
-                            <{{ i.type }}>{{ i.content }}</{{ i.type }}>
+                            <{{ i.type }}>{{ i.text }}</{{ i.type }}>
                           {% endif %}
                           {% if i.type == 'ul' or i.type == 'ol' %}
                             <{{ i.type }}>
@@ -482,6 +482,14 @@
                           {% endif %}
                           {% if i.type == 'block' %}
                             {% include 'email/block.html' with text=i.text %}
+                          {% endif %}
+                          {% if i.type == 'image' %}
+		                    <img src="{{ i.files[0].get_url }}" />	
+                          {% endif %}
+                          {% if i.type == 'file' %}
+						    {% for j in i.files %}
+								<a href="{{ j.get_url }}">{{ j.name }}</a><br />
+							{% endfor %}
                           {% endif %}
                           {% if i.type == 'button' %}
                             {% include 'email/button.html' with text=i.text url=i.url %}
