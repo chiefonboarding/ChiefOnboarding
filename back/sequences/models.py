@@ -20,7 +20,7 @@ from twilio.rest import Client
 
 from .emails import send_sequence_message
 from slack_bot.slack import Slack
-
+from misc.serializers import FileSerializer
 
 class Sequence(models.Model):
     name = models.CharField(max_length=240)
@@ -103,21 +103,21 @@ class ExternalMessage(models.Model):
 
     def email_message(self):
         email_data = []
-        for i in self.content_json.filter(type__in=['p', 'quote', 'hr']):
-            if i.type == 'p':
-                email_data.append({
-                    "type": 'p',
-                    "text": i.content
-                })
-            elif i.type == 'quote':
+        for i in self.content_json.filter(type__in=['p', 'quote', 'hr', 'ul', 'ol', 'h1', 'h2', 'h3', 'image', 'file']):
+            if i.type == 'quote':
                 email_data.append({
                     "type": 'block',
                     "text": i.content
                 })
-            elif i.type == 'hr':
+            else:
+                files = []
+                if i.files.all().exists():
+                    files = FileSerializer(i.files.all(), many=True).data
                 email_data.append({
-                    "type": 'hr',
-                    "text": ''
+                    "type": i.type,
+                    "text": i.content,
+                    "items": i.items,
+                    "files": files
                 })
         return email_data
 
