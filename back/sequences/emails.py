@@ -7,9 +7,9 @@ from django.utils import translation
 from organization.models import Organization
 
 
-def send_sequence_message(new_hire, message):
+def send_sequence_message(new_hire, message, subject):
+    # used to send custom external messages to anyone
     org = Organization.object.get()
-    subject = _("Here is an update!")
     for i in message:
         i['text'] = new_hire.personalize(i['text'])
     html_message = render_to_string("email/base.html",
@@ -18,6 +18,7 @@ def send_sequence_message(new_hire, message):
 
 
 def send_sequence_update_message(new_hire, message):
+    # used to send updates to new hires based on things that got assigned to them
     org = Organization.object.get()
     subject = _("Here is an update!")
     blocks = []

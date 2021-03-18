@@ -103,7 +103,7 @@ class SendTestMessage(APIView):
     def post(self, request, id):
         ext_message = ExternalMessage.objects.get(id=id)
         if ext_message.send_via == 0:  # email
-            send_sequence_message(request.user, ext_message.email_message())
+            send_sequence_message(request.user, ext_message.email_message(), ext_message.subject)
         elif ext_message.send_via == 1:  # slack
             s = Slack()
             s.set_user(request.user)
