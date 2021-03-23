@@ -38,6 +38,7 @@ from integrations.models import ScheduledAccess
 from sequences.utils import get_task_items
 from organization.models import WelcomeMessage
 from integrations.google import Google
+from django.db.models import Prefetch
 
 
 class NewHireViewSet(viewsets.ModelViewSet):
@@ -48,9 +49,11 @@ class NewHireViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         # if user is not admin, then only show records relevant to the manager
+        all_new_hires = get_user_model().new_hires.select_related('profile_image', 'buddy', 'manager').prefetch_related('resources', 'to_do', 'introductions', 'preboarding', 'badges',
+                Prefetch('condition', queryset=Condition.objects.prefetch_related('condition_to_do', 'to_do', 'badges', 'resources', 'admin_tasks', 'external_messages', 'introductions'))).all()
         if self.request.user.role == 1:
-            return get_user_model().new_hires.all()
-        return get_user_model().new_hires.filter(manager=self.request.user)
+            return all_new_hires 
+        return all_new_hires.filter(manager=self.request.user)
 
     def create(self, request, *args, **kwargs):
         sequences = request.data.pop('sequences')

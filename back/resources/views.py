@@ -1,3 +1,4 @@
+from django.db.models import Prefetch
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 
@@ -9,7 +10,9 @@ class ResourceViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows resources to be viewed or edited.
     """
-    queryset = Resource.templates.all().order_by('-id')
+    queryset = Resource.templates.all().select_related('category').prefetch_related(
+        Prefetch('chapters', queryset=Chapter.objects.select_related('parent_chapter').prefetch_related('content'))
+    ).order_by('name')
     serializer_class = ResourceSerializer
 
     def _save_recursive_items(self, items, resource, parent_chapter):

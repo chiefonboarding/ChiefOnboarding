@@ -12,7 +12,7 @@ class NoteViewSet(mixins.CreateModelMixin, mixins.DestroyModelMixin, viewsets.Ge
     API endpoint that allows notes to be deleted.
     """
     serializer_class = NoteSerializer
-    queryset = Note.objects.all()
+    queryset = Note.objects.select_related('new_hire', 'admin').all()
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
