@@ -246,6 +246,12 @@ class AdminViewSet(viewsets.ModelViewSet):
         return Response(admin.data)
 
     @action(detail=False, methods=['post'])
+    def seen_updates(self, request):
+        request.user.seen_updates = request.user.get_local_time().date()
+        request.user.save()
+        return Response(AdminSerializer(request.user).data)
+
+    @action(detail=False, methods=['post'])
     def language(self, request):
         serializer = UserLanguageSerializer(request.user, request.data)
         serializer.is_valid(raise_exception=True)
