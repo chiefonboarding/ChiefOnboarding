@@ -37,5 +37,8 @@ jobs:
       run: |
         cd back
         pytest
-
+    - name: Test fixtures
+      run: |
+        cd back
+        python manage.py loaddata all.json
 # credits: https://hacksoft.io/github-actions-in-action-setting-up-django-and-postgres/
