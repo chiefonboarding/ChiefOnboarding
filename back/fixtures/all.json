@@ -31,7 +31,6 @@
         "total_tasks": 0,
         "buddy": 1,
         "manager": 1,
-        "seen_updates": "2021-03-24",
         "start_day": "2021-04-26",
         "unique_url": "SIyuR6pG",
         "introductions": [],
@@ -1530,7 +1529,7 @@
     "fields": {
         "type": "p",
         "items": [],
-        "content": "Taking time off and recharging is critical to doing your best work at Clef, so in addition to the recognized Holiday List, we offer 3 weeks (15 days) of paid vacation every year that accrues 1.25 of a day per month of work. Employees should schedule their vacations, let the rest of the team know, and add it to their shared work calendar at least a week in advance.",
+        "content": "Taking time off and recharging is critical to doing your best work, so in addition to the recognized Holiday List, we offer 3 weeks (15 days) of paid vacation every year that accrues 1.25 of a day per month of work. Employees should schedule their vacations, let the rest of the team know, and add it to their shared work calendar at least a week in advance.",
         "answer": "",
         "files": []
     }
