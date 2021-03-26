@@ -18,7 +18,7 @@ jobs:
         baseURL: /
       run: |
         cd front
-        npm run build
+        npm run build && npm run exit
         cd ../back/
         tar cfz chiefonboarding.tar.gz .
     - uses: actions/upload-artifact@v2
