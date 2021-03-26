@@ -20,7 +20,7 @@ jobs:
         cd front
         npm run build
         cd ../back/
-      tar cfz chiefonboarding.tar.gz .
+        tar cfz chiefonboarding.tar.gz .
     - uses: actions/upload-artifact@v2
       with:
         name: chiefonboarding-prebuild.tar.gz 
