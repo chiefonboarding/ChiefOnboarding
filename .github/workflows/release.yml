@@ -23,9 +23,8 @@ jobs:
         node ./postinstall
     - name: Package files
       run: |
-        set -x
         rm -rf front/
-        tar cfz chiefonboarding.tar.gz . --warning=no-file-changed
+        tar cfz chiefonboarding-prebuild.tar.gz . --warning=no-file-changed
     - name: Upload pakage to release
       uses: actions/upload-artifact@v2
       with:
