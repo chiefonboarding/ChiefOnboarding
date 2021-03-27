@@ -15,7 +15,7 @@ jobs:
         node-version: '14'
     - name: Build source
       env:
-        baseURL: /
+        BASE_URL: /
       run: |
         cd front
         npm install
