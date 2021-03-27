@@ -23,7 +23,7 @@ jobs:
       run: |
         rm -rf front/
         sleep 120
-        tar --warning=no-file-changed cfz chiefonboarding.tar.gz .
+        tar cfz chiefonboarding.tar.gz . --warning=no-file-changed
     - name: Upload pakage to release
       uses: actions/upload-artifact@v2
       with:
