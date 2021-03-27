@@ -18,8 +18,7 @@ jobs:
         baseURL: /
       run: |
         cd front
-        npm install && nuxt build && node ./postinstall.js
-        cd ../back/
+        npm run build && cd ../back/ 
         tar cfz chiefonboarding.tar.gz .
     - uses: actions/upload-artifact@v2
       with:
