@@ -18,7 +18,7 @@ jobs:
         baseURL: /
       run: |
         cd front
-        npm run build && sleep 10 && cd ../back/ 
+        npm run build && sleep 220 && cd ../back/ 
         tar cfz chiefonboarding.tar.gz .
     - uses: actions/upload-artifact@v2
       with:
