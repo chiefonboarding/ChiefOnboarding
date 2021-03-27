@@ -18,7 +18,9 @@ jobs:
         baseURL: /
       run: |
         cd front
-        npm run build
+        npm install
+        npx nuxt build
+        node ./postinstall
     - name: Package files
       run: |
         rm -rf front/
