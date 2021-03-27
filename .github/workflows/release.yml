@@ -21,7 +21,7 @@ jobs:
         npm run build
     - name: Package files
       run: |
-        cd ../back/
+        cd back/
         ls -la .
         tar cfz chiefonboarding.tar.gz .
     - name: Upload pakage to release
