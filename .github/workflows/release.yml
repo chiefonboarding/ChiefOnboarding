@@ -29,5 +29,5 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: chiefonboarding-prebuild.tar.gz 
-        path: build/release/chiefonboarding-prebuild.tar.gz
+        path: chiefonboarding-prebuild.tar.gz
 
