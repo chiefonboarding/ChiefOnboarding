@@ -18,8 +18,13 @@ jobs:
         baseURL: /
       run: |
         cd front
-        npm run build && sleep 220 && cd ../back/ 
+        npm run build
+    - name: Package files
+      run: |
+        cd ../back/
+        ls -la .
         tar cfz chiefonboarding.tar.gz .
+    - name: Upload pakage to release
     - uses: actions/upload-artifact@v2
       with:
         name: chiefonboarding-prebuild.tar.gz 
