@@ -2,7 +2,7 @@ name: Release
 on:
   push:
     branches:
-      - feat-auto-create-release
+      - master 
 jobs:
   build:
     runs-on: ubuntu-latest
