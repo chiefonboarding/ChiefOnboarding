@@ -14,12 +14,12 @@
           <v-select
             :items="teams"
             :loading="loadingTeams"
-            v-model="tempAsana.additional_data.teams"
             multiple
             label="Pick team to add a new hire to"
+            v-model="tempAsana.additional_data.teams"
             return-object
             item-text="name"
-          />
+          ></v-select>
         </v-container>
       </v-card-text>
 

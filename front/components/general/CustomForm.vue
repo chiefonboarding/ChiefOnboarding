@@ -189,6 +189,9 @@ export default {
       { type: 'asana', name: 'Asana' }
     ]
   }),
+  mounted () {
+    // checking if integrations are enabled
+  },
   watch: {
     value: {
       handler (value) {

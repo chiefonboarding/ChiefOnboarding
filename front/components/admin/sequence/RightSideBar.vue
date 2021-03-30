@@ -106,6 +106,7 @@
       <v-list-item
         v-if="type !== 'integrations'"
         class="menu-side"
+        v-if="type !== 'integrations'"
       >
         <drag :transfer-data="{item: {id: -1}, type: type}" class="dragging">
           <v-row>
