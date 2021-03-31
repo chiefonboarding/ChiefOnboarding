@@ -50,7 +50,7 @@ class NewHireViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         # if user is not admin, then only show records relevant to the manager
         all_new_hires = get_user_model().new_hires.select_related('profile_image', 'buddy', 'manager').prefetch_related('resources', 'to_do', 'introductions', 'preboarding', 'badges',
-                Prefetch('condition', queryset=Condition.objects.prefetch_related('condition_to_do', 'to_do', 'badges', 'resources', 'admin_tasks', 'external_messages', 'introductions'))).all()
+                Prefetch('conditions', queryset=Condition.objects.prefetch_related('condition_to_do', 'to_do', 'badges', 'resources', 'admin_tasks', 'external_messages', 'introductions'))).all()
         if self.request.user.role == 1:
             return all_new_hires 
         return all_new_hires.filter(manager=self.request.user)
