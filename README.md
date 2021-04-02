@@ -35,4 +35,4 @@ Documentation: [https://docs.chiefonboarding.com](https://docs.chiefonboarding.c
 Please do not create an issue if you found a potential security issue. Email me directly at security@chiefonboarding.com and I will get it resolved ASAP.
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the AGPLv3 License - see the [LICENSE.md](LICENSE.md) file for details.
