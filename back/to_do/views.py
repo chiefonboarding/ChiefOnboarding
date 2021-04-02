@@ -12,8 +12,8 @@ class ToDoViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.action == 'list':
-            return ToDo.templates.all().order_by('id')
-        return ToDo.objects.all().order_by('id')
+            return ToDo.templates.all().prefetch_related('content').order_by('id')
+        return ToDo.objects.all().prefetch_related('content').order_by('id')
 
     @action(detail=True, methods=['post'])
     def duplicate(self, request, pk):
