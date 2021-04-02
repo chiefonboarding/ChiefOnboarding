@@ -19,6 +19,7 @@
           item-value="id"
           multiple
           return-object
+          class="pa-3"
         >
           <template
             v-slot:selection="data"
@@ -140,7 +141,7 @@ export default {
     },
     errors: {},
     conditionItems: [],
-    sequences: []
+    sequences: vm.$store.state.sequences.all.filter(a => a.auto_add)
   }),
   methods: {
     createNewHire () {
