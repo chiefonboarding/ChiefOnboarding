@@ -20,5 +20,7 @@ class ToDoViewSet(viewsets.ModelViewSet):
         obj = self.get_object()
         obj.pk = None
         obj.save()
+        for i in ToDo.objects.get(pk=pk).content.all():
+            obj.content.add(i)
         return Response()
 

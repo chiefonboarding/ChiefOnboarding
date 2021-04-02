@@ -470,8 +470,26 @@
                           {% if i.type == 'p' %}
                             {% include 'email/paragraph.html' with text=i.text %}
                           {% endif %}
+                          {% if i.type == 'h1' or i.type == 'h2' or i.type == 'h3' %}
+                            <{{ i.type }}>{{ i.text }}</{{ i.type }}>
+                          {% endif %}
+                          {% if i.type == 'ul' or i.type == 'ol' %}
+                            <{{ i.type }}>
+                              {% for j in i.items %}
+                                <li>{{ j.content }}</li> 
+                              {% endfor %}
+                            </{{ i.type }}>
+                          {% endif %}
                           {% if i.type == 'block' %}
                             {% include 'email/block.html' with text=i.text %}
+                          {% endif %}
+                          {% if i.type == 'image' %}
+                            <img width="100%" src="{{ i.files.0.file_url }}" />	
+                          {% endif %}
+                          {% if i.type == 'file' %}
+                            {% for j in i.files %}
+                              <a href="{{ j.file_url }}">{{ j.name }}</a><br />
+                            {% endfor %}
                           {% endif %}
                           {% if i.type == 'button' %}
                             {% include 'email/button.html' with text=i.text url=i.url %}

@@ -15,4 +15,6 @@ class PreboardingViewSet(viewsets.ModelViewSet):
         obj = self.get_object()
         obj.pk = None
         obj.save()
+        for i in Preboarding.objects.get(pk=pk).content.all():
+            obj.content.add(i)
         return Response()

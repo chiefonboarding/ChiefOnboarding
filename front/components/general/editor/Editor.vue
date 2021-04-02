@@ -427,6 +427,12 @@ export default {
             })
           }
         }
+        if (one.type === 'horizontal_rule') {
+          newValue.push({
+            'type': 'hr',
+            'content': ''
+          })
+        }
         if (one.type === 'bullet_list' || one.type === 'ordered_list') {
           const listItems = []
           one.content.forEach((item) => {
@@ -452,6 +458,9 @@ export default {
         }
         if (one.type === 'quote' && one.content !== '') {
           html += '<blockquote>' + one.content + '</blockquote>'
+        }
+        if (one.type === 'hr') {
+          html += '<hr />'
         }
         if (one.type === 'h1' && one.content !== '') {
           html += '<h1>' + one.content + '</h1>'
