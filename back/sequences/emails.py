@@ -17,7 +17,7 @@ def send_sequence_message(new_hire, message, subject):
                 j['content'] = new_hire.personalize(j['content'])
     html_message = render_to_string("email/base.html",
                                     {'org': org, 'content': message})
-    send_mail(subject, '', settings.DEFAULT_FROM_EMAIL, [new_hire.email], html_message=html_message)
+    send_mail(new_hire.personalize(subject), '', settings.DEFAULT_FROM_EMAIL, [new_hire.email], html_message=html_message)
 
 
 def send_sequence_update_message(new_hire, message):

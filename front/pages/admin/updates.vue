@@ -8,7 +8,7 @@
       </v-col>
     </v-row>
     <v-card class="mb-4">
-      <v-list-item v-for="i in items" :key="i.title" @click="goToDetails" three-line class="pa-2 px-8">
+      <v-list-item v-for="i in items" :key="i.title" @click="goToDetails(i)" three-line class="pa-2 px-8">
         <v-list-item-icon v-if="isBeforeLastCheck(i.date)">
           <v-icon color="primary">
             far fa-dot-circle
