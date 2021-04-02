@@ -112,6 +112,7 @@ class User(AbstractBaseUser):
     total_tasks = models.IntegerField(default=0)
     buddy = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, related_name='new_hire_buddy')
     manager = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, related_name='new_hire_manager')
+    seen_updates = models.DateField(auto_now_add=True)
     start_day = models.DateField(null=True, blank=True, help_text="First working day")
     unique_url = models.CharField(max_length=250, null=True, unique=True, blank=True)
     to_do = models.ManyToManyField(ToDo, through='ToDoUser')

@@ -33,6 +33,13 @@ export default (axios, store) => ({
       return Promise.reject(error.response.data)
     })
   },
+  seenUpdates () {
+    return axios.post('api/users/admin/seen_updates').then((response) => {
+      return response.data
+    }).catch((error) => {
+      return Promise.reject(error.response.data)
+    })
+  },
   changeLanguage (payload) {
     return axios.post('api/users/admin/language', { 'language': payload }).then((response) => {
       return response.data
