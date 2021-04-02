@@ -30,8 +30,9 @@ export default {
   layout: 'admin',
   data: () => ({
     items: [
-      { date: '2021-03-23', title: 'Add custom email subject to sequence messages', description: 'Defaults to "Here is an update", but you can now change it to whatever you want.', href: '' },
-      { date: '2021-03-23', title: 'Automatically add new hires when they join Slack.', description: 'Either do this automatically or with manual approval and automatically add sequences to this new hire.', href: '' }
+      { date: '2021-04-02', title: 'Add custom email subject to sequence messages', description: 'Defaults to "Here is an update", but you can now change it to whatever you want.', href: 'subject-to-email-message' },
+      { date: '2021-04-02', title: 'Automatically add new hires when they join Slack.', description: 'Either do this automatically or with manual approval and automatically add sequences to this new hire.', href: 'automatically-add-new-hires-when-they-join-slack' },
+      { date: '2021-04-02', title: 'Set default sequences for new hires', description: 'Through the settings, you can set default sequences, which are then automatically filled in the add new hire form.', href: 'default-sequences' }
     ],
     lastCheck: ''
   }),
@@ -43,7 +44,7 @@ export default {
   },
   methods: {
     goToDetails (item) {
-      window.open('https://docs.chiefonboarding.com/Changelog' + item.href, '_blank')
+      window.open('https://docs.chiefonboarding.com/Changelog.html#' + item.href, '_blank')
     },
     formatDate (date) {
       return moment(date).format('LL')
