@@ -1,9 +1,0 @@
-[
-{
-  "model": "resources.category",
-  "pk": 1,
-  "fields": {
-    "name": "Office stuff"
-  }
-}
-]

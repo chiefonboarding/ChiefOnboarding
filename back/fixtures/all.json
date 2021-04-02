@@ -1,0 +1,1587 @@
+[
+{
+    "model": "users.user",
+    "pk": 3,
+    "fields": {
+        "password": "pbkdf2_sha256$216000$VRnB85hGitW8$teQexUtTdMJtYs6ccXxQTdzrX1DoFBGyzhrOIoOBh08=",
+        "last_login": null,
+        "first_name": "John",
+        "last_name": "Doe",
+        "email": "john@chiefonboarding.com",
+        "is_staff": false,
+        "is_superuser": false,
+        "date_joined": "2021-03-24T21:35:49.814Z",
+        "position": "Web developer",
+        "phone": "",
+        "slack_user_id": null,
+        "slack_channel_id": null,
+        "message": "",
+        "profile_image": null,
+        "linkedin": "",
+        "facebook": "",
+        "twitter": "",
+        "timezone": "Europe/Amsterdam",
+        "department": "",
+        "language": "en",
+        "role": 0,
+        "is_active": true,
+        "is_introduced_to_colleagues": false,
+        "sent_preboarding_details": false,
+        "completed_tasks": 0,
+        "total_tasks": 0,
+        "buddy": 1,
+        "manager": 1,
+        "start_day": "2021-04-26",
+        "unique_url": "SIyuR6pG",
+        "introductions": [],
+        "appointments": [],
+        "conditions": [
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+        ],
+        "badges": []
+    }
+},
+{
+    "model": "users.preboardinguser",
+    "pk": 1,
+    "fields": {
+        "user": 3,
+        "preboarding": 2,
+        "form": [],
+        "completed": false,
+        "order": 0
+    }
+},
+{
+    "model": "users.preboardinguser",
+    "pk": 2,
+    "fields": {
+        "user": 3,
+        "preboarding": 3,
+        "form": [],
+        "completed": false,
+        "order": 0
+    }
+},
+{
+    "model": "users.preboardinguser",
+    "pk": 3,
+    "fields": {
+        "user": 3,
+        "preboarding": 4,
+        "form": [],
+        "completed": false,
+        "order": 0
+    }
+},
+{
+    "model": "users.preboardinguser",
+    "pk": 4,
+    "fields": {
+        "user": 3,
+        "preboarding": 1,
+        "form": [],
+        "completed": false,
+        "order": 0
+    }
+},
+{
+    "model": "organization.tag",
+    "pk": 1,
+    "fields": {
+        "name": "everyone"
+    }
+},
+{
+    "model": "organization.tag",
+    "pk": 2,
+    "fields": {
+        "name": "developer"
+    }
+},
+{
+    "model": "organization.tag",
+    "pk": 3,
+    "fields": {
+        "name": "marketing"
+    }
+},
+{
+    "model": "to_do.todo",
+    "pk": 1,
+    "fields": {
+        "name": "Say hi to James",
+        "tags": "[\"everyone\"]",
+        "created": "2021-03-10T21:49:30.947Z",
+        "updated": "2021-03-10T21:49:30.947Z",
+        "template": true,
+        "due_on_day": 1,
+        "form": [],
+        "send_back": false,
+        "channel": "",
+        "content": [
+            1
+        ]
+    }
+},
+{
+    "model": "to_do.todo",
+    "pk": 2,
+    "fields": {
+        "name": "Create Slack account",
+        "tags": "[\"everyone\"]",
+        "created": "2021-03-19T16:19:29.866Z",
+        "updated": "2021-03-19T16:19:29.866Z",
+        "template": true,
+        "due_on_day": 1,
+        "form": [],
+        "send_back": false,
+        "channel": "",
+        "content": [
+            28
+        ]
+    }
+},
+{
+    "model": "resources.resource",
+    "pk": 1,
+    "fields": {
+        "name": "Slack channels",
+        "tags": "[\"everyone\"]",
+        "created": "2021-03-19T17:53:02.557Z",
+        "updated": "2021-03-19T17:53:02.557Z",
+        "template": true,
+        "category": null,
+        "course": false,
+        "on_day": 0,
+        "remove_on_complete": false
+    }
+},
+{
+    "model": "resources.resource",
+    "pk": 2,
+    "fields": {
+        "name": "Perks & Benefits",
+        "tags": "[\"everyone\"]",
+        "created": "2021-03-24T01:58:30.752Z",
+        "updated": "2021-03-24T01:58:30.752Z",
+        "template": true,
+        "category": null,
+        "course": false,
+        "on_day": 0,
+        "remove_on_complete": false
+    }
+},
+{
+    "model": "resources.chapter",
+    "pk": 1,
+    "fields": {
+        "parent_chapter": null,
+        "resource": 1,
+        "name": "Slack channels",
+        "type": 0,
+        "content": [
+            29,
+            30,
+            31
+        ]
+    }
+},
+{
+    "model": "resources.chapter",
+    "pk": 2,
+    "fields": {
+        "parent_chapter": null,
+        "resource": 2,
+        "name": "Continuing Education",
+        "type": 0,
+        "content": [
+            62,
+            63,
+            64,
+            65,
+            66
+        ]
+    }
+},
+{
+    "model": "resources.chapter",
+    "pk": 3,
+    "fields": {
+        "parent_chapter": null,
+        "resource": 2,
+        "name": "Vacation and leave",
+        "type": 1,
+        "content": []
+    }
+},
+{
+    "model": "resources.chapter",
+    "pk": 4,
+    "fields": {
+        "parent_chapter": 3,
+        "resource": 2,
+        "name": "Sabbatical",
+        "type": 0,
+        "content": [
+            67,
+            68,
+            69
+        ]
+    }
+},
+{
+    "model": "resources.chapter",
+    "pk": 5,
+    "fields": {
+        "parent_chapter": 3,
+        "resource": 2,
+        "name": "Vacation",
+        "type": 0,
+        "content": [
+            70
+        ]
+    }
+},
+{
+    "model": "badges.badge",
+    "pk": 1,
+    "fields": {
+        "name": "Star Chaser Award 🚀",
+        "tags": "[\"everyone\"]",
+        "created": "2021-03-24T01:35:17.643Z",
+        "updated": "2021-03-24T01:35:17.643Z",
+        "template": true,
+        "image": null,
+        "content": [
+            59
+        ]
+    }
+},
+{
+    "model": "badges.badge",
+    "pk": 2,
+    "fields": {
+        "name": "Bronze Star Award",
+        "tags": "[\"everyone\"]",
+        "created": "2021-03-24T01:38:32.817Z",
+        "updated": "2021-03-24T01:38:32.818Z",
+        "template": true,
+        "image": null,
+        "content": [
+            60
+        ]
+    }
+},
+{
+    "model": "badges.badge",
+    "pk": 3,
+    "fields": {
+        "name": "Silver Star Award",
+        "tags": "[\"everyone\"]",
+        "created": "2021-03-24T01:40:44.326Z",
+        "updated": "2021-03-24T01:40:44.326Z",
+        "template": true,
+        "image": null,
+        "content": [
+            61
+        ]
+    }
+},
+{
+    "model": "preboarding.preboarding",
+    "pk": 1,
+    "fields": {
+        "name": "Here is how your first day will look like 😀",
+        "tags": "[\"developer\"]",
+        "created": "2021-03-10T21:54:55.781Z",
+        "updated": "2021-03-20T20:46:37.102Z",
+        "template": true,
+        "form": [],
+        "picture": "",
+        "content": [
+            51,
+            52,
+            53,
+            54
+        ]
+    }
+},
+{
+    "model": "preboarding.preboarding",
+    "pk": 2,
+    "fields": {
+        "name": "We want to get to know you!",
+        "tags": "[\"everyone\"]",
+        "created": "2021-03-19T21:16:43.107Z",
+        "updated": "2021-03-19T21:16:48.040Z",
+        "template": true,
+        "form": [
+            {
+                "id": "3ff4",
+                "text": "What's a little fun fact about you?",
+                "type": "input"
+            },
+            {
+                "id": "bf24",
+                "text": "What laptop would you like to receive?",
+                "type": "select",
+                "options": [
+                    {
+                        "id": "21bd",
+                        "name": "Macbook"
+                    },
+                    {
+                        "id": "5312",
+                        "name": "Dell"
+                    }
+                ]
+            },
+            {
+                "id": "307e",
+                "text": "In a few lines, can you write out what you would like to achieve with us in the next few weeks?",
+                "type": "text"
+            },
+            {
+                "id": "8e9d",
+                "text": "Please upload a profile picture here",
+                "type": "upload"
+            }
+        ],
+        "picture": "",
+        "content": [
+            41
+        ]
+    }
+},
+{
+    "model": "preboarding.preboarding",
+    "pk": 3,
+    "fields": {
+        "name": "What can we improve about our hiring process?",
+        "tags": "[\"everyone\"]",
+        "created": "2021-03-20T01:30:37.498Z",
+        "updated": "2021-03-20T01:30:37.498Z",
+        "template": true,
+        "form": [
+            {
+                "id": "ed3f",
+                "text": "What did you like about the process?",
+                "type": "text"
+            },
+            {
+                "id": "7b3d",
+                "text": "What did you NOT like about the process?",
+                "type": "text"
+            },
+            {
+                "id": "35ab",
+                "text": "Other thoughts?",
+                "type": "text"
+            }
+        ],
+        "picture": "",
+        "content": [
+            42
+        ]
+    }
+},
+{
+    "model": "preboarding.preboarding",
+    "pk": 4,
+    "fields": {
+        "name": "Some background info about us!",
+        "tags": "[\"everyone\"]",
+        "created": "2021-03-20T02:10:14.416Z",
+        "updated": "2021-03-20T02:10:14.416Z",
+        "template": true,
+        "form": [],
+        "picture": "",
+        "content": [
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50
+        ]
+    }
+},
+{
+    "model": "preboarding.preboarding",
+    "pk": 5,
+    "fields": {
+        "name": "Here is how your first day will look like 😀",
+        "tags": "[\"marketing\"]",
+        "created": "2021-03-20T20:46:37.154Z",
+        "updated": "2021-03-20T20:58:39.026Z",
+        "template": true,
+        "form": [],
+        "picture": "",
+        "content": [
+            55,
+            56,
+            57,
+            58
+        ]
+    }
+},
+{
+    "model": "sequences.sequence",
+    "pk": 1,
+    "fields": {
+        "name": "General sequence",
+        "auto_add": false,
+        "preboarding": [
+            1,
+            2,
+            3,
+            4
+        ],
+        "to_do": [],
+        "resources": [],
+        "appointments": []
+    }
+},
+{
+    "model": "sequences.externalmessage",
+    "pk": 11,
+    "fields": {
+        "name": "Manager: Your new hire is starting in 7 days",
+        "content": "",
+        "send_via": 0,
+        "send_to": null,
+        "person_type": 0,
+        "content_json": [
+            75,
+            76
+        ]
+    }
+},
+{
+    "model": "sequences.externalmessage",
+    "pk": 12,
+    "fields": {
+        "name": "Manager: Your new hire is starting in 7 days",
+        "content": "",
+        "send_via": 0,
+        "send_to": null,
+        "person_type": 1,
+        "content_json": [
+            77,
+            78
+        ]
+    }
+},
+{
+    "model": "sequences.externalmessage",
+    "pk": 13,
+    "fields": {
+        "name": "Manager: new hire starts tomorrow!",
+        "content": "Hey {{manager}}, your new hire starts tomorrow! It's {{first_name}} {{last_name}}.",
+        "send_via": 2,
+        "send_to": null,
+        "person_type": 0,
+        "content_json": []
+    }
+},
+{
+    "model": "sequences.externalmessage",
+    "pk": 14,
+    "fields": {
+        "name": "Manager: new hire starts tomorrow!",
+        "content": "Hey {{manager}}, your new hire starts tomorrow! It's {{first_name}} {{last_name}}.",
+        "send_via": 2,
+        "send_to": null,
+        "person_type": 1,
+        "content_json": []
+    }
+},
+{
+    "model": "sequences.externalmessage",
+    "pk": 15,
+    "fields": {
+        "name": "Buddy: new hire starts soon!",
+        "content": "Hey {{buddy}}, your new hires is about to start. Please make sure that you are ready!",
+        "send_via": 2,
+        "send_to": null,
+        "person_type": 2,
+        "content_json": []
+    }
+},
+{
+    "model": "sequences.externalmessage",
+    "pk": 16,
+    "fields": {
+        "name": "Second day intro",
+        "content": "",
+        "send_via": 1,
+        "send_to": null,
+        "person_type": 0,
+        "content_json": [
+            79
+        ]
+    }
+},
+{
+    "model": "sequences.pendingadmintask",
+    "pk": 1,
+    "fields": {
+        "name": "Set up a virtual call",
+        "comment": "Please schedule a time for you and your new hire to go over some basic stuff.",
+        "assigned_to": 1,
+        "option": "0",
+        "slack_user": null,
+        "email": null,
+        "date": null,
+        "priority": 1
+    }
+},
+{
+    "model": "sequences.pendingadmintask",
+    "pk": 2,
+    "fields": {
+        "name": "Get a laptop ready",
+        "comment": "Please provide our new hire with a laptop. Install Linux on it and connect it to our VPN so our internal services are available.",
+        "assigned_to": 1,
+        "option": "0",
+        "slack_user": null,
+        "email": null,
+        "date": null,
+        "priority": 1
+    }
+},
+{
+    "model": "sequences.condition",
+    "pk": 1,
+    "fields": {
+        "sequence": 1,
+        "condition_type": 2,
+        "days": 7,
+        "time": "08:00:00",
+        "condition_to_do": [],
+        "to_do": [],
+        "badges": [],
+        "resources": [],
+        "admin_tasks": [
+            1,
+            2
+        ],
+        "external_messages": [
+            12
+        ],
+        "introductions": []
+    }
+},
+{
+    "model": "sequences.condition",
+    "pk": 2,
+    "fields": {
+        "sequence": 1,
+        "condition_type": 2,
+        "days": 1,
+        "time": "08:00:00",
+        "condition_to_do": [],
+        "to_do": [],
+        "badges": [],
+        "resources": [],
+        "admin_tasks": [],
+        "external_messages": [
+            14,
+            15
+        ],
+        "introductions": []
+    }
+},
+{
+    "model": "sequences.condition",
+    "pk": 3,
+    "fields": {
+        "sequence": 1,
+        "condition_type": 0,
+        "days": 1,
+        "time": "08:00:00",
+        "condition_to_do": [],
+        "to_do": [
+            2
+        ],
+        "badges": [],
+        "resources": [
+            1
+        ],
+        "admin_tasks": [],
+        "external_messages": [],
+        "introductions": []
+    }
+},
+{
+    "model": "sequences.condition",
+    "pk": 4,
+    "fields": {
+        "sequence": 1,
+        "condition_type": 0,
+        "days": 2,
+        "time": "08:00:00",
+        "condition_to_do": [],
+        "to_do": [],
+        "badges": [
+            2
+        ],
+        "resources": [
+            2
+        ],
+        "admin_tasks": [],
+        "external_messages": [
+            16
+        ],
+        "introductions": []
+    }
+},
+{
+    "model": "sequences.condition",
+    "pk": 5,
+    "fields": {
+        "sequence": 1,
+        "condition_type": 0,
+        "days": 6,
+        "time": "08:00:00",
+        "condition_to_do": [],
+        "to_do": [],
+        "badges": [
+            3
+        ],
+        "resources": [],
+        "admin_tasks": [],
+        "external_messages": [],
+        "introductions": []
+    }
+},
+{
+    "model": "sequences.condition",
+    "pk": 6,
+    "fields": {
+        "sequence": 1,
+        "condition_type": 1,
+        "days": 1,
+        "time": "08:00:00",
+        "condition_to_do": [
+            2
+        ],
+        "to_do": [
+            1
+        ],
+        "badges": [],
+        "resources": [],
+        "admin_tasks": [],
+        "external_messages": [],
+        "introductions": []
+    }
+},
+{
+    "model": "sequences.condition",
+    "pk": 7,
+    "fields": {
+        "sequence": null,
+        "condition_type": 2,
+        "days": 7,
+        "time": "08:00:00",
+        "condition_to_do": [],
+        "to_do": [],
+        "badges": [],
+        "resources": [],
+        "admin_tasks": [
+            1,
+            2
+        ],
+        "external_messages": [
+            12
+        ],
+        "introductions": []
+    }
+},
+{
+    "model": "sequences.condition",
+    "pk": 8,
+    "fields": {
+        "sequence": null,
+        "condition_type": 2,
+        "days": 1,
+        "time": "08:00:00",
+        "condition_to_do": [],
+        "to_do": [],
+        "badges": [],
+        "resources": [],
+        "admin_tasks": [],
+        "external_messages": [
+            14,
+            15
+        ],
+        "introductions": []
+    }
+},
+{
+    "model": "sequences.condition",
+    "pk": 9,
+    "fields": {
+        "sequence": null,
+        "condition_type": 0,
+        "days": 1,
+        "time": "08:00:00",
+        "condition_to_do": [],
+        "to_do": [
+            2
+        ],
+        "badges": [],
+        "resources": [
+            1
+        ],
+        "admin_tasks": [],
+        "external_messages": [],
+        "introductions": []
+    }
+},
+{
+    "model": "sequences.condition",
+    "pk": 10,
+    "fields": {
+        "sequence": null,
+        "condition_type": 0,
+        "days": 2,
+        "time": "08:00:00",
+        "condition_to_do": [],
+        "to_do": [],
+        "badges": [
+            2
+        ],
+        "resources": [
+            2
+        ],
+        "admin_tasks": [],
+        "external_messages": [
+            16
+        ],
+        "introductions": []
+    }
+},
+{
+    "model": "sequences.condition",
+    "pk": 11,
+    "fields": {
+        "sequence": null,
+        "condition_type": 0,
+        "days": 6,
+        "time": "08:00:00",
+        "condition_to_do": [],
+        "to_do": [],
+        "badges": [
+            3
+        ],
+        "resources": [],
+        "admin_tasks": [],
+        "external_messages": [],
+        "introductions": []
+    }
+},
+{
+    "model": "sequences.condition",
+    "pk": 12,
+    "fields": {
+        "sequence": null,
+        "condition_type": 1,
+        "days": 1,
+        "time": "08:00:00",
+        "condition_to_do": [
+            2
+        ],
+        "to_do": [
+            1
+        ],
+        "badges": [],
+        "resources": [],
+        "admin_tasks": [],
+        "external_messages": [],
+        "introductions": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 1,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Let's start with an easy one: just send James a quick message through Slack! James will be expecting a message from you, so don't be awkward -- it's totally fine to send a message out of the blue.",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 2,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "You will probably be slightly nervous, but don't worry, we are too! There is only one time to make a first impression. We will do our best to make that a lasting one (in a positive way, obviously!).",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 3,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Here is how your first day is going to look like:",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 4,
+    "fields": {
+        "type": "ul",
+        "items": [
+            {
+                "content": "9:00 - 10:00: briefly meeting with your team members"
+            }
+        ],
+        "content": "",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 28,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Alright, so let's first create a new Slack account. If you are seeing this, you probably already have one. Good job - mark this as completed now!",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 29,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "You probably noticed that we have a lot of Slack channels in our Slack team. This is because we like to keep things organized. Here is a quick list with all channels and a quick description of what they do:",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 30,
+    "fields": {
+        "type": "ul",
+        "items": [
+            {
+                "content": "General: This is our general Slack channel. Please avoid sending messages in here as it's generally just used for global announcements. "
+            },
+            {
+                "content": "Git-updates: This is a read-only channel. You will not be able to post here. This is just for notifications on things that are happening in our git repo (if you are not a developer, then don't join this channel)."
+            },
+            {
+                "content": "Random: Chat freely in here. This can be anything. From your last weekend trip to discussing what new chair you should get (Randy would tell you to get a space hopper, just so you know :) ). "
+            },
+            {
+                "content": "Training: This part will probably be relevant to you, especially in the beginning. Ask anything you want in here regarding training or new stuff. Best to use this when your buddy or manager is not available, but still need an answer fairly quickly."
+            }
+        ],
+        "content": "",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 31,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "As always, stay kind in the chats. As we are a remote company, we all work at different times. Please respect that.",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 32,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "You will probably be slightly nervous, but don't worry, we are too! There is only one time to make a first impression. We will do our best to make that a lasting one (in a positive way, obviously!).",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 33,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Here is how your first day is going to look like:",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 34,
+    "fields": {
+        "type": "ul",
+        "items": [
+            {
+                "content": "9:00 - 10:00: Briefly meeting with your team members"
+            },
+            {
+                "content": "10:00 - 12:00: Setting you up with a computer, goodiebag and such"
+            },
+            {
+                "content": "12:00 - 13:00: Lunch meeting with the team (virtually obviously)"
+            },
+            {
+                "content": "13:00 - 15:00: Some more general info on how we work and what is expected from you in the next few weeks"
+            },
+            {
+                "content": "15:00 - 17:00: Take a quick peak at our code with your buddy"
+            }
+        ],
+        "content": "",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 35,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "See you then!",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 36,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "You will probably be slightly nervous, but don't worry, we are too! There is only one time to make a first impression. We will do our best to make that a lasting one (in a positive way, obviously!).",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 37,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Here is how your first day is going to look like:",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 38,
+    "fields": {
+        "type": "ul",
+        "items": [
+            {
+                "content": "9:00 - 10:00: Briefly meeting with your team members"
+            },
+            {
+                "content": "10:00 - 12:00: Setting you up with a computer, goodiebag and such"
+            },
+            {
+                "content": "12:00 - 13:00: Lunch meeting with the team (virtually obviously)"
+            },
+            {
+                "content": "13:00 - 15:00: Some more general info on how we work and what is expected from you in the next few weeks"
+            },
+            {
+                "content": "15:00 - 17:00: Take a quick peak at our code with your buddy"
+            }
+        ],
+        "content": "",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 39,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "See you then!",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 40,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Alright, so it's almost your first day. Here are a few things that we would like to know from you before you get here. Please fill those in as soon as possible.",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 41,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Alright, so it's almost your first day. Here are a few things that we would like to know from you before you get here. Please fill those in as soon as possible.",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 42,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "So, {{ first_name }}, we think that feedback is super important and we would like to know how you have experienced everything so far. Could you please fill in the form below?",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 43,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "You might already know most of this, {{ first_name }}, but just in case, here is more info about us.",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 44,
+    "fields": {
+        "type": "h3",
+        "items": [],
+        "content": "How we started",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 45,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Way back in 2016 we saw a need for some good employee onboarding software. This software should automate all the repetitive tasks that HR and IT would have to do manually otherwise.",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 46,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Recently, we decided to make everything open source and provide hosting and support instead.",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 47,
+    "fields": {
+        "type": "h3",
+        "items": [],
+        "content": "What's up next?",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 48,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "As we are growing, we are also growing the team and we are happy that you will be part of that. Let's build the best open-source employee onboarding platform that has ever existed together!",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 49,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Here is a picture of the team:",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 50,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "<team picture>",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 51,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "You will probably be slightly nervous, but don't worry, we are too! There is only one time to make a first impression. We will do our best to make that a lasting one (in a positive way, obviously!).",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 52,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Here is how your first day is going to look like:",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 53,
+    "fields": {
+        "type": "ul",
+        "items": [
+            {
+                "content": "9:00 - 10:00: Briefly meeting with your team members"
+            },
+            {
+                "content": "10:00 - 12:00: Setting you up with a computer, goodiebag and such"
+            },
+            {
+                "content": "12:00 - 13:00: Lunch meeting with the team (virtually obviously)"
+            },
+            {
+                "content": "13:00 - 15:00: Some more general info on how we work and what is expected from you in the next few weeks"
+            },
+            {
+                "content": "15:00 - 17:00: Take a quick peak at our code with your buddy"
+            }
+        ],
+        "content": "",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 54,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "See you then!",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 55,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "You will probably be slightly nervous, but don't worry, we are too! There is only one time to make a first impression. We will do our best to make that a lasting one (in a positive way, obviously!).",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 56,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Here is how your first day is going to look like:",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 57,
+    "fields": {
+        "type": "ul",
+        "items": [
+            {
+                "content": "9:00 - 10:00: Briefly meeting with your team members"
+            },
+            {
+                "content": "10:00 - 12:00: Setting you up with a computer, goodiebag and such"
+            },
+            {
+                "content": "12:00 - 13:00: Lunch meeting with the team (virtually obviously)"
+            },
+            {
+                "content": "13:00 - 15:00: Some more general info on how we work and what is expected from you in the next few weeks"
+            },
+            {
+                "content": "15:00 - 17:00: Go over the marketing parts that we do for our company"
+            }
+        ],
+        "content": "",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 58,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "See you then!",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 59,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "You just got through 4 weeks of onboarding and you are doing great! Keep up the good work!",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 60,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "You survived the first day. Well done! We hope it was all much better than expected, if not, let your buddy, {{ buddy }} know!",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 61,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "You are about to start on your second week. The first week is always a bit stressful, we know! Here is a new award for completing your first week.",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 62,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "One of our core values is “Be better today than yesterday,” so it’s important that we support our employees’ efforts to learn, grow, and improve. These are some of the key benefits of working at us, and are central to our company culture.",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 63,
+    "fields": {
+        "type": "h3",
+        "items": [],
+        "content": "Learning budget",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 64,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Every employee has a company budget to support any learning activity that they want to pursue related to the work they do. This doesn’t need to be a class explicitly linked to their current role, but it should help them improve a skill that will be useful for them. Each employee has an annual budget of $4,000 which can be spent towards program fees/tuition, tickets, flights, and hotels for industry conferences, classes, mentorship programs, books, programs, videos, or other places that they feel will provide valuable learning experiences. These expenses should be discussed in one-on-ones and approved by the founder to whom the employee reports.",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 65,
+    "fields": {
+        "type": "h3",
+        "items": [],
+        "content": "Mentorship",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 66,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "We understands the value of mentorship. We will work with every employee to make sure they have a mentor in their field outside of the company who they can regularly meet with and get advice. Mentorship goals will be discussed in one-on-ones, possible mentors from our industry or networks will be chosen, and everyone on the team will help make and support the connection with the mentor. Employees are also encouraged to meet with their mentor during normal work hours. In the future, we will explore a more comprehensive resource or platform for helping employees find mentors.",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 67,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "After every 5 years of working at us, employees are encouraged to take a one-quarter (12 contiguous weeks) paid sabbatical.",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 68,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "During this sabbatical, they should work on passion projects -- something outside the scope of their normal work that is interesting and exciting to them. This could be researching a topic of interest, working for the US Digital Service, helping a nonprofit, or something else altogether.",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 69,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "The sabbatical should be a time of self-improvement and exploration with a central activity or theme. At the end of the sabbatical, the employee should put together a presentation about their sabbatical and present it to the team when they get back to the office.",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 70,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Taking time off and recharging is critical to doing your best work, so in addition to the recognized Holiday List, we offer 3 weeks (15 days) of paid vacation every year that accrues 1.25 of a day per month of work. Employees should schedule their vacations, let the rest of the team know, and add it to their shared work calendar at least a week in advance.",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 71,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Hey {{ manager }},",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 72,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Your new hire, {{ first_name }}, will start exactly one week from now. Please make sure that everything is ready!",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 73,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Hey {{ manager }},",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 74,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Your new hire, {{ first_name }}, will start exactly one week from now. Please make sure that everything is ready!",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 75,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Hey {{ manager }},",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 76,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Your new hire, {{ first_name }} will be starting in 7 days. This is just a quick heads-up!",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 77,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Hey {{ manager }},",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 78,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Your new hire, {{ first_name }} will be starting in 7 days. This is just a quick heads-up!",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 79,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Hey {{ first_name }}! It's your second day with us. We have got a lot of things planned for you. Please complete the task listed underneath.",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 80,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Hey {{ manager }},",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 81,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Your new hire, {{ first_name }} will be starting in 7 days. This is just a quick heads-up!",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 82,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Alright, so let's first create a new Slack account. If you are seeing this, you probably already have one. Good job - mark this as completed now!",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 83,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "You survived the first day. Well done! We hope it was all much better than expected, if not, let your buddy, {{ buddy }} know!",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 84,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Hey {{ first_name }}! It's your second day with us. We have got a lot of things planned for you. Please complete the task listed underneath.",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 85,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "You are about to start on your second week. The first week is always a bit stressful, we know! Here is a new award for completing your first week.",
+        "answer": "",
+        "files": []
+    }
+},
+{
+    "model": "misc.content",
+    "pk": 86,
+    "fields": {
+        "type": "p",
+        "items": [],
+        "content": "Let's start with an easy one: just send James a quick message through Slack! James will be expecting a message from you, so don't be awkward -- it's totally fine to send a message out of the blue.",
+        "answer": "",
+        "files": []
+    }
+}
+]
