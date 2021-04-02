@@ -11,6 +11,7 @@
         "is_staff": false,
         "is_superuser": false,
         "date_joined": "2021-03-24T21:35:49.814Z",
+        "seen_updates": "2021-04-02",
         "position": "Web developer",
         "phone": "",
         "slack_user_id": null,
