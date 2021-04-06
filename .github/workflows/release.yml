@@ -28,9 +28,10 @@ jobs:
       run: |
         git config --global user.name 'ChiefOnboarding'
         git config --global user.email 'noreply@chiefonboarding.com'
+        rm -rf .git
         git init
         git add -A 
         git commit -m "Test deploy" 
         git status
-        git push -u origin test-deploy:deploy
+        git push origin main:deploy
 
