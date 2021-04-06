@@ -2,7 +2,7 @@ name: Release to deploy repo
 on:
   push:
     branches:
-      - test-deploy
+      - master 
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -32,5 +32,5 @@ jobs:
         git add -A 
         git commit -m "Deploy" 
         git status
-        git push -f origin test-deploy:deploy
+        git push -f origin master:deploy
 
