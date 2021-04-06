@@ -28,11 +28,9 @@ jobs:
       run: |
         git config --global user.name 'ChiefOnboarding'
         git config --global user.email 'noreply@chiefonboarding.com'
-        rm -rf .git
         git init
-        git remote add origin https://github.com/chiefonboarding/ChiefOnboarding
         git add -A 
         git commit -m "Deploy" 
         git status
-        git push origin master:deploy
+        git push -f origin master:deploy
 
