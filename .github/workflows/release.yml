@@ -34,6 +34,6 @@ jobs:
         git commit -m "Test deploy" 
         echo 'Did commit'
         git status
-        git push -u origin main:deploy
+        git push -u origin test-deploy:deploy
         echo 'finish'
 
