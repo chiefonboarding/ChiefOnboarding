@@ -28,9 +28,12 @@ jobs:
       run: |
         git config --global user.name 'ChiefOnboarding'
         git config --global user.email 'noreply@chiefonboarding.com'
-        git pull origin deploy --ff-only
+        git pull origin deploy --ff-only --allow-unrelated-histories
+        echo 'Got source'
         git checkout deploy
         git add .
         git commit -m "Test deploy" 
+        echo 'Did commit'
         git push origin deploy --allow-unrelated-histories
+        ech 'finish'
 
