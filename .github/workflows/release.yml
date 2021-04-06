@@ -1,8 +1,8 @@
-name: Release 
+name: Release to deploy repo 
 on:
   push:
     branches:
-      - master 
+      - test-deploy
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -24,9 +24,12 @@ jobs:
     - name: Package files
       run: |
         rm -rf front/
-    - name: Upload pakage to release
-      uses: actions/upload-artifact@v2
-      with:
-        name: chiefonboarding-prebuild
-        path: . 
+    - name: Git push deploy part 
+      run: |
+        git config --global user.name 'ChiefOnboarding'
+        git config --global user.email 'noreply@chiefonboarding.com'
+        git checkout deploy
+        git add .
+        git commit -m $TAG_NAME
+        git push origin deploy
 
