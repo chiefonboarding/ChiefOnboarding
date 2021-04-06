@@ -104,7 +104,7 @@
       </v-autocomplete>
       <v-spacer />
       <v-btn @click="goToUpdates" icon>
-        <v-badge dot overlap :value="showBadge">
+        <v-badge :value="showBadge" dot overlap>
           <v-icon>fas fa-bell</v-icon>
         </v-badge>
       </v-btn>

@@ -41,8 +41,8 @@ class OrgDetailView(APIView):
     def patch(self, request):
         serializer = DetailOrganizationSerializer(Organization.object.get(), data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        Sequence.objects.all().update(auto_add=False)
         if 'auto_add_sequence' in request.data:
+            Sequence.objects.all().update(auto_add=False)
             for i in request.data['auto_add_sequence']:
                 seq = Sequence.objects.get(id=i)
                 seq.auto_add = True

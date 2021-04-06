@@ -45,7 +45,7 @@ class BaseOrganizationSerializer(serializers.ModelSerializer):
         return ''
 
     def get_auto_add_sequence(self, obj):
-        return SequenceListSerializer(Sequence.objects.filter(auto_add=True), many=True).data
+        return Sequence.objects.filter(auto_add=True).values_list('id', flat=True)
 
     def get_logo(self, obj):
         if obj.logo is None:
