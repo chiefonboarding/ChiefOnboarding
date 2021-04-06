@@ -30,6 +30,6 @@ jobs:
         git config --global user.email 'noreply@chiefonboarding.com'
         git checkout deploy
         git add .
-        git commit -m $TAG_NAME
+        git commit -m "Test deploy" 
         git push origin deploy
 
