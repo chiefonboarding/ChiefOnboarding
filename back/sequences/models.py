@@ -99,6 +99,7 @@ class ExternalMessage(models.Model):
     content_json = models.ManyToManyField(Content)
     send_via = models.IntegerField(choices=EXTERNAL_TYPE)
     send_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
+    subject = models.CharField(max_length=78, blank=True)
     person_type = models.IntegerField(choices=PEOPLE_CHOICES, default=1)
 
     def email_message(self):
@@ -205,7 +206,7 @@ class Condition(models.Model):
                 continue
             if i.send_via == 0:  # email
                 try:
-                    send_sequence_message(i.get_user(user), i.email_message())
+                    send_sequence_message(i.get_user(user), i.email_message(), i.subject)
                 except:
                     pass
             elif i.send_via == 1:  # slack

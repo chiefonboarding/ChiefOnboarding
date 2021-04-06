@@ -8,4 +8,4 @@ from .serializers import IntroductionSerializer
 
 class IntroductionViewSet(viewsets.ModelViewSet):
     serializer_class = IntroductionSerializer
-    queryset = Introduction.objects.all().order_by('id')
+    queryset = Introduction.objects.all().select_related('intro_person').order_by('id')

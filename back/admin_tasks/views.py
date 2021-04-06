@@ -10,7 +10,7 @@ from .serializers import CommentPostSerializer, AdminTaskSerializer, CommentSeri
 
 class AdminTaskViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.ManagerPermission,)
-    queryset = AdminTask.objects.all()
+    queryset = AdminTask.objects.all().select_related('new_hire', 'assigned_to').prefetch_related('comment')
     serializer_class = AdminTaskSerializer
 
     def create(self, request):
@@ -58,10 +58,10 @@ class AdminTaskViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['GET'])
     def done(self, request):
-        tasks = self.get_serializer(AdminTask.objects.filter(completed=True), many=True)
+        tasks = self.get_serializer(self.get_queryset().filter(completed=True), many=True)
         return Response(tasks.data)
 
     @action(detail=False, methods=['GET'])
     def done_by_user(self, request):
-        tasks = self.get_serializer(AdminTask.objects.filter(completed=True, assigned_to=request.user), many=True)
+        tasks = self.get_serializer(self.get_queryset().filter(completed=True, assigned_to=request.user), many=True)
         return Response(tasks.data)

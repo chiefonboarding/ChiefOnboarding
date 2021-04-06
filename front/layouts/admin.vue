@@ -103,6 +103,11 @@
         </template>
       </v-autocomplete>
       <v-spacer />
+      <v-btn @click="goToUpdates" icon>
+        <v-badge :value="showBadge" dot overlap>
+          <v-icon>fas fa-bell</v-icon>
+        </v-badge>
+      </v-btn>
       <v-btn @click="logout" icon>
         <v-icon>fas fa-sign-out-alt</v-icon>
       </v-btn>
@@ -169,6 +174,9 @@ export default {
   computed: {
     allItems () {
       return this.$store.state.todos.all.concat(this.$store.state.resources.all).concat(this.$store.state.intros.all).concat(this.$store.state.sequences.all).concat(this.$store.state.badges.all).concat(this.$store.state.preboarding.all).concat(this.$store.state.appointments.all).concat(this.$store.state.newhires.all).concat(this.$store.state.employees.all)
+    },
+    showBadge () {
+      return moment(this.$store.state.admin.seen_updates).isBefore('2021-04-02')
     }
   },
   watch: {
@@ -307,6 +315,9 @@ export default {
           one.model = false
         })
       }
+    },
+    goToUpdates () {
+      this.$router.push({ name: 'admin-updates' })
     }
   }
 }

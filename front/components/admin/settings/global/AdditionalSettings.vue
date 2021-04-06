@@ -132,6 +132,8 @@ export default {
       this.saving = true
       this.$org.updateGeneral(this.company).then((data) => {
         this.$store.dispatch('showSnackbar', this.$t('settings.global.billingSaved'))
+        this.$store.commit('setOrg', data)
+        this.$sequences.getAll()
       }).catch((error) => {
         this.errors = error
         this.$store.dispatch('showSnackbar', this.$t('settings.global.billingNotSaved'))

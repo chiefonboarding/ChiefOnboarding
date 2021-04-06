@@ -112,7 +112,7 @@ export default {
       this.savingCustom = true
       this.$org.updateGeneral(this.company).then((data) => {
         this.$store.dispatch('showSnackbar', this.$t('settings.global.customSaved'))
-        this.$org.getOrg().then((data) => {
+        this.$org.getOrganisation().then((data) => {
           this.savingCustom = false
         })
       }).catch((error) => {

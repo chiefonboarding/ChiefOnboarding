@@ -71,6 +71,15 @@
               class="mb-3"
             />
           </v-col>
+          <v-col cols="12" class="pa-0">
+            <VTextFieldEmoji
+              v-if="sendVia === 0"
+              v-model="tempItem.subject"
+              :label="$t('sequence.subject')"
+              :errors="errors.content"
+              personalize
+            />
+          </v-col>
           <v-col sm="12" class="pa-0">
             <VTextAreaEmoji
               v-if="sendVia === 2"
@@ -134,11 +143,12 @@ export default {
     }
   },
   data: vm => ({
-    errors: { name: [], content: [], content_json: [] },
+    errors: { name: [], content: [], subject: [], content_json: [] },
     loading: false,
     tempItem: {
       name: '',
       person_type: 0,
+      subject: '',
       send_to: null,
       send_via: vm.sendVia,
       content: '',
@@ -163,6 +173,7 @@ export default {
           name: '',
           person_type: 0,
           send_to: null,
+          subject: '',
           send_via: this.sendVia,
           content: '',
           content_json: []

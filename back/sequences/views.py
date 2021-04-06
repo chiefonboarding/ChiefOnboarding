@@ -1,3 +1,4 @@
+from django.db.models import Prefetch
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -15,7 +16,9 @@ from slack_bot.slack import Slack
 
 class SequenceViewSet(viewsets.ModelViewSet):
     serializer_class = SequenceSerializer
-    queryset = Sequence.objects.all().order_by('id')
+    queryset = Sequence.objects.all().prefetch_related('preboarding', 'to_do', 'resources', 'appointments',
+        Prefetch('conditions', queryset=Condition.objects.prefetch_related('condition_to_do', 'to_do', 'badges', 'resources', 'admin_tasks', 'external_messages', 'introductions'))
+    ).order_by('id')
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -101,9 +104,9 @@ class SaveExternalMessage(APIView):
 
 class SendTestMessage(APIView):
     def post(self, request, id):
-        ext_message = ExternalMessage.objects.get(id=id)
+        ext_message = ExternalMessage.objects.select_related('send_to').prefetch_related('content_json').get(id=id)
         if ext_message.send_via == 0:  # email
-            send_sequence_message(request.user, ext_message.email_message())
+            send_sequence_message(request.user, ext_message.email_message(), ext_message.subject)
         elif ext_message.send_via == 1:  # slack
             s = Slack()
             s.set_user(request.user)
@@ -117,7 +120,7 @@ class SendTestMessage(APIView):
 class SaveAdminTask(APIView):
     def post(self, request):
         if 'id' in request.data:
-            pending_admin_task = PendingAdminTask.objects.get(id=request.data['id'])
+            pending_admin_task = PendingAdminTask.objects.select_related('assigned_to').get(id=request.data['id'])
             pending_task = PendingAdminTaskSerializer(pending_admin_task, data=request.data, partial=True)
         else:
             pending_task = PendingAdminTaskSerializer(data=request.data)
