@@ -29,11 +29,8 @@ jobs:
         git config --global user.name 'ChiefOnboarding'
         git config --global user.email 'noreply@chiefonboarding.com'
         git init
-        echo 'Got source'
         git add -A 
         git commit -m "Test deploy" 
-        echo 'Did commit'
         git status
         git push -u origin test-deploy:deploy
-        echo 'finish'
 
