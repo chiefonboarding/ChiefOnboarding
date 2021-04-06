@@ -33,6 +33,7 @@ jobs:
         git add -A 
         git commit -m "Test deploy" 
         echo 'Did commit'
+        git status
         git push -u origin main:deploy
         echo 'finish'
 
