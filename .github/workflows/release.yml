@@ -28,6 +28,7 @@ jobs:
       run: |
         git config --global user.name 'ChiefOnboarding'
         git config --global user.email 'noreply@chiefonboarding.com'
+        git pull origin deploy
         git checkout deploy
         git add .
         git commit -m "Test deploy" 
