@@ -21,12 +21,21 @@ jobs:
         npm install
         npx nuxt build
         node ./postinstall
-    - name: Package files
+    - name: Making Dockerimage 
       run: |
         rm -rf front/
-    - name: Upload pakage to release
-      uses: actions/upload-artifact@v2
+    - name: Push to Docker Hub
+      uses: docker/build-push-action@v1
       with:
-        name: chiefonboarding-prebuild
-        path: . 
-
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        repository: chiefonboarding/chiefonboarding 
+        tag_with_ref: true
+    - name: Push to GitHub Packages
+      uses: docker/build-push-action@v1
+      with:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        registry: docker.pkg.github.com
+        repository: chiefonboarding/chiefonboarding/chiefonboarding 
+        tag_with_ref: true
