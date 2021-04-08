@@ -2,7 +2,7 @@ name: Release
 on:
   push:
     branches:
-      - master 
+      - feat-docker-image 
 jobs:
   build:
     runs-on: ubuntu-latest
