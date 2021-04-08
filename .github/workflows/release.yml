@@ -33,7 +33,8 @@ jobs:
       id: docker_build
       uses: docker/build-push-action@v2
       with:
-        context: https://github.com/chiefonboarding/ChiefOnboarding.git#deploy:back
+        context: https://github.com/chiefonboarding/ChiefOnboarding.git#deploy
+        file: ./back/Dockerfile
         push: true
         tags: chiefonboarding/chiefonboarding:latest
     - name: Image digest
