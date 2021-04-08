@@ -18,9 +18,9 @@ jobs:
         BASE_URL: /
       run: |
         cd front
-        npm install
-        npx nuxt build
-        node ./postinstall
+        # npm install
+        # npx nuxt build
+        # node ./postinstall
     - name: Making Dockerimage 
       run: |
         rm -rf front/
@@ -33,7 +33,7 @@ jobs:
       id: docker_build
       uses: docker/build-push-action@v2
       with:
-        context: https://github.com/chiefonboarding/ChiefOnboarding.git#deploy:deploy
+        context: https://github.com/chiefonboarding/ChiefOnboarding.git#deploy:back
         push: true
         tags: chiefonboarding/chiefonboarding:latest
     - name: Image digest
