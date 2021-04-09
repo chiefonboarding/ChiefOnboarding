@@ -18,12 +18,21 @@ jobs:
         BASE_URL: /
       run: |
         cd front
-        # npm install
-        # npx nuxt build
-        # node ./postinstall
+        npm install
+        npx nuxt build
+        node ./postinstall
     - name: Making Dockerimage 
       run: |
         rm -rf front/
+    - name: Git push to deploy repo 
+      run: |
+        git config --global user.name 'ChiefOnboarding'
+        git config --global user.email 'noreply@chiefonboarding.com'
+        git init
+        git add -A 
+        git commit -m "Deploy" 
+        git status
+        git push -f origin master:deploy
     - name: Login to DockerHub
       uses: docker/login-action@v1 
       with:
