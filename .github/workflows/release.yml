@@ -31,7 +31,7 @@ jobs:
         git add -A 
         git commit -m "Deploy" 
         git status
-        git push -f origin :deploy
+        git push -f origin feat-docker-image:deploy
     - name: Login to DockerHub
       uses: docker/login-action@v1 
       with:
