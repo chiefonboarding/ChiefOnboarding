@@ -1,4 +1,4 @@
-FROM python:latest-alpine
+FROM python:latest
 ENV PYTHONUNBUFFERED 1
 RUN mkdir -p /app
 WORKDIR /app
