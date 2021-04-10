@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Set up Node 
       uses: actions/setup-node@v2
       with:
@@ -31,7 +31,7 @@ jobs:
         git add -A 
         git commit -m "Deploy" 
         git status
-        git push -f origin HEAD:deploy
+        git push -f origin :deploy
     - name: Login to DockerHub
       uses: docker/login-action@v1 
       with:
