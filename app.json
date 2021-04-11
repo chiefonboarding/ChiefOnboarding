@@ -30,7 +30,7 @@
       "required": true
     },
     "ALLOWED_HOST": {
-      "description": "Same as the previous one, but then without the protocol. Example: test.chiefonboarding.com",
+      "description": "This is the base url of your application. This can be a heroku url (xxxx.herokuapps.com - which matches your domain for this app) or your own (sub) domain. Format: test.chiefonboarding.com",
       "required": true
     },
     "DEFAULT_FROM_EMAIL": {
