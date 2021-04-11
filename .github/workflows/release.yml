@@ -21,7 +21,7 @@ jobs:
         npm install
         npx nuxt build
         node ./postinstall
-    - name: Making Dockerimage 
+    - name: Cleaning up repo 
       run: |
         rm -rf front/
     - name: Git push to deploy repo 
@@ -37,6 +37,12 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v1 
+      with:
+        registry: ghcr.io
+        username: chiefonboarding1 
+        password: ${{ secrets.GH_TOKEN }}
     - name: Build and push
       id: docker_build
       uses: docker/build-push-action@v2

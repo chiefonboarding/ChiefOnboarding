@@ -30,6 +30,10 @@ Documentation: [https://docs.chiefonboarding.com](https://docs.chiefonboarding.c
 - Anymail is used for sending emails. You can choose between a wide variety of [email providers](https://anymail.readthedocs.io/en/stable/esps/#supported-esps). 
 - Let's encrypt will automatically be set up for a secure connection.
 
+## Deployment
+Deploy ChiefOnboarding easily through **Docker** or on **Heroku**. Please see [the documentation for full details](https://docs.chiefonboarding.com).
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/chiefonboarding/ChiefOnboarding/tree/deploy)
 
 ## Security issues
 Please do not create an issue if you found a potential security issue. Email me directly at security@chiefonboarding.com and I will get it resolved ASAP.

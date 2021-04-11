@@ -1,6 +1,5 @@
-back/.env
-front/node_modules
-front/.nuxt
-front/dist
-/back/Dockerfile*
-/front/node_modules
+docker-compose.yml
+app.json
+.git
+.github
+
