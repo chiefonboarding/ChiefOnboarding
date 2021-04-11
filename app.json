@@ -25,6 +25,10 @@
       "description": "A random secret key for Django",
       "generator": "secret"
     },
+    "SSL_REDIRECT": {
+      "description": "Automatically redirect to HTTPS for a secure connection",
+      "value": true
+    },
     "BASE_URL": {
       "description": "This is the base url of your application. This can be a heroku url (xxxx.herokuapps.com - which matches your domain for this app) or your own (sub) domain. Format: https://test.chiefonboarding.com",
       "required": true
