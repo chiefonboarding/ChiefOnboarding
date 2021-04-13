@@ -1,4 +1,4 @@
-name: Release 
+name: Release to deploy repo 
 on:
   push:
     branches:
@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Set up Node 
       uses: actions/setup-node@v2
       with:
@@ -24,9 +24,13 @@ jobs:
     - name: Package files
       run: |
         rm -rf front/
-    - name: Upload pakage to release
-      uses: actions/upload-artifact@v2
-      with:
-        name: chiefonboarding-prebuild
-        path: . 
+    - name: Git push deploy part 
+      run: |
+        git config --global user.name 'ChiefOnboarding'
+        git config --global user.email 'noreply@chiefonboarding.com'
+        git init
+        git add -A 
+        git commit -m "Deploy" 
+        git status
+        git push -f origin master:deploy
 
