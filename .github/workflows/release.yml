@@ -21,16 +21,29 @@ jobs:
         npm install
         npx nuxt build
         node ./postinstall
-    - name: Package files
+    - name: Cleaning up repo 
       run: |
         rm -rf front/
-    - name: Git push deploy part 
+    - name: Git push to deploy repo 
       run: |
         git config --global user.name 'ChiefOnboarding'
         git config --global user.email 'noreply@chiefonboarding.com'
-        git init
         git add -A 
         git commit -m "Deploy" 
         git status
         git push -f origin master:deploy
-
+    - name: Login to DockerHub
+      uses: docker/login-action@v1 
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Build and push
+      id: docker_build
+      uses: docker/build-push-action@v2
+      with:
+        context: https://github.com/chiefonboarding/ChiefOnboarding.git#deploy
+        file: ./back/Dockerfile
+        push: true
+        tags: |
+          chiefonboarding/chiefonboarding:latest
+          chiefonboarding/chiefonboarding:1.0.0
