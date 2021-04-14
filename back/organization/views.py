@@ -15,7 +15,7 @@ from misc.models import File
 from .serializers import BaseOrganizationSerializer, DetailOrganizationSerializer, \
     WelcomeMessageSerializer, ExportSerializer
 from misc.serializers import FileSerializer
-from users.permissions import NewHirePermission, AdminPermission
+from users.permissions import NewHirePermission, AdminPermission, ManagerPermission
 from django.core import management
 from sequences.models import Sequence
 
@@ -33,6 +33,7 @@ class OrgView(APIView):
 
 
 class OrgDetailView(APIView):
+    permission_classes = (ManagerPermission,) 
 
     def get(self, request):
         org = DetailOrganizationSerializer(Organization.object.get())

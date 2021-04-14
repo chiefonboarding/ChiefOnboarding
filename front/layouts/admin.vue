@@ -273,14 +273,20 @@ export default {
             }
           ]
         } else {
-          this.items = [{ icon: 'fas fa-tasks',
+          // this.$employees.getAll().finally(() => { this.ready++ })
+          this.$org.getAdmins().finally(() => { this.ready++ })
+          this.items = [{
+            icon: 'fas fa-tasks',
             'icon-alt': 'fas fa-tasks',
             text: this.$t('admin.yourTasks'),
             model: false,
             children: [
               { text: this.$t('admin.yourTasks'), to: 'admin-hrtasks-mine' },
               { text: this.$t('admin.allTasks'), to: 'admin-hrtasks-all' }
-            ] }]
+            ]
+          }]
+          this.loading = false
+          this.$router.push({ name: 'admin-hrtasks-all' })
         }
       })
     })
