@@ -46,4 +46,4 @@ jobs:
         push: true
         tags: |
           chiefonboarding/chiefonboarding:latest
-          chiefonboarding/chiefonboarding:1.0.0
+          chiefonboarding/chiefonboarding:1.1.0
