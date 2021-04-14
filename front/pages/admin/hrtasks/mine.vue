@@ -26,8 +26,8 @@
           <template v-slot:no-data>
             There are no to do items for you (yet).
           </template>
-          <template v-slot:item.first_name="{ item }">
-            {{ item.first_name }} {{ item.last_name }}
+          <template v-slot:item.new_hire.first_name="{ item }">
+            {{ item.new_hire.first_name }} {{ item.new_hire.last_name }}
           </template>
           <template v-slot:item.date="{ item }">
             {{ item.date | timeAgo }}

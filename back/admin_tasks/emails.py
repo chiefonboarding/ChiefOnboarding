@@ -17,7 +17,7 @@ def send_email_notification_to_external_person(admin_task):
                 "Hi! Could you please help me with this? It's for our new hire ") + admin_task.new_hire.full_name()
         }
     ]
-    if admin_task.comments.exists():
+    if admin_task.comment.exists():
         content.append({
             "type": "block",
             "text": admin_task.content.last().comment
@@ -37,7 +37,7 @@ def send_email_new_assigned_admin(admin_task):
             "text": _("This is about task: ") + admin_task.name + _(" for ") + admin_task.new_hire.full_name()
         }
     ]
-    if admin_task.comments.exists():
+    if admin_task.comment.exists():
         content.append({
             "type": "block",
             "text": '<strong>' + _("Last message: ") + '</strong><br />' + admin_task.content.last().comment
