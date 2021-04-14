@@ -12,7 +12,7 @@
     >
       <img :src="$store.state.baseInfo.org.logo" style="max-height: 40px; max-width: 100px; margin-right: 20px;">
 
-      <v-toolbar-title>Welcome {{ $store.state.baseInfo.new_hire.first_name }}!</v-toolbar-title>
+      <v-toolbar-title>Hi {{ $store.state.baseInfo.new_hire.first_name }}!</v-toolbar-title>
 
       <v-spacer />
       <v-toolbar-items>
@@ -96,8 +96,8 @@ export default {
       }
       this.$newhirepart.getMe(code).then((data) => {
         this.$store.commit('setBaseInfo', data)
-        moment.locale(data.language)
-        this.$i18n.locale = data.language
+        moment.locale(data.new_hire.language)
+        this.$i18n.locale = data.new_hire.language
         if (this.$router.currentRoute.name === 'portal') {
           if (data.new_hire.has_to_do) {
             this.$router.push({ name: 'portal-todo' })

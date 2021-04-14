@@ -82,6 +82,9 @@ export default {
       })
     },
     clickedItem (value) {
+      if (value.length === 0) {
+        return
+      }
       const item = this.searchResources.find(a => a.id === value[0])
       if (item.item) {
         this.item = item

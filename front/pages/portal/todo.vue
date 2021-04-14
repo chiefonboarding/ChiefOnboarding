@@ -16,7 +16,7 @@
       <v-row v-for="(value, preopertyName) in toDoItems" :key="preopertyName">
         <v-col xs="12" mb="4">
           <v-subheader class="list-header">
-            {{ preopertyName | toCalendar }}
+            {{ toCalendar(preopertyName) }}
           </v-subheader>
           <div v-for="i in value" :key="i.id" class="upper">
             <ToDoItem :to-do="i" />
@@ -80,18 +80,6 @@ export default {
   layout: 'newhire',
   name: 'ToDoPart',
   components: { ToDoItem, BadgeModal },
-  filters: {
-    toCalendar (value) {
-      return moment(value).calendar(null, {
-        sameDay: '[Today]',
-        nextDay: '[Tomorrow]',
-        nextWeek: 'dddd',
-        lastDay: '[Yesterday]',
-        lastWeek: '[Last] dddd',
-        sameElse: 'MM/DD/YYYY'
-      })
-    }
-  },
   data: () => ({
     loading: true,
     loadingBadges: true,
@@ -126,6 +114,27 @@ export default {
       }).finally(() => {
         this.loading = false
       })
+    },
+    toCalendar (value) {
+      if (this.$store.state.baseInfo.new_hire.language === 'en') {
+        return moment(value).calendar(null, {
+          sameDay: '[Today]',
+          nextDay: '[Tomorrow]',
+          nextWeek: 'dddd',
+          lastDay: '[Yesterday]',
+          lastWeek: '[Last] dddd',
+          sameElse: 'MM/DD/YYYY'
+        })
+      } else if (this.$store.state.baseInfo.new_hire.language === 'nl') {
+        return moment(value).calendar(null, {
+          lastDay: '[Gisteren]',
+          sameDay: '[Vandaag]',
+          nextDay: '[Morgen]',
+          lastWeek: '[Vorige week] dddd',
+          nextWeek: '[Volgende week] dddd',
+          sameElse: 'DD-MMMM'
+        })
+      }
     },
     getBadges () {
       this.loadingBadges = true
