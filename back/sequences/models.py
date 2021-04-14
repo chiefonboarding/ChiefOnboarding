@@ -99,7 +99,7 @@ class ExternalMessage(models.Model):
     content_json = models.ManyToManyField(Content)
     send_via = models.IntegerField(choices=EXTERNAL_TYPE)
     send_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
-    subject = models.CharField(max_length=78, blank=True)
+    subject = models.CharField(max_length=78, default='Here is an update!', blank=True)
     person_type = models.IntegerField(choices=PEOPLE_CHOICES, default=1)
 
     def email_message(self):

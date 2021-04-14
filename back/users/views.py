@@ -9,7 +9,7 @@ from django.utils import translation
 from django.utils.translation import ugettext as _
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework.decorators import action, permission_classes
 from rest_framework.views import APIView
 from twilio.rest import Client
 
@@ -20,7 +20,7 @@ from .tasks import send_new_hire_credentials
 from .serializers import NewHireSerializer, AdminSerializer, EmployeeSerializer, \
     UserLanguageSerializer, NewHireProgressResourceSerializer, \
     NewHireWelcomeMessageSerializer
-
+from .permissions import ManagerPermission
 from notes.serializers import NoteSerializer
 from notes.models import Note
 from to_do.serializers import ToDoFormSerializer
@@ -46,6 +46,7 @@ class NewHireViewSet(viewsets.ModelViewSet):
     API endpoint that allows new hires to be viewed, changed, edited or deleted.
     """
     serializer_class = NewHireSerializer
+    permission_classes = [ManagerPermission]
 
     def get_queryset(self):
         # if user is not admin, then only show records relevant to the manager
@@ -229,6 +230,11 @@ class NewHireViewSet(viewsets.ModelViewSet):
 class AdminViewSet(viewsets.ModelViewSet):
     serializer_class = AdminSerializer
     queryset = get_user_model().admins.all()
+    
+    def get_permissions(self):
+        if self.action == "list":
+            self.permission_classes = [ManagerPermission]
+        return super().get_permissions()
 
     def perform_create(self, serializer):
         user = serializer.save()
@@ -243,12 +249,12 @@ class AdminViewSet(viewsets.ModelViewSet):
             self.get_object().delete()
         return Response()
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=['get'], permission_classes=[ManagerPermission])
     def me(self, request):
         admin = AdminSerializer(request.user)
         return Response(admin.data)
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'], permission_classes=[ManagerPermission])
     def seen_updates(self, request):
         request.user.seen_updates = request.user.get_local_time().date()
         request.user.save()

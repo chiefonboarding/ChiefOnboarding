@@ -1,5 +1,12 @@
-name: ChiefOnboarding
-on: [push, pull_request]
+name: Tests
+on: 
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - master
+      - dev
 jobs:
   build:
     runs-on: ubuntu-latest
