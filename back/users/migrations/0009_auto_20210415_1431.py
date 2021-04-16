@@ -3,7 +3,7 @@
 from django.db import migrations, models
 import fernet_fields.fields
 import uuid
-
+import pyotp
 
 class Migration(migrations.Migration):
 
@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='user',
             name='otp_recovery_key',
-            field=fernet_fields.fields.EncryptedTextField(default=uuid.uuid4),
+            field=fernet_fields.fields.EncryptedTextField(default=uuid.uuid4()),
         ),
         migrations.AddField(
             model_name='user',
@@ -25,6 +25,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='user',
             name='totp_secret',
-            field=fernet_fields.fields.EncryptedTextField(default='HC4V4EUBH2ZZVFRNHPWIPODGHFB5V3WW'),
+            field=fernet_fields.fields.EncryptedTextField(default=pyotp.random_base32()),
         ),
     ]
