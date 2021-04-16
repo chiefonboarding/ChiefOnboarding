@@ -29,15 +29,15 @@
         <v-text-field
           id="totp"
           v-model="totp"
-          label="2FA - TOTP"
           :color="$store.state.org.accent_color"
           :hint="$t('admin.recoveryKeyReset2FA')"
           @keyup.enter="login"
+          label="2FA - TOTP"
           class="my-0"
           prepend-icon="lock"
         />
       </v-col>
-      <v-col sm="12" class="py-0" v-show="!showTOTPForm">
+      <v-col v-show="!showTOTPForm" sm="12" class="py-0">
         <nuxt-link :style="`color: ${$store.state.org.accent_color}`" to="pass/reset">
           {{ $t('admin.forgotPass') }}
         </nuxt-link>

@@ -233,13 +233,13 @@ DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 OLD_PASSWORD_FIELD_ENABLED = True
 REST_SESSION_LOGIN = True
 
-# CACHES = {
-#     "default": {
-#         "BACKEND": "django_redis.cache.RedisCache",
-#         "LOCATION": env('REDIS_URL'),
-#         "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"}
-#     }
-# }
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": env('REDIS_URL'),
+        "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"}
+    }
+}
 BROKER_URL = env('REDIS_URL')
 CELERY_RESULT_BACKEND = env('REDIS_URL')
 CELERY_ACCEPT_CONTENT = ['application/json']
