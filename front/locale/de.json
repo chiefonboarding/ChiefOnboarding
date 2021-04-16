@@ -292,6 +292,7 @@
       "allBadges": "Alle Abzeichenvorlagen"
     },
     "buttons": {
+      "enable":"Aktivieren",
       "pending": "Ausstehend",
       "cance": "Abbrechen",
       "active": "aktiv",
@@ -603,6 +604,9 @@
         "googleAccountsDescr": "Wenn Sie diese Option aktivieren, können Sie ein Google-Konto für neue Mitarbeiter erstellen. Dadurch erhält der neue Mitarbeiter eine E-Mail mit Anmeldeinformationen. Das Passwort muss sofort zurückgesetzt werden."
       },
       "personal": {
+        "TOTPOK": "TOTP wurde erfolgreich eingerichtet! Um es zu deaktivieren, verwenden Sie bei der Anmeldung Ihren Wiederherstellungsschlüssel.",
+        "recoveryKeyMessage": "Bitte speichern Sie diesen Schlüssel, bevor Sie etwas anderes tun. Sie benötigen ihn, um TOTP zu deaktivieren, falls Sie den Zugriff auf Ihre TOTP-Anwendung verlieren. Ihr Schlüssel ist:",
+        "TOTPSetup": "TOTP-Einstellung",
         "personal": "persönlich",
         "changePassword": "Ändern Sie Ihr Passwort",
         "oldPass": "Altes Passwort",
@@ -615,6 +619,8 @@
       }
     },
     "admin": {
+      "TOTPNotMatch": "Der TOTP-Code hat nicht gepasst. Bitte versuchen Sie es erneut",
+      "recoveryKeyReset2FA":"Hinweis: Durch die Verwendung des Wiederherstellungsschlüssels wird 2FA zurückgesetzt!",
       "portal": "Admin portal",
       "search": "Suche...",
       "allResources": "Alle Ressourcen",

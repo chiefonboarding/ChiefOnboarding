@@ -40,6 +40,20 @@ export default (axios, store) => ({
       return Promise.reject(error.response.data)
     })
   },
+  getTOTPQR () {
+    return axios.get('api/users/admin/get_totp_qr').then((response) => {
+      return response.data
+    }).catch((error) => {
+      return Promise.reject(error.response.data)
+    })
+  },
+  validateTOTP (payload) {
+    return axios.post('api/users/admin/validate_totp', { 'otp': payload }).then((response) => {
+      return response.data
+    }).catch((error) => {
+      return Promise.reject(error.response.data)
+    })
+  },
   changeLanguage (payload) {
     return axios.post('api/users/admin/language', { 'language': payload }).then((response) => {
       return response.data

@@ -24,6 +24,9 @@ from sequences.models import Condition
 
 from introductions.models import Introduction
 from datetime import date, timedelta
+import uuid
+import pyotp
+from fernet_fields import EncryptedTextField
 
 LANGUAGE_CHOICES = (
     ('en', 'English'),
@@ -107,6 +110,9 @@ class User(AbstractBaseUser):
     is_introduced_to_colleagues = models.BooleanField(default=False)
     sent_preboarding_details = models.BooleanField(default=False)
     resources = models.ManyToManyField(Resource, through='ResourceUser')
+    totp_secret = EncryptedTextField(default=pyotp.random_base32())
+    requires_otp = models.BooleanField(default=False)
+    otp_recovery_key = EncryptedTextField(default=uuid.uuid4)
     # new hire specific
     completed_tasks = models.IntegerField(default=0)
     total_tasks = models.IntegerField(default=0)

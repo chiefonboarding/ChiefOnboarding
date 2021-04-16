@@ -39,7 +39,7 @@ from sequences.utils import get_task_items
 from organization.models import WelcomeMessage
 from integrations.google import Google
 from django.db.models import Prefetch
-
+import pyotp
 
 class NewHireViewSet(viewsets.ModelViewSet):
     """
@@ -248,6 +248,22 @@ class AdminViewSet(viewsets.ModelViewSet):
         if self.get_object() != request.user:
             self.get_object().delete()
         return Response()
+
+    @action(detail=False, methods=['post'])
+    def validate_totp(self, request):
+        otp = request.data['otp'] if 'otp' in request.data else ''
+        totp = pyotp.TOTP(request.user.totp_secret)
+        is_valid = totp.verify(otp)
+        if is_valid:
+            request.user.requires_otp = True
+            request.user.save()
+            return Response({ 'recovery_key': request.user.otp_recovery_key })
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['get'])
+    def get_totp_qr(self, request):
+        otp_url = pyotp.totp.TOTP(request.user.totp_secret).provisioning_uri(name=request.user.email, issuer_name='ChiefOnboarding')
+        return Response({ 'otp_url': otp_url })
 
     @action(detail=False, methods=['get'], permission_classes=[ManagerPermission])
     def me(self, request):

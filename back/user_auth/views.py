@@ -13,7 +13,8 @@ from integrations.models import AccessToken
 from google_auth_oauthlib.flow import Flow
 from organization.models import Organization
 from .serializers import LoginSerializer
-
+import pyotp
+import uuid
 
 class LoginView(APIView):
     permission_classes = (AllowAny,)
@@ -23,6 +24,21 @@ class LoginView(APIView):
         if serializer.is_valid():
             user = authenticate(request, username=serializer.data['username'], password=serializer.data['password'])
             if user is not None:
+                # check TOTP
+                if user.requires_otp:
+                    if serializer.data['totp'] == '':
+                        return Response({'totp': 'provide_totp'},
+                                        status=status.HTTP_400_BAD_REQUEST)
+
+                    totp = pyotp.TOTP(user.totp_secret)
+                    if not totp.verify(serializer.data['totp']) and not user.otp_recovery_key == serializer.data['totp']:
+                        return Response({'error': 'TOTP code does not match'},
+                                        status=status.HTTP_400_BAD_REQUEST)
+                    if user.otp_recovery_key == serializer.data['totp']:
+                        user.totp_secret = pyotp.random_base32()
+                        user.otp_recovery_key = uuid.uuid4()
+                        user.requires_otp = False
+                        user.save()
                 login(request, user)
                 translation.activate(request.user.language)
                 user = NewHireSerializer(request.user)

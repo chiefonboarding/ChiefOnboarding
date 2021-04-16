@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-form>
-      <v-col sm="12" class="pb-0">
+      <v-col v-show="!showTOTPForm" sm="12" class="pb-0">
         <v-text-field
           v-model="username"
           :label="$t('forms.email')"
@@ -12,7 +12,7 @@
           type="text"
         />
       </v-col>
-      <v-col sm="12" class="py-0">
+      <v-col v-show="!showTOTPForm" sm="12" class="py-0">
         <v-text-field
           id="password"
           v-model="password"
@@ -25,7 +25,19 @@
           name="password"
         />
       </v-col>
-      <v-col sm="12" class="py-0">
+      <v-col v-show="showTOTPForm" sm="12" class="py-0">
+        <v-text-field
+          id="totp"
+          v-model="totp"
+          label="2FA - TOTP"
+          :color="$store.state.org.accent_color"
+          :hint="$t('admin.recoveryKeyReset2FA')"
+          @keyup.enter="login"
+          class="my-0"
+          prepend-icon="lock"
+        />
+      </v-col>
+      <v-col sm="12" class="py-0" v-show="!showTOTPForm">
         <nuxt-link :style="`color: ${$store.state.org.accent_color}`" to="pass/reset">
           {{ $t('admin.forgotPass') }}
         </nuxt-link>
@@ -64,7 +76,9 @@ export default {
   data: () => ({
     username: '',
     loading: false,
-    password: ''
+    password: '',
+    totp: '',
+    showTOTPForm: false
   }),
   computed: {
     google_url () {
@@ -76,16 +90,19 @@ export default {
   methods: {
     login () {
       this.loading = true
-      this.$user.login({ username: this.username, password: this.password }).then((data) => {
+      this.$user.login({ username: this.username, password: this.password, totp: this.totp }).then((data) => {
         if (data.role === 1 || data.role === 2) {
           this.$router.push({ name: 'admin' })
         } else {
           this.$router.push({ name: 'portal' })
         }
-      }).catch((error) => {})
-        .finally(() => {
-          this.loading = false
-        })
+      }).catch((error) => {
+        if ('totp' in error) {
+          this.showTOTPForm = true
+        }
+      }).finally(() => {
+        this.loading = false
+      })
     }
   }
 }

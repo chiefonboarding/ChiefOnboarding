@@ -62,6 +62,7 @@ class NewHireSerializer(BaseUserSerializer):
 class AdminSerializer(BaseUserSerializer):
     search_type = serializers.CharField(default='admin', read_only=True)
     seen_updates = serializers.DateField(read_only=True)
+    requires_otp = serializers.BooleanField(read_only=True)
 
 class EmployeeSerializer(BaseUserSerializer):
     search_type = serializers.CharField(default='employee', read_only=True)
