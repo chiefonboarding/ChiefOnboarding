@@ -20,6 +20,7 @@ CONTENT_OPTIONS = (
     ('hr', 'hr'),
     ('file', 'file'),
     ('image', 'image'),
+    ('video', 'video'),
     ('question', 'question')
 )
 
