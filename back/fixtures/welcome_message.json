@@ -117,7 +117,7 @@
   }
 },
 {
-  "model": "organizatio.welcomemessage",
+  "model": "organization.welcomemessage",
   "pk": 14,
   "fields": {
     "message": " Creamos una p\u00e1gina web en l\u00ednea para que usted se familiarice un poco m\u00e1s con nosotros y lo incorpore sin problemas. Sus credenciales de inicio de sesi\u00f3n son:",
