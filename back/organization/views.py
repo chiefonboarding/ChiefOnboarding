@@ -85,7 +85,7 @@ class CSRFTokenView(APIView):
 
 
 class FileView(APIView):
-    permission_classes = (IsAuthenticated)
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, id, uuid):
         file = get_object_or_404(File, uuid=uuid, id=id)
