@@ -302,6 +302,7 @@
         "allBadges": "すべてのバッジテンプレート"
     },
     "buttons": {
+        "enable":"イネーブル",
         "pending": "保留中",
         "cancel": "キャンセル",
         "active": "アクティブ",
@@ -621,7 +622,9 @@
         },
 
         "personal": {
-
+            "TOTPOK": "TOTPが正常に設定されました! 無効にするには、ログイン時にリカバリーキーを使用してください。",
+            "recoveryKeyMessage": "他の作業をする前にこのキーを保存してください。このキーは、TOTPアプリケーションにアクセスできなくなった場合に、TOTPを無効にするために必要となります。あなたのキーは",
+            "TOTPSetup": "TOTPのセットアップ",
             "personal": "個人的な",
             "changePassword": "パスワードを変更してください",
             "oldPass": "以前のパスワード",
@@ -635,6 +638,8 @@
 
     },
     "admin": {
+        "TOTPNotMatch": "TOTPコードが一致しませんでした。もう一度お試しください。",
+        "recoveryKeyReset2FA":"注意：リカバリーキーを使用すると、2FAがリセットされます。",
         "portal": "管理者ポータル",
         "search": "サーチ...",
         "allResources": "すべてのリソース",
