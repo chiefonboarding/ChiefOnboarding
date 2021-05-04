@@ -27,6 +27,11 @@
       <h3 v-if="i.type === 'image' && i.files.length">
         <v-img :src="i.files[0].file_url" />
       </h3>
+      <div v-if="i.type === 'video' && i.files.length">
+        <video controls style="width: 100%">
+          <source :src="i.files[0].file_url" :type="'video/' + i.files[0].ext" />
+        </video>
+      </div>
       <div v-if="i.type === 'youtube'">
         <iframe
           v-if="getYoutubeLink(i.content) !== ''"
