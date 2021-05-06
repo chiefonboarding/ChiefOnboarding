@@ -31,4 +31,4 @@ jobs:
         git add -A 
         git commit -m "Deploy" 
         git status
-        git push -f origin dev:test-deploy
+        git push -f origin HEAD:test-deploy
