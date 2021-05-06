@@ -1,83 +1,86 @@
 <template>
-  <div class="editor__content">
-    <bubble-menu
-      :tippy-options="{ duration: 100 }"
-      :editor="editor"
-      v-if="editor"
-      class="bubble-menu"
-    >
-      <button @click="editor.chain().focus().toggleBold().run()" :class="{ 'is-active': editor.isActive('bold') }">
-        Bold
-      </button>
-      <button @click="editor.chain().focus().toggleItalic().run()" :class="{ 'is-active': editor.isActive('italic') }">
-        Italic
-      </button>
-      <button @click="editor.chain().focus().toggleStrike().run()" :class="{ 'is-active': editor.isActive('strike') }">
-        Strike
-      </button>
-      <button @click="editor.chain().focus().toggleUnderline().run()" :class="{ 'is-active': editor.isActive('underline') }">
-        Underline
-      </button>
-      <button @click="setLink" :class="{ 'is-active': editor.isActive('link') }">
-        Link
-      </button>
-      <button @click="editor.chain().focus().unsetLink().run()" v-if="editor.isActive('link')">
-        Remove
-      </button>
-    </bubble-menu>
+  <div>
+    <span class="label" style="font-size: 12px">Content</span>
+    <div class="editor__content">
+      <bubble-menu
+        :tippy-options="{ duration: 100 }"
+        :editor="editor"
+        v-if="editor"
+        class="bubble-menu"
+      >
+        <button @click="editor.chain().focus().toggleBold().run()" :class="{ 'is-active': editor.isActive('bold') }">
+          Bold
+        </button>
+        <button @click="editor.chain().focus().toggleItalic().run()" :class="{ 'is-active': editor.isActive('italic') }">
+          Italic
+        </button>
+        <button @click="editor.chain().focus().toggleStrike().run()" :class="{ 'is-active': editor.isActive('strike') }">
+          Strike
+        </button>
+        <button @click="editor.chain().focus().toggleUnderline().run()" :class="{ 'is-active': editor.isActive('underline') }">
+          Underline
+        </button>
+        <button @click="setLink" :class="{ 'is-active': editor.isActive('link') }">
+          Link
+        </button>
+        <button @click="editor.chain().focus().unsetLink().run()" v-if="editor.isActive('link')">
+          Remove
+        </button>
+      </bubble-menu>
 
-    <floating-menu
-      :tippy-options="{ duration: 100 }"
-      :editor="editor"
-      v-if="editor"
-      class="floating-menu"
-    >
-      <button @click="editor.chain().focus().toggleHeading({ level: 1 }).run()" :class="{ 'is-active': editor.isActive('heading', { level: 1 }) }">
-        H1
-      </button>
-      <button @click="editor.chain().focus().toggleHeading({ level: 2 }).run()" :class="{ 'is-active': editor.isActive('heading', { level: 2 }) }">
-        H2
-      </button>
-      <button @click="editor.chain().focus().toggleBulletList().run()" :class="{ 'is-active': editor.isActive('bulletList') }">
-        Bullet List
-      </button>
-      <button @click="editor.chain().focus().toggleOrderedList().run()" :class="{ 'is-active': editor.isActive('orderedList') }">
-        Ordered List
-      </button>
-      <button @click="$refs.imageInput.click()" :class="{ 'is-active': editor.isActive('image') }">
-        Image
-      </button>
-      <button @click="$refs.fileInput.click()" :class="{ 'is-active': editor.isActive('file') }">
-        File
-      </button>
-      <button @click="$refs.videoInput.click()" :class="{ 'is-active': editor.isActive('video') }">
-        Video
-      </button>
-      <button @click="editor.chain().focus().toggleBlockquote().run()" :class="{ 'is-active': editor.isActive('blockquote') }">
-        Quote
-      </button>
-    </floating-menu>
+      <floating-menu
+        :tippy-options="{ duration: 100 }"
+        :editor="editor"
+        v-if="editor"
+        class="floating-menu"
+      >
+        <button @click="editor.chain().focus().toggleHeading({ level: 1 }).run()" :class="{ 'is-active': editor.isActive('heading', { level: 1 }) }">
+          H1
+        </button>
+        <button @click="editor.chain().focus().toggleHeading({ level: 2 }).run()" :class="{ 'is-active': editor.isActive('heading', { level: 2 }) }">
+          H2
+        </button>
+        <button @click="editor.chain().focus().toggleBulletList().run()" :class="{ 'is-active': editor.isActive('bulletList') }">
+          Bullet List
+        </button>
+        <button @click="editor.chain().focus().toggleOrderedList().run()" :class="{ 'is-active': editor.isActive('orderedList') }">
+          Ordered List
+        </button>
+        <button @click="$refs.imageInput.click()" :class="{ 'is-active': editor.isActive('image') }">
+          Image
+        </button>
+        <button @click="$refs.fileInput.click()" :class="{ 'is-active': editor.isActive('file') }">
+          File
+        </button>
+        <button @click="$refs.videoInput.click()" :class="{ 'is-active': editor.isActive('video') }">
+          Video
+        </button>
+        <button @click="editor.chain().focus().toggleBlockquote().run()" :class="{ 'is-active': editor.isActive('blockquote') }">
+          Quote
+        </button>
+      </floating-menu>
 
-    <input
-      ref="imageInput"
-      :accept="['image/jpg', 'image/jpeg', 'image/png']"
-      @input="uploadImage"
-      type="file"
-      style="display:none"
-    >
-    <input
-      ref="fileInput"
-      @input="uploadFile"
-      type="file"
-      style="display:none"
-    >
-    <input
-      ref="videoInput"
-      @input="uploadVideo"
-      type="file"
-      style="display:none"
-    >
-    <editor-content :editor="editor" />
+      <input
+        ref="imageInput"
+        :accept="['image/jpg', 'image/jpeg', 'image/png']"
+        @input="uploadImage"
+        type="file"
+        style="display:none"
+      >
+      <input
+        ref="fileInput"
+        @input="uploadFile"
+        type="file"
+        style="display:none"
+      >
+      <input
+        ref="videoInput"
+        @input="uploadVideo"
+        type="file"
+        style="display:none"
+      >
+      <editor-content :editor="editor" />
+    </div>
   </div>
 </template>
 
