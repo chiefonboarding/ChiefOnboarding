@@ -29,7 +29,7 @@
       </h3>
       <div v-if="i.type === 'video' && i.files.length">
         <video controls style="width: 100%">
-          <source :src="i.files[0].file_url" :type="'video/' + i.files[0].ext" />
+          <source :src="i.files[0].file_url" :type="'video/' + i.files[0].ext"></source>
         </video>
       </div>
       <div v-if="i.type === 'youtube'">

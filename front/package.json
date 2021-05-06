@@ -29,6 +29,7 @@
     "@tiptap/extension-image": "^2.0.0-beta.4",
     "@tiptap/extension-link": "^2.0.0-beta.6",
     "@tiptap/extension-list-item": "^2.0.0-beta.4",
+    "@tiptap/extension-placeholder": "^2.0.0-beta.12",
     "@tiptap/extension-underline": "^2.0.0-beta.5",
     "@tiptap/starter-kit": "^2.0.0-beta.31",
     "@tiptap/vue-2": "^2.0.0-beta.19",

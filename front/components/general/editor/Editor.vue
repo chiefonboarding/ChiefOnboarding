@@ -1,6 +1,8 @@
 <template>
   <div>
-    <span class="label" style="font-size: 12px">Content</span>
+    <div class="label mb-2" style="font-size: 12px; margin-top: 2px;">
+      Content
+    </div>
     <div class="editor__content">
       <bubble-menu
         :tippy-options="{ duration: 100 }"
@@ -97,6 +99,7 @@ import Underline from '@tiptap/extension-underline'
 import OrderedList from '@tiptap/extension-ordered-list'
 import Image from '@tiptap/extension-image'
 import Blockquote from '@tiptap/extension-blockquote'
+import Placeholder from '@tiptap/extension-placeholder'
 import { Video } from './VideoUploader.ts'
 import { File } from './FileUploader.ts'
 
@@ -107,16 +110,16 @@ export default {
     FloatingMenu
   },
 
-  data: () => ({
-    editor: null,
-    content: ''
-  }),
   props: {
     // eslint-disable-next-line
     value: {
       required: true
     }
   },
+  data: () => ({
+    editor: null,
+    content: ''
+  }),
   watch: {
     '$store.state.refreshEditor' () {
       this.formatDataToEditorHTML(this.value)
@@ -132,7 +135,8 @@ export default {
         Image,
         Blockquote,
         File,
-        Video
+        Video,
+        Placeholder
       ],
       content: this.content
     })
@@ -141,6 +145,9 @@ export default {
     })
     this.editor = editor
     this.formatDataToEditorHTML(this.value)
+  },
+  beforeDestroy () {
+    this.editor.destroy()
   },
   methods: {
     uploadImage () {
@@ -339,9 +346,6 @@ export default {
       console.log(html)
       this.editor.commands.setContent(html)
     }
-  },
-  beforeDestroy () {
-    this.editor.destroy()
   }
 }
 </script>
@@ -351,6 +355,15 @@ export default {
 $color-black: #000000;
 $color-white: #ffffff;
 $color-grey: #dddddd;
+
+/* Placeholder (at the top) */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #ced4da;
+  pointer-events: none;
+  height: 0;
+}
 .ProseMirror {
   outline: 0;
   > * + * {

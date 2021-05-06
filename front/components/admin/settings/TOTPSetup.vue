@@ -2,7 +2,7 @@
   <v-card class="mb-4">
     <v-card-text>
       <h3>{{ $t('settings.personal.TOTPSetup') }}</h3>
-      <p class="mt-2" v-if="$store.state.admin.requires_otp">
+      <p v-if="$store.state.admin.requires_otp" class="mt-2">
         {{ $t('settings.personal.TOTPOK') }}
       </p>
     </v-card-text>
