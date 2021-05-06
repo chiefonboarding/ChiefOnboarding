@@ -1,4 +1,4 @@
-name: Release to deploy repo 
+name: Release to test-deploy repo 
 on:
   pull_request:
     branches:
@@ -31,4 +31,4 @@ jobs:
         git add -A 
         git commit -m "Deploy" 
         git status
-        git push -f origin master:test-deploy
+        git push -f origin dev:test-deploy
