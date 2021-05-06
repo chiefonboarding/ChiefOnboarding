@@ -228,6 +228,15 @@ if env('ANYMAIL', default=False):
         }
         EMAIL_BACKEND = "anymail.backends.sparkpost.EmailBackend"
 
+if env('SMTP', default=False):
+    EMAIL_HOST = env('EMAIL_HOST', default="localhost")
+    EMAIL_PORT = env('EMAIL_PORT', default="25")
+    EMAIL_HOST_USER = env('EMAIL_HOST_USER', default="")
+    EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default="")
+    EMAIL_USE_TLS = env('EMAIL_USE_TLS', default="")
+    EMAIL_USE_SSL = env('EMAIL_USE_SSL', default="")
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
 
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 OLD_PASSWORD_FIELD_ENABLED = True
