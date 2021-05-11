@@ -33,6 +33,7 @@ from sequences.models import Condition, Sequence
 from resources.models import Resource
 from preboarding.models import Preboarding
 from slack_bot.slack import Slack as SlackBot
+from organization.models import Organization
 from integrations.slack import Slack, PaidOnlyError, Error
 from integrations.models import ScheduledAccess
 from sequences.utils import get_task_items
@@ -58,6 +59,7 @@ class NewHireViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         sequences = request.data.pop('sequences')
+        org = Organization.object.get()
         google = request.data.pop('google')
         slack = request.data.pop('slack')
         serializer = self.get_serializer(data=request.data)
@@ -70,7 +72,7 @@ class NewHireViewSet(viewsets.ModelViewSet):
         if google['create']:
             ScheduledAccess.objects.create(new_hire=new_hire, integration=2, status=0, email=google['email'])
         new_hire_time = new_hire.get_local_time()
-        if new_hire_time.date() >= new_hire.start_day and new_hire_time.hour >= 7 and new_hire_time.weekday() < 5:
+        if new_hire_time.date() >= new_hire.start_day and new_hire_time.hour >= 7 and new_hire_time.weekday() < 5 and org.new_hire_email:
             send_new_hire_credentials.apply_async([new_hire.id], countdown=3)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -165,10 +167,8 @@ class NewHireViewSet(viewsets.ModelViewSet):
         sequence_ids = request.data['sequence_ids']
         for i in sequence_ids:
             seq = Sequence.objects.get(id=i)
-            items.extend(
-                ConditionSerializer(seq.conditions.filter(condition_type=0, days__lte=amount_days), many=True).data)
-            items.extend(ConditionSerializer(seq.conditions.filter(condition_type=2, days__gte=amount_days_before),
-                                             many=True).data)
+            items.extend(ConditionSerializer(seq.conditions.filter(condition_type=0, days__lte=amount_days), many=True).data)
+            items.extend(ConditionSerializer(seq.conditions.filter(condition_type=2, days__gte=amount_days_before), many=True).data)
         return Response(items)
 
     @action(detail=True, methods=['post'])

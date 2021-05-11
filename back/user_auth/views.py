@@ -8,7 +8,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from users.serializers import NewHireSerializer
-from users.models import OTPRecoveryKey
 from django.utils.translation import gettext_lazy as _
 from integrations.models import AccessToken
 from google_auth_oauthlib.flow import Flow
