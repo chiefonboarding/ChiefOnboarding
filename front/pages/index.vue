@@ -30,7 +30,6 @@
           id="totp"
           v-model="totp"
           :color="$store.state.org.accent_color"
-          :hint="$t('admin.recoveryKeyReset2FA')"
           @keyup.enter="login"
           label="2FA - TOTP"
           class="my-0"

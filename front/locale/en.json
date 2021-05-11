@@ -628,8 +628,8 @@
        "completeGoogle": "Go to this link to complete the Google integration part:"
     },
     "personal":{
-       "TOTPOK": "TOTP has been set up successfully! To disable it, use your recovery key when logging in.",
-       "recoveryKeyMessage": "Please save this key before you do anything else. You will need this to disable TOTP in the event of losing access to your TOTP application. Your key is:",
+       "TOTPOK": "TOTP has been set up successfully!",
+       "recoveryKeyMessage": "Please save these keys before you do anything else. You will need this to disable TOTP in the event of losing access to your TOTP application. Your keys are:",
        "TOTPSetup": "TOTP setup",
        "personal":"Personal",
        "changePassword":"Change your password",
@@ -644,7 +644,6 @@
  },
  "admin":{
     "TOTPNotMatch": "TOTP code did not match. Please try again",
-    "recoveryKeyReset2FA":"Note: using the recovery key will reset 2FA!",
     "portal":"Admin portal",
     "search":"Search...",
     "allResources":"All resources",

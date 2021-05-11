@@ -607,7 +607,7 @@
         "googleAccountsDescr": "Ao ativar isso, você terá a opção de criar uma conta do Google para novas contratações. Ele enviará ao novo contratado um e-mail com credenciais de login. Ele terá que redefinir a senha imediatamente."
       },
       "personal": {
-        "TOTPOK": "A TOTP foi criada com sucesso! Para o desactivar, utilize a sua chave de recuperação ao iniciar a sessão.",
+        "TOTPOK": "A TOTP foi criada com sucesso!",
         "recoveryKeyMessage": "Por favor, guarde esta chave antes de fazer qualquer outra coisa. Precisará disto para desactivar TOTP no caso de perder o acesso à sua aplicação TOTP. A sua chave é:",
         "TOTPSetup": "Configuração do TOTP",
         "personal": "Pessoal",
@@ -622,7 +622,6 @@
       }
     },
     "admin": {
-      "recoveryKeyReset2FA":"Nota: a utilização da chave de recuperação irá reiniciar 2FA!",
       "portal": "portal de administração",
       "search": "Pesquisar ...",
       "allResources": "Todos os recursos",

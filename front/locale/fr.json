@@ -606,7 +606,7 @@
         "googleAccountsDescr": "En activant cette option, vous aurez la possibilité de créer un compte Google pour les nouvelles recrues. Il enverra à la nouvelle recrue un e-mail avec les informations de connexion. Ils devront immédiatement réinitialiser le mot de passe"
       },
       "personal": {
-        "TOTPOK": "TOTP a été configuré avec succès ! Pour le désactiver, utilise ta clé de récupération lors de la connexion.",
+        "TOTPOK": "TOTP a été configuré avec succès !",
         "recoveryKeyMessage": "Veuillez enregistrer cette clé avant de faire quoi que ce soit d'autre. Tu en auras besoin pour désactiver TOTP en cas de perte d'accès à ton application TOTP. Ta clé est :",
         "TOTPSetup": "Configuration de TOTP",
         "personal": "personnel",
@@ -622,7 +622,6 @@
     },
     "admin": {
       "TOTPNotMatch": "Le code TOTP ne correspond pas. Veuillez réessayer",
-      "recoveryKeyReset2FA":"Remarque : l'utilisation de la clé de récupération réinitialisera le système 2FA !",
       "portal": "portail administrateur",
       "search": "Chercher...",
       "allResources": "Toutes les ressources",

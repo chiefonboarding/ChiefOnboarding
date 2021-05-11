@@ -36,7 +36,10 @@
           </div>
           <div v-else>
             {{ $t('settings.personal.recoveryKeyMessage') }}
-            <p><b> {{ recoveryKey }} </b></p>
+            <p />
+            <p v-for="i in recoveryKeys" :key="i.key">
+              <b> {{ i.key }} </b>
+            </p>
           </div>
         </v-card-text>
         <v-card-actions>
@@ -83,7 +86,7 @@ export default {
     otp: '',
     holdTimer: false,
     showRecoveryKey: false,
-    recoveryKey: '',
+    recoveryKeys: '',
     qrImage: ''
   }),
   methods: {
@@ -105,11 +108,12 @@ export default {
       this.dialogLoading = true
       this.$user.validateTOTP(this.otp).then((response) => {
         this.holdTimer = true
-        this.recoveryKey = response.recovery_key
+        this.recoveryKeys = response
         this.showRecoveryKey = true
         setTimeout(() => {
           this.holdTimer = false
         }, 10000)
+        this.$store.commit('enabledOTP')
       }).catch((error) => {
         this.$store.dispatch('showSnackbar', this.$t('admin.TOTPNotMatch'))
       }).finally(() => {

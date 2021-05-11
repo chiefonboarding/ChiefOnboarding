@@ -110,9 +110,8 @@ class User(AbstractBaseUser):
     is_introduced_to_colleagues = models.BooleanField(default=False)
     sent_preboarding_details = models.BooleanField(default=False)
     resources = models.ManyToManyField(Resource, through='ResourceUser')
-    totp_secret = EncryptedTextField(default=pyotp.random_base32())
+    totp_secret = EncryptedTextField(blank=True)
     requires_otp = models.BooleanField(default=False)
-    otp_recovery_key = EncryptedTextField(default=uuid.uuid4)
     # new hire specific
     completed_tasks = models.IntegerField(default=0)
     total_tasks = models.IntegerField(default=0)
@@ -149,6 +148,7 @@ class User(AbstractBaseUser):
     def save(self, *args, **kwargs):
         self.email = self.email.lower()
         if not self.pk:
+            self.totp_secret = pyotp.random_base32()
             while True:
                 unique_string = get_random_string(length=8)
                 if not User.objects.filter(unique_url=unique_string).exists():
@@ -195,6 +195,23 @@ class User(AbstractBaseUser):
             {'manager': manager, 'buddy': buddy, 'position': self.position, 'last_name': self.last_name,
              'first_name': self.first_name, 'email': self.email}))
         return text
+
+    def reset_otp_keys(self):
+        OTPRecoveryKey.objects.filter(user=self).delete()
+        newItems = [OTPRecoveryKey(user=self) for x in range(10)]
+        objs = OTPRecoveryKey.objects.bulk_create(newItems)
+        return objs
+
+    def check_otp_recovery_key(self, totp_input):
+        otp_recovery_key = None
+        for i in OTPRecoveryKey.objects.filter(is_used=False, user=self):
+            if i.key == totp_input:
+               otp_recovery_key = i   
+               break
+        if otp_recovery_key is not None:
+            otp_recovery_key.is_used = True
+            otp_recovery_key.save()
+        return otp_recovery_key
 
     def __str__(self):
         return u'%s' % self.full_name()
@@ -278,3 +295,11 @@ class NewHireWelcomeMessage(models.Model):
     new_hire = models.ForeignKey(get_user_model(), related_name='welcome_new_hire', on_delete=models.CASCADE)
     colleague = models.ForeignKey(get_user_model(), related_name='welcome_colleague', on_delete=models.CASCADE)
     message = models.TextField()
+
+
+class OTPRecoveryKey(models.Model):
+    user = models.ForeignKey(get_user_model(), related_name='user_otp', on_delete=models.CASCADE)
+    key = EncryptedTextField(default=uuid.uuid4)
+    is_used = models.BooleanField(default=False)
+    
+

@@ -607,7 +607,7 @@
         "googleAccountsDescr": "Bunu etkinleştirerek, yeni işe alımlar için bir Google hesabı oluşturma seçeneğine sahip olacaksınız. Yeni işe alım emrinize giriş bilgilerini içeren bir e-posta gönderecek. Hemen şifreyi sıfırlamaları gerekecek."
       },
       "personal": {
-        "TOTPOK": "TOTP başarıyla kuruldu! Devre dışı bırakmak için, oturum açarken kurtarma anahtarınızı kullanın.",
+        "TOTPOK": "TOTP başarıyla kuruldu!",
         "recoveryKeyMessage": "Lütfen başka bir şey yapmadan önce bu anahtarı kaydedin. TOTP uygulamanıza erişimi kaybetmeniz durumunda TOTP'yi devre dışı bırakmak için buna ihtiyacınız olacaktır. Anahtarınız:",
         "TOTPSetup": "TOTP kurulumu",
         "personal": "Kişisel",
@@ -623,7 +623,6 @@
     },
     "admin": {
       "TOTPNotMatch": "TOTP kodu eşleşmedi. Lütfen tekrar deneyin",
-      "recoveryKeyReset2FA":"Not: Kurtarma anahtarını kullanmak 2FA'yı sıfırlayacaktır! ",
       "portal": "Yönetici portalı",
       "search": "Arama...",
       "allResources": "Tüm kaynaklar",

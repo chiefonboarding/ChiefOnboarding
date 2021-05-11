@@ -19,7 +19,7 @@ from .models import ToDoUser, PreboardingUser, ResourceUser, NewHireWelcomeMessa
 from .tasks import send_new_hire_credentials
 from .serializers import NewHireSerializer, AdminSerializer, EmployeeSerializer, \
     UserLanguageSerializer, NewHireProgressResourceSerializer, \
-    NewHireWelcomeMessageSerializer
+    NewHireWelcomeMessageSerializer, OTPRecoveryKeySerializer
 from .permissions import ManagerPermission
 from notes.serializers import NoteSerializer
 from notes.models import Note
@@ -257,7 +257,8 @@ class AdminViewSet(viewsets.ModelViewSet):
         if is_valid:
             request.user.requires_otp = True
             request.user.save()
-            return Response({ 'recovery_key': request.user.otp_recovery_key })
+            keys = request.user.reset_otp_keys()
+            return Response(OTPRecoveryKeySerializer(keys, many=True).data)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['get'])

@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from users.serializers import NewHireSerializer
+from users.models import OTPRecoveryKey
 from django.utils.translation import gettext_lazy as _
 from integrations.models import AccessToken
 from google_auth_oauthlib.flow import Flow
@@ -34,14 +35,10 @@ class LoginView(APIView):
                         return Response({'totp': 'provide_totp'}, status=status.HTTP_400_BAD_REQUEST)
 
                     totp = pyotp.TOTP(user.totp_secret)
-                    if (not totp.verify(totp_input) and user.otp_recovery_key != totp_input) or cache.get(user.email) != None:
+                    otp_recovery_key = user.check_otp_recovery_key(totp_input)
+                    if (not totp.verify(totp_input) and otp_recovery_key is None) or cache.get(user.email) != None:
                         return Response({'error': 'TOTP code does not match'}, status=status.HTTP_400_BAD_REQUEST)
 
-                    if user.otp_recovery_key == totp_input:
-                        user.totp_secret = pyotp.random_base32()
-                        user.otp_recovery_key = uuid.uuid4()
-                        user.requires_otp = False
-                        user.save()
                     cache.set(user.email, 'passed', 30)
 
                 login(request, user)
