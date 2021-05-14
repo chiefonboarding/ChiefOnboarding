@@ -1,8 +1,19 @@
 from django.db import models
-
+from django.db.models import Prefetch
 from organization.models import BaseTemplate
 from misc.models import Content
 
+class FullManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().select_related('category').prefetch_related(
+            Prefetch('chapters', queryset=Chapter.objects.select_related('parent_chapter').prefetch_related('content__files'))
+        ).order_by('name')
+
+class FullTemplateManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().select_related('category').prefetch_related(
+            Prefetch('chapters', queryset=Chapter.objects.select_related('parent_chapter').prefetch_related('content__files'))
+        ).filter(template=True).order_by('name')
 
 class Category(models.Model):
     name = models.CharField(max_length=500)
@@ -18,6 +29,9 @@ class Resource(BaseTemplate):
     course = models.BooleanField(default=False)
     on_day = models.IntegerField(default=0)
     remove_on_complete = models.BooleanField(default=False)
+
+    objects = FullManager()
+    templates = FullTemplateManager()
 
     def next_chapter(self, current_id, course):
         chapters = self.chapters.exclude(type=1)

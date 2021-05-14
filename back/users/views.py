@@ -51,8 +51,7 @@ class NewHireViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         # if user is not admin, then only show records relevant to the manager
-        all_new_hires = get_user_model().new_hires.select_related('profile_image', 'buddy', 'manager').prefetch_related('resources', 'to_do', 'introductions', 'preboarding', 'badges',
-                Prefetch('conditions', queryset=Condition.objects.prefetch_related('condition_to_do', 'to_do', 'badges', 'resources', 'admin_tasks', 'external_messages', 'introductions'))).all()
+        all_new_hires = get_user_model().new_hires.all()
         if self.request.user.role == 1:
             return all_new_hires 
         return all_new_hires.filter(manager=self.request.user)
@@ -106,19 +105,20 @@ class NewHireViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save(new_hire=self.get_object(), admin=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        notes = Note.objects.filter(new_hire=self.get_object()).order_by('-created')
+        notes = Note.objects.filter(new_hire=get_user_model().objects.get(id=pk)).order_by('-created')
         return Response(NoteSerializer(notes, many=True).data)
 
     @action(detail=True, methods=['get'])
     def forms(self, request, pk=None):
-        serializer = ToDoFormSerializer(ToDoUser.objects.filter(user=self.get_object(), completed=True),
+        serializer = ToDoFormSerializer(ToDoUser.objects.filter(user=get_user_model().objects.get(id=pk), completed=True),
                                         many=True)
         return Response(serializer.data)
 
     @action(detail=True, methods=['get'])
     def progress(self, request, pk=None):
-        todo_serializer = ToDoUserSerializer(ToDoUser.objects.filter(user=self.get_object()), many=True)
-        resource_serializer = NewHireProgressResourceSerializer(ResourceUser.objects.filter(user=self.get_object()),
+        user = self.get_object()
+        todo_serializer = ToDoUserSerializer(ToDoUser.objects.filter(user=user), many=True)
+        resource_serializer = NewHireProgressResourceSerializer(ResourceUser.objects.filter(user=user),
                                                                 many=True)
         data = {'to_do': todo_serializer.data, 'resources': resource_serializer.data}
         return Response(data)
@@ -141,15 +141,14 @@ class NewHireViewSet(viewsets.ModelViewSet):
                     i['s_model'].add(item) if request.method == 'POST' else i['s_model'].remove(item)
                     break
             return Response(request.data['item'], status=status.HTTP_201_CREATED)
+        user = self.get_object()
         return Response({
-            'preboarding': PreboardingUserSerializer(PreboardingUser.objects.filter(user=self.get_object()),
-                                                     many=True).data,
-            'to_do': ToDoUserSerializer(ToDoUser.objects.filter(user=self.get_object()), many=True).data,
-            'resources': NewHireResourceItemSerializer(ResourceUser.objects.filter(user=self.get_object()),
-                                                       many=True).data,
-            'introductions': IntroductionSerializer(self.get_object().introductions, many=True).data,
-            'appointments': AppointmentSerializer(self.get_object().appointments, many=True).data,
-            'conditions': ConditionSerializer(self.get_object().conditions, many=True).data
+            'preboarding': PreboardingUserSerializer(PreboardingUser.objects.filter(user=user).select_related('preboarding').prefetch_related('preboarding__content__files'), many=True).data,
+            'to_do': ToDoUserSerializer(ToDoUser.objects.filter(user=user).select_related('to_do').prefetch_related('to_do__content__files'), many=True).data,
+            'resources': NewHireResourceItemSerializer(ResourceUser.objects.filter(user=user).select_related('resource').prefetch_related('resource__chapters__content__files'), many=True).data,
+            'introductions': IntroductionSerializer(user.introductions.select_related('intro_person'), many=True).data,
+            'appointments': AppointmentSerializer(user.appointments, many=True).data,
+            'conditions': ConditionSerializer(user.conditions.prefetch_related('to_do', 'resources', 'badges', 'admin_tasks', 'external_messages', 'introductions', 'condition_to_do'), many=True).data
         })
 
     @action(detail=True, methods=['post'])
@@ -190,7 +189,7 @@ class NewHireViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post', 'put'])
     def access(self, request, pk=None):
-        new_hire = self.get_object()
+        user = self.get_object()
         if request.method == 'PUT':
             ScheduledAccess.objects.create(
                 new_hire=new_hire,
@@ -209,7 +208,7 @@ class NewHireViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['put'])
     def revoke_access(self, request, pk=None):
-        new_hire = self.get_object()
+        user = self.get_object()
         ScheduledAccess.objects.filter(
             new_hire=new_hire,
             integration=request.data['integration']).delete()

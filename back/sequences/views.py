@@ -16,9 +16,7 @@ from slack_bot.slack import Slack
 
 class SequenceViewSet(viewsets.ModelViewSet):
     serializer_class = SequenceSerializer
-    queryset = Sequence.objects.all().prefetch_related('preboarding', 'to_do', 'resources', 'appointments',
-        Prefetch('conditions', queryset=Condition.objects.prefetch_related('condition_to_do', 'to_do', 'badges', 'resources', 'admin_tasks', 'external_messages', 'introductions'))
-    ).order_by('id')
+    queryset = Sequence.objects.all().prefetch_related('conditions', 'preboarding', 'to_do', 'appointments', 'resources')
 
     def get_serializer_class(self):
         if self.action == 'list':

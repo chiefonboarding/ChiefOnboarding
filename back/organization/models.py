@@ -75,6 +75,14 @@ class TemplateManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(template=True)
 
+class FullManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().prefetch_related('content__files')
+
+class FullTemplateManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().prefetch_related('content__files').filter(template=True)
+
 
 class BaseTemplate(models.Model):
     name = models.CharField(max_length=240)

@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from organization.models import BaseTemplate
+from organization.models import BaseTemplate, FullTemplateManager, FullManager
 from misc.models import Content
 
 
@@ -12,6 +12,9 @@ class ToDo(BaseTemplate):
     # Chat bot specific actions
     send_back = models.BooleanField(default=False)
     channel = models.TextField(blank=True)
+
+    objects = FullManager()
+    templates = FullTemplateManager()
 
     def get_slack_form(self):
         slack_form_items = []
