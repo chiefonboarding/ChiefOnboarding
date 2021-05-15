@@ -34,8 +34,6 @@ class SequenceViewSet(viewsets.ModelViewSet):
         ]
 
     def _save_sequence(self, data, sequence=None):
-        print(data)
-
         # saving collection part
         items = [
             {'app': 'to_do', 'model': 'ToDo', 'item': 'to_do', 's_model': sequence.to_do},
@@ -44,8 +42,6 @@ class SequenceViewSet(viewsets.ModelViewSet):
         ]
         for j in items:
             for i in data['collection'][j['item']]:
-                print(i['id'])
-                print(j['s_model'].all())
                 item = apps.get_model(app_label=j['app'], model_name=j['model']).objects.get(id=i['id'])
                 j['s_model'].add(item)
 

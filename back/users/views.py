@@ -105,12 +105,12 @@ class NewHireViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save(new_hire=self.get_object(), admin=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        notes = Note.objects.filter(new_hire=get_user_model().objects.get(id=pk)).order_by('-created')
+        notes = Note.objects.filter(new_hire=self.get_object()).order_by('-created')
         return Response(NoteSerializer(notes, many=True).data)
 
     @action(detail=True, methods=['get'])
     def forms(self, request, pk=None):
-        serializer = ToDoFormSerializer(ToDoUser.objects.filter(user=get_user_model().objects.get(id=pk), completed=True),
+        serializer = ToDoFormSerializer(ToDoUser.objects.filter(user=self.get_object(), completed=True),
                                         many=True)
         return Response(serializer.data)
 
@@ -189,7 +189,7 @@ class NewHireViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post', 'put'])
     def access(self, request, pk=None):
-        user = self.get_object()
+        new_hire = self.get_object()
         if request.method == 'PUT':
             ScheduledAccess.objects.create(
                 new_hire=new_hire,
@@ -208,7 +208,7 @@ class NewHireViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['put'])
     def revoke_access(self, request, pk=None):
-        user = self.get_object()
+        new_hire = self.get_object()
         ScheduledAccess.objects.filter(
             new_hire=new_hire,
             integration=request.data['integration']).delete()

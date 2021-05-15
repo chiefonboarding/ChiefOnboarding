@@ -57,7 +57,6 @@ class Sequence(models.Model):
                     if original_record.condition_to_do.count() is not j.condition_to_do.count():
                         continue
                     for h in original_record.condition_to_do.all():
-                        print(j.condition_to_do.filter(pk=h.pk).exists())
                         if not j.condition_to_do.filter(pk=h.pk).exists():
                             valid = False
                             break

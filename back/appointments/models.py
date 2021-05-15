@@ -15,6 +15,5 @@ class Appointment(BaseTemplate):
         return self.name
 
     def duplicate(self):
-        print('got here')
         self.pk = None
         self.save()

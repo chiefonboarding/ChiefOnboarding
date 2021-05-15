@@ -230,7 +230,6 @@ export default {
     formatToData (content) {
       const newValue = []
       content.content.forEach((one) => {
-        console.log(one)
         if (one.type === 'paragraph') {
           if ('content' in one) {
             newValue.push({
@@ -306,7 +305,6 @@ export default {
     },
     formatDataToEditorHTML (value) {
       let html = ''
-      console.log(value)
       value.forEach((one) => {
         if (one.type === 'p' && one.content !== '') {
           html += '<p>' + one.content + '</p>'
@@ -343,7 +341,6 @@ export default {
           html += '</' + one.type + '>'
         }
       })
-      console.log(html)
       this.editor.commands.setContent(html)
     }
   }
