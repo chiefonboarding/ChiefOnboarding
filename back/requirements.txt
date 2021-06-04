@@ -14,7 +14,7 @@ cffi==1.14.0
 chardet==3.0.4
 cryptography==3.4.6
 coverage==5.5
-Django==3.1.8
+Django==3.1.9
 django-anymail==8.2
 django-appconf==1.0.4
 django-axes==5.13.1
