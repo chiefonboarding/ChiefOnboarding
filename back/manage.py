@@ -31,7 +31,7 @@ def main():
             ----------------------------------------
             ----------------------------------------""" % (username, password))
         User.objects.create_admin("Demo", "User", username, password)
-        Organization.create(name="Demo organization")
+        Organization.objects.create(name="Demo organization")
         management.call_command('loaddata', 'welcome_message.json', verbosity=0)
         management.call_command('loaddata', 'all.json', verbosity=0)
 
