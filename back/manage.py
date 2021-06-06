@@ -20,6 +20,7 @@ def main():
     if 'migrate' in sys.argv and Organization.objects.all().count() == 0:
         from users.models import User
         from django.utils.crypto import get_random_string
+        from django.core import management
         username = get_random_string(length=6) + '@example.com'
         password = get_random_string(length=4)
         print("""
