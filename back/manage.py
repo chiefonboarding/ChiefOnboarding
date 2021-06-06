@@ -16,6 +16,23 @@ def main():
         ) from exc
     execute_from_command_line(sys.argv)
 
+    from organization.models import Organization
+    if 'migrate' in sys.argv and Organization.objects.all().count() == 0:
+        from django.utils.crypto import get_random_string
+        username = get_random_string(length=6) + '@example.com'
+        password = get_random_string(length=4)
+        print("""
+            ----------------------------------------
+            ----------------------------------------
+            PASSWORD AND USERNAME FOR FIRST LOG IN.
+            PLEASE CREATE A NEW ACCOUNT AND DELETE THIS ONE
+            Username: %s Password: %s
+            ----------------------------------------
+            ----------------------------------------""" % (username, password))
+        User.objects.create_admin("Demo", "User", username, password)
+        Organization.create(name="Demo organization")
+        management.call_command('loaddata', 'welcome_message.json', verbosity=0)
+        management.call_command('loaddata', 'all.json', verbosity=0)
 
 if __name__ == '__main__':
     main()

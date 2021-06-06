@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'new_hire',
     'misc',
     'anymail',
+    'django_q',
     'back'
 ]
 
@@ -242,19 +243,23 @@ DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 OLD_PASSWORD_FIELD_ENABLED = True
 REST_SESSION_LOGIN = True
 
+# Caching
 CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": env('REDIS_URL'),
-        "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"}
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'cached_items',
     }
 }
-BROKER_URL = env('REDIS_URL')
-CELERY_RESULT_BACKEND = env('REDIS_URL')
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'UTC'
+
+Q_CLUSTER = {
+    'name': 'DjangORM',
+    'workers': 2,
+    'timeout': 90,
+    'retry': 1800,
+    'queue_limit': 50,
+    'bulk': 10,
+    'orm': 'default'
+}
 
 # AWS
 AWS_S3_ENDPOINT_URL = env('AWS_S3_ENDPOINT_URL', default="")
@@ -332,7 +337,7 @@ if env('SENTRY', default=False):
         send_default_pii=False
     )
 
-if not env('DEBUG', default=False):
+if not env('DEBUG', default=False) and not env('HTTP_INSECURE', default=False):
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 

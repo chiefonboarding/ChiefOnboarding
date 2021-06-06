@@ -1,5 +1,3 @@
-from celery.schedules import crontab
-from celery.task import periodic_task
 from django.contrib.auth import get_user_model
 from django.utils import translation
 from slack_bot.slack import Slack
@@ -9,7 +7,7 @@ from .models import Condition
 from sequences.models import Condition
 
 
-@periodic_task(run_every=(crontab(minute='0')), name="timed_triggers", ignore_result=True)
+# @periodic_task(run_every=(crontab(minute='0')), name="timed_triggers", ignore_result=True)
 def timed_triggers():
     for user in get_user_model().objects.filter(role=0):
         # make sure it's 8 AM for the new hire
