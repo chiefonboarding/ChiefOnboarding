@@ -7,12 +7,12 @@ class Migration(migrations.Migration):
 
     def load_schedules(apps, schema_editor):
         from django_q.models import Schedule
-        Schedule.objects.create(func='sequences.tasks.timed_triggers', schedule_type=Schedule.HOURLY)
-        Schedule.objects.create(func='slack_bot.tasks.first_day_reminder', schedule_type=Schedule.HOURLY)
-        Schedule.objects.create(func='slack_bot.tasks.update_new_hire', schedule_type=Schedule.HOURLY)
-        Schedule.objects.create(func='slack_bot.tasks.introduce_new_people', schedule_type=Schedule.HOURLY)
-        Schedule.objects.create(func='slack_bot.tasks.link_slack_users', minutes=15, schedule_type=Schedule.MINUTES)
-        Schedule.objects.create(func='integrations.tasks.create_accounts', minutes=15, schedule_type=Schedule.MINUTES)
+        Schedule.objects.create(func='sequences.tasks.timed_triggers', schedule_type=Schedule.CRON, cron='0 * * * *')
+        Schedule.objects.create(func='slack_bot.tasks.first_day_reminder', schedule_type=Schedule.CRON, cron='0 * * * *')
+        Schedule.objects.create(func='slack_bot.tasks.update_new_hire', schedule_type=Schedule.CRON, cron='10 * * * *')
+        Schedule.objects.create(func='slack_bot.tasks.introduce_new_people', schedule_type=Schedule.CRON, cron='0 * * * *')
+        Schedule.objects.create(func='slack_bot.tasks.link_slack_users', schedule_type=Schedule.CRON, cron='*/15 * * * *')
+        Schedule.objects.create(func='integrations.tasks.create_accounts', schedule_type=Schedule.CRON, cron='*/15 * * * *')
 
     dependencies = [
         ('organization', '0002_auto_20201202_1505'),
