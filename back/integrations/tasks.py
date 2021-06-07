@@ -1,5 +1,3 @@
-from celery.schedules import crontab
-from celery.task import periodic_task
 from django.contrib.auth import get_user_model
 from integrations.models import ScheduledAccess, AccessToken
 from integrations.emails import send_access_email, google_error_email, slack_error_email
@@ -9,7 +7,7 @@ from integrations.google import Google, EmailAddressNotValidError, UnauthorizedE
 from .slack import Slack
 
 
-@periodic_task(run_every=(crontab(minute='*/15')), name="create_accounts", ignore_result=True)
+# @periodic_task(run_every=(crontab(minute='*/15')), name="create_accounts", ignore_result=True)
 def create_accounts():
     for i in ScheduledAccess.objects.filter(status=0).order_by('-integration'):
         new_hire_time = i.new_hire.get_local_time()

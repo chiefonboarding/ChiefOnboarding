@@ -40,6 +40,7 @@ from sequences.utils import get_task_items
 from organization.models import WelcomeMessage
 from integrations.google import Google
 from django.db.models import Prefetch
+from django_q.tasks import async_task
 import pyotp
 
 class NewHireViewSet(viewsets.ModelViewSet):
@@ -72,7 +73,7 @@ class NewHireViewSet(viewsets.ModelViewSet):
             ScheduledAccess.objects.create(new_hire=new_hire, integration=2, status=0, email=google['email'])
         new_hire_time = new_hire.get_local_time()
         if new_hire_time.date() >= new_hire.start_day and new_hire_time.hour >= 7 and new_hire_time.weekday() < 5 and org.new_hire_email:
-            send_new_hire_credentials.apply_async([new_hire.id], countdown=3)
+            async_task(send_new_hire_credentials, new_hire.id)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['post'])
