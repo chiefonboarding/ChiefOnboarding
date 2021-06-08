@@ -45,7 +45,7 @@
       "required": true
     },
     "DEFAULT_FROM_EMAIL": {
-      "description": "The default email to send emails from. Example: hello@chiefonboarding or Onboarding <hello@chiefonboarding.com>",
+      "description": "The default email to send emails from. Example: hello@chiefonboarding.com or Onboarding <hello@chiefonboarding.com>",
       "required": true
     }
   }
