@@ -40,8 +40,10 @@ def main():
                 ----------------------------------------""" % (username, password))
         User.objects.create_admin("Demo", "User", username, password)
         Organization.objects.create(name="Demo organization")
-        management.call_command('loaddata', 'welcome_message.json', verbosity=0)
-        management.call_command('loaddata', 'all.json', verbosity=0)
+        welcome_message_path = os.path.join(settings.BASE_DIR, 'fixtures/welcome_message.json')
+        all_path = os.path.join(settings.BASE_DIR, 'fixtures/welcome_message.json')
+        management.call_command('loaddata', welcome_mesage_path, verbosity=0)
+        management.call_command('loaddata', all_path, verbosity=0)
 
 if __name__ == '__main__':
     main()
