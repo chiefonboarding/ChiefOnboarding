@@ -28,7 +28,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG', default=False)
 
-ALLOWED_HOSTS = ['0.0.0.0', 'localhost', env('ALLOWED_HOST')]
+ALLOWED_HOSTS = [env('ALLOWED_HOST', default="0.0.0.0"),]
 
 INSTALLED_APPS = [
     'users',
@@ -262,11 +262,11 @@ Q_CLUSTER = {
 }
 
 # AWS
-AWS_S3_ENDPOINT_URL = env('AWS_S3_ENDPOINT_URL', default="")
+AWS_S3_ENDPOINT_URL = env('AWS_S3_ENDPOINT_URL', default="https://s3.eu-west-1.amazonaws.com")
 AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID', default="")
 AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY', default="")
 AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default="")
-AWS_REGION = env('AWS_REGION', default="")
+AWS_REGION = env('AWS_REGION', default="us-east-1")
 
 BASE_URL = env('BASE_URL')
 
