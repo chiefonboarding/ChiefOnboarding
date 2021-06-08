@@ -41,7 +41,7 @@ def main():
         User.objects.create_admin("Demo", "User", username, password)
         Organization.objects.create(name="Demo organization")
         welcome_message_path = os.path.join(settings.BASE_DIR, 'fixtures/welcome_message.json')
-        all_path = os.path.join(settings.BASE_DIR, 'fixtures/welcome_message.json')
+        all_path = os.path.join(settings.BASE_DIR, 'fixtures/all.json')
         management.call_command('loaddata', welcome_message_path, verbosity=0)
         management.call_command('loaddata', all_path, verbosity=0)
 
