@@ -42,7 +42,7 @@ def main():
         Organization.objects.create(name="Demo organization")
         welcome_message_path = os.path.join(settings.BASE_DIR, 'fixtures/welcome_message.json')
         all_path = os.path.join(settings.BASE_DIR, 'fixtures/welcome_message.json')
-        management.call_command('loaddata', welcome_mesage_path, verbosity=0)
+        management.call_command('loaddata', welcome_message_path, verbosity=0)
         management.call_command('loaddata', all_path, verbosity=0)
 
 if __name__ == '__main__':
