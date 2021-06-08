@@ -18,9 +18,16 @@
   "image": "heroku/python",
   "addons": [
     "heroku-postgresql",
-    "heroku-redis"
   ],
   "env": {
+    "ACCOUNT_EMAIL": {
+      "description": "This is your email address for the first admin account. You can remove it later on and add new admin accounts.",
+      "value": "True"
+    },
+    "ACCOUNT_PASSWORD": {
+      "description": "Auto generated password for your admin account. After deployment, please check the environment variables to see this password.",
+      "generator": "secret"
+    },
     "SECRET_KEY": {
       "description": "A random secret key for Django",
       "generator": "secret"
@@ -30,11 +37,11 @@
       "value": "True"
     },
     "BASE_URL": {
-      "description": "This is the base url of your application. This can be a heroku url (xxxx.herokuapps.com - which matches your domain for this app) or your own (sub) domain. Format: https://test.chiefonboarding.com",
+      "description": "This is the base url of your application. This can be a heroku url (xxxx.herokuapp.com - which matches your domain for this app) or your own (sub) domain. Format: https://test.chiefonboarding.com",
       "required": true
     },
     "ALLOWED_HOST": {
-      "description": "This is the base url of your application. This can be a heroku url (xxxx.herokuapps.com - which matches your domain for this app) or your own (sub) domain. Format: test.chiefonboarding.com",
+      "description": "This is the base url of your application. This can be a heroku url (xxxx.herokuapp.com - which matches your domain for this app) or your own (sub) domain. Format: test.chiefonboarding.com",
       "required": true
     },
     "DEFAULT_FROM_EMAIL": {
