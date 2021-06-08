@@ -176,7 +176,7 @@ export default {
       return this.$store.state.todos.all.concat(this.$store.state.resources.all).concat(this.$store.state.intros.all).concat(this.$store.state.sequences.all).concat(this.$store.state.badges.all).concat(this.$store.state.preboarding.all).concat(this.$store.state.appointments.all).concat(this.$store.state.newhires.all).concat(this.$store.state.employees.all)
     },
     showBadge () {
-      return moment(this.$store.state.admin.seen_updates).isBefore('2021-04-02')
+      return moment(this.$store.state.admin.seen_updates).isBefore('2021-06-08')
     }
   },
   watch: {

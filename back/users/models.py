@@ -157,11 +157,11 @@ class User(AbstractBaseUser):
         super(User, self).save(*args, **kwargs)
 
     def workday(self):
-        if self.start_day > date.today():
+        if self.start_day > self.get_local_time().today():
             return 0
         start_day = self.start_day
         amount_of_workdays = 1
-        while date.today() != start_day:
+        while self.get_local_time().today() != start_day:
             start_day += timedelta(days=1)
             if start_day.weekday() != 5 and start_day.weekday() != 6:
                 amount_of_workdays += 1
@@ -169,9 +169,9 @@ class User(AbstractBaseUser):
 
     def days_before_starting(self):
         # not counting workdays here
-        if self.start_day <= date.today():
+        if self.start_day <= self.get_local_time().today():
             return 0
-        return (self.start_day - date.today()).days
+        return (self.start_day - self.get_local_time().today()).days
 
     def get_local_time(self, date=None):
         from organization.models import Organization

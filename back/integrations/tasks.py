@@ -7,7 +7,6 @@ from integrations.google import Google, EmailAddressNotValidError, UnauthorizedE
 from .slack import Slack
 
 
-# @periodic_task(run_every=(crontab(minute='*/15')), name="create_accounts", ignore_result=True)
 def create_accounts():
     for i in ScheduledAccess.objects.filter(status=0).order_by('-integration'):
         new_hire_time = i.new_hire.get_local_time()

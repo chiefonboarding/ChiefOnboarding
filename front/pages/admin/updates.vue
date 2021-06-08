@@ -30,6 +30,9 @@ export default {
   layout: 'admin',
   data: () => ({
     items: [
+      { date: '2021-06-08', title: 'Updated editor and adding native video option', description: 'Some global updates to the Editor (tiptap 2 now) and there is an option for videos now', href: 'new-editor-and-video-support'},
+      { date: '2021-06-08', title: '2FA support', description: 'You can now use TOTP (timed one time tokens), so get your andOTP, Google Authenticator, Authy...', href: 'totp-2fa-support'},
+      { date: '2021-06-08', title: 'SMTP support', description: 'You can now use SMTP as the email delivering protocal. This should be your last resort.', href: 'smtp-support'},
       { date: '2021-04-02', title: 'Add custom email subject to sequence messages', description: 'Defaults to "Here is an update", but you can now change it to whatever you want.', href: 'subject-to-email-message' },
       { date: '2021-04-02', title: 'Automatically add new hires when they join Slack.', description: 'Either do this automatically or with manual approval and automatically add sequences to this new hire.', href: 'automatically-add-new-hires-when-they-join-slack' },
       { date: '2021-04-02', title: 'Set default sequences for new hires', description: 'Through the settings, you can set default sequences, which are then automatically filled in the add new hire form.', href: 'default-sequences' }

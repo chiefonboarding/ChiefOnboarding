@@ -13,7 +13,6 @@ from datetime import datetime
 from integrations.models import AccessToken
 
 
-# @periodic_task(run_every=(crontab(minute='*/15')), name="link_slack_users", ignore_result=True)
 def link_slack_users():
     if not AccessToken.objects.filter(integration=0).exists():
         return
@@ -92,7 +91,6 @@ def link_slack_users():
     return True
 
 
-# @periodic_task(run_every=(crontab(minute='10')), name="update_new_hire", ignore_result=True)
 def update_new_hire():
     if not AccessToken.objects.filter(integration=0).exists():
         return
@@ -127,7 +125,6 @@ def update_new_hire():
     return
 
 
-# @periodic_task(run_every=(crontab(minute='0')), name="first_day_reminder", ignore_result=True)
 def first_day_reminder():
     org = Organization.object.get()
     if not AccessToken.objects.filter(integration=0).exists() or not org.send_new_hire_start_reminder:
@@ -159,7 +156,6 @@ def first_day_reminder():
     return True
 
 
-# @periodic_task(run_every=(crontab(minute=0)), name="introduce_new_people", ignore_result=True)
 def introduce_new_people():
     org = Organization.object.get()
     if not AccessToken.objects.filter(integration=0).exists() or not org.ask_colleague_welcome_message:
