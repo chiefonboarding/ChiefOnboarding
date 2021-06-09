@@ -258,7 +258,8 @@ Q_CLUSTER = {
     'retry': 1800,
     'queue_limit': 50,
     'bulk': 10,
-    'orm': 'default'
+    'orm': 'default',
+    'catch_up': False
 }
 
 # AWS
