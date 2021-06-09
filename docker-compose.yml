@@ -36,7 +36,7 @@ services:
       - global
 
   nuxt:
-    image: node:latest
+    image: node:14
     environment:
       - HOST=0.0.0.0
     ports:
