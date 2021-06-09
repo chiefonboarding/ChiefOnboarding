@@ -24,6 +24,9 @@ from sequences.models import Condition
 
 from introductions.models import Introduction
 from datetime import date, timedelta
+import uuid
+import pyotp
+from fernet_fields import EncryptedTextField
 
 LANGUAGE_CHOICES = (
     ('en', 'English'),
@@ -107,6 +110,8 @@ class User(AbstractBaseUser):
     is_introduced_to_colleagues = models.BooleanField(default=False)
     sent_preboarding_details = models.BooleanField(default=False)
     resources = models.ManyToManyField(Resource, through='ResourceUser')
+    totp_secret = EncryptedTextField(blank=True)
+    requires_otp = models.BooleanField(default=False)
     # new hire specific
     completed_tasks = models.IntegerField(default=0)
     total_tasks = models.IntegerField(default=0)
@@ -143,6 +148,7 @@ class User(AbstractBaseUser):
     def save(self, *args, **kwargs):
         self.email = self.email.lower()
         if not self.pk:
+            self.totp_secret = pyotp.random_base32()
             while True:
                 unique_string = get_random_string(length=8)
                 if not User.objects.filter(unique_url=unique_string).exists():
@@ -151,11 +157,11 @@ class User(AbstractBaseUser):
         super(User, self).save(*args, **kwargs)
 
     def workday(self):
-        if self.start_day > date.today():
-            return 0
         start_day = self.start_day
+        if start_day > self.get_local_time().date():
+            return 0
         amount_of_workdays = 1
-        while date.today() != start_day:
+        while self.get_local_time().date() != start_day:
             start_day += timedelta(days=1)
             if start_day.weekday() != 5 and start_day.weekday() != 6:
                 amount_of_workdays += 1
@@ -163,9 +169,9 @@ class User(AbstractBaseUser):
 
     def days_before_starting(self):
         # not counting workdays here
-        if self.start_day <= date.today():
+        if self.start_day <= self.get_local_time().date():
             return 0
-        return (self.start_day - date.today()).days
+        return (self.start_day - self.get_local_time().date()).days
 
     def get_local_time(self, date=None):
         from organization.models import Organization
@@ -189,6 +195,23 @@ class User(AbstractBaseUser):
             {'manager': manager, 'buddy': buddy, 'position': self.position, 'last_name': self.last_name,
              'first_name': self.first_name, 'email': self.email}))
         return text
+
+    def reset_otp_keys(self):
+        OTPRecoveryKey.objects.filter(user=self).delete()
+        newItems = [OTPRecoveryKey(user=self) for x in range(10)]
+        objs = OTPRecoveryKey.objects.bulk_create(newItems)
+        return objs
+
+    def check_otp_recovery_key(self, totp_input):
+        otp_recovery_key = None
+        for i in OTPRecoveryKey.objects.filter(is_used=False, user=self):
+            if i.key == totp_input:
+               otp_recovery_key = i   
+               break
+        if otp_recovery_key is not None:
+            otp_recovery_key.is_used = True
+            otp_recovery_key.save()
+        return otp_recovery_key
 
     def __str__(self):
         return u'%s' % self.full_name()
@@ -272,3 +295,11 @@ class NewHireWelcomeMessage(models.Model):
     new_hire = models.ForeignKey(get_user_model(), related_name='welcome_new_hire', on_delete=models.CASCADE)
     colleague = models.ForeignKey(get_user_model(), related_name='welcome_colleague', on_delete=models.CASCADE)
     message = models.TextField()
+
+
+class OTPRecoveryKey(models.Model):
+    user = models.ForeignKey(get_user_model(), related_name='user_otp', on_delete=models.CASCADE)
+    key = EncryptedTextField(default=uuid.uuid4)
+    is_used = models.BooleanField(default=False)
+    
+

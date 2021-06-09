@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from .models import ResourceUser, NewHireWelcomeMessage
+from .models import ResourceUser, NewHireWelcomeMessage, OTPRecoveryKey
 from appointments.serializers import AppointmentSerializer
 from preboarding.serializers import PreboardingSerializer
 from resources.serializers import ResourceSerializer
@@ -62,6 +62,7 @@ class NewHireSerializer(BaseUserSerializer):
 class AdminSerializer(BaseUserSerializer):
     search_type = serializers.CharField(default='admin', read_only=True)
     seen_updates = serializers.DateField(read_only=True)
+    requires_otp = serializers.BooleanField(read_only=True)
 
 class EmployeeSerializer(BaseUserSerializer):
     search_type = serializers.CharField(default='employee', read_only=True)
@@ -138,3 +139,8 @@ class NewHireWelcomeMessageSerializer(serializers.ModelSerializer):
         fields = ('id', 'colleague', 'message')
 
 
+class OTPRecoveryKeySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = OTPRecoveryKey
+        fields = ('key', 'is_used')

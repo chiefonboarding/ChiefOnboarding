@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.db.models import Prefetch
 
 from preboarding.models import Preboarding
 from resources.models import Resource
@@ -56,7 +57,6 @@ class Sequence(models.Model):
                     if original_record.condition_to_do.count() is not j.condition_to_do.count():
                         continue
                     for h in original_record.condition_to_do.all():
-                        print(j.condition_to_do.filter(pk=h.pk).exists())
                         if not j.condition_to_do.filter(pk=h.pk).exists():
                             valid = False
                             break
@@ -144,6 +144,14 @@ class PendingAdminTask(models.Model):
     priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
 
 
+class FullManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().prefetch_related(
+            Prefetch('condition_to_do', queryset=ToDo.objects.all()),
+            Prefetch('to_do', queryset=ToDo.objects.all())
+        ).order_by('id')
+
+
 class Condition(models.Model):
     CONDITION_TYPE = (
         (0, 'after'),
@@ -161,6 +169,8 @@ class Condition(models.Model):
     admin_tasks = models.ManyToManyField(PendingAdminTask)
     external_messages = models.ManyToManyField(ExternalMessage)
     introductions = models.ManyToManyField(Introduction)
+
+    objects = FullManager()
 
     def process_condition(self, user):
         from sequences.serializers import PendingAdminTaskSerializer

@@ -45,7 +45,7 @@ export default (axios, store) => ({
     })
   },
   getFileURL (fileId, token) {
-    return axios.get(`/api/new_hire/file/${fileId}/${token}`).then((res) => {
+    return axios.get(`/api/org/file/${fileId}/${token}`).then((res) => {
       return res.data
     }).catch((error) => {
       return Promise.reject(error.response.data)

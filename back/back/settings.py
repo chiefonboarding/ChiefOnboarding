@@ -28,7 +28,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG', default=False)
 
-ALLOWED_HOSTS = ['0.0.0.0', 'localhost', env('ALLOWED_HOST')]
+ALLOWED_HOSTS = [env('ALLOWED_HOST', default="0.0.0.0"),]
 
 INSTALLED_APPS = [
     'users',
@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'new_hire',
     'misc',
     'anymail',
+    'django_q',
     'back'
 ]
 
@@ -228,31 +229,45 @@ if env('ANYMAIL', default=False):
         }
         EMAIL_BACKEND = "anymail.backends.sparkpost.EmailBackend"
 
+if env('SMTP', default=False):
+    EMAIL_HOST = env('EMAIL_HOST', default="localhost")
+    EMAIL_PORT = env('EMAIL_PORT', default="25")
+    EMAIL_HOST_USER = env('EMAIL_HOST_USER', default="")
+    EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default="")
+    EMAIL_USE_TLS = env('EMAIL_USE_TLS', default="")
+    EMAIL_USE_SSL = env('EMAIL_USE_SSL', default="")
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
 
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 OLD_PASSWORD_FIELD_ENABLED = True
 REST_SESSION_LOGIN = True
 
-# CACHES = {
-#     "default": {
-#         "BACKEND": "django_redis.cache.RedisCache",
-#         "LOCATION": env('REDIS_URL'),
-#         "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"}
-#     }
-# }
-BROKER_URL = env('REDIS_URL')
-CELERY_RESULT_BACKEND = env('REDIS_URL')
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'UTC'
+# Caching
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'cached_items',
+    }
+}
+
+Q_CLUSTER = {
+    'name': 'DjangORM',
+    'workers': 2,
+    'timeout': 90,
+    'retry': 1800,
+    'queue_limit': 50,
+    'bulk': 10,
+    'orm': 'default',
+    'catch_up': False
+}
 
 # AWS
-AWS_S3_ENDPOINT_URL = env('AWS_S3_ENDPOINT_URL', default="")
+AWS_S3_ENDPOINT_URL = env('AWS_S3_ENDPOINT_URL', default="https://s3.eu-west-1.amazonaws.com")
 AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID', default="")
 AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY', default="")
 AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default="")
-AWS_REGION = env('AWS_REGION', default="")
+AWS_REGION = env('AWS_REGION', default="us-east-1")
 
 BASE_URL = env('BASE_URL')
 
@@ -312,18 +327,16 @@ REST_FRAMEWORK_ACTIVE = True
 if env('SENTRY', default=False):
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
-    from sentry_sdk.integrations.celery import CeleryIntegration
-    from sentry_sdk.integrations.aiohttp import AioHttpIntegration
     sentry_sdk.init(
         dsn=env('SENTRY_URL', default=""),
-        integrations=[DjangoIntegration(), CeleryIntegration(), AioHttpIntegration()],
+        integrations=[DjangoIntegration(),],
 
         # If you wish to associate users to errors (assuming you are using
         # django.contrib.auth) you may enable sending PII data.
         send_default_pii=False
     )
 
-if not env('DEBUG', default=False):
+if not env('DEBUG', default=False) and not env('HTTP_INSECURE', default=False):
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
@@ -335,3 +348,5 @@ if env('SSL_REDIRECT', default=False):
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+ACCOUNT_EMAIL = env('ACCOUNT_EMAIL', default='')
+ACCOUNT_PASSWORD = env('ACCOUNT_PASSWORD', default='')

@@ -297,6 +297,7 @@
     "allBadges":"All badge templates"
  },
  "buttons":{
+    "enable":"Enable",
     "pending":"Pending",
     "cancel":"Cancel",
     "active":"Active",
@@ -627,6 +628,9 @@
        "completeGoogle": "Go to this link to complete the Google integration part:"
     },
     "personal":{
+       "TOTPOK": "TOTP has been set up successfully!",
+       "recoveryKeyMessage": "Please save these keys before you do anything else. You will need this to disable TOTP in the event of losing access to your TOTP application. Your keys are:",
+       "TOTPSetup": "TOTP setup",
        "personal":"Personal",
        "changePassword":"Change your password",
        "oldPass":"Old password",
@@ -639,6 +643,7 @@
     }
  },
  "admin":{
+    "TOTPNotMatch": "TOTP code did not match. Please try again",
     "portal":"Admin portal",
     "search":"Search...",
     "allResources":"All resources",

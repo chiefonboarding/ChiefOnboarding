@@ -4,8 +4,6 @@ services:
   db:
     restart: always
     image: postgres:latest
-    ports:
-      - "5432:5432"
     expose:
       - "5432"
     volumes:
@@ -14,66 +12,43 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    networks:
+      - global
 
   web:
     restart: always
-    build: ./back
-    expose:
-      - "8000"
+    build:
+      dockerfile: ./Dockerfile-dev
+      context: ./back/
     ports:
       - "8000:8000"
-    links:
-      - db:db
-      - redis:redis
+    environment:
+      - DEBUG=True
+      - SECRET_KEY=somethingsupersecret
+      - BASE_URL=http://0.0.0.0:3000
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
+      - DEFAULT_FROM_EMAIL=hello@chiefonboarding.com
     volumes:
       - ./back:/app
-    environment:
-      DEBUG: 'true'
-      VIRTUAL_HOST: localhost
-    command: python manage.py runserver 0.0.0.0:8000
     depends_on:
       - db
-
-
-  redis:
-    restart: always
-    image: redis:latest
-    ports:
-      - "6379:6379"
-    volumes:
-      - redisdata:/data
-
-  celery:
-    build: ./back
-    command: /usr/local/bin/celery -A back worker -l info
-    volumes:
-      - web-django:/usr/src/app
-    depends_on:
-      - redis
+    networks:
+      - global
 
   nuxt:
-    image: node:latest
-    working_dir: "/var/www/app"
+    image: node:14
     environment:
       - HOST=0.0.0.0
     ports:
       - "3000:3000"
     volumes:
-      - ./front:/var/www/app
-    command: bash -c "npm install && npm install -g nuxt && npm run dev"
-    depends_on:
-      - web
-
-  celery-beat:
-    build: ./back
-    command: /usr/local/bin/celery -A back beat -l info
-    volumes:
-      - web-django:/usr/src/app
-    depends_on:
-      - redis
+      - ./front:/app
+    command: bash -c "cd /app && npm install && cd /app/node_modules/fibers/ && npm install && cd /app && npm install -g nuxt && npm run dev"
+    networks:
+      - global
 
 volumes:
-  web-django:
-  web-static:
   pgdata:
-  redisdata:
+
+networks:
+  global:

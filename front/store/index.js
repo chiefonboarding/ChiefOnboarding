@@ -33,7 +33,6 @@ export const mutations = {
   toggleRefreshSequence (state) { state.refreshSequence = !state.refreshSequence },
   setSnackbar (state, text) {
     state.snackbarText = text
-    state.snackbar = !state.snackbar
   },
   setOrg (state, org) { state.org = org },
   setTags (state, tags) { state.tags = tags },
@@ -55,6 +54,9 @@ export const mutations = {
   setAdmin (state, admin) {
     state.admin = admin
   },
+  enabledOTP (state) {
+    state.admin.requires_otp = true
+  },
   addStatusToResource (state, payload) {
     const status = state.books.find(a => parseInt(payload.id) === a.id).status
     if (status === payload.index - 1) {
@@ -67,14 +69,7 @@ export const mutations = {
 }
 
 export const actions = {
-  showSnackbar ({ state, commit }, text) {
-    if (state.snackbar) {
-      commit('setSnackbar', text)
-      setTimeout(() => {
-        commit('setSnackbar', text)
-      }, 100)
-    } else {
-      commit('setSnackbar', text)
-    }
+  showSnackbar ({ commit }, text) {
+    commit('setSnackbar', text)
   }
 }

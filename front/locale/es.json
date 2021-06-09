@@ -295,6 +295,7 @@
       "allBadges": "Todas las plantillas de distintivos"
     },
     "buttons": {
+      "enable":"activar",
       "pending": "pendiente",
       "cancel": "cancelar",
       "active": "activo",
@@ -606,6 +607,9 @@
         "googleAccountsDescr": "Al habilitar esto, tendrá la opción de crear una cuenta de Google para las nuevas contrataciones. Enviará al nuevo empleado un correo electrónico con credenciales de inicio de sesión. Tendrán que restablecer la contraseña inmediatamente."
       },
       "personal": {
+        "TOTPOK": "El TOTP se ha configurado con éxito.",
+        "recoveryKeyMessage": "Por favor, guarda esta clave antes de hacer cualquier otra cosa. La necesitarás para desactivar TOTP en caso de perder el acceso a tu aplicación TOTP. Tu clave es:",
+        "TOTPSetup": "Configuración de TOTP",
         "personal": "personal",
         "changePassword": "Cambia tu contraseña",
         "oldPass": "contraseña antigua",
@@ -618,6 +622,7 @@
       }
     },
     "admin": {
+      "TOTPNotMatch": "El código TOTP no coincide. Por favor, inténtelo de nuevo",
       "portal": "administrador del portal",
       "search": "Buscar...",
       "allResources": "Todos los recursos",

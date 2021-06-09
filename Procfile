@@ -1,3 +1,3 @@
-release: python back/manage.py migrate
+release: python back/manage.py createcachetable && python back/manage.py migrate
 web: gunicorn --chdir back back.wsgi
-worker: celery --workdir=back -A back worker --beat -l info
+worker: python back/manage.py qcluster

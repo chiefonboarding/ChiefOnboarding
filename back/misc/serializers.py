@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import File, Content
 from .s3 import S3
-
+from django.conf import settings
 
 class FileSerializer(serializers.ModelSerializer):
     file_url = serializers.SerializerMethodField()
@@ -11,6 +11,8 @@ class FileSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_file_url(self, obj):
+        if settings.AWS_STORAGE_BUCKET_NAME == '':
+            return ''
         return S3().get_file(obj.key)
 
 
@@ -27,7 +29,7 @@ class ContentSerializer(serializers.ModelSerializer):
         return obj.get_type_display()
 
     def get_image_url(self, obj):
-        if obj.type == 'image' and obj.files.exists():
+        if obj.type == 'image' and obj.files.exists() and settings.AWS_STORAGE_BUCKET_NAME != '':
             return obj.files.first().get_url()
         return ''
 

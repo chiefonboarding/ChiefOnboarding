@@ -69,7 +69,6 @@ class Slack:
         return response
 
     def find_user_by_id(self, id):
-        print(self.client.api_call("users.info", data={'user': id}))
         try:
             response = self.client.api_call("users.info", data={'user': id})['user']
         except Exception:

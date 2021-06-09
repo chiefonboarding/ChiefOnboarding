@@ -16,9 +16,7 @@ from slack_bot.slack import Slack
 
 class SequenceViewSet(viewsets.ModelViewSet):
     serializer_class = SequenceSerializer
-    queryset = Sequence.objects.all().prefetch_related('preboarding', 'to_do', 'resources', 'appointments',
-        Prefetch('conditions', queryset=Condition.objects.prefetch_related('condition_to_do', 'to_do', 'badges', 'resources', 'admin_tasks', 'external_messages', 'introductions'))
-    ).order_by('id')
+    queryset = Sequence.objects.all().prefetch_related('conditions', 'preboarding', 'to_do', 'appointments', 'resources')
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -36,8 +34,6 @@ class SequenceViewSet(viewsets.ModelViewSet):
         ]
 
     def _save_sequence(self, data, sequence=None):
-        print(data)
-
         # saving collection part
         items = [
             {'app': 'to_do', 'model': 'ToDo', 'item': 'to_do', 's_model': sequence.to_do},
@@ -46,8 +42,6 @@ class SequenceViewSet(viewsets.ModelViewSet):
         ]
         for j in items:
             for i in data['collection'][j['item']]:
-                print(i['id'])
-                print(j['s_model'].all())
                 item = apps.get_model(app_label=j['app'], model_name=j['model']).objects.get(id=i['id'])
                 j['s_model'].add(item)
 

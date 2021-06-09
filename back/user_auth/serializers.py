@@ -18,3 +18,4 @@ class PasswordResetSerializer(OldPasswordResetSerializer):
 class LoginSerializer(serializers.Serializer):
     username = serializers.EmailField(max_length=200)
     password = serializers.CharField(max_length=10000)
+    totp = serializers.CharField(default='', allow_blank=True)

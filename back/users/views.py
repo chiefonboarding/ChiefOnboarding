@@ -19,7 +19,7 @@ from .models import ToDoUser, PreboardingUser, ResourceUser, NewHireWelcomeMessa
 from .tasks import send_new_hire_credentials
 from .serializers import NewHireSerializer, AdminSerializer, EmployeeSerializer, \
     UserLanguageSerializer, NewHireProgressResourceSerializer, \
-    NewHireWelcomeMessageSerializer
+    NewHireWelcomeMessageSerializer, OTPRecoveryKeySerializer
 from .permissions import ManagerPermission
 from notes.serializers import NoteSerializer
 from notes.models import Note
@@ -33,13 +33,15 @@ from sequences.models import Condition, Sequence
 from resources.models import Resource
 from preboarding.models import Preboarding
 from slack_bot.slack import Slack as SlackBot
+from organization.models import Organization
 from integrations.slack import Slack, PaidOnlyError, Error
 from integrations.models import ScheduledAccess
 from sequences.utils import get_task_items
 from organization.models import WelcomeMessage
 from integrations.google import Google
 from django.db.models import Prefetch
-
+from django_q.tasks import async_task
+import pyotp
 
 class NewHireViewSet(viewsets.ModelViewSet):
     """
@@ -50,14 +52,14 @@ class NewHireViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         # if user is not admin, then only show records relevant to the manager
-        all_new_hires = get_user_model().new_hires.select_related('profile_image', 'buddy', 'manager').prefetch_related('resources', 'to_do', 'introductions', 'preboarding', 'badges',
-                Prefetch('conditions', queryset=Condition.objects.prefetch_related('condition_to_do', 'to_do', 'badges', 'resources', 'admin_tasks', 'external_messages', 'introductions'))).all()
+        all_new_hires = get_user_model().new_hires.all()
         if self.request.user.role == 1:
             return all_new_hires 
         return all_new_hires.filter(manager=self.request.user)
 
     def create(self, request, *args, **kwargs):
         sequences = request.data.pop('sequences')
+        org = Organization.object.get()
         google = request.data.pop('google')
         slack = request.data.pop('slack')
         serializer = self.get_serializer(data=request.data)
@@ -70,8 +72,8 @@ class NewHireViewSet(viewsets.ModelViewSet):
         if google['create']:
             ScheduledAccess.objects.create(new_hire=new_hire, integration=2, status=0, email=google['email'])
         new_hire_time = new_hire.get_local_time()
-        if new_hire_time.date() >= new_hire.start_day and new_hire_time.hour >= 7 and new_hire_time.weekday() < 5:
-            send_new_hire_credentials.apply_async([new_hire.id], countdown=3)
+        if new_hire_time.date() >= new_hire.start_day and new_hire_time.hour >= 7 and new_hire_time.weekday() < 5 and org.new_hire_email:
+            async_task(send_new_hire_credentials, new_hire.id)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['post'])
@@ -115,8 +117,9 @@ class NewHireViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'])
     def progress(self, request, pk=None):
-        todo_serializer = ToDoUserSerializer(ToDoUser.objects.filter(user=self.get_object()), many=True)
-        resource_serializer = NewHireProgressResourceSerializer(ResourceUser.objects.filter(user=self.get_object()),
+        user = self.get_object()
+        todo_serializer = ToDoUserSerializer(ToDoUser.objects.filter(user=user), many=True)
+        resource_serializer = NewHireProgressResourceSerializer(ResourceUser.objects.filter(user=user),
                                                                 many=True)
         data = {'to_do': todo_serializer.data, 'resources': resource_serializer.data}
         return Response(data)
@@ -139,15 +142,14 @@ class NewHireViewSet(viewsets.ModelViewSet):
                     i['s_model'].add(item) if request.method == 'POST' else i['s_model'].remove(item)
                     break
             return Response(request.data['item'], status=status.HTTP_201_CREATED)
+        user = self.get_object()
         return Response({
-            'preboarding': PreboardingUserSerializer(PreboardingUser.objects.filter(user=self.get_object()),
-                                                     many=True).data,
-            'to_do': ToDoUserSerializer(ToDoUser.objects.filter(user=self.get_object()), many=True).data,
-            'resources': NewHireResourceItemSerializer(ResourceUser.objects.filter(user=self.get_object()),
-                                                       many=True).data,
-            'introductions': IntroductionSerializer(self.get_object().introductions, many=True).data,
-            'appointments': AppointmentSerializer(self.get_object().appointments, many=True).data,
-            'conditions': ConditionSerializer(self.get_object().conditions, many=True).data
+            'preboarding': PreboardingUserSerializer(PreboardingUser.objects.filter(user=user).select_related('preboarding').prefetch_related('preboarding__content__files'), many=True).data,
+            'to_do': ToDoUserSerializer(ToDoUser.objects.filter(user=user).select_related('to_do').prefetch_related('to_do__content__files'), many=True).data,
+            'resources': NewHireResourceItemSerializer(ResourceUser.objects.filter(user=user).select_related('resource').prefetch_related('resource__chapters__content__files'), many=True).data,
+            'introductions': IntroductionSerializer(user.introductions.select_related('intro_person'), many=True).data,
+            'appointments': AppointmentSerializer(user.appointments, many=True).data,
+            'conditions': ConditionSerializer(user.conditions.prefetch_related('to_do', 'resources', 'badges', 'admin_tasks', 'external_messages', 'introductions', 'condition_to_do'), many=True).data
         })
 
     @action(detail=True, methods=['post'])
@@ -165,10 +167,8 @@ class NewHireViewSet(viewsets.ModelViewSet):
         sequence_ids = request.data['sequence_ids']
         for i in sequence_ids:
             seq = Sequence.objects.get(id=i)
-            items.extend(
-                ConditionSerializer(seq.conditions.filter(condition_type=0, days__lte=amount_days), many=True).data)
-            items.extend(ConditionSerializer(seq.conditions.filter(condition_type=2, days__gte=amount_days_before),
-                                             many=True).data)
+            items.extend(ConditionSerializer(seq.conditions.filter(condition_type=0, days__lte=amount_days), many=True).data)
+            items.extend(ConditionSerializer(seq.conditions.filter(condition_type=2, days__gte=amount_days_before), many=True).data)
         return Response(items)
 
     @action(detail=True, methods=['post'])
@@ -248,6 +248,23 @@ class AdminViewSet(viewsets.ModelViewSet):
         if self.get_object() != request.user:
             self.get_object().delete()
         return Response()
+
+    @action(detail=False, methods=['post'])
+    def validate_totp(self, request):
+        otp = request.data['otp'] if 'otp' in request.data else ''
+        totp = pyotp.TOTP(request.user.totp_secret)
+        is_valid = totp.verify(otp)
+        if is_valid:
+            request.user.requires_otp = True
+            request.user.save()
+            keys = request.user.reset_otp_keys()
+            return Response(OTPRecoveryKeySerializer(keys, many=True).data)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['get'])
+    def get_totp_qr(self, request):
+        otp_url = pyotp.totp.TOTP(request.user.totp_secret).provisioning_uri(name=request.user.email, issuer_name='ChiefOnboarding')
+        return Response({ 'otp_url': otp_url })
 
     @action(detail=False, methods=['get'], permission_classes=[ManagerPermission])
     def me(self, request):

@@ -8,6 +8,7 @@
       </v-col>
     </v-row>
     <ResetPasswordForm />
+    <TOTPSetup />
     <ChangeLanguage />
   </v-col>
 </template>
@@ -15,9 +16,10 @@
 <script>
 import ResetPasswordForm from '@/components/admin/settings/ResetPasswordForm'
 import ChangeLanguage from '@/components/admin/settings/ChangeLanguage'
+import TOTPSetup from '@/components/admin/settings/TOTPSetup'
 
 export default {
   layout: 'admin',
-  components: { ResetPasswordForm, ChangeLanguage }
+  components: { ResetPasswordForm, ChangeLanguage, TOTPSetup }
 }
 </script>

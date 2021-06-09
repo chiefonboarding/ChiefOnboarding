@@ -298,6 +298,7 @@
         "allBadges": "Alle beloningen"
       },
       "buttons": {
+        "enable": "Instellen",
         "pending": "In wachtrij",
         "cancel": "annuleren",
         "active": "Actief",
@@ -589,6 +590,9 @@
           "googleAccountsDescr": "Hiermee kunt u automatisch een account laten aanmaken voor Google. We zullen de nieuwe medewerker een e-mail sturen met het wachtwoord. Ze zullen dit bij de eerste keer inloggen opnieuw moeten instellen."
         },
         "personal": {
+          "TOTPOK": "TOTP is succesvol ingesteld!",
+          "recoveryKeyMessage": "Sla deze sleutel op voordat u iets anders doet. U heeft deze sleutel nodig om TOTP uit te schakelen in het geval dat u de toegang tot uw TOTP applicatie verliest. Uw sleutel is:",
+          "TOTPSetup": "TOTP instellen",
           "personal": "Persoonlijk",
           "changePassword": "Verander uw wachtwoord",
           "oldPass": "Oud wachtwoord",

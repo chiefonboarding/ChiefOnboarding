@@ -20,6 +20,7 @@ CONTENT_OPTIONS = (
     ('hr', 'hr'),
     ('file', 'file'),
     ('image', 'image'),
+    ('video', 'video'),
     ('question', 'question')
 )
 
@@ -111,6 +112,9 @@ class Content(models.Model):
         elif self.type == 'hr':
             return {"type": "divider"}
         elif self.type == 'file':
+            files_text = '<' + self.files[0].get_url() + '|Watch video>'
+            text['text']['text'] = files_text
+        elif self.type == 'video':
             files_text = ''
             for i in self.files.all():
                 files_text += '<' + i.get_url() + '|' + i.name + '> '

@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -85,7 +85,7 @@ class CSRFTokenView(APIView):
 
 
 class FileView(APIView):
-    permission_classes = (AdminPermission, NewHirePermission)
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, id, uuid):
         file = get_object_or_404(File, uuid=uuid, id=id)
