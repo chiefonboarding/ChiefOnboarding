@@ -27,7 +27,7 @@ def main():
             username = settings.ACCOUNT_EMAIL
             password = settings.ACCOUNT_PASSWORD
         else:
-            username = get_random_string(length=6) + '@example.com'
+            username = get_random_string(length=6).lower() + '@example.com'
             password = get_random_string(length=4)
 
             print("""
