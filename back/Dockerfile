@@ -6,8 +6,8 @@ RUN apt-get install -y supervisor
 ENV PYTHONUNBUFFERED 1
 RUN mkdir -p /app
 WORKDIR /app
-COPY . .
-COPY /back/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY ./back/ .
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 RUN pip install -r requirements.txt
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
