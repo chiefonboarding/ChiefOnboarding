@@ -57,6 +57,28 @@
     <BadgeModal v-model="openBadgeModal" :badge="badge" :index="index" />
     <ResourceModal v-model="openResourceModal" :resource="resource" :index="index" @updateUnconditionedItem="updateUnconditionedItem" />
     <IntroductionModal v-model="openIntroModal" :intro="intro" :index="index" @updateUnconditionedItem="updateUnconditionedItem" />
+    <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition" class="mt-3">
+      <v-card>
+        <v-toolbar dark color="dark">
+          <v-btn @click="dialog = false" icon dark>
+            <v-icon>close</v-icon>
+          </v-btn>
+          <v-toolbar-title>{{ $t('newhires.preview') }}</v-toolbar-title>
+          <v-spacer />
+          <v-toolbar-items>
+            <v-btn @click="dialog = false" dark text>
+              {{ $t('buttons.close') }}
+            </v-btn>
+          </v-toolbar-items>
+        </v-toolbar>
+        <PreboardingPage
+          :pages="preboarding"
+          :auth-code="$store.state.admin.authToken"
+          :new-hire="$store.state.newhires.all[0]"
+          :org="$store.state.org"
+        />
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -70,8 +92,9 @@ import ToDoModal from './modals/ToDoModal'
 import IntroductionModal from './modals/IntroductionModal'
 import PreboardingPart from './PreboardingPart'
 import AutoAddTimeLineItem from './AutoAddTimeLineItem'
+import PreboardingPage from '@/components/preboarding/Page'
 export default {
-  components: { ExternalMessageModal, TimelineItem, IntroductionModal, TaskModal, ResourceModal, BadgeModal, ToDoModal, PreboardingPart, AutoAddTimeLineItem },
+  components: { ExternalMessageModal, TimelineItem, PreboardingPage, IntroductionModal, TaskModal, ResourceModal, BadgeModal, ToDoModal, PreboardingPart, AutoAddTimeLineItem },
   props: {
     errors: {
       required: true,
@@ -88,6 +111,7 @@ export default {
     openResourceModal: false,
     openToDoModal: false,
     openIntroModal: false,
+    dialog: false,
     adminTask: {},
     preboardingItem: [],
     index: -1,
