@@ -102,6 +102,9 @@ class SendTestMessage(APIView):
         if ext_message.send_via == 0:  # email
             send_sequence_message(request.user, ext_message.email_message(), ext_message.subject)
         elif ext_message.send_via == 1:  # slack
+            # User is not connected to slack. Needs -> employees -> 'give access'
+            if request.user.slack_channel_id == None:
+                return Response({'slack': 'not exist'}, status=status.HTTP_400_BAD_REQUEST)
             s = Slack()
             s.set_user(request.user)
             blocks = []

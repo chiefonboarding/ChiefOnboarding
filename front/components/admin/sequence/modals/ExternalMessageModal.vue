@@ -204,6 +204,10 @@ export default {
       this.$sequences.sendTestMessage(this.item.id).then((data) => {
         this.$store.dispatch('showSnackbar', 'Message has been sent!')
       }).catch((error) => {
+        if ('slack' in error && error.slack === 'not exist') {
+          this.$store.dispatch('showSnackbar', 'Your account has not been connected to Slack yet. Go to People -> Employees -> find your profile and click on "give access"')
+          return
+        }
         this.$store.dispatch('showSnackbar', 'Something went wrong...')
       })
     }

@@ -360,14 +360,20 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         s = SlackBot()
         users = s.get_all_users()
         for i in users:
-            if i['id'] != 'USLACKBOT' and not i['is_bot'] and 'first_name' in i['profile']:
+            if i['id'] != 'USLACKBOT' and not i['is_bot'] and 'real_name' in i['profile']:
+                if len(i['profile']['real_name'].split()) > 1:
+                    first_name = i['profile']['real_name'].split()[0]
+                    last_name = i['profile']['real_name'].split()[1]
+                else:
+                    first_name = i['profile']['real_name']
+                    last_name = ''
                 get_user_model().objects.get_or_create(
                     email=i['profile']['email'],
                     defaults={
                         'position': i['profile']['title'],
                         'phone': i['profile']['phone'],
-                        'first_name': i['profile']['first_name'],
-                        'last_name': i['profile']['last_name']
+                        'first_name': first_name,
+                        'last_name': last_name
                     }
                 )
         return Response()
