@@ -16,7 +16,6 @@ from twilio.rest import Client
 from .emails import send_reminder_email, send_new_hire_cred, email_new_admin_cred, send_new_hire_preboarding, \
     email_reopen_task
 from .models import ToDoUser, PreboardingUser, ResourceUser, NewHireWelcomeMessage
-from .tasks import send_new_hire_credentials
 from .serializers import NewHireSerializer, AdminSerializer, EmployeeSerializer, \
     UserLanguageSerializer, NewHireProgressResourceSerializer, \
     NewHireWelcomeMessageSerializer, OTPRecoveryKeySerializer
@@ -73,7 +72,7 @@ class NewHireViewSet(viewsets.ModelViewSet):
             ScheduledAccess.objects.create(new_hire=new_hire, integration=2, status=0, email=google['email'])
         new_hire_time = new_hire.get_local_time()
         if new_hire_time.date() >= new_hire.start_day and new_hire_time.hour >= 7 and new_hire_time.weekday() < 5 and org.new_hire_email:
-            async_task(send_new_hire_credentials, new_hire.id)
+            async_task('users.tasks.send_new_hire_credentials', new_hire.id)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['post'])
