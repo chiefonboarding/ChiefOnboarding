@@ -2,3 +2,4 @@
 .idea
 dump.rdb
 .idea/dataSources.local.xml
+front/node_modules

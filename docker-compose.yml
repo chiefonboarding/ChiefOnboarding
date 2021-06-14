@@ -28,6 +28,8 @@ services:
       - BASE_URL=http://0.0.0.0:3000
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
       - DEFAULT_FROM_EMAIL=hello@chiefonboarding.com
+      - ACCOUNT_EMAIL=admin@example.com
+      - ACCOUNT_PASSWORD=admin
     volumes:
       - ./back:/app
     depends_on:

@@ -259,7 +259,8 @@ Q_CLUSTER = {
     'queue_limit': 50,
     'bulk': 10,
     'orm': 'default',
-    'catch_up': False
+    'catch_up': False,
+    'max_attempts': 2
 }
 
 # AWS
