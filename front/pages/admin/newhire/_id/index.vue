@@ -156,7 +156,7 @@ export default {
           const conditionToDos = itemBasedOnToDo.condition_to_do.map(i => i.id)
           timeline.forEach((timelineItem) => {
             timelineItem.to_do.forEach((toDo) => {
-              if (conditionToDos.includes(toDo.id)) {
+              if (toDo.due_on_day === 0 && conditionToDos.includes(toDo.id)) {
                 counter++
               }
             })
@@ -165,7 +165,7 @@ export default {
                 counter++
               }
             })
-            if (counter === amountOfToDoRequirements) {
+            if (counter === amountOfToDoRequirements && counter !== 0) {
               timelineItem.follow_up_condition.push(itemBasedOnToDo)
               amountOfToDoRequirements = 0
             }

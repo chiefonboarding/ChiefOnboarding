@@ -170,8 +170,6 @@ class Condition(models.Model):
     external_messages = models.ManyToManyField(ExternalMessage)
     introductions = models.ManyToManyField(Introduction)
 
-    objects = FullManager()
-
     def process_condition(self, user):
         from sequences.serializers import PendingAdminTaskSerializer
         from admin_tasks.models import AdminTaskComment
