@@ -144,14 +144,6 @@ class PendingAdminTask(models.Model):
     priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
 
 
-class FullManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().prefetch_related(
-            Prefetch('condition_to_do', queryset=ToDo.objects.all()),
-            Prefetch('to_do', queryset=ToDo.objects.all())
-        ).order_by('id')
-
-
 class Condition(models.Model):
     CONDITION_TYPE = (
         (0, 'after'),
