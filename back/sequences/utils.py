@@ -2,7 +2,9 @@ def get_task_items(c):
     return [
         {'app': 'to_do', 'model': 'ToDo', 'item': 'to_do', 's_model': c.to_do},
         {'app': 'resources', 'model': 'Resource', 'item': 'resources', 's_model': c.resources},
-        {'app': 'preboarding', 'model': 'Preboarding', 'item': 'preboarding', 's_model': c.preboarding}
+        {'app': 'preboarding', 'model': 'Preboarding', 'item': 'preboarding', 's_model': c.preboarding},
+        {'app': 'introductions', 'model': 'Introduction', 'item': 'introductions', 's_model': c.introductions},
+        {'app': 'appointments', 'model': 'Appointment', 'item': 'appointments', 's_model': c.appointments}
     ]
 
 
