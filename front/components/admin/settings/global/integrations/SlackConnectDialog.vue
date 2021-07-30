@@ -108,7 +108,7 @@ export default {
     form: { integration: 0 },
     dialog: false,
     secondStep: false,
-    scope: 'bot,users:read.email,chat:write:bot,users:read,commands'
+    scope: 'im:history,im:read,users:read,users:read.email,im:write,chat:write'
   }),
   mounted () {
     if (this.type === 1) {
