@@ -75,7 +75,7 @@
               </v-row>
             </v-container>
           </v-form>
-          <a v-if="secondStep" :href="'https://slack.com/oauth/authorize?scope=' + scope +'&client_id=' + form.client_id + '&redirect_uri=' + form.redirect_url"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"></a>
+          <a v-if="secondStep" :href="'https://slack.com/oauth/authorize?scope=' + scope +'&client_id=' + form.client_id + '&redirect_uri=' + form.redirect_url&state=&granular_bot_scope=1&single_channel=0&install_redirect=&tracked=1&team="><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"></a>
         </v-card-text>
 
         <v-divider />
