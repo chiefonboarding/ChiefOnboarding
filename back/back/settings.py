@@ -28,7 +28,11 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG', default=False)
 
-ALLOWED_HOSTS = [env('ALLOWED_HOST', default="0.0.0.0"),]
+if env('ALLOWED_HOSTS', default='') != '':
+    ALLOWED_HOSTS = [host for host in env.list('ALLOWED_HOSTS')]
+else:
+    # Fallback for old environment variable to avoid breaking change
+    ALLOWED_HOSTS = [env('ALLOWED_HOST', default="0.0.0.0"),]
 
 INSTALLED_APPS = [
     'users',
@@ -71,6 +75,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'organization.middleware.HealthCheckMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
