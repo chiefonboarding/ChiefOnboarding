@@ -40,7 +40,7 @@
       "description": "This is the base url of your application. This can be a heroku url (xxxx.herokuapp.com - which matches your domain for this app) or your own (sub) domain. Format: https://test.chiefonboarding.com",
       "required": true
     },
-    "ALLOWED_HOST": {
+    "ALLOWED_HOSTS": {
       "description": "This is the base url of your application. This can be a heroku url (xxxx.herokuapp.com - which matches your domain for this app) or your own (sub) domain. Format: test.chiefonboarding.com",
       "required": true
     },
