@@ -1,6 +1,6 @@
 databases:
-  - name: chiefonboarding-db
-    databaseName: chiefonboarding-db
+  - name: chiefonboardingdb
+    databaseName: chiefonboardingdb
     user: chief
 
 services:
@@ -34,5 +34,5 @@ envVarGroups:
         sync: false
       - key: DATABASE_URL
         fromDatabase:
-          name: chiefonboarding-db
+          name: chiefonboardingdb
           property: connectionString

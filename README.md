@@ -34,7 +34,7 @@ DigitalOcean App platform:
 (please change environment values after deploying)
 
 Render:
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/chiefonboarding/chiefonboarding/tree/v1.2.13)
 
 ## Security issues
 Please do not create an issue if you found a potential security issue. Email me directly at security@chiefonboarding.com and I will get it resolved ASAP.
