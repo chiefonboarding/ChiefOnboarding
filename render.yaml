@@ -7,7 +7,7 @@ services:
   - type: web
     name: chiefonboarding
     env: python
-    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py createcachetable && python manage.py migrate"
+    buildCommand: "pip install -r requirements.txt && cd /back && python manage.py collectstatic --no-input && python manage.py createcachetable && python manage.py migrate"
     startCommand: "gunicorn back.wsgi:application"
     envVars:
       - fromGroup: chief-default
