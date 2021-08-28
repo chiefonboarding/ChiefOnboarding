@@ -24,6 +24,7 @@ Documentation: [https://docs.chiefonboarding.com](https://docs.chiefonboarding.c
 Deploy ChiefOnboarding easily through **Docker** or on **Heroku**. Please see [the documentation for full details](https://docs.chiefonboarding.com).
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/chiefonboarding/ChiefOnboarding/tree/deploy)
+[![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/chiefonboarding/ChiefOnboarding/tree/test-deploy)
 
 ## Security issues
 Please do not create an issue if you found a potential security issue. Email me directly at security@chiefonboarding.com and I will get it resolved ASAP.

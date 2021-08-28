@@ -1,0 +1,14 @@
+# DO deploy yaml file
+spec:
+  - name: ChiefOnboarding
+  services:
+    - name: chiefonboarding
+      image:
+        - registry_type: DOCKER_HUB
+        - registry: https://registry.hub.docker.com
+        - repository: chiefonboarding/chiefonboarding
+      http_port: 8000
+      health_check:
+        - http_path: /health
+    databases:
+    - name: chiefonboarding-db
