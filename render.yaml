@@ -1,0 +1,38 @@
+databases:
+  - name: chiefonboarding-db
+    databaseName: chiefonboarding-db
+    user: chief
+
+services:
+  - type: web
+    name: chiefonboarding
+    env: python
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py createcachetable && python manage.py migrate"
+    startCommand: "gunicorn back.wsgi:application"
+    envVars:
+      - fromGroup: chief-default
+  - type: worker
+    name: django-q
+    startCommand: "python manage.py qcluster"
+    envVars:
+      - fromGroup: chief-default
+
+envVarGroups:
+  - name: chief-default
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ACCOUNT_EMAIL
+        sync: false
+      - key: ACCOUNT_PASSWORD 
+        sync: false
+      - key: BASE_URL 
+        sync: false
+      - key: ALLOWED_HOSTS
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: chiefonboarding-db
+          property: connectionString

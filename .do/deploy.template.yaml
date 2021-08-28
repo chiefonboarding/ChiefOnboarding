@@ -1,16 +1,44 @@
 # DO deploy yaml file
-spec:
-  name: ChiefOnboarding
-  services:
-    name: chiefonboarding
-    image:
-      registry_type: DOCKER_HUB
-      registry: "https://registry.hub.docker.com"
-      repository: chiefonboarding/chiefonboarding
-    http_port: 8000
-    health_check:
-      http_path: /health
-    databases:
-      name: chiefonboarding-db
-      engine: PG
-      production: true 
+alerts:
+- rule: DEPLOYMENT_FAILED
+- rule: DOMAIN_FAILED
+databases:
+- engine: PG
+  name: chiefonboarding-db
+  num_nodes: 1
+  size: db-s-dev-database
+  version: "12"
+name: chiefonboarding
+region: ams
+services:
+- envs:
+  - key: SECRET_KEY
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: somethingsupersecret
+  - key: BASE_URL
+    scope: RUN_AND_BUILD_TIME
+    value: https://xxxxxxxx.ondigitalocean.app
+  - key: ALLOWED_HOST
+    scope: RUN_AND_BUILD_TIME
+    value: xxxxxxxx.ondigitalocean.app
+  - key: DEFAULT_FROM_EMAIL
+    scope: RUN_AND_BUILD_TIME
+    value: hello@chiefonboarding.com
+  - key: DATABASE_URL
+    scope: RUN_TIME
+    value: ${chiefonboarding-db.DATABASE_URL}
+  health_check:
+    http_path: /health
+  http_port: 8000
+  image:
+    registry: chiefonboarding
+    registry_type: DOCKER_HUB
+    repository: chiefonboarding
+    tag: latest
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  name: chiefonboarding
+  routes:
+  - path: /
+  source_dir: /
