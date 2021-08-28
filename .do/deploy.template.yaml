@@ -5,7 +5,7 @@ spec:
     name: chiefonboarding
     image:
       registry_type: DOCKER_HUB
-      registry: https://registry.hub.docker.com
+      registry: "https://registry.hub.docker.com"
       repository: chiefonboarding/chiefonboarding
     http_port: 8000
     health_check:
