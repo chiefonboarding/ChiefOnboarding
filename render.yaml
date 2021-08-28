@@ -11,11 +11,20 @@ services:
     startCommand: "gunicorn back.wsgi:application"
     envVars:
       - fromGroup: chief-default
+      - key: DATABASE_URL
+        fromDatabase:
+          name: chiefonboardingdb
+          property: connectionString
   - type: worker
     name: django-q
+    env: python
     startCommand: "python manage.py qcluster"
     envVars:
       - fromGroup: chief-default
+      - key: DATABASE_URL
+        fromDatabase:
+          name: chiefonboardingdb
+          property: connectionString
 
 envVarGroups:
   - name: chief-default
@@ -32,7 +41,3 @@ envVarGroups:
         sync: false
       - key: DEFAULT_FROM_EMAIL
         sync: false
-      - key: DATABASE_URL
-        fromDatabase:
-          name: chiefonboardingdb
-          property: connectionString
