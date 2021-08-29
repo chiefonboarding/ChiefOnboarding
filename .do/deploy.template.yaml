@@ -4,10 +4,9 @@ spec:
   databases:
   - engine: PG
     name: chiefonboarding-db
-    num_nodes: 1
-    size: db-s-dev-database
     version: "12"
-  name: chiefonboarding
+    db_name: chiefonboarding-db
+    db_user: chief
   services:
   - envs:
     - key: SECRET_KEY
@@ -36,7 +35,6 @@ spec:
       tag: latest
     instance_count: 1
     instance_size_slug: basic-xxs
-    name: chiefonboarding
     routes:
     - path: /
     source_dir: /
