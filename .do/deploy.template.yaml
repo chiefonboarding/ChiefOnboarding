@@ -1,12 +1,12 @@
 # DO deploy yaml file
+name: ChiefOnboarding
 spec:
   name: chiefonboarding
   databases:
   - engine: PG
     name: chiefonboarding-db
-    version: "12"
-    db_name: chiefonboarding-db
-    db_user: chief
+    num_nodes: 1
+    size: db-s-dev-database
   services:
   - envs:
     - key: SECRET_KEY
@@ -35,6 +35,7 @@ spec:
       tag: latest
     instance_count: 1
     instance_size_slug: basic-xxs
+    name: chiefonboarding
     routes:
     - path: /
     source_dir: /
