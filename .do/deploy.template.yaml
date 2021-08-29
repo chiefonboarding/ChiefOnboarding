@@ -1,7 +1,4 @@
 # DO deploy yaml file
-alerts:
-- rule: DEPLOYMENT_FAILED
-- rule: DOMAIN_FAILED
 databases:
 - engine: PG
   name: chiefonboarding-db
