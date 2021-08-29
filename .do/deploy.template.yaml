@@ -6,7 +6,6 @@ databases:
   size: db-s-dev-database
   version: "12"
 name: chiefonboarding
-region: ams
 services:
 - envs:
   - key: SECRET_KEY
