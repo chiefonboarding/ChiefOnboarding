@@ -29,7 +29,7 @@ services:
   - type: worker
     name: django-q
     env: python
-    buildCommand: "pip install -r requirements.txt && cd back && python manage.py createcachetable && python manage.py migrate"
+    buildCommand: "pip install -r requirements.txt"
     startCommand: "python back/manage.py qcluster"
     envVars:
       - fromGroup: chief-default
@@ -38,8 +38,6 @@ services:
           name: chiefonboardingdb
           property: connectionString
       - key: BASE_URL 
-        sync: false
-      - key: ALLOWED_HOSTS
         sync: false
       - key: DEFAULT_FROM_EMAIL
         sync: false

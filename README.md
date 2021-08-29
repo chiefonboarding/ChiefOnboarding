@@ -23,18 +23,23 @@ Documentation: [https://docs.chiefonboarding.com](https://docs.chiefonboarding.c
 ## Deployment
 Please see [the documentation for full details](https://docs.chiefonboarding.com).
 
-Docker:
+**Docker**
+
 See details here: [ChiefOnboarding on Docker Hub](https://hub.docker.com/repository/docker/chiefonboarding/chiefonboarding)
 
-Heroku:
+**Heroku**
+
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/chiefonboarding/ChiefOnboarding/tree/deploy)
 
-DigitalOcean App platform:
-[![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/chiefonboarding/ChiefOnboarding/tree/test-deploy)
+**DigitalOcean App platform**
+
+[![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/chiefonboarding/ChiefOnboarding/tree/deploy)
+
 (please change environment values after deploying)
 
-Render:
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/chiefonboarding/chiefonboarding/tree/v1.2.13)
+**Render**
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/chiefonboarding/chiefonboarding/tree/deploy)
 
 ## Security issues
 Please do not create an issue if you found a potential security issue. Email me directly at security@chiefonboarding.com and I will get it resolved ASAP.
