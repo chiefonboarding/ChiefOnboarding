@@ -1,5 +1,4 @@
 # DO deploy yaml file
-name: ChiefOnboarding
 spec:
   name: chiefonboarding
   databases:
