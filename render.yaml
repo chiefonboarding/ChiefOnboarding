@@ -15,6 +15,17 @@ services:
         fromDatabase:
           name: chiefonboardingdb
           property: connectionString
+      - key: ACCOUNT_EMAIL
+        sync: false
+      - key: ACCOUNT_PASSWORD 
+        sync: false
+      - key: BASE_URL 
+        sync: false
+      - key: ALLOWED_HOSTS
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
+
   - type: worker
     name: django-q
     env: python
@@ -26,19 +37,15 @@ services:
         fromDatabase:
           name: chiefonboardingdb
           property: connectionString
-
-envVarGroups:
-  - name: chief-default
-    envVars:
-      - key: SECRET_KEY
-        generateValue: true
-      - key: ACCOUNT_EMAIL
-        sync: false
-      - key: ACCOUNT_PASSWORD 
-        sync: false
       - key: BASE_URL 
         sync: false
       - key: ALLOWED_HOSTS
         sync: false
       - key: DEFAULT_FROM_EMAIL
         sync: false
+
+envVarGroups:
+  - name: chief-default
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
