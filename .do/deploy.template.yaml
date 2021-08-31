@@ -14,16 +14,13 @@ spec:
       value: somethingsupersecret
     - key: BASE_URL
       scope: RUN_AND_BUILD_TIME
-      value: https://xxxxxxxx.ondigitalocean.app
+      value: ${APP_URL}
     - key: ALLOWED_HOST
       scope: RUN_AND_BUILD_TIME
-      value: xxxxxxxx.ondigitalocean.app
+      value: ${APP_DOMAIN}
     - key: DEFAULT_FROM_EMAIL
       scope: RUN_AND_BUILD_TIME
       value: hello@chiefonboarding.com
-    - key: DATABASE_URL
-      scope: RUN_TIME
-      value: ${chiefonboarding-db.DATABASE_URL}
     health_check:
       http_path: /health
     http_port: 8000
