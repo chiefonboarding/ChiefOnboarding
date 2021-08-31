@@ -33,7 +33,7 @@ See details here: [ChiefOnboarding on Docker Hub](https://hub.docker.com/reposit
 
 **DigitalOcean App platform**
 
-[![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/chiefonboarding/ChiefOnboarding/tree/deploy)
+[![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/chiefonboarding/ChiefOnboarding/tree/v1.2.14)
 
 (please change environment values after deploying)
 
