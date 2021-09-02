@@ -53,7 +53,7 @@ class NewHireViewSet(viewsets.ModelViewSet):
         # if user is not admin, then only show records relevant to the manager
         all_new_hires = get_user_model().new_hires.all()
         if self.request.user.role == 1:
-            return all_new_hires 
+            return all_new_hires
         return all_new_hires.filter(manager=self.request.user)
 
     def create(self, request, *args, **kwargs):
@@ -221,15 +221,16 @@ class NewHireViewSet(viewsets.ModelViewSet):
             except:
                 return Response({'error': 'error'}, status=status.HTTP_400_BAD_REQUEST)
         if request.data['integration'] == 2:
-            g = Google()
-            g.delete_user(new_hire.email)
+            # g = Google()
+            # g.delete_user(new_hire.email)
+            pass
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class AdminViewSet(viewsets.ModelViewSet):
     serializer_class = AdminSerializer
     queryset = get_user_model().admins.all()
-    
+
     def get_permissions(self):
         if self.action == "list":
             self.permission_classes = [ManagerPermission]

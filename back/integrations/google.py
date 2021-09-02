@@ -77,9 +77,3 @@ class Google:
             raise UnauthorizedError
         if response.status_code == 200:
             return
-
-    def delete_user(self, email):
-        response = self.auth_session.delete('https://www.googleapis.com/admin/directory/v1/users/' + email.lower())
-        if response.status_code == 404 or response.status_code == 204:
-            return True
-        return False

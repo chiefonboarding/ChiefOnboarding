@@ -57,13 +57,6 @@
                   <span v-if="google.status === 'pending'">{{ $t("buttons.pending") }}</span><span v-else style="color:white">{{ $t("buttons.active") }}</span>
                 </v-btn>
               </template>
-              <v-list>
-                <v-list-item
-                  @click="removeGoogle"
-                >
-                  <v-list-item-title>{{ $t("buttons.remove") }}</v-list-item-title>
-                </v-list-item>
-              </v-list>
             </v-menu>
           </div>
         </div>
@@ -179,14 +172,6 @@ export default {
         this.addGoogleModal = false
       }).finally(() => {
         this.creatingGoogle = false
-      })
-    },
-    removeGoogle () {
-      this.loadingGoogle = true
-      this.$newhires.revokeAccess(this.newHire.id, { integration: 2 }).then((data) => {
-        this.google.status = 'not_found'
-      }).finally(() => {
-        this.loadingGoogle = false
       })
     },
     checkAccounts () {
