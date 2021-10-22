@@ -2,10 +2,10 @@ from django.contrib.auth import get_user_model
 from django.db import models
 
 from misc.models import Content
-from organization.models import BaseTemplate, FullManager, FullTemplateManager
+from organization.models import BaseItem, FullManager, FullTemplateManager
 
 
-class ToDo(BaseTemplate):
+class ToDo(BaseItem):
     content = models.ManyToManyField(Content)
     due_on_day = models.IntegerField(default=0)
     form = models.JSONField(models.TextField(default="[]"))

@@ -1,10 +1,10 @@
 from django.db import models
 
 from misc.models import Content
-from organization.models import BaseTemplate, FullManager, FullTemplateManager
+from organization.models import BaseItem, FullManager, FullTemplateManager
 
 
-class Preboarding(BaseTemplate):
+class Preboarding(BaseItem):
     content = models.ManyToManyField(Content)
     form = models.JSONField(null=True, blank=True)
     picture = models.FileField(null=True)

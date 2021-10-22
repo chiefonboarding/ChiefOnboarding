@@ -1,10 +1,10 @@
 from django.conf import settings
 from django.db import models
 
-from organization.models import BaseTemplate
+from organization.models import BaseItem
 
 
-class Introduction(BaseTemplate):
+class Introduction(BaseItem):
     intro_person = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self):

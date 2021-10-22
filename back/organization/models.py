@@ -93,7 +93,7 @@ class FullTemplateManager(models.Manager):
         )
 
 
-class BaseTemplate(models.Model):
+class BaseItem(models.Model):
     name = models.CharField(max_length=240)
     tags = ArrayField(models.CharField(max_length=10200), blank=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -113,4 +113,4 @@ class BaseTemplate(models.Model):
             for i in self.tags:
                 if i != "":
                     Tag.objects.get_or_create(name=i)
-        super(BaseTemplate, self).save(*args, **kwargs)
+        super(BaseItem, self).save(*args, **kwargs)

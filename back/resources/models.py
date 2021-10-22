@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models import Prefetch
 
 from misc.models import Content
-from organization.models import BaseTemplate
+from organization.models import BaseItem
 
 
 class FullManager(models.Manager):
@@ -49,7 +49,7 @@ class Category(models.Model):
         return self.name
 
 
-class Resource(BaseTemplate):
+class Resource(BaseItem):
     category = models.ForeignKey("Category", on_delete=models.CASCADE, null=True)
 
     # course part

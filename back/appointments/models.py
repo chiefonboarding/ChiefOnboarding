@@ -1,10 +1,10 @@
 from django.db import models
 
 from misc.models import Content
-from organization.models import BaseTemplate
+from organization.models import BaseItem
 
 
-class Appointment(BaseTemplate):
+class Appointment(BaseItem):
     content = models.ManyToManyField(Content)
     time = models.TimeField(blank=True, null=True)
     date = models.DateField(blank=True, null=True)
