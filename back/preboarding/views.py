@@ -8,9 +8,9 @@ from .serializers import PreboardingSerializer
 
 class PreboardingViewSet(viewsets.ModelViewSet):
     serializer_class = PreboardingSerializer
-    queryset = Preboarding.templates.all().order_by('id')
+    queryset = Preboarding.templates.all().order_by("id")
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=["post"])
     def duplicate(self, request, pk):
         obj = self.get_object()
         obj.pk = None

@@ -7,13 +7,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('resources', '0001_initial'),
+        ("resources", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='courseanswer',
-            name='answers',
-            field=django.contrib.postgres.fields.jsonb.JSONField(default=list, verbose_name=models.TextField(default='[]')),
+            model_name="courseanswer",
+            name="answers",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                default=list, verbose_name=models.TextField(default="[]")
+            ),
         ),
     ]

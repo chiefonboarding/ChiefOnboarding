@@ -6,14 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('misc', '0001_initial'),
-        ('sequences', '0003_remove_externalmessage_content_json'),
+        ("misc", "0001_initial"),
+        ("sequences", "0003_remove_externalmessage_content_json"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='externalmessage',
-            name='content_json',
-            field=models.ManyToManyField(to='misc.Content'),
+            model_name="externalmessage",
+            name="content_json",
+            field=models.ManyToManyField(to="misc.Content"),
         ),
     ]

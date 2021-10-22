@@ -1,0 +1,21 @@
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <title>Employee onboarding</title>
+    <!-- CSS files -->
+    <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+  </head>
+  <body class="antialiased border-top-wide border-primary d-flex flex-column">
+    <div class="page page-center">
+      <div class="container-tight py-4">
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+    <!-- Libs JS -->
+    <!-- Tabler Core -->
+    <script src="./dist/js/tabler.min.js"></script>
+  </body>
+</html>

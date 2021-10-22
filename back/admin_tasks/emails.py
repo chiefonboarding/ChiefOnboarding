@@ -1,8 +1,8 @@
+from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
-from django.conf import settings
-from django.utils.translation import ugettext as _
 from django.utils import translation
+from django.utils.translation import ugettext as _
 
 from organization.models import Organization
 
@@ -13,18 +13,21 @@ def send_email_notification_to_external_person(admin_task):
     content = [
         {
             "type": "p",
-            "text": _(
-                "Hi! Could you please help me with this? It's for our new hire ") + admin_task.new_hire.full_name()
+            "text": _("Hi! Could you please help me with this? It's for our new hire ")
+            + admin_task.new_hire.full_name(),
         }
     ]
     if admin_task.comment.exists():
-        content.append({
-            "type": "block",
-            "text": admin_task.content.last().comment
-        })
+        content.append({"type": "block", "text": admin_task.content.last().comment})
     message = ""
-    html_message = render_to_string("email/base.html", {'org': org, 'content': content})
-    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [admin_task.email], html_message=html_message)
+    html_message = render_to_string("email/base.html", {"org": org, "content": content})
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [admin_task.email],
+        html_message=html_message,
+    )
 
 
 def send_email_new_assigned_admin(admin_task):
@@ -34,16 +37,30 @@ def send_email_new_assigned_admin(admin_task):
     content = [
         {
             "type": "p",
-            "text": _("This is about task: ") + admin_task.name + _(" for ") + admin_task.new_hire.full_name()
+            "text": _("This is about task: ")
+            + admin_task.name
+            + _(" for ")
+            + admin_task.new_hire.full_name(),
         }
     ]
     if admin_task.comment.exists():
-        content.append({
-            "type": "block",
-            "text": '<strong>' + _("Last message: ") + '</strong><br />' + admin_task.content.last().comment
-        })
-    html_message = render_to_string("email/base.html", {'org': org, 'content': content})
-    send_mail(subject, '', settings.DEFAULT_FROM_EMAIL, [admin_task.assigned_to.email], html_message=html_message)
+        content.append(
+            {
+                "type": "block",
+                "text": "<strong>"
+                + _("Last message: ")
+                + "</strong><br />"
+                + admin_task.content.last().comment,
+            }
+        )
+    html_message = render_to_string("email/base.html", {"org": org, "content": content})
+    send_mail(
+        subject,
+        "",
+        settings.DEFAULT_FROM_EMAIL,
+        [admin_task.assigned_to.email],
+        html_message=html_message,
+    )
 
 
 def send_email_new_comment(comment):
@@ -51,19 +68,23 @@ def send_email_new_comment(comment):
     subject = _("Someone added something to task: ") + comment.admin_task.name
     org = Organization.object.get()
     content = [
+        {"type": "p", "text": "Hi" + comment.admin_task.assigned_to.first_name},
         {
             "type": "p",
-            "text": "Hi" + comment.admin_task.assigned_to.first_name
-        },
-        {
-            "type": "p",
-            "text": _('One of your todo items has been updated by someone else. Here is the message:')
+            "text": _(
+                "One of your todo items has been updated by someone else. Here is the message:"
+            ),
         },
         {
             "type": "block",
-            "text": comment.content + "<br />" + '- ' + comment.comment_by.full_name
-        }
+            "text": comment.content + "<br />" + "- " + comment.comment_by.full_name,
+        },
     ]
-    html_message = render_to_string("email/base.html", {'org': org, 'content': content})
-    send_mail(subject, '', settings.DEFAULT_FROM_EMAIL, [comment.admin_task.assigned_to.email],
-              html_message=html_message)
+    html_message = render_to_string("email/base.html", {"org": org, "content": content})
+    send_mail(
+        subject,
+        "",
+        settings.DEFAULT_FROM_EMAIL,
+        [comment.admin_task.assigned_to.email],
+        html_message=html_message,
+    )

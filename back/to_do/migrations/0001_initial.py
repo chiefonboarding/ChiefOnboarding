@@ -10,27 +10,47 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('misc', '0001_initial'),
+        ("misc", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ToDo',
+            name="ToDo",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=240)),
-                ('tags', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=10200), blank=True, size=None)),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('updated', models.DateTimeField(auto_now=True)),
-                ('template', models.BooleanField(default=True)),
-                ('due_on_day', models.IntegerField(default=0)),
-                ('form', django.contrib.postgres.fields.jsonb.JSONField(verbose_name=models.CharField(default='[]', max_length=100000))),
-                ('send_back', models.BooleanField(default=False)),
-                ('channel', models.CharField(blank=True, max_length=10000, null=True)),
-                ('content', models.ManyToManyField(to='misc.Content')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=240)),
+                (
+                    "tags",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.CharField(max_length=10200),
+                        blank=True,
+                        size=None,
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("updated", models.DateTimeField(auto_now=True)),
+                ("template", models.BooleanField(default=True)),
+                ("due_on_day", models.IntegerField(default=0)),
+                (
+                    "form",
+                    django.contrib.postgres.fields.jsonb.JSONField(
+                        verbose_name=models.CharField(default="[]", max_length=100000)
+                    ),
+                ),
+                ("send_back", models.BooleanField(default=False)),
+                ("channel", models.CharField(blank=True, max_length=10000, null=True)),
+                ("content", models.ManyToManyField(to="misc.Content")),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

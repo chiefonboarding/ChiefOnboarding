@@ -9,57 +9,132 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('to_do', '0001_initial'),
-        ('appointments', '0001_initial'),
-        ('resources', '0001_initial'),
-        ('introductions', '0001_initial'),
-        ('preboarding', '0001_initial'),
+        ("to_do", "0001_initial"),
+        ("appointments", "0001_initial"),
+        ("resources", "0001_initial"),
+        ("introductions", "0001_initial"),
+        ("preboarding", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Condition',
+            name="Condition",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('condition_type', models.IntegerField(choices=[(0, 'after'), (1, 'to do'), (2, 'before')], default=0)),
-                ('days', models.IntegerField(default=0)),
-                ('time', models.TimeField(default='08:00')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "condition_type",
+                    models.IntegerField(
+                        choices=[(0, "after"), (1, "to do"), (2, "before")], default=0
+                    ),
+                ),
+                ("days", models.IntegerField(default=0)),
+                ("time", models.TimeField(default="08:00")),
             ],
         ),
         migrations.CreateModel(
-            name='ExternalMessage',
+            name="ExternalMessage",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=240)),
-                ('content', models.CharField(blank=True, max_length=12000)),
-                ('content_json', django.contrib.postgres.fields.jsonb.JSONField(verbose_name=models.CharField(default='[]', max_length=100000))),
-                ('send_via', models.IntegerField(choices=[(0, 'Email'), (1, 'Slack'), (2, 'Text')])),
-                ('person_type', models.IntegerField(choices=[(1, 'New hire'), (2, 'Manager'), (3, 'Buddy'), (4, 'custom')], default=1)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=240)),
+                ("content", models.CharField(blank=True, max_length=12000)),
+                (
+                    "content_json",
+                    django.contrib.postgres.fields.jsonb.JSONField(
+                        verbose_name=models.CharField(default="[]", max_length=100000)
+                    ),
+                ),
+                (
+                    "send_via",
+                    models.IntegerField(
+                        choices=[(0, "Email"), (1, "Slack"), (2, "Text")]
+                    ),
+                ),
+                (
+                    "person_type",
+                    models.IntegerField(
+                        choices=[
+                            (1, "New hire"),
+                            (2, "Manager"),
+                            (3, "Buddy"),
+                            (4, "custom"),
+                        ],
+                        default=1,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='PendingAdminTask',
+            name="PendingAdminTask",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=500)),
-                ('comment', models.CharField(blank=True, max_length=12500, null=True)),
-                ('option', models.CharField(choices=[(0, 'No'), (1, 'Email'), (2, 'Slack')], max_length=12500)),
-                ('slack_user', models.CharField(blank=True, max_length=12500, null=True)),
-                ('email', models.EmailField(blank=True, max_length=12500, null=True)),
-                ('date', models.DateField(blank=True, null=True)),
-                ('priority', models.IntegerField(choices=[(1, 'Low'), (2, 'Medium'), (3, 'High')], default=2)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=500)),
+                ("comment", models.CharField(blank=True, max_length=12500, null=True)),
+                (
+                    "option",
+                    models.CharField(
+                        choices=[(0, "No"), (1, "Email"), (2, "Slack")],
+                        max_length=12500,
+                    ),
+                ),
+                (
+                    "slack_user",
+                    models.CharField(blank=True, max_length=12500, null=True),
+                ),
+                ("email", models.EmailField(blank=True, max_length=12500, null=True)),
+                ("date", models.DateField(blank=True, null=True)),
+                (
+                    "priority",
+                    models.IntegerField(
+                        choices=[(1, "Low"), (2, "Medium"), (3, "High")], default=2
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Sequence',
+            name="Sequence",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=240)),
-                ('appointments', models.ManyToManyField(to='appointments.Appointment')),
-                ('introductions', models.ManyToManyField(to='introductions.Introduction')),
-                ('preboarding', models.ManyToManyField(to='preboarding.Preboarding')),
-                ('resources', models.ManyToManyField(to='resources.Resource')),
-                ('to_do', models.ManyToManyField(to='to_do.ToDo')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=240)),
+                ("appointments", models.ManyToManyField(to="appointments.Appointment")),
+                (
+                    "introductions",
+                    models.ManyToManyField(to="introductions.Introduction"),
+                ),
+                ("preboarding", models.ManyToManyField(to="preboarding.Preboarding")),
+                ("resources", models.ManyToManyField(to="resources.Resource")),
+                ("to_do", models.ManyToManyField(to="to_do.ToDo")),
             ],
         ),
     ]

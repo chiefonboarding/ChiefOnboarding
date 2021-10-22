@@ -9,27 +9,42 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('misc', '0001_initial'),
+        ("misc", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Appointment',
+            name="Appointment",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=240)),
-                ('tags', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=10200), blank=True, size=None)),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('updated', models.DateTimeField(auto_now=True)),
-                ('template', models.BooleanField(default=True)),
-                ('time', models.TimeField(blank=True, null=True)),
-                ('date', models.DateField(blank=True, null=True)),
-                ('fixed_date', models.BooleanField(default=False)),
-                ('on_day', models.IntegerField(default=0)),
-                ('content', models.ManyToManyField(to='misc.Content')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=240)),
+                (
+                    "tags",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.CharField(max_length=10200),
+                        blank=True,
+                        size=None,
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("updated", models.DateTimeField(auto_now=True)),
+                ("template", models.BooleanField(default=True)),
+                ("time", models.TimeField(blank=True, null=True)),
+                ("date", models.DateField(blank=True, null=True)),
+                ("fixed_date", models.BooleanField(default=False)),
+                ("on_day", models.IntegerField(default=0)),
+                ("content", models.ManyToManyField(to="misc.Content")),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

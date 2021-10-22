@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class AdminTasksConfig(AppConfig):
-    name = 'admin_tasks'
+    name = "admin_tasks"

@@ -1,13 +1,15 @@
 from rest_framework import serializers
-from users.models import ToDoUser, ResourceUser, PreboardingUser
 
-from to_do.models import ToDo
-from resources.serializers import ChapterSerializer, CourseAnswerSerializer, ResourceSerializer, ResourceCourseSerializer
-from resources.models import Resource
-from preboarding.serializers import PreboardingSerializer
 from badges.models import Badge
 from misc.fields import ContentField
 from misc.s3 import S3
+from preboarding.serializers import PreboardingSerializer
+from resources.models import Resource
+from resources.serializers import (ChapterSerializer, CourseAnswerSerializer,
+                                   ResourceCourseSerializer,
+                                   ResourceSerializer)
+from to_do.models import ToDo
+from users.models import PreboardingUser, ResourceUser, ToDoUser
 
 
 class ToDoNewHireSerializer(serializers.ModelSerializer):
@@ -15,7 +17,7 @@ class ToDoNewHireSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ToDo
-        fields = ('id', 'name', 'due_on_day', 'form', 'content')
+        fields = ("id", "name", "due_on_day", "form", "content")
 
 
 class ToDoUserSerializer(serializers.ModelSerializer):
@@ -24,7 +26,7 @@ class ToDoUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ToDoUser
-        fields = ('id', 'to_do', 'completed', 'reminded', 'completed_form')
+        fields = ("id", "to_do", "completed", "reminded", "completed_form")
 
     def get_completed_form(self, obj):
         return len(obj.form) > 0
@@ -35,7 +37,7 @@ class PreboardingUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PreboardingUser
-        fields = ('id', 'preboarding', 'form', 'completed', 'order')
+        fields = ("id", "preboarding", "form", "completed", "order")
 
 
 class NewHireResourceSerializer(serializers.ModelSerializer):
@@ -44,7 +46,7 @@ class NewHireResourceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Resource
-        fields = ('id', 'name', 'category', 'course', 'item')
+        fields = ("id", "name", "category", "course", "item")
 
     def get_item(self, obj):
         if obj.chapters.count() == 1:
@@ -57,7 +59,7 @@ class NewHireResourceItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ResourceUser
-        fields = ('id', 'resource', 'step', 'answers')
+        fields = ("id", "resource", "step", "answers")
 
 
 class NewHireBadgeSerializer(serializers.ModelSerializer):
@@ -66,9 +68,9 @@ class NewHireBadgeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Badge
-        fields = ('content', 'image', 'name')
+        fields = ("content", "image", "name")
 
     def get_image(self, obj):
         if obj.image is not None:
             return S3().get_file(obj.image.key)
-        return ''
+        return ""

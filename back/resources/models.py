@@ -1,19 +1,46 @@
 from django.db import models
 from django.db.models import Prefetch
-from organization.models import BaseTemplate
+
 from misc.models import Content
+from organization.models import BaseTemplate
+
 
 class FullManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().select_related('category').prefetch_related(
-            Prefetch('chapters', queryset=Chapter.objects.select_related('parent_chapter').prefetch_related('content__files'))
-        ).order_by('name')
+        return (
+            super()
+            .get_queryset()
+            .select_related("category")
+            .prefetch_related(
+                Prefetch(
+                    "chapters",
+                    queryset=Chapter.objects.select_related(
+                        "parent_chapter"
+                    ).prefetch_related("content__files"),
+                )
+            )
+            .order_by("name")
+        )
+
 
 class FullTemplateManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().select_related('category').prefetch_related(
-            Prefetch('chapters', queryset=Chapter.objects.select_related('parent_chapter').prefetch_related('content__files'))
-        ).filter(template=True).order_by('name')
+        return (
+            super()
+            .get_queryset()
+            .select_related("category")
+            .prefetch_related(
+                Prefetch(
+                    "chapters",
+                    queryset=Chapter.objects.select_related(
+                        "parent_chapter"
+                    ).prefetch_related("content__files"),
+                )
+            )
+            .filter(template=True)
+            .order_by("name")
+        )
+
 
 class Category(models.Model):
     name = models.CharField(max_length=500)
@@ -23,7 +50,7 @@ class Category(models.Model):
 
 
 class Resource(BaseTemplate):
-    category = models.ForeignKey('Category', on_delete=models.CASCADE, null=True)
+    category = models.ForeignKey("Category", on_delete=models.CASCADE, null=True)
 
     # course part
     course = models.BooleanField(default=False)
@@ -52,13 +79,11 @@ class Resource(BaseTemplate):
 
 
 class Chapter(models.Model):
-    CHAPTER_TYPE = (
-        (0, 'page'),
-        (1, 'folder'),
-        (2, 'questions')
+    CHAPTER_TYPE = ((0, "page"), (1, "folder"), (2, "questions"))
+    parent_chapter = models.ForeignKey("self", on_delete=models.CASCADE, null=True)
+    resource = models.ForeignKey(
+        Resource, on_delete=models.CASCADE, related_name="chapters", null=True
     )
-    parent_chapter = models.ForeignKey('self', on_delete=models.CASCADE, null=True)
-    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name='chapters', null=True)
     name = models.CharField(max_length=240)
     content = models.ManyToManyField(Content)
     type = models.IntegerField(choices=CHAPTER_TYPE)
@@ -66,16 +91,12 @@ class Chapter(models.Model):
     def slack_menu_item(self):
         name = self.name
         if len(name) > 75:
-            name = name[:70] + '...'
+            name = name[:70] + "..."
         if self.parent_chapter is not None:
-            name = '- ' + name
+            name = "- " + name
         return {
-            "text": {
-                "type": "plain_text",
-                "text": name,
-                "emoji": True
-            },
-            "value": str(self.id)
+            "text": {"type": "plain_text", "text": name, "emoji": True},
+            "value": str(self.id),
         }
 
 

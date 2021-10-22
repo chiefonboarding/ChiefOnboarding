@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sequences', '0002_auto_20200606_2014'),
+        ("sequences", "0002_auto_20200606_2014"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='externalmessage',
-            name='content_json',
+            model_name="externalmessage",
+            name="content_json",
         ),
     ]

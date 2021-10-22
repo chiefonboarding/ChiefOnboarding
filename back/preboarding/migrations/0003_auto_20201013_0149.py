@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('preboarding', '0002_remove_preboarding_to_do'),
+        ("preboarding", "0002_remove_preboarding_to_do"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='preboarding',
-            name='form',
+            model_name="preboarding",
+            name="form",
             field=models.JSONField(blank=True, null=True),
         ),
     ]

@@ -1,19 +1,19 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from .models import ResourceUser, NewHireWelcomeMessage, OTPRecoveryKey
-from appointments.serializers import AppointmentSerializer
-from preboarding.serializers import PreboardingSerializer
-from resources.serializers import ResourceSerializer
-from to_do.serializers import ToDoSerializer
-from introductions.serializers import IntroductionSerializer
-from badges.serializers import BadgeSerializer
-from misc.serializers import FileSerializer
-from misc.models import File
-from resources.models import Resource
 
-from resources.serializers import CourseAnswerSerializer, ChapterCourseSerializer
-from resources.serializers import ChapterSerializer
+from appointments.serializers import AppointmentSerializer
+from badges.serializers import BadgeSerializer
+from introductions.serializers import IntroductionSerializer
+from misc.models import File
+from misc.serializers import FileSerializer
+from preboarding.serializers import PreboardingSerializer
+from resources.models import Resource
+from resources.serializers import (ChapterCourseSerializer, ChapterSerializer,
+                                   CourseAnswerSerializer, ResourceSerializer)
+from to_do.serializers import ToDoSerializer
+
+from .models import NewHireWelcomeMessage, OTPRecoveryKey, ResourceUser
 
 
 class BaseUserSerializer(serializers.ModelSerializer):
@@ -27,7 +27,9 @@ class BaseUserSerializer(serializers.ModelSerializer):
     slack_channel_id = serializers.CharField(read_only=True)
 
     def validate(self, value):
-        users_with_same_email = get_user_model().objects.filter(email=value['email'].lower().strip())
+        users_with_same_email = get_user_model().objects.filter(
+            email=value["email"].lower().strip()
+        )
         if self.instance:
             users_with_same_email = users_with_same_email.exclude(id=self.instance.id)
         if users_with_same_email.exists():
@@ -36,11 +38,19 @@ class BaseUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        exclude = ('conditions', 'preboarding', 'appointments', 'introductions', 'to_do', 'resources', 'badges')
+        exclude = (
+            "conditions",
+            "preboarding",
+            "appointments",
+            "introductions",
+            "to_do",
+            "resources",
+            "badges",
+        )
         # fields = '__all__'
 
     def get_full_name(self, obj):
-        return obj.first_name + ' ' + obj.last_name
+        return obj.first_name + " " + obj.last_name
 
     def get_has_to_do(self, obj):
         return obj.to_do.count() > 0
@@ -50,7 +60,7 @@ class BaseUserSerializer(serializers.ModelSerializer):
 
 
 class NewHireSerializer(BaseUserSerializer):
-    search_type = serializers.CharField(default='new_hire', read_only=True)
+    search_type = serializers.CharField(default="new_hire", read_only=True)
     role = serializers.IntegerField(read_only=True)
     # badges = BadgeSerializer(read_only=True, many=True)
 
@@ -60,42 +70,60 @@ class NewHireSerializer(BaseUserSerializer):
 
 
 class AdminSerializer(BaseUserSerializer):
-    search_type = serializers.CharField(default='admin', read_only=True)
+    search_type = serializers.CharField(default="admin", read_only=True)
     seen_updates = serializers.DateField(read_only=True)
     requires_otp = serializers.BooleanField(read_only=True)
 
+
 class EmployeeSerializer(BaseUserSerializer):
-    search_type = serializers.CharField(default='employee', read_only=True)
+    search_type = serializers.CharField(default="employee", read_only=True)
     slack_loading = serializers.BooleanField(default=False, read_only=True)
     email_loading = serializers.BooleanField(default=False, read_only=True)
-    role = serializers.IntegerField(default='3', read_only=True)
+    role = serializers.IntegerField(default="3", read_only=True)
     name = serializers.SerializerMethodField()
     has_pwd = serializers.SerializerMethodField()
     profile_image = FileSerializer(read_only=True)
     profile_image_id = serializers.PrimaryKeyRelatedField(
-        source='profile_image',
-        queryset=File.objects.all(),
-        required=False
+        source="profile_image", queryset=File.objects.all(), required=False
     )
 
     class Meta:
         model = get_user_model()
-        fields = ('id', 'first_name', 'last_name', 'email', 'position', 'phone', 'full_name', 'slack_user_id',
-                  'has_pwd', 'search_type', 'twitter', 'facebook', 'linkedin', 'message', 'profile_image',
-                  'profile_image_id', 'name', 'role', 'slack_loading', 'email_loading', 'department')
+        fields = (
+            "id",
+            "first_name",
+            "last_name",
+            "email",
+            "position",
+            "phone",
+            "full_name",
+            "slack_user_id",
+            "has_pwd",
+            "search_type",
+            "twitter",
+            "facebook",
+            "linkedin",
+            "message",
+            "profile_image",
+            "profile_image_id",
+            "name",
+            "role",
+            "slack_loading",
+            "email_loading",
+            "department",
+        )
 
     def get_has_pwd(self, obj):
-        return obj.password != ''
+        return obj.password != ""
 
     def get_name(self, obj):
-        return obj.first_name + ' ' + obj.last_name
+        return obj.first_name + " " + obj.last_name
 
 
 class UserLanguageSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = get_user_model()
-        fields = ('language',)
+        fields = ("language",)
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -107,7 +135,7 @@ class TaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ('preboarding', 'to_do', 'resources', 'introductions', 'appointments')
+        fields = ("preboarding", "to_do", "resources", "introductions", "appointments")
 
 
 class ResourceProgressSerializer(serializers.ModelSerializer):
@@ -116,7 +144,7 @@ class ResourceProgressSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Resource
-        fields = ('amount_resources', 'name', 'resources')
+        fields = ("amount_resources", "name", "resources")
 
     def get_amount_resources(self, obj):
         return obj.chapters.count()
@@ -128,7 +156,7 @@ class NewHireProgressResourceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ResourceUser
-        fields = ('id', 'resource', 'step', 'answers', 'reminded', 'completed_course')
+        fields = ("id", "resource", "step", "answers", "reminded", "completed_course")
 
 
 class NewHireWelcomeMessageSerializer(serializers.ModelSerializer):
@@ -136,11 +164,10 @@ class NewHireWelcomeMessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = NewHireWelcomeMessage
-        fields = ('id', 'colleague', 'message')
+        fields = ("id", "colleague", "message")
 
 
 class OTPRecoveryKeySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = OTPRecoveryKey
-        fields = ('key', 'is_used')
+        fields = ("key", "is_used")

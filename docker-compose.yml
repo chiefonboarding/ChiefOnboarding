@@ -21,7 +21,7 @@ services:
       dockerfile: ./Dockerfile-dev
       context: ./back/
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     environment:
       - DEBUG=True
       - SECRET_KEY=somethingsupersecret
@@ -42,10 +42,10 @@ services:
     environment:
       - HOST=0.0.0.0
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     volumes:
       - ./front:/app
-    command: bash -c "cd /app && npm install && cd /app/node_modules/fibers/ && npm install && cd /app && npm install -g nuxt && npm run dev"
+    command: bash -c "cd /app && npm run dev"
     networks:
       - global
 

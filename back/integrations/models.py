@@ -1,22 +1,19 @@
 from __future__ import unicode_literals
 
+import uuid
+
 from django.conf import settings
 from django.db import models
 from fernet_fields import EncryptedTextField
-import uuid
 
 # Create your models here.
 INTEGRATION_OPTIONS = (
-    (0, 'Slack'),
-    (1, 'Slack Account'),
-    (2, 'Google'),
-    (3, 'Google Login')
+    (0, "Slack"),
+    (1, "Slack Account"),
+    (2, "Google"),
+    (3, "Google Login"),
 )
-STATUS = (
-    (0, 'pending'),
-    (1, 'completed'),
-    (2, 'waiting on user')
-)
+STATUS = ((0, "pending"), (1, "completed"), (2, "waiting on user"))
 
 
 class AccessToken(models.Model):
@@ -30,7 +27,9 @@ class AccessToken(models.Model):
     active = models.BooleanField(default=True)
     ttl = models.IntegerField(null=True, blank=True)
     expiring = models.DateTimeField(null=True, blank=True)
-    one_time_auth_code = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    one_time_auth_code = models.UUIDField(
+        default=uuid.uuid4, editable=False, unique=True
+    )
 
     # Slack
     app_id = models.CharField(max_length=100, null=True)

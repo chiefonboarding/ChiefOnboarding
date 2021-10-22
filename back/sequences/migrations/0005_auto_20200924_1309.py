@@ -6,13 +6,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sequences', '0004_externalmessage_content_json'),
+        ("sequences", "0004_externalmessage_content_json"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='externalmessage',
-            name='person_type',
-            field=models.IntegerField(choices=[(0, 'New hire'), (1, 'Manager'), (2, 'Buddy'), (3, 'custom')], default=1),
+            model_name="externalmessage",
+            name="person_type",
+            field=models.IntegerField(
+                choices=[(0, "New hire"), (1, "Manager"), (2, "Buddy"), (3, "custom")],
+                default=1,
+            ),
         ),
     ]

@@ -1,16 +1,21 @@
-from rest_framework.response import Response
-from rest_framework import status
-from .models import AdminTask
-from rest_framework import viewsets
-from users import permissions
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.response import Response
 
-from .serializers import CommentPostSerializer, AdminTaskSerializer, CommentSerializer
+from users import permissions
+
+from .models import AdminTask
+from .serializers import (AdminTaskSerializer, CommentPostSerializer,
+                          CommentSerializer)
 
 
 class AdminTaskViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.ManagerPermission,)
-    queryset = AdminTask.objects.all().select_related('new_hire', 'assigned_to').prefetch_related('comment')
+    queryset = (
+        AdminTask.objects.all()
+        .select_related("new_hire", "assigned_to")
+        .prefetch_related("comment")
+    )
     serializer_class = AdminTaskSerializer
 
     def create(self, request):
@@ -18,14 +23,14 @@ class AdminTaskViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         admin_task = serializer.save()
 
-        if 'comment' in request.data:
-            comment = CommentPostSerializer(data={'content': request.data['comment']})
+        if "comment" in request.data:
+            comment = CommentPostSerializer(data={"content": request.data["comment"]})
             if comment.is_valid():
                 comment.save(admin_task=admin_task, comment_by=request.user)
 
         if request.user != admin_task.assigned_to:
             admin_task.send_notification_new_assigned()
-        return Response({'id': admin_task.id}, status=status.HTTP_201_CREATED)
+        return Response({"id": admin_task.id}, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -45,9 +50,9 @@ class AdminTaskViewSet(viewsets.ModelViewSet):
         task = self.get_object()
         task.completed = not task.completed
         task.save()
-        return Response({'completed': task.completed})
+        return Response({"completed": task.completed})
 
-    @action(detail=True, methods=['POST'])
+    @action(detail=True, methods=["POST"])
     def add_comment(self, request, pk):
         task = self.get_object()
         serializer = CommentPostSerializer(data=request.data)
@@ -56,12 +61,17 @@ class AdminTaskViewSet(viewsets.ModelViewSet):
         comment = CommentSerializer(task.comment.last())
         return Response(comment.data)
 
-    @action(detail=False, methods=['GET'])
+    @action(detail=False, methods=["GET"])
     def done(self, request):
-        tasks = self.get_serializer(self.get_queryset().filter(completed=True), many=True)
+        tasks = self.get_serializer(
+            self.get_queryset().filter(completed=True), many=True
+        )
         return Response(tasks.data)
 
-    @action(detail=False, methods=['GET'])
+    @action(detail=False, methods=["GET"])
     def done_by_user(self, request):
-        tasks = self.get_serializer(self.get_queryset().filter(completed=True, assigned_to=request.user), many=True)
+        tasks = self.get_serializer(
+            self.get_queryset().filter(completed=True, assigned_to=request.user),
+            many=True,
+        )
         return Response(tasks.data)

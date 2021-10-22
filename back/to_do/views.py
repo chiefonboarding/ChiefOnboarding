@@ -1,4 +1,3 @@
-
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -11,11 +10,11 @@ class ToDoViewSet(viewsets.ModelViewSet):
     serializer_class = ToDoSerializer
 
     def get_queryset(self):
-        if self.action == 'list':
-            return ToDo.templates.all().prefetch_related('content').order_by('id')
-        return ToDo.objects.all().prefetch_related('content').order_by('id')
+        if self.action == "list":
+            return ToDo.templates.all().prefetch_related("content").order_by("id")
+        return ToDo.objects.all().prefetch_related("content").order_by("id")
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=["post"])
     def duplicate(self, request, pk):
         obj = self.get_object()
         obj.pk = None
@@ -23,4 +22,3 @@ class ToDoViewSet(viewsets.ModelViewSet):
         for i in ToDo.objects.get(pk=pk).content.all():
             obj.content.add(i)
         return Response()
-

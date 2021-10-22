@@ -1,13 +1,14 @@
-FROM python:3.7
+FROM python:3.9
 RUN apt-get update
 RUN mkdir /var/run/supervisord
 RUN mkdir /var/log/supervisord
-RUN apt-get install -y supervisor
+RUN apt-get install -y supervisor pipenv
+
 ENV PYTHONUNBUFFERED 1
 RUN mkdir -p /app
 WORKDIR /app
 COPY ./back/ .
 COPY ./back/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-RUN pip install -r requirements.txt
+RUN pipenv install --system
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

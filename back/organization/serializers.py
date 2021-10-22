@@ -1,10 +1,12 @@
+from django.conf import settings
 from rest_framework import serializers
-from .models import Organization, Tag, WelcomeMessage
+
 from integrations.models import AccessToken
 from misc.serializers import FileSerializer
-from django.conf import settings
 from sequences.models import Sequence
 from sequences.serializers import SequenceListSerializer
+
+from .models import Organization, Tag, WelcomeMessage
 
 
 class BaseOrganizationSerializer(serializers.ModelSerializer):
@@ -19,10 +21,27 @@ class BaseOrganizationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Organization
-        fields = ('name', 'timezone', 'language', 'base_color', 'accent_color', 'credentials_login',
-                  'google_login', 'slack_login', 'slack_key', 'slack_account_key', 'google_key', 'google_login_key',
-                  'logo', 'google_login_client_id', 'base_url', 'auto_create_user', 'create_new_hire_without_confirm',
-                  'slack_confirm_person', 'auto_add_sequence')
+        fields = (
+            "name",
+            "timezone",
+            "language",
+            "base_color",
+            "accent_color",
+            "credentials_login",
+            "google_login",
+            "slack_login",
+            "slack_key",
+            "slack_account_key",
+            "google_key",
+            "google_login_key",
+            "logo",
+            "google_login_client_id",
+            "base_url",
+            "auto_create_user",
+            "create_new_hire_without_confirm",
+            "slack_confirm_person",
+            "auto_add_sequence",
+        )
 
     def get_slack_key(self, obj):
         return AccessToken.objects.filter(integration=0, active=True).exists()
@@ -42,14 +61,14 @@ class BaseOrganizationSerializer(serializers.ModelSerializer):
     def get_google_login_client_id(self, obj):
         if AccessToken.objects.filter(integration=3, active=True).exists():
             return AccessToken.objects.get(integration=3).client_id
-        return ''
+        return ""
 
     def get_auto_add_sequence(self, obj):
-        return Sequence.objects.filter(auto_add=True).values_list('id', flat=True)
+        return Sequence.objects.filter(auto_add=True).values_list("id", flat=True)
 
     def get_logo(self, obj):
         if obj.logo is None:
-            return ''
+            return ""
         return obj.logo.get_url()
 
 
@@ -58,26 +77,36 @@ class DetailOrganizationSerializer(BaseOrganizationSerializer):
 
     class Meta:
         model = Organization
-        fields = '__all__'
+        fields = "__all__"
 
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = ('name',)
+        fields = ("name",)
 
 
 class WelcomeMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = WelcomeMessage
-        fields = '__all__'
+        fields = "__all__"
 
 
 class ExportSerializer(serializers.Serializer):
     export_model = serializers.CharField(max_length=200)
 
     def validate_export_model(self, value):
-        options = ['preboarding', 'badges', 'to_do', 'resources', 'introductions', 'sequences', 'users', 'admin_tasks', 'appointments']
+        options = [
+            "preboarding",
+            "badges",
+            "to_do",
+            "resources",
+            "introductions",
+            "sequences",
+            "users",
+            "admin_tasks",
+            "appointments",
+        ]
         if value not in options:
-            raise serializers.ValidationError('Not a valid option')
+            raise serializers.ValidationError("Not a valid option")
         return value

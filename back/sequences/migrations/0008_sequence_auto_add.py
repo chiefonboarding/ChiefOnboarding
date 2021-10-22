@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sequences', '0007_remove_sequence_introductions'),
+        ("sequences", "0007_remove_sequence_introductions"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='sequence',
-            name='auto_add',
+            model_name="sequence",
+            name="auto_add",
             field=models.BooleanField(default=False),
         ),
     ]

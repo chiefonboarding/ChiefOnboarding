@@ -1,0 +1,35 @@
+{% extends 'no_login_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="text-center mb-4">
+  <a href="."><img src="./static/logo.svg" height="36" alt=""></a>
+</div>
+<form class="card card-md" method="post">
+  {% csrf_token %}
+  <div class="card-body">
+    <div class="mb-2">
+      {{ form|crispy }}
+    </div>
+    <div class="form-footer">
+      <button type="submit" class="btn btn-primary w-100">Log in</button>
+    </div>
+  </div>
+  <div class="hr-text">or</div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col"><a href="#" class="btn btn-white w-100">
+          <!-- Download SVG icon from http://tabler-icons.io/i/brand-github -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-google" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M17.788 5.108a9 9 0 1 0 3.212 6.892h-8"/>
+          </svg>
+          Log in with Google
+        </a></div>
+    </div>
+  </div>
+</form>
+<div class="text-center text-muted mt-3">
+  <a href="{% url 'password-reset' %}" tabindex="-1">Forgot password?</a>
+</div>
+{% endblock %}

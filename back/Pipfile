@@ -1,0 +1,40 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+boto3 = "*"
+crispy-bootstrap5 = "*"
+Django = "*"
+django-anymail = "*"
+django-axes = "*"
+django-cors-headers = "*"
+django-crispy-forms  = "*"
+django-environ = "*"
+django-fernet-fields = "*"
+django-q = "*"
+djangorestframework = "*"
+gunicorn = "*"
+psycopg2-binary = "*"
+pyotp = "*"
+requests = "*"
+sentry-sdk = "*"
+sparkpost = "*"
+twilio = "*"
+whitenoise = "*"
+django-q-sentry = "*"
+croniter = "*"
+slack-sdk = "*"
+
+[dev-packages]
+coverage = "*"
+pytest = "*"
+pytest-cov = "*"
+pytest-django = "*"
+flake8 = "*"
+black = "==21.9b0" # fixed due to pre release
+isort = "*"
+
+[requires]
+python_version = "3.9.7"

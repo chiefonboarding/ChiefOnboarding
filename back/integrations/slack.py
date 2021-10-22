@@ -1,25 +1,29 @@
+import json
 import os
-import slack
+
+import requests
+import slack_sdk as slack
 from django.contrib.auth import get_user_model
 
 from .emails import slack_error_email
 from .models import AccessToken
-import json
-import requests
 
 
 class Error(Exception):
     """Base class for other exceptions"""
+
     pass
 
 
 class PaidOnlyError(Error):
     """Raised when the input value is too small"""
+
     pass
 
 
 class UnauthorizedError(Error):
     """Raised when the input value is too small"""
+
     pass
 
 
@@ -41,13 +45,22 @@ class Slack:
 
     def add_user(self, email):
         r = requests.get(
-            "https://slack.com/api/users.admin.invite?token=" + self.record.token + "&email=" + email)
-        if r.json()['ok']:
+            "https://slack.com/api/users.admin.invite?token="
+            + self.record.token
+            + "&email="
+            + email
+        )
+        if r.json()["ok"]:
             return
-        elif 'error' in r.json() and (r.json()['error'] == 'already_in_team' or r.json()['error'] == 'already_invited'):
+        elif "error" in r.json() and (
+            r.json()["error"] == "already_in_team"
+            or r.json()["error"] == "already_invited"
+        ):
             return
-        elif 'error' in r.json() and r.json()['error'] == 'token_revoked':
-            slack_error_email(get_user_model().objects.filter(role=1).order_by('date_joined').first())
+        elif "error" in r.json() and r.json()["error"] == "token_revoked":
+            slack_error_email(
+                get_user_model().objects.filter(role=1).order_by("date_joined").first()
+            )
             self.record.active = False
             self.record.save()
             raise UnauthorizedError
@@ -55,13 +68,17 @@ class Slack:
 
     def delete_user(self, email):
         response = requests.get(
-            "https://slack.com/api/users.admin.setInactive?token=" + self.record.token + "&user=" + email)
-        if response.json()['ok']:
+            "https://slack.com/api/users.admin.setInactive?token="
+            + self.record.token
+            + "&user="
+            + email
+        )
+        if response.json()["ok"]:
             return True
         else:
-            if response.json()['error'] == 'paid_only':
+            if response.json()["error"] == "paid_only":
                 raise PaidOnlyError
-            elif response.json()['error'] == 'not_found':
+            elif response.json()["error"] == "not_found":
                 return True
             else:
                 raise Error

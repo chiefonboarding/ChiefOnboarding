@@ -1,6 +1,8 @@
 from rest_framework import serializers
+
+from users.serializers import AdminSerializer, NewHireSerializer
+
 from .models import Note
-from users.serializers import NewHireSerializer, AdminSerializer
 
 
 class NoteSerializer(serializers.ModelSerializer):
@@ -9,4 +11,4 @@ class NoteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Note
-        fields = '__all__'
+        fields = "__all__"

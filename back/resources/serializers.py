@@ -1,17 +1,17 @@
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
+
 from misc.fields import ContentField
 from misc.serializers import ContentCourseSerializer
 
-
 from .fields import CategoryField
-from .models import Resource, Chapter, Category, CourseAnswer
+from .models import Category, Chapter, CourseAnswer, Resource
 
 
 class CategorySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = "__all__"
 
 
 class ChapterSerializer(serializers.HyperlinkedModelSerializer):
@@ -20,7 +20,7 @@ class ChapterSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Chapter
-        fields = ('id', 'name', 'content', 'type', 'parent_chapter')
+        fields = ("id", "name", "content", "type", "parent_chapter")
 
 
 class ChapterCourseSerializer(ChapterSerializer):
@@ -28,7 +28,7 @@ class ChapterCourseSerializer(ChapterSerializer):
 
     class Meta:
         model = Chapter
-        fields = ('id', 'name', 'content', 'type', 'parent_chapter')
+        fields = ("id", "name", "content", "type", "parent_chapter")
 
 
 class CourseAnswerSerializer(serializers.ModelSerializer):
@@ -36,11 +36,11 @@ class CourseAnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CourseAnswer
-        fields = '__all__'
+        fields = "__all__"
 
 
 class ResourceSerializer(serializers.HyperlinkedModelSerializer):
-    search_type = serializers.CharField(default='resource', read_only=True)
+    search_type = serializers.CharField(default="resource", read_only=True)
     id = serializers.IntegerField(required=False)
     category = CategoryField(allow_null=True)
 
@@ -48,8 +48,17 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Resource
-        fields = ('id', 'name', 'category', 'course', 'search_type',
-                  'on_day', 'tags', 'remove_on_complete', 'chapters')
+        fields = (
+            "id",
+            "name",
+            "category",
+            "course",
+            "search_type",
+            "on_day",
+            "tags",
+            "remove_on_complete",
+            "chapters",
+        )
 
 
 class ResourceCourseSerializer(ResourceSerializer):
@@ -57,8 +66,16 @@ class ResourceCourseSerializer(ResourceSerializer):
 
     class Meta:
         model = Resource
-        fields = ('id', 'name', 'category', 'course',
-                  'on_day', 'tags', 'remove_on_complete', 'chapters')
+        fields = (
+            "id",
+            "name",
+            "category",
+            "course",
+            "on_day",
+            "tags",
+            "remove_on_complete",
+            "chapters",
+        )
 
 
 class ResourceSlimSerializer(serializers.HyperlinkedModelSerializer):
@@ -66,4 +83,4 @@ class ResourceSlimSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Resource
-        fields = ('id', 'name')
+        fields = ("id", "name")

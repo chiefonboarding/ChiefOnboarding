@@ -6,18 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0002_auto_20200924_2002'),
+        ("users", "0002_auto_20200924_2002"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='preboardinguser',
-            name='form',
-            field=models.JSONField(default=list, verbose_name=models.TextField(default='[]', max_length=100000)),
+            model_name="preboardinguser",
+            name="form",
+            field=models.JSONField(
+                default=list,
+                verbose_name=models.TextField(default="[]", max_length=100000),
+            ),
         ),
         migrations.AlterField(
-            model_name='todouser',
-            name='form',
-            field=models.JSONField(default=list, verbose_name=models.TextField(default='[]')),
+            model_name="todouser",
+            name="form",
+            field=models.JSONField(
+                default=list, verbose_name=models.TextField(default="[]")
+            ),
         ),
     ]

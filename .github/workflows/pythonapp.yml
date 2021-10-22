@@ -31,8 +31,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install wheel
-        pip install -r requirements.txt
+        pipenv install --dev --system
         pip install pytest
     - name: Run migrations
       run: |
@@ -40,6 +39,12 @@ jobs:
         mv back/.env.example back/.env
         sed -i "s/db:5432/127.0.0.1:5432/" back/.env
         python manage.py migrate
+    - name: Check formatting flake8/black/isort
+      run: |
+        cd back
+        flake8 .
+        isort . -c
+        black --check .
     - name: Test with pytest
       run: |
         cd back

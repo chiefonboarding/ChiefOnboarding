@@ -1,21 +1,21 @@
+from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+
 from misc.models import File
-from django.conf import settings
 
 LANGUAGES_OPTIONS = (
-    ('en', 'English'),
-    ('nl', 'Dutch'),
-    ('fr', 'French'),
-    ('de', 'Deutsch'),
-    ('tr', 'Turkish'),
-    ('pt', 'Portuguese'),
-    ('es', 'Spanish')
+    ("en", "English"),
+    ("nl", "Dutch"),
+    ("fr", "French"),
+    ("de", "Deutsch"),
+    ("tr", "Turkish"),
+    ("pt", "Portuguese"),
+    ("es", "Spanish"),
 )
 
 
 class ObjectManager(models.Manager):
-
     def get(self):
         return self.get_queryset()[0]
 
@@ -47,7 +47,9 @@ class Organization(models.Model):
     send_new_hire_start_reminder = models.BooleanField(default=False)
     auto_create_user = models.BooleanField(default=False)
     create_new_hire_without_confirm = models.BooleanField(default=False)
-    slack_confirm_person = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    slack_confirm_person = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL
+    )
 
     object = ObjectManager()
     objects = models.Manager()
@@ -59,15 +61,15 @@ class Tag(models.Model):
 
 class WelcomeMessage(models.Model):
     MESSAGE_TYPE = (
-        (0, 'pre-boarding'),
-        (1, 'new hire welcome'),
-        (2, 'text welcome'),
-        (3, 'slack welcome'),
-        (4, 'slack knowledge')
+        (0, "pre-boarding"),
+        (1, "new hire welcome"),
+        (2, "text welcome"),
+        (3, "slack welcome"),
+        (4, "slack knowledge"),
     )
 
     message = models.CharField(max_length=20250, blank=True)
-    language = models.CharField(choices=LANGUAGES_OPTIONS, max_length=3, default='en')
+    language = models.CharField(choices=LANGUAGES_OPTIONS, max_length=3, default="en")
     message_type = models.IntegerField(choices=MESSAGE_TYPE, default=0)
 
 
@@ -75,13 +77,20 @@ class TemplateManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(template=True)
 
+
 class FullManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().prefetch_related('content__files')
+        return super().get_queryset().prefetch_related("content__files")
+
 
 class FullTemplateManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().prefetch_related('content__files').filter(template=True)
+        return (
+            super()
+            .get_queryset()
+            .prefetch_related("content__files")
+            .filter(template=True)
+        )
 
 
 class BaseTemplate(models.Model):
@@ -102,6 +111,6 @@ class BaseTemplate(models.Model):
             self.tags = []
         else:
             for i in self.tags:
-                if i != '':
+                if i != "":
                     Tag.objects.get_or_create(name=i)
         super(BaseTemplate, self).save(*args, **kwargs)

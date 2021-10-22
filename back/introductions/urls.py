@@ -1,10 +1,11 @@
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework import routers
+
 from . import views
 
 router = routers.DefaultRouter(trailing_slash=False)
-router.register('introduction', views.IntroductionViewSet, 'introduction')
+router.register("introduction", views.IntroductionViewSet, "introduction")
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path("", include(router.urls)),
 ]

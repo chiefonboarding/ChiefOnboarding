@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sequences', '0008_sequence_auto_add'),
+        ("sequences", "0008_sequence_auto_add"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='externalmessage',
-            name='subject',
-            field=models.CharField(blank=True, default='Here is an update!', max_length=78),
+            model_name="externalmessage",
+            name="subject",
+            field=models.CharField(
+                blank=True, default="Here is an update!", max_length=78
+            ),
         ),
     ]

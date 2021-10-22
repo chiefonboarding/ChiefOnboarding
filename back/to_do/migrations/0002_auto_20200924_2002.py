@@ -7,19 +7,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('to_do', '0001_initial'),
+        ("to_do", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='todo',
-            name='channel',
-            field=models.TextField(blank=True, default=''),
+            model_name="todo",
+            name="channel",
+            field=models.TextField(blank=True, default=""),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='todo',
-            name='form',
-            field=django.contrib.postgres.fields.jsonb.JSONField(verbose_name=models.TextField(default='[]')),
+            model_name="todo",
+            name="form",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                verbose_name=models.TextField(default="[]")
+            ),
         ),
     ]
