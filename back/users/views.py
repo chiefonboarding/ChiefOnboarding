@@ -16,25 +16,25 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from twilio.rest import Client
 
-from appointments.serializers import AppointmentSerializer
-from integrations.google import Google
-from integrations.models import ScheduledAccess
-from integrations.slack import Error, PaidOnlyError, Slack
-from introductions.serializers import IntroductionSerializer
+from admin.appointments.serializers import AppointmentSerializer
+from admin.integrations.google import Google
+from admin.integrations.models import ScheduledAccess
+from admin.integrations.slack import Error, PaidOnlyError, Slack
+from admin.introductions.serializers import IntroductionSerializer
 from new_hire.serializers import (NewHireResourceItemSerializer,
                                   PreboardingUserSerializer,
                                   ToDoUserSerializer)
-from notes.models import Note
-from notes.serializers import NoteSerializer
+from admin.notes.models import Note
+from admin.notes.serializers import NoteSerializer
 from organization.models import Organization, WelcomeMessage
-from preboarding.models import Preboarding
-from resources.models import Resource
-from resources.serializers import ResourceSlimSerializer
-from sequences.models import Condition, Sequence
-from sequences.serializers import ConditionSerializer
-from sequences.utils import get_task_items
+from admin.preboarding.models import Preboarding
+from admin.resources.models import Resource
+from admin.resources.serializers import ResourceSlimSerializer
+from admin.sequences.models import Condition, Sequence
+from admin.sequences.serializers import ConditionSerializer
+from admin.sequences.utils import get_task_items
 from slack_bot.slack import Slack as SlackBot
-from to_do.serializers import ToDoFormSerializer
+from admin.to_do.serializers import ToDoFormSerializer
 
 from .emails import (email_new_admin_cred, email_reopen_task,
                      send_new_hire_cred, send_new_hire_preboarding,

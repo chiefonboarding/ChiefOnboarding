@@ -12,15 +12,16 @@ from django.db.models import Q
 from django.template import Context, Template
 from django.utils.crypto import get_random_string
 from fernet_fields import EncryptedTextField
+from django.utils.functional import cached_property
 
-from appointments.models import Appointment
-from badges.models import Badge
-from introductions.models import Introduction
+from admin.appointments.models import Appointment
+from admin.badges.models import Badge
+from admin.introductions.models import Introduction
 from misc.models import File
-from preboarding.models import Preboarding
-from resources.models import CourseAnswer, Resource
-from sequences.models import Condition
-from to_do.models import ToDo
+from admin.preboarding.models import Preboarding
+from admin.resources.models import CourseAnswer, Resource
+from admin.sequences.models import Condition
+from admin.to_do.models import ToDo
 
 LANGUAGE_CHOICES = (
     ("en", "English"),
@@ -32,7 +33,7 @@ LANGUAGE_CHOICES = (
     ("es", "Spanish"),
 )
 
-ROLE_CHOICES = ((0, "New Hire"), (1, "Admin"), (2, "Manager"), (3, "Other"))
+ROLE_CHOICES = ((0, "New Hire"), (1, "Administrator"), (2, "Manager"), (3, "Other"))
 
 
 class CustomUserManager(BaseUserManager):
@@ -97,10 +98,10 @@ class User(AbstractBaseUser):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
-    position = models.CharField(max_length=300, null=True, blank=True)
-    phone = models.CharField(max_length=300, null=True, blank=True)
-    slack_user_id = models.CharField(max_length=100, null=True, blank=True)
-    slack_channel_id = models.CharField(max_length=100, null=True, blank=True)
+    position = models.CharField(max_length=300, default="", blank=True)
+    phone = models.CharField(max_length=300, default="", blank=True)
+    slack_user_id = models.CharField(max_length=100, default="", blank=True)
+    slack_channel_id = models.CharField(max_length=100, default="", blank=True)
     message = models.TextField(default="", blank=True)
     profile_image = models.ForeignKey(File, on_delete=models.CASCADE, null=True)
     linkedin = models.CharField(default="", max_length=100, blank=True)
@@ -144,8 +145,17 @@ class User(AbstractBaseUser):
     admins = AdminManager()
     ordering = ("first_name",)
 
+    @cached_property
     def full_name(self):
-        return "%s %s" % (self.first_name, self.last_name)
+        return f"{self.first_name} {self.last_name}"
+
+    @cached_property
+    def initials(self):
+        return f"{self.first_name[0]} {self.last_name[0]}"
+
+    @cached_property
+    def progress(self):
+        return self.total_tasks - self.completed_tasks
 
     def has_perm(self, perm, obj=None):
         return self.is_staff
@@ -236,6 +246,9 @@ class User(AbstractBaseUser):
             otp_recovery_key.is_used = True
             otp_recovery_key.save()
         return otp_recovery_key
+
+    def is_admin_or_manager(self):
+        return self.role in (1, 2)
 
     def __str__(self):
         return "%s" % self.full_name()

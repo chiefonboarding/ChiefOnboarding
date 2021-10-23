@@ -2,16 +2,16 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from appointments.serializers import AppointmentSerializer
-from badges.serializers import BadgeSerializer
-from introductions.serializers import IntroductionSerializer
+from admin.appointments.serializers import AppointmentSerializer
+from admin.badges.serializers import BadgeSerializer
+from admin.introductions.serializers import IntroductionSerializer
 from misc.models import File
 from misc.serializers import FileSerializer
-from preboarding.serializers import PreboardingSerializer
-from resources.models import Resource
-from resources.serializers import (ChapterCourseSerializer, ChapterSerializer,
+from admin.preboarding.serializers import PreboardingSerializer
+from admin.resources.models import Resource
+from admin.resources.serializers import (ChapterCourseSerializer, ChapterSerializer,
                                    CourseAnswerSerializer, ResourceSerializer)
-from to_do.serializers import ToDoSerializer
+from admin.to_do.serializers import ToDoSerializer
 
 from .models import NewHireWelcomeMessage, OTPRecoveryKey, ResourceUser
 

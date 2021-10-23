@@ -1,14 +1,14 @@
 from rest_framework import serializers
 
-from badges.models import Badge
+from admin.badges.models import Badge
 from misc.fields import ContentField
 from misc.s3 import S3
-from preboarding.serializers import PreboardingSerializer
-from resources.models import Resource
-from resources.serializers import (ChapterSerializer, CourseAnswerSerializer,
+from admin.preboarding.serializers import PreboardingSerializer
+from admin.resources.models import Resource
+from admin.resources.serializers import (ChapterSerializer, CourseAnswerSerializer,
                                    ResourceCourseSerializer,
                                    ResourceSerializer)
-from to_do.models import ToDo
+from admin.to_do.models import ToDo
 from users.models import PreboardingUser, ResourceUser, ToDoUser
 
 

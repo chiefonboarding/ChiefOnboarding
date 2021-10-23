@@ -1,10 +1,10 @@
 from django.conf import settings
 from rest_framework import serializers
 
-from integrations.models import AccessToken
+from admin.integrations.models import AccessToken
 from misc.serializers import FileSerializer
-from sequences.models import Sequence
-from sequences.serializers import SequenceListSerializer
+from admin.sequences.models import Sequence
+from admin.sequences.serializers import SequenceListSerializer
 
 from .models import Organization, Tag, WelcomeMessage
 

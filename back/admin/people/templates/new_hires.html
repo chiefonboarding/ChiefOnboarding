@@ -1,0 +1,54 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+<div class="col-12">
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table card-table table-vcenter text-nowrap">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Start date</th>
+            <th>Position</th>
+            <th>Progress</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for new_hire in object_list %}
+          <tr>
+            <td>
+              <div class="d-flex py-1 align-items-center">
+                <span class="avatar me-2">{{ new_hire.initials }}</span>
+                <div class="flex-fill">
+                  <div class="font-weight-medium">{{ new_hire.full_name }}</div>
+                  <div class="text-muted">{{ new_hire.email }}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              {{ new_hire.start_day }}
+            </td>
+            <td>
+              {{ new_hire.position }}
+            </td>
+            <td>
+              <div class="progress mb-2">
+                <div class="progress-bar" role="progressbar" aria-valuenow="{{ new_hire.completed_tasks }}" aria-valuemin="0" aria-valuemax="{{ new_hire.total_tasks }}">
+                </div>
+              </div>
+            </td>
+            <td class="text-end">
+              <a href="#" class="btn btn-white">
+                View
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% include "_paginator.html" %}
+  </div>
+</div>
+{% endblock %}

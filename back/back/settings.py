@@ -43,7 +43,6 @@ if DEBUG:
 INSTALLED_APPS = [
     "users",
     "organization",
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -52,17 +51,18 @@ INSTALLED_APPS = [
     "rest_framework",
     "axes",
     "user_auth",
-    "notes",
-    "to_do",
-    "resources",
-    "introductions",
-    "admin_tasks",
-    "badges",
+    "admin.notes",
+    "admin.to_do",
+    "admin.resources",
+    "admin.introductions",
+    "admin.admin_tasks",
+    "admin.badges",
     "slack_bot",
-    "integrations",
-    "preboarding",
-    "appointments",
-    "sequences",
+    "admin.integrations",
+    "admin.preboarding",
+    "admin.appointments",
+    "admin.sequences",
+    "admin.people",
     "new_hire",
     "misc",
     "anymail",
@@ -77,7 +77,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-LOGIN_REDIRECT_URL = "redirect"
+LOGIN_REDIRECT_URL = "logged_in_user_redirect"
+LOGOUT_REDIRECT_URL = "login"
 
 if env("API_ACCESS", default=False):
     INSTALLED_APPS += ["rest_framework.authtoken"]

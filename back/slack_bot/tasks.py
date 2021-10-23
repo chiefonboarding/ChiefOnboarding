@@ -5,7 +5,7 @@ from django.utils import translation
 from django.utils.formats import localize
 from django.utils.translation import ugettext as _
 
-from integrations.models import AccessToken
+from admin.integrations.models import AccessToken
 from organization.models import Organization, WelcomeMessage
 from slack_bot.slack import Slack
 from users.models import ToDoUser

@@ -12810,3 +12810,6 @@ Antialiasing
 .asteriskField {
     display: none;
 }
+.table-responsive {
+  margin-bottom: 0px;
+}

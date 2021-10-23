@@ -5,10 +5,10 @@ from django.template import Context, Template
 from django.utils import translation
 from django.utils.translation import ugettext as _
 
-from integrations.models import AccessToken
-from introductions.models import Introduction
+from admin.integrations.models import AccessToken
+from admin.introductions.models import Introduction
 from organization.models import Organization
-from resources.models import Chapter
+from admin.resources.models import Chapter
 
 
 class Slack:

@@ -8,8 +8,8 @@ from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
 from rest_framework.views import APIView
 
-from badges.serializers import BadgeSerializer
-from introductions.serializers import IntroductionSerializer
+from admin.badges.serializers import BadgeSerializer
+from admin.introductions.serializers import IntroductionSerializer
 from new_hire.serializers import (NewHireBadgeSerializer,
                                   NewHireResourceItemSerializer,
                                   NewHireResourceSerializer,
@@ -17,10 +17,10 @@ from new_hire.serializers import (NewHireBadgeSerializer,
                                   ToDoUserSerializer)
 from organization.models import Organization
 from organization.serializers import BaseOrganizationSerializer
-from resources.models import Chapter, CourseAnswer
-from resources.serializers import ResourceSerializer
-from to_do.models import ToDo
-from to_do.serializers import ToDoSerializer
+from admin.resources.models import Chapter, CourseAnswer
+from admin.resources.serializers import ResourceSerializer
+from admin.to_do.models import ToDo
+from admin.to_do.serializers import ToDoSerializer
 from users.models import PreboardingUser, ResourceUser, ToDoUser, User
 from users.permissions import NewHirePermission
 from users.serializers import EmployeeSerializer, NewHireSerializer

@@ -13,7 +13,7 @@ from rest_framework.views import APIView
 
 from misc.models import File
 from misc.serializers import FileSerializer
-from sequences.models import Sequence
+from admin.sequences.models import Sequence
 from users.permissions import (AdminPermission, ManagerPermission,
                                NewHirePermission)
 

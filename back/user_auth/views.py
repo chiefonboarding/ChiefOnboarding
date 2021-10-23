@@ -12,7 +12,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from integrations.models import AccessToken
+from admin.integrations.models import AccessToken
 # from google_auth_oauthlib.flow import Flow
 from organization.models import Organization
 from users.serializers import NewHireSerializer
@@ -21,9 +21,9 @@ from .serializers import LoginSerializer
 
 
 def logged_in_user_redirect(request):
-    if request.user.is_admin:
-        return redirect("admin")
-    return redirect("portal")
+    print("got hererrr")
+    if request.user.is_admin_or_manager:
+        return redirect("people")
 
 
 class LoginView(APIView):

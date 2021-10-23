@@ -15,8 +15,8 @@ from resources.models import Category, Chapter
 from misc.serializers import ContentSerializer
 # from fuzzywuzzy import process
 from organization.models import Organization
-from resources.models import Category, Chapter, CourseAnswer
-from sequences.models import Sequence
+from admin.resources.models import Category, Chapter, CourseAnswer
+from admin.sequences.models import Sequence
 from users.models import NewHireWelcomeMessage, ResourceUser, ToDoUser, User
 
 from .slack import Slack

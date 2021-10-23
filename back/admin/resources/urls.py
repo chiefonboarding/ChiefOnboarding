@@ -1,0 +1,11 @@
+from django.urls import include, path
+from rest_framework import routers
+
+from admin.resources import views
+
+router = routers.DefaultRouter(trailing_slash=False)
+router.register("resource", views.ResourceViewSet, "resource")
+
+urlpatterns = [
+    path("", include(router.urls)),
+]
