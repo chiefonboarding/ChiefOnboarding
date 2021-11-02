@@ -22,7 +22,7 @@ spec:
       scope: RUN_AND_BUILD_TIME
       value: hello@chiefonboarding.com
     - key: DATABASE_URL
-      scope: RUN_AND_BUILD_TIME
+      scope: RUN_TIME
       value: ${DATABASE_URL}
     health_check:
       http_path: /health
