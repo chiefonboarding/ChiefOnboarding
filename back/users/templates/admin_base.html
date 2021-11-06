@@ -42,7 +42,7 @@
                 <li class="nav-item dropdown {% if 'people' in request.path %}active{% endif %}">
                   <a class="nav-link dropdown-toggle " href="#navbar-people" data-bs-toggle="dropdown" role="button" aria-expanded="false" >
                     <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/star -->
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-users" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="9" cy="7" r="4"></circle><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path><path d="M21 21v-2a4 4 0 0 0 -3 -3.85"></path></svg> </span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-users" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="9" cy="7" r="4"></circle><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path><path d="M21 21v-2a4 4 0 0 0 -3 -3.85"></path></svg> </span>
                     </span>
                     <span class="nav-link-title">
                       People
@@ -52,39 +52,39 @@
                     <a class="dropdown-item" href="{% url 'admin:new_hires' %}" >
                       New hires
                     </a>
-                    <a class="dropdown-item" href="./activity.html" >
-                      Colleagues
-                    </a>
+                      <a class="dropdown-item" href="./activity.html" >
+                        Colleagues
+                      </a>
                   </div>
                 </li>
-                <li class="nav-item dropdown">
+                <li class="nav-item dropdown {% if 'templates' in request.path %}active{% endif %}">
                   <a class="nav-link dropdown-toggle" href="#navbar-templates" data-bs-toggle="dropdown" role="button" aria-expanded="false" >
                     <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/star -->
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-box-multiple" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><rect x="7" y="3" width="14" height="14" rx="2"></rect><path d="M17 17v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h2"></path></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-box-multiple" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><rect x="7" y="3" width="14" height="14" rx="2"></rect><path d="M17 17v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h2"></path></svg>
                     </span>
                     <span class="nav-link-title">
                       Templates
                     </span>
                   </a>
                   <div class="dropdown-menu">
-                    <a class="dropdown-item" href="./activity.html" >
+                    <a class="dropdown-item" href="{% url "todo:list" %}" >
                       To do
                     </a>
-                    <a class="dropdown-item" href="./activity.html" >
-                      Resources
-                    </a>
-                    <a class="dropdown-item" href="./activity.html" >
-                      Introductions
-                    </a>
-                    <a class="dropdown-item" href="./activity.html" >
-                      Appointments
-                    </a>
-                    <a class="dropdown-item" href="./activity.html" >
-                      Preboarding
-                    </a>
-                    <a class="dropdown-item" href="./activity.html" >
-                      Badges
-                    </a>
+                      <a class="dropdown-item" href="./activity.html" >
+                        Resources
+                      </a>
+                        <a class="dropdown-item" href="./activity.html" >
+                          Introductions
+                        </a>
+                          <a class="dropdown-item" href="./activity.html" >
+                            Appointments
+                          </a>
+                            <a class="dropdown-item" href="./activity.html" >
+                              Preboarding
+                            </a>
+                              <a class="dropdown-item" href="./activity.html" >
+                                Badges
+                              </a>
                   </div>
                 </li>
                 <li class="nav-item">
@@ -100,7 +100,7 @@
                 <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" href="#navbar-tasks" data-bs-toggle="dropdown" role="button" aria-expanded="false" >
                     <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/star -->
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3.5 5.5l1.5 1.5l2.5 -2.5"></path><path d="M3.5 11.5l1.5 1.5l2.5 -2.5"></path><path d="M3.5 17.5l1.5 1.5l2.5 -2.5"></path><line x1="11" y1="6" x2="20" y2="6"></line><line x1="11" y1="12" x2="20" y2="12"></line><line x1="11" y1="18" x2="20" y2="18"></line></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3.5 5.5l1.5 1.5l2.5 -2.5"></path><path d="M3.5 11.5l1.5 1.5l2.5 -2.5"></path><path d="M3.5 17.5l1.5 1.5l2.5 -2.5"></path><line x1="11" y1="6" x2="20" y2="6"></line><line x1="11" y1="12" x2="20" y2="12"></line><line x1="11" y1="18" x2="20" y2="18"></line></svg>
                     </span>
                     <span class="nav-link-title">
                       Tasks
@@ -110,13 +110,13 @@
                     <a class="dropdown-item" href="./activity.html" >
                       Your tasks
                     </a>
-                    <a class="dropdown-item" href="./activity.html" >
-                      All tasks
-                    </a>
+                      <a class="dropdown-item" href="./activity.html" >
+                        All tasks
+                      </a>
                   </div>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="#" role="button" aria-expanded="false">
+                  <a class="nav-link" href="{% url 'settings:general' %}" role="button" aria-expanded="false">
                     <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/star -->
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-settings" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                     </span>
@@ -145,24 +145,31 @@
                 </div>
               </div>
               <!-- Page title actions -->
+              {% if add_action %}
               <div class="col-auto ms-auto d-print-none">
                 <div class="btn-list">
-                  {% block header_actions %}
-                    <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-report">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                      Add
-                    </a>
-                    <a href="#" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-report" aria-label="Create new report">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                    </a>
-                  {% endblock %}
+                  {% if add_action %}
+                  <a href="{{ add_action }}" class="btn btn-primary d-none d-sm-inline-block">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                    Add
+                  </a>
+                  <a href="#" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-report" aria-label="Create new report">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                  </a>
+                  {% endif %}
                 </div>
               </div>
+              {% endif %}
             </div>
           </div>
         </div>
         <div class="page-body">
           <div class="container-xl">
+            {% for message in messages %}
+            <div class="alert alert-success">
+              <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+            </div>
+            {% endfor %}
             {% block content %}
             {% endblock %}
           </div>
@@ -299,7 +306,191 @@
         </div>
       </div>
     </div>
-    {% block js %}{% endblock %}
+    {% block js %}
+
+    {% if False %}
+    <script type="module">
+      import { Editor } from 'https://cdn.skypack.dev/@tiptap/core?min';
+      import StarterKit from 'https://cdn.skypack.dev/@tiptap/starter-kit?min'
+      window.editor = new Editor({
+        element: document.querySelector('.element'),
+        extensions: [
+          StarterKit,
+        ],
+        content: "",
+      })
+    </script>
+    <script defer>
+      window.onload = function() {
+        const value = JSON.parse(document.getElementById('content_json').textContent);
+        function formatDataToEditorHTML () {
+          let html = ''
+          value.forEach(function(one) {
+            if (one.type === 'p' && one.content !== '') {
+              html += '<p>' + one.content + '</p>'
+            }
+            if (one.type === 'quote' && one.content !== '') {
+              html += '<blockquote>' + one.content + '</blockquote>'
+            }
+            if (one.type === 'hr') {
+              html += '<hr />'
+            }
+            if (one.type === 'h1' && one.content !== '') {
+              html += '<h1>' + one.content + '</h1>'
+            }
+            if (one.type === 'image') {
+              html += '<img src="' + one.files[0].file_url + '" alt="' + one.files[0].id + '" />'
+            }
+            if (one.type === 'file') {
+              html += '<div name="' + one.files[0].name + '" id="' + one.files[0].id + '" disabled="true" class="file" draggable="true" contenteditable="false">' + one.files[0].name + '</div>'
+            }
+            if (one.type === 'video') {
+              html += '<video src="' + one.files[0].file_url + '" id="' + one.files[0].id + '" controls="true" type="video/' + one.files[0].ext + '" draggable="true" class="ProseMirror-selectednode" contenteditable="false"></video>'
+            }
+            if (one.type === 'h2' && one.content !== '') {
+              html += '<h2>' + one.content + '</h2>'
+            }
+            if (one.type === 'h3' && one.content !== '') {
+              html += '<h3>' + one.content + '</h3>'
+            }
+            if ((one.type === 'ul' || one.type === 'ol') && one.items !== []) {
+              html += '<' + one.type + '>'
+              one.items.forEach((listItem) => {
+                html += '<li>' + listItem.content + '</li>'
+              })
+              html += '</' + one.type + '>'
+            }
+          })
+          window.editor.commands.setContent(html)
+        }
+        formatDataToEditorHTML();
+      },
+      function setLink () {
+        const url = window.prompt('URL')
+        window.editor.chain().focus().setLink({ href: url }).run()
+      },
+      function paragraphToHTML (p) {
+        let line = ''
+        let link = ''
+        p.content.forEach(function(one) {
+          let text = one.text
+          if ('marks' in one) {
+            if (one.marks.find(a => a.type === 'italic') !== undefined) {
+              text = '<i>' + text + '</i>'
+            }
+            if (one.marks.find(a => a.type === 'code') !== undefined) {
+              text = '<code>' + text + '</code>'
+            }
+            if (one.marks.find(a => a.type === 'bold') !== undefined) {
+              text = '<b>' + text + '</b>'
+            }
+            if (one.marks.find(a => a.type === 'underline') !== undefined) {
+              text = '<u>' + text + '</u>'
+            }
+            if (one.marks.find(a => a.type === 'strike') !== undefined) {
+              text = '<strike>' + text + '</strike>'
+            }
+            if (one.marks.find(a => a.type === 'link') !== undefined) {
+              link = one.marks.find(a => a.type === 'link').attrs.href
+              text = '<a href="' + link + '">' + text + '</a>'
+            }
+          }
+          line += text
+        })
+        return line
+      },
+      function lineToHTML (items) {
+        let line = ''
+        let counter = 0
+        items.content.forEach(function (paragraph) {
+          counter++
+          line += this.paragraphToHTML(paragraph)
+          if (counter < items.length) {
+            line += '<br />'
+          }
+        })
+        return line
+      },
+      function formatToData (content) {
+        const newValue = []
+        content.content.forEach(function (one) {
+          if (one.type === 'paragraph') {
+            if ('content' in one) {
+              newValue.push({
+                'type': 'p',
+                'content': this.paragraphToHTML(one)
+              })
+            }
+          }
+          if (one.type === 'image') {
+            if ('attrs' in one) {
+              newValue.push({
+                'type': 'image',
+                'content': '',
+                'files': [{ id: one.attrs.alt, file_url: one.attrs.src }]
+              })
+            }
+          }
+          if (one.type === 'file') {
+            if ('attrs' in one) {
+              newValue.push({
+                'type': 'file',
+                'content': '',
+                'files': [{ id: one.attrs.id }]
+              })
+            }
+          }
+          if (one.type === 'video') {
+            if ('attrs' in one) {
+              newValue.push({
+                'type': 'video',
+                'content': '',
+                'files': [{ id: one.attrs.id }]
+              })
+            }
+          }
+          if (one.type === 'blockquote') {
+            if ('content' in one.content[0]) {
+              newValue.push({
+                'type': 'quote',
+                'content': this.lineToHTML(one)
+              })
+            }
+          }
+          if (one.type === 'heading') {
+            if ('content' in one) {
+              newValue.push({
+                'type': 'h' + one.attrs.level,
+                'content': this.paragraphToHTML(one)
+              })
+            }
+          }
+          if (one.type === 'horizontal_rule') {
+            newValue.push({
+              'type': 'hr',
+              'content': ''
+            })
+          }
+          if (one.type === 'bulletList' || one.type === 'orderedList') {
+            const listItems = []
+            one.content.forEach((item) => {
+              if ('content' in item.content[0]) {
+                listItems.push({ 'content': this.lineToHTML(item) })
+              }
+            })
+            newValue.push({
+              'type': (one.type === 'orderedList') ? 'ol' : 'ul',
+              'items': listItems,
+              'content': ''
+            })
+          }
+        })
+        return newValue
+      }
+    </script>
+    {{ wysiwyg|json_script:"content_json" }}
+    {% endif %}
+    {% endblock %}
     <script src="{% static 'js/tabler.js' %}"></script>
   </body>
 </html>

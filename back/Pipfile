@@ -5,7 +5,6 @@ name = "pypi"
 
 [packages]
 boto3 = "*"
-crispy-bootstrap5 = "*"
 Django = "*"
 django-anymail = "*"
 django-axes = "*"

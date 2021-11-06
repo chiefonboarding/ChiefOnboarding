@@ -1,0 +1,25 @@
+{% extends 'admin_base.html' %}
+
+{% block actions %}{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-2">
+    <div class="card">
+      <ul class="list-group">
+        <a href="{% url 'settings:general' %}"><li class="list-group-item{% if 'general' in request.path %} active{% endif %}" aria-current="true">General</li></a>
+        <a href="{% url 'settings:welcome-message' "en" 0 %}"><li class="list-group-item{% if 'welcome_message' in request.path %} active{% endif %}">Welcome messages</li></a>
+        <a href="{% url 'settings:personal-language' %}"><li class="list-group-item{% if 'personal' in request.path %} active{% endif %}">Personal</li></a>
+        <a href="{% url 'settings:general' %}"><li class="list-group-item{% if 'integrations' in request.path %} active{% endif %}">Integrations</li></a>
+        <a href="{% url 'settings:administrators' %}"><li class="list-group-item{% if 'administrators' in request.path %} active{% endif %}">Administrators</li></a>
+      </ul>
+    </div>
+  </div>
+  <div class="col-10">
+    <div class="card">
+      {% block settings_content %}
+      {% endblock %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

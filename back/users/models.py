@@ -110,7 +110,7 @@ class User(AbstractBaseUser):
     timezone = models.CharField(default="", max_length=1000)
     department = models.TextField(default="", blank=True)
     language = models.CharField(default="en", choices=LANGUAGE_CHOICES, max_length=5)
-    role = models.IntegerField(choices=ROLE_CHOICES, default=3)
+    role = models.IntegerField(choices=ROLE_CHOICES, default=3, help_text="An administrator has access to everything. A manager has only access to their new hires and their tasks.")
     is_active = models.BooleanField(default=True)
     is_introduced_to_colleagues = models.BooleanField(default=False)
     sent_preboarding_details = models.BooleanField(default=False)
@@ -251,7 +251,7 @@ class User(AbstractBaseUser):
         return self.role in (1, 2)
 
     def __str__(self):
-        return "%s" % self.full_name()
+        return "%s" % self.full_name
 
 
 class ToDoUser(models.Model):

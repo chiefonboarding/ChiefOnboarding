@@ -8,7 +8,7 @@ LANGUAGES_OPTIONS = (
     ("en", "English"),
     ("nl", "Dutch"),
     ("fr", "French"),
-    ("de", "Deutsch"),
+    ("de", "German"),
     ("tr", "Turkish"),
     ("pt", "Portuguese"),
     ("es", "Spanish"),
@@ -37,16 +37,16 @@ class Organization(models.Model):
     slack_login = models.BooleanField(default=False)
 
     # additional settings
-    new_hire_email = models.BooleanField(default=True)
-    new_hire_email_reminders = models.BooleanField(default=True)
-    new_hire_email_overdue_reminders = models.BooleanField(default=False)
+    new_hire_email = models.BooleanField(verbose_name="Send email to new hire with login credentials", help_text="This is essential if you want your new hires to login to the dashboard (disable if using Slack)", default=True)
+    new_hire_email_reminders = models.BooleanField(verbose_name="Send email to new hire with updates", help_text="Think of new tasks that got assigned, new resources, badges... ", default=True)
+    new_hire_email_overdue_reminders = models.BooleanField(verbose_name="Send email to new hire when tasks are overdue", help_text="These are daily emails, until all overdue tasks are completed.", default=False)
 
     # Slack specific
-    slack_buttons = models.BooleanField(default=True)
-    ask_colleague_welcome_message = models.BooleanField(default=True)
-    send_new_hire_start_reminder = models.BooleanField(default=False)
-    auto_create_user = models.BooleanField(default=False)
-    create_new_hire_without_confirm = models.BooleanField(default=False)
+    slack_buttons = models.BooleanField(verbose_name="Add 'todo' and 'resource' buttons to the first message that's being sent to the new hire.", help_text="Slack only", default=True)
+    ask_colleague_welcome_message = models.BooleanField(verbose_name="Send a Slack message to the team to collect personal welcome messages from colleages.", help_text="Slack only", default=True)
+    send_new_hire_start_reminder = models.BooleanField(verbose_name="Send a Slack message to the team on the day the new hire starts", help_text="Slack only", default=False)
+    auto_create_user = models.BooleanField(verbose_name="Create a new hire when they join your Slack team", help_text="If the user does not exist yet - Slack only", default=False)
+    create_new_hire_without_confirm = models.BooleanField(verbose_name="Create new hires without needing confirm from a user", help_text="Slack only", default=False)
     slack_confirm_person = models.ForeignKey(
         settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL
     )

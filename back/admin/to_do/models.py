@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.urls import reverse
 
 from misc.models import Content
 from organization.models import BaseItem, FullManager, FullTemplateManager
@@ -15,6 +16,9 @@ class ToDo(BaseItem):
 
     objects = FullManager()
     templates = FullTemplateManager()
+
+    def update_url(self):
+        return reverse("todo:update", args=[self.id])
 
     def get_slack_form(self):
         slack_form_items = []

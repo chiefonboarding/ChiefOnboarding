@@ -1,0 +1,29 @@
+{% extends 'settings_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block actions %}{% endblock %}
+{% block settings_content %}
+<ul class="nav nav-tabs" data-bs-toggle="tabs">
+  {% for language in languages %}
+    <li class="nav-item">
+      <a href="{% url 'settings:welcome-message' language.0 view.kwargs.type %}" class="nav-link {% if view.kwargs.language == language.0 %} active{% endif %}">{{ language.1 }}</a>
+    </li>
+  {% endfor %}
+</ul>
+<ul class="nav nav-tabs" data-bs-toggle="tabs">
+  {% for type in types %}
+    <li class="nav-item">
+      <a href="{% url 'settings:welcome-message' view.kwargs.language type.0 %}" class="nav-link {% if view.kwargs.type == type.0 %} active{% endif %}">{{ type.1|title }}</a>
+    </li>
+  {% endfor %}
+</ul>
+<form method="POST">
+  <div class="card-body">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <div class="form-footer">
+      <button type="submit" class="btn btn-primary">Update</button>
+    </div>
+  </div>
+</form>
+{% endblock %}

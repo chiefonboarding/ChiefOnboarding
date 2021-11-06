@@ -43,33 +43,38 @@ if DEBUG:
 INSTALLED_APPS = [
     "users",
     "organization",
+    "user_auth",
+    "misc",
+    "back",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # external
     "rest_framework",
     "axes",
-    "user_auth",
+    "anymail",
+    "django_q",
+    "crispy_forms",
+    # "crispy_bootstrap5",
+    # admin
     "admin.notes",
     "admin.to_do",
     "admin.resources",
     "admin.introductions",
     "admin.admin_tasks",
     "admin.badges",
-    "slack_bot",
     "admin.integrations",
     "admin.preboarding",
     "admin.appointments",
     "admin.sequences",
     "admin.people",
+    "admin.settings",
+    # new hires
     "new_hire",
-    "misc",
-    "anymail",
-    "django_q",
-    "back",
-    "crispy_forms",
-    "crispy_bootstrap5",
+    # slack
+    "slack_bot",
 ]
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

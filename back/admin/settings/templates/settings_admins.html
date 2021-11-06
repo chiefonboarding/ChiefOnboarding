@@ -1,0 +1,30 @@
+{% extends 'settings_base.html' %}
+
+{% block settings_content %}
+  <div class="table-responsive">
+  <table
+		class="table table-vcenter table-nowrap">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Role</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for admin in object_list %}
+      <tr>
+        <td>{% include "_table_user.html" with user=admin %}</td>
+        <td>{{ admin.get_role_display }}</td>
+        <td>
+          <form method="post" action="{% url 'settings:administrators-delete' admin.id %}" class="mb-0">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">
+              Delete
+            </button>
+          </form>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

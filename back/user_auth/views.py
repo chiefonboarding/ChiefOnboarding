@@ -21,9 +21,10 @@ from .serializers import LoginSerializer
 
 
 def logged_in_user_redirect(request):
-    print("got hererrr")
     if request.user.is_admin_or_manager:
-        return redirect("people")
+        return redirect("admin:new_hires")
+    else:
+        pass
 
 
 class LoginView(APIView):

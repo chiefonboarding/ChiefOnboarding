@@ -18,13 +18,7 @@
           {% for new_hire in object_list %}
           <tr>
             <td>
-              <div class="d-flex py-1 align-items-center">
-                <span class="avatar me-2">{{ new_hire.initials }}</span>
-                <div class="flex-fill">
-                  <div class="font-weight-medium">{{ new_hire.full_name }}</div>
-                  <div class="text-muted">{{ new_hire.email }}</div>
-                </div>
-              </div>
+              {% include "_table_user.html" with user=new_hire %}
             </td>
             <td>
               {{ new_hire.start_day }}
