@@ -29,9 +29,7 @@ def link_slack_users():
                     "text": {
                         "type": "mrkdwn",
                         "text": s.personalize(
-                            WelcomeMessage.objects.get(
-                                language=user.language, message_type=3
-                            ).message
+                            WelcomeMessage.objects.get(language=user.language, message_type=3).message
                         ),
                     },
                 }
@@ -77,9 +75,9 @@ def link_slack_users():
             user.slack_channel_id = res["channel"]
             user.save()
             # send user to do items for that day (and perhaps over due ones)
-            tasks = ToDoUser.objects.filter(
-                user=user, completed=False, to_do__due_on_day__lte=user.workday()
-            ).exclude(to_do__due_on_day=0)
+            tasks = ToDoUser.objects.filter(user=user, completed=False, to_do__due_on_day__lte=user.workday()).exclude(
+                to_do__due_on_day=0
+            )
 
             if tasks.exists():
                 blocks = s.format_to_do_block(
@@ -98,37 +96,25 @@ def update_new_hire():
 
     for user in get_user_model().objects.filter(slack_user_id__isnull=False, role=0):
         local_datetime = user.get_local_time()
-        if (
-            local_datetime.hour == 8
-            and local_datetime.weekday() < 5
-            and local_datetime.date() >= user.start_day
-        ):
+        if local_datetime.hour == 8 and local_datetime.weekday() < 5 and local_datetime.date() >= user.start_day:
             s.set_user(user)
             translation.activate(user.language)
             # overdue items
-            tasks = ToDoUser.objects.filter(
-                user=user, completed=False, to_do__due_on_day__lt=user.workday()
-            ).exclude(to_do__due_on_day=0)
+            tasks = ToDoUser.objects.filter(user=user, completed=False, to_do__due_on_day__lt=user.workday()).exclude(
+                to_do__due_on_day=0
+            )
             if tasks.exists():
                 blocks = s.format_to_do_block(
-                    pre_message=_(
-                        "Some to do items are overdue. Please complete those as "
-                        "soon as possible!"
-                    ),
+                    pre_message=_("Some to do items are overdue. Please complete those as " "soon as possible!"),
                     items=tasks,
                 )
                 s.send_message(blocks=blocks)
 
             # to do items for today
-            tasks = ToDoUser.objects.filter(
-                user=user, completed=False, to_do__due_on_day=user.workday()
-            )
+            tasks = ToDoUser.objects.filter(user=user, completed=False, to_do__due_on_day=user.workday())
             if tasks.exists():
                 blocks = s.format_to_do_block(
-                    pre_message=_(
-                        "Good morning! These are the tasks you need to complete "
-                        "today:"
-                    ),
+                    pre_message=_("Good morning! These are the tasks you need to complete " "today:"),
                     items=tasks,
                 )
                 s.send_message(blocks=blocks)
@@ -137,39 +123,22 @@ def update_new_hire():
 
 def first_day_reminder():
     org = Organization.object.get()
-    if (
-        not AccessToken.objects.filter(integration=0).exists()
-        or not org.send_new_hire_start_reminder
-    ):
+    if not AccessToken.objects.filter(integration=0).exists() or not org.send_new_hire_start_reminder:
         return
     translation.activate(org.language)
     user = get_user_model().objects.filter(role=1).first()
     us_state = user.get_local_time()
-    new_hires_starting_today = get_user_model().objects.filter(
-        start_day=datetime.now().date(), role=0
-    )
-    if (
-        us_state.hour == 8
-        and org.send_new_hire_start_reminder
-        and new_hires_starting_today.exists()
-    ):
+    new_hires_starting_today = get_user_model().objects.filter(start_day=datetime.now().date(), role=0)
+    if us_state.hour == 8 and org.send_new_hire_start_reminder and new_hires_starting_today.exists():
         text = ""
         if new_hires_starting_today.count() == 1:
-            text = (
-                _("Just a quick reminder: It's ")
-                + user.full_name
-                + _("'s first day today!")
-            )
+            text = _("Just a quick reminder: It's ") + user.full_name + _("'s first day today!")
         else:
             for i in new_hires_starting_today:
                 text += i.get_full_name() + ", "
             # remove last comma
             text = text[:-2]
-            text = (
-                _("We got some new hires coming in! ")
-                + text
-                + _(" are starting today!")
-            )
+            text = _("We got some new hires coming in! ") + text + _(" are starting today!")
         s = Slack()
         blocks = [{"type": "section", "text": {"type": "mrkdwn", "text": text}}]
         s.send_message(blocks=blocks, channel="#general")
@@ -179,10 +148,7 @@ def first_day_reminder():
 
 def introduce_new_people():
     org = Organization.object.get()
-    if (
-        not AccessToken.objects.filter(integration=0).exists()
-        or not org.ask_colleague_welcome_message
-    ):
+    if not AccessToken.objects.filter(integration=0).exists() or not org.ask_colleague_welcome_message:
         return
     s = Slack()
     translation.activate(org.language)
@@ -192,14 +158,10 @@ def introduce_new_people():
     if new_hires.exists():
         blocks = []
         if new_hires.count() > 1:
-            text = _(
-                "We got some new hires coming in soon! Make sure to leave a welcome message for them!"
-            )
+            text = _("We got some new hires coming in soon! Make sure to leave a welcome message for them!")
         else:
             text = (
-                _(
-                    "We have a new hire coming in soon! Make sure to leave a message for "
-                )
+                _("We have a new hire coming in soon! Make sure to leave a message for ")
                 + new_hires.first().first_name
                 + "!"
             )
@@ -220,13 +182,7 @@ def introduce_new_people():
             footer_extra = ""
             if new_hire.position is not None and new_hire.position != "":
                 footer_extra = _(" and is our new ") + new_hire.position
-            context = (
-                new_hire.first_name
-                + _(" starts on ")
-                + localize(new_hire.start_day)
-                + footer_extra
-                + "."
-            )
+            context = new_hire.first_name + _(" starts on ") + localize(new_hire.start_day) + footer_extra + "."
             blocks.append(
                 {
                     "type": "context",

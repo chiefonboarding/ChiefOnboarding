@@ -37,9 +37,7 @@ class IntroductionSerializer(serializers.ModelSerializer):
     search_type = serializers.CharField(default="introduction", read_only=True)
     id = serializers.IntegerField(required=False)
     intro_person = IntroEmployeeSerializer(read_only=True)
-    intro_person_id = serializers.PrimaryKeyRelatedField(
-        source="intro_person", queryset=get_user_model().objects.all()
-    )
+    intro_person_id = serializers.PrimaryKeyRelatedField(source="intro_person", queryset=get_user_model().objects.all())
 
     class Meta:
         model = Introduction

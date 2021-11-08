@@ -1,10 +1,7 @@
 import requests
 from django.contrib.auth import get_user_model
-
-from integrations.emails import (google_error_email, send_access_email,
-                                 slack_error_email)
-from integrations.google import (EmailAddressNotValidError, Google,
-                                 UnauthorizedError)
+from integrations.emails import google_error_email, send_access_email, slack_error_email
+from integrations.google import EmailAddressNotValidError, Google, UnauthorizedError
 from integrations.models import AccessToken, ScheduledAccess
 
 from .slack import Slack
@@ -13,11 +10,7 @@ from .slack import Slack
 def create_accounts():
     for i in ScheduledAccess.objects.filter(status=0).order_by("-integration"):
         new_hire_time = i.new_hire.get_local_time()
-        if (
-            new_hire_time.date() >= i.new_hire.start_day
-            and new_hire_time.hour >= 7
-            and new_hire_time.weekday() < 5
-        ):
+        if new_hire_time.date() >= i.new_hire.start_day and new_hire_time.hour >= 7 and new_hire_time.weekday() < 5:
             if i.integration == 1:
                 codes = AccessToken.objects.filter(integration=1, active=True)
                 if codes.exists():
@@ -54,12 +47,7 @@ def create_accounts():
                     a = AccessToken.objects.filter(active=True, integration=2).first()
                     a.active = False
                     a.save()
-                    google_error_email(
-                        get_user_model()
-                        .objects.filter(role=1)
-                        .order_by("date_joined")
-                        .first()
-                    )
+                    google_error_email(get_user_model().objects.filter(role=1).order_by("date_joined").first())
                 else:
                     i.status = 2
                     i.save()

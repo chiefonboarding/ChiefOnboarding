@@ -11,16 +11,18 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from admin.sequences.models import Sequence
 from misc.models import File
 from misc.serializers import FileSerializer
-from admin.sequences.models import Sequence
-from users.permissions import (AdminPermission, ManagerPermission,
-                               NewHirePermission)
+from users.permissions import AdminPermission, ManagerPermission, NewHirePermission
 
 from .models import Organization, Tag, WelcomeMessage
-from .serializers import (BaseOrganizationSerializer,
-                          DetailOrganizationSerializer, ExportSerializer,
-                          WelcomeMessageSerializer)
+from .serializers import (
+    BaseOrganizationSerializer,
+    DetailOrganizationSerializer,
+    ExportSerializer,
+    WelcomeMessageSerializer,
+)
 
 
 def home(request):
@@ -43,9 +45,7 @@ class OrgDetailView(APIView):
         return Response(org.data)
 
     def patch(self, request):
-        serializer = DetailOrganizationSerializer(
-            Organization.object.get(), data=request.data, partial=True
-        )
+        serializer = DetailOrganizationSerializer(Organization.object.get(), data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         if "auto_add_sequence" in request.data:
             Sequence.objects.all().update(auto_add=False)
@@ -107,13 +107,7 @@ class FileView(APIView):
         )
         serializer.is_valid(raise_exception=True)
         f = serializer.save()
-        key = (
-            str(f.id)
-            + "-"
-            + request.data["name"].split(".")[0]
-            + "/"
-            + request.data["name"]
-        )
+        key = str(f.id) + "-" + request.data["name"].split(".")[0] + "/" + request.data["name"]
         f.key = key
         f.save()
 

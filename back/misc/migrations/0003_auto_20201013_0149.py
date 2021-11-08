@@ -13,8 +13,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="content",
             name="items",
-            field=models.JSONField(
-                default=list, verbose_name=models.TextField(blank=True)
-            ),
+            field=models.JSONField(default=list, verbose_name=models.TextField(blank=True)),
         ),
     ]

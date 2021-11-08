@@ -41,9 +41,7 @@ class Migration(migrations.Migration):
                 ("template", models.BooleanField(default=True)),
                 (
                     "form",
-                    django.contrib.postgres.fields.jsonb.JSONField(
-                        blank=True, null=True
-                    ),
+                    django.contrib.postgres.fields.jsonb.JSONField(blank=True, null=True),
                 ),
                 ("picture", models.FileField(null=True, upload_to="")),
                 ("content", models.ManyToManyField(to="misc.Content")),

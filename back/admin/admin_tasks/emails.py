@@ -37,20 +37,14 @@ def send_email_new_assigned_admin(admin_task):
     content = [
         {
             "type": "p",
-            "text": _("This is about task: ")
-            + admin_task.name
-            + _(" for ")
-            + admin_task.new_hire.full_name(),
+            "text": _("This is about task: ") + admin_task.name + _(" for ") + admin_task.new_hire.full_name(),
         }
     ]
     if admin_task.comment.exists():
         content.append(
             {
                 "type": "block",
-                "text": "<strong>"
-                + _("Last message: ")
-                + "</strong><br />"
-                + admin_task.content.last().comment,
+                "text": "<strong>" + _("Last message: ") + "</strong><br />" + admin_task.content.last().comment,
             }
         )
     html_message = render_to_string("email/base.html", {"org": org, "content": content})
@@ -71,9 +65,7 @@ def send_email_new_comment(comment):
         {"type": "p", "text": "Hi" + comment.admin_task.assigned_to.first_name},
         {
             "type": "p",
-            "text": _(
-                "One of your todo items has been updated by someone else. Here is the message:"
-            ),
+            "text": _("One of your todo items has been updated by someone else. Here is the message:"),
         },
         {
             "type": "block",

@@ -59,9 +59,7 @@ def send_sequence_update_message(new_hire, message):
             text += "- " + new_hire.personalize(i.name) + "<br />"
         blocks.append({"type": "block", "text": text})
     if len(blocks) > 0:
-        html_message = render_to_string(
-            "email/base.html", {"org": org, "content": blocks}
-        )
+        html_message = render_to_string("email/base.html", {"org": org, "content": blocks})
         message = ""
         send_mail(
             subject,

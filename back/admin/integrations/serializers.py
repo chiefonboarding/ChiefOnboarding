@@ -38,9 +38,7 @@ class GoogleOAuthTokenSerializer(serializers.ModelSerializer):
 
 
 class ScheduledAccessSerializer(serializers.ModelSerializer):
-    new_hire_id = serializers.PrimaryKeyRelatedField(
-        source="user", queryset=get_user_model().objects.all()
-    )
+    new_hire_id = serializers.PrimaryKeyRelatedField(source="user", queryset=get_user_model().objects.all())
 
     class Meta:
         model = ScheduledAccess

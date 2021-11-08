@@ -27,8 +27,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="user",
             name="totp_secret",
-            field=fernet_fields.fields.EncryptedTextField(
-                default=pyotp.random_base32()
-            ),
+            field=fernet_fields.fields.EncryptedTextField(default=pyotp.random_base32()),
         ),
     ]

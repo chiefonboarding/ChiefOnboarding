@@ -22,9 +22,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="user",
             name="totp_secret",
-            field=fernet_fields.fields.EncryptedTextField(
-                default="7OBYIHJ4MVEH54FVTEK4XBMO5IILQFFM"
-            ),
+            field=fernet_fields.fields.EncryptedTextField(default="7OBYIHJ4MVEH54FVTEK4XBMO5IILQFFM"),
         ),
         migrations.CreateModel(
             name="OTPRecoveryKey",

@@ -21,31 +21,37 @@ from admin.integrations.google import Google
 from admin.integrations.models import ScheduledAccess
 from admin.integrations.slack import Error, PaidOnlyError, Slack
 from admin.introductions.serializers import IntroductionSerializer
-from new_hire.serializers import (NewHireResourceItemSerializer,
-                                  PreboardingUserSerializer,
-                                  ToDoUserSerializer)
 from admin.notes.models import Note
 from admin.notes.serializers import NoteSerializer
-from organization.models import Organization, WelcomeMessage
 from admin.preboarding.models import Preboarding
 from admin.resources.models import Resource
 from admin.resources.serializers import ResourceSlimSerializer
 from admin.sequences.models import Condition, Sequence
 from admin.sequences.serializers import ConditionSerializer
 from admin.sequences.utils import get_task_items
-from slack_bot.slack import Slack as SlackBot
 from admin.to_do.serializers import ToDoFormSerializer
+from new_hire.serializers import NewHireResourceItemSerializer, PreboardingUserSerializer, ToDoUserSerializer
+from organization.models import Organization, WelcomeMessage
+from slack_bot.slack import Slack as SlackBot
 
-from .emails import (email_new_admin_cred, email_reopen_task,
-                     send_new_hire_cred, send_new_hire_preboarding,
-                     send_reminder_email)
-from .models import (NewHireWelcomeMessage, PreboardingUser, ResourceUser,
-                     ToDoUser)
+from .emails import (
+    email_new_admin_cred,
+    email_reopen_task,
+    send_new_hire_cred,
+    send_new_hire_preboarding,
+    send_reminder_email,
+)
+from .models import NewHireWelcomeMessage, PreboardingUser, ResourceUser, ToDoUser
 from .permissions import ManagerPermission
-from .serializers import (AdminSerializer, EmployeeSerializer,
-                          NewHireProgressResourceSerializer, NewHireSerializer,
-                          NewHireWelcomeMessageSerializer,
-                          OTPRecoveryKeySerializer, UserLanguageSerializer)
+from .serializers import (
+    AdminSerializer,
+    EmployeeSerializer,
+    NewHireProgressResourceSerializer,
+    NewHireSerializer,
+    NewHireWelcomeMessageSerializer,
+    OTPRecoveryKeySerializer,
+    UserLanguageSerializer,
+)
 
 
 class NewHireViewSet(viewsets.ModelViewSet):
@@ -74,13 +80,9 @@ class NewHireViewSet(viewsets.ModelViewSet):
         for i in sequences:
             Sequence.objects.get(id=i["id"]).assign_to_user(new_hire)
         if slack["create"]:
-            ScheduledAccess.objects.create(
-                new_hire=new_hire, integration=1, status=0, email=slack["email"]
-            )
+            ScheduledAccess.objects.create(new_hire=new_hire, integration=1, status=0, email=slack["email"])
         if google["create"]:
-            ScheduledAccess.objects.create(
-                new_hire=new_hire, integration=2, status=0, email=google["email"]
-            )
+            ScheduledAccess.objects.create(new_hire=new_hire, integration=2, status=0, email=google["email"])
         new_hire_time = new_hire.get_local_time()
         if (
             new_hire_time.date() >= new_hire.start_day
@@ -95,9 +97,7 @@ class NewHireViewSet(viewsets.ModelViewSet):
     def send_login_email(self, request, pk=None):
         user = self.get_object()
         translation.activate(user.language)
-        message = WelcomeMessage.objects.get(
-            language=user.language, message_type=1
-        ).message
+        message = WelcomeMessage.objects.get(language=user.language, message_type=1).message
         send_new_hire_cred(user, message)
         return Response(status=status.HTTP_201_CREATED)
 
@@ -106,20 +106,14 @@ class NewHireViewSet(viewsets.ModelViewSet):
         user = self.get_object()
         translation.activate(user.language)
         if request.data["type"] == "email":
-            message = WelcomeMessage.objects.get(
-                language=user.language, message_type=0
-            ).message
+            message = WelcomeMessage.objects.get(language=user.language, message_type=0).message
             send_new_hire_preboarding(user, message)
         else:
             client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
             client.messages.create(
                 to=user.phone,
                 from_=settings.TWILIO_FROM_NUMBER,
-                body=user.personalize(
-                    WelcomeMessage.objects.get(
-                        language=user.language, message_type=2
-                    ).message
-                ),
+                body=user.personalize(WelcomeMessage.objects.get(language=user.language, message_type=2).message),
             )
         return Response(status=status.HTTP_201_CREATED)
 
@@ -135,20 +129,14 @@ class NewHireViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["get"])
     def forms(self, request, pk=None):
-        serializer = ToDoFormSerializer(
-            ToDoUser.objects.filter(user=self.get_object(), completed=True), many=True
-        )
+        serializer = ToDoFormSerializer(ToDoUser.objects.filter(user=self.get_object(), completed=True), many=True)
         return Response(serializer.data)
 
     @action(detail=True, methods=["get"])
     def progress(self, request, pk=None):
         user = self.get_object()
-        todo_serializer = ToDoUserSerializer(
-            ToDoUser.objects.filter(user=user), many=True
-        )
-        resource_serializer = NewHireProgressResourceSerializer(
-            ResourceUser.objects.filter(user=user), many=True
-        )
+        todo_serializer = ToDoUserSerializer(ToDoUser.objects.filter(user=user), many=True)
+        resource_serializer = NewHireProgressResourceSerializer(ResourceUser.objects.filter(user=user), many=True)
         data = {"to_do": todo_serializer.data, "resources": resource_serializer.data}
         return Response(data)
 
@@ -165,12 +153,10 @@ class NewHireViewSet(viewsets.ModelViewSet):
             items = get_task_items(self.get_object())
             for i in items:
                 if i["item"] == request.data["type"]:
-                    item = apps.get_model(
-                        app_label=i["app"], model_name=i["model"]
-                    ).objects.get(id=request.data["item"]["id"])
-                    i["s_model"].add(item) if request.method == "POST" else i[
-                        "s_model"
-                    ].remove(item)
+                    item = apps.get_model(app_label=i["app"], model_name=i["model"]).objects.get(
+                        id=request.data["item"]["id"]
+                    )
+                    i["s_model"].add(item) if request.method == "POST" else i["s_model"].remove(item)
                     break
             return Response(request.data["item"], status=status.HTTP_201_CREATED)
         user = self.get_object()
@@ -197,9 +183,7 @@ class NewHireViewSet(viewsets.ModelViewSet):
                 "introductions": IntroductionSerializer(
                     user.introductions.select_related("intro_person"), many=True
                 ).data,
-                "appointments": AppointmentSerializer(
-                    user.appointments, many=True
-                ).data,
+                "appointments": AppointmentSerializer(user.appointments, many=True).data,
                 "conditions": ConditionSerializer(
                     user.conditions.prefetch_related(
                         "to_do",
@@ -238,9 +222,7 @@ class NewHireViewSet(viewsets.ModelViewSet):
             )
             items.extend(
                 ConditionSerializer(
-                    seq.conditions.filter(
-                        condition_type=2, days__gte=amount_days_before
-                    ),
+                    seq.conditions.filter(condition_type=2, days__gte=amount_days_before),
                     many=True,
                 ).data
             )
@@ -276,9 +258,9 @@ class NewHireViewSet(viewsets.ModelViewSet):
         s = SlackBot() if request.data["integration"] == 1 else Google()
         if s.find_by_email(new_hire.email):
             return Response({"status": "exists"})
-        items = ScheduledAccess.objects.filter(
-            new_hire=new_hire, integration=request.data["integration"]
-        ).exclude(status=1)
+        items = ScheduledAccess.objects.filter(new_hire=new_hire, integration=request.data["integration"]).exclude(
+            status=1
+        )
         if items.exists():
             return Response({"status": "pending"})
         return Response({"status": "not_found"})
@@ -286,9 +268,7 @@ class NewHireViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["put"])
     def revoke_access(self, request, pk=None):
         new_hire = self.get_object()
-        ScheduledAccess.objects.filter(
-            new_hire=new_hire, integration=request.data["integration"]
-        ).delete()
+        ScheduledAccess.objects.filter(new_hire=new_hire, integration=request.data["integration"]).delete()
         if request.data["integration"] == 1:
             s = Slack()
             try:
@@ -386,9 +366,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": _(
-                            "Click on the button to see all the categories that are available to you!"
-                        ),
+                        "text": _("Click on the button to see all the categories that are available to you!"),
                     },
                 },
                 {
@@ -409,11 +387,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             user.save()
             return Response()
         return Response(
-            {
-                "error": _(
-                    "We couldn't find anyone in Slack with the same email address."
-                )
-            },
+            {"error": _("We couldn't find anyone in Slack with the same email address.")},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -445,11 +419,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         s = SlackBot()
         users = s.get_all_users()
         for i in users:
-            if (
-                i["id"] != "USLACKBOT"
-                and not i["is_bot"]
-                and "real_name" in i["profile"]
-            ):
+            if i["id"] != "USLACKBOT" and not i["is_bot"] and "real_name" in i["profile"]:
                 if len(i["profile"]["real_name"].split()) > 1:
                     first_name = i["profile"]["real_name"].split()[0]
                     last_name = i["profile"]["real_name"].split()[1]
@@ -475,11 +445,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"])
     def departments(self, request):
         departments = (
-            get_user_model()
-            .objects.all()
-            .distinct("department")
-            .exclude(department="")
-            .values_list("department")
+            get_user_model().objects.all().distinct("department").exclude(department="").values_list("department")
         )
         return Response(departments)
 
@@ -493,18 +459,14 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             seq = get_object_or_404(Sequence, id=request.data["sequence"])
             for i in seq.resources.all():
                 user.resources.add(i)
-        return Response(
-            ResourceSlimSerializer(self.get_object().resources, many=True).data
-        )
+        return Response(ResourceSlimSerializer(self.get_object().resources, many=True).data)
 
     @action(detail=True, methods=["put"])
     def delete_resource(self, request, pk):
         user = self.get_object()
         book = get_object_or_404(Resource, id=self.request.data["resource"])
         user.resources.remove(book)
-        return Response(
-            ResourceSlimSerializer(self.get_object().resources, many=True).data
-        )
+        return Response(ResourceSlimSerializer(self.get_object().resources, many=True).data)
 
     @action(detail=True, methods=["post"])
     def send_employee_email(self, request, pk):
@@ -532,9 +494,7 @@ class ToDoUserView(APIView):
         if t_u.user.slack_user_id:
             s = SlackBot()
             s.set_user(t_u.user)
-            blocks = s.format_to_do_block(
-                pre_message=_("Don't forget this to do item!"), items=[t_u]
-            )
+            blocks = s.format_to_do_block(pre_message=_("Don't forget this to do item!"), items=[t_u])
             s.send_message(blocks=blocks)
         else:
             send_reminder_email(t_u)
@@ -550,9 +510,7 @@ class ToDoUserView(APIView):
             s = SlackBot()
             s.set_user(t_u.user)
             blocks = s.format_to_do_block(
-                pre_message=_(
-                    "This task has just been reopened! " + request.data["message"]
-                ),
+                pre_message=_("This task has just been reopened! " + request.data["message"]),
                 items=[t_u],
             )
             s.send_message(blocks=blocks)
@@ -574,9 +532,7 @@ class ResourceUserView(APIView):
         if t_u.user.slack_user_id:
             s = SlackBot()
             s.set_user(t_u.user)
-            blocks = s.format_resource_block(
-                pre_message=_("Don't forget this to do item!"), items=[t_u]
-            )
+            blocks = s.format_resource_block(pre_message=_("Don't forget this to do item!"), items=[t_u])
             s.send_message(blocks=blocks)
         else:
             send_reminder_email(t_u)
@@ -592,9 +548,7 @@ class ResourceUserView(APIView):
             s = SlackBot()
             s.set_user(t_u.user)
             blocks = s.format_resource_block(
-                pre_message=_(
-                    "This task has just been reopened! " + request.data["message"]
-                ),
+                pre_message=_("This task has just been reopened! " + request.data["message"]),
                 items=[t_u],
             )
             s.send_message(blocks=blocks)

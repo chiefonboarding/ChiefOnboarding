@@ -20,8 +20,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="todo",
             name="form",
-            field=django.contrib.postgres.fields.jsonb.JSONField(
-                verbose_name=models.TextField(default="[]")
-            ),
+            field=django.contrib.postgres.fields.jsonb.JSONField(verbose_name=models.TextField(default="[]")),
         ),
     ]

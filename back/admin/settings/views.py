@@ -1,16 +1,18 @@
 from datetime import datetime
+
 import pyotp
+from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import render
 from django.urls import reverse_lazy
-from django.contrib.auth import get_user_model
 from django.views.generic import TemplateView
+from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
 from django.views.generic.list import ListView
-from django.views.generic.edit import UpdateView, CreateView, DeleteView, FormView
 
-from organization.models import Organization, WelcomeMessage, Changelog, LANGUAGES_OPTIONS
-from .forms import OrganizationGeneralForm, AdministratorsCreateForm, WelcomeMessagesUpdateForm, OTPVerificationForm
 from admin.integrations.models import INTEGRATION_OPTIONS, INTEGRATION_OPTIONS_URLS, AccessToken
+from organization.models import LANGUAGES_OPTIONS, Changelog, Organization, WelcomeMessage
+
+from .forms import AdministratorsCreateForm, OrganizationGeneralForm, OTPVerificationForm, WelcomeMessagesUpdateForm
 
 
 class OrganizationGeneralUpdateView(SuccessMessageMixin, UpdateView):
@@ -24,8 +26,8 @@ class OrganizationGeneralUpdateView(SuccessMessageMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "General Updates"
-        context['subtitle'] = "settings"
+        context["title"] = "General Updates"
+        context["subtitle"] = "settings"
         return context
 
 
@@ -35,9 +37,9 @@ class AdministratorListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "Administrators"
-        context['subtitle'] = "settings"
-        context['add_action'] = reverse_lazy("settings:administrators-create")
+        context["title"] = "Administrators"
+        context["subtitle"] = "settings"
+        context["add_action"] = reverse_lazy("settings:administrators-create")
         return context
 
 
@@ -50,8 +52,8 @@ class AdministratorCreateView(SuccessMessageMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "Add Administrator"
-        context['subtitle'] = "settings"
+        context["title"] = "Add Administrator"
+        context["subtitle"] = "settings"
         return context
 
 
@@ -69,24 +71,23 @@ class WelcomeMessageUpdateView(SuccessMessageMixin, UpdateView):
         return self.request.path
 
     def get_object(self):
-        return WelcomeMessage.objects.get(
-            language=self.kwargs.get("language"),
-            message_type=self.kwargs.get("type")
-        )
+        return WelcomeMessage.objects.get(language=self.kwargs.get("language"), message_type=self.kwargs.get("type"))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['languages'] = LANGUAGES_OPTIONS
-        context['types'] = WelcomeMessage.MESSAGE_TYPE
-        context['title'] = "Update welcome messages"
-        context['subtitle'] = "settings"
+        context["languages"] = LANGUAGES_OPTIONS
+        context["types"] = WelcomeMessage.MESSAGE_TYPE
+        context["title"] = "Update welcome messages"
+        context["subtitle"] = "settings"
         return context
 
 
 class PersonalLanguageUpdateView(SuccessMessageMixin, UpdateView):
     template_name = "personal_language_update.html"
     model = get_user_model()
-    fields = ["language",]
+    fields = [
+        "language",
+    ]
     success_message = "Your default language has been updated"
 
     def get_success_url(self):
@@ -97,8 +98,8 @@ class PersonalLanguageUpdateView(SuccessMessageMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "Update your default language"
-        context['subtitle'] = "settings"
+        context["title"] = "Update your default language"
+        context["subtitle"] = "settings"
         return context
 
 
@@ -108,7 +109,7 @@ class OTPView(FormView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.request.user
+        kwargs["user"] = self.request.user
         return kwargs
 
     def form_valid(self, form):
@@ -116,17 +117,21 @@ class OTPView(FormView):
         user.requires_otp = True
         user.save()
         keys = user.reset_otp_recovery_keys()
-        return render(self.request, "personal_otp.html", {'title': 'TOTP 2FA', 'subtitle': 'settings', 'keys': keys})
+        return render(
+            self.request,
+            "personal_otp.html",
+            {"title": "TOTP 2FA", "subtitle": "settings", "keys": keys},
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
         if not user.requires_otp:
-            context['otp_url'] = pyotp.totp.TOTP(user.totp_secret).provisioning_uri(
+            context["otp_url"] = pyotp.totp.TOTP(user.totp_secret).provisioning_uri(
                 name=user.email, issuer_name="ChiefOnboarding"
             )
-        context['title'] = "Enable TOTP 2FA" if not user.requires_otp else "TOTP 2FA"
-        context['subtitle'] = "settings"
+        context["title"] = "Enable TOTP 2FA" if not user.requires_otp else "TOTP 2FA"
+        context["subtitle"] = "settings"
         return context
 
 
@@ -135,17 +140,17 @@ class IntegrationsListView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "Integrations"
-        context['subtitle'] = "settings"
-        context['integrations'] = [
+        context["title"] = "Integrations"
+        context["subtitle"] = "settings"
+        context["integrations"] = [
             {
                 "name": integration[1],
-                'obj': AccessToken.objects.filter(integration=integration[0], active=True).first(),
-                'create_url': INTEGRATION_OPTIONS_URLS[idx][0],
+                "obj": AccessToken.objects.filter(integration=integration[0], active=True).first(),
+                "create_url": INTEGRATION_OPTIONS_URLS[idx][0],
             }
             for idx, integration in enumerate(INTEGRATION_OPTIONS)
         ]
-        context['integrations'].sort(key=lambda x: x['name'].lower())
+        context["integrations"].sort(key=lambda x: x["name"].lower())
         return context
 
 
@@ -158,9 +163,9 @@ class GoogleLoginSetupView(CreateView, SuccessMessageMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "Google login button setup"
-        context['subtitle'] = "settings"
-        context['button_text'] = "Enable"
+        context["title"] = "Google login button setup"
+        context["subtitle"] = "settings"
+        context["button_text"] = "Enable"
         return context
 
     def form_valid(self, form):
@@ -178,9 +183,9 @@ class GoogleAccountCreationSetupView(CreateView, SuccessMessageMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "Google auto account create setup"
-        context['subtitle'] = "settings"
-        context['button_text'] = "Enable"
+        context["title"] = "Google auto account create setup"
+        context["subtitle"] = "settings"
+        context["button_text"] = "Enable"
         return context
 
     def form_valid(self, form):
@@ -192,15 +197,21 @@ class GoogleAccountCreationSetupView(CreateView, SuccessMessageMixin):
 class SlackAccountCreationSetupView(CreateView, SuccessMessageMixin):
     template_name = "org_general_update.html"
     model = AccessToken
-    fields = ["app_id", "client_id", "client_secret", "signing_secret", "verification_token"]
+    fields = [
+        "app_id",
+        "client_id",
+        "client_secret",
+        "signing_secret",
+        "verification_token",
+    ]
     success_message = "You can now automatically create Slack accounts for new hires"
     success_url = reverse_lazy("settings:integrations")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "Slack auto account create setup"
-        context['subtitle'] = "settings"
-        context['button_text'] = "Enable"
+        context["title"] = "Slack auto account create setup"
+        context["subtitle"] = "settings"
+        context["button_text"] = "Enable"
         return context
 
     def form_valid(self, form):
@@ -212,15 +223,21 @@ class SlackAccountCreationSetupView(CreateView, SuccessMessageMixin):
 class SlackBotSetupView(CreateView, SuccessMessageMixin):
     template_name = "org_general_update.html"
     model = AccessToken
-    fields = ["app_id", "client_id", "client_secret", "signing_secret", "verification_token"]
+    fields = [
+        "app_id",
+        "client_id",
+        "client_secret",
+        "signing_secret",
+        "verification_token",
+    ]
     success_message = "Slack has now been connected, check if you got a message from your bot!"
     success_url = reverse_lazy("settings:integrations")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "Slack bot setup"
-        context['subtitle'] = "settings"
-        context['button_text'] = "Enable"
+        context["title"] = "Slack bot setup"
+        context["subtitle"] = "settings"
+        context["button_text"] = "Enable"
         return context
 
     def form_valid(self, form):
@@ -230,7 +247,7 @@ class SlackBotSetupView(CreateView, SuccessMessageMixin):
 
 
 class IntegrationDeleteView(DeleteView):
-    """ This is a general delete function for all integrations """
+    """This is a general delete function for all integrations"""
 
     template_name = "integration-delete.html"
     model = AccessToken
@@ -238,8 +255,8 @@ class IntegrationDeleteView(DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "Delete integration"
-        context['subtitle'] = "settings"
+        context["title"] = "Delete integration"
+        context["subtitle"] = "settings"
         return context
 
 
@@ -250,8 +267,8 @@ class ChangelogListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        context['date_last_checked'] = user.seen_updates
+        context["date_last_checked"] = user.seen_updates
         user.seen_updates = datetime.now().date()
         user.save()
-        context['title'] = "Changelog"
+        context["title"] = "Changelog"
         return context

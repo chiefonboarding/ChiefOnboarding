@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     def fix_none_fields(apps, schema_editor):
         PendingAdminTask = apps.get_model("sequences", "PendingAdminTask")
         PendingAdminTask.objects.filter(comment__isnull=True).update(comment="")
@@ -12,7 +11,7 @@ class Migration(migrations.Migration):
         PendingAdminTask.objects.filter(slack_user__isnull=True).update(slack_user="")
 
     dependencies = [
-        ('sequences', '0009_externalmessage_subject'),
+        ("sequences", "0009_externalmessage_subject"),
     ]
 
     operations = [

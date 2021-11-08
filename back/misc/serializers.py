@@ -31,11 +31,7 @@ class ContentSerializer(serializers.ModelSerializer):
         return obj.get_type_display()
 
     def get_image_url(self, obj):
-        if (
-            obj.type == "image"
-            and obj.files.exists()
-            and settings.AWS_STORAGE_BUCKET_NAME != ""
-        ):
+        if obj.type == "image" and obj.files.exists() and settings.AWS_STORAGE_BUCKET_NAME != "":
             return obj.files.first().get_url()
         return ""
 

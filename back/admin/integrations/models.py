@@ -2,8 +2,8 @@ import uuid
 
 from django.conf import settings
 from django.db import models
-from fernet_fields import EncryptedTextField
 from django.urls import reverse_lazy
+from fernet_fields import EncryptedTextField
 
 INTEGRATION_OPTIONS = (
     (0, "Slack bot"),
@@ -31,9 +31,7 @@ class AccessToken(models.Model):
     active = models.BooleanField(default=True)
     ttl = models.IntegerField(null=True, blank=True)
     expiring = models.DateTimeField(null=True, blank=True)
-    one_time_auth_code = models.UUIDField(
-        default=uuid.uuid4, editable=False, unique=True
-    )
+    one_time_auth_code = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     # Slack
     app_id = models.CharField(max_length=100, default="")

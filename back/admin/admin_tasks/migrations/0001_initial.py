@@ -26,9 +26,7 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=500)),
                 (
                     "option",
-                    models.IntegerField(
-                        choices=[(0, "No"), (1, "Email"), (2, "Slack")]
-                    ),
+                    models.IntegerField(choices=[(0, "No"), (1, "Email"), (2, "Slack")]),
                 ),
                 ("slack_user", models.CharField(max_length=12500, null=True)),
                 ("email", models.EmailField(max_length=12500, null=True)),
@@ -36,9 +34,7 @@ class Migration(migrations.Migration):
                 ("date", models.DateField(blank=True, null=True)),
                 (
                     "priority",
-                    models.IntegerField(
-                        choices=[(1, "Low"), (2, "Medium"), (3, "High")], default=2
-                    ),
+                    models.IntegerField(choices=[(1, "Low"), (2, "Medium"), (3, "High")], default=2),
                 ),
             ],
         ),

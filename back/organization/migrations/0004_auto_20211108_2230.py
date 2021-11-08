@@ -6,68 +6,132 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('organization', '0003_auto_20210604_2044'),
+        ("organization", "0003_auto_20210604_2044"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Changelog',
+            name="Changelog",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('added', models.DateField()),
-                ('title', models.CharField(max_length=100)),
-                ('description', models.TextField()),
-                ('url', models.URLField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("added", models.DateField()),
+                ("title", models.CharField(max_length=100)),
+                ("description", models.TextField()),
+                ("url", models.URLField()),
             ],
         ),
         migrations.AlterField(
-            model_name='organization',
-            name='ask_colleague_welcome_message',
-            field=models.BooleanField(default=True, help_text='Slack only', verbose_name='Send a Slack message to the team to collect personal welcome messages from colleages.'),
+            model_name="organization",
+            name="ask_colleague_welcome_message",
+            field=models.BooleanField(
+                default=True,
+                help_text="Slack only",
+                verbose_name="Send a Slack message to the team to collect personal welcome messages from colleages.",
+            ),
         ),
         migrations.AlterField(
-            model_name='organization',
-            name='auto_create_user',
-            field=models.BooleanField(default=False, help_text='If the user does not exist yet - Slack only', verbose_name='Create a new hire when they join your Slack team'),
+            model_name="organization",
+            name="auto_create_user",
+            field=models.BooleanField(
+                default=False,
+                help_text="If the user does not exist yet - Slack only",
+                verbose_name="Create a new hire when they join your Slack team",
+            ),
         ),
         migrations.AlterField(
-            model_name='organization',
-            name='create_new_hire_without_confirm',
-            field=models.BooleanField(default=False, help_text='Slack only', verbose_name='Create new hires without needing confirm from a user'),
+            model_name="organization",
+            name="create_new_hire_without_confirm",
+            field=models.BooleanField(
+                default=False,
+                help_text="Slack only",
+                verbose_name="Create new hires without needing confirm from a user",
+            ),
         ),
         migrations.AlterField(
-            model_name='organization',
-            name='language',
-            field=models.CharField(choices=[('en', 'English'), ('nl', 'Dutch'), ('fr', 'French'), ('de', 'German'), ('tr', 'Turkish'), ('pt', 'Portuguese'), ('es', 'Spanish')], default='en', max_length=10),
+            model_name="organization",
+            name="language",
+            field=models.CharField(
+                choices=[
+                    ("en", "English"),
+                    ("nl", "Dutch"),
+                    ("fr", "French"),
+                    ("de", "German"),
+                    ("tr", "Turkish"),
+                    ("pt", "Portuguese"),
+                    ("es", "Spanish"),
+                ],
+                default="en",
+                max_length=10,
+            ),
         ),
         migrations.AlterField(
-            model_name='organization',
-            name='new_hire_email',
-            field=models.BooleanField(default=True, help_text='This is essential if you want your new hires to login to the dashboard (disable if using Slack)', verbose_name='Send email to new hire with login credentials'),
+            model_name="organization",
+            name="new_hire_email",
+            field=models.BooleanField(
+                default=True,
+                help_text="This is essential if you want your new hires to login to the dashboard (disable if using Slack)",
+                verbose_name="Send email to new hire with login credentials",
+            ),
         ),
         migrations.AlterField(
-            model_name='organization',
-            name='new_hire_email_overdue_reminders',
-            field=models.BooleanField(default=False, help_text='These are daily emails, until all overdue tasks are completed.', verbose_name='Send email to new hire when tasks are overdue'),
+            model_name="organization",
+            name="new_hire_email_overdue_reminders",
+            field=models.BooleanField(
+                default=False,
+                help_text="These are daily emails, until all overdue tasks are completed.",
+                verbose_name="Send email to new hire when tasks are overdue",
+            ),
         ),
         migrations.AlterField(
-            model_name='organization',
-            name='new_hire_email_reminders',
-            field=models.BooleanField(default=True, help_text='Think of new tasks that got assigned, new resources, badges... ', verbose_name='Send email to new hire with updates'),
+            model_name="organization",
+            name="new_hire_email_reminders",
+            field=models.BooleanField(
+                default=True,
+                help_text="Think of new tasks that got assigned, new resources, badges... ",
+                verbose_name="Send email to new hire with updates",
+            ),
         ),
         migrations.AlterField(
-            model_name='organization',
-            name='send_new_hire_start_reminder',
-            field=models.BooleanField(default=False, help_text='Slack only', verbose_name='Send a Slack message to the team on the day the new hire starts'),
+            model_name="organization",
+            name="send_new_hire_start_reminder",
+            field=models.BooleanField(
+                default=False,
+                help_text="Slack only",
+                verbose_name="Send a Slack message to the team on the day the new hire starts",
+            ),
         ),
         migrations.AlterField(
-            model_name='organization',
-            name='slack_buttons',
-            field=models.BooleanField(default=True, help_text='Slack only', verbose_name="Add 'todo' and 'resource' buttons to the first message that's being sent to the new hire."),
+            model_name="organization",
+            name="slack_buttons",
+            field=models.BooleanField(
+                default=True,
+                help_text="Slack only",
+                verbose_name="Add 'todo' and 'resource' buttons to the first message that's being sent to the new hire.",
+            ),
         ),
         migrations.AlterField(
-            model_name='welcomemessage',
-            name='language',
-            field=models.CharField(choices=[('en', 'English'), ('nl', 'Dutch'), ('fr', 'French'), ('de', 'German'), ('tr', 'Turkish'), ('pt', 'Portuguese'), ('es', 'Spanish')], default='en', max_length=3),
+            model_name="welcomemessage",
+            name="language",
+            field=models.CharField(
+                choices=[
+                    ("en", "English"),
+                    ("nl", "Dutch"),
+                    ("fr", "French"),
+                    ("de", "German"),
+                    ("tr", "Turkish"),
+                    ("pt", "Portuguese"),
+                    ("es", "Spanish"),
+                ],
+                default="en",
+                max_length=3,
+            ),
         ),
     ]

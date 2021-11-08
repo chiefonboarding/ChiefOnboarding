@@ -54,17 +54,14 @@ class Google:
 
     def find_by_email(self, email):
         response = self.auth_session.get(
-            "https://www.googleapis.com/admin/directory/v1/users?customer=my_customer&query=email%3D"
-            + email.lower()
+            "https://www.googleapis.com/admin/directory/v1/users?customer=my_customer&query=email%3D" + email.lower()
         )
         if "users" in response.json():
             return True
         return False
 
     def get_all_users(self):
-        response = self.auth_session.get(
-            "https://www.googleapis.com/admin/directory/v1/users?customer=my_customer"
-        )
+        response = self.auth_session.get("https://www.googleapis.com/admin/directory/v1/users?customer=my_customer")
         if "users" in response.json():
             return response.json()["users"]
         return False

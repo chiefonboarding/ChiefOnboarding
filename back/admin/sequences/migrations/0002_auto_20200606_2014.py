@@ -50,9 +50,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="condition",
             name="condition_to_do",
-            field=models.ManyToManyField(
-                related_name="condition_to_do", to="to_do.ToDo"
-            ),
+            field=models.ManyToManyField(related_name="condition_to_do", to="to_do.ToDo"),
         ),
         migrations.AddField(
             model_name="condition",

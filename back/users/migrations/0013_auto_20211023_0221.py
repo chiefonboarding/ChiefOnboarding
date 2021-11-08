@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     def fix_none_fields(apps, schema_editor):
         User = apps.get_model("users", "User")
         User.objects.filter(phone__isnull=True).update(phone="")
@@ -13,7 +12,7 @@ class Migration(migrations.Migration):
         User.objects.filter(slack_user_id__isnull=True).update(slack_user_id="")
 
     dependencies = [
-        ('users', '0012_auto_20210604_2019'),
+        ("users", "0012_auto_20210604_2019"),
     ]
 
     operations = [

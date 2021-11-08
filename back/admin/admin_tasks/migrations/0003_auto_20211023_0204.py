@@ -2,15 +2,15 @@
 
 from django.db import migrations
 
-class Migration(migrations.Migration):
 
+class Migration(migrations.Migration):
     def fix_none_fields(apps, schema_editor):
         AdminTask = apps.get_model("admin_tasks", "AdminTask")
         AdminTask.objects.filter(email__isnull=True).update(email="")
         AdminTask.objects.filter(slack_user__isnull=True).update(slack_user="")
 
     dependencies = [
-        ('admin_tasks', '0002_auto_20200606_2014'),
+        ("admin_tasks", "0002_auto_20200606_2014"),
     ]
 
     operations = [

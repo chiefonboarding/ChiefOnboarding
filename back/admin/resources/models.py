@@ -14,9 +14,7 @@ class FullManager(models.Manager):
             .prefetch_related(
                 Prefetch(
                     "chapters",
-                    queryset=Chapter.objects.select_related(
-                        "parent_chapter"
-                    ).prefetch_related("content__files"),
+                    queryset=Chapter.objects.select_related("parent_chapter").prefetch_related("content__files"),
                 )
             )
             .order_by("name")
@@ -32,9 +30,7 @@ class FullTemplateManager(models.Manager):
             .prefetch_related(
                 Prefetch(
                     "chapters",
-                    queryset=Chapter.objects.select_related(
-                        "parent_chapter"
-                    ).prefetch_related("content__files"),
+                    queryset=Chapter.objects.select_related("parent_chapter").prefetch_related("content__files"),
                 )
             )
             .filter(template=True)
@@ -81,9 +77,7 @@ class Resource(BaseItem):
 class Chapter(models.Model):
     CHAPTER_TYPE = ((0, "page"), (1, "folder"), (2, "questions"))
     parent_chapter = models.ForeignKey("self", on_delete=models.CASCADE, null=True)
-    resource = models.ForeignKey(
-        Resource, on_delete=models.CASCADE, related_name="chapters", null=True
-    )
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="chapters", null=True)
     name = models.CharField(max_length=240)
     content = models.ManyToManyField(Content)
     type = models.IntegerField(choices=CHAPTER_TYPE)

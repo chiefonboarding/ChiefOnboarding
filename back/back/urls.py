@@ -21,24 +21,24 @@ from admin.appointments import urls as appointment_urls
 from admin.badges import urls as badge_urls
 from admin.integrations import urls as integrations_urls
 from admin.introductions import urls as intro_urls
-from new_hire import urls as new_hire_urls
 from admin.notes import urls as note_urls
-from organization import urls as org_urls
-from organization import views
+from admin.people import urls as people_urls
 from admin.preboarding import urls as preboarding_urls
 from admin.resources import urls as resource_urls
 from admin.sequences import urls as sequences_urls
-from slack_bot import urls as slack_urls
-from admin.to_do import urls as to_do_urls
-from admin.people import urls as people_urls
 from admin.settings import urls as settings_urls
+from admin.to_do import urls as to_do_urls
+from new_hire import urls as new_hire_urls
+from organization import urls as org_urls
+from organization import views
+from slack_bot import urls as slack_urls
 from user_auth import urls as auth_urls
 from users import urls as user_urls
 
 urlpatterns = [
     # path('', views.home),
-    path('admin/people', include((people_urls, 'admin.people'), namespace="admin")),
-    path('admin/settings/', include(settings_urls)),
+    path("admin/people", include((people_urls, "admin.people"), namespace="admin")),
+    path("admin/settings/", include(settings_urls)),
     re_path(
         r"^_nuxt/(?P<path>.*)$",
         RedirectView.as_view(url="/static/js/_nuxt/%(path)s", permanent=True),

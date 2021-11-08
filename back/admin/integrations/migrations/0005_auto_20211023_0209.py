@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     def fix_none_fields(apps, schema_editor):
         AccessToken = apps.get_model("integrations", "accesstoken")
         AccessToken.objects.filter(account_id__isnull=True).update(account_id="")
@@ -21,7 +20,7 @@ class Migration(migrations.Migration):
         AccessToken.objects.filter(refresh_token__isnull=True).update(refresh_token="")
 
     dependencies = [
-        ('integrations', '0004_auto_20200924_1309'),
+        ("integrations", "0004_auto_20200924_1309"),
     ]
 
     operations = [

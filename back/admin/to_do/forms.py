@@ -1,21 +1,19 @@
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import ButtonHolder, Column, Div, Field, Fieldset, Layout, Row, Submit
 from django import forms
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Row, Column, Div
-
 from misc.fields import ContentFormField
-from .models import ToDo
 from organization.models import Tag
 
-from crispy_forms.layout import Field
+from .models import ToDo
 
 
 class WYSIWYGField(Field):
-    template = 'wysiwyg_field.html'
+    template = "wysiwyg_field.html"
 
 
 class MultiSelectField(Field):
-    template = 'multi_select_field.html'
+    template = "multi_select_field.html"
 
 
 class ToDoForm(forms.ModelForm):
@@ -28,21 +26,16 @@ class ToDoForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div(
-                    Field('name'),
-                    Field('due_on_day'),
-                    MultiSelectField('tags'),
-                    css_class='col-4'
+                    Field("name"),
+                    Field("due_on_day"),
+                    MultiSelectField("tags"),
+                    css_class="col-4",
                 ),
-                Div(
-                    WYSIWYGField('content'),
-                    css_class='col-8'
-                ),
-                css_class='row'
+                Div(WYSIWYGField("content"), css_class="col-8"),
+                css_class="row",
             ),
         )
 
     class Meta:
         model = ToDo
-        exclude = ('template',)
-
-
+        exclude = ("template",)

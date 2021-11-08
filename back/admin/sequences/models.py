@@ -3,18 +3,17 @@ from django.db import models
 from django.db.models import Prefetch
 from twilio.rest import Client
 
-from admin.admin_tasks.models import (NOTIFICATION_CHOICES, PRIORITY_CHOICES,
-                                AdminTask)
+from admin.admin_tasks.models import NOTIFICATION_CHOICES, PRIORITY_CHOICES, AdminTask
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
 from admin.introductions.models import Introduction
-from misc.models import Content
-from misc.serializers import FileSerializer
 from admin.preboarding.models import Preboarding
 from admin.resources.models import Resource
 from admin.sequences.utils import get_condition_items
-from slack_bot.slack import Slack
 from admin.to_do.models import ToDo
+from misc.models import Content
+from misc.serializers import FileSerializer
+from slack_bot.slack import Slack
 
 from .emails import send_sequence_message
 
@@ -43,10 +42,7 @@ class Sequence(models.Model):
         for i in self.conditions.all():
             original_record = Condition.objects.get(id=i.id)
             # checking if this condition is already
-            if (
-                original_record.condition_type == 0
-                or original_record.condition_type == 2
-            ):
+            if original_record.condition_type == 0 or original_record.condition_type == 2:
                 condition = user.conditions.filter(
                     condition_type=original_record.condition_type,
                     days=original_record.days,
@@ -56,10 +52,7 @@ class Sequence(models.Model):
                 condition = None
                 for j in conditions:
                     valid = True
-                    if (
-                        original_record.condition_to_do.count()
-                        is not j.condition_to_do.count()
-                    ):
+                    if original_record.condition_to_do.count() is not j.condition_to_do.count():
                         continue
                     for h in original_record.condition_to_do.all():
                         if not j.condition_to_do.filter(pk=h.pk).exists():
@@ -98,17 +91,13 @@ class ExternalMessage(models.Model):
     content = models.CharField(max_length=12000, blank=True)
     content_json = models.ManyToManyField(Content)
     send_via = models.IntegerField(choices=EXTERNAL_TYPE)
-    send_to = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True
-    )
+    send_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
     subject = models.CharField(max_length=78, default="Here is an update!", blank=True)
     person_type = models.IntegerField(choices=PEOPLE_CHOICES, default=1)
 
     def email_message(self):
         email_data = []
-        for i in self.content_json.filter(
-            type__in=["p", "quote", "hr", "ul", "ol", "h1", "h2", "h3", "image", "file"]
-        ):
+        for i in self.content_json.filter(type__in=["p", "quote", "hr", "ul", "ol", "h1", "h2", "h3", "image", "file"]):
             if i.type == "quote":
                 email_data.append({"type": "block", "text": i.content})
             else:
@@ -139,9 +128,7 @@ class ExternalMessage(models.Model):
 class PendingAdminTask(models.Model):
     name = models.CharField(max_length=500)
     comment = models.CharField(max_length=12500, default="", blank=True)
-    assigned_to = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="assigned_user"
-    )
+    assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="assigned_user")
     option = models.CharField(max_length=12500, choices=NOTIFICATION_CHOICES)
     slack_user = models.CharField(max_length=12500, default="", blank=True)
     email = models.EmailField(max_length=12500, default="", blank=True)
@@ -151,9 +138,7 @@ class PendingAdminTask(models.Model):
 
 class Condition(models.Model):
     CONDITION_TYPE = ((0, "after"), (1, "to do"), (2, "before"))
-    sequence = models.ForeignKey(
-        Sequence, on_delete=models.CASCADE, null=True, related_name="conditions"
-    )
+    sequence = models.ForeignKey(Sequence, on_delete=models.CASCADE, null=True, related_name="conditions")
     condition_type = models.IntegerField(choices=CONDITION_TYPE, default=0)
     days = models.IntegerField(default=0)
     time = models.TimeField(default="08:00")
@@ -191,29 +176,21 @@ class Condition(models.Model):
                 user.introductions.add(i)
 
         for i in self.admin_tasks.all():
-            if not AdminTask.objects.filter(
-                new_hire=user, assigned_to=i.assigned_to, name=i.name
-            ).exists():
+            if not AdminTask.objects.filter(new_hire=user, assigned_to=i.assigned_to, name=i.name).exists():
                 serializer = PendingAdminTaskSerializer(i).data
                 serializer.pop("assigned_to")
                 serializer.pop("id")
                 comment = serializer.pop("comment")
-                task = AdminTask.objects.create(
-                    **serializer, assigned_to=i.assigned_to, new_hire=user
-                )
+                task = AdminTask.objects.create(**serializer, assigned_to=i.assigned_to, new_hire=user)
                 if comment is not None:
-                    AdminTaskComment.objects.create(
-                        content=comment, comment_by=task.assigned_to, admin_task=task
-                    )
+                    AdminTaskComment.objects.create(content=comment, comment_by=task.assigned_to, admin_task=task)
 
         for i in self.external_messages.all():
             if i.get_user(user) == None:
                 continue
             if i.send_via == 0:  # email
                 try:
-                    send_sequence_message(
-                        i.get_user(user), i.email_message(), i.subject
-                    )
+                    send_sequence_message(i.get_user(user), i.email_message(), i.subject)
                 except:
                     pass
             elif i.send_via == 1:  # slack
@@ -225,9 +202,7 @@ class Condition(models.Model):
                 s.send_message(blocks=blocks)
             else:  # text
                 if i.get_user(user).phone is not None and i.get_user(user).phone != "":
-                    client = Client(
-                        settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN
-                    )
+                    client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
                     client.messages.create(
                         to=i.get_user(user).phone,
                         from_=settings.TWILIO_FROM_NUMBER,

@@ -11,17 +11,18 @@ from django.db import models
 from django.db.models import Q
 from django.template import Context, Template
 from django.utils.crypto import get_random_string
-from fernet_fields import EncryptedTextField
 from django.utils.functional import cached_property
+from fernet_fields import EncryptedTextField
 
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
 from admin.introductions.models import Introduction
-from misc.models import File
 from admin.preboarding.models import Preboarding
 from admin.resources.models import CourseAnswer, Resource
 from admin.sequences.models import Condition
 from admin.to_do.models import ToDo
+from misc.models import File
+from organization.models import Changelog
 
 LANGUAGE_CHOICES = (
     ("en", "English"),
@@ -37,9 +38,7 @@ ROLE_CHOICES = ((0, "New Hire"), (1, "Administrator"), (2, "Manager"), (3, "Othe
 
 
 class CustomUserManager(BaseUserManager):
-    def _create_user(
-        self, first_name, last_name, email, password, role, **extra_fields
-    ):
+    def _create_user(self, first_name, last_name, email, password, role, **extra_fields):
         now = datetime.now()
         if not email:
             raise ValueError("The given email must be set")
@@ -50,30 +49,22 @@ class CustomUserManager(BaseUserManager):
             email=email,
             role=role,
             date_joined=now,
-            **extra_fields
+            **extra_fields,
         )
         if password is not None:
             user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_new_hire(
-        self, first_name, last_name, email, password=None, **extra_fields
-    ):
-        user = self._create_user(
-            first_name, last_name, email, password, 0, **extra_fields
-        )
+    def create_new_hire(self, first_name, last_name, email, password=None, **extra_fields):
+        user = self._create_user(first_name, last_name, email, password, 0, **extra_fields)
         return user
 
     def create_admin(self, first_name, last_name, email, password, **extra_fields):
-        return self._create_user(
-            first_name, last_name, email, password, 1, **extra_fields
-        )
+        return self._create_user(first_name, last_name, email, password, 1, **extra_fields)
 
     def create_manager(self, first_name, last_name, email, password, **extra_fields):
-        return self._create_user(
-            first_name, last_name, email, password, 2, **extra_fields
-        )
+        return self._create_user(first_name, last_name, email, password, 2, **extra_fields)
 
 
 class ManagerManager(models.Manager):
@@ -110,7 +101,11 @@ class User(AbstractBaseUser):
     timezone = models.CharField(default="", max_length=1000)
     department = models.TextField(default="", blank=True)
     language = models.CharField(default="en", choices=LANGUAGE_CHOICES, max_length=5)
-    role = models.IntegerField(choices=ROLE_CHOICES, default=3, help_text="An administrator has access to everything. A manager has only access to their new hires and their tasks.")
+    role = models.IntegerField(
+        choices=ROLE_CHOICES,
+        default=3,
+        help_text="An administrator has access to everything. A manager has only access to their new hires and their tasks.",
+    )
     is_active = models.BooleanField(default=True)
     is_introduced_to_colleagues = models.BooleanField(default=False)
     sent_preboarding_details = models.BooleanField(default=False)
@@ -120,12 +115,8 @@ class User(AbstractBaseUser):
     # new hire specific
     completed_tasks = models.IntegerField(default=0)
     total_tasks = models.IntegerField(default=0)
-    buddy = models.ForeignKey(
-        "self", on_delete=models.SET_NULL, null=True, related_name="new_hire_buddy"
-    )
-    manager = models.ForeignKey(
-        "self", on_delete=models.SET_NULL, null=True, related_name="new_hire_manager"
-    )
+    buddy = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, related_name="new_hire_buddy")
+    manager = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, related_name="new_hire_manager")
     seen_updates = models.DateField(auto_now_add=True)
     start_day = models.DateField(null=True, blank=True, help_text="First working day")
     unique_url = models.CharField(max_length=250, null=True, unique=True, blank=True)
@@ -196,16 +187,8 @@ class User(AbstractBaseUser):
 
         local_tz = pytz.timezone("UTC")
         org = Organization.object.get()
-        us_tz = (
-            pytz.timezone(org.timezone)
-            if self.timezone == ""
-            else pytz.timezone(self.timezone)
-        )
-        local = (
-            local_tz.localize(datetime.now())
-            if date is None
-            else local_tz.localize(date)
-        )
+        us_tz = pytz.timezone(org.timezone) if self.timezone == "" else pytz.timezone(self.timezone)
+        local = local_tz.localize(datetime.now()) if date is None else local_tz.localize(date)
         return us_tz.normalize(local.astimezone(us_tz))
 
     def personalize(self, text):
@@ -250,14 +233,17 @@ class User(AbstractBaseUser):
     def is_admin_or_manager(self):
         return self.role in (1, 2)
 
+    @property
+    def has_new_changelog_notifications(self):
+        last_changelog_item = Changelog.objects.last()
+        return self.seen_updates < last_changelog_item.added
+
     def __str__(self):
         return "%s" % self.full_name
 
 
 class ToDoUser(models.Model):
-    user = models.ForeignKey(
-        get_user_model(), related_name="to_do_new_hire", on_delete=models.CASCADE
-    )
+    user = models.ForeignKey(get_user_model(), related_name="to_do_new_hire", on_delete=models.CASCADE)
     to_do = models.ForeignKey(ToDo, related_name="to_do", on_delete=models.CASCADE)
     completed = models.BooleanField(default=False)
     form = models.JSONField(models.TextField(default="[]"), default=list)
@@ -286,34 +272,22 @@ class ToDoUser(models.Model):
 
 
 class PreboardingUser(models.Model):
-    user = models.ForeignKey(
-        get_user_model(), related_name="new_hire_preboarding", on_delete=models.CASCADE
-    )
-    preboarding = models.ForeignKey(
-        Preboarding, related_name="preboarding_new_hire", on_delete=models.CASCADE
-    )
-    form = models.JSONField(
-        models.TextField(max_length=100000, default="[]"), default=list
-    )
+    user = models.ForeignKey(get_user_model(), related_name="new_hire_preboarding", on_delete=models.CASCADE)
+    preboarding = models.ForeignKey(Preboarding, related_name="preboarding_new_hire", on_delete=models.CASCADE)
+    form = models.JSONField(models.TextField(max_length=100000, default="[]"), default=list)
     completed = models.BooleanField(default=False)
     order = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):
         # adding order number when record is not created yet (always the last item in the list)
         if not self.pk:
-            self.order = PreboardingUser.objects.filter(
-                user=self.user, preboarding=self.preboarding
-            ).count()
+            self.order = PreboardingUser.objects.filter(user=self.user, preboarding=self.preboarding).count()
         super(PreboardingUser, self).save(*args, **kwargs)
 
 
 class ResourceUser(models.Model):
-    user = models.ForeignKey(
-        get_user_model(), related_name="new_hire_resource", on_delete=models.CASCADE
-    )
-    resource = models.ForeignKey(
-        Resource, related_name="resource_new_hire", on_delete=models.CASCADE
-    )
+    user = models.ForeignKey(get_user_model(), related_name="new_hire_resource", on_delete=models.CASCADE)
+    resource = models.ForeignKey(Resource, related_name="resource_new_hire", on_delete=models.CASCADE)
     step = models.IntegerField(default=0)
     answers = models.ManyToManyField(CourseAnswer)
     reminded = models.DateTimeField(null=True)
@@ -333,25 +307,17 @@ class ResourceUser(models.Model):
                 break
 
     def is_course(self):
-        return (
-            self.resource.course and self.resource.chapters.count() is not self.step - 1
-        )
+        return self.resource.course and self.resource.chapters.count() is not self.step - 1
 
 
 class NewHireWelcomeMessage(models.Model):
     # messages placed through the slack bot
-    new_hire = models.ForeignKey(
-        get_user_model(), related_name="welcome_new_hire", on_delete=models.CASCADE
-    )
-    colleague = models.ForeignKey(
-        get_user_model(), related_name="welcome_colleague", on_delete=models.CASCADE
-    )
+    new_hire = models.ForeignKey(get_user_model(), related_name="welcome_new_hire", on_delete=models.CASCADE)
+    colleague = models.ForeignKey(get_user_model(), related_name="welcome_colleague", on_delete=models.CASCADE)
     message = models.TextField()
 
 
 class OTPRecoveryKey(models.Model):
-    user = models.ForeignKey(
-        get_user_model(), related_name="user_otp", on_delete=models.CASCADE
-    )
+    user = models.ForeignKey(get_user_model(), related_name="user_otp", on_delete=models.CASCADE)
     key = EncryptedTextField(default=uuid.uuid4)
     is_used = models.BooleanField(default=False)

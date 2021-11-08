@@ -1,6 +1,6 @@
-from rest_framework import serializers
 from django import forms
 from django.forms import TextInput
+from rest_framework import serializers
 
 from .models import Content, File
 from .serializers import ContentPostSerializer, ContentSerializer
@@ -38,7 +38,7 @@ class ContentFormField(forms.Field):
         return ContentSerializer(value, many=True).data
 
     def to_internal_value(self, data):
-        hello = 0/0
+        hello = 0 / 0
         all_values = []
         for i in data:
             files = i.pop("files", [])

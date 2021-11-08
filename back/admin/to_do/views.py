@@ -1,16 +1,16 @@
+from django.contrib.messages.views import SuccessMessageMixin
+from django.urls import reverse_lazy
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.views.generic.list import ListView
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from django.contrib.messages.views import SuccessMessageMixin
-from django.urls import reverse_lazy
-from django.views.generic.list import ListView
-from django.views.generic.edit import UpdateView, CreateView, DeleteView
-
 from misc.serializers import ContentSerializer
+
+from .forms import ToDoForm
 from .models import ToDo
 from .serializers import ToDoSerializer
-from .forms import ToDoForm
 
 
 class ToDoListView(ListView):
@@ -19,10 +19,10 @@ class ToDoListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "To do items"
-        context['subtitle'] = "templates"
-        context['add_action'] = reverse_lazy("todo:create")
-        context['wysiwyg'] = []
+        context["title"] = "To do items"
+        context["subtitle"] = "templates"
+        context["add_action"] = reverse_lazy("todo:create")
+        context["wysiwyg"] = []
         return context
 
 
@@ -34,8 +34,8 @@ class ToDoCreateView(SuccessMessageMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "Create to do item"
-        context['subtitle'] = "templates"
+        context["title"] = "Create to do item"
+        context["subtitle"] = "templates"
         return context
 
 
@@ -48,9 +48,9 @@ class ToDoUpdateView(SuccessMessageMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "Update to do item"
-        context['subtitle'] = "templates"
-        context['wysiwyg'] = ContentSerializer(context['todo'].content, many=True).data
+        context["title"] = "Update to do item"
+        context["subtitle"] = "templates"
+        context["wysiwyg"] = ContentSerializer(context["todo"].content, many=True).data
         return context
 
 

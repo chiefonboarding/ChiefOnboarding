@@ -7,8 +7,8 @@ from django.utils.translation import ugettext as _
 
 from admin.integrations.models import AccessToken
 from admin.introductions.models import Introduction
-from organization.models import Organization
 from admin.resources.models import Chapter
+from organization.models import Organization
 
 
 class Slack:
@@ -63,9 +63,7 @@ class Slack:
 
     def find_by_email(self, email):
         try:
-            response = self.client.api_call(
-                "users.lookupByEmail", data={"email": email}
-            )
+            response = self.client.api_call("users.lookupByEmail", data={"email": email})
         except Exception:
             return False
         return response
@@ -86,12 +84,8 @@ class Slack:
                     "email": self.user_obj.email,
                     "position": self.user_obj.position,
                     "start": self.user_obj.start_day,
-                    "manager": self.user_obj.manager.full_name()
-                    if self.user_obj.manager is not None
-                    else "",
-                    "buddy": self.user_obj.buddy.full_name()
-                    if self.user_obj.buddy is not None
-                    else "",
+                    "manager": self.user_obj.manager.full_name() if self.user_obj.manager is not None else "",
+                    "buddy": self.user_obj.buddy.full_name() if self.user_obj.buddy is not None else "",
                 }
             )
         else:
@@ -125,9 +119,7 @@ class Slack:
                 channel = self.channel
         if text is not None:
             blocks = self.format_simple_text(text)
-        return self.client.chat_postMessage(
-            channel=channel, blocks=blocks, as_user=True, username=self.team.bot_id
-        )
+        return self.client.chat_postMessage(channel=channel, blocks=blocks, as_user=True, username=self.team.bot_id)
 
     def update_message(self, ts, blocks=None):
         if blocks is None:
@@ -177,24 +169,13 @@ class Slack:
             return _("This task is overdue")
         if (item.due_on_day - workday) == 0:
             return _("This task is due today")
-        return (
-            _("This task needs to be completed in ")
-            + str(item.due_on_day - workday)
-            + _(" working days.")
-        )
+        return _("This task needs to be completed in ") + str(item.due_on_day - workday) + _(" working days.")
 
     def format_to_do_block(self, pre_message, items):
-        blocks = [
-            {"type": "section", "text": {"type": "plain_text", "text": pre_message}}
-        ]
+        blocks = [{"type": "section", "text": {"type": "plain_text", "text": pre_message}}]
         for i in items:
             if i.to_do.valid_for_slack():
-                text = (
-                    "*"
-                    + self.personalize(i.to_do.name)
-                    + "*\n"
-                    + self.footer_text(i.to_do)
-                )
+                text = "*" + self.personalize(i.to_do.name) + "*\n" + self.footer_text(i.to_do)
                 value = "dialog:to_do:" + str(i.id)
                 action_text = "View details"
             else:
@@ -229,27 +210,15 @@ class Slack:
     def format_resource_block(self, items, pre_message):
         blocks = []
         if pre_message is not None:
-            blocks = [
-                {"type": "section", "text": {"type": "mrkdwn", "text": pre_message}}
-            ]
+            blocks = [{"type": "section", "text": {"type": "mrkdwn", "text": pre_message}}]
 
         for i in items:
             if i.resource.course and not i.completed_course:
-                value = (
-                    "dialog:course:"
-                    + str(i.id)
-                    + ":"
-                    + str(i.resource.chapters.filter(type=0).first().id)
-                )
+                value = "dialog:course:" + str(i.id) + ":" + str(i.resource.chapters.filter(type=0).first().id)
                 action_text = "View course"
             else:
                 action_text = "View resource"
-                value = (
-                    "dialog:resource:"
-                    + str(i.id)
-                    + ":"
-                    + str(i.resource.chapters.filter(type=0).first().id)
-                )
+                value = "dialog:resource:" + str(i.id) + ":" + str(i.resource.chapters.filter(type=0).first().id)
             blocks.append(
                 {
                     "type": "section",
@@ -269,10 +238,7 @@ class Slack:
 
     def format_intro_block(self, intro):
         text = "*" + intro.name + ":* " + intro.intro_person.full_name() + "\n"
-        if (
-            intro.intro_person.position is not None
-            and intro.intro_person.position != ""
-        ):
+        if intro.intro_person.position is not None and intro.intro_person.position != "":
             text += intro.intro_person.position + "\n"
         if intro.intro_person.message is not None and intro.intro_person.message != "":
             text += "_" + self.personalize(intro.intro_person.message) + "_\n"
@@ -289,9 +255,7 @@ class Slack:
             }
         return block
 
-    def open_modal(
-        self, trigger_id, title, blocks, callback, private_metadata, submit_name
-    ):
+    def open_modal(self, trigger_id, title, blocks, callback, private_metadata, submit_name):
         if submit_name is None:
             submit_name = "Done"
         view = {
@@ -313,9 +277,7 @@ class Slack:
         blocks = []
         if len(items["introductions"]):
             for i in items["introductions"]:
-                blocks.append(
-                    self.format_intro_block(Introduction.objects.get(id=i.id))
-                )
+                blocks.append(self.format_intro_block(Introduction.objects.get(id=i.id)))
             self.send_message(blocks=blocks)
         for i in items["badges"]:
             blocks = [
@@ -323,9 +285,7 @@ class Slack:
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": "*Congrats, you unlocked: "
-                        + self.personalize(i.name)
-                        + "*",
+                        "text": "*Congrats, you unlocked: " + self.personalize(i.name) + "*",
                     },
                 }
             ]
@@ -333,10 +293,7 @@ class Slack:
                 blocks.append(j.to_slack_block(self.user_obj))
             self.send_message(blocks=blocks)
         if len(items["to_do"]):
-            to_do = [
-                ToDoUser.objects.get(user=self.user_obj, to_do=i)
-                for i in items["to_do"]
-            ]
+            to_do = [ToDoUser.objects.get(user=self.user_obj, to_do=i) for i in items["to_do"]]
             if len(items["to_do"]) > 1:
                 pre_message = "We have just added these new to do items:"
             else:
@@ -350,9 +307,7 @@ class Slack:
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": "*Our new hire "
-                        + to_do_user.user.first_name
-                        + " just answered some questions:*",
+                        "text": "*Our new hire " + to_do_user.user.first_name + " just answered some questions:*",
                     },
                 },
                 {"type": "divider"},
@@ -427,9 +382,7 @@ class Slack:
     def create_updated_view(self, value, view, course_completed):
         chapter = Chapter.objects.get(id=value)
         blocks = []
-        if course_completed or (
-            view["blocks"][0]["type"] == "select_static" and not chapter.type == 2
-        ):
+        if course_completed or (view["blocks"][0]["type"] == "select_static" and not chapter.type == 2):
             blocks = [view["blocks"][0]]
         blocks.append(
             {
@@ -449,9 +402,7 @@ class Slack:
         del view["app_installed_team_id"]
         del view["bot_id"]
         del view["id"]
-        view["callback_id"] = (
-            view["callback_id"].rsplit(":", 1)[0] + ":" + str(chapter.id)
-        )
+        view["callback_id"] = view["callback_id"].rsplit(":", 1)[0] + ":" + str(chapter.id)
         view["close"] = {"type": "plain_text", "text": "Close", "emoji": True}
         return view
 
@@ -461,9 +412,7 @@ class Slack:
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": _(
-                        "Happy to help! Here are all the things you can say to me: \n\n"
-                    ),
+                    "text": _("Happy to help! Here are all the things you can say to me: \n\n"),
                 },
             },
             {
@@ -494,20 +443,14 @@ class Slack:
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": "*"
-                    + _("Show me all to do items")
-                    + "*\n"
-                    + _("This will show all tasks"),
+                    "text": "*" + _("Show me all to do items") + "*\n" + _("This will show all tasks"),
                 },
             },
             {
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": "*"
-                    + _("Show me all resources")
-                    + "*\n"
-                    + _("This will show all resources."),
+                    "text": "*" + _("Show me all resources") + "*\n" + _("This will show all resources."),
                 },
             },
         ]

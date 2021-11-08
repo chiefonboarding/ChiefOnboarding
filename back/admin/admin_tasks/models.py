@@ -4,8 +4,7 @@ from django.utils.translation import gettext as _
 
 from slack_bot.slack import Slack
 
-from .emails import (send_email_new_assigned_admin, send_email_new_comment,
-                     send_email_notification_to_external_person)
+from .emails import send_email_new_assigned_admin, send_email_new_comment, send_email_notification_to_external_person
 
 PRIORITY_CHOICES = ((1, _("Low")), (2, _("Medium")), (3, _("High")))
 
@@ -80,13 +79,7 @@ class AdminTask(models.Model):
             s = Slack()
             comment = ""
             if self.comment.all().exists():
-                comment = (
-                    "_"
-                    + self.comment.last()
-                    + "\n by "
-                    + self.comment.last().comment_by.full_name()
-                    + "_"
-                )
+                comment = "_" + self.comment.last() + "\n by " + self.comment.last().comment_by.full_name() + "_"
             text = f"You have just been assigned to *{self.title}* for *{self.new_hire.full_name()}\n{comment}"
 
             blocks = [
@@ -114,9 +107,7 @@ class AdminTask(models.Model):
 
 
 class AdminTaskComment(models.Model):
-    admin_task = models.ForeignKey(
-        "AdminTask", on_delete=models.CASCADE, related_name="comment"
-    )
+    admin_task = models.ForeignKey("AdminTask", on_delete=models.CASCADE, related_name="comment")
     content = models.CharField(max_length=12500)
     date = models.DateTimeField(auto_now_add=True)
     comment_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

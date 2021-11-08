@@ -31,9 +31,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "condition_type",
-                    models.IntegerField(
-                        choices=[(0, "after"), (1, "to do"), (2, "before")], default=0
-                    ),
+                    models.IntegerField(choices=[(0, "after"), (1, "to do"), (2, "before")], default=0),
                 ),
                 ("days", models.IntegerField(default=0)),
                 ("time", models.TimeField(default="08:00")),
@@ -61,9 +59,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "send_via",
-                    models.IntegerField(
-                        choices=[(0, "Email"), (1, "Slack"), (2, "Text")]
-                    ),
+                    models.IntegerField(choices=[(0, "Email"), (1, "Slack"), (2, "Text")]),
                 ),
                 (
                     "person_type",
@@ -108,9 +104,7 @@ class Migration(migrations.Migration):
                 ("date", models.DateField(blank=True, null=True)),
                 (
                     "priority",
-                    models.IntegerField(
-                        choices=[(1, "Low"), (2, "Medium"), (3, "High")], default=2
-                    ),
+                    models.IntegerField(choices=[(1, "Low"), (2, "Medium"), (3, "High")], default=2),
                 ),
             ],
         ),

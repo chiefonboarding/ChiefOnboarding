@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from admin.integrations.models import AccessToken
+
 # from google_auth_oauthlib.flow import Flow
 from organization.models import Organization
 from users.serializers import NewHireSerializer
@@ -44,15 +45,11 @@ class LoginView(APIView):
                     totp_input = serializer.data["totp"].strip().replace(" ", "")
 
                     if totp_input == "":
-                        return Response(
-                            {"totp": "provide_totp"}, status=status.HTTP_400_BAD_REQUEST
-                        )
+                        return Response({"totp": "provide_totp"}, status=status.HTTP_400_BAD_REQUEST)
 
                     totp = pyotp.TOTP(user.totp_secret)
                     otp_recovery_key = user.check_otp_recovery_key(totp_input)
-                    if (
-                        not totp.verify(totp_input) and otp_recovery_key is None
-                    ) or cache.get(user.email) != None:
+                    if (not totp.verify(totp_input) and otp_recovery_key is None) or cache.get(user.email) != None:
                         return Response(
                             {"error": "TOTP code does not match"},
                             status=status.HTTP_400_BAD_REQUEST,

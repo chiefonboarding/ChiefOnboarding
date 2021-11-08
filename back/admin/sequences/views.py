@@ -4,14 +4,17 @@ from rest_framework import status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from slack_bot.slack import Slack
 from admin.to_do.models import ToDo
+from slack_bot.slack import Slack
 
 from .emails import send_sequence_message
 from .models import Condition, ExternalMessage, PendingAdminTask, Sequence
-from .serializers import (ExternalMessageSerializer,
-                          PendingAdminTaskSerializer, SequenceListSerializer,
-                          SequenceSerializer)
+from .serializers import (
+    ExternalMessageSerializer,
+    PendingAdminTaskSerializer,
+    SequenceListSerializer,
+    SequenceSerializer,
+)
 
 
 class SequenceViewSet(viewsets.ModelViewSet):
@@ -79,9 +82,7 @@ class SequenceViewSet(viewsets.ModelViewSet):
         ]
         for j in items:
             for i in data["collection"][j["item"]]:
-                item = apps.get_model(
-                    app_label=j["app"], model_name=j["model"]
-                ).objects.get(id=i["id"])
+                item = apps.get_model(app_label=j["app"], model_name=j["model"]).objects.get(id=i["id"])
                 j["s_model"].add(item)
 
         # save sequence part
@@ -92,16 +93,12 @@ class SequenceViewSet(viewsets.ModelViewSet):
                 sequence=sequence,
             )
             if len(item["condition_to_do"]):
-                c.condition_to_do.set(
-                    [ToDo.objects.get(id=i["id"]) for i in item["condition_to_do"]]
-                )
+                c.condition_to_do.set([ToDo.objects.get(id=i["id"]) for i in item["condition_to_do"]])
 
             items = self._get_condition_items(c)
             for j in items:
                 for i in item[j["item"]]:
-                    new_item = apps.get_model(
-                        app_label=j["app"], model_name=j["model"]
-                    ).objects.get(id=i["id"])
+                    new_item = apps.get_model(app_label=j["app"], model_name=j["model"]).objects.get(id=i["id"])
                     j["c_model"].add(new_item)
 
         return False
@@ -117,9 +114,7 @@ class SequenceViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = self.get_serializer(
-            instance, data={"name": request.data["name"]}, partial=True
-        )
+        serializer = self.get_serializer(instance, data={"name": request.data["name"]}, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         Condition.objects.filter(sequence=instance).delete()
@@ -147,21 +142,13 @@ class SaveExternalMessage(APIView):
 
 class SendTestMessage(APIView):
     def post(self, request, id):
-        ext_message = (
-            ExternalMessage.objects.select_related("send_to")
-            .prefetch_related("content_json")
-            .get(id=id)
-        )
+        ext_message = ExternalMessage.objects.select_related("send_to").prefetch_related("content_json").get(id=id)
         if ext_message.send_via == 0:  # email
-            send_sequence_message(
-                request.user, ext_message.email_message(), ext_message.subject
-            )
+            send_sequence_message(request.user, ext_message.email_message(), ext_message.subject)
         elif ext_message.send_via == 1:  # slack
             # User is not connected to slack. Needs -> employees -> 'give access'
             if request.user.slack_channel_id == None:
-                return Response(
-                    {"slack": "not exist"}, status=status.HTTP_400_BAD_REQUEST
-                )
+                return Response({"slack": "not exist"}, status=status.HTTP_400_BAD_REQUEST)
             s = Slack()
             s.set_user(request.user)
             blocks = []
@@ -174,12 +161,8 @@ class SendTestMessage(APIView):
 class SaveAdminTask(APIView):
     def post(self, request):
         if "id" in request.data:
-            pending_admin_task = PendingAdminTask.objects.select_related(
-                "assigned_to"
-            ).get(id=request.data["id"])
-            pending_task = PendingAdminTaskSerializer(
-                pending_admin_task, data=request.data, partial=True
-            )
+            pending_admin_task = PendingAdminTask.objects.select_related("assigned_to").get(id=request.data["id"])
+            pending_task = PendingAdminTaskSerializer(pending_admin_task, data=request.data, partial=True)
         else:
             pending_task = PendingAdminTaskSerializer(data=request.data)
         pending_task.is_valid(raise_exception=True)

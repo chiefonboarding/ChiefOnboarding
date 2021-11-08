@@ -16,9 +16,7 @@ class ManagerPermission(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        return request.user.is_authenticated and (
-            request.user.role == 1 or request.user.role == 2
-        )
+        return request.user.is_authenticated and (request.user.role == 1 or request.user.role == 2)
 
 
 class NewHirePermission(permissions.BasePermission):

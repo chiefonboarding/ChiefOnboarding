@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sequences', '0010_auto_20211023_0216'),
+        ("sequences", "0010_auto_20211023_0216"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='pendingadmintask',
-            name='comment',
-            field=models.CharField(blank=True, default='', max_length=12500),
+            model_name="pendingadmintask",
+            name="comment",
+            field=models.CharField(blank=True, default="", max_length=12500),
         ),
         migrations.AlterField(
-            model_name='pendingadmintask',
-            name='email',
-            field=models.EmailField(blank=True, default='', max_length=12500),
+            model_name="pendingadmintask",
+            name="email",
+            field=models.EmailField(blank=True, default="", max_length=12500),
         ),
         migrations.AlterField(
-            model_name='pendingadmintask',
-            name='slack_user',
-            field=models.CharField(blank=True, default='', max_length=12500),
+            model_name="pendingadmintask",
+            name="slack_user",
+            field=models.CharField(blank=True, default="", max_length=12500),
         ),
     ]

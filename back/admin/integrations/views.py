@@ -3,14 +3,19 @@ import json
 import requests
 from django.conf import settings
 from django.shortcuts import redirect
+
 # from google_auth_oauthlib.flow import Flow
 from rest_framework import generics, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import AccessToken, ScheduledAccess
-from .serializers import (GoogleAPITokenSerializer, GoogleOAuthTokenSerializer,
-                          ScheduledAccessSerializer, SlackTokenSerializer)
+from .serializers import (
+    GoogleAPITokenSerializer,
+    GoogleOAuthTokenSerializer,
+    ScheduledAccessSerializer,
+    SlackTokenSerializer,
+)
 
 
 class SlackTokenCreateView(generics.CreateAPIView, generics.RetrieveAPIView):
@@ -26,9 +31,7 @@ class GoogleTokenCreateView(generics.CreateAPIView):
 class GoogleAddTokenView(APIView):
     def get(self, request):
         access_code = AccessToken.objects.filter(integration=2)
-        if access_code.exists() and str(
-            access_code.first().one_time_auth_code
-        ) == request.GET.get("state", ""):
+        if access_code.exists() and str(access_code.first().one_time_auth_code) == request.GET.get("state", ""):
             access_code = access_code.first()
             # flow = Flow.from_client_config(client_config={
             #     "web":

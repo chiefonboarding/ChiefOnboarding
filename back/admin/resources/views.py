@@ -18,9 +18,7 @@ class ResourceViewSet(viewsets.ModelViewSet):
         for i in items:
             chapter_serializer = ChapterSerializer(data=i)
             chapter_serializer.is_valid(raise_exception=True)
-            p = chapter_serializer.save(
-                resource=resource, parent_chapter=parent_chapter
-            )
+            p = chapter_serializer.save(resource=resource, parent_chapter=parent_chapter)
 
             if "chapters" in i:
                 self._save_recursive_items(i["chapters"], resource, p)

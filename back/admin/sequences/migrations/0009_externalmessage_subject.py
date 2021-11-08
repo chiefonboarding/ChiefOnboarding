@@ -13,8 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="externalmessage",
             name="subject",
-            field=models.CharField(
-                blank=True, default="Here is an update!", max_length=78
-            ),
+            field=models.CharField(blank=True, default="Here is an update!", max_length=78),
         ),
     ]

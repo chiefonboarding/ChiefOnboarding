@@ -5,11 +5,11 @@ from rest_framework.relations import PrimaryKeyRelatedField
 from admin.appointments.serializers import AppointmentSerializer
 from admin.badges.serializers import BadgeSerializer
 from admin.introductions.serializers import IntroductionSerializer
-from misc.fields import ContentField
 from admin.preboarding.serializers import PreboardingSerializer
 from admin.resources.serializers import ResourceSerializer
 from admin.to_do.models import ToDo
 from admin.to_do.serializers import ToDoSerializer
+from misc.fields import ContentField
 
 from .models import Condition, ExternalMessage, PendingAdminTask, Sequence
 
@@ -37,9 +37,7 @@ class SequenceListSerializer(serializers.ModelSerializer):
 
 
 class ExternalMessageSerializer(serializers.ModelSerializer):
-    send_to = PrimaryKeyRelatedField(
-        queryset=get_user_model().objects.all(), allow_null=True
-    )
+    send_to = PrimaryKeyRelatedField(queryset=get_user_model().objects.all(), allow_null=True)
     content_json = ContentField()
 
     class Meta:
@@ -49,9 +47,7 @@ class ExternalMessageSerializer(serializers.ModelSerializer):
 
 class PendingAdminTaskSerializer(serializers.ModelSerializer):
     assigned_to = SeqEmployeeSerializer(read_only=True)
-    assigned_to_id = serializers.PrimaryKeyRelatedField(
-        source="assigned_to", queryset=get_user_model().objects.all()
-    )
+    assigned_to_id = serializers.PrimaryKeyRelatedField(source="assigned_to", queryset=get_user_model().objects.all())
     date = serializers.DateTimeField(required=False, allow_null=True)
     slack_user = serializers.CharField(required=False, allow_null=True)
     name = serializers.CharField(required=False)

@@ -26,13 +26,9 @@ class AdminTaskSerializer(serializers.ModelSerializer):
     date = serializers.DateField(required=False)
 
     new_hire = NewHireSerializer(read_only=True)
-    new_hire_id = serializers.PrimaryKeyRelatedField(
-        source="new_hire", queryset=get_user_model().objects.all()
-    )
+    new_hire_id = serializers.PrimaryKeyRelatedField(source="new_hire", queryset=get_user_model().objects.all())
     assigned_to = AdminSerializer(read_only=True)
-    assigned_to_id = serializers.PrimaryKeyRelatedField(
-        source="assigned_to", queryset=get_user_model().objects.all()
-    )
+    assigned_to_id = serializers.PrimaryKeyRelatedField(source="assigned_to", queryset=get_user_model().objects.all())
 
     def get_comments(self, instance):
         try:
@@ -42,12 +38,8 @@ class AdminTaskSerializer(serializers.ModelSerializer):
         return CommentSerializer(comments, many=True, read_only=True).data
 
     def validate(self, value):
-        if value["option"] == 2 and (
-            value["slack_user"] == "" or value["slack_user"] is None
-        ):
-            raise serializers.ValidationError(
-                "Please select a user to send a message to."
-            )
+        if value["option"] == 2 and (value["slack_user"] == "" or value["slack_user"] is None):
+            raise serializers.ValidationError("Please select a user to send a message to.")
         if value["option"] == 1 and (value["email"] == "" or value["email"] is None):
             raise serializers.ValidationError("Please enter an email address.")
         return value

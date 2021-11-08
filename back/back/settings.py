@@ -175,9 +175,7 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = True
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication"
-    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": ["rest_framework.authentication.SessionAuthentication"],
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
     ],
@@ -189,9 +187,7 @@ REST_FRAMEWORK = {
 
 
 if env("API_ACCESS", default=False):
-    REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].append(
-        "rest_framework.authentication.TokenAuthentication"
-    )
+    REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].append("rest_framework.authentication.TokenAuthentication")
 
 
 APPEND_SLASH = False
@@ -267,9 +263,7 @@ Q_CLUSTER = {
 }
 
 # AWS
-AWS_S3_ENDPOINT_URL = env(
-    "AWS_S3_ENDPOINT_URL", default="https://s3.eu-west-1.amazonaws.com"
-)
+AWS_S3_ENDPOINT_URL = env("AWS_S3_ENDPOINT_URL", default="https://s3.eu-west-1.amazonaws.com")
 AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default="")
 AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default="")
 AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME", default="")
@@ -324,9 +318,7 @@ AXES_IP_BLACKLIST = None
 AXES_LOCK_OUT_BY_USER_OR_IP = False
 # message to show when locked out and have cooloff enabled
 AXES_COOLOFF_MESSAGE = "Account locked: too many login attempts. Please try again later"
-AXES_PERMALOCK_MESSAGE = (
-    "Account locked: too many login attempts. Contact an admin to unlock your account."
-)
+AXES_PERMALOCK_MESSAGE = "Account locked: too many login attempts. Contact an admin to unlock your account."
 PROXY_TRUSTED_IPS = None
 REST_FRAMEWORK_ACTIVE = True
 

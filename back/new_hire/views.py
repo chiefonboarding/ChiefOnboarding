@@ -10,17 +10,19 @@ from rest_framework.views import APIView
 
 from admin.badges.serializers import BadgeSerializer
 from admin.introductions.serializers import IntroductionSerializer
-from new_hire.serializers import (NewHireBadgeSerializer,
-                                  NewHireResourceItemSerializer,
-                                  NewHireResourceSerializer,
-                                  PreboardingUserSerializer,
-                                  ToDoUserSerializer)
-from organization.models import Organization
-from organization.serializers import BaseOrganizationSerializer
 from admin.resources.models import Chapter, CourseAnswer
 from admin.resources.serializers import ResourceSerializer
 from admin.to_do.models import ToDo
 from admin.to_do.serializers import ToDoSerializer
+from new_hire.serializers import (
+    NewHireBadgeSerializer,
+    NewHireResourceItemSerializer,
+    NewHireResourceSerializer,
+    PreboardingUserSerializer,
+    ToDoUserSerializer,
+)
+from organization.models import Organization
+from organization.serializers import BaseOrganizationSerializer
 from users.models import PreboardingUser, ResourceUser, ToDoUser, User
 from users.permissions import NewHirePermission
 from users.serializers import EmployeeSerializer, NewHireSerializer
@@ -42,9 +44,7 @@ class MeView(APIView):
         org_serializer = BaseOrganizationSerializer(Organization.object.get())
         translation.activate(request.user.language)
         request.session[translation.LANGUAGE_SESSION_KEY] = request.user.language
-        response = Response(
-            {"new_hire": user_serializer.data, "org": org_serializer.data}
-        )
+        response = Response({"new_hire": user_serializer.data, "org": org_serializer.data})
         response.set_cookie(settings.LANGUAGE_COOKIE_NAME, request.user.language)
         return response
 
@@ -138,18 +138,14 @@ class CourseItemView(APIView):
     permission_classes = (NewHirePermission,)
 
     def get(self, request, id):
-        b_u = ResourceUser.objects.filter(
-            resource=request.user.resources.get(id=id)
-        ).first()
+        b_u = ResourceUser.objects.filter(resource=request.user.resources.get(id=id)).first()
         resources = NewHireResourceItemSerializer(b_u, context={"request": request})
         return Response(resources.data)
 
     def post(self, request, id):
         b_u = ResourceUser.objects.get(id=id)
         resource = Resource.objects.get(id=request.data["id"])
-        c_a = CourseAnswer.objects.create(
-            resource=resource, answers=request.data["answers"]
-        )
+        c_a = CourseAnswer.objects.create(resource=resource, answers=request.data["answers"])
         b_u.answers.add(c_a)
         return Response()
 
@@ -162,9 +158,7 @@ class ToDoView(APIView):
     permission_classes = (NewHirePermission,)
 
     def get(self, request):
-        to_do_items = ToDoUserSerializer(
-            ToDoUser.objects.filter(user=request.user), many=True
-        )
+        to_do_items = ToDoUserSerializer(ToDoUser.objects.filter(user=request.user), many=True)
         return Response(to_do_items.data)
 
     def post(self, request, id):
@@ -226,9 +220,7 @@ class PreboardingView(APIView):
         return Response(preboarding_items.data)
 
     def post(self, request):
-        pre = get_object_or_404(
-            PreboardingUser, user=request.user, id=request.data["id"]
-        )
+        pre = get_object_or_404(PreboardingUser, user=request.user, id=request.data["id"])
         pre.form = request.data["form"]
         pre.completed = True
         pre.save()
