@@ -24,15 +24,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Set up Python 3.8
+    - name: Set up Python 3.9
       uses: actions/setup-python@v1
       with:
-        python-version: 3.8
+        python-version: 3.9
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pipenv install --dev --system
-        pip install pytest
     - name: Run migrations
       run: |
         cd back
@@ -59,19 +58,4 @@ jobs:
         python manage.py shell < fixtures/init_testing.py
         python manage.py loaddata all.json
         python manage.py loaddata welcome_message.json
-        # - name: Login to DockerHub
-        #   uses: docker/login-action@v1 
-        #   with:
-        #     username: ${{ secrets.DOCKERHUB_USERNAME }}
-        #     password: ${{ secrets.DOCKERHUB_TOKEN }}
-        # - name: Build and push
-        #   id: docker_build
-        #   uses: docker/build-push-action@v2
-        #   with:
-        #     context: https://github.com/chiefonboarding/ChiefOnboarding.git#deploy
-        #     file: ./back/Dockerfile
-        #     push: true
-        #     tags: |
-        #       chiefonboarding/chiefonboarding:latest
-        #       chiefonboarding/chiefonboarding:1.2.13
 # credits: https://hacksoft.io/github-actions-in-action-setting-up-django-and-postgres/

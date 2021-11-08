@@ -1,18 +1,22 @@
-from __future__ import unicode_literals
-
 import uuid
 
 from django.conf import settings
 from django.db import models
 from fernet_fields import EncryptedTextField
+from django.urls import reverse_lazy
 
-# Create your models here.
 INTEGRATION_OPTIONS = (
-    (0, "Slack"),
-    (1, "Slack Account"),
-    (2, "Google"),
+    (0, "Slack bot"),
+    (1, "Slack account creation"),
+    (2, "Google account creation"),
     (3, "Google Login"),
 )
+INTEGRATION_OPTIONS_URLS = [
+    (reverse_lazy("settings:slack-bot"), reverse_lazy("settings:google-login")),
+    (reverse_lazy("settings:slack-account"), reverse_lazy("settings:google-login")),
+    (reverse_lazy("settings:google-account"), reverse_lazy("settings:google-account")),
+    (reverse_lazy("settings:google-login"), reverse_lazy("settings:google-login")),
+]
 STATUS = ((0, "pending"), (1, "completed"), (2, "waiting on user"))
 
 

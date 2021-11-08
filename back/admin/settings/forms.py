@@ -1,5 +1,8 @@
+import pyotp
+
 from crispy_forms.helper import FormHelper
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django import forms
 
 from organization.models import Organization, WelcomeMessage
@@ -30,3 +33,19 @@ class WelcomeMessagesUpdateForm(forms.ModelForm):
     class Meta:
         model = WelcomeMessage
         fields = ["message"]
+
+
+class OTPVerificationForm(forms.Form):
+    otp = forms.CharField(label="6 digit OTP code", help_text="This is the code that your 2FA application shows you.", max_length=6)
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+    def clean_otp(self):
+        otp = self.cleaned_data['otp']
+        totp = pyotp.TOTP(self.user.totp_secret)
+        valid = totp.verify(otp)
+        if not valid:
+            raise ValidationError("OTP token was not correct. Please try again")
+        return otp

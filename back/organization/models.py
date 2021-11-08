@@ -58,6 +58,9 @@ class Organization(models.Model):
 class Tag(models.Model):
     name = models.CharField(max_length=500)
 
+    def __str__(self):
+        return self.name
+
 
 class WelcomeMessage(models.Model):
     MESSAGE_TYPE = (
@@ -114,3 +117,11 @@ class BaseItem(models.Model):
                 if i != "":
                     Tag.objects.get_or_create(name=i)
         super(BaseItem, self).save(*args, **kwargs)
+
+
+class Changelog(models.Model):
+    added = models.DateField()
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    url = models.URLField()
+

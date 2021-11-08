@@ -1,0 +1,8 @@
+<ul class="nav nav-tabs" data-bs-toggle="tabs">
+    <li class="nav-item">
+      <a href="{% url 'settings:personal-language' %}" class="nav-link {% if 'language' in request.path %} active{% endif %}">Language</a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'settings:personal-otp' %}" class="nav-link {% if 'otp' in request.path %} active{% endif %}">OTP</a>
+    </li>
+</ul>

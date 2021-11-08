@@ -230,11 +230,11 @@ class User(AbstractBaseUser):
         )
         return text
 
-    def reset_otp_keys(self):
-        OTPRecoveryKey.objects.filter(user=self).delete()
+    def reset_otp_recovery_keys(self):
+        self.user_otp.all().delete()
         newItems = [OTPRecoveryKey(user=self) for x in range(10)]
-        objs = OTPRecoveryKey.objects.bulk_create(newItems)
-        return objs
+        OTPRecoveryKey.objects.bulk_create(newItems)
+        return self.user_otp.all().values_list("key", flat=True)
 
     def check_otp_recovery_key(self, totp_input):
         otp_recovery_key = None

@@ -16,7 +16,7 @@
       <tr>
         <td>{% include "_table_user.html" with user=admin %}</td>
         <td>{{ admin.get_role_display }}</td>
-        <td>
+        <td style="text-align: right">
           <form method="post" action="{% url 'settings:administrators-delete' admin.id %}" class="mb-0">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">

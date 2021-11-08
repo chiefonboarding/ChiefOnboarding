@@ -1,0 +1,31 @@
+{% extends 'settings_base.html' %}
+
+{% block settings_content %}
+  <div class="table-responsive">
+  <table
+		class="table table-vcenter table-nowrap">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for integration in integrations %}
+      <tr>
+        <td>{{ integration.name }}</td>
+        <td style="text-align: right">
+          {% if integration.obj is not None %}
+          <a href="{% url 'settings:delete-integration' integration.obj.id %}" class="btn btn-danger">
+            Remove
+          </a>
+          {% else %}
+          <a href="{{ integration.create_url }}" class="btn btn-primary">
+            Enable
+          </a>
+          {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

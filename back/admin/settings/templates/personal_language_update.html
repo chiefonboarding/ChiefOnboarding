@@ -1,0 +1,16 @@
+{% extends 'settings_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block actions %}{% endblock %}
+{% block settings_content %}
+  {% include '_personal_tabs.html' %}
+  <form method="POST">
+    <div class="card-body">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <div class="form-footer">
+        <button type="submit" class="btn btn-primary">Update</button>
+      </div>
+    </div>
+  </form>
+{% endblock %}

@@ -21,6 +21,21 @@ class ToDoListView(ListView):
         context = super().get_context_data(**kwargs)
         context['title'] = "To do items"
         context['subtitle'] = "templates"
+        context['add_action'] = reverse_lazy("todo:create")
+        context['wysiwyg'] = []
+        return context
+
+
+class ToDoCreateView(SuccessMessageMixin, CreateView):
+    template_name = "todo_update.html"
+    form_class = ToDoForm
+    success_url = reverse_lazy("todo:list")
+    success_message = "To do item has been updated"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = "Create to do item"
+        context['subtitle'] = "templates"
         return context
 
 

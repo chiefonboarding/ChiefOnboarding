@@ -17,8 +17,7 @@
           </button>
           <div class="navbar-nav flex-row order-md-last">
             <div class="nav-item dropdown d-none d-md-flex me-3">
-              <a href="#" class="nav-link px-0" tabindex="-1">
-                <!-- Download SVG icon from http://tabler-icons.io/i/bell -->
+              <a href="{% url 'settings:changelog' %}" class="nav-link px-0" tabindex="-1">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6" /><path d="M9 17v1a3 3 0 0 0 6 0v-1" /></svg>
                 <span class="badge bg-red"></span>
               </a>
@@ -307,189 +306,33 @@
       </div>
     </div>
     {% block js %}
+      <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+      <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+      <script>
+        const initialItems = document.getElementById("id_tags").attributes.value.nodeValue;
+        var config = {
+          create: true,
+          items: initialItems.split(",")
+        };
+        new TomSelect('#id_tags',config);
+      </script>
 
-    {% if False %}
-    <script type="module">
-      import { Editor } from 'https://cdn.skypack.dev/@tiptap/core?min';
-      import StarterKit from 'https://cdn.skypack.dev/@tiptap/starter-kit?min'
-      window.editor = new Editor({
-        element: document.querySelector('.element'),
-        extensions: [
-          StarterKit,
-        ],
-        content: "",
-      })
-    </script>
-    <script defer>
-      window.onload = function() {
-        const value = JSON.parse(document.getElementById('content_json').textContent);
-        function formatDataToEditorHTML () {
-          let html = ''
-          value.forEach(function(one) {
-            if (one.type === 'p' && one.content !== '') {
-              html += '<p>' + one.content + '</p>'
-            }
-            if (one.type === 'quote' && one.content !== '') {
-              html += '<blockquote>' + one.content + '</blockquote>'
-            }
-            if (one.type === 'hr') {
-              html += '<hr />'
-            }
-            if (one.type === 'h1' && one.content !== '') {
-              html += '<h1>' + one.content + '</h1>'
-            }
-            if (one.type === 'image') {
-              html += '<img src="' + one.files[0].file_url + '" alt="' + one.files[0].id + '" />'
-            }
-            if (one.type === 'file') {
-              html += '<div name="' + one.files[0].name + '" id="' + one.files[0].id + '" disabled="true" class="file" draggable="true" contenteditable="false">' + one.files[0].name + '</div>'
-            }
-            if (one.type === 'video') {
-              html += '<video src="' + one.files[0].file_url + '" id="' + one.files[0].id + '" controls="true" type="video/' + one.files[0].ext + '" draggable="true" class="ProseMirror-selectednode" contenteditable="false"></video>'
-            }
-            if (one.type === 'h2' && one.content !== '') {
-              html += '<h2>' + one.content + '</h2>'
-            }
-            if (one.type === 'h3' && one.content !== '') {
-              html += '<h3>' + one.content + '</h3>'
-            }
-            if ((one.type === 'ul' || one.type === 'ol') && one.items !== []) {
-              html += '<' + one.type + '>'
-              one.items.forEach((listItem) => {
-                html += '<li>' + listItem.content + '</li>'
-              })
-              html += '</' + one.type + '>'
-            }
-          })
-          window.editor.commands.setContent(html)
-        }
-        formatDataToEditorHTML();
-      },
-      function setLink () {
-        const url = window.prompt('URL')
-        window.editor.chain().focus().setLink({ href: url }).run()
-      },
-      function paragraphToHTML (p) {
-        let line = ''
-        let link = ''
-        p.content.forEach(function(one) {
-          let text = one.text
-          if ('marks' in one) {
-            if (one.marks.find(a => a.type === 'italic') !== undefined) {
-              text = '<i>' + text + '</i>'
-            }
-            if (one.marks.find(a => a.type === 'code') !== undefined) {
-              text = '<code>' + text + '</code>'
-            }
-            if (one.marks.find(a => a.type === 'bold') !== undefined) {
-              text = '<b>' + text + '</b>'
-            }
-            if (one.marks.find(a => a.type === 'underline') !== undefined) {
-              text = '<u>' + text + '</u>'
-            }
-            if (one.marks.find(a => a.type === 'strike') !== undefined) {
-              text = '<strike>' + text + '</strike>'
-            }
-            if (one.marks.find(a => a.type === 'link') !== undefined) {
-              link = one.marks.find(a => a.type === 'link').attrs.href
-              text = '<a href="' + link + '">' + text + '</a>'
-            }
+      {% if wysiwyg %}
+        <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+
+        <script>
+          window.onload = function(){
+            const blocks = JSON.parse(document.getElementById('content_json').textContent)
+            const editor = new EditorJS({
+              autofocus: true,
+              holder: 'element',
+              data: {time: 1552744582955, blocks: blocks}
+            });
           }
-          line += text
-        })
-        return line
-      },
-      function lineToHTML (items) {
-        let line = ''
-        let counter = 0
-        items.content.forEach(function (paragraph) {
-          counter++
-          line += this.paragraphToHTML(paragraph)
-          if (counter < items.length) {
-            line += '<br />'
-          }
-        })
-        return line
-      },
-      function formatToData (content) {
-        const newValue = []
-        content.content.forEach(function (one) {
-          if (one.type === 'paragraph') {
-            if ('content' in one) {
-              newValue.push({
-                'type': 'p',
-                'content': this.paragraphToHTML(one)
-              })
-            }
-          }
-          if (one.type === 'image') {
-            if ('attrs' in one) {
-              newValue.push({
-                'type': 'image',
-                'content': '',
-                'files': [{ id: one.attrs.alt, file_url: one.attrs.src }]
-              })
-            }
-          }
-          if (one.type === 'file') {
-            if ('attrs' in one) {
-              newValue.push({
-                'type': 'file',
-                'content': '',
-                'files': [{ id: one.attrs.id }]
-              })
-            }
-          }
-          if (one.type === 'video') {
-            if ('attrs' in one) {
-              newValue.push({
-                'type': 'video',
-                'content': '',
-                'files': [{ id: one.attrs.id }]
-              })
-            }
-          }
-          if (one.type === 'blockquote') {
-            if ('content' in one.content[0]) {
-              newValue.push({
-                'type': 'quote',
-                'content': this.lineToHTML(one)
-              })
-            }
-          }
-          if (one.type === 'heading') {
-            if ('content' in one) {
-              newValue.push({
-                'type': 'h' + one.attrs.level,
-                'content': this.paragraphToHTML(one)
-              })
-            }
-          }
-          if (one.type === 'horizontal_rule') {
-            newValue.push({
-              'type': 'hr',
-              'content': ''
-            })
-          }
-          if (one.type === 'bulletList' || one.type === 'orderedList') {
-            const listItems = []
-            one.content.forEach((item) => {
-              if ('content' in item.content[0]) {
-                listItems.push({ 'content': this.lineToHTML(item) })
-              }
-            })
-            newValue.push({
-              'type': (one.type === 'orderedList') ? 'ol' : 'ul',
-              'items': listItems,
-              'content': ''
-            })
-          }
-        })
-        return newValue
-      }
-    </script>
-    {{ wysiwyg|json_script:"content_json" }}
-    {% endif %}
+
+        </script>
+        {{ wysiwyg|json_script:"content_json" }}
+      {% endif %}
     {% endblock %}
     <script src="{% static 'js/tabler.js' %}"></script>
   </body>
