@@ -12813,3 +12813,12 @@ Antialiasing
 .table-responsive {
   margin-bottom: 0px;
 }
+.list-timeline:not(.list-timeline-simple)::before {
+  left: 19px !important;
+}
+.list-timeline:not(.list-timeline-simple) .list-timeline-icon {
+  left: unset !important;
+}
+.list-timeline:not(.list-timeline-simple) .list-timeline-content {
+  padding-left: 55px;
+}

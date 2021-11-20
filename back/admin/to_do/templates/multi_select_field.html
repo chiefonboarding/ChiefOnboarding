@@ -3,7 +3,7 @@
 
 
 <label class="form-label custom-control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-<select id="{{ field.id_for_label }}" name="{% if field.name|wordcount > 1 %}{{ field.name|slugify }}{% else %}{{ field.name }}{% endif %}[]" value="{{ field.value|join:"," }}" multiple {% if field_class %}class="{{ field_class }}"{% endif %}{% if flat_attrs %} {{ flat_attrs }}{% endif %}>
+<select id="{{ field.id_for_label }}" name="{% if field.name|wordcount > 1 %}{{ field.name|slugify }}{% else %}{{ field.name }}{% endif %}" value="{{ field.value|join:"," }}" multiple {% if field_class %}class="{{ field_class }}"{% endif %}{% if flat_attrs %} {{ flat_attrs }}{% endif %}>
 
     {% for group, options, index in field|optgroups %}
       {% for option in options %}

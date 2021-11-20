@@ -1,0 +1,48 @@
+{% extends 'admin_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+  <div class="col-7">
+    <div class="card mt-3">
+      <div class="card-header">
+        <h3 class="card-title">Colleague</h3>
+      </div>
+      <div class="card-body">
+        {% crispy form %}
+      </div>
+    </div>
+  </div>
+  <div class="col-5">
+    <div class="card mt-3">
+      <div class="card-header">
+        <h3 class="card-title">Resources available</h3>
+      </div>
+      <div class="list-group list-group-flush">
+        {% for resource in object.resources.all %}
+        <div class="list-group-item">
+          <div class="row align-items-center">
+            <div class="col text-truncate">
+              <span class="text-body d-block">{{ resource.name }}</span>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="list-group-item">
+          <div class="row align-items-center">
+            <div class="col text-truncate">
+              No resources are available to this user yet
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="card-footer">
+        <a href="{% url 'people:new_hire' object.id %}" class="btn btn-primary">
+          Add
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -3,39 +3,7 @@ from django.db.models import Prefetch
 
 from misc.models import Content
 from organization.models import BaseItem
-
-
-class FullManager(models.Manager):
-    def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .select_related("category")
-            .prefetch_related(
-                Prefetch(
-                    "chapters",
-                    queryset=Chapter.objects.select_related("parent_chapter").prefetch_related("content__files"),
-                )
-            )
-            .order_by("name")
-        )
-
-
-class FullTemplateManager(models.Manager):
-    def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .select_related("category")
-            .prefetch_related(
-                Prefetch(
-                    "chapters",
-                    queryset=Chapter.objects.select_related("parent_chapter").prefetch_related("content__files"),
-                )
-            )
-            .filter(template=True)
-            .order_by("name")
-        )
+from django.template.loader import render_to_string
 
 
 class Category(models.Model):
@@ -53,8 +21,9 @@ class Resource(BaseItem):
     on_day = models.IntegerField(default=0)
     remove_on_complete = models.BooleanField(default=False)
 
-    objects = FullManager()
-    templates = FullTemplateManager()
+    @property
+    def get_icon_template(self):
+        return render_to_string('_resource_icon.html')
 
     def next_chapter(self, current_id, course):
         chapters = self.chapters.exclude(type=1)

@@ -1,21 +1,24 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
+from django.template.loader import render_to_string
 
 from misc.models import Content
-from organization.models import BaseItem, FullManager, FullTemplateManager
+from organization.models import BaseItem
 
 
 class ToDo(BaseItem):
     content = models.ManyToManyField(Content)
+    content_json = models.JSONField(default=dict)
     due_on_day = models.IntegerField(default=0)
     form = models.JSONField(models.TextField(default="[]"))
     # Chat bot specific actions
     send_back = models.BooleanField(default=False)
     channel = models.TextField(blank=True)
 
-    objects = FullManager()
-    templates = FullTemplateManager()
+    @property
+    def get_icon_template(self):
+        return render_to_string('_admin_task_icon.html')
 
     def update_url(self):
         return reverse("todo:update", args=[self.id])

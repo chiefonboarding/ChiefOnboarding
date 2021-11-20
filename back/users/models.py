@@ -1,7 +1,7 @@
-from __future__ import unicode_literals
-
 import uuid
 from datetime import date, datetime, timedelta
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 import pyotp
 import pytz
@@ -21,6 +21,7 @@ from admin.preboarding.models import Preboarding
 from admin.resources.models import CourseAnswer, Resource
 from admin.sequences.models import Condition
 from admin.to_do.models import ToDo
+from organization.models import BaseItem
 from misc.models import File
 from organization.models import Changelog
 
@@ -109,23 +110,26 @@ class User(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_introduced_to_colleagues = models.BooleanField(default=False)
     sent_preboarding_details = models.BooleanField(default=False)
-    resources = models.ManyToManyField(Resource, through="ResourceUser")
     totp_secret = EncryptedTextField(blank=True)
     requires_otp = models.BooleanField(default=False)
+    seen_updates = models.DateField(auto_now_add=True)
     # new hire specific
     completed_tasks = models.IntegerField(default=0)
     total_tasks = models.IntegerField(default=0)
     buddy = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, related_name="new_hire_buddy")
     manager = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, related_name="new_hire_manager")
-    seen_updates = models.DateField(auto_now_add=True)
     start_day = models.DateField(null=True, blank=True, help_text="First working day")
     unique_url = models.CharField(max_length=250, null=True, unique=True, blank=True)
-    to_do = models.ManyToManyField(ToDo, through="ToDoUser")
-    introductions = models.ManyToManyField(Introduction)
-    appointments = models.ManyToManyField(Appointment)
+
+    to_do = models.ManyToManyField(ToDo, through="ToDoUser", related_name="user_todos")
+    introductions = models.ManyToManyField(Introduction, related_name="user_introductions")
+    resources = models.ManyToManyField(Resource, through="ResourceUser", related_name="user_resources")
+    appointments = models.ManyToManyField(Appointment, related_name="user_appointments")
+    preboarding = models.ManyToManyField(Preboarding, through="PreboardingUser", related_name="user_preboardings")
+    badges = models.ManyToManyField(Badge, related_name="user_introductions")
+
+    # Conditions copied over from chosen sequences
     conditions = models.ManyToManyField(Condition)
-    preboarding = models.ManyToManyField(Preboarding, through="PreboardingUser")
-    badges = models.ManyToManyField(Badge)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name"]
@@ -164,6 +168,10 @@ class User(AbstractBaseUser):
                     break
             self.unique_url = unique_string
         super(User, self).save(*args, **kwargs)
+
+    def add_items(self, items):
+        for item in items:
+            pass
 
     def workday(self):
         start_day = self.start_day
@@ -230,6 +238,7 @@ class User(AbstractBaseUser):
             otp_recovery_key.save()
         return otp_recovery_key
 
+    @property
     def is_admin_or_manager(self):
         return self.role in (1, 2)
 
@@ -306,8 +315,14 @@ class ResourceUser(models.Model):
                 self.save()
                 break
 
+    @property
+    def amount_chapters_in_course(self):
+        return self.resource.chapters.count()
+
+    @property
     def is_course(self):
-        return self.resource.course and self.resource.chapters.count() is not self.step - 1
+        # used to determine if item should show up as course or as article
+        return self.resource.course and self.amount_chapters_in_course is not self.step - 1
 
 
 class NewHireWelcomeMessage(models.Model):

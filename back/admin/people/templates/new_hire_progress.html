@@ -1,0 +1,81 @@
+{% extends 'admin_base.html' %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block content %}
+{% include "_new_hire_menu.html" %}
+{% if todos|length %}
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">To do items</h3>
+  </div>
+  <div>
+    <div class="table-responsive">
+      <table class="table card-table table-vcenter">
+        <tbody>
+          {% for todo in todos %}
+          <tr>
+            <td class="w-1 pe-0">
+              <input type="checkbox" disabled class="form-check-input m-0 align-middle" aria-label="Select task" {% if todo.completed %}checked=""{% endif %}>
+            </td>
+            <td class="w-100">
+              {{ todo.to_do.name }}
+            </td>
+            <td class="text-end">
+              <a href="" class="btn btn-white">
+                Remind
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <h4>{{ todo.to_do.name }}</h4>
+  </div>
+</div>
+{% endif %}
+
+{% if resources|length %}
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">Resource items</h3>
+  </div>
+  <div>
+    <div class="table-responsive">
+      <table class="table card-table table-vcenter">
+        <tbody>
+          {% for resource in resources %}
+          <tr>
+            <td class="w-1 pe-0">
+              <input type="checkbox" disabled class="form-check-input m-0 align-middle" aria-label="Select task" {% if resource.completed_course %}checked=""{% endif %}>
+            </td>
+            <td class="w-100">
+              {{ resource.resource.name }}
+            </td>
+            <td class="">
+              At step {{ resource.step }} of {{ resource.amount_chapters_in_course }}
+            </td>
+            <td class="text-end">
+              <a href="" class="btn btn-white">
+                Remind
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <h4>{{ todo.to_do.name }}</h4>
+  </div>
+</div>
+{% endif %}
+
+{% if not todos|length and not resources|length %}
+<div class="card mt-3">
+  <div class="card-body">
+    <p>There are no todo items or resources attached assigned to this user</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

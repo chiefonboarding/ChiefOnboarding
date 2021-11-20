@@ -1,0 +1,110 @@
+{% extends 'admin_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+{% include "_new_hire_menu.html" %}
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">Preboarding</h3>
+  </div>
+  <div class="card-body">
+    {% for preboarding in object.preboarding.all %}
+    <div class="row">
+      <div class="col">
+        {{ preboarding.name }}
+      </div>
+    </div>
+    {% empty %}
+    <div class="row">
+      <div class="col">
+        There are no preboarding items yet
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">To do</h3>
+  </div>
+  <div class="card-body">
+    {% for to_do in object.todos.all %}
+    <div class="row">
+      <div class="col">
+        {{ to_do.title }}
+      </div>
+    </div>
+    {% empty %}
+    <div class="row">
+      <div class="col">
+        There are no to do items yet
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">Resource</h3>
+  </div>
+  <div class="card-body">
+    {% for resource in object.resources.all %}
+    <div class="row">
+      <div class="col">
+        {{ resource.title }}
+      </div>
+    </div>
+    {% empty %}
+    <div class="row">
+      <div class="col">
+        There are no resource items yet
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">Introductions</h3>
+  </div>
+  <div class="card-body">
+    {% for introduction in object.introductions.all %}
+    <div class="row">
+      <div class="col">
+        {{ introduction.name }}
+      </div>
+    </div>
+    {% empty %}
+    <div class="row">
+      <div class="col">
+        There are no introduction items yet
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">Appointments</h3>
+  </div>
+  <div class="card-body">
+    {% for appointment in object.appointments.all %}
+    <div class="row">
+      <div class="col">
+        {{ appointment.name }}
+      </div>
+    </div>
+    {% empty %}
+    <div class="row">
+      <div class="col">
+        There are no appointment items yet
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

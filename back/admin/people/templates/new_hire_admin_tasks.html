@@ -1,0 +1,84 @@
+{% extends 'admin_base.html' %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block content %}
+{% include "_new_hire_menu.html" %}
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">Open admin tasks</h3>
+  </div>
+  <div class="">
+    <div class="divide-y">
+      <table class="table table-responsive table-vcenter text-nowrap">
+        <thead>
+          <tr>
+            <th>Assigned to</th>
+            <th>Task</th>
+            <th>Due in</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for task in tasks_open %}
+          <tr>
+            <td>
+              {% include "_table_user.html" with user=task.assigned_to %}
+            </td>
+            <td>
+              <div class="text-truncate">
+                {{ task.name }}
+              </div>
+            </td>
+            <td>{% if task.date|naturaltime is not None %}{{ task.date|naturaltime }}{% else %}No deadline set{%endif %}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3">
+              There are no open items
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">Completed admin tasks</h3>
+  </div>
+  <div class="">
+    <div class="divide-y">
+      <table class="table table-responsive table-vcenter text-nowrap">
+        <thead>
+          <tr>
+            <th>Assigned to</th>
+            <th>Task</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for task in tasks_completed %}
+          <tr>
+            <td>
+              {% include "_table_user.html" with user=task.assigned_to %}
+            </td>
+            <td>
+              <div class="text-truncate">
+                {{ task.name }}
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3">
+              There are no closed items
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

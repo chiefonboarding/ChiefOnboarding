@@ -46,18 +46,21 @@ INSTALLED_APPS = [
     "user_auth",
     "misc",
     "back",
+    "polymorphic",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'django.contrib.humanize',
+
     # external
     "rest_framework",
     "axes",
     "anymail",
     "django_q",
     "crispy_forms",
-    # "crispy_bootstrap5",
+
     # admin
     "admin.notes",
     "admin.to_do",
@@ -71,8 +74,10 @@ INSTALLED_APPS = [
     "admin.sequences",
     "admin.people",
     "admin.settings",
+
     # new hires
     "new_hire",
+
     # slack
     "slack_bot",
 ]

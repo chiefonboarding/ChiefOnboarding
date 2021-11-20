@@ -38,7 +38,8 @@ from users import urls as user_urls
 urlpatterns = [
     # path('', views.home),
     path("admin/people", include((people_urls, "admin.people"), namespace="admin")),
-    path("admin/settings/", include(settings_urls)),
+    path("admin/settings", include(settings_urls)),
+    path("admin/tasks", include(admin_tasks_urls)),
     re_path(
         r"^_nuxt/(?P<path>.*)$",
         RedirectView.as_view(url="/static/js/_nuxt/%(path)s", permanent=True),
@@ -49,7 +50,6 @@ urlpatterns = [
     path("templates/", include(to_do_urls)),
     path("api/", include(intro_urls)),
     path("api/", include(resource_urls)),
-    path("api/", include(admin_tasks_urls)),
     path("api/", include(badge_urls)),
     path("api/users/", include(user_urls)),
     path("api/new_hire/", include(new_hire_urls)),

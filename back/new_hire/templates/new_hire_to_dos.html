@@ -1,0 +1,39 @@
+{% extends 'new_hire_base.html' %}
+{% load humanize %}
+
+{% block actions %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-md-center">
+  <div class="col-8">
+    {% if overdue_to_do_items %}
+    <div class="card">
+      <div class="card-body" style="position: relative;">
+        <h3 class="card-title" style="color: red">Overdue</h3>
+        <table class="table table-vcenter">
+          <tbody>
+            {% for to_do in overdue_to_do_items %}
+              {% include "_new_hire_to_do_item.html" %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+    <div class="card">
+      <div class="card-body" style="position: relative;">
+        {% for obj in to_do_items %}
+        <h3 class="card-title">Due on {{ obj.date|naturalday }}</h3>
+        <table class="table table-vcenter">
+          <tbody>
+            {% for to_do in obj.items %}
+              {% include "_new_hire_to_do_item.html" %}
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

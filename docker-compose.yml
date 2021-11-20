@@ -37,18 +37,6 @@ services:
     networks:
       - global
 
-  nuxt:
-    image: node:14
-    environment:
-      - HOST=0.0.0.0
-    ports:
-      - "127.0.0.1:3000:3000"
-    volumes:
-      - ./front:/app
-    command: bash -c "cd /app && npm run dev"
-    networks:
-      - global
-
 volumes:
   pgdata:
 

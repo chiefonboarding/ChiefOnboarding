@@ -4,7 +4,6 @@ from rest_framework import routers
 from admin.to_do import views
 
 router = routers.DefaultRouter(trailing_slash=False)
-router.register("to_do", views.ToDoViewSet, "to_do")
 
 app_name = "todo"
 urlpatterns = [

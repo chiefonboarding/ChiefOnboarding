@@ -14,6 +14,7 @@ from admin.to_do.models import ToDo
 from misc.models import Content
 from misc.serializers import FileSerializer
 from slack_bot.slack import Slack
+from django.template.loader import render_to_string
 
 from .emails import send_sequence_message
 
@@ -80,6 +81,14 @@ class Sequence(models.Model):
                 user.conditions.add(i)
 
 
+class ExternalMessageManager(models.Manager):
+    def for_new_hire(self):
+        return self.filter(person_type=0)
+
+    def for_admins(self):
+        return self.exclude(person_type=0)
+
+
 class ExternalMessage(models.Model):
     EXTERNAL_TYPE = (
         (0, "Email"),
@@ -124,6 +133,29 @@ class ExternalMessage(models.Model):
         elif self.person_type == 3:
             return self.send_to
 
+    @property
+    def is_email_message(self):
+        return self.send_via == 0
+
+    @property
+    def is_slack_message(self):
+        return self.send_via == 1
+
+    @property
+    def is_text_message(self):
+        return self.send_via == 2
+
+    @property
+    def get_icon_template(self):
+        if self.is_email_message:
+            return render_to_string('_email_icon.html')
+        if self.is_slack_message:
+            return render_to_string('slack_icon.html')
+        if self.is_text_message:
+            return render_to_string('text_icon.html')
+
+    objects = ExternalMessageManager()
+
 
 class PendingAdminTask(models.Model):
     name = models.CharField(max_length=500)
@@ -134,6 +166,10 @@ class PendingAdminTask(models.Model):
     email = models.EmailField(max_length=12500, default="", blank=True)
     date = models.DateField(blank=True, null=True)
     priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
+
+    @property
+    def get_icon_template(self):
+        return render_to_string('_admin_task_icon.html')
 
 
 class Condition(models.Model):

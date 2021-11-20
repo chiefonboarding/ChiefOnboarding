@@ -50,12 +50,12 @@
                     </span>
                   </a>
                   <div class="dropdown-menu">
-                    <a class="dropdown-item" href="{% url 'admin:new_hires' %}" >
+                    <a class="dropdown-item" href="{% url 'admin:new_hires' %}">
                       New hires
                     </a>
-                      <a class="dropdown-item" href="./activity.html" >
-                        Colleagues
-                      </a>
+                    <a class="dropdown-item" href="{% url 'admin:colleagues' %}">
+                      Colleagues
+                    </a>
                   </div>
                 </li>
                 <li class="nav-item dropdown {% if 'templates' in request.path %}active{% endif %}">
@@ -108,12 +108,12 @@
                     </span>
                   </a>
                   <div class="dropdown-menu">
-                    <a class="dropdown-item" href="./activity.html" >
+                    <a class="dropdown-item" href="{% url 'admin_tasks:mine' %}" >
                       Your tasks
                     </a>
-                      <a class="dropdown-item" href="./activity.html" >
-                        All tasks
-                      </a>
+                      <a class="dropdown-item" href="{% url 'admin_tasks:all' %}" >
+                      All tasks
+                    </a>
                   </div>
                 </li>
                 <li class="nav-item">
@@ -311,12 +311,19 @@
       <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
       <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
       <script>
-        const initialItems = document.getElementById("id_tags").attributes.value.nodeValue;
-        var config = {
-          create: true,
-          items: initialItems.split(",")
-        };
-        new TomSelect('#id_tags',config);
+        const form = document.forms[0]
+        if (form !== null) {
+          const initialItems = form['tags'].attributes.value.nodeValue;
+          var config = {
+            create: true,
+            items: initialItems.split(","),
+            onChange: function (value) {
+              form['tags'].attributes.value.nodeValue = value.join(",")
+            }
+          };
+
+          new TomSelect('#id_tags',config);
+        }
       </script>
 
       {% if wysiwyg %}
@@ -324,11 +331,18 @@
 
         <script>
           window.onload = function(){
-            const blocks = JSON.parse(document.getElementById('content_json').textContent)
+            const form = document.forms[0]
+            const content = JSON.parse(document.getElementById('content_json').textContent)
+            form['content_json'].attributes.value.nodeValue = JSON.stringify(content)
             const editor = new EditorJS({
               autofocus: true,
               holder: 'element',
-              data: {time: 1552744582955, blocks: blocks}
+              data: content,
+              onChange: function (value) {
+                value.saver.save().then(function(data) {
+                  form['content_json'].attributes.value.nodeValue = JSON.stringify(data)
+                })
+              }
             });
           }
 

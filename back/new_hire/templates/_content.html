@@ -1,0 +1,33 @@
+{% for block in content.blocks %}
+  {% if block.type == 'paragraph' %}
+    <p> {{ block.data.text }} </p>
+  {% endif %}
+  {% if block.type == 'header' %}
+    <h{{block.data.level}}> {{ block.data.text }} </h{{block.data.level}}>
+  {% endif %}
+  {% if block.type == 'quote' %}
+    <blockquote>{{ block.data.text }}</blockquote>
+  {% endif %}
+  {% if block.type == 'list' %}
+    {% if block.data.style == 'ordered' %}
+      <ol>
+    {% endif %}
+    {% if block.data.style == 'unordered' %}
+      <ul>
+    {% endif %}
+    {% for item in block.data.items %}
+      <li>{{item.content}}</li>
+    {% endfor %}
+    {% if block.data.style == 'unordered' %}
+      </ul>
+    {% endif %}
+    {% if block.data.style == 'ordered' %}
+      </ol>
+    {% endif %}
+    <blockquote>{{ block.data.text }}</blockquote>
+  {% endif %}
+  {% comment %}
+  TODO: image, files, personalize
+  {% endcomment %}
+{% endfor %}
+

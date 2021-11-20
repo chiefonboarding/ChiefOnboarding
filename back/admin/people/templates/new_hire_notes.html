@@ -1,0 +1,49 @@
+{% extends 'admin_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+{% include "_new_hire_menu.html" %}
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Add note</h3>
+  </div>
+  <div class="card-body">
+    <form method="POST">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <div class="form-footer">
+        <button type="submit" class="btn btn-primary">Update</button>
+      </div>
+    </form>
+  </div>
+</div>
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">Notes</h3>
+  </div>
+  <div class="card-body card-body-scrollable card-body-scrollable-shadow">
+    <div class="divide-y">
+      {% for note in notes %}
+      <div class="row">
+        <div class="col-auto">
+          <span class="avatar">{{ note.admin.initials }}</span>
+        </div>
+        <div class="col">
+          <div class="text-truncate">
+            {{ note.content }}
+          </div>
+          <div class="text-muted">{{ note.admin.full_name }} - {{ note.created }}</div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="row">
+        <div class="col">
+          There are no notes yet
+        </div>
+      </div>
+
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

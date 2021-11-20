@@ -25,7 +25,7 @@ def logged_in_user_redirect(request):
     if request.user.is_admin_or_manager:
         return redirect("admin:new_hires")
     else:
-        pass
+        return redirect("new_hire:todos")
 
 
 class LoginView(APIView):

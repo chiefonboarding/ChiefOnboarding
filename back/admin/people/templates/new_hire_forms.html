@@ -1,0 +1,40 @@
+{% extends 'admin_base.html' %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block content %}
+{% include "_new_hire_menu.html" %}
+{% if preboarding_forms|length %}
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">Preboarding forms</h3>
+  </div>
+  <div>
+    {% for preboard in preboarding_forms %}
+    <h4>{{ preboard.preboarding.name }}</h4>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if todo_forms|length %}
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">Preboarding forms</h3>
+  </div>
+  <div>
+    {% for todo in todo_forms %}
+    <h4>{{ todo.to_do.name }}</h4>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if not todo_forms|length and not preboarding_forms|length %}
+<div class="card mt-3">
+  <div class="card-body">
+    <p>This new hire has not filled in any forms yet</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

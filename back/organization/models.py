@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from polymorphic.managers import PolymorphicManager
+from polymorphic.models import PolymorphicModel
 
 from misc.models import File
 
@@ -109,16 +111,6 @@ class WelcomeMessage(models.Model):
 class TemplateManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(template=True)
-
-
-class FullManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().prefetch_related("content__files")
-
-
-class FullTemplateManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().prefetch_related("content__files").filter(template=True)
 
 
 class BaseItem(models.Model):

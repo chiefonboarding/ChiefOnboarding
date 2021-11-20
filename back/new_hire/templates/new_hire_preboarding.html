@@ -1,0 +1,45 @@
+{% extends 'new_hire_base.html' %}
+{% load humanize %}
+
+{% block actions %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-md-center">
+  <div class="col-8">
+    <div class="card">
+      <div class="card-body" style="position: relative;">
+        <h3 class="header-title">{{ object.preboarding.name }}</h3>
+        {% include '_content.html' with content=object.preboarding.content_json %}
+        <a href="{% url 'new_hire:preboarding' next_id %}" class="btn btn-primary">
+          {{ button_text }}
+        </a>
+      </div>
+    </div>
+  </div>
+  {% if welcome_messages %}
+  <div class="col-4">
+    <div class="card">
+      <div class="card-body" style="position: relative;">
+        <div class="divide-y">
+          {% for welcome_message in welcome_messages %}
+          <div>
+            <div class="row">
+              <!-- <div class="col-auto">
+                <span class="avatar">JL</span>
+              </div> -->
+              <div class="col">
+                <div class="text-truncate">
+                  {{ welcome_message.message }}
+                </div>
+                <div class="text-muted">{{ welcome_message.colleague.full_name }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

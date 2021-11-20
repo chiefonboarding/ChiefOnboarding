@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext as _
+from django.template.loader import render_to_string
 
 from slack_bot.slack import Slack
 
@@ -31,6 +32,10 @@ class AdminTask(models.Model):
     completed = models.BooleanField(default=False)
     date = models.DateField(blank=True, null=True)
     priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
+
+    @property
+    def get_icon_template(self):
+        return render_to_string('_admin_task_icon.html')
 
     def save(self, *args, **kwargs):
         # checking if this is new before saving, sending information after we have the ID.
@@ -112,6 +117,9 @@ class AdminTaskComment(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     comment_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
+    class Meta:
+        ordering = ["-date"]
+
     def send_notification_new_message(self, team):
         if self.admin_task.assigned_to != self.comment_by:
             if self.admin_task.assigned_to.slack_user_id != "" and team is not None:
@@ -150,3 +158,4 @@ class AdminTaskComment(models.Model):
                 s.send_message(channel=self.slack_user, blocks=blocks)
             else:
                 send_email_new_comment(self)
+

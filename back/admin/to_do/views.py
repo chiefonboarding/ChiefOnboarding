@@ -50,23 +50,5 @@ class ToDoUpdateView(SuccessMessageMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context["title"] = "Update to do item"
         context["subtitle"] = "templates"
-        context["wysiwyg"] = ContentSerializer(context["todo"].content, many=True).data
+        context["wysiwyg"] = context["todo"].content_json
         return context
-
-
-class ToDoViewSet(viewsets.ModelViewSet):
-    serializer_class = ToDoSerializer
-
-    def get_queryset(self):
-        if self.action == "list":
-            return ToDo.templates.all().prefetch_related("content").order_by("id")
-        return ToDo.objects.all().prefetch_related("content").order_by("id")
-
-    @action(detail=True, methods=["post"])
-    def duplicate(self, request, pk):
-        obj = self.get_object()
-        obj.pk = None
-        obj.save()
-        for i in ToDo.objects.get(pk=pk).content.all():
-            obj.content.add(i)
-        return Response()

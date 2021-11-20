@@ -17,7 +17,7 @@
           {% for template in object_list %}
           <tr>
             <td>{{ template.name }}</td>
-            <td>{% for tag in template.tags %}<span class="badge bg-blue">{{ tag }}</span>{% endfor %}</td>
+            <td>{% for tag in template.tags %}<span class="badge bg-blue" style="margin-right: 10px">{{ tag }}</span>{% endfor %}</td>
             <td class="text-end">
               <a href="{{ template.update_url }}" class="btn btn-white">
                 View
