@@ -10,7 +10,7 @@ from .slack import Slack
 from users.models import ToDoUser
 from integrations.models import AccessToken
 from users.models import NewHireWelcomeMessage, ResourceUser
-from resources.models import Category, Resource
+from resources.models import Category, Chapter
 from misc.serializers import ContentSerializer
 from admin_tasks.models import AdminTask
 from fuzzywuzzy import process
@@ -367,11 +367,11 @@ class CallbackView(APIView):
             # show resources based on category
             if 'category' in value:
                 if value.split(':')[1] == '-1':
-                    books = ResourceUser.objects.filter(user=s.user_obj, book__category__isnull=True)
+                    books = ResourceUser.objects.filter(user=s.user_obj, resource__category__isnull=True)
                 else:
                     category = Category.objects.get(id=int(value.split(':')[1]))
-                    books = ResourceUser.objects.filter(user=s.user_obj, book__category=category)
-                blocks = s.format_resource_block(items=books)
+                    books = ResourceUser.objects.filter(user=s.user_obj, resource__category=category)
+                blocks = s.format_resource_block(items=books, pre_message=None)
                 s.send_message(blocks=blocks)
                 return Response()
 
@@ -412,22 +412,23 @@ class CallbackView(APIView):
 
             if 'resource' in value or 'course' in value:
                 book_user = ResourceUser.objects.get(user=s.user_obj, id=int(value.split(':')[2]))
-                resource = Resource.objects.get(id=value.split(':')[3])
+                chapter = Chapter.objects.get(id=value.split(':')[3])
                 # saving form
-                if len(response['view']['state']['values']):
-                    form = ContentSerializer(resource.content, many=True).data
+                if 'state' in response['view'] and 'values' in response['view']['state']:
+                    form = ContentSerializer(chapter.content, many=True).data
                     answers = []
                     for i in form:
-                        answers.append(
-                            response['view']['state']['values'][str(i['id'])][str(i['id'])]['selected_option']['value'])
-                    course_answer, cre = book_user.answers.get_or_create(resource=resource,
+                        if str(i['id']) in response['view']['state']['values']:
+                            answers.append(
+                                response['view']['state']['values'][str(i['id'])][str(i['id'])]['selected_option']['value'])
+                    course_answer, cre = book_user.answers.get_or_create(chapter=chapter,
                                                                          defaults={'answers': answers})
                     if not cre:
                         course_answer.answers = answers
                     else:
                         book_user.answers.add(course_answer)
 
-                resource = book_user.book.next_chapter(value.split(':')[3], 'course' in value)
+                resource = book_user.resource.next_chapter(value.split(':')[3], 'course' in value)
                 book_user.add_step(resource)
                 if resource is None:
                     return Response()
