@@ -48,6 +48,7 @@ class NewHireDashboard(TemplateView):
         context['overdue_to_do_items'] = ToDoUser.objects.filter(user=new_hire, to_do__due_on_day__lt=new_hire.workday(), completed=False)
 
         to_do_items = ToDoUser.objects.filter(user=new_hire, to_do__due_on_day__gte=new_hire.workday())
+
         # Group items by amount work days
         items_by_date = []
         for to_do_user in to_do_items:

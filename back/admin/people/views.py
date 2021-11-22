@@ -1,13 +1,17 @@
 from datetime import timedelta
 
+from django.contrib import messages
+
+
 from django.views.generic.list import ListView
 from django.views.generic.base import TemplateView
 from django.contrib.auth import get_user_model
-from django.views.generic.edit import UpdateView, CreateView
+from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
 from django.views.generic.detail import DetailView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy
 
 from users.models import User, NewHireWelcomeMessage, PreboardingUser, ToDoUser, ResourceUser
 from .forms import NewHireProfileForm, ColleagueUpdateForm
@@ -83,7 +87,7 @@ class NewHireProfileView(SuccessMessageMixin, UpdateView):
         return context
 
 
-class ColleageUpdateView(SuccessMessageMixin, UpdateView):
+class ColleagueUpdateView(SuccessMessageMixin, UpdateView):
     template_name = "colleague_update.html"
     model = User
     form_class = ColleagueUpdateForm
@@ -99,6 +103,16 @@ class ColleageUpdateView(SuccessMessageMixin, UpdateView):
         context["title"] = new_hire.full_name
         context["subtitle"] = "Employee"
         return context
+
+
+class ColleagueDeleteView(DeleteView):
+    queryset = get_user_model().objects.all()
+    success_url = reverse_lazy("people:colleagues")
+
+    def delete(self, request, *args, **kwargs):
+        response = super().delete(request, *args, **kwargs)
+        messages.info(request, 'Colleague has been removed')
+        return response
 
 
 class NewHireNotesView(SuccessMessageMixin, CreateView):

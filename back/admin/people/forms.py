@@ -78,6 +78,26 @@ class ColleagueUpdateForm(forms.ModelForm):
                     Field("phone"),
                     css_class="col-12"
                 ),
+                Div(
+                    Field("message"),
+                    css_class="col-12"
+                ),
+                Div(
+                    Field("facebook"),
+                    css_class="col-12"
+                ),
+                Div(
+                    Field("linkedin"),
+                    css_class="col-12"
+                ),
+                Div(
+                    Field("timezone"),
+                    css_class="col-12"
+                ),
+                Div(
+                    Field("language"),
+                    css_class="col-12"
+                ),
                 css_class="row",
             ),
             Submit(name="submit", value="Update")
@@ -85,5 +105,5 @@ class ColleagueUpdateForm(forms.ModelForm):
 
     class Meta:
         model = get_user_model()
-        fields = ("first_name", "last_name", "position", "email", "phone", "start_day", "message", "timezone", "language", "buddy", "manager")
+        fields = ("first_name", "last_name", "position", "email", "phone", "message", "facebook", "twitter", "linkedin", "timezone", "language")
 

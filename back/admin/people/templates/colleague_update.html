@@ -1,6 +1,15 @@
 {% extends 'admin_base.html' %}
 {% load crispy_forms_tags %}
 
+{% block actions %}
+<form method="POST" action="{% url 'people:colleague_delete' object.id %}">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger">
+    Delete
+  </button>
+</form>
+{% endblock %}
+
 {% block content %}
 <div class="row">
   <div class="col-7">
