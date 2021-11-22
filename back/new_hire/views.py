@@ -46,7 +46,7 @@ class AuthenticateView(APIView):
     throttle_classes = [AnonRateThrottle,]
 
     def post(self, request):
-        user = get_object_or_404(get_user_model(), unique_url=request.data['token'])
+        user = get_object_or_404(get_user_model(), unique_url=request.data['token'], role=0)
         user.backend = 'django.contrib.auth.backends.ModelBackend'
         login(request, user)
         return Response()

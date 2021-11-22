@@ -61,14 +61,15 @@ class SlackOAuthView(APIView):
         params = {
             'code': code,
             'client_id': access_token.client_id,
-            'client_secret': access_token.client_secret
+            'client_secret': access_token.client_secret,
+            'redirect_uri': access_token.redirect_url
         }
-        url = 'https://slack.com/api/oauth.access'
+        url = 'https://slack.com/api/oauth.v2.access'
         json_response = requests.get(url, params)
         data = json.loads(json_response.text)
         if data['ok']:
-            access_token.bot_token = data['bot']['bot_access_token']
-            access_token.bot_id = data['bot']['bot_user_id']
+            access_token.bot_token = data['access_token']
+            access_token.bot_id = data['bot_user_id']
             access_token.token = data['access_token']
             access_token.save()
         return redirect('/#/admin/newhire')
