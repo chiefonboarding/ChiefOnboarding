@@ -10,7 +10,7 @@ from .slack import Slack
 from users.models import ToDoUser
 from integrations.models import AccessToken
 from users.models import NewHireWelcomeMessage, ResourceUser
-from resources.models import Category, Chapter, CourseAnswer
+from resources.models import Category, Resource
 from misc.serializers import ContentSerializer
 from admin_tasks.models import AdminTask
 from fuzzywuzzy import process
@@ -164,7 +164,6 @@ class CallbackView(APIView):
 
     def post(self, request):
         # very hacky, but this is a Django/DRF issue
-        import json
         response = '{' + urllib.parse.unquote(request.body.decode('utf-8')[11:-3]) + '}'
         response = json.loads(response.replace('+', ' '))
 
@@ -446,7 +445,6 @@ class CallbackView(APIView):
                     channel=s.channel,
                     ts=value.split(':')[2]
                 )
-                
 
 
         return Response()
