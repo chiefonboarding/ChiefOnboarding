@@ -415,7 +415,6 @@ class CallbackView(APIView):
                 chapter = Chapter.objects.get(id=value.split(':')[3])
                 # saving form
                 if 'state' in response['view'] and 'values' in response['view']['state']:
-                    print(response['view']['state']['values'])
                     form = ContentSerializer(chapter.content, many=True).data
                     answers = []
                     for i in form:
