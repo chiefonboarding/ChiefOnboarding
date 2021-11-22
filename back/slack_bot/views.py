@@ -367,11 +367,11 @@ class CallbackView(APIView):
             # show resources based on category
             if 'category' in value:
                 if value.split(':')[1] == '-1':
-                    books = ResourceUser.objects.filter(user=s.user_obj, book__category__isnull=True)
+                    books = ResourceUser.objects.filter(user=s.user_obj, resource__category__isnull=True)
                 else:
                     category = Category.objects.get(id=int(value.split(':')[1]))
-                    books = ResourceUser.objects.filter(user=s.user_obj, book__category=category)
-                blocks = s.format_resource_block(items=books)
+                    books = ResourceUser.objects.filter(user=s.user_obj, resource__category=category)
+                blocks = s.format_resource_block(items=books, pre_message=None)
                 s.send_message(blocks=blocks)
                 return Response()
 
