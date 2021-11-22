@@ -66,6 +66,7 @@ class SlackOAuthView(APIView):
         url = 'https://slack.com/api/oauth.access'
         json_response = requests.get(url, params)
         data = json.loads(json_response.text)
+        print(data)
         if data['ok']:
             access_token.bot_token = data['bot']['bot_access_token']
             access_token.bot_id = data['bot']['bot_user_id']
