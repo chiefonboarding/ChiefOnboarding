@@ -272,7 +272,7 @@ AWS_S3_ENDPOINT_URL = env("AWS_S3_ENDPOINT_URL", default="https://s3.eu-west-1.a
 AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default="")
 AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default="")
 AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME", default="")
-AWS_REGION = env("AWS_REGION", default="us-east-1")
+AWS_REGION = env("AWS_REGION", default="eu-west-1")
 
 BASE_URL = env("BASE_URL")
 

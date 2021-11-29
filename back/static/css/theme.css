@@ -12822,3 +12822,8 @@ Antialiasing
 .list-timeline:not(.list-timeline-simple) .list-timeline-content {
   padding-left: 55px;
 }
+
+.form-select {
+  padding: unset !important;
+  border: unset !important;
+}

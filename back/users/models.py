@@ -19,7 +19,7 @@ from admin.badges.models import Badge
 from admin.introductions.models import Introduction
 from admin.preboarding.models import Preboarding
 from admin.resources.models import CourseAnswer, Resource
-from admin.sequences.models import Condition
+from admin.sequences.models import Condition, Sequence
 from admin.to_do.models import ToDo
 from organization.models import BaseItem
 from misc.models import File
@@ -169,9 +169,9 @@ class User(AbstractBaseUser):
             self.unique_url = unique_string
         super(User, self).save(*args, **kwargs)
 
-    def add_items(self, items):
-        for item in items:
-            pass
+    def add_sequences(self, sequences):
+        for sequence in sequences:
+            sequence.assign_to_user(self)
 
     def workday(self):
         start_day = self.start_day

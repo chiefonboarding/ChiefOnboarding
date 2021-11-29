@@ -34,6 +34,8 @@ class File(models.Model):
     def get_url(self):
         return S3().get_file(self.key)
 
+    def __str__(self):
+        return self.key
 
 @receiver(pre_delete, sender=File)
 def remove_file(sender, instance, **kwargs):

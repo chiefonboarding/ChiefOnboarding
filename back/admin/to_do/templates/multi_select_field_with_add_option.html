@@ -3,11 +3,11 @@
 
 
 <label class="form-label custom-control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-<select id="{{ field.id_for_label }}" name="{% if field.name|wordcount > 1 %}{{ field.name|slugify }}{% else %}{{ field.name }}{% endif %}" value="{{ field.value|join:"," }}" multiple class="{% if field_class %}{{ field_class }} {% endif %}multi-with-add mb-3"{% if flat_attrs %} {{ flat_attrs }}{% endif %}>
+<select id="{{ field.id_for_label }}" name="{% if field.name|wordcount > 1 %}{{ field.name|slugify }}{% else %}{{ field.name }}{% endif %}" value="{{ field.value|join:"," }}" multiple class="{% if field_class %}{{ field_class }} {% endif %} multi-with-add mb-3"{% if flat_attrs %} {{ flat_attrs }}{% endif %}>
 
     {% for group, options, index in field|optgroups %}
       {% for option in options %}
-        <option value="{{ option.value }}">{{ option.value.instance.name }}</option>
+        <option value="{{ option.label }}">{{ option.label }}</option>
       {% endfor %}
     {% endfor %}
     {% if field.errors and inline_class %}
@@ -18,3 +18,4 @@
 
     {% include 'bootstrap5/layout/help_text.html' %}
 </select>
+

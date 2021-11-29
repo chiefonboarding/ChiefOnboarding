@@ -20,7 +20,7 @@
               <a href="{% url 'settings:changelog' %}" class="nav-link px-0" tabindex="-1">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6" /><path d="M9 17v1a3 3 0 0 0 6 0v-1" /></svg>
                 {% if request.user.has_new_changelog_notifications %}
-                  <span class="badge bg-red"></span>
+                <span class="badge bg-red"></span>
                 {% endif %}
               </a>
             </div>
@@ -112,8 +112,8 @@
                       Your tasks
                     </a>
                       <a class="dropdown-item" href="{% url 'admin_tasks:all' %}" >
-                      All tasks
-                    </a>
+                        All tasks
+                      </a>
                   </div>
                 </li>
                 <li class="nav-item">
@@ -154,9 +154,6 @@
                   <a href="{{ add_action }}" class="btn btn-primary d-none d-sm-inline-block">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                     Add
-                  </a>
-                  <a href="#" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-report" aria-label="Create new report">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                   </a>
                   {% endif %}
                 </div>
@@ -308,48 +305,120 @@
       </div>
     </div>
     {% block js %}
-      <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
-      <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
-      <script>
-        const form = document.forms[0]
-        if (form !== null) {
-          const initialItems = form['tags'].attributes.value.nodeValue;
+    <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+    <script defer src="{% static 'js/tabler.js' %}"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+    <script defer>
+      // const form = document.forms[0]
+      // console.log(form)
+      // if (form !== undefined && 'sequences' in form) {
+      //         const initialItems = form['sequences'].attributes.value.nodeValue;
+      //         var config = {
+      //                 items: initialItems.split(","),
+      //                 onChange: function (value) {
+      //                         form['sequences'].attributes.value.nodeValue = value.join(",")
+      //                       }
+      //               };
+
+      //         new TomSelect('#id_sequences',config);
+      //       }
+
+      $(document).ready(function () {
+        // Trigger file input when clicking on upload button
+        $(".upload-button").each(function (item) {
+          $(this).on('click', function () {
+            $(this).parent().find("input").click()
+          })
+        })
+
+        $(".file-input").each(function (item) {
+          $(this).on('change', function (file) {
+            // ugly, needs clean up
+            const originalButtonText = $(this).parent().find(".upload-button").text()
+            const fileField = $(this)
+            const fileIdInput = $(this).parent().find(".file-id")
+            const newFileName = fileField.val().match(/[^\\/]*$/)[0];
+            const fileNameSpan = $(this).parent().find(".file-name");
+            const filePreview = $(this).parent().find("img");
+
+            $(this).parent().find(".upload-button").text("uploading...")
+            $.ajax({
+              url: "/api/org/file",
+              type: 'post',
+              data: {'name': newFileName},
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function( data ) {
+                const fileMetaData = data
+                $.ajax({
+                  type: 'PUT',
+                  url: data.url,
+                  contentType: 'binary/octet-stream',
+                  processData: false,
+                  data: fileField.get()[0].files[0],
+                  success: function () {
+                    fileField.parent().find(".upload-button").text(originalButtonText)
+                    fileIdInput.val(fileMetaData.id);
+                    fileNameSpan.text(newFileName);
+                    filePreview.attr("src", fileMetaData.get_url);
+                  }
+                });
+              }
+            });
+          })
+        })
+
+        // Create typed item pickers with add function
+        $(".multi-with-add").each(function() {
+          const initialItems = $(this)[0].attributes.value.nodeValue;
           var config = {
             create: true,
             items: initialItems.split(","),
             onChange: function (value) {
-              form['tags'].attributes.value.nodeValue = value.join(",")
+              $(this)[0].attributes.value.nodeValue = value.join(",")
             }
           };
 
-          new TomSelect('#id_tags',config);
-        }
-      </script>
+          new TomSelect('#' + $(this)[0].id,config);
+        })
+        $(".form-select").each(function() {
+          new TomSelect('#' + $(this)[0].id, {});
+        })
+      })
+    </script>
 
-      {% if wysiwyg %}
-        <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
+    <script>
+      window.onload = function(){
+        new Litepicker({
+          element: document.getElementById("id_start_day")
+        });
+      }
+    </script>
 
-        <script>
-          window.onload = function(){
-            const form = document.forms[0]
-            const content = JSON.parse(document.getElementById('content_json').textContent)
-            form['content_json'].attributes.value.nodeValue = JSON.stringify(content)
-            const editor = new EditorJS({
-              autofocus: true,
-              holder: 'element',
-              data: content,
-              onChange: function (value) {
-                value.saver.save().then(function(data) {
-                  form['content_json'].attributes.value.nodeValue = JSON.stringify(data)
-                })
-              }
-            });
-          }
+    {% if wysiwyg %}
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
 
-        </script>
-        {{ wysiwyg|json_script:"content_json" }}
-      {% endif %}
+    <script>
+      window.onload = function(){
+              const form = document.forms[0]
+              const content = JSON.parse(document.getElementById('content_json').textContent)
+              form['content_json'].attributes.value.nodeValue = JSON.stringify(content)
+              const editor = new EditorJS({
+                      autofocus: true,
+                      holder: 'element',
+                      data: content,
+                      onChange: function (value) {
+                              value.saver.save().then(function(data) {
+                                      form['content_json'].attributes.value.nodeValue = JSON.stringify(data)
+                                    })
+                            }
+                    });
+            }
+
+    </script>
+    {{ wysiwyg|json_script:"content_json" }}
+    {% endif %}
     {% endblock %}
-    <script src="{% static 'js/tabler.js' %}"></script>
   </body>
 </html>

@@ -14,7 +14,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 
 from users.models import User, NewHireWelcomeMessage, PreboardingUser, ToDoUser, ResourceUser
-from .forms import NewHireProfileForm, ColleagueUpdateForm
+from .forms import NewHireProfileForm, ColleagueUpdateForm, NewHireAddForm
 from admin.notes.models import Note
 from admin.admin_tasks.models import AdminTask
 
@@ -28,7 +28,35 @@ class NewHireListView(ListView):
         context = super().get_context_data(**kwargs)
         context["title"] = "New hires"
         context["subtitle"] = "people"
+        context["add_action"] = reverse_lazy("people:new_hire_add")
         return context
+
+
+class NewHireAddView(SuccessMessageMixin, CreateView):
+    template_name = "new_hire_add.html"
+    model = get_user_model()
+    form_class = NewHireAddForm
+    context_object_name = "object"
+    success_message = "New hire has been created"
+    success_url = reverse_lazy("people:new_hires")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Add new hire"
+        context["subtitle"] = "people"
+        return context
+
+    def form_valid(self, form):
+        sequences = form.cleaned_data.pop("sequences")
+
+        # Set new hire role
+        form.instance.role = 0
+
+        self.object = form.save()
+
+        # Add sequences to new hire
+        self.object.add_sequences(sequences)
+        return super().form_valid(form)
 
 
 class ColleagueListView(ListView):

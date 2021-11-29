@@ -13,6 +13,7 @@ from rest_framework.views import APIView
 
 from admin.sequences.models import Sequence
 from misc.models import File
+from misc.s3 import S3
 from misc.serializers import FileSerializer
 from users.permissions import AdminPermission, ManagerPermission, NewHirePermission
 
@@ -110,21 +111,7 @@ class FileView(APIView):
         key = str(f.id) + "-" + request.data["name"].split(".")[0] + "/" + request.data["name"]
         f.key = key
         f.save()
-
-        s3 = boto3.client(
-            "s3",
-            settings.AWS_REGION,
-            endpoint_url=settings.AWS_S3_ENDPOINT_URL,
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            config=Config(signature_version="s3v4"),
-        )
-        url = s3.generate_presigned_url(
-            ClientMethod="put_object",
-            ExpiresIn=3600,
-            Params={"Bucket": settings.AWS_STORAGE_BUCKET_NAME, "Key": key},
-        )
-        return Response({"url": url, "id": f.id})
+        return Response({"url": S3().get_presigned_url(key), "id": f.id, "get_url": f.get_url() })
 
     def put(self, request, id):
         file = get_object_or_404(File, pk=id)

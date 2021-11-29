@@ -7,9 +7,41 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 
 from organization.models import Organization, WelcomeMessage
+from admin.to_do.forms import UploadField
 
 
 class OrganizationGeneralForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Field("name"),
+                    Field("language"),
+                    Field("timezone"),
+                    Field("new_hire_email"),
+                    Field("new_hire_email_reminders"),
+                    Field("new_hire_email_overdue_reminders"),
+                    css_class="col-6",
+                ),
+                Div(
+                    UploadField("logo", extra_context={'file': self.instance.logo}),
+                    Field("base_color"),
+                    Field("accent_color"),
+                    Field("bot_color"),
+                    Field("slack_buttons"),
+                    Field("ask_colleague_welcome_message"),
+                    Field("send_new_hire_start_reminder"),
+                    Field("auto_create_user"),
+                    Field("create_new_hire_without_confirm"),
+                    css_class="col-6"
+                ),
+                css_class="row",
+            ),
+            Submit(name="submit", value="Update")
+        )
+
     class Meta:
         model = Organization
         fields = [
