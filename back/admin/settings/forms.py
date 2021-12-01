@@ -1,13 +1,14 @@
 import pyotp
 from crispy_forms.bootstrap import Tab, TabHolder
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import ButtonHolder, Column, Div, Field, Fieldset, Layout, Row, Submit
+from crispy_forms.layout import (ButtonHolder, Column, Div, Field, Fieldset,
+                                 Layout, Row, Submit)
 from django import forms
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 
-from organization.models import Organization, WelcomeMessage
 from admin.to_do.forms import UploadField
+from organization.models import Organization, WelcomeMessage
 
 
 class OrganizationGeneralForm(forms.ModelForm):
@@ -26,7 +27,7 @@ class OrganizationGeneralForm(forms.ModelForm):
                     css_class="col-6",
                 ),
                 Div(
-                    UploadField("logo", extra_context={'file': self.instance.logo}),
+                    UploadField("logo", extra_context={"file": self.instance.logo}),
                     Field("base_color"),
                     Field("accent_color"),
                     Field("bot_color"),
@@ -35,11 +36,11 @@ class OrganizationGeneralForm(forms.ModelForm):
                     Field("send_new_hire_start_reminder"),
                     Field("auto_create_user"),
                     Field("create_new_hire_without_confirm"),
-                    css_class="col-6"
+                    css_class="col-6",
                 ),
                 css_class="row",
             ),
-            Submit(name="submit", value="Update")
+            Submit(name="submit", value="Update"),
         )
 
     class Meta:

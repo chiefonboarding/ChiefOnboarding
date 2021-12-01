@@ -6,44 +6,48 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('introductions', '0004_remove_introduction_polymorphic_ctype'),
-        ('resources', '0006_alter_resource_managers'),
-        ('badges', '0003_remove_badge_polymorphic_ctype'),
-        ('appointments', '0004_alter_appointment_managers'),
-        ('preboarding', '0006_alter_preboarding_managers'),
-        ('to_do', '0008_alter_todo_managers'),
-        ('users', '0015_alter_user_role'),
+        ("introductions", "0004_remove_introduction_polymorphic_ctype"),
+        ("resources", "0006_alter_resource_managers"),
+        ("badges", "0003_remove_badge_polymorphic_ctype"),
+        ("appointments", "0004_alter_appointment_managers"),
+        ("preboarding", "0006_alter_preboarding_managers"),
+        ("to_do", "0008_alter_todo_managers"),
+        ("users", "0015_alter_user_role"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='user',
-            name='appointments',
-            field=models.ManyToManyField(related_name='user_appointments', to='appointments.Appointment'),
+            model_name="user",
+            name="appointments",
+            field=models.ManyToManyField(related_name="user_appointments", to="appointments.Appointment"),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='badges',
-            field=models.ManyToManyField(related_name='user_introductions', to='badges.Badge'),
+            model_name="user",
+            name="badges",
+            field=models.ManyToManyField(related_name="user_introductions", to="badges.Badge"),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='introductions',
-            field=models.ManyToManyField(related_name='user_introductions', to='introductions.Introduction'),
+            model_name="user",
+            name="introductions",
+            field=models.ManyToManyField(related_name="user_introductions", to="introductions.Introduction"),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='preboarding',
-            field=models.ManyToManyField(related_name='user_preboardings', through='users.PreboardingUser', to='preboarding.Preboarding'),
+            model_name="user",
+            name="preboarding",
+            field=models.ManyToManyField(
+                related_name="user_preboardings", through="users.PreboardingUser", to="preboarding.Preboarding"
+            ),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='resources',
-            field=models.ManyToManyField(related_name='user_resources', through='users.ResourceUser', to='resources.Resource'),
+            model_name="user",
+            name="resources",
+            field=models.ManyToManyField(
+                related_name="user_resources", through="users.ResourceUser", to="resources.Resource"
+            ),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='to_do',
-            field=models.ManyToManyField(related_name='user_todos', through='users.ToDoUser', to='to_do.ToDo'),
+            model_name="user",
+            name="to_do",
+            field=models.ManyToManyField(related_name="user_todos", through="users.ToDoUser", to="to_do.ToDo"),
         ),
     ]

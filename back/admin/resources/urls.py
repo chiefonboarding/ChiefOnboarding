@@ -1,11 +1,11 @@
-from django.urls import include, path
-from rest_framework import routers
+from django.urls import path
 
-from admin.resources import views
+from . import views
 
-router = routers.DefaultRouter(trailing_slash=False)
-router.register("resource", views.ResourceViewSet, "resource")
-
+app_name = "resources"
 urlpatterns = [
-    path("", include(router.urls)),
+    path("resources/", views.ResourceListView.as_view(), name="list"),
+    path("resources/create", views.ResourceCreateView.as_view(), name="create"),
+    path("resources/<int:pk>/edit", views.ResourceUpdateView.as_view(), name="update"),
+    path("resources/<int:pk>/delete", views.ResourceDeleteView.as_view(), name="delete"),
 ]

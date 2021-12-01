@@ -6,13 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('resources', '0005_auto_20211111_0237'),
+        ("resources", "0005_auto_20211111_0237"),
     ]
 
     operations = [
         migrations.AlterModelManagers(
-            name='resource',
-            managers=[
-            ],
+            name="resource",
+            managers=[],
         ),
     ]

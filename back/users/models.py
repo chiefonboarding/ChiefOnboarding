@@ -1,12 +1,12 @@
 import uuid
 from datetime import date, datetime, timedelta
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 
 import pyotp
 import pytz
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Q
 from django.template import Context, Template
@@ -21,9 +21,8 @@ from admin.preboarding.models import Preboarding
 from admin.resources.models import CourseAnswer, Resource
 from admin.sequences.models import Condition, Sequence
 from admin.to_do.models import ToDo
-from organization.models import BaseItem
 from misc.models import File
-from organization.models import Changelog
+from organization.models import BaseItem, Changelog
 
 LANGUAGE_CHOICES = (
     ("en", "English"),

@@ -1,44 +1,60 @@
-from django.db.models import Prefetch
-from rest_framework import status, viewsets
-from rest_framework.response import Response
+from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
+from django.urls import reverse_lazy
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.views.generic.list import ListView
 
-from .models import Chapter, Resource
-from .serializers import ChapterSerializer, ResourceSerializer
+from .forms import ResourceForm
+from .models import Resource
 
 
-class ResourceViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows resources to be viewed or edited.
-    """
+class ResourceListView(ListView):
+    template_name = "templates.html"
+    queryset = Resource.templates.all().order_by("name")
+    paginate_by = 10
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Resource items"
+        context["subtitle"] = "templates"
+        context["add_action"] = reverse_lazy("resources:create")
+        context["wysiwyg"] = []
+        return context
+
+
+class ResourceCreateView(SuccessMessageMixin, CreateView):
+    template_name = "todo_update.html"
+    form_class = ResourceForm
+    success_url = reverse_lazy("resources:list")
+    success_message = "Resource item has been updated"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Create resource item"
+        context["subtitle"] = "templates"
+        return context
+
+
+class ResourceUpdateView(SuccessMessageMixin, UpdateView):
+    template_name = "todo_update.html"
+    form_class = ResourceForm
+    success_url = reverse_lazy("resources:list")
     queryset = Resource.templates.all()
-    serializer_class = ResourceSerializer
+    success_message = "Resource item has been updated"
 
-    def _save_recursive_items(self, items, resource, parent_chapter):
-        for i in items:
-            chapter_serializer = ChapterSerializer(data=i)
-            chapter_serializer.is_valid(raise_exception=True)
-            p = chapter_serializer.save(resource=resource, parent_chapter=parent_chapter)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Update resource item"
+        context["subtitle"] = "templates"
+        # context["wysiwyg"] = context["resource"].content_json
+        return context
 
-            if "chapters" in i:
-                self._save_recursive_items(i["chapters"], resource, p)
 
-    def create(self, request, *args, **kwargs):
-        # remove for creating a duplicate
-        if "id" in request.data:
-            del request.data["id"]
-        resource_serializer = self.serializer_class(data=request.data)
-        resource_serializer.is_valid(raise_exception=True)
-        resource = resource_serializer.save()
-        self._save_recursive_items(request.data["chapters"], resource, None)
-        b = self.serializer_class(resource)
-        return Response(b.data, status=status.HTTP_201_CREATED)
+class ResourceDeleteView(DeleteView):
+    queryset = Resource.objects.all()
+    success_url = reverse_lazy("resources:list")
 
-    def update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        Chapter.objects.filter(resource=instance).delete()
-        self._save_recursive_items(request.data["chapters"], instance, None)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    def delete(self, request, *args, **kwargs):
+        response = super().delete(request, *args, **kwargs)
+        messages.info(request, "Resource item has been removed")
+        return response

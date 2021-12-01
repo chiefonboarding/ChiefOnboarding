@@ -6,13 +6,17 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
-from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
+from django.views.generic.edit import (CreateView, DeleteView, FormView,
+                                       UpdateView)
 from django.views.generic.list import ListView
 
-from admin.integrations.models import INTEGRATION_OPTIONS, INTEGRATION_OPTIONS_URLS, AccessToken
-from organization.models import LANGUAGES_OPTIONS, Changelog, Organization, WelcomeMessage
+from admin.integrations.models import (INTEGRATION_OPTIONS,
+                                       INTEGRATION_OPTIONS_URLS, AccessToken)
+from organization.models import (LANGUAGES_OPTIONS, Changelog, Organization,
+                                 WelcomeMessage)
 
-from .forms import AdministratorsCreateForm, OrganizationGeneralForm, OTPVerificationForm, WelcomeMessagesUpdateForm
+from .forms import (AdministratorsCreateForm, OrganizationGeneralForm,
+                    OTPVerificationForm, WelcomeMessagesUpdateForm)
 
 
 class OrganizationGeneralUpdateView(SuccessMessageMixin, UpdateView):

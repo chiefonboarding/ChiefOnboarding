@@ -9,19 +9,14 @@ from slack_bot.slack import Slack
 
 from .emails import send_sequence_message
 from .models import Condition, ExternalMessage, PendingAdminTask, Sequence
-from .serializers import (
-    ExternalMessageSerializer,
-    PendingAdminTaskSerializer,
-    SequenceListSerializer,
-    SequenceSerializer,
-)
+from .serializers import (ExternalMessageSerializer,
+                          PendingAdminTaskSerializer, SequenceListSerializer,
+                          SequenceSerializer)
 
 
 class SequenceViewSet(viewsets.ModelViewSet):
     serializer_class = SequenceSerializer
-    queryset = Sequence.objects.all().prefetch_related(
-        "conditions", "preboarding", "to_do", "appointments", "resources"
-    )
+    queryset = Sequence.objects.all().prefetch_related("conditions", "preboarding", "to_do", "appointments", "resources")
 
     def get_serializer_class(self):
         if self.action == "list":

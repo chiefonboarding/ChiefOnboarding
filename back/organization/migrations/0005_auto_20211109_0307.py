@@ -6,22 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('organization', '0004_auto_20211108_2230'),
+        ("organization", "0004_auto_20211108_2230"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='changelog',
-            options={'ordering': ['-id']},
+            name="changelog",
+            options={"ordering": ["-id"]},
         ),
         migrations.AlterField(
-            model_name='changelog',
-            name='added',
+            model_name="changelog",
+            name="added",
             field=models.DateField(auto_now_add=True),
         ),
         migrations.AlterField(
-            model_name='changelog',
-            name='url',
-            field=models.URLField(default=''),
+            model_name="changelog",
+            name="url",
+            field=models.URLField(default=""),
         ),
     ]

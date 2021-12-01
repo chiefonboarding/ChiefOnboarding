@@ -68,24 +68,24 @@
                     </span>
                   </a>
                   <div class="dropdown-menu">
-                    <a class="dropdown-item" href="{% url "todo:list" %}" >
+                    <a class="dropdown-item" href="{% url 'todo:list' %}" >
                       To do
                     </a>
-                      <a class="dropdown-item" href="./activity.html" >
-                        Resources
-                      </a>
-                        <a class="dropdown-item" href="./activity.html" >
-                          Introductions
-                        </a>
-                          <a class="dropdown-item" href="./activity.html" >
-                            Appointments
-                          </a>
-                            <a class="dropdown-item" href="./activity.html" >
-                              Preboarding
-                            </a>
-                              <a class="dropdown-item" href="./activity.html" >
-                                Badges
-                              </a>
+                    <a class="dropdown-item" href="{% url 'resources:list' %}" >
+                      Resources
+                    </a>
+                    <a class="dropdown-item" href="{% url 'introductions:list' %}" >
+                      Introductions
+                    </a>
+                    <a class="dropdown-item" href="{% url 'appointments:list' %}" >
+                      Appointments
+                    </a>
+                    <a class="dropdown-item" href="{% url 'preboarding:list' %}">
+                      Preboarding
+                    </a>
+                    <a class="dropdown-item" href="{% url 'badges:list' %}">
+                      Badges
+                    </a>
                   </div>
                 </li>
                 <li class="nav-item">

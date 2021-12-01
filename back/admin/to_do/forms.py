@@ -1,10 +1,13 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import ButtonHolder, Column, Div, Field, Fieldset, Layout, Row, Submit
+from crispy_forms.layout import (
+    Div,
+    Field,
+    Layout,
+)
+from crispy_forms.utils import TEMPLATE_PACK
 from django import forms
 
-from misc.fields import ContentFormField
 from organization.models import Tag
-from crispy_forms.utils import TEMPLATE_PACK
 
 from .models import ToDo
 
@@ -24,7 +27,7 @@ class UploadField(Field):
     extra_context = {}
 
     def __init__(self, *args, **kwargs):
-        self.extra_context = kwargs.pop('extra_context', self.extra_context)
+        self.extra_context = kwargs.pop("extra_context", self.extra_context)
         super().__init__(*args, **kwargs)
 
     def render(self, form, form_style, context, template_pack=TEMPLATE_PACK, extra_context=None, **kwargs):
@@ -58,5 +61,5 @@ class ToDoForm(forms.ModelForm):
         exclude = ("template", "form", "content")
 
     def clean_tags(self):
-        tags = self.cleaned_data['tags']
+        tags = self.cleaned_data["tags"]
         return [tag.name for tag in tags]

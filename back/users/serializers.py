@@ -7,12 +7,10 @@ from admin.badges.serializers import BadgeSerializer
 from admin.introductions.serializers import IntroductionSerializer
 from admin.preboarding.serializers import PreboardingSerializer
 from admin.resources.models import Resource
-from admin.resources.serializers import (
-    ChapterCourseSerializer,
-    ChapterSerializer,
-    CourseAnswerSerializer,
-    ResourceSerializer,
-)
+from admin.resources.serializers import (ChapterCourseSerializer,
+                                         ChapterSerializer,
+                                         CourseAnswerSerializer,
+                                         ResourceSerializer)
 from admin.to_do.serializers import ToDoSerializer
 from misc.models import File
 from misc.serializers import FileSerializer

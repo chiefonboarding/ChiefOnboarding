@@ -23,7 +23,6 @@ urlpatterns = [
     path("resource/<int:id>", views.ResourceItemView.as_view()),
     path("change_step/<int:id>", views.CourseStep.as_view()),
     path("course/<int:id>", views.CourseItemView.as_view()),
-
     # native views
     path("todos/", views.NewHireDashboard.as_view(), name="todos"),
     path("todos/<int:pk>/", views.ToDoDetailView.as_view(), name="to_do"),

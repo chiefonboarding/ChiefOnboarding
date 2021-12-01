@@ -30,28 +30,22 @@ from admin.sequences.models import Condition, Sequence
 from admin.sequences.serializers import ConditionSerializer
 from admin.sequences.utils import get_task_items
 from admin.to_do.serializers import ToDoFormSerializer
-from new_hire.serializers import NewHireResourceItemSerializer, PreboardingUserSerializer, ToDoUserSerializer
+from new_hire.serializers import (NewHireResourceItemSerializer,
+                                  PreboardingUserSerializer,
+                                  ToDoUserSerializer)
 from organization.models import Organization, WelcomeMessage
 from slack_bot.slack import Slack as SlackBot
 
-from .emails import (
-    email_new_admin_cred,
-    email_reopen_task,
-    send_new_hire_cred,
-    send_new_hire_preboarding,
-    send_reminder_email,
-)
-from .models import NewHireWelcomeMessage, PreboardingUser, ResourceUser, ToDoUser
+from .emails import (email_new_admin_cred, email_reopen_task,
+                     send_new_hire_cred, send_new_hire_preboarding,
+                     send_reminder_email)
+from .models import (NewHireWelcomeMessage, PreboardingUser, ResourceUser,
+                     ToDoUser)
 from .permissions import ManagerPermission
-from .serializers import (
-    AdminSerializer,
-    EmployeeSerializer,
-    NewHireProgressResourceSerializer,
-    NewHireSerializer,
-    NewHireWelcomeMessageSerializer,
-    OTPRecoveryKeySerializer,
-    UserLanguageSerializer,
-)
+from .serializers import (AdminSerializer, EmployeeSerializer,
+                          NewHireProgressResourceSerializer, NewHireSerializer,
+                          NewHireWelcomeMessageSerializer,
+                          OTPRecoveryKeySerializer, UserLanguageSerializer)
 
 
 class NewHireViewSet(viewsets.ModelViewSet):
@@ -169,9 +163,7 @@ class NewHireViewSet(viewsets.ModelViewSet):
                     many=True,
                 ).data,
                 "to_do": ToDoUserSerializer(
-                    ToDoUser.objects.filter(user=user)
-                    .select_related("to_do")
-                    .prefetch_related("to_do__content__files"),
+                    ToDoUser.objects.filter(user=user).select_related("to_do").prefetch_related("to_do__content__files"),
                     many=True,
                 ).data,
                 "resources": NewHireResourceItemSerializer(

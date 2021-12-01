@@ -1,16 +1,16 @@
-from django.http import Http404
-from django.utils import timezone
 from datetime import datetime, timedelta
+
+from axes.decorators import axes_dispatch
 from django.conf import settings
-from django.contrib.auth import get_user_model, login
-from django.urls import reverse
-from django.utils.decorators import method_decorator
+from django.contrib.auth import get_user_model, login, signals
+from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.utils import translation
-from django.views.generic.base import TemplateView, RedirectView
-from django.views.generic.list import ListView
+from django.urls import reverse
+from django.utils import timezone, translation
+from django.utils.decorators import method_decorator
+from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.detail import DetailView
-from django.contrib.auth import signals
+from django.views.generic.list import ListView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
@@ -22,17 +22,15 @@ from admin.resources.models import Chapter, CourseAnswer, Resource
 from admin.resources.serializers import ResourceSerializer
 from admin.to_do.models import ToDo
 from admin.to_do.serializers import ToDoSerializer
-from new_hire.serializers import (
-    NewHireBadgeSerializer,
-    NewHireResourceItemSerializer,
-    NewHireResourceSerializer,
-    PreboardingUserSerializer,
-    ToDoUserSerializer,
-)
-from axes.decorators import axes_dispatch
+from new_hire.serializers import (NewHireBadgeSerializer,
+                                  NewHireResourceItemSerializer,
+                                  NewHireResourceSerializer,
+                                  PreboardingUserSerializer,
+                                  ToDoUserSerializer)
 from organization.models import Organization
 from organization.serializers import BaseOrganizationSerializer
-from users.models import PreboardingUser, ResourceUser, ToDoUser, User, NewHireWelcomeMessage
+from users.models import (NewHireWelcomeMessage, PreboardingUser, ResourceUser,
+                          ToDoUser, User)
 from users.permissions import NewHirePermission
 from users.serializers import EmployeeSerializer, NewHireSerializer
 
@@ -45,7 +43,9 @@ class NewHireDashboard(TemplateView):
         new_hire = self.request.user
         context = super().get_context_data(**kwargs)
 
-        context['overdue_to_do_items'] = ToDoUser.objects.filter(user=new_hire, to_do__due_on_day__lt=new_hire.workday(), completed=False)
+        context["overdue_to_do_items"] = ToDoUser.objects.filter(
+            user=new_hire, to_do__due_on_day__lt=new_hire.workday(), completed=False
+        )
 
         to_do_items = ToDoUser.objects.filter(user=new_hire, to_do__due_on_day__gte=new_hire.workday())
 
@@ -53,19 +53,24 @@ class NewHireDashboard(TemplateView):
         items_by_date = []
         for to_do_user in to_do_items:
             # Check if to do is already in any of the new items_by_date
-            if not any([item for item in items_by_date if item['day'] == to_do_user.to_do.due_on_day]):
-                new_date = {'day': to_do_user.to_do.due_on_day, 'items': [to_do_user.to_do,]}
+            if not any([item for item in items_by_date if item["day"] == to_do_user.to_do.due_on_day]):
+                new_date = {
+                    "day": to_do_user.to_do.due_on_day,
+                    "items": [
+                        to_do_user.to_do,
+                    ],
+                }
                 items_by_date.append(new_date)
             else:
                 # Can never be two or more, since it's catching it if it already exists
-                existing_date = [item for item in items_by_date if item['day'] == to_do_user.to_do.due_on_day][0]
-                existing_date['items'].append(to_do_user)
+                existing_date = [item for item in items_by_date if item["day"] == to_do_user.to_do.due_on_day][0]
+                existing_date["items"].append(to_do_user)
 
         # Convert days to date object
         for obj in items_by_date:
-            obj['date'] = self.request.user.start_day + timedelta(days=obj['day']-1)
+            obj["date"] = self.request.user.start_day + timedelta(days=obj["day"] - 1)
 
-        context['to_do_items'] = items_by_date
+        context["to_do_items"] = items_by_date
 
         context["title"] = "Things you need to do"
         context["subtitle"] = "Tasks"
@@ -77,20 +82,20 @@ class ToDoDetailView(DetailView):
     model = ToDoUser
 
 
-@method_decorator(axes_dispatch, name='dispatch')
+@method_decorator(axes_dispatch, name="dispatch")
 class PreboardingShortURLRedirectView(RedirectView):
-    pattern_name = 'new_hire:preboarding'
+    pattern_name = "new_hire:preboarding"
 
     def dispatch(self, *args, **kwargs):
         try:
-            user = User.objects.get(unique_url=self.request.GET.get('token', ''), start_day__gte=timezone.now(), role=0)
+            user = User.objects.get(unique_url=self.request.GET.get("token", ""), start_day__gte=timezone.now(), role=0)
         except User.DoesNotExist:
             # Log wrong keys by ip to prevent guessing/bruteforcing
             signals.user_login_failed.send(
                 sender=User,
                 request=self.request,
                 credentials={
-                    'token': self.request.GET.get('token', ''),
+                    "token": self.request.GET.get("token", ""),
                 },
             )
             raise Http404
@@ -113,28 +118,30 @@ class PreboardingDetailView(DetailView):
 
     def dispatch(self, *args, **kwargs):
         # Make sure user is authenticated to view this object
-        get_object_or_404(PreboardingUser, user=self.request.user, id=kwargs['pk'])
+        get_object_or_404(PreboardingUser, user=self.request.user, id=kwargs["pk"])
         return super().dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        preboarding_user_items = list(PreboardingUser.objects.filter(user=self.request.user).order_by("order").values_list('id', flat=True))
+        preboarding_user_items = list(
+            PreboardingUser.objects.filter(user=self.request.user).order_by("order").values_list("id", flat=True)
+        )
         index_current_item = preboarding_user_items.index(self.object.id)
 
         # Add new hire welcome messages to first page
         if index_current_item == 0 and NewHireWelcomeMessage.objects.filter(new_hire=self.request.user).exists():
-            context['welcome_messages'] = NewHireWelcomeMessage.objects.filter(new_hire=self.request.user)
+            context["welcome_messages"] = NewHireWelcomeMessage.objects.filter(new_hire=self.request.user)
 
         # Check that current item is not last, otherwise push first
         if self.object.id != preboarding_user_items[-1]:
             next_id = preboarding_user_items[index_current_item + 1]
-            button_text = 'Next'
+            button_text = "Next"
         else:
             button_text = "Restart"
             next_id = preboarding_user_items[0]
 
-        context['button_text'] = button_text
-        context['next_id'] = next_id
+        context["button_text"] = button_text
+        context["next_id"] = next_id
         return context
 
 
@@ -154,11 +161,12 @@ class ResourceListView(TemplateView):
 
         return context
 
+
 class ToDoCompleteView(RedirectView):
-    pattern_name = 'new_hire:to_do'
+    pattern_name = "new_hire:to_do"
 
     def get_redirect_url(self, *args, **kwargs):
-        to_do_user = get_object_or_404(ToDoUser, pk=kwargs['pk'], user=self.request.user)
+        to_do_user = get_object_or_404(ToDoUser, pk=kwargs["pk"], user=self.request.user)
         to_do_user.completed = True
         to_do_user.save()
         return super().get_redirect_url(*args, **kwargs)

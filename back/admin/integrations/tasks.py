@@ -1,7 +1,9 @@
 import requests
 from django.contrib.auth import get_user_model
-from integrations.emails import google_error_email, send_access_email, slack_error_email
-from integrations.google import EmailAddressNotValidError, Google, UnauthorizedError
+from integrations.emails import (google_error_email, send_access_email,
+                                 slack_error_email)
+from integrations.google import (EmailAddressNotValidError, Google,
+                                 UnauthorizedError)
 from integrations.models import AccessToken, ScheduledAccess
 
 from .slack import Slack

@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 from misc.models import Content
 from organization.models import BaseItem
@@ -11,3 +12,6 @@ class Preboarding(BaseItem):
 
     def __str__(self):
         return self.name
+
+    def update_url(self):
+        return reverse("preboarding:update", args=[self.id])

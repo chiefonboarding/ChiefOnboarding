@@ -1,9 +1,11 @@
 from django.conf import settings
 from django.db import models
 from django.db.models import Prefetch
+from django.template.loader import render_to_string
 from twilio.rest import Client
 
-from admin.admin_tasks.models import NOTIFICATION_CHOICES, PRIORITY_CHOICES, AdminTask
+from admin.admin_tasks.models import (NOTIFICATION_CHOICES, PRIORITY_CHOICES,
+                                      AdminTask)
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
 from admin.introductions.models import Introduction
@@ -14,7 +16,6 @@ from admin.to_do.models import ToDo
 from misc.models import Content
 from misc.serializers import FileSerializer
 from slack_bot.slack import Slack
-from django.template.loader import render_to_string
 
 from .emails import send_sequence_message
 
@@ -148,11 +149,11 @@ class ExternalMessage(models.Model):
     @property
     def get_icon_template(self):
         if self.is_email_message:
-            return render_to_string('_email_icon.html')
+            return render_to_string("_email_icon.html")
         if self.is_slack_message:
-            return render_to_string('slack_icon.html')
+            return render_to_string("slack_icon.html")
         if self.is_text_message:
-            return render_to_string('text_icon.html')
+            return render_to_string("text_icon.html")
 
     objects = ExternalMessageManager()
 
@@ -169,7 +170,7 @@ class PendingAdminTask(models.Model):
 
     @property
     def get_icon_template(self):
-        return render_to_string('_admin_task_icon.html')
+        return render_to_string("_admin_task_icon.html")
 
 
 class Condition(models.Model):

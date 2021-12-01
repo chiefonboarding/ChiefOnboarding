@@ -1,18 +1,18 @@
+from django.contrib.messages.views import SuccessMessageMixin
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
+from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.list import ListView
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.urls import reverse
-from django.views.generic.list import ListView
-from django.views.generic.edit import CreateView, UpdateView
-from django.contrib.messages.views import SuccessMessageMixin
-from django.shortcuts import get_object_or_404, redirect
 
 from users import permissions
 
-from .models import AdminTask, AdminTaskComment
 from .forms import AdminTaskCommentForm, AdminTaskUpdateForm
-
-from .serializers import AdminTaskSerializer, CommentPostSerializer, CommentSerializer
+from .models import AdminTask, AdminTaskComment
+from .serializers import (AdminTaskSerializer, CommentPostSerializer,
+                          CommentSerializer)
 
 
 class MyAdminTasksListView(ListView):
@@ -65,7 +65,9 @@ class AdminTasksUpdateView(SuccessMessageMixin, UpdateView):
 class AdminTasksCommentCreateView(SuccessMessageMixin, CreateView):
     template_name = "admin_tasks_detail.html"
     model = AdminTaskComment
-    fields = ["content",]
+    fields = [
+        "content",
+    ]
     success_message = "Comment has been posted"
 
     def get_success_url(self):

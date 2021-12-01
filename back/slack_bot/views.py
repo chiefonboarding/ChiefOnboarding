@@ -13,7 +13,6 @@ from integrations.models import AccessToken
 from users.models import NewHireWelcomeMessage, ResourceUser
 from resources.models import Category, Chapter
 from misc.serializers import ContentSerializer
-
 # from fuzzywuzzy import process
 from organization.models import Organization
 from users.models import NewHireWelcomeMessage, ResourceUser, ToDoUser, User

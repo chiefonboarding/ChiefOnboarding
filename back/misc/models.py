@@ -37,6 +37,7 @@ class File(models.Model):
     def __str__(self):
         return self.key
 
+
 @receiver(pre_delete, sender=File)
 def remove_file(sender, instance, **kwargs):
     S3().delete_file(instance.key)

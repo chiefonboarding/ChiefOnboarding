@@ -14,5 +14,3 @@ urlpatterns = [
     path("/<int:pk>/", views.AdminTasksUpdateView.as_view(), name="detail"),
     path("/<int:pk>/comment/", views.AdminTasksCommentCreateView.as_view(), name="comment"),
 ]
-
-

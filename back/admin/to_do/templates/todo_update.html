@@ -1,7 +1,16 @@
 {% extends 'admin_base.html' %}
 {% load crispy_forms_tags %}
 
-{% block actions %}{% endblock %}
+{% block actions %}
+  {% if object %}
+    <form method="POST" action="{% url 'todo:delete' object.id %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">
+        Delete
+      </button>
+    </form>
+  {% endif %}
+{% endblock %}
 {% block content %}
 <div class="row">
   <div class="col-12">
@@ -10,12 +19,11 @@
         <div class="card-body">
           {% crispy form %}
           <div class="form-footer">
-            <button type="submit" class="btn btn-primary">Update</button>
+            <button type="submit" class="btn btn-primary">{% if object %}Update{% else %}Create{% endif %}</button>
           </div>
         </div>
       </form>
     </div>
   </div>
 </div>
-
 {% endblock %}

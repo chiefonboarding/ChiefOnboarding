@@ -2,109 +2,96 @@
 
 from django.db import migrations, models
 
+
 def migrate_wysiwyg_fields(apps, schema_editor):
-    ToDo = apps.get_model('to_do', 'ToDo')
+    ToDo = apps.get_model("to_do", "ToDo")
     for to_do in ToDo.objects.all():
         new_json = []
         for block in to_do.content.all():
-            if block.type == 'p':
-                new_json.append({
-                    "type": "paragraph",
-                    "data": {
-                        "text": block.content
-                    }
-                })
-            if block.type in ['h1', 'h2', 'h3']:
+            if block.type == "p":
+                new_json.append({"type": "paragraph", "data": {"text": block.content}})
+            if block.type in ["h1", "h2", "h3"]:
                 level = int(block.type.replace("h", ""))
-                new_json.append({
-                    "type": "header",
-                    "data": {
-                        "text": block.content,
-                        "level": level
-                    }
-                })
-            if block.type == 'quote':
-                new_json.append({
-                    "type": block.type,
-                    "data": {
-                        "text": block.content,
-                        "caption": "",
-                        "alignment": "left"
-                    }
-                })
-            if block.type == 'youtube':
-                new_json.append({
-                  "type" : "embed",
-                  "data" : {
-                    "service" : "youtube",
-                    "source" : block.content,
-                    "embed" : block.content,
-                    "width" : 580,
-                    "height" : 320,
-                    "caption" : ""
-                  }
-                })
-            if block.type in ['ul', 'ol']:
-                new_json.append({
-                    "type" : "list",
-                    "data" : {
-                        "style" : "unordered" if block.type == 'ul' else "ordered",
-                        "items" : [item for item in block.items]
-                    }
-                })
-            if block.type == 'hr':
-                new_json.append({
-                    "type" : "delimiter",
-                    "data" : {}
-                })
-            if block.type == 'file':
-                for file in block.files.all():
-                    new_json.append({
-                        "type" : "attaches",
-                        "data" : {
-                            "file": {
-                                "url" : "",
-                                "uuid": str(file.uuid),
-                                "id": file.id,
-                                "name": file.name,
-                                "extension": file.ext
-                            },
-                            "title": file.name
-                        }
-                    })
-            if block.type == 'image':
-                new_json.append({
-                    "type" : "image",
-                    "data" : {
-                        "file": {
-                            "url" : "",
-                            "id": block.files.all()[0].id
+                new_json.append({"type": "header", "data": {"text": block.content, "level": level}})
+            if block.type == "quote":
+                new_json.append(
+                    {"type": block.type, "data": {"text": block.content, "caption": "", "alignment": "left"}}
+                )
+            if block.type == "youtube":
+                new_json.append(
+                    {
+                        "type": "embed",
+                        "data": {
+                            "service": "youtube",
+                            "source": block.content,
+                            "embed": block.content,
+                            "width": 580,
+                            "height": 320,
+                            "caption": "",
                         },
-                        "caption" : "",
-                        "withBorder" : False,
-                        "withBackground" : False,
-                        "stretched" : True
                     }
-                })
-            if block.type == 'video':
+                )
+            if block.type in ["ul", "ol"]:
+                new_json.append(
+                    {
+                        "type": "list",
+                        "data": {
+                            "style": "unordered" if block.type == "ul" else "ordered",
+                            "items": [item for item in block.items],
+                        },
+                    }
+                )
+            if block.type == "hr":
+                new_json.append({"type": "delimiter", "data": {}})
+            if block.type == "file":
+                for file in block.files.all():
+                    new_json.append(
+                        {
+                            "type": "attaches",
+                            "data": {
+                                "file": {
+                                    "url": "",
+                                    "uuid": str(file.uuid),
+                                    "id": file.id,
+                                    "name": file.name,
+                                    "extension": file.ext,
+                                },
+                                "title": file.name,
+                            },
+                        }
+                    )
+            if block.type == "image":
+                new_json.append(
+                    {
+                        "type": "image",
+                        "data": {
+                            "file": {"url": "", "id": block.files.all()[0].id},
+                            "caption": "",
+                            "withBorder": False,
+                            "withBackground": False,
+                            "stretched": True,
+                        },
+                    }
+                )
+            if block.type == "video":
                 pass
-            if block.type == 'question':
+            if block.type == "question":
                 pass
-        to_do.content_json = {'time': 0, 'blocks': new_json }
+        to_do.content_json = {"time": 0, "blocks": new_json}
         to_do.save()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('to_do', '0003_auto_20201013_0149'),
+        ("to_do", "0003_auto_20201013_0149"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='todo',
-            name='content_json',
-            field=models.JSONField(default='[]', verbose_name=models.TextField(default='[]')),
+            model_name="todo",
+            name="content_json",
+            field=models.JSONField(default="[]", verbose_name=models.TextField(default="[]")),
             preserve_default=False,
         ),
         migrations.RunPython(migrate_wysiwyg_fields, migrations.RunPython.noop),

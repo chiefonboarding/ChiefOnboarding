@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('badges', '0002_badge_polymorphic_ctype'),
+        ("badges", "0002_badge_polymorphic_ctype"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='badge',
-            name='polymorphic_ctype',
+            model_name="badge",
+            name="polymorphic_ctype",
         ),
     ]

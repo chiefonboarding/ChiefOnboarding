@@ -1,9 +1,10 @@
 from django.db import models
+from django.urls import reverse
 from django.db.models import Prefetch
+from django.template.loader import render_to_string
 
 from misc.models import Content
 from organization.models import BaseItem
-from django.template.loader import render_to_string
 
 
 class Category(models.Model):
@@ -23,7 +24,10 @@ class Resource(BaseItem):
 
     @property
     def get_icon_template(self):
-        return render_to_string('_resource_icon.html')
+        return render_to_string("_resource_icon.html")
+
+    def update_url(self):
+        return reverse("resources:update", args=[self.id])
 
     def next_chapter(self, current_id, course):
         chapters = self.chapters.exclude(type=1)

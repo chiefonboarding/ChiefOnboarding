@@ -1,11 +1,60 @@
-from rest_framework import viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
+from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
+from django.urls import reverse_lazy
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.views.generic.list import ListView
 
+from .forms import IntroductionForm
 from .models import Introduction
-from .serializers import IntroductionSerializer
 
 
-class IntroductionViewSet(viewsets.ModelViewSet):
-    serializer_class = IntroductionSerializer
-    queryset = Introduction.objects.all().select_related("intro_person").order_by("id")
+class IntroductionListView(ListView):
+    template_name = "templates.html"
+    queryset = Introduction.templates.all().order_by("name")
+    paginate_by = 10
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Introduction items"
+        context["subtitle"] = "templates"
+        context["add_action"] = reverse_lazy("introductions:create")
+        context["wysiwyg"] = []
+        return context
+
+
+class IntroductionCreateView(SuccessMessageMixin, CreateView):
+    template_name = "todo_update.html"
+    form_class = IntroductionForm
+    success_url = reverse_lazy("introductions:list")
+    success_message = "Introduction item has been updated"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Create introduction item"
+        context["subtitle"] = "templates"
+        return context
+
+
+class IntroductionUpdateView(SuccessMessageMixin, UpdateView):
+    template_name = "todo_update.html"
+    form_class = IntroductionForm
+    success_url = reverse_lazy("introductions:list")
+    queryset = Introduction.templates.all()
+    success_message = "Introduction item has been updated"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Update introduction item"
+        context["subtitle"] = "templates"
+        # context["wysiwyg"] = context["introduction"].content_json
+        return context
+
+
+class IntroductionDeleteView(DeleteView):
+    queryset = Introduction.objects.all()
+    success_url = reverse_lazy("introductions:list")
+
+    def delete(self, request, *args, **kwargs):
+        response = super().delete(request, *args, **kwargs)
+        messages.info(request, "Introduction item has been removed")
+        return response

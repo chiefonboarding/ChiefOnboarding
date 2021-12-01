@@ -13,7 +13,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from admin.integrations.models import AccessToken
-
 # from google_auth_oauthlib.flow import Flow
 from organization.models import Organization
 from users.serializers import NewHireSerializer

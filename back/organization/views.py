@@ -15,15 +15,13 @@ from admin.sequences.models import Sequence
 from misc.models import File
 from misc.s3 import S3
 from misc.serializers import FileSerializer
-from users.permissions import AdminPermission, ManagerPermission, NewHirePermission
+from users.permissions import (AdminPermission, ManagerPermission,
+                               NewHirePermission)
 
 from .models import Organization, Tag, WelcomeMessage
-from .serializers import (
-    BaseOrganizationSerializer,
-    DetailOrganizationSerializer,
-    ExportSerializer,
-    WelcomeMessageSerializer,
-)
+from .serializers import (BaseOrganizationSerializer,
+                          DetailOrganizationSerializer, ExportSerializer,
+                          WelcomeMessageSerializer)
 
 
 def home(request):
@@ -111,7 +109,7 @@ class FileView(APIView):
         key = str(f.id) + "-" + request.data["name"].split(".")[0] + "/" + request.data["name"]
         f.key = key
         f.save()
-        return Response({"url": S3().get_presigned_url(key), "id": f.id, "get_url": f.get_url() })
+        return Response({"url": S3().get_presigned_url(key), "id": f.id, "get_url": f.get_url()})
 
     def put(self, request, id):
         file = get_object_or_404(File, pk=id)

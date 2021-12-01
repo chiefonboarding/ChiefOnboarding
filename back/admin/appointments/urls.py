@@ -1,11 +1,11 @@
-from django.urls import include, path
-from rest_framework import routers
+from django.urls import path
 
 from . import views
 
-router = routers.DefaultRouter(trailing_slash=False)
-router.register("appointment", views.AppointmentViewSet, "appointment")
-
+app_name = "appointments"
 urlpatterns = [
-    path("", include(router.urls)),
+    path("appointments/", views.AppointmentListView.as_view(), name="list"),
+    path("appointments/create", views.AppointmentCreateView.as_view(), name="create"),
+    path("appointments/<int:pk>/edit", views.AppointmentUpdateView.as_view(), name="update"),
+    path("appointments/<int:pk>/delete", views.AppointmentDeleteView.as_view(), name="delete"),
 ]

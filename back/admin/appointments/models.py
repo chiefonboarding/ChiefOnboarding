@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 from misc.models import Content
 from organization.models import BaseItem
@@ -17,3 +18,6 @@ class Appointment(BaseItem):
     def duplicate(self):
         self.pk = None
         self.save()
+
+    def update_url(self):
+        return reverse("appointments:update", args=[self.id])

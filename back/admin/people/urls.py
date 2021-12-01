@@ -9,7 +9,11 @@ urlpatterns = [
     path("/new_hire/<int:pk>/overview/", views.NewHireSequenceView.as_view(), name="new_hire"),
     path("/new_hire/<int:pk>/profile/", views.NewHireProfileView.as_view(), name="new_hire_profile"),
     path("/new_hire/<int:pk>/notes/", views.NewHireNotesView.as_view(), name="new_hire_notes"),
-    path("/new_hire/<int:pk>/welcome_messages/", views.NewHireWelcomeMessagesView.as_view(), name="new_hire_welcome_messages"),
+    path(
+        "/new_hire/<int:pk>/welcome_messages/",
+        views.NewHireWelcomeMessagesView.as_view(),
+        name="new_hire_welcome_messages",
+    ),
     path("/new_hire/<int:pk>/admin_tasks/", views.NewHireAdminTasksView.as_view(), name="new_hire_admin_tasks"),
     path("/new_hire/<int:pk>/forms/", views.NewHireFormsView.as_view(), name="new_hire_forms"),
     path("/new_hire/<int:pk>/progress/", views.NewHireProgressView.as_view(), name="new_hire_progress"),

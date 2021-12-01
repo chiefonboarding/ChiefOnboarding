@@ -1,22 +1,22 @@
 from datetime import timedelta
 
 from django.contrib import messages
-
-
-from django.views.generic.list import ListView
-from django.views.generic.base import TemplateView
 from django.contrib.auth import get_user_model
-from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
-from django.views.generic.detail import DetailView
 from django.contrib.messages.views import SuccessMessageMixin
-from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
+from django.views.generic.base import TemplateView
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import (CreateView, DeleteView, FormView,
+                                       UpdateView)
+from django.views.generic.list import ListView
 
-from users.models import User, NewHireWelcomeMessage, PreboardingUser, ToDoUser, ResourceUser
-from .forms import NewHireProfileForm, ColleagueUpdateForm, NewHireAddForm
-from admin.notes.models import Note
 from admin.admin_tasks.models import AdminTask
+from admin.notes.models import Note
+from users.models import (NewHireWelcomeMessage, PreboardingUser, ResourceUser,
+                          ToDoUser, User)
+
+from .forms import ColleagueUpdateForm, NewHireAddForm, NewHireProfileForm
 
 
 class NewHireListView(ListView):
@@ -83,8 +83,12 @@ class NewHireSequenceView(DetailView):
         context["subtitle"] = "new hire"
 
         # condition items
-        conditions_before_first_day = new_hire.conditions.filter(condition_type=2, days__lte=new_hire.days_before_starting())
-        conditions_after_first_day = new_hire.conditions.filter(condition_type=0, days__lte=new_hire.days_before_starting())
+        conditions_before_first_day = new_hire.conditions.filter(
+            condition_type=2, days__lte=new_hire.days_before_starting()
+        )
+        conditions_after_first_day = new_hire.conditions.filter(
+            condition_type=0, days__lte=new_hire.days_before_starting()
+        )
         for condition in conditions_before_first_day:
             condition.days = new_hire.start_day - timedelta(days=condition.days)
 
@@ -139,14 +143,16 @@ class ColleagueDeleteView(DeleteView):
 
     def delete(self, request, *args, **kwargs):
         response = super().delete(request, *args, **kwargs)
-        messages.info(request, 'Colleague has been removed')
+        messages.info(request, "Colleague has been removed")
         return response
 
 
 class NewHireNotesView(SuccessMessageMixin, CreateView):
     template_name = "new_hire_notes.html"
     model = Note
-    fields = ["content",]
+    fields = [
+        "content",
+    ]
     success_message = "Note has been added"
 
     def get_success_url(self):

@@ -1,11 +1,12 @@
 from django.conf import settings
 from django.db import models
-from django.utils.translation import gettext as _
 from django.template.loader import render_to_string
+from django.utils.translation import gettext as _
 
 from slack_bot.slack import Slack
 
-from .emails import send_email_new_assigned_admin, send_email_new_comment, send_email_notification_to_external_person
+from .emails import (send_email_new_assigned_admin, send_email_new_comment,
+                     send_email_notification_to_external_person)
 
 PRIORITY_CHOICES = ((1, _("Low")), (2, _("Medium")), (3, _("High")))
 
@@ -35,7 +36,7 @@ class AdminTask(models.Model):
 
     @property
     def get_icon_template(self):
-        return render_to_string('_admin_task_icon.html')
+        return render_to_string("_admin_task_icon.html")
 
     def save(self, *args, **kwargs):
         # checking if this is new before saving, sending information after we have the ID.
@@ -158,4 +159,3 @@ class AdminTaskComment(models.Model):
                 s.send_message(channel=self.slack_user, blocks=blocks)
             else:
                 send_email_new_comment(self)
-
