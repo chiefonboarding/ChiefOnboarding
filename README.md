@@ -25,21 +25,15 @@ Please see [the documentation for full details](https://docs.chiefonboarding.com
 
 **Docker**
 
-See details here: [ChiefOnboarding on Docker Hub](https://hub.docker.com/repository/docker/chiefonboarding/chiefonboarding)
+See details here: [ChiefOnboarding on Docker Hub](https://hub.docker.com/r/chiefonboarding/chiefonboarding)
 
 **Heroku**
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/chiefonboarding/ChiefOnboarding/tree/deploy)
 
-**DigitalOcean App platform**
-
-[![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/chiefonboarding/ChiefOnboarding/tree/deploy)
-
-(please change environment values after deploying)
-
 **Render**
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/chiefonboarding/chiefonboarding/tree/deploy)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/chiefonboarding/chiefonboarding/tree/fix-render-and-do)
 
 ## Security issues
 Please do not create an issue if you found a potential security issue. Email me directly at security@chiefonboarding.com and I will get it resolved ASAP.
