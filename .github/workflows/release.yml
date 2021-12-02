@@ -2,7 +2,7 @@ name: Release to deploy repo
 on:
   push:
     branches:
-      - master 
+      - master
 jobs:
   build:
     runs-on: ubuntu-latest
