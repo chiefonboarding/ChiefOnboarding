@@ -45,4 +45,5 @@ jobs:
         file: ./back/Dockerfile
         push: true
         tags: |
-          chiefonboarding/chiefonboarding:1.2.17-rc1
+          chiefonboarding/chiefonboarding:latest
+          chiefonboarding/chiefonboarding:1.2.18

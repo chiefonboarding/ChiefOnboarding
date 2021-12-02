@@ -25,17 +25,11 @@ Please see [the documentation for full details](https://docs.chiefonboarding.com
 
 **Docker**
 
-See details here: [ChiefOnboarding on Docker Hub](https://hub.docker.com/repository/docker/chiefonboarding/chiefonboarding)
+See details here: [ChiefOnboarding on Docker Hub](https://hub.docker.com/r/chiefonboarding/chiefonboarding)
 
 **Heroku**
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/chiefonboarding/ChiefOnboarding/tree/deploy)
-
-**DigitalOcean App platform**
-
-[![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/chiefonboarding/ChiefOnboarding/tree/deploy)
-
-(please change environment values after deploying)
 
 **Render**
 
