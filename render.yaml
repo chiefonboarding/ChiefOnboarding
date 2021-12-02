@@ -6,6 +6,7 @@ databases:
 services:
   - type: web
     name: chiefonboarding
+    region: frankfurt
     env: docker
     dockerfilePath: ./back/Dockerfile
     envVars:
