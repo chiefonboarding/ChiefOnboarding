@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from axes.decorators import axes_dispatch
 from django.conf import settings
 from django.contrib.auth import get_user_model, login, signals
+from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -53,17 +54,18 @@ class NewHireDashboard(TemplateView):
         items_by_date = []
         for to_do_user in to_do_items:
             # Check if to do is already in any of the new items_by_date
-            if not any([item for item in items_by_date if item["day"] == to_do_user.to_do.due_on_day]):
+            to_do = to_do_user.to_do
+            if not any([item for item in items_by_date if item["day"] == to_do.due_on_day]):
                 new_date = {
-                    "day": to_do_user.to_do.due_on_day,
+                    "day": to_do.due_on_day,
                     "items": [
-                        to_do_user.to_do,
+                        to_do,
                     ],
                 }
                 items_by_date.append(new_date)
             else:
                 # Can never be two or more, since it's catching it if it already exists
-                existing_date = [item for item in items_by_date if item["day"] == to_do_user.to_do.due_on_day][0]
+                existing_date = [item for item in items_by_date if item["day"] == to_do.due_on_day][0]
                 existing_date["items"].append(to_do_user)
 
         # Convert days to date object
@@ -149,6 +151,15 @@ class ColleagueListView(ListView):
     template_name = "new_hire_colleagues.html"
     model = User
     paginate_by = 20
+
+
+class ColleagueSearchView(ListView):
+    template_name = "_new_hire_colleagues_search.html"
+    model = User
+
+    def get_queryset(self):
+        search = self.request.GET.get("search", "")
+        return get_user_model().objects.filter(Q(first_name__icontains=search), Q(last_name__icontains=search))
 
 
 class ResourceListView(TemplateView):

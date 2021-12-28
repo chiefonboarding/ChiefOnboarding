@@ -12827,3 +12827,12 @@ Antialiasing
   padding: unset !important;
   border: unset !important;
 }
+.requesting {
+  opacity: 0;
+  display:none;
+}
+.htmx-request.requesting, .htmx-request .requesting {
+  opacity: 1;
+  display:block;
+  margin-left:5px;
+}

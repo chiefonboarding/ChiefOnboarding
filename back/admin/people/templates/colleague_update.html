@@ -47,11 +47,12 @@
         {% endfor %}
       </div>
       <div class="card-footer">
-        <a href="{% url 'people:new_hire' object.id %}" class="btn btn-primary">
-          Add
+        <a href="{% url 'people:add_resource' object.id %}" class="btn btn-primary">
+          Change
         </a>
       </div>
     </div>
   </div>
 </div>
 {% endblock %}
+

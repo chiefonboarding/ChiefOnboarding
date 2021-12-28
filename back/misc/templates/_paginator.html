@@ -1,3 +1,4 @@
+{% if page_obj.has_other_pages  %}
 <div class="card-footer d-flex align-items-center">
   <ul class="pagination m-0 ms-auto">
     {% if page_obj.has_previous %}
@@ -22,3 +23,4 @@
     {% endif %}
   </ul>
 </div>
+{% endif %}

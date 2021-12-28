@@ -1,0 +1,10 @@
+<div hx-get="{% url 'people:toggle_resource' object.id template.id %}" hx-swap="outerHTML" class="btn {% if template in object.resources.all %}btn-primary{% else %}btn-white{% endif %}" hx-indicator="#spinner-{{template.id}}">
+  {% if template in object.resources.all %}
+    Added
+  {% else %}
+    Add
+  {% endif %}
+  <span class="requesting" id="spinner-{{template.id}}">
+    <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
+  </span>
+</div>

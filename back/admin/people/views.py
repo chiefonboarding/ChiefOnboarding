@@ -13,6 +13,7 @@ from django.views.generic.list import ListView
 
 from admin.admin_tasks.models import AdminTask
 from admin.notes.models import Note
+from admin.resources.models import Resource
 from users.models import (NewHireWelcomeMessage, PreboardingUser, ResourceUser,
                           ToDoUser, User)
 
@@ -134,6 +135,37 @@ class ColleagueUpdateView(SuccessMessageMixin, UpdateView):
         new_hire = context["object"]
         context["title"] = new_hire.full_name
         context["subtitle"] = "Employee"
+        return context
+
+
+class ColleagueToggleResourceView(TemplateView):
+    template_name = "_toggle_button_resources.html"
+
+    def get_context_data(self, pk, template_id, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = get_object_or_404(get_user_model(), id=pk)
+        resource = get_object_or_404(Resource, id=template_id)
+        if user.resources.filter(id=resource.id).exists():
+            user.resources.remove(resource)
+        else:
+            user.resources.add(resource)
+        context['id'] = id
+        context['template'] = resource
+        context['object'] = user
+        return context
+
+
+class ColleagueResourceView(DetailView):
+    template_name = "add_resources.html"
+    model = User
+    context_object_name = "object"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        new_hire = context["object"]
+        context["title"] = f"Add new resource for {new_hire.full_name}"
+        context["subtitle"] = "Employee"
+        context["object_list"] = Resource.objects.all()
         return context
 
 
