@@ -1,8 +1,6 @@
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from polymorphic.managers import PolymorphicManager
-from polymorphic.models import PolymorphicModel
 
 from misc.models import File
 

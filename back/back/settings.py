@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     "user_auth",
     "misc",
     "back",
-    "polymorphic",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
