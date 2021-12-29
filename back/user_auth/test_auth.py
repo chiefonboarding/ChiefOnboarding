@@ -2,6 +2,7 @@ import pytest
 from django.urls import reverse
 
 from users.models import User
+from users.factories import *
 
 
 @pytest.mark.django_db
@@ -15,8 +16,11 @@ from users.models import User
         ("user@example.com", "strong_pass", 200),
     ],
 )
-def test_login_data_validation(email, password, status_code, client):
-    User.objects.create_new_hire("john", "smith", "user@example.com", "strong_pass")
+def test_login_data_validation(email, password, status_code, client, new_hire_factory):
+    new_hire = new_hire_factory(email="user@example.com")
+    new_hire.set_password("strong_pass")
+    new_hire.save()
+
     url = reverse("login-url")
     data = {"username": email, "password": password}
     response = client.post(url, data=data)
