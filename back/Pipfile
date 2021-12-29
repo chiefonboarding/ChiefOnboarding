@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 boto3 = "*"
-Django = "*"
+Django = "==3.2.10"
 django-anymail = "*"
 django-axes = "*"
 django-cors-headers = "*"
@@ -25,7 +25,6 @@ whitenoise = "*"
 django-q-sentry = "*"
 croniter = "*"
 slack-sdk = "*"
-django-polymorphic = "*"
 
 [dev-packages]
 coverage = "*"
