@@ -5,13 +5,22 @@
 {% include "_new_hire_menu.html" %}
 <div class="card mt-3">
   <div class="card-header">
-    <h3 class="card-title">Preboarding</h3>
+    <div class="row w-100">
+      <div class="col">
+        <h3 class="card-title mt-2">Preboarding</h3>
+      </div>
+      <div class="col text-end">
+        <a href="{% url 'people:new_hire_task_list' object.id 'preboarding' %}" class="btn btn-primary">
+          Change
+        </a>
+      </div>
+    </div>
   </div>
   <div class="card-body">
     {% for preboarding in object.preboarding.all %}
     <div class="row">
       <div class="col">
-        {{ item.name }}
+        {{ preboarding.name }}
       </div>
     </div>
     {% empty %}
@@ -26,7 +35,16 @@
 
 <div class="card mt-3">
   <div class="card-header">
-    <h3 class="card-title">To do</h3>
+    <div class="row w-100">
+      <div class="col">
+        <h3 class="card-title mt-2">To do</h3>
+      </div>
+      <div class="col text-end">
+        <a href="{% url 'people:new_hire_task_list' object.id 'todo' %}" class="btn btn-primary">
+          Change
+        </a>
+      </div>
+    </div>
   </div>
   <div class="card-body">
     {% for to_do in object.todos.all %}
@@ -47,13 +65,22 @@
 
 <div class="card mt-3">
   <div class="card-header">
-    <h3 class="card-title">Resource</h3>
+    <div class="row w-100">
+      <div class="col">
+        <h3 class="card-title mt-2">Resources</h3>
+      </div>
+      <div class="col text-end">
+        <a href="{% url 'people:new_hire_task_list' object.id 'resource' %}" class="btn btn-primary">
+          Change
+        </a>
+      </div>
+    </div>
   </div>
   <div class="card-body">
     {% for resource in object.resources.all %}
     <div class="row">
       <div class="col">
-        {{ resource.title }}
+        {{ resource.name }}
       </div>
     </div>
     {% empty %}
@@ -68,7 +95,16 @@
 
 <div class="card mt-3">
   <div class="card-header">
-    <h3 class="card-title">Introductions</h3>
+    <div class="row w-100">
+      <div class="col">
+        <h3 class="card-title">Introductions</h3>
+      </div>
+      <div class="col text-end">
+        <a href="{% url 'people:new_hire_task_list' object.id 'introduction' %}" class="btn btn-primary">
+          Change
+        </a>
+      </div>
+    </div>
   </div>
   <div class="card-body">
     {% for introduction in object.introductions.all %}
@@ -89,7 +125,16 @@
 
 <div class="card mt-3">
   <div class="card-header">
-    <h3 class="card-title">Appointments</h3>
+    <div class="row w-100">
+      <div class="col">
+        <h3 class="card-title">Appointments</h3>
+      </div>
+      <div class="col text-end">
+        <a href="{% url 'people:new_hire_task_list' object.id 'appointment' %}" class="btn btn-primary">
+          Change
+        </a>
+      </div>
+    </div>
   </div>
   <div class="card-body">
     {% for appointment in object.appointments.all %}

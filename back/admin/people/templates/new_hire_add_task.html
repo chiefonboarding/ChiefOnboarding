@@ -1,0 +1,32 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+<div class="col-12">
+  <div class="card">
+    <div class="table-responsive">
+      <table
+          class="table table-vcenter table-nowrap">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Tags</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for template in object_list %}
+          <tr>
+            <td>{{ template.name }}</td>
+            <td>{% for tag in template.tags %}<span class="badge bg-blue" style="margin-right: 10px">{{ tag }}</span>{% endfor %}</td>
+            <td class="text-end">
+              {% include "_toggle_button_new_hire_template.html" %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% include "_paginator.html" %}
+    </div>
+  </div>
+</div>
+{% endblock %}

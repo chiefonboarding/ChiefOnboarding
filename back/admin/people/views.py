@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.http import Http404
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
@@ -18,6 +19,7 @@ from users.models import (NewHireWelcomeMessage, PreboardingUser, ResourceUser,
                           ToDoUser, User)
 
 from .forms import ColleagueUpdateForm, NewHireAddForm, NewHireProfileForm
+from .utils import get_templates_model, get_user_field
 
 
 class NewHireListView(ListView):
@@ -277,3 +279,46 @@ class NewHireTasksView(DetailView):
         context["title"] = new_hire.full_name
         context["subtitle"] = "new hire"
         return context
+
+
+class NewHireTaskListView(DetailView):
+    template_name = "new_hire_add_task.html"
+    model = User
+    context_object_name = "object"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        templates_model = get_templates_model(self.kwargs.get("type", ""))
+        if templates_model is None:
+            raise Http404
+
+        context["title"] = f"Add/Remove templates for {self.object.full_name}"
+        context["subtitle"] = "new hire"
+        context["object_list"] = templates_model.templates.all()
+        context["user_items"] = getattr(self.object, get_user_field(self.kwargs.get("type", "")))
+        return context
+
+
+class NewHireToggleTaskView(TemplateView):
+    template_name = "_toggle_button_new_hire_template.html"
+
+    def get_context_data(self, pk, template_id, type,  **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = get_object_or_404(get_user_model(), id=pk)
+        templates_model = get_templates_model(type)
+        if templates_model is None:
+            raise Http404
+
+        template = get_object_or_404(templates_model, id=template_id)
+        user_items = getattr(user, get_user_field(type))
+        if user_items.filter(id=template.id).exists():
+            user_items.remove(template)
+        else:
+            user_items.add(template)
+        context['id'] = id
+        context['template'] = template
+        context['user_items'] = user_items
+        context['object'] = user
+        context['template_type'] = type
+        return context
+
