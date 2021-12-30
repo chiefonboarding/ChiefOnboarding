@@ -203,9 +203,9 @@ class User(AbstractBaseUser):
         manager = ""
         buddy = ""
         if self.manager is not None:
-            manager = self.manager.full_name()
+            manager = self.manager.full_name
         if self.buddy is not None:
-            buddy = self.buddy.full_name()
+            buddy = self.buddy.full_name
         text = t.render(
             Context(
                 {
