@@ -290,9 +290,32 @@
 
     {% if wysiwyg %}
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/nested-list@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/delimiter@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/image@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/attaches@latest"></script>
 
     <script>
       window.onload = function(){
+        function getSignedURL (file) {
+          return $.ajax({
+            url: "/api/org/file",
+            type: 'post',
+            data: {'name': file.name},
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+          })
+        }
+        function uploadFile (file, response) {
+          return $.ajax({
+            type: 'PUT',
+            url: response.url,
+            contentType: 'binary/octet-stream',
+            processData: false,
+            data: file
+          })
+        }
         const forms = document.querySelectorAll('form')
         forms.forEach(function(form) {
           if ('content_json' in form) {
@@ -302,6 +325,67 @@
               autofocus: true,
               holder: 'element',
               data: content,
+              tools: {
+                header: Header,
+                quote: Quote,
+                list: {
+                  class: NestedList,
+                  inlineToolbar: true,
+                },
+                delimiter: Delimiter,
+                image: {
+                  class: ImageTool,
+                  config: {
+                    uploader: {
+                      /**
+                       * Upload file to the server and return an uploaded image data
+                       * @param {File} file - file selected from the device or pasted by drag-n-drop
+                       * @return {Promise.<{success, file: {url}}>}
+                       */
+                      async uploadByFile(file){
+                        // your own uploading logic here
+                        let response = await getSignedURL(file)
+                        let completed = await uploadFile(file, response)
+                        return {
+                          success: 1,
+                          file: {
+                            url: response.get_url,
+                            id: response.id
+                          }
+                        }
+                      },
+                    }
+                  }
+                },
+                file: {
+                  class: AttachesTool,
+                  config: {
+                    uploader: {
+                      /**
+                       * Upload file to the server and return an uploaded image data
+                       * @param {File} file - file selected from the device or pasted by drag-n-drop
+                       * @return {Promise.<{success, file: {url}}>}
+                       */
+                      async uploadByFile(file){
+                        // your own uploading logic here
+                        let response = await getSignedURL(file)
+                        let completed = await uploadFile(file, response)
+                        console.log(response)
+                        console.log(completed)
+                        return {
+                          success: 1,
+                          file: {
+                            url: response.get_url,
+                            name: file.name,
+                            id: response.id
+                          },
+                          title: file.name
+                        }
+                      },
+                    }
+                  }
+                }
+              },
               onChange: function (value) {
                 value.saver.save().then(function(data) {
                   form['content_json'].attributes.value.nodeValue = JSON.stringify(data)
