@@ -29,62 +29,47 @@ def test_user_create(new_hire_factory, admin_factory, employee_factory, manager_
     assert not employee.is_admin_or_manager
 
 @pytest.mark.django_db
-def test_workday(new_hire_factory):
+@pytest.mark.parametrize(
+    "date, workday",
+    [
+        ("2021-01-11", 0),
+        ("2021-01-12", 1),
+        ("2021-01-13", 2),
+        ("2021-01-18", 5),
+    ],
+)
+def test_workday(date, workday, new_hire_factory):
     # Set start day on Tuesday
     freezer = freeze_time("2021-01-12")
     freezer.start()
     user = new_hire_factory(start_day=datetime.datetime.today().date())
     freezer.stop()
 
-    # Freeze on the Monday
-    freezer = freeze_time("2021-01-11")
+    freezer = freeze_time(date)
     freezer.start()
-    assert user.workday() == 0
-    freezer.stop()
-
-    # First day
-    freezer = freeze_time("2021-01-12")
-    freezer.start()
-    assert user.workday() == 1
-    freezer.stop()
-
-    # Second day
-    freezer = freeze_time("2021-01-13")
-    freezer.start()
-    assert user.workday() == 2
-    freezer.stop()
-
-    # Crossing weekend
-    freezer = freeze_time("2021-01-18")
-    freezer.start()
-    assert user.workday() == 5
+    assert user.workday() == workday
     freezer.stop()
 
 
 @pytest.mark.django_db
-def test_days_before_starting(new_hire_factory):
+@pytest.mark.parametrize(
+    "date, daybefore",
+    [
+        ("2021-01-11", 1),
+        ("2021-01-08", 4),
+        ("2021-01-13", 0),
+    ],
+)
+def test_days_before_starting(date, daybefore, new_hire_factory):
     # Set start day on Tuesday
     freezer = freeze_time("2021-01-12")
     freezer.start()
     user = new_hire_factory(start_day=datetime.datetime.today().date())
     freezer.stop()
 
-    # Freeze on the Monday
-    freezer = freeze_time("2021-01-11")
+    freezer = freeze_time(date)
     freezer.start()
-    assert user.days_before_starting() == 1
-    freezer.stop()
-
-    # 4 days before user starts (including weekend)
-    freezer = freeze_time("2021-01-08")
-    freezer.start()
-    assert user.days_before_starting() == 4
-    freezer.stop()
-
-    # Once new hire has started
-    freezer = freeze_time("2021-01-13")
-    freezer.start()
-    assert user.days_before_starting() == 0
+    assert user.days_before_starting() == daybefore
     freezer.stop()
 
 
