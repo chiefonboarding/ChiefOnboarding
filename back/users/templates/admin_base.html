@@ -357,7 +357,7 @@
                     }
                   }
                 },
-                file: {
+                attaches: {
                   class: AttachesTool,
                   config: {
                     uploader: {
@@ -369,18 +369,8 @@
                       async uploadByFile(file){
                         // your own uploading logic here
                         let response = await getSignedURL(file)
-                        let completed = await uploadFile(file, response)
-                        console.log(response)
-                        console.log(completed)
-                        return {
-                          success: 1,
-                          file: {
-                            url: response.get_url,
-                            name: file.name,
-                            id: response.id
-                          },
-                          title: file.name
-                        }
+                        let completed = await uploadFile(file, response.file)
+                        return response
                       },
                     }
                   }
