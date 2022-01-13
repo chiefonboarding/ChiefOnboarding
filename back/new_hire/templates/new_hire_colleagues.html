@@ -9,7 +9,7 @@
   <div class="col-md-6 col-lg-3">
     <div class="card">
       <div class="card-body p-4 text-center">
-        <span class="avatar avatar-xl mb-3 avatar-rounded" style="background-image: url(./static/avatars/000m.jpg)"></span>
+        {% include "_profile_image.html" with user=colleague.intro_person big=True %}
         <h3 class="m-0 mb-1">{{ intro.intro_person.full_name }}</h3>
         {% if intro.intro_person.position != '' %}
         <div class="mt-3">

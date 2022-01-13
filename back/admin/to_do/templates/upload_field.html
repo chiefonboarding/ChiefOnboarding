@@ -4,7 +4,7 @@
 
 {% aws_enabled as aws_active %}
 
-<div class="upload-field">
+<div class="upload-field mb-1">
   <label class="form-label custom-control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
   {% if aws_active %}
     <img src="{{ file.get_url }}" style="max-width: 100px; max-height: 100px;"/>

@@ -12,7 +12,7 @@
       {% for welcome_message in object_list %}
       <div class="row">
         <div class="col-auto">
-          <span class="avatar">{{ welcome_message.colleague.initials }}</span>
+          {% include "_profile_image.html" with user=welcome_message.colleague %}
         </div>
         <div class="col">
           <div class="text-truncate">

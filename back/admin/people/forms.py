@@ -5,7 +5,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 
 from admin.sequences.models import Sequence
-from admin.to_do.forms import MultiSelectField
+from admin.to_do.forms import MultiSelectField, UploadField
 
 
 class NewHireAddForm(forms.ModelForm):
@@ -117,6 +117,7 @@ class ColleagueUpdateForm(forms.ModelForm):
                 Div(Field("linkedin"), css_class="col-12"),
                 Div(Field("timezone"), css_class="col-12"),
                 Div(Field("language"), css_class="col-12"),
+                UploadField("profile_image", extra_context={"file": self.instance.profile_image}),
                 css_class="row",
             ),
             Submit(name="submit", value="Update"),
@@ -136,6 +137,7 @@ class ColleagueUpdateForm(forms.ModelForm):
             "linkedin",
             "timezone",
             "language",
+            "profile_image",
         )
 
 
