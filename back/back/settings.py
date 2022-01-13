@@ -27,7 +27,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env("DEBUG", default=False)
+DEBUG = env.bool("DEBUG", default=False)
 
 if env("ALLOWED_HOSTS", default="") != "":
     ALLOWED_HOSTS = [host for host in env.list("ALLOWED_HOSTS")]
@@ -85,7 +85,7 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 LOGIN_REDIRECT_URL = "logged_in_user_redirect"
 LOGOUT_REDIRECT_URL = "login"
 
-if env("API_ACCESS", default=False):
+if env.bool("API_ACCESS", default=False):
     INSTALLED_APPS += ["rest_framework.authtoken"]
 
 MIDDLEWARE = [
@@ -186,51 +186,51 @@ REST_FRAMEWORK = {
 }
 
 
-if env("API_ACCESS", default=False):
+if env.bool("API_ACCESS", default=False):
     REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].append("rest_framework.authentication.TokenAuthentication")
 
 
 APPEND_SLASH = False
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-if env("ANYMAIL", default=False):
-    if env("MAILGUN", default=False):
+if env.bool("ANYMAIL", default=False):
+    if env.bool("MAILGUN", default=False):
         ANYMAIL = {
             "MAILGUN_API_KEY": env("MAILGUN_KEY", default=""),
             "MAILGUN_SENDER_DOMAIN": env("MAILGUN_DOMAIN", default=""),
         }
         EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
 
-    if env("MAILJET", default=False):
+    if env.bool("MAILJET", default=False):
         ANYMAIL = {
             "MAILJET_API_KEY": env("MAILJET_API_KEY", default=""),
             "MAILJET_SECRET_KEY": env("MAILJET_SECRET_KEY", default=""),
         }
         EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
 
-    if env("MANDRILL", default=False):
+    if env.bool("MANDRILL", default=False):
         ANYMAIL = {"MANDRILL_API_KEY": env("MANDRILL_KEY", default="")}
         EMAIL_BACKEND = "anymail.backends.mandrill.EmailBackend"
 
-    if env("POSTMARK", default=False):
+    if env.bool("POSTMARK", default=False):
         ANYMAIL = {"POSTMARK_SERVER_TOKEN": env("POSTMARK_KEY", default="")}
         EMAIL_BACKEND = "anymail.backends.postmark.EmailBackend"
 
-    if env("SENDGRID", default=False):
+    if env.bool("SENDGRID", default=False):
         ANYMAIL = {"SENDGRID_API_KEY": env("SENDGRID_KEY", default="")}
         EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
 
-    if env("SENDINBLUE", default=False):
+    if env.bool("SENDINBLUE", default=False):
         ANYMAIL = {"SENDINBLUE_API_KEY": env("SENDINBLUE_KEY", default="")}
         EMAIL_BACKEND = "anymail.backends.sendinblue.EmailBackend"
 
-    if env("SPARKPOST", default=False):
+    if env.bool("SPARKPOST", default=False):
         ANYMAIL = {"SPARKPOST_API_KEY": env("SPARKPOST_KEY", default="")}
         EMAIL_BACKEND = "anymail.backends.sparkpost.EmailBackend"
 
-if env("SMTP", default=False):
+if env.bool("SMTP", default=False):
     EMAIL_HOST = env("EMAIL_HOST", default="localhost")
-    EMAIL_PORT = env("EMAIL_PORT", default="25")
+    EMAIL_PORT = env.int("EMAIL_PORT", default=25)
     EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
     EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
     EMAIL_USE_TLS = env("EMAIL_USE_TLS", default="")
@@ -238,7 +238,7 @@ if env("SMTP", default=False):
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
 
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="example@example.com")
 OLD_PASSWORD_FIELD_ENABLED = True
 REST_SESSION_LOGIN = True
 
@@ -323,7 +323,7 @@ PROXY_TRUSTED_IPS = None
 REST_FRAMEWORK_ACTIVE = True
 
 # Error tracking
-if env("SENTRY", default=False):
+if env.bool("SENTRY", default=False):
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -337,13 +337,13 @@ if env("SENTRY", default=False):
         send_default_pii=False,
     )
 
-if not env("DEBUG", default=False) and not env("HTTP_INSECURE", default=False):
+if not env.bool("DEBUG", default=False) and not env.bool("HTTP_INSECURE", default=False):
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
 FIXTURE_DIRS = ["fixtures"]
 
-if env("SSL_REDIRECT", default=False):
+if env.bool("SSL_REDIRECT", default=False):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = True
 
