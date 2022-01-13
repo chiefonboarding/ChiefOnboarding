@@ -1,0 +1,18 @@
+{% load crispy_forms_tags %}
+<form method="post" action="{% url 'sequences:condition-create' object.id %}" id="add-condition-form">
+  {% crispy condition_form %}
+</form>
+<script>
+{% if condition_form.condition_type.value is not None %}
+  {% if condition_form.condition_type.value == 1 %}
+    document.getElementById("div_id_condition_to_do").style.display = "block";
+    document.getElementById("div_id_days").style.display = "none";
+    document.getElementById("div_id_time").style.display = "none";
+  {% else %}
+    document.getElementById("div_id_condition_to_do").style.display = "none";
+    document.getElementById("div_id_days").style.display = "block";
+    document.getElementById("div_id_time").style.display = "block";
+  {% endif %}
+
+{% endif %}
+</script>

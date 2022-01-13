@@ -3,6 +3,7 @@ from datetime import datetime
 import pyotp
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
@@ -15,7 +16,7 @@ from admin.integrations.models import (INTEGRATION_OPTIONS,
 from organization.models import (LANGUAGES_OPTIONS, Changelog, Organization,
                                  WelcomeMessage)
 
-from .forms import (AdministratorsCreateForm, OrganizationGeneralForm,
+from .forms import (AdministratorsCreateForm, OrganizationGeneralForm, AdministratorsUpdateForm,
                     OTPVerificationForm, WelcomeMessagesUpdateForm)
 
 
@@ -54,9 +55,34 @@ class AdministratorCreateView(SuccessMessageMixin, CreateView):
     success_url = reverse_lazy("settings:administrators")
     success_message = "Admin has been created"
 
+    def form_valid(self, form):
+        """If the form is valid, save the associated model."""
+        user = get_user_model().objects.filter(email=form.cleaned_data['email'])
+        if user.exists():
+            # Change user if user already exists
+            user.role = form.cleaned_data['role']
+            user.save()
+        else:
+            form.save()
+        return HttpResponseRedirect(self.get_success_url())
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = "Add Administrator"
+        context["subtitle"] = "settings"
+        return context
+
+
+class AdministratorUpdateView(SuccessMessageMixin, UpdateView):
+    template_name = "settings_admins_update.html"
+    queryset = get_user_model().admins.all()
+    form_class = AdministratorsUpdateForm
+    success_url = reverse_lazy("settings:administrators")
+    success_message = "Admin has been changed"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Change Administrator"
         context["subtitle"] = "settings"
         return context
 

@@ -21,6 +21,7 @@ urlpatterns = [
     path("/new_hire/<int:pk>/task/<slug:type>/", views.NewHireTaskListView.as_view(), name="new_hire_task_list"),
     path("/new_hire/<int:pk>/task/<int:template_id>/<slug:type>/", views.NewHireToggleTaskView.as_view(), name="toggle_new_hire_task"),
     path("/colleagues/", views.ColleagueListView.as_view(), name="colleagues"),
+    path("/colleagues/create/", views.ColleagueCreateView.as_view(), name="colleague_create"),
     path("/colleagues/<int:pk>/", views.ColleagueUpdateView.as_view(), name="colleague"),
     path("/colleagues/<int:pk>/delete/", views.ColleagueDeleteView.as_view(), name="colleague_delete"),
     path("/colleagues/<int:pk>/resource/", views.ColleagueResourceView.as_view(), name="add_resource"),

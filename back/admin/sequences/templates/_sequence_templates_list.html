@@ -1,0 +1,73 @@
+<div class="card-body" >
+  <h3>Templates</h3>
+
+  <button hx-get="{% url 'sequences:template_list' %}?type=todo" class="btn btn-{% if active == 'todo' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_todo_icon.html' %}
+  </button>
+  <button hx-get="{% url 'sequences:template_list' %}?type=resource" class="btn btn-{% if active == 'resource' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_resource_icon.html' %}
+  </button>
+  <button hx-get="{% url 'sequences:template_list' %}?type=introduction" class="btn btn-{% if active == 'introduction' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_intro_icon.html' %}
+  </button>
+  <button hx-get="{% url 'sequences:template_list' %}?type=appointment" class="btn btn-{% if active == 'appointment' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_appointment_icon.html' %}
+  </button>
+  <button hx-get="{% url 'sequences:template_list' %}?type=badge" class="btn btn-{% if active == 'badge' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_badge_icon.html' %}
+  </button>
+  <button hx-get="{% url 'sequences:template_list' %}?type=preboarding" class="btn btn-{% if active == 'preboarding' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_preboarding_icon.html' %}
+  </button>
+  <button hx-get="{% url 'sequences:template_list' %}?type=admintask" class="btn btn-{% if active == 'admintask' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_admin_task_icon.html' %}
+  </button>
+  <button hx-get="{% url 'sequences:template_list' %}?type=slack" class="btn btn-{% if active == 'slack' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_slack_icon.html' %}
+  </button>
+  <button hx-get="{% url 'sequences:template_list' %}?type=text" class="btn btn-{% if active == 'text' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_text_icon.html' %}
+  </button>
+  <button hx-get="{% url 'sequences:template_list' %}?type=email" class="btn btn-{% if active == 'email' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_email_icon.html' %}
+  </button>
+  <div style="display: inline-flex;">
+    <span class="requesting" id="spinner">
+      <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
+    </span>
+  </div>
+
+</div>
+{% if object_list %}
+<div class="card-body card-body-scrollable card-body-scrollable-shadow">
+  <div class="divide-y">
+    {% for template in object_list %}
+    <div>
+      <div class="row" draggable="true" style="cursor:pointer" data-id="{{template.id}}" data-type="{{ active }}">
+        <div class="col">
+          <div class="text-truncate">
+            <strong>{{ template.name }}</strong>
+          </div>
+          <div class="text-right">{% for tag in template.tags %}<span class="badge bg-blue" style="margin-right: 10px; font-size: 10px;">{{ tag }}</span>{% endfor %}</div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+<div class="card-footer">
+  <div>
+    <div class="row">
+      <div class="col-auto align-self-center">
+        <div class="badge bg-primary"></div>
+      </div>
+      <div class="col">
+        <div class="text-truncate">
+          <strong>Create new one</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

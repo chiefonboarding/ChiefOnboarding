@@ -1,0 +1,85 @@
+{% extends 'admin_base.html' %}
+
+{% block actions %}
+{% if object %}
+<form method="POST" action="{% url 'todo:delete' object.id %}">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger">
+    Delete
+  </button>
+</form>
+{% endif %}
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-7">
+    <div class="alert alert-warning" role="alert">
+      All changes will be automatically saved. This doesn't impact current new hires.
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex">
+          <label for="id_name" class="form-label requiredField">Name</label>
+        </div>
+        <div class="input-icon">
+          <input class="form-control d-inline-block w-9 me-3"
+                 id="name"
+                 value="{{ object.name }}"
+                 placeholder="Sequence name"
+                 name="name"
+                 hx-post="{% url 'sequences:update_name' object.id %}"
+                 hx-trigger="keyup delay:500ms changed"
+                 hx-indicator="#name-spinner"
+                 >
+                 <span class="input-icon-addon requesting" id="name-spinner">
+                   <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
+                 </span>
+        </div>
+        <div class="card-body" hx-trigger="reload-sequence from:body" hx-get="{% url 'sequences:timeline' object.id %}">
+          {% include '_sequence_timeline.html' %}
+        </div>
+      </div>
+      <div class="card-footer">
+        <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal-report">
+          Add block
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="col-5">
+    <div class="card seq-icons sticky-top" id="template-list" style="max-height: calc(44rem + 10px)">
+      {% include '_sequence_templates_list.html' with active='todo' template='Todo' %}
+    </div>
+  </div>
+</div>
+
+<!-- modal for adding new block -->
+<div class="modal modal-blur fade show" id="modal-report" tabindex="-1" role="dialog" aria-modal="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add new block</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="condition_form">
+        {% include "_condition_form.html" %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById("div_id_condition_to_do").style.display = "none";
+</script>
+{% endblock %}
+{% block form_select_on_change %}
+if (value == 0 || value == 2)  {
+  document.getElementById("div_id_condition_to_do").style.display = "none";
+  document.getElementById("div_id_days").style.display = "block";
+  document.getElementById("div_id_time").style.display = "block";
+} else {
+  document.getElementById("div_id_condition_to_do").style.display = "block";
+  document.getElementById("div_id_days").style.display = "none";
+  document.getElementById("div_id_time").style.display = "none";
+}
+{% endblock %}

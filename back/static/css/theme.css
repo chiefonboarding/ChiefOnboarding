@@ -4327,7 +4327,7 @@ textarea.form-control-lg {
 .sticky-top {
   position: -webkit-sticky;
   position: sticky;
-  top: 0;
+  top: 15px;
   z-index: 1020; }
 
 @media (min-width: 576px) {
@@ -12829,10 +12829,36 @@ Antialiasing
 }
 .requesting {
   opacity: 0;
-  display:none;
 }
 .htmx-request.requesting, .htmx-request .requesting {
   opacity: 1;
+  margin-left:5px;
+}
+.requesting.alsodisplay {
+  opacity: 0;
+  display:none;
+}
+.htmx-request.alsodisplay.requesting, .htmx-request.alsodisplay .requesting {
+  opacity: 1;
   display:block;
   margin-left:5px;
+}
+.seq-icons svg {
+  margin: 0 -0.5rem 0 -.5rem !important;
+}
+.allowed-to-drop {
+  background-color: blue
+}
+/* selectize */
+.selectize-control {
+    padding: 0;
+}
+.selectize-input {
+    border: none;
+}
+.multi-with-add {
+  z-index: 1000
+}
+select {
+  display: none !important;
 }

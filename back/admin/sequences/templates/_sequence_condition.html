@@ -1,0 +1,86 @@
+{% load crispy_forms_tags %}
+<div class="card drop
+    {% if condition.condition_type == 0 %}
+      after
+    {% elif condition.condition_type == 1 %}
+      to_do
+    {% elif condition.condition_type == 2 %}
+      before
+    {% else %}
+      unconditioned
+    {% endif %}" data-id="{{ condition.id }}">
+  <div class="card-header">
+    <div class="row d-flex" style="width: 103% !important;">
+      <div class="col-11">
+        <h4 class="card-title">
+          {% if condition.condition_type == 0 %}
+            On day {{ condition.days }} at {{ condition.time }}
+          {% elif condition.condition_type == 1 %}
+            When these tasks are completed:
+            <div id="div_id_condition_to_do">
+              <select id="id_condition_to_do_{{condition.id}}" name="condition_to_do" value="None" multiple="" class="multi-with-add mb-3" onchange="triggerChange(event)" data-url="{% url 'sequences:condition-to-do-update' condition.id %}">
+                {% for todo in todos %}
+                <option value="{{ todo.id }}" {% if todo in condition.condition_to_do.all %}selected{% endif %}>{{ todo.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          {% elif condition.condition_type == 2 %}
+            {{ condition.days }} days before starting at {{ condition.time }}
+          {% else %}
+            Without any trigger - assign directly
+          {% endif %}
+        </h4>
+      </div>
+      {% if not disable_delete %}
+      <div class="col-1">
+        <button class="btn btn-danger btn-sm" hx-delete="{% url 'sequences:condition-delete' object.id condition.id %}" hx-target="closest li" hx-swap="outerHTML">
+          <svg xmlns="http://www.w3.org/2000/svg" style="margin: 0 -0.25rem 0 -.25rem" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="card-body">
+
+    {# FOR NEW HIRES #}
+    {% if condition.external_messages.for_new_hire|length or condition.to_do.all|length or condition.resources.all|length or condition.introductions.all|length %}
+    <span class="badge bg-azure mb-2">new hire</span>
+    {% endif %}
+    {% for item in condition.preboarding.all %}
+      {% include '_condition_line_item.html' with type='preboarding' %}
+    {% endfor %}
+    {% for item in condition.appointments.all %}
+      {% include '_condition_line_item.html' with type='appointments' %}
+    {% endfor %}
+    {% for item in condition.external_messages.for_new_hire %}
+      {% include '_condition_line_item.html' with type='external_message' %}
+    {% endfor %}
+    {% for item in condition.to_do.all %}
+      {% include '_condition_line_item.html' with type='todo' %}
+    {% endfor %}
+    {% for item in condition.resources.all %}
+      {% include '_condition_line_item.html' with type='resource' %}
+    {% endfor %}
+    {% for item in condition.introductions.all %}
+      {% include '_condition_line_item.html' with type='introduction' %}
+    {% endfor %}
+    {% for item in condition.badges.all %}
+      {% include '_condition_line_item.html' with type='badge' %}
+    {% endfor %}
+
+    {# FOR ADMINS #}
+    {% if condition.external_messages.for_admins|length or condition.admin_tasks.all|length %}
+    <span class="badge bg-orange mb-2">admins</span>
+    {% endif %}
+    {% for item in condition.admin_tasks.all %}
+      {% include '_condition_line_item.html' with type='admintask' %}
+    {% endfor %}
+    {% for item in condition.external_messages.for_admins %}
+      {% include '_condition_line_item.html' with type='external_message' %}
+    {% endfor %}
+  </div>
+</div>

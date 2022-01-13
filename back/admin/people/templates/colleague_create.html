@@ -1,0 +1,18 @@
+{% extends 'admin_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row justify-content-md-center">
+  <div class="col-8">
+    <div class="card mt-3">
+      <div class="card-header">
+        <h3 class="card-title">Colleague</h3>
+      </div>
+      <div class="card-body">
+        {% crispy form %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

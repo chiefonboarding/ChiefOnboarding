@@ -74,6 +74,16 @@ class AdministratorsCreateForm(forms.ModelForm):
         fields = ["first_name", "last_name", "email", "role"]
 
 
+class AdministratorsUpdateForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(AdministratorsUpdateForm, self).__init__(*args, **kwargs)
+        self.fields["role"].choices = ((1, "Administrator"), (2, "Manager"))
+
+    class Meta:
+        model = get_user_model()
+        fields = ["role",]
+
+
 class WelcomeMessagesUpdateForm(forms.ModelForm):
     class Meta:
         model = WelcomeMessage

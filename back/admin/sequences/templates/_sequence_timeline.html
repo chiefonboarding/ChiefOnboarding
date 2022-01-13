@@ -1,0 +1,106 @@
+<ul class="list list-timeline">
+
+  {# only show unconditioned #}
+  <li>
+    <div class="list-timeline-icon bg-twitter">
+    </div>
+    <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{conditions_unconditioned.id}}">
+      {% include '_sequence_condition.html' with condition=conditions_unconditioned disable_delete=True %}
+    </div>
+  </li>
+
+  {# only show if user has not started yet #}
+  {% for condition in conditions_before_first_day %}
+  <li>
+    <div class="list-timeline-icon">
+    </div>
+    <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
+      {% include '_sequence_condition.html' %}
+    </div>
+  </li>
+  {% endfor %}
+
+  {% for condition in conditions_after_first_day %}
+  <li>
+    <div class="list-timeline-icon">
+    </div>
+    <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
+      {% include '_sequence_condition.html' %}
+    </div>
+  </li>
+  {% endfor %}
+  {% for condition in conditions_based_on_todo %}
+  <li>
+    <div class="list-timeline-icon">
+    </div>
+    <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
+      {% include '_sequence_condition.html' %}
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+<script>
+
+var dragged;
+document.addEventListener("dragstart", function( event ) {
+  dragged = event.target;
+  event.dataTransfer.setData('id', event.target.dataset.id);
+  event.dataTransfer.setData('type', event.target.dataset.type);
+  event.target.style.opacity = .5;
+}, false);
+
+document.addEventListener("drop", function( event ) {
+  // prevent default action
+  event.preventDefault();
+
+  const droppedPlace = event.target.closest(".drop")
+  if (Boolean(droppedPlace)) {
+    const droppedPlace = event.target.closest(".drop")
+    const templateId = event.dataTransfer.getData('id');
+    const type = event.dataTransfer.getData('type');
+    const conditionID = droppedPlace.dataset.id
+
+    $(".card").css("background-color", "white")
+    htmx.ajax('POST', `/api/sequences/condition/${conditionID}/${type}/${templateId}/`, `#condition-${conditionID}`)
+  }
+}, false);
+
+document.addEventListener("dragover", function( event ) {
+  // prevent default action
+  event.preventDefault();
+  event.stopPropagation();
+  const droppedPlace = event.target.closest(".drop")
+  if (Boolean(droppedPlace)) {
+    const droppedPlace = event.target.closest(".drop")
+    droppedPlace.style.backgroundColor='rgb(239, 242, 246)';
+  }
+}, false);
+
+document.addEventListener("dragend", function( event ) {
+  event.target.style.opacity = "";
+  const droppedPlace = event.target.closest(".drop")
+  if (typeof event.target.closest !== "function") {
+      return
+  }
+  if (Boolean(droppedPlace)) {
+    const droppedPlace = event.target.closest(".drop")
+    droppedPlace.style.backgroundColor='white';
+  }
+}, false);
+
+document.addEventListener("dragleave", function( event ) {
+  // prevent default action
+  event.preventDefault();
+  event.stopPropagation();
+  console.log(event.target)
+  if (typeof event.target.closest !== "function") {
+      return
+  }
+  const droppedPlace = event.target.closest(".drop")
+  if (Boolean(droppedPlace)) {
+    const droppedPlace = event.target.closest(".drop")
+    droppedPlace.style.backgroundColor='white';
+  }
+}, false);
+
+</script>

@@ -7,6 +7,7 @@
     <title>Employee onboarding</title>
     <!-- CSS files -->
     <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/css/selectize.bootstrap4.min.css">
   </head>
   <body class="antialiased">
     <div class="wrapper">
@@ -88,8 +89,8 @@
                     </a>
                   </div>
                 </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#" role="button" aria-expanded="false">
+                <li class="nav-item {% if 'sequences' in request.path %}active{% endif %}">
+                  <a class="nav-link" href="{% url 'sequences:list' %}" role="button" aria-expanded="false">
                     <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/star -->
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-subtask" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><line x1="6" y1="9" x2="12" y2="9"></line><line x1="4" y1="5" x2="8" y2="5"></line><path d="M6 5v11a1 1 0 0 0 1 1h5"></path><rect x="12" y="7" width="8" height="4" rx="1"></rect> <rect x="12" y="15" width="8" height="4" rx="1"></rect></svg>
                     </span>
@@ -203,10 +204,11 @@
       </div>
     </div>
     {% block js %}
-    <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
     <script defer src="{% static 'js/tabler.js' %}"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/js/standalone/selectize.min.js" type="text/javascript"></script>
+
     <script src="https://unpkg.com/htmx.org@1.6.1" integrity="sha384-tvG/2mnCFmGQzYC1Oh3qxQ7CkQ9kMzYjWZSNtrRZygHPDDqottzEJsqS4oUVodhW" crossorigin="anonymous"></script>
     <script>
       document.body.addEventListener('htmx:configRequest', function(event) {
@@ -221,6 +223,8 @@
             $(this).parent().find("input").click()
           })
         })
+
+        $('select').selectize()
 
         $(".file-input").each(function (item) {
           $(this).on('change', function (file) {
@@ -258,24 +262,29 @@
           })
         })
 
-        // Create typed item pickers with add function
-        $(".multi-with-add").each(function() {
-          const initialItems = $(this)[0].attributes.value.nodeValue;
-          var config = {
-            create: true,
-            items: initialItems.split(","),
-            onChange: function (value) {
-              $(this)[0].attributes.value.nodeValue = value.join(",")
-            }
-          };
-
-          new TomSelect('#' + $(this)[0].id,config);
-        })
-        $(".form-select").each(function() {
-          new TomSelect('#' + $(this)[0].id, {});
-        })
       })
+      // close modals when we are reloading the sequence part
+      document.body.addEventListener("reload-sequence", function(evt){
+          $('#modal-report').modal('hide')
+          document.getElementById("add-condition-form").reset();
+      })
+      // reload selectboxes when we get a new form back from backend
+      document.getElementById("condition_form").addEventListener('htmx:load', function(evt) {
+        $('select').selectize()
+      });
+      document.body.addEventListener('htmx:afterOnLoad', function(evt) {
+        $('select').selectize()
+      });
+      function triggerChange(event){
+        const url = event.target.dataset.url
+        const values = $('#' + event.target.getAttribute('id')).val()
+        const prepped_values = {
+          'condition_to_do': values
+        }
+        htmx.ajax("POST", url, { 'values': prepped_values, 'target': event.target })
+      }
     </script>
+
 
     <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
     <script>
@@ -383,19 +392,11 @@
               }
             });
           }
-          if ('sequences' in form) {
-            const initialItems = form['sequences'].attributes.value.nodeValue;
-            var config = {
-              items: initialItems.split(","),
-              onChange: function (value) {
-                form['sequences'].attributes.value.nodeValue = value.join(",")
-              }
-            };
-
-            new TomSelect('#id_sequences',config);
-          }
         })
       }
+      htmx.onLoad(function(elt){
+        $('select').selectize()
+      })
     </script>
     {{ wysiwyg|json_script:"content_json" }}
     {% endif %}

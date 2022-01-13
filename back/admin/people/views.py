@@ -18,7 +18,7 @@ from admin.resources.models import Resource
 from users.models import (NewHireWelcomeMessage, PreboardingUser, ResourceUser,
                           ToDoUser, User)
 
-from .forms import ColleagueUpdateForm, NewHireAddForm, NewHireProfileForm
+from .forms import ColleagueUpdateForm, NewHireAddForm, NewHireProfileForm, ColleagueCreateForm
 from .utils import get_templates_model, get_user_field
 
 
@@ -71,6 +71,7 @@ class ColleagueListView(ListView):
         context = super().get_context_data(**kwargs)
         context["title"] = "Colleagues"
         context["subtitle"] = "people"
+        context["add_action"] = reverse_lazy("people:colleague_create")
         return context
 
 
@@ -136,6 +137,21 @@ class ColleagueUpdateView(SuccessMessageMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         new_hire = context["object"]
         context["title"] = new_hire.full_name
+        context["subtitle"] = "Employee"
+        return context
+
+
+class ColleagueCreateView(SuccessMessageMixin, CreateView):
+    template_name = "colleague_create.html"
+    model = User
+    form_class = ColleagueCreateForm
+    success_message = "Colleague has been added"
+    context_object_name = "object"
+    success_url = reverse_lazy("people:colleagues")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Create new colleague"
         context["subtitle"] = "Employee"
         return context
 

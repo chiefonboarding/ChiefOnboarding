@@ -17,7 +17,10 @@
         <td>{% include "_table_user.html" with user=admin %}</td>
         <td>{{ admin.get_role_display }}</td>
         <td style="text-align: right">
-          <form method="post" action="{% url 'settings:administrators-delete' admin.id %}" class="mb-0">
+          <a href="{% url 'settings:administrators-update' admin.id %}" class="btn btn-primary">
+            Change
+          </a>
+          <form method="post" action="{% url 'settings:administrators-delete' admin.id %}" class="mb-0" style="display:inline-block">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">
               Delete

@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.db.models import Prefetch
+from django.urls import reverse
 from django.template.loader import render_to_string
 from twilio.rest import Client
 
@@ -27,6 +28,9 @@ class Sequence(models.Model):
     resources = models.ManyToManyField(Resource)
     appointments = models.ManyToManyField(Appointment)
     auto_add = models.BooleanField(default=False)
+
+    def update_url(self):
+        return reverse("sequences:update", args=[self.id])
 
     def assign_to_user(self, user):
         a = [
@@ -151,9 +155,9 @@ class ExternalMessage(models.Model):
         if self.is_email_message:
             return render_to_string("_email_icon.html")
         if self.is_slack_message:
-            return render_to_string("slack_icon.html")
+            return render_to_string("_slack_icon.html")
         if self.is_text_message:
-            return render_to_string("text_icon.html")
+            return render_to_string("_text_icon.html")
 
     objects = ExternalMessageManager()
 
@@ -174,7 +178,7 @@ class PendingAdminTask(models.Model):
 
 
 class Condition(models.Model):
-    CONDITION_TYPE = ((0, "after"), (1, "to do"), (2, "before"))
+    CONDITION_TYPE = ((0, "After new hire has started"), (1, "Based on one or more to do item(s)"), (2, "Before the new hire has started"), (3, "Without trigger"))
     sequence = models.ForeignKey(Sequence, on_delete=models.CASCADE, null=True, related_name="conditions")
     condition_type = models.IntegerField(choices=CONDITION_TYPE, default=0)
     days = models.IntegerField(default=0)
@@ -186,6 +190,27 @@ class Condition(models.Model):
     admin_tasks = models.ManyToManyField(PendingAdminTask)
     external_messages = models.ManyToManyField(ExternalMessage)
     introductions = models.ManyToManyField(Introduction)
+    preboarding = models.ManyToManyField(Preboarding)
+    appointments = models.ManyToManyField(Appointment)
+
+    def remove_item(self, model_item):
+        # model_item is a template item. I.e. a ToDo object.
+        for field in self._meta.many_to_many:
+            # We only want to remove assigned items, not triggers
+            if field.name == 'condition_to_do':
+                continue
+            if field.related_model._meta.model_name == type(model_item)._meta.model_name:
+                self.__getattribute__(field.name).remove(model_item)
+
+    def add_item(self, model_item):
+        # model_item is a template item. I.e. a ToDo object.
+        for field in self._meta.many_to_many:
+            # We only want to add assigned items, not triggers
+            if field.name == 'condition_to_do':
+                continue
+            if field.related_model._meta.model_name == type(model_item)._meta.model_name:
+                self.__getattribute__(field.name).add(model_item)
+
 
     def process_condition(self, user):
         from admin_tasks.models import AdminTaskComment

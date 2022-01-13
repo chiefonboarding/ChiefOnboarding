@@ -3,8 +3,10 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
+from django.urls import reverse_lazy
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from django.views.generic.base import TemplateView, RedirectView
 from rest_framework.response import Response
 
 from users import permissions
@@ -43,6 +45,18 @@ class AllAdminTasksListView(ListView):
         return context
 
 
+class AdminTaskToggleDoneView(RedirectView):
+    permanent = False
+    pattern_name = "admin_tasks:detail"
+
+    def get(self, request, *args, **kwargs):
+        task_id = self.kwargs.get("pk", -1)
+        admin_task = get_object_or_404(AdminTask, id=task_id)
+        admin_task.completed = not admin_task.completed
+        admin_task.save()
+        return super().get(request, *args, **kwargs)
+
+
 class AdminTasksUpdateView(SuccessMessageMixin, UpdateView):
     template_name = "admin_tasks_detail.html"
     form_class = AdminTaskUpdateForm
@@ -59,6 +73,7 @@ class AdminTasksUpdateView(SuccessMessageMixin, UpdateView):
         context["title"] = f"Task: {task.name}"
         context["subtitle"] = "Tasks"
         context["comment_form"] = AdminTaskCommentForm
+        context["delete_action"] = reverse_lazy("sequences:create")
         return context
 
 

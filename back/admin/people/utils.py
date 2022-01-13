@@ -6,6 +6,7 @@ MODELS = [
     { 'app': 'introductions', 'model': 'Introduction', 'user_field': 'introductions'},
     { 'app': 'appointments', 'model': 'Appointment', 'user_field': 'appointments'},
     { 'app': 'preboarding', 'model': 'Preboarding', 'user_field': 'preboarding'},
+    { 'app': 'badges', 'model': 'Badge', 'user_field': 'badges'},
 ]
 
 def template_model_exists(template_slug):
@@ -13,8 +14,8 @@ def template_model_exists(template_slug):
 
 def get_templates_model(template_slug):
     if template_model_exists(template_slug):
-        app = next((x['app'] for x in MODELS if x['model'].lower() == template_slug), None)
-        return apps.get_model(app, template_slug)
+        model_item = next((x for x in MODELS if x['model'].lower() == template_slug), None)
+        return apps.get_model(model_item['app'], model_item['model'])
 
 def get_user_field(template_slug):
     if template_model_exists(template_slug):
