@@ -7,8 +7,9 @@ from django.views.generic.list import ListView
 from .forms import IntroductionForm
 from .models import Introduction
 
+from users.mixins import LoginRequiredMixin, AdminPermMixin
 
-class IntroductionListView(ListView):
+class IntroductionListView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "templates.html"
     queryset = Introduction.templates.all().order_by("name")
     paginate_by = 10
@@ -22,7 +23,7 @@ class IntroductionListView(ListView):
         return context
 
 
-class IntroductionCreateView(SuccessMessageMixin, CreateView):
+class IntroductionCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView):
     template_name = "todo_update.html"
     form_class = IntroductionForm
     success_url = reverse_lazy("introductions:list")
@@ -35,7 +36,7 @@ class IntroductionCreateView(SuccessMessageMixin, CreateView):
         return context
 
 
-class IntroductionUpdateView(SuccessMessageMixin, UpdateView):
+class IntroductionUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "todo_update.html"
     form_class = IntroductionForm
     success_url = reverse_lazy("introductions:list")
@@ -50,7 +51,7 @@ class IntroductionUpdateView(SuccessMessageMixin, UpdateView):
         return context
 
 
-class IntroductionDeleteView(DeleteView):
+class IntroductionDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
     queryset = Introduction.objects.all()
     success_url = reverse_lazy("introductions:list")
 

@@ -7,8 +7,9 @@ from django.views.generic.list import ListView
 from .forms import AppointmentForm
 from .models import Appointment
 
+from users.mixins import LoginRequiredMixin, AdminPermMixin
 
-class AppointmentListView(ListView):
+class AppointmentListView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "templates.html"
     queryset = Appointment.templates.all().order_by("name")
     paginate_by = 10
@@ -22,7 +23,7 @@ class AppointmentListView(ListView):
         return context
 
 
-class AppointmentCreateView(SuccessMessageMixin, CreateView):
+class AppointmentCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView):
     template_name = "todo_update.html"
     form_class = AppointmentForm
     success_url = reverse_lazy("appointments:list")
@@ -35,7 +36,7 @@ class AppointmentCreateView(SuccessMessageMixin, CreateView):
         return context
 
 
-class AppointmentUpdateView(SuccessMessageMixin, UpdateView):
+class AppointmentUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "todo_update.html"
     form_class = AppointmentForm
     success_url = reverse_lazy("appointments:list")
@@ -50,7 +51,7 @@ class AppointmentUpdateView(SuccessMessageMixin, UpdateView):
         return context
 
 
-class AppointmentDeleteView(DeleteView):
+class AppointmentDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
     queryset = Appointment.objects.all()
     success_url = reverse_lazy("appointments:list")
 

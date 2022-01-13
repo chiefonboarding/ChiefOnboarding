@@ -7,8 +7,9 @@ from django.views.generic.list import ListView
 from .forms import PreboardingForm
 from .models import Preboarding
 
+from users.mixins import LoginRequiredMixin, AdminPermMixin
 
-class PreboardingListView(ListView):
+class PreboardingListView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "templates.html"
     queryset = Preboarding.templates.all().order_by("name")
     paginate_by = 10
@@ -22,7 +23,7 @@ class PreboardingListView(ListView):
         return context
 
 
-class PreboardingCreateView(SuccessMessageMixin, CreateView):
+class PreboardingCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView):
     template_name = "todo_update.html"
     form_class = PreboardingForm
     success_url = reverse_lazy("preboarding:list")
@@ -35,7 +36,7 @@ class PreboardingCreateView(SuccessMessageMixin, CreateView):
         return context
 
 
-class PreboardingUpdateView(SuccessMessageMixin, UpdateView):
+class PreboardingUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "todo_update.html"
     form_class = PreboardingForm
     success_url = reverse_lazy("preboarding:list")
@@ -50,7 +51,7 @@ class PreboardingUpdateView(SuccessMessageMixin, UpdateView):
         return context
 
 
-class PreboardingDeleteView(DeleteView):
+class PreboardingDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
     queryset = Preboarding.objects.all()
     success_url = reverse_lazy("preboarding:list")
 

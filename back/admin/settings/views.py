@@ -19,8 +19,9 @@ from organization.models import (LANGUAGES_OPTIONS, Changelog, Organization,
 from .forms import (AdministratorsCreateForm, OrganizationGeneralForm, AdministratorsUpdateForm,
                     OTPVerificationForm, WelcomeMessagesUpdateForm)
 
+from users.mixins import LoginRequiredMixin, AdminPermMixin
 
-class OrganizationGeneralUpdateView(SuccessMessageMixin, UpdateView):
+class OrganizationGeneralUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "org_general_update.html"
     form_class = OrganizationGeneralForm
     success_url = reverse_lazy("settings:general")
@@ -36,7 +37,7 @@ class OrganizationGeneralUpdateView(SuccessMessageMixin, UpdateView):
         return context
 
 
-class AdministratorListView(ListView):
+class AdministratorListView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "settings_admins.html"
     queryset = get_user_model().admins.all()
 
@@ -48,7 +49,7 @@ class AdministratorListView(ListView):
         return context
 
 
-class AdministratorCreateView(SuccessMessageMixin, CreateView):
+class AdministratorCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView):
     template_name = "settings_admins_create.html"
     queryset = get_user_model().admins.all()
     form_class = AdministratorsCreateForm
@@ -73,7 +74,7 @@ class AdministratorCreateView(SuccessMessageMixin, CreateView):
         return context
 
 
-class AdministratorUpdateView(SuccessMessageMixin, UpdateView):
+class AdministratorUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "settings_admins_update.html"
     queryset = get_user_model().admins.all()
     form_class = AdministratorsUpdateForm
@@ -87,12 +88,12 @@ class AdministratorUpdateView(SuccessMessageMixin, UpdateView):
         return context
 
 
-class AdministratorDeleteView(DeleteView):
+class AdministratorDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
     queryset = get_user_model().admins.all()
     success_url = reverse_lazy("settings:administrators")
 
 
-class WelcomeMessageUpdateView(SuccessMessageMixin, UpdateView):
+class WelcomeMessageUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "org_welcome_message_update.html"
     form_class = WelcomeMessagesUpdateForm
     success_message = "Message has been updated"
@@ -112,7 +113,7 @@ class WelcomeMessageUpdateView(SuccessMessageMixin, UpdateView):
         return context
 
 
-class PersonalLanguageUpdateView(SuccessMessageMixin, UpdateView):
+class PersonalLanguageUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "personal_language_update.html"
     model = get_user_model()
     fields = [
@@ -133,7 +134,7 @@ class PersonalLanguageUpdateView(SuccessMessageMixin, UpdateView):
         return context
 
 
-class OTPView(FormView):
+class OTPView(LoginRequiredMixin, AdminPermMixin, FormView):
     template_name = "personal_otp.html"
     form_class = OTPVerificationForm
 
@@ -165,7 +166,7 @@ class OTPView(FormView):
         return context
 
 
-class IntegrationsListView(TemplateView):
+class IntegrationsListView(LoginRequiredMixin, AdminPermMixin, TemplateView):
     template_name = "settings_integrations.html"
 
     def get_context_data(self, **kwargs):
@@ -184,7 +185,7 @@ class IntegrationsListView(TemplateView):
         return context
 
 
-class GoogleLoginSetupView(CreateView, SuccessMessageMixin):
+class GoogleLoginSetupView(LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin):
     template_name = "org_general_update.html"
     model = AccessToken
     fields = ["client_id", "client_secret"]
@@ -204,7 +205,7 @@ class GoogleLoginSetupView(CreateView, SuccessMessageMixin):
         return super().form_valid(form)
 
 
-class GoogleAccountCreationSetupView(CreateView, SuccessMessageMixin):
+class GoogleAccountCreationSetupView(LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin):
     template_name = "org_general_update.html"
     model = AccessToken
     fields = ["client_id", "client_secret"]
@@ -224,7 +225,7 @@ class GoogleAccountCreationSetupView(CreateView, SuccessMessageMixin):
         return super().form_valid(form)
 
 
-class SlackAccountCreationSetupView(CreateView, SuccessMessageMixin):
+class SlackAccountCreationSetupView(LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin):
     template_name = "org_general_update.html"
     model = AccessToken
     fields = [
@@ -250,7 +251,7 @@ class SlackAccountCreationSetupView(CreateView, SuccessMessageMixin):
         return super().form_valid(form)
 
 
-class SlackBotSetupView(CreateView, SuccessMessageMixin):
+class SlackBotSetupView(LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin):
     template_name = "org_general_update.html"
     model = AccessToken
     fields = [
@@ -276,7 +277,7 @@ class SlackBotSetupView(CreateView, SuccessMessageMixin):
         return super().form_valid(form)
 
 
-class IntegrationDeleteView(DeleteView):
+class IntegrationDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
     """This is a general delete function for all integrations"""
 
     template_name = "integration-delete.html"
@@ -290,7 +291,7 @@ class IntegrationDeleteView(DeleteView):
         return context
 
 
-class ChangelogListView(ListView):
+class ChangelogListView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "changelog.html"
     model = Changelog
 

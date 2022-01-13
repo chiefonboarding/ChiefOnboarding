@@ -10,7 +10,7 @@ from . import views
 
 urlpatterns = [
     path("", LoginView.as_view(template_name="login.html"), name="login"),
-    path("login", views.LoginView.as_view(), name="login-url"),
+    path("login", LoginView.as_view(), name="login-url"),
     path("logout", LogoutView.as_view(), name="logout"),
     path(
         "password/reset_request",
@@ -32,7 +32,8 @@ urlpatterns = [
         PasswordResetCompleteView.as_view(template_name="password_change_done.html"),
         name="password_reset_done",
     ),
-    path("redirect", views.logged_in_user_redirect, name="logged_in_user_redirect"),
+    path("redirect", views.LoginRedirectView.as_view(), name="logged_in_user_redirect"),
+    path("mfa/", views.MFAView.as_view(), name="mfa"),
     # SPA
     path("google_login", views.GoogleLoginView.as_view()),
     # path('logout', LogoutView.as_view()),

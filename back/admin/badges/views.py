@@ -6,9 +6,10 @@ from django.views.generic.list import ListView
 
 from .forms import BadgeForm
 from .models import Badge
+from users.mixins import LoginRequiredMixin, AdminPermMixin
 
 
-class BadgeListView(ListView):
+class BadgeListView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "templates.html"
     queryset = Badge.templates.all().order_by("name")
     paginate_by = 10
@@ -22,7 +23,7 @@ class BadgeListView(ListView):
         return context
 
 
-class BadgeCreateView(SuccessMessageMixin, CreateView):
+class BadgeCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView):
     template_name = "todo_update.html"
     form_class = BadgeForm
     success_url = reverse_lazy("badges:list")
@@ -35,7 +36,7 @@ class BadgeCreateView(SuccessMessageMixin, CreateView):
         return context
 
 
-class BadgeUpdateView(SuccessMessageMixin, UpdateView):
+class BadgeUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "todo_update.html"
     form_class = BadgeForm
     success_url = reverse_lazy("badges:list")
@@ -50,7 +51,7 @@ class BadgeUpdateView(SuccessMessageMixin, UpdateView):
         return context
 
 
-class BadgeDeleteView(DeleteView):
+class BadgeDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
     queryset = Badge.objects.all()
     success_url = reverse_lazy("badges:list")
 

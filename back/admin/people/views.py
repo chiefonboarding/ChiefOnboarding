@@ -21,8 +21,10 @@ from users.models import (NewHireWelcomeMessage, PreboardingUser, ResourceUser,
 from .forms import ColleagueUpdateForm, NewHireAddForm, NewHireProfileForm, ColleagueCreateForm
 from .utils import get_templates_model, get_user_field
 
+from users.mixins import LoginRequiredMixin, AdminPermMixin
 
-class NewHireListView(ListView):
+
+class NewHireListView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "new_hires.html"
     queryset = User.new_hires.all().order_by("-start_day")
     paginate_by = 10
@@ -35,7 +37,7 @@ class NewHireListView(ListView):
         return context
 
 
-class NewHireAddView(SuccessMessageMixin, CreateView):
+class NewHireAddView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView):
     template_name = "new_hire_add.html"
     model = get_user_model()
     form_class = NewHireAddForm
@@ -62,7 +64,7 @@ class NewHireAddView(SuccessMessageMixin, CreateView):
         return super().form_valid(form)
 
 
-class ColleagueListView(ListView):
+class ColleagueListView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "colleagues.html"
     queryset = User.objects.all().order_by("first_name")
     paginate_by = 20
@@ -75,7 +77,7 @@ class ColleagueListView(ListView):
         return context
 
 
-class NewHireSequenceView(DetailView):
+class NewHireSequenceView(LoginRequiredMixin, AdminPermMixin, DetailView):
     template_name = "new_hire_detail.html"
     model = User
     context_object_name = "object"
@@ -105,7 +107,7 @@ class NewHireSequenceView(DetailView):
         return context
 
 
-class NewHireProfileView(SuccessMessageMixin, UpdateView):
+class NewHireProfileView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "new_hire_profile.html"
     model = User
     form_class = NewHireProfileForm
@@ -123,7 +125,7 @@ class NewHireProfileView(SuccessMessageMixin, UpdateView):
         return context
 
 
-class ColleagueUpdateView(SuccessMessageMixin, UpdateView):
+class ColleagueUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "colleague_update.html"
     model = User
     form_class = ColleagueUpdateForm
@@ -141,7 +143,7 @@ class ColleagueUpdateView(SuccessMessageMixin, UpdateView):
         return context
 
 
-class ColleagueCreateView(SuccessMessageMixin, CreateView):
+class ColleagueCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView):
     template_name = "colleague_create.html"
     model = User
     form_class = ColleagueCreateForm
@@ -156,7 +158,7 @@ class ColleagueCreateView(SuccessMessageMixin, CreateView):
         return context
 
 
-class ColleagueToggleResourceView(TemplateView):
+class ColleagueToggleResourceView(LoginRequiredMixin, AdminPermMixin, TemplateView):
     template_name = "_toggle_button_resources.html"
 
     def get_context_data(self, pk, template_id, **kwargs):
@@ -173,7 +175,7 @@ class ColleagueToggleResourceView(TemplateView):
         return context
 
 
-class ColleagueResourceView(DetailView):
+class ColleagueResourceView(LoginRequiredMixin, AdminPermMixin, DetailView):
     template_name = "add_resources.html"
     model = User
     context_object_name = "object"
@@ -187,7 +189,7 @@ class ColleagueResourceView(DetailView):
         return context
 
 
-class ColleagueDeleteView(DeleteView):
+class ColleagueDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
     queryset = get_user_model().objects.all()
     success_url = reverse_lazy("people:colleagues")
 
@@ -197,7 +199,7 @@ class ColleagueDeleteView(DeleteView):
         return response
 
 
-class NewHireNotesView(SuccessMessageMixin, CreateView):
+class NewHireNotesView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView):
     template_name = "new_hire_notes.html"
     model = Note
     fields = [
@@ -224,7 +226,7 @@ class NewHireNotesView(SuccessMessageMixin, CreateView):
         return context
 
 
-class NewHireWelcomeMessagesView(ListView):
+class NewHireWelcomeMessagesView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "new_hire_welcome_messages.html"
 
     def get_queryset(self):
@@ -240,7 +242,7 @@ class NewHireWelcomeMessagesView(ListView):
         return context
 
 
-class NewHireAdminTasksView(TemplateView):
+class NewHireAdminTasksView(LoginRequiredMixin, AdminPermMixin, TemplateView):
     template_name = "new_hire_admin_tasks.html"
 
     def get_context_data(self, **kwargs):
@@ -254,7 +256,7 @@ class NewHireAdminTasksView(TemplateView):
         return context
 
 
-class NewHireFormsView(DetailView):
+class NewHireFormsView(LoginRequiredMixin, AdminPermMixin, DetailView):
     template_name = "new_hire_forms.html"
     model = User
     context_object_name = "object"
@@ -269,7 +271,7 @@ class NewHireFormsView(DetailView):
         return context
 
 
-class NewHireProgressView(DetailView):
+class NewHireProgressView(LoginRequiredMixin, AdminPermMixin, DetailView):
     template_name = "new_hire_progress.html"
     model = User
     context_object_name = "object"
@@ -284,7 +286,7 @@ class NewHireProgressView(DetailView):
         return context
 
 
-class NewHireTasksView(DetailView):
+class NewHireTasksView(LoginRequiredMixin, AdminPermMixin, DetailView):
     template_name = "new_hire_tasks.html"
     model = User
     context_object_name = "object"
@@ -297,7 +299,7 @@ class NewHireTasksView(DetailView):
         return context
 
 
-class NewHireTaskListView(DetailView):
+class NewHireTaskListView(LoginRequiredMixin, AdminPermMixin, DetailView):
     template_name = "new_hire_add_task.html"
     model = User
     context_object_name = "object"
@@ -315,7 +317,7 @@ class NewHireTaskListView(DetailView):
         return context
 
 
-class NewHireToggleTaskView(TemplateView):
+class NewHireToggleTaskView(LoginRequiredMixin, AdminPermMixin, TemplateView):
     template_name = "_toggle_button_new_hire_template.html"
 
     def get_context_data(self, pk, template_id, type,  **kwargs):

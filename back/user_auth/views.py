@@ -1,3 +1,4 @@
+from os import wait
 import uuid
 
 import pyotp
@@ -18,52 +19,35 @@ from organization.models import Organization
 from users.serializers import NewHireSerializer
 
 from .serializers import LoginSerializer
+from django.contrib.auth.mixins import LoginRequiredMixin
+from users.mixins import LoginRequiredMixin as LoginWithMFARequiredMixin
+from django.views import View
+from django.views.generic.base import TemplateView
+from django.views.generic.edit import FormView
+
+from admin.settings.forms import OTPVerificationForm
 
 
-def logged_in_user_redirect(request):
-    if request.user.is_admin_or_manager:
-        return redirect("admin:new_hires")
-    else:
-        return redirect("new_hire:todos")
+class LoginRedirectView(LoginWithMFARequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        if request.user.is_admin_or_manager:
+            return redirect("admin:new_hires")
+        else:
+            return redirect("new_hire:todos")
 
 
-class LoginView(APIView):
-    permission_classes = (AllowAny,)
+class MFAView(LoginRequiredMixin, FormView):
+    template_name = "mfa.html"
+    form_class = OTPVerificationForm
 
-    def post(self, request):
-        serializer = LoginSerializer(data=request.data)
-        if serializer.is_valid():
-            user = authenticate(
-                request,
-                username=serializer.data["username"],
-                password=serializer.data["password"],
-            )
-            if user is not None:
-                # check TOTP
-                if user.requires_otp:
-                    totp_input = serializer.data["totp"].strip().replace(" ", "")
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
 
-                    if totp_input == "":
-                        return Response({"totp": "provide_totp"}, status=status.HTTP_400_BAD_REQUEST)
-
-                    totp = pyotp.TOTP(user.totp_secret)
-                    otp_recovery_key = user.check_otp_recovery_key(totp_input)
-                    if (not totp.verify(totp_input) and otp_recovery_key is None) or cache.get(user.email) != None:
-                        return Response(
-                            {"error": "TOTP code does not match"},
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-
-                    cache.set(user.email, "passed", 30)
-
-                login(request, user)
-                translation.activate(request.user.language)
-                user = NewHireSerializer(request.user)
-                return Response(user.data)
-        return Response(
-            {"error": _("Username and password do not match. Please try again.")},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    def form_valid(self, form):
+        self.request.session["passed_mfa"] = True
+        return redirect("logged_in_user_redirect")
 
 
 class GoogleLoginView(APIView):

@@ -28,8 +28,9 @@ from django.views.generic import View
 from django.http import HttpResponse
 from django.http import Http404
 
+from users.mixins import LoginRequiredMixin, AdminPermMixin
 
-class SequenceListView(ListView):
+class SequenceListView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "templates.html"
     queryset = Sequence.objects.all().order_by("name")
     paginate_by = 10
@@ -42,7 +43,7 @@ class SequenceListView(ListView):
         return context
 
 
-class SequenceCreateView(RedirectView):
+class SequenceCreateView(LoginRequiredMixin, AdminPermMixin, RedirectView):
     permanent = False
 
     def get_redirect_url(self, *args, **kwargs):
@@ -50,7 +51,7 @@ class SequenceCreateView(RedirectView):
         return seq.update_url()
 
 
-class SequenceView(DetailView):
+class SequenceView(LoginRequiredMixin, AdminPermMixin, DetailView):
     template_name = "sequence.html"
     model = Sequence
 
@@ -69,7 +70,7 @@ class SequenceView(DetailView):
         return context
 
 
-class SequenceNameUpdateView(UpdateView):
+class SequenceNameUpdateView(LoginRequiredMixin, AdminPermMixin, UpdateView):
     template_name = "_sequence_templates_list.html"
     model = Sequence
     fields = ['name',]
@@ -77,7 +78,7 @@ class SequenceNameUpdateView(UpdateView):
     success_url = '/health'
 
 
-class SequenceConditionCreateView(CreateView):
+class SequenceConditionCreateView(LoginRequiredMixin, AdminPermMixin, CreateView):
     template_name = "_condition_form.html"
     model = Condition
     form_class = ConditionCreateForm
@@ -103,7 +104,7 @@ class SequenceConditionCreateView(CreateView):
 
 
 
-class SequenceTimelineDetailView(DetailView):
+class SequenceTimelineDetailView(LoginRequiredMixin, AdminPermMixin, DetailView):
     template_name = "_sequence_timeline.html"
     model = Sequence
 
@@ -118,7 +119,7 @@ class SequenceTimelineDetailView(DetailView):
         return context
 
 
-class SequenceConditionItemView(View):
+class SequenceConditionItemView(LoginRequiredMixin, AdminPermMixin, View):
 
     def delete(self, request, *args, **kwargs):
         condition = get_object_or_404(Condition, id=kwargs.get('pk', -1))
@@ -136,7 +137,7 @@ class SequenceConditionItemView(View):
         return render(request, '_sequence_condition.html', { 'condition': condition, 'object': condition.sequence, 'todos': todos })
 
 
-class SequenceConditionToDoUpdateView(UpdateView):
+class SequenceConditionToDoUpdateView(LoginRequiredMixin, AdminPermMixin, UpdateView):
     template_name = "_sequence_condition.html"
     model = Condition
     form_class = ConditionToDoUpdateForm
@@ -153,7 +154,7 @@ class SequenceConditionToDoUpdateView(UpdateView):
         return context
 
 
-class SequenceConditionDeleteView(View):
+class SequenceConditionDeleteView(LoginRequiredMixin, AdminPermMixin, View):
 
     def delete(self, request, pk, condition_pk, *args, **kwargs):
         sequence = get_object_or_404(Sequence, id=pk)
@@ -164,7 +165,7 @@ class SequenceConditionDeleteView(View):
         return HttpResponse()
 
 
-class SequenceDeleteView(DeleteView):
+class SequenceDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
     queryset = Condition.objects.all()
     success_url = reverse_lazy("sequences:list")
 
@@ -174,7 +175,7 @@ class SequenceDeleteView(DeleteView):
         return response
 
 
-class SequenceDefaultTemplatesView(ListView):
+class SequenceDefaultTemplatesView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "_sequence_templates_list.html"
 
     def get_queryset(self):

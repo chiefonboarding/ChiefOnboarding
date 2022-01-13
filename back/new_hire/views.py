@@ -35,8 +35,9 @@ from users.models import (NewHireWelcomeMessage, PreboardingUser, ResourceUser,
 from users.permissions import NewHirePermission
 from users.serializers import EmployeeSerializer, NewHireSerializer
 
+from users.mixins import LoginRequiredMixin
 
-class NewHireDashboard(TemplateView):
+class NewHireDashboard(LoginRequiredMixin, TemplateView):
     template_name = "new_hire_to_dos.html"
     paginate_by = 10
 
@@ -79,13 +80,13 @@ class NewHireDashboard(TemplateView):
         return context
 
 
-class ToDoDetailView(DetailView):
+class ToDoDetailView(LoginRequiredMixin, DetailView):
     template_name = "new_hire_to_do.html"
     model = ToDoUser
 
 
 @method_decorator(axes_dispatch, name="dispatch")
-class PreboardingShortURLRedirectView(RedirectView):
+class PreboardingShortURLRedirectView(LoginRequiredMixin, RedirectView):
     pattern_name = "new_hire:preboarding"
 
     def dispatch(self, *args, **kwargs):
@@ -114,7 +115,7 @@ class PreboardingShortURLRedirectView(RedirectView):
         return reverse("new_hire:preboarding", args=[preboarding_user.first().id])
 
 
-class PreboardingDetailView(DetailView):
+class PreboardingDetailView(LoginRequiredMixin, DetailView):
     template_name = "new_hire_preboarding.html"
     model = PreboardingUser
 
@@ -147,13 +148,13 @@ class PreboardingDetailView(DetailView):
         return context
 
 
-class ColleagueListView(ListView):
+class ColleagueListView(LoginRequiredMixin, ListView):
     template_name = "new_hire_colleagues.html"
     model = User
     paginate_by = 20
 
 
-class ColleagueSearchView(ListView):
+class ColleagueSearchView(LoginRequiredMixin, ListView):
     template_name = "_new_hire_colleagues_search.html"
     model = User
 
@@ -162,7 +163,7 @@ class ColleagueSearchView(ListView):
         return get_user_model().objects.filter(Q(first_name__icontains=search), Q(last_name__icontains=search))
 
 
-class ResourceListView(TemplateView):
+class ResourceListView(LoginRequiredMixin, TemplateView):
     template_name = "new_hire_resources.html"
     paginate_by = 20
 
@@ -173,7 +174,7 @@ class ResourceListView(TemplateView):
         return context
 
 
-class ToDoCompleteView(RedirectView):
+class ToDoCompleteView(LoginRequiredMixin, RedirectView):
     pattern_name = "new_hire:to_do"
 
     def get_redirect_url(self, *args, **kwargs):

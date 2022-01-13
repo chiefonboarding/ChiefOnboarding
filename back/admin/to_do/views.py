@@ -1,14 +1,16 @@
-from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib import messages
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
 from .forms import ToDoForm
 from .models import ToDo
+from users.mixins import LoginRequiredMixin, AdminPermMixin
 
 
-class ToDoListView(ListView):
+class ToDoListView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "templates.html"
     queryset = ToDo.templates.all().order_by("name")
     paginate_by = 10
@@ -22,11 +24,11 @@ class ToDoListView(ListView):
         return context
 
 
-class ToDoCreateView(SuccessMessageMixin, CreateView):
+class ToDoCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView):
     template_name = "todo_update.html"
     form_class = ToDoForm
     success_url = reverse_lazy("todo:list")
-    success_message = "To do item has been updated"
+    success_message = "To do item has been created"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -35,7 +37,7 @@ class ToDoCreateView(SuccessMessageMixin, CreateView):
         return context
 
 
-class ToDoUpdateView(SuccessMessageMixin, UpdateView):
+class ToDoUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "todo_update.html"
     form_class = ToDoForm
     success_url = reverse_lazy("todo:list")
@@ -50,7 +52,7 @@ class ToDoUpdateView(SuccessMessageMixin, UpdateView):
         return context
 
 
-class ToDoDeleteView(DeleteView):
+class ToDoDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
     queryset = ToDo.objects.all()
     success_url = reverse_lazy("todo:list")
 

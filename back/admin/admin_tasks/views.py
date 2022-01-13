@@ -15,9 +15,10 @@ from .forms import AdminTaskCommentForm, AdminTaskUpdateForm
 from .models import AdminTask, AdminTaskComment
 from .serializers import (AdminTaskSerializer, CommentPostSerializer,
                           CommentSerializer)
+from users.mixins import LoginRequiredMixin, AdminPermMixin, ManagerPermMixin
 
 
-class MyAdminTasksListView(ListView):
+class MyAdminTasksListView(LoginRequiredMixin, ManagerPermMixin, ListView):
     template_name = "admin_tasks_yours.html"
     paginate_by = 10
 
@@ -31,7 +32,7 @@ class MyAdminTasksListView(ListView):
         return context
 
 
-class AllAdminTasksListView(ListView):
+class AllAdminTasksListView(LoginRequiredMixin, ManagerPermMixin, ListView):
     template_name = "admin_tasks_all.html"
     paginate_by = 10
 
@@ -45,7 +46,7 @@ class AllAdminTasksListView(ListView):
         return context
 
 
-class AdminTaskToggleDoneView(RedirectView):
+class AdminTaskToggleDoneView(LoginRequiredMixin, ManagerPermMixin, RedirectView):
     permanent = False
     pattern_name = "admin_tasks:detail"
 
@@ -57,7 +58,7 @@ class AdminTaskToggleDoneView(RedirectView):
         return super().get(request, *args, **kwargs)
 
 
-class AdminTasksUpdateView(SuccessMessageMixin, UpdateView):
+class AdminTasksUpdateView(LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "admin_tasks_detail.html"
     form_class = AdminTaskUpdateForm
     model = AdminTask
@@ -77,7 +78,7 @@ class AdminTasksUpdateView(SuccessMessageMixin, UpdateView):
         return context
 
 
-class AdminTasksCommentCreateView(SuccessMessageMixin, CreateView):
+class AdminTasksCommentCreateView(LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, CreateView):
     template_name = "admin_tasks_detail.html"
     model = AdminTaskComment
     fields = [

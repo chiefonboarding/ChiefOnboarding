@@ -7,8 +7,9 @@ from django.views.generic.list import ListView
 from .forms import ResourceForm
 from .models import Resource
 
+from users.mixins import LoginRequiredMixin, AdminPermMixin
 
-class ResourceListView(ListView):
+class ResourceListView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "templates.html"
     queryset = Resource.templates.all().order_by("name")
     paginate_by = 10
@@ -22,7 +23,7 @@ class ResourceListView(ListView):
         return context
 
 
-class ResourceCreateView(SuccessMessageMixin, CreateView):
+class ResourceCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView):
     template_name = "todo_update.html"
     form_class = ResourceForm
     success_url = reverse_lazy("resources:list")
@@ -35,7 +36,7 @@ class ResourceCreateView(SuccessMessageMixin, CreateView):
         return context
 
 
-class ResourceUpdateView(SuccessMessageMixin, UpdateView):
+class ResourceUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "todo_update.html"
     form_class = ResourceForm
     success_url = reverse_lazy("resources:list")
@@ -50,7 +51,7 @@ class ResourceUpdateView(SuccessMessageMixin, UpdateView):
         return context
 
 
-class ResourceDeleteView(DeleteView):
+class ResourceDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
     queryset = Resource.objects.all()
     success_url = reverse_lazy("resources:list")
 
