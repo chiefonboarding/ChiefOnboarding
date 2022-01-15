@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.urls import reverse_lazy
 
+from admin.integrations.models import AccessToken
 from admin.to_do.models import ToDo
 from slack_bot.slack import Slack
 
@@ -17,7 +18,7 @@ from .models import Condition, ExternalMessage, PendingAdminTask, Sequence
 from .serializers import (ExternalMessageSerializer,
                           PendingAdminTaskSerializer, SequenceListSerializer,
                           SequenceSerializer)
-from admin.people.utils import get_templates_model, get_user_field
+from admin.people.utils import get_templates_model, get_user_field, get_model_form
 
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView, DeleteView, CreateView
@@ -102,8 +103,6 @@ class SequenceConditionCreateView(LoginRequiredMixin, AdminPermMixin, CreateView
         return self.render_to_response(self.get_context_data(condition_form=form))
 
 
-
-
 class SequenceTimelineDetailView(LoginRequiredMixin, AdminPermMixin, DetailView):
     template_name = "_sequence_timeline.html"
     model = Sequence
@@ -119,19 +118,72 @@ class SequenceTimelineDetailView(LoginRequiredMixin, AdminPermMixin, DetailView)
         return context
 
 
+class SequenceFormView(LoginRequiredMixin, AdminPermMixin, View):
+
+    def get(self, request, template_type, template_pk, *args, **kwargs):
+
+        form = get_model_form(template_type)
+        if form is None:
+            raise Http404
+
+        template_item = None
+        if template_pk != -1:
+            templates_model = get_templates_model(template_type)
+            template_item = get_object_or_404(templates_model, id=template_pk)
+
+        return render(request, '_item_form.html', { 'form': form(instance=template_item) })
+
+
+class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
+    def post(self, request, template_type, template_pk, condition, *args, **kwargs):
+
+        # Get form, if it doesn't exist, then 404
+        form = get_model_form(template_type)
+        if form is None:
+            raise Http404
+
+        # Get template item if id was not -1. -1 means that it doesn't exist
+        template_item = None
+        if template_pk != -1:
+            templates_model = get_templates_model(template_type)
+            template_item = get_object_or_404(templates_model, id=template_pk)
+
+        # Push instance and data through form and save it
+        item_form = form(instance=template_item, data=request.POST)
+        if item_form.is_valid():
+            # Check if original item was template, if so, then create new
+            if item_form.instance.template:
+                item_form.instance = None
+            obj = item_form.save()
+
+            # Check if new item has been created. If it has, then remove the old record and add the new one.
+            # If it hasn't created a new object, then the old one is good enough.
+            if obj.id != template_pk:
+                condition = get_object_or_404(Condition, id=condition.id)
+                condition.remove_item(template_item)
+                condition.add_item(obj)
+
+        else:
+            # Form has valid, push back form with errors
+            print(item_form.errors)
+            return render(request, '_item_form.html', { 'form': item_form })
+
+        # Succesfully created/updated item, request sequence reload
+        return HttpResponse(headers={'HX-Trigger': 'reload-sequence'})
+
 class SequenceConditionItemView(LoginRequiredMixin, AdminPermMixin, View):
 
-    def delete(self, request, *args, **kwargs):
-        condition = get_object_or_404(Condition, id=kwargs.get('pk', -1))
-        templates_model = get_templates_model(kwargs.get("type", ""))
-        template_item = get_object_or_404(templates_model, id=kwargs.get('template_pk', -1))
+    def delete(self, request, pk, type, template_pk, *args, **kwargs):
+        condition = get_object_or_404(Condition, id=pk)
+        templates_model = get_templates_model(type)
+        template_item = get_object_or_404(templates_model, id=template_pk)
         condition.remove_item(template_item)
         return HttpResponse()
 
-    def post(self, request, *args, **kwargs):
-        condition = get_object_or_404(Condition, id=kwargs.get('pk', -1))
-        templates_model = get_templates_model(kwargs.get("type", ""))
-        template_item = get_object_or_404(templates_model, id=kwargs.get('template_pk', -1))
+    def post(self, request, pk, type, template_pk, *args, **kwargs):
+        condition = get_object_or_404(Condition, id=pk)
+        templates_model = get_templates_model(type)
+        template_item = get_object_or_404(templates_model, id=template_pk)
         condition.add_item(template_item)
         todos = ToDo.templates.all()
         return render(request, '_sequence_condition.html', { 'condition': condition, 'object': condition.sequence, 'todos': todos })
@@ -179,11 +231,17 @@ class SequenceDefaultTemplatesView(LoginRequiredMixin, AdminPermMixin, ListView)
     template_name = "_sequence_templates_list.html"
 
     def get_queryset(self):
-        if get_templates_model(self.request.GET.get("type", "")) is None:
+        template_type = self.request.GET.get("type", "")
+        if template_type == 'account_provision':
+            return AccessToken.objects.filter(active=True)
+
+
+        if get_templates_model(template_type) is None:
             # if type does not exist, then return None
             return Sequence.objects.none()
 
-        templates_model = get_templates_model(self.request.GET.get("type", ""))
+
+        templates_model = get_templates_model(template_type)
         return templates_model.templates.all()
 
     def get_context_data(self, **kwargs):

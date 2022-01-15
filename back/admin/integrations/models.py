@@ -10,6 +10,7 @@ INTEGRATION_OPTIONS = (
     (1, "Slack account creation"),
     (2, "Google account creation"),
     (3, "Google Login"),
+    (4, "Asana"),
 )
 INTEGRATION_OPTIONS_URLS = [
     (reverse_lazy("settings:slack-bot"), reverse_lazy("settings:google-login")),
@@ -27,7 +28,6 @@ class AccessToken(models.Model):
     base_url = models.CharField(max_length=22300, default="", blank=True)
     redirect_url = models.CharField(max_length=22300, default="", blank=True)
     account_id = models.CharField(max_length=22300, default="", blank=True)
-    name = models.CharField(max_length=22300, default="", blank=True)
     active = models.BooleanField(default=True)
     ttl = models.IntegerField(null=True, blank=True)
     expiring = models.DateTimeField(null=True, blank=True)
@@ -41,6 +41,11 @@ class AccessToken(models.Model):
     verification_token = models.CharField(max_length=100, default="")
     bot_token = EncryptedTextField(max_length=10000, default="", blank=True)
     bot_id = models.CharField(max_length=100, default="")
+
+    @property
+    def name(self):
+        return self.get_integration_display()
+
 
 
 class ScheduledAccess(models.Model):

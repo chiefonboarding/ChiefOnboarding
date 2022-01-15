@@ -23,10 +23,6 @@ from .emails import send_sequence_message
 
 class Sequence(models.Model):
     name = models.CharField(max_length=240)
-    preboarding = models.ManyToManyField(Preboarding)
-    to_do = models.ManyToManyField(ToDo)
-    resources = models.ManyToManyField(Resource)
-    appointments = models.ManyToManyField(Appointment)
     auto_add = models.BooleanField(default=False)
 
     def update_url(self):
@@ -177,6 +173,16 @@ class PendingAdminTask(models.Model):
         return render_to_string("_admin_task_icon.html")
 
 
+class AccountProvision(models.Model):
+    INTEGRATION_OPTIONS = (
+        ('asana', 'Add Asana account to team'),
+        ('google', 'Create Google account'),
+        ('slack', 'Create Slack account')
+    )
+    integration_type = models.CharField(max_length=10, choices=INTEGRATION_OPTIONS)
+    additional_data = models.JSONField(models.TextField(blank=True), default=dict)
+
+
 class Condition(models.Model):
     CONDITION_TYPE = ((0, "After new hire has started"), (1, "Based on one or more to do item(s)"), (2, "Before the new hire has started"), (3, "Without trigger"))
     sequence = models.ForeignKey(Sequence, on_delete=models.CASCADE, null=True, related_name="conditions")
@@ -192,6 +198,7 @@ class Condition(models.Model):
     introductions = models.ManyToManyField(Introduction)
     preboarding = models.ManyToManyField(Preboarding)
     appointments = models.ManyToManyField(Appointment)
+    account_provisions = models.ManyToManyField(AccountProvision)
 
     def remove_item(self, model_item):
         # model_item is a template item. I.e. a ToDo object.

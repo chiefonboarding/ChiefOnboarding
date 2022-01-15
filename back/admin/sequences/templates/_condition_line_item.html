@@ -1,7 +1,7 @@
 <div class="row d-flex" style="margin-bottom: 2px">
   <div class="col-11">
 
-    <div class="text-muted" style="margin-bottom: 5px">
+    <div class="text-muted" style="margin-bottom: 5px; cursor:pointer" onclick="changeTemplate({{item.id}}, {{condition.pk}}, '{{type}}')" data-bs-toggle="modal" data-bs-target="#modal-template-edit">
       {{ item.get_icon_template }}
       {{ item.name }}
     </div>

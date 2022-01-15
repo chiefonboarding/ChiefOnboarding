@@ -1,12 +1,14 @@
 from django.apps import apps
+from admin.to_do.forms import ToDoForm
 
 MODELS = [
-    { 'app': 'to_do', 'model': 'ToDo', 'user_field': 'to_do'},
+    { 'app': 'to_do', 'model': 'ToDo', 'user_field': 'to_do', 'form': ToDoForm},
     { 'app': 'resources', 'model': 'Resource', 'user_field': 'resources'},
     { 'app': 'introductions', 'model': 'Introduction', 'user_field': 'introductions'},
     { 'app': 'appointments', 'model': 'Appointment', 'user_field': 'appointments'},
     { 'app': 'preboarding', 'model': 'Preboarding', 'user_field': 'preboarding'},
     { 'app': 'badges', 'model': 'Badge', 'user_field': 'badges'},
+    # { 'app': 'integrations', 'model': 'Badge', 'user_field': 'badges'},
 ]
 
 def template_model_exists(template_slug):
@@ -20,4 +22,18 @@ def get_templates_model(template_slug):
 def get_user_field(template_slug):
     if template_model_exists(template_slug):
         return next((x['user_field'] for x in MODELS if x['model'].lower() == template_slug), None)
+
+def get_model_item(template_slug):
+    model_item = None
+    if template_model_exists(template_slug):
+        model_item = next((x for x in MODELS if x['model'].lower() == template_slug), None)
+    return model_item
+
+def get_model_form(template_slug):
+    model = get_model_item(template_slug)
+
+    if model is None:
+        return None
+
+    return get_model_item(template_slug)['form']
 

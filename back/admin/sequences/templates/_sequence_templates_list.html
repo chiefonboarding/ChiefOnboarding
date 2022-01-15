@@ -31,6 +31,9 @@
   <button hx-get="{% url 'sequences:template_list' %}?type=email" class="btn btn-{% if active == 'email' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_email_icon.html' %}
   </button>
+  <button hx-get="{% url 'sequences:template_list' %}?type=account_provision" class="btn btn-{% if active == 'account_provision' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_account_provision.html' %}
+  </button>
   <div style="display: inline-flex;">
     <span class="requesting" id="spinner">
       <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
@@ -56,6 +59,7 @@
   </div>
 </div>
 {% endif %}
+{% if active != 'account_provision' %}
 <div class="card-footer">
   <div>
     <div class="row">
@@ -70,4 +74,4 @@
     </div>
   </div>
 </div>
-
+{% endif %}

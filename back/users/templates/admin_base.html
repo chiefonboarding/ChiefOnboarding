@@ -265,7 +265,7 @@
       })
       // close modals when we are reloading the sequence part
       document.body.addEventListener("reload-sequence", function(evt){
-          $('#modal-report').modal('hide')
+          $('.modal').modal('hide')
           document.getElementById("add-condition-form").reset();
       })
       // reload selectboxes when we get a new form back from backend
@@ -297,7 +297,6 @@
       }
     </script>
 
-    {% if wysiwyg %}
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@latest"></script>
@@ -307,7 +306,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/attaches@latest"></script>
 
     <script>
-      window.onload = function(){
         function getSignedURL (file) {
           return $.ajax({
             url: "/api/org/file",
@@ -325,6 +323,7 @@
             data: file
           })
         }
+      function initWYSIWYGEditor(){
         const forms = document.querySelectorAll('form')
         forms.forEach(function(form) {
           if ('content_json' in form) {
@@ -394,12 +393,18 @@
           }
         })
       }
+      {% if wysiwyg %}
+      window.onload = function(){
+        initWYSIWYGEditor()
+      }
+      {% endif %}
       htmx.onLoad(function(elt){
         $('select').selectize()
       })
     </script>
     {{ wysiwyg|json_script:"content_json" }}
-    {% endif %}
+    {% endblock %}
+    {% block extra_js %}
     {% endblock %}
   </body>
 </html>

@@ -68,8 +68,43 @@
   </div>
 </div>
 
+<!-- modal for changing item in condition -->
+<div class="modal modal-blur fade show" id="modal-template-edit" tabindex="-1" role="dialog" aria-modal="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Change item</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="form-modal-content" hx-target="#form-add-item" hx-swap>
+        <form id="form-add-item">
+          <div id="form">
+            <div class="text-center">
+              <div class="spinner-border" role="status"></div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block extra_js %}
 <script>
-  document.getElementById("div_id_condition_to_do").style.display = "none";
+document.getElementById("div_id_condition_to_do").style.display = "none";
+
+var identify = []
+
+function changeTemplate(item, condition, type) {
+  identify = (item, condition, type)
+  document.getElementById("form-add-item").setAttribute("hx-post", `/api/sequences/update_item/${type}/${item}/${condition}/`)
+  initWYSIWYGEditor()
+  htmx.ajax('GET', `/api/sequences/forms/${type}/${item}/`, `#form`)
+  htmx.process('#form-modal-content');
+
+}
 </script>
 {% endblock %}
 {% block form_select_on_change %}
