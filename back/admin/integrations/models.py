@@ -17,6 +17,7 @@ INTEGRATION_OPTIONS_URLS = [
     (reverse_lazy("settings:slack-account"), reverse_lazy("settings:google-login")),
     (reverse_lazy("settings:google-account"), reverse_lazy("settings:google-account")),
     (reverse_lazy("settings:google-login"), reverse_lazy("settings:google-login")),
+    (reverse_lazy("settings:asana"), reverse_lazy("settings:asana")),
 ]
 STATUS = ((0, "pending"), (1, "completed"), (2, "waiting on user"))
 

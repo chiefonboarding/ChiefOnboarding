@@ -29,6 +29,9 @@ class Resource(BaseItem):
     def update_url(self):
         return reverse("resources:update", args=[self.id])
 
+    def delete_url(self):
+        return reverse("resources:delete", args=[self.id])
+
     def next_chapter(self, current_id, course):
         chapters = self.chapters.exclude(type=1)
         if not course:

@@ -38,7 +38,7 @@ class UploadField(Field):
 
 class ToDoForm(forms.ModelForm):
     content_json = WYSIWYGField(label="content")
-    tags = forms.ModelMultipleChoiceField(queryset=Tag.objects.all(), to_field_name="name")
+    tags = forms.ModelMultipleChoiceField(queryset=Tag.objects.all(), to_field_name="name", required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -52,10 +52,17 @@ class ToDoForm(forms.ModelForm):
                     MultiSelectField("tags"),
                     css_class="col-4",
                 ),
-                Div(WYSIWYGField("content_json"), css_class="col-8"),
+                Div(
+                    WYSIWYGField("content_json"),
+                    Field("send_back"),
+                    Field("channel"),
+                    Field("form"),
+                    css_class="col-8"
+                ),
                 css_class="row",
             ),
         )
+
 
     class Meta:
         model = ToDo

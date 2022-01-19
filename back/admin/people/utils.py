@@ -1,13 +1,17 @@
 from django.apps import apps
 from admin.to_do.forms import ToDoForm
+from admin.introductions.forms import IntroductionForm
+from admin.appointments.forms import AppointmentForm
+from admin.preboarding.forms import PreboardingForm
+from admin.badges.forms import BadgeForm
 
 MODELS = [
     { 'app': 'to_do', 'model': 'ToDo', 'user_field': 'to_do', 'form': ToDoForm},
     { 'app': 'resources', 'model': 'Resource', 'user_field': 'resources'},
-    { 'app': 'introductions', 'model': 'Introduction', 'user_field': 'introductions'},
-    { 'app': 'appointments', 'model': 'Appointment', 'user_field': 'appointments'},
-    { 'app': 'preboarding', 'model': 'Preboarding', 'user_field': 'preboarding'},
-    { 'app': 'badges', 'model': 'Badge', 'user_field': 'badges'},
+    { 'app': 'introductions', 'model': 'Introduction', 'user_field': 'introductions', 'form': IntroductionForm},
+    { 'app': 'appointments', 'model': 'Appointment', 'user_field': 'appointments', 'form': AppointmentForm},
+    { 'app': 'preboarding', 'model': 'Preboarding', 'user_field': 'preboarding', 'form': PreboardingForm},
+    { 'app': 'badges', 'model': 'Badge', 'user_field': 'badges', 'form': BadgeForm},
     # { 'app': 'integrations', 'model': 'Badge', 'user_field': 'badges'},
 ]
 

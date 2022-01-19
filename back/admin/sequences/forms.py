@@ -5,11 +5,8 @@ from crispy_forms.layout import (
     Layout,
     HTML,
 )
-from crispy_forms.utils import TEMPLATE_PACK
 from django import forms
 from django.core.exceptions import ValidationError
-
-from organization.models import Tag
 
 from admin.to_do.forms import MultiSelectField
 
@@ -17,20 +14,31 @@ from .models import Condition
 
 
 class ConditionCreateForm(forms.ModelForm):
+    def _get_save_button(self):
+        return '<button hx-post="{% url "sequences:condition-create" object.id %}" hx-target="#condition_form" hx-swap="#add-condition-form" class="btn btn-primary ms-auto">Add block</button>'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
+        is_time_condition = self.instance.condition_type in [0,2] or self.instance == None
         self.helper.layout = Layout(
             Field("condition_type"),
-            MultiSelectField("condition_to_do"),
-            Field("days"),
-            Field("time"),
-            HTML('<button hx-post="{% url "sequences:condition-create" object.id %}" hx-target="#condition_form" hx-swap="none" class="btn btn-primary ms-auto">Add block</button>')
+            Div(
+                MultiSelectField("condition_to_do"),
+                css_class="d-none" if is_time_condition else "",
+            ),
+            Div(
+                Field("days"),
+                Field("time"),
+                css_class="" if is_time_condition else "d-none",
+            ),
+            HTML(self._get_save_button())
         )
         self.fields['time'].required = False
         self.fields['days'].required = False
-        # self.fields["role"].choices = Condition.CONDITION_TYPE.pop(-1)
+        self.fields['condition_to_do'].required = False
+        # Remove last option, which will only be one of
+        self.fields["condition_type"].choices = tuple(x for x in Condition.CONDITION_TYPE if x[0] != 3)
 
 
     class Meta:
@@ -64,12 +72,21 @@ class ConditionCreateForm(forms.ModelForm):
         return time
 
     def clean(self):
-        condition_type = self.cleaned_data['condition_type']
-        if condition_type == 1 and self.cleaned_data['condition_to_do'] == None:
+        cleaned_data = super().clean()
+        condition_type = cleaned_data.get('condition_type', None)
+        time = cleaned_data.get('time', None)
+        days = cleaned_data.get('days', None)
+        condition_to_do = cleaned_data.get('condition_to_do', None)
+        if condition_type == 1 and condition_to_do == None:
             raise ValidationError("You must add at least one to do item")
-        if condition_type in [0, 2] and (self.cleaned_data['time'] is None or self.cleaned_data['days'] is None):
+        if condition_type in [0, 2] and (time is None or days is None):
             raise ValidationError("Both the time and days have to be filled in.")
-        return self.cleaned_data
+        return cleaned_data
+
+
+class ConditionUpdateForm(ConditionCreateForm):
+    def _get_save_button(self):
+        return '<button hx-post="{% url "sequences:condition-update" object.id condition.id %}" hx-target="#condition_form" hx-swap="#add-condition-form" class="btn btn-primary ms-auto">Edit block</button>'
 
 
 class ConditionToDoUpdateForm(forms.ModelForm):

@@ -15,7 +15,7 @@ from .models import Badge
 
 class BadgeForm(forms.ModelForm):
     content_json = WYSIWYGField(label="content")
-    tags = forms.ModelMultipleChoiceField(queryset=Tag.objects.all(), to_field_name="name")
+    tags = forms.ModelMultipleChoiceField(queryset=Tag.objects.all(), to_field_name="name", required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -25,7 +25,7 @@ class BadgeForm(forms.ModelForm):
                 Div(
                     Field("name"),
                     MultiSelectField("tags"),
-                    UploadField("logo", extra_context={"file": self.instance.image}),
+                    UploadField("image", extra_context={"file": self.instance.image}),
                     css_class="col-4",
                 ),
                 Div(WYSIWYGField("content_json"), css_class="col-8"),

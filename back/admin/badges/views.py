@@ -47,8 +47,8 @@ class BadgeUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, U
         context = super().get_context_data(**kwargs)
         context["title"] = "Update badge item"
         context["subtitle"] = "templates"
-        # context["wysiwyg"] = context["badge"].content_json
         return context
+
 
 
 class BadgeDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):

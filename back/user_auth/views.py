@@ -5,6 +5,7 @@ import pyotp
 from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login
 from django.core.cache import cache
+from django.utils.decorators import method_decorator
 from django.shortcuts import redirect
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
@@ -24,8 +25,10 @@ from users.mixins import LoginRequiredMixin as LoginWithMFARequiredMixin
 from django.views import View
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
+from django.contrib.auth import signals
 
 from admin.settings.forms import OTPVerificationForm
+from axes.decorators import axes_dispatch
 
 
 class LoginRedirectView(LoginWithMFARequiredMixin, View):
@@ -36,6 +39,7 @@ class LoginRedirectView(LoginWithMFARequiredMixin, View):
             return redirect("new_hire:todos")
 
 
+@method_decorator(axes_dispatch, name="dispatch")
 class MFAView(LoginRequiredMixin, FormView):
     template_name = "mfa.html"
     form_class = OTPVerificationForm
@@ -44,6 +48,17 @@ class MFAView(LoginRequiredMixin, FormView):
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.request.user
         return kwargs
+
+    def form_invalid(self, form):
+        # Log wrong keys by ip to prevent guessing/bruteforcing
+        signals.user_login_failed.send(
+            sender=self.request.user,
+            request=self.request,
+            credentials={
+                "token": "MFA invalid",
+            },
+        )
+        return self.render_to_response(self.get_context_data(form=form))
 
     def form_valid(self, form):
         self.request.session["passed_mfa"] = True

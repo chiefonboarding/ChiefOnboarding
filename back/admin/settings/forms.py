@@ -10,6 +10,8 @@ from django.core.exceptions import ValidationError
 from admin.to_do.forms import UploadField
 from organization.models import Organization, WelcomeMessage
 
+from django.core.cache import cache
+
 
 class OrganizationGeneralForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -105,6 +107,9 @@ class OTPVerificationForm(forms.Form):
         otp = self.cleaned_data["otp"]
         totp = pyotp.TOTP(self.user.totp_secret)
         valid = totp.verify(otp)
-        if not valid:
-            raise ValidationError("OTP token was not correct. Please try again")
+        # Check if token is correct and block replay attacks
+        if not valid and cache.get(f"{self.user.email}_totp_passed") is None:
+            raise ValidationError("OTP token was not correct. Please wait 30 seconds and then try again")
+
+        cache.set(f"{self.user.email}_totp_passed", 'true', 30)
         return otp

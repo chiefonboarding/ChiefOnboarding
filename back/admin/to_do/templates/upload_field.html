@@ -9,7 +9,7 @@
   {% if aws_active %}
     <img src="{{ file.get_url }}" style="max-width: 100px; max-height: 100px;"/>
     <input type="file" class="form-control d-none file-input" value="{{ field.value }}">
-    <input class="file-id d-none" id="{{ field.id_for_label }}" name="{% if field.name|wordcount > 1 %}{{ field.name|slugify }}{% else %}{{ field.name }}{% endif %}" value="{{ field.value }}">
+    <input class="file-id d-none" id="{{ field.id_for_label }}" name="{% if field.name|wordcount > 1 %}{{ field.name|slugify }}{% else %}{{ field.name }}{% endif %}" value="{{ field.value|default_if_none:"" }}">
 
     {% if file %}
       <p class="mt-1 mb-1">Current file: <span class="file-name">{{ file.name }}</span>.</p>

@@ -40,7 +40,7 @@
         </div>
       </div>
       <div class="card-footer">
-        <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal-report">
+        <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal-block">
           Add block
         </a>
       </div>
@@ -54,11 +54,11 @@
 </div>
 
 <!-- modal for adding new block -->
-<div class="modal modal-blur fade show" id="modal-report" tabindex="-1" role="dialog" aria-modal="true">
+<div class="modal modal-blur fade show" id="modal-block" tabindex="-1" role="dialog" aria-modal="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Add new block</h5>
+        <h5 class="modal-title">Block</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body" id="condition_form">
@@ -76,7 +76,7 @@
         <h5 class="modal-title">Change item</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body" id="form-modal-content" hx-target="#form-add-item" hx-swap>
+      <div class="modal-body" id="form-modal-content" hx-target="#form">
         <form id="form-add-item">
           <div id="form">
             <div class="text-center">
@@ -93,28 +93,28 @@
 {% endblock %}
 {% block extra_js %}
 <script>
-document.getElementById("div_id_condition_to_do").style.display = "none";
-
-var identify = []
-
 function changeTemplate(item, condition, type) {
-  identify = (item, condition, type)
   document.getElementById("form-add-item").setAttribute("hx-post", `/api/sequences/update_item/${type}/${item}/${condition}/`)
-  initWYSIWYGEditor()
   htmx.ajax('GET', `/api/sequences/forms/${type}/${item}/`, `#form`)
   htmx.process('#form-modal-content');
+  setTimeout(function() {
+    initWYSIWYGEditor()
+  }, 300)
 
 }
-</script>
-{% endblock %}
-{% block form_select_on_change %}
-if (value == 0 || value == 2)  {
-  document.getElementById("div_id_condition_to_do").style.display = "none";
-  document.getElementById("div_id_days").style.display = "block";
-  document.getElementById("div_id_time").style.display = "block";
-} else {
-  document.getElementById("div_id_condition_to_do").style.display = "block";
-  document.getElementById("div_id_days").style.display = "none";
-  document.getElementById("div_id_time").style.display = "none";
+$("select#id_condition_type").on('change', function() {
+  // Change things to fill in when condition_type changes
+  if ($(this).val() == 1){
+    $("#add-condition-form #div_id_condition_to_do").parent().removeClass("d-none")
+    $("#div_id_days").parent().addClass("d-none")
+  } else {
+    $("#add-condition-form #div_id_condition_to_do").parent().addClass("d-none")
+    $("#div_id_days").parent().removeClass("d-none")
+  }
+})
+function editCondition(id) {
+    htmx.ajax('GET', `/api/sequences/{{ object.id }}/condition/${id}/`, `#add-condition-form`)
+  $('#modal-block').modal('show')
 }
+</script>
 {% endblock %}

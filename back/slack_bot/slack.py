@@ -181,18 +181,7 @@ class Slack:
             else:
                 action_text = "Mark completed"
                 value = "to_do:external:" + str(i.id)
-                text = (
-                    "*"
-                    + i.to_do.name
-                    + "* <"
-                    + settings.BASE_URL
-                    + "/#/slackform?token="
-                    + self.user_obj.unique_url
-                    + "&id="
-                    + str(i.id)
-                    + "|View details>\n"
-                    + self.footer_text(i.to_do)
-                )
+                text = f"*{i.to_do.name}* <{settings.BASE_URL}/#/slackform?token={self.user_obj.unique_url}&id={str(i.id)}|View details>\n{self.footer_text(i.to_do)}"
             blocks.append(
                 {
                     "type": "section",
@@ -407,51 +396,22 @@ class Slack:
         return view
 
     def help(self):
+        messages = [
+            _("Happy to help! Here are all the things you can say to me: \n\n"),
+            _("*What do I need to do today?*\nThis will show all the tasks you need to do today. I will show you these every day as well, but just incase you want to get them again."),
+            _("*Do I have any to do items that are overdue?*\nThis will show all tasks that should have been completed. Please do those as soon as possible."),
+            _("*Show me all to do items*\nThis will show all tasks"),
+            _("*Show me all resources*\nThis will show all resources.")
+        ]
+
         blocks = [
             {
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": _("Happy to help! Here are all the things you can say to me: \n\n"),
+                    "text": item
                 },
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": "*"
-                    + _("What do I need to do today?")
-                    + "*\n"
-                    + _(
-                        "This will show all the tasks you need to do today. I will show you these every day as well, but just incase you want to get them again."
-                    ),
-                },
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": "*"
-                    + _("Do I have any to do items that are overdue?")
-                    + "*\n"
-                    + _(
-                        "This will show all tasks that should have been completed. Please do those as soon as possible."
-                    ),
-                },
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": "*" + _("Show me all to do items") + "*\n" + _("This will show all tasks"),
-                },
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": "*" + _("Show me all resources") + "*\n" + _("This will show all resources."),
-                },
-            },
+            }
+            for item in messages
         ]
         self.send_message(blocks=blocks)

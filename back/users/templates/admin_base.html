@@ -206,16 +206,34 @@
     {% block js %}
     <script defer src="{% static 'js/tabler.js' %}"></script>
 
+    <!-- scripts for selectbox -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" type="text/javascript"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/js/standalone/selectize.min.js" type="text/javascript"></script>
 
+    <!-- script for htmx -->
     <script src="https://unpkg.com/htmx.org@1.6.1" integrity="sha384-tvG/2mnCFmGQzYC1Oh3qxQ7CkQ9kMzYjWZSNtrRZygHPDDqottzEJsqS4oUVodhW" crossorigin="anonymous"></script>
+
+    <!-- scripts for editor -->
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/nested-list@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/delimiter@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/image@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/attaches@latest"></script>
+
+    <!-- script for datepicker -->
+    <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
     <script>
       document.body.addEventListener('htmx:configRequest', function(event) {
         event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
       })
     </script>
     <script defer>
+      function initSelectize() {
+        $('select:not(.multi-with-add)').selectize()
+        $('.multi-with-add').selectize({ create: true })
+      }
       $(document).ready(function () {
         // Trigger file input when clicking on upload button
         $(".upload-button").each(function (item) {
@@ -223,8 +241,12 @@
             $(this).parent().find("input").click()
           })
         })
-
-        $('select').selectize()
+        if ($("#id_start_day").length) {
+          new Litepicker({
+            element: document.getElementById("id_start_day")
+          });
+        }
+        initSelectize()
 
         $(".file-input").each(function (item) {
           $(this).on('change', function (file) {
@@ -270,10 +292,10 @@
       })
       // reload selectboxes when we get a new form back from backend
       document.getElementById("condition_form").addEventListener('htmx:load', function(evt) {
-        $('select').selectize()
+        initSelectize()
       });
       document.body.addEventListener('htmx:afterOnLoad', function(evt) {
-        $('select').selectize()
+        initSelectize()
       });
       function triggerChange(event){
         const url = event.target.dataset.url
@@ -283,53 +305,41 @@
         }
         htmx.ajax("POST", url, { 'values': prepped_values, 'target': event.target })
       }
-    </script>
-
-
-    <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
-    <script>
-      window.onload = function(){
-        if ($("#id_start_day").length) {
-          new Litepicker({
-            element: document.getElementById("id_start_day")
-          });
-        }
+      function getSignedURL (file) {
+        return $.ajax({
+          url: "/api/org/file",
+          type: 'post',
+          data: {'name': file.name},
+          headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        })
       }
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/nested-list@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/delimiter@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/image@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/attaches@latest"></script>
-
-    <script>
-        function getSignedURL (file) {
-          return $.ajax({
-            url: "/api/org/file",
-            type: 'post',
-            data: {'name': file.name},
-            headers: {'X-CSRFToken': '{{ csrf_token }}'},
-          })
-        }
-        function uploadFile (file, response) {
-          return $.ajax({
-            type: 'PUT',
-            url: response.url,
-            contentType: 'binary/octet-stream',
-            processData: false,
-            data: file
-          })
-        }
+      function uploadFile (file, response) {
+        return $.ajax({
+          type: 'PUT',
+          url: response.url,
+          contentType: 'binary/octet-stream',
+          processData: false,
+          data: file
+        })
+      }
       function initWYSIWYGEditor(){
         const forms = document.querySelectorAll('form')
+        console.log(forms)
         forms.forEach(function(form) {
+          console.log("form")
+          console.log(form)
+          console.log('content_json' in form)
+
           if ('content_json' in form) {
-            const content = JSON.parse(document.getElementById('content_json').textContent)
+            console.log("yup")
+            console.log(document.getElementById('content_json').textContent)
+            let content = JSON.parse(document.getElementById('content_json').textContent)
+            content = JSON.parse(content)
+            console.log(typeof(content))
             form['content_json'].attributes.value.nodeValue = JSON.stringify(content)
+
             const editor = new EditorJS({
+              minHeight: 30,
               autofocus: true,
               holder: 'element',
               data: content,
@@ -393,16 +403,13 @@
           }
         })
       }
-      {% if wysiwyg %}
       window.onload = function(){
         initWYSIWYGEditor()
       }
-      {% endif %}
       htmx.onLoad(function(elt){
-        $('select').selectize()
+        initSelectize()
       })
     </script>
-    {{ wysiwyg|json_script:"content_json" }}
     {% endblock %}
     {% block extra_js %}
     {% endblock %}

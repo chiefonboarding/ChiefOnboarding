@@ -1,3 +1,8 @@
 {% load crispy_forms_tags %}
 {% csrf_token %}
 {% crispy form %}
+
+
+{% if form.instance is not None %}
+{{ form.instance.content_json|json_script:"content_json" }}
+{% endif %}

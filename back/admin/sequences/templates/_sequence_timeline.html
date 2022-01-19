@@ -61,7 +61,13 @@ document.addEventListener("drop", function( event ) {
     const conditionID = droppedPlace.dataset.id
 
     $(".card").css("background-color", "white")
-    htmx.ajax('POST', `/api/sequences/condition/${conditionID}/${type}/${templateId}/`, `#condition-${conditionID}`)
+    if (templateId !== '0') {
+      htmx.ajax('POST', `/api/sequences/condition/${conditionID}/${type}/${templateId}/`, `#condition-${conditionID}`)
+    } else {
+
+      changeTemplate(0, conditionID, type)
+      $('#modal-template-edit').modal('show')
+    }
   }
 }, false);
 

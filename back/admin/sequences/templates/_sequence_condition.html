@@ -11,7 +11,7 @@
     {% endif %}" data-id="{{ condition.id }}">
   <div class="card-header">
     <div class="row d-flex" style="width: 103% !important;">
-      <div class="col-11">
+      <div class="col-10">
         <h4 class="card-title">
           {% if condition.condition_type == 0 %}
             On day {{ condition.days }} at {{ condition.time }}
@@ -32,8 +32,11 @@
         </h4>
       </div>
       {% if not disable_delete %}
-      <div class="col-1">
-        <button class="btn btn-danger btn-sm" hx-delete="{% url 'sequences:condition-delete' object.id condition.id %}" hx-target="closest li" hx-swap="outerHTML">
+      <div class="col-2 text-end">
+        <button class="btn btn-azure btn-sm" onclick="editCondition({{condition.id}})">
+          {% include "_edit_icon.html" %}
+        </button>
+        <button class="btn btn-danger btn-sm" style="margin-right: 4px" hx-delete="{% url 'sequences:condition-delete' object.id condition.id %}" hx-target="closest li" hx-swap="outerHTML">
           <svg xmlns="http://www.w3.org/2000/svg" style="margin: 0 -0.25rem 0 -.25rem" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
             <line x1="18" y1="6" x2="6" y2="18"></line>

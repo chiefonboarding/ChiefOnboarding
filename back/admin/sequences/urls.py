@@ -11,6 +11,7 @@ urlpatterns = [
     path("sequences/<int:pk>/timeline/", views.SequenceTimelineDetailView.as_view(), name="timeline"),
     path("sequences/<int:pk>/update_name/", views.SequenceNameUpdateView.as_view(), name="update_name"),
     path("sequences/<int:pk>/condition/", views.SequenceConditionCreateView.as_view(), name="condition-create"),
+    path("sequences/<int:sequence_pk>/condition/<int:pk>/", views.SequenceConditionUpdateView.as_view(), name="condition-update"),
     path("sequences/condition/<int:pk>/to_do/", views.SequenceConditionToDoUpdateView.as_view(), name="condition-to-do-update"),
     path("sequences/<int:pk>/condition/<int:condition_pk>/delete/", views.SequenceConditionDeleteView.as_view(), name="condition-delete"),
     path("sequences/condition/<int:pk>/<slug:type>/<int:template_pk>/", views.SequenceConditionItemView.as_view(), name="template_condition"),

@@ -33,6 +33,11 @@ urlpatterns = [
         views.SlackAccountCreationSetupView.as_view(),
         name="slack-account",
     ),
+    path(
+        "integrations/asana",
+        views.SlackAccountCreationSetupView.as_view(),
+        name="asana",
+    ),
     path("integrations/slack_bot", views.SlackBotSetupView.as_view(), name="slack-bot"),
     path(
         "integrations/<int:pk>",

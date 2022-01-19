@@ -21,3 +21,6 @@ class Appointment(BaseItem):
 
     def update_url(self):
         return reverse("appointments:update", args=[self.id])
+
+    def delete_url(self):
+        return reverse("appointments:delete", args=[self.id])

@@ -13,7 +13,7 @@ from admin.to_do.models import ToDo
 from slack_bot.slack import Slack
 
 from .emails import send_sequence_message
-from .forms import ConditionCreateForm, ConditionToDoUpdateForm
+from .forms import ConditionCreateForm, ConditionToDoUpdateForm, ConditionUpdateForm
 from .models import Condition, ExternalMessage, PendingAdminTask, Sequence
 from .serializers import (ExternalMessageSerializer,
                           PendingAdminTaskSerializer, SequenceListSerializer,
@@ -96,10 +96,34 @@ class SequenceConditionCreateView(LoginRequiredMixin, AdminPermMixin, CreateView
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["object"] = get_object_or_404(Sequence, pk=self.kwargs.get("pk", -1))
+        context["condition_form"] = context["form"]
+        return context
+
+    # def form_invalid(self, form):
+    #     """If the form is invalid, render the invalid form."""
+    #     return self.render_to_response(self.get_context_data(condition_form=form))
+
+
+class SequenceConditionUpdateView(LoginRequiredMixin, AdminPermMixin, UpdateView):
+    template_name = "_condition_form.html"
+    model = Condition
+    form_class = ConditionUpdateForm
+    # fake page, we don't need to report back
+    success_url = '/health'
+
+    def form_valid(self, form):
+        form.save()
+        return HttpResponse(headers={'HX-Trigger': 'reload-sequence'})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["object"] = get_object_or_404(Sequence, pk=self.kwargs.get("sequence_pk", -1))
+        context["condition_form"] = context["form"]
         return context
 
     def form_invalid(self, form):
         """If the form is invalid, render the invalid form."""
+        print(form.errors)
         return self.render_to_response(self.get_context_data(condition_form=form))
 
 
@@ -127,7 +151,7 @@ class SequenceFormView(LoginRequiredMixin, AdminPermMixin, View):
             raise Http404
 
         template_item = None
-        if template_pk != -1:
+        if template_pk != 0:
             templates_model = get_templates_model(template_type)
             template_item = get_object_or_404(templates_model, id=template_pk)
 
@@ -142,30 +166,33 @@ class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
         if form is None:
             raise Http404
 
-        # Get template item if id was not -1. -1 means that it doesn't exist
+        # Get template item if id was not 0. 0 means that it doesn't exist
         template_item = None
-        if template_pk != -1:
+        if template_pk != 0:
             templates_model = get_templates_model(template_type)
             template_item = get_object_or_404(templates_model, id=template_pk)
 
         # Push instance and data through form and save it
-        item_form = form(instance=template_item, data=request.POST)
+        # Check if original item was template, if so, then create new
+        if template_item.template:
+            item_form = form(request.POST)
+        else:
+            item_form = form(instance=template_item, data=request.POST)
+
         if item_form.is_valid():
-            # Check if original item was template, if so, then create new
-            if item_form.instance.template:
-                item_form.instance = None
-            obj = item_form.save()
+            obj = item_form.save(commit=False)
+            obj.template = False
+            obj.save()
 
             # Check if new item has been created. If it has, then remove the old record and add the new one.
             # If it hasn't created a new object, then the old one is good enough.
             if obj.id != template_pk:
-                condition = get_object_or_404(Condition, id=condition.id)
+                condition = get_object_or_404(Condition, id=condition)
                 condition.remove_item(template_item)
                 condition.add_item(obj)
 
         else:
             # Form has valid, push back form with errors
-            print(item_form.errors)
             return render(request, '_item_form.html', { 'form': item_form })
 
         # Succesfully created/updated item, request sequence reload

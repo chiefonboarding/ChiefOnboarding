@@ -19,7 +19,6 @@ class IntroductionListView(LoginRequiredMixin, AdminPermMixin, ListView):
         context["title"] = "Introduction items"
         context["subtitle"] = "templates"
         context["add_action"] = reverse_lazy("introductions:create")
-        context["wysiwyg"] = []
         return context
 
 
@@ -47,9 +46,7 @@ class IntroductionUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageM
         context = super().get_context_data(**kwargs)
         context["title"] = "Update introduction item"
         context["subtitle"] = "templates"
-        # context["wysiwyg"] = context["introduction"].content_json
         return context
-
 
 class IntroductionDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
     queryset = Introduction.objects.all()

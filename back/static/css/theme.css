@@ -12862,3 +12862,6 @@ Antialiasing
 select {
   display: none !important;
 }
+.form-select {
+  z-index: 10000000;
+}

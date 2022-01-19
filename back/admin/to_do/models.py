@@ -11,17 +11,20 @@ class ToDo(BaseItem):
     content = models.ManyToManyField(Content)
     content_json = models.JSONField(default=dict)
     due_on_day = models.IntegerField(default=0)
-    form = models.JSONField(models.TextField(default="[]"))
+    form = models.JSONField(models.TextField(default="[]"), default=list)
     # Chat bot specific actions
     send_back = models.BooleanField(default=False)
     channel = models.TextField(blank=True)
 
     @property
     def get_icon_template(self):
-        return render_to_string("_admin_task_icon.html")
+        return render_to_string("_todo_icon.html")
 
     def update_url(self):
         return reverse("todo:update", args=[self.id])
+
+    def delete_url(self):
+        return reverse("todo:delete", args=[self.id])
 
     def get_slack_form(self):
         slack_form_items = []

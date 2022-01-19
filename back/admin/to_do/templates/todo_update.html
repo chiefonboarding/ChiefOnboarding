@@ -3,7 +3,7 @@
 
 {% block actions %}
   {% if object %}
-    <form method="POST" action="{% url 'todo:delete' object.id %}">
+    <form method="POST" action="{{ object.delete_url }}">
       {% csrf_token %}
       <button type="submit" class="btn btn-danger">
         Delete
