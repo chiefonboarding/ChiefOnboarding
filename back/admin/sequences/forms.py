@@ -11,9 +11,12 @@ from django.core.exceptions import ValidationError
 from admin.to_do.forms import MultiSelectField
 
 from .models import Condition
+from admin.to_do.models import ToDo
 
 
 class ConditionCreateForm(forms.ModelForm):
+    condition_to_do = forms.ModelMultipleChoiceField(queryset=ToDo.templates.all(), to_field_name="id", required=False)
+
     def _get_save_button(self):
         return '<button hx-post="{% url "sequences:condition-create" object.id %}" hx-target="#condition_form" hx-swap="#add-condition-form" class="btn btn-primary ms-auto">Add block</button>'
 

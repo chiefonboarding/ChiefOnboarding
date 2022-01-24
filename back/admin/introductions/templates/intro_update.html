@@ -1,0 +1,48 @@
+{% extends 'admin_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block actions %}
+  {% if object %}
+    <form method="POST" action="{{ object.delete_url }}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">
+        Delete
+      </button>
+    </form>
+  {% endif %}
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <form method="POST">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-6">
+              {% crispy form %}
+              <div class="form-footer">
+                <button type="submit" class="btn btn-primary">{% if object %}Update{% else %}Create{% endif %}</button>
+              </div>
+            </div>
+            <div class="col-6">
+              <h3>Preview</h3>
+              <div class="update-intro">
+                {% include "_colleague_intro.html" with intro=object %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+$("select#id_intro_person").on('change', function() {
+    const userId = $(this).val()
+    htmx.ajax('GET', `/api/introductions/${userId}/preview/`, `.update-intro`)
+})
+</script>
+
+{% endblock %}

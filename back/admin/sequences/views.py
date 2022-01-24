@@ -97,6 +97,7 @@ class SequenceConditionCreateView(LoginRequiredMixin, AdminPermMixin, CreateView
         context = super().get_context_data(**kwargs)
         context["object"] = get_object_or_404(Sequence, pk=self.kwargs.get("pk", -1))
         context["condition_form"] = context["form"]
+        context["todos"] = ToDo.templates.all()
         return context
 
     # def form_invalid(self, form):

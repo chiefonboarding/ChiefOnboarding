@@ -26,11 +26,7 @@ class IntroductionForm(forms.ModelForm):
                     Field("name"),
                     MultiSelectField("tags"),
                     Field("intro_person"),
-                    css_class="col-6",
-                ),
-                Div(
-                    HTML(render_to_string('_colleague_intro.html', { 'intro': self.instance })),
-                    css_class="col-6",
+                    css_class="col-12",
                 ),
                 css_class="row",
             ),

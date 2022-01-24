@@ -104,6 +104,7 @@ function changeTemplate(item, condition, type) {
 }
 $("select#id_condition_type").on('change', function() {
   // Change things to fill in when condition_type changes
+    console.log("got here")
   if ($(this).val() == 1){
     $("#add-condition-form #div_id_condition_to_do").parent().removeClass("d-none")
     $("#div_id_days").parent().addClass("d-none")
