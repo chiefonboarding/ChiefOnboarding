@@ -4,10 +4,11 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
+from users.mixins import AdminPermMixin, LoginRequiredMixin
+
 from .forms import ResourceForm
 from .models import Resource
 
-from users.mixins import LoginRequiredMixin, AdminPermMixin
 
 class ResourceListView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "templates.html"

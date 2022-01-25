@@ -45,7 +45,9 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=240)),
                 (
                     "type",
-                    models.IntegerField(choices=[(0, "page"), (1, "folder"), (2, "questions")]),
+                    models.IntegerField(
+                        choices=[(0, "page"), (1, "folder"), (2, "questions")]
+                    ),
                 ),
                 ("content", models.ManyToManyField(to="misc.Content")),
                 (

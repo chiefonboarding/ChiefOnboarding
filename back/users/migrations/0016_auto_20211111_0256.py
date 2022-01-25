@@ -19,7 +19,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="user",
             name="appointments",
-            field=models.ManyToManyField(related_name="user_appointments", to="appointments.Appointment"),
+            field=models.ManyToManyField(
+                related_name="user_appointments", to="appointments.Appointment"
+            ),
         ),
         migrations.AlterField(
             model_name="user",
@@ -29,25 +31,33 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="user",
             name="introductions",
-            field=models.ManyToManyField(related_name="user_introductions", to="introductions.Introduction"),
+            field=models.ManyToManyField(
+                related_name="user_introductions", to="introductions.Introduction"
+            ),
         ),
         migrations.AlterField(
             model_name="user",
             name="preboarding",
             field=models.ManyToManyField(
-                related_name="user_preboardings", through="users.PreboardingUser", to="preboarding.Preboarding"
+                related_name="user_preboardings",
+                through="users.PreboardingUser",
+                to="preboarding.Preboarding",
             ),
         ),
         migrations.AlterField(
             model_name="user",
             name="resources",
             field=models.ManyToManyField(
-                related_name="user_resources", through="users.ResourceUser", to="resources.Resource"
+                related_name="user_resources",
+                through="users.ResourceUser",
+                to="resources.Resource",
             ),
         ),
         migrations.AlterField(
             model_name="user",
             name="to_do",
-            field=models.ManyToManyField(related_name="user_todos", through="users.ToDoUser", to="to_do.ToDo"),
+            field=models.ManyToManyField(
+                related_name="user_todos", through="users.ToDoUser", to="to_do.ToDo"
+            ),
         ),
     ]

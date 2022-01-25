@@ -1,18 +1,16 @@
 import pyotp
+import pytz
 from crispy_forms.bootstrap import Tab, TabHolder
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import (ButtonHolder, Column, Div, Field, Fieldset,
-                                 Layout, Row, Submit)
+from crispy_forms.layout import ButtonHolder, Column, Div, Field, Fieldset, Layout, Submit, HTML
 from django import forms
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 
 from admin.to_do.forms import UploadField
 from organization.models import Organization, WelcomeMessage
 
-from django.core.cache import cache
-
-import pytz
 
 class OrganizationGeneralForm(forms.ModelForm):
     timezone = forms.ChoiceField(choices=[(x, x) for x in pytz.common_timezones])
@@ -29,6 +27,10 @@ class OrganizationGeneralForm(forms.ModelForm):
                     Field("new_hire_email"),
                     Field("new_hire_email_reminders"),
                     Field("new_hire_email_overdue_reminders"),
+                    HTML("<h3 class='card-title mt-3'>Login options</h3>"),
+                    Field("credentials_login"),
+                    Field("google_login"),
+                    Field("slack_login"),
                     css_class="col-6",
                 ),
                 Div(
@@ -66,7 +68,24 @@ class OrganizationGeneralForm(forms.ModelForm):
             "send_new_hire_start_reminder",
             "auto_create_user",
             "create_new_hire_without_confirm",
+            "credentials_login",
+            "google_login",
+            "slack_login",
         ]
+        labels = {
+            "slack_login": "Allow users to login with their Slack account",
+            "google_login": "Allow users to login with their Google account",
+            "credentials_login": "Allow users to login with their username and password",
+        }
+
+
+    def clean(self):
+        credentials_login = self.cleaned_data['credentials_login']
+        google_login = self.cleaned_data['google_login']
+        slack_login = self.cleaned_data['slack_login']
+        if not any([credentials_login, google_login, slack_login]):
+            raise ValidationError("You must enable at least one login option")
+        return self.cleaned_data
 
 
 class AdministratorsCreateForm(forms.ModelForm):
@@ -86,7 +105,9 @@ class AdministratorsUpdateForm(forms.ModelForm):
 
     class Meta:
         model = get_user_model()
-        fields = ["role",]
+        fields = [
+            "role",
+        ]
 
 
 class WelcomeMessagesUpdateForm(forms.ModelForm):
@@ -94,10 +115,10 @@ class WelcomeMessagesUpdateForm(forms.ModelForm):
         model = WelcomeMessage
         fields = ["message"]
         widgets = {
-            'message': forms.Textarea,
+            "message": forms.Textarea,
         }
         help_texts = {
-            'message': 'You can use {{ first_name }}, {{ last_name }}, {{ position }}, {{ manager }} and {{ buddy }} above. It will be replaced by the values corresponding to the new hire.'
+            "message": "You can use {{ first_name }}, {{ last_name }}, {{ position }}, {{ manager }} and {{ buddy }} above. It will be replaced by the values corresponding to the new hire."
         }
 
 
@@ -118,7 +139,9 @@ class OTPVerificationForm(forms.Form):
         valid = totp.verify(otp)
         # Check if token is correct and block replay attacks
         if not valid and cache.get(f"{self.user.email}_totp_passed") is None:
-            raise ValidationError("OTP token was not correct. Please wait 30 seconds and then try again")
+            raise ValidationError(
+                "OTP token was not correct. Please wait 30 seconds and then try again"
+            )
 
-        cache.set(f"{self.user.email}_totp_passed", 'true', 30)
+        cache.set(f"{self.user.email}_totp_passed", "true", 30)
         return otp

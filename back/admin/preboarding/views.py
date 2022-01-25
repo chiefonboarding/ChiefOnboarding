@@ -4,10 +4,11 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
+from users.mixins import AdminPermMixin, LoginRequiredMixin
+
 from .forms import PreboardingForm
 from .models import Preboarding
 
-from users.mixins import LoginRequiredMixin, AdminPermMixin
 
 class PreboardingListView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "templates.html"
@@ -23,7 +24,9 @@ class PreboardingListView(LoginRequiredMixin, AdminPermMixin, ListView):
         return context
 
 
-class PreboardingCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView):
+class PreboardingCreateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
+):
     template_name = "todo_update.html"
     form_class = PreboardingForm
     success_url = reverse_lazy("preboarding:list")
@@ -36,7 +39,9 @@ class PreboardingCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMi
         return context
 
 
-class PreboardingUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
+class PreboardingUpdateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "todo_update.html"
     form_class = PreboardingForm
     success_url = reverse_lazy("preboarding:list")

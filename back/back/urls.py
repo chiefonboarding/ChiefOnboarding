@@ -1,4 +1,5 @@
 from django.urls import include, path
+from django.views.generic.base import TemplateView
 
 from admin.admin_tasks import urls as admin_tasks_urls
 from admin.appointments import urls as appointment_urls
@@ -18,7 +19,6 @@ from organization import views
 from slack_bot import urls as slack_urls
 from user_auth import urls as auth_urls
 from users import urls as user_urls
-from django.views.generic.base import TemplateView
 
 urlpatterns = [
     path(

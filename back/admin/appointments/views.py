@@ -4,10 +4,11 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
+from users.mixins import AdminPermMixin, LoginRequiredMixin
+
 from .forms import AppointmentForm
 from .models import Appointment
 
-from users.mixins import LoginRequiredMixin, AdminPermMixin
 
 class AppointmentListView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "templates.html"
@@ -23,7 +24,9 @@ class AppointmentListView(LoginRequiredMixin, AdminPermMixin, ListView):
         return context
 
 
-class AppointmentCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView):
+class AppointmentCreateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
+):
     template_name = "todo_update.html"
     form_class = AppointmentForm
     success_url = reverse_lazy("appointments:list")
@@ -36,7 +39,9 @@ class AppointmentCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMi
         return context
 
 
-class AppointmentUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
+class AppointmentUpdateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "todo_update.html"
     form_class = AppointmentForm
     success_url = reverse_lazy("appointments:list")

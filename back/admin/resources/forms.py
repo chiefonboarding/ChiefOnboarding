@@ -1,14 +1,10 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import (
-    Div,
-    Field,
-    Layout,
-)
+from crispy_forms.layout import Div, Field, Layout
 from crispy_forms.utils import TEMPLATE_PACK
 from django import forms
 
+from admin.to_do.forms import MultiSelectField, WYSIWYGField
 from organization.models import Tag
-from admin.to_do.forms import WYSIWYGField, MultiSelectField
 
 from .models import Resource
 

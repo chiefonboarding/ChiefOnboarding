@@ -1,12 +1,11 @@
-from django.db import router
 from django.apps import apps
-from django.db import migrations
+from django.db import migrations, router
 
 
 # Credits: https://stackoverflow.com/a/62899691
 class RunPythonWithArguments(migrations.RunPython):
     def __init__(self, *args, **kwargs):
-        self.context = kwargs.pop('context', {})
+        self.context = kwargs.pop("context", {})
         super().__init__(*args, **kwargs)
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
@@ -16,7 +15,7 @@ class RunPythonWithArguments(migrations.RunPython):
 
 
 def migrate_wysiwyg_field(apps, schema_context, **context):
-    Model = apps.get_model(context['app'], context['model'])
+    Model = apps.get_model(context["app"], context["model"])
     for item in Model.objects.all():
         new_json = []
         for block in item.content.all():
@@ -24,10 +23,19 @@ def migrate_wysiwyg_field(apps, schema_context, **context):
                 new_json.append({"type": "paragraph", "data": {"text": block.content}})
             if block.type in ["h1", "h2", "h3"]:
                 level = int(block.type.replace("h", ""))
-                new_json.append({"type": "header", "data": {"text": block.content, "level": level}})
+                new_json.append(
+                    {"type": "header", "data": {"text": block.content, "level": level}}
+                )
             if block.type == "quote":
                 new_json.append(
-                    {"type": block.type, "data": {"text": block.content, "caption": "", "alignment": "left"}}
+                    {
+                        "type": block.type,
+                        "data": {
+                            "text": block.content,
+                            "caption": "",
+                            "alignment": "left",
+                        },
+                    }
                 )
             if block.type == "youtube":
                 new_json.append(

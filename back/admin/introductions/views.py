@@ -1,15 +1,16 @@
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
-from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
+
+from users.mixins import AdminPermMixin, LoginRequiredMixin
+from users.models import User
 
 from .forms import IntroductionForm
 from .models import Introduction
 
-from users.mixins import LoginRequiredMixin, AdminPermMixin
-from users.models import User
 
 class IntroductionListView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "templates.html"
@@ -24,7 +25,9 @@ class IntroductionListView(LoginRequiredMixin, AdminPermMixin, ListView):
         return context
 
 
-class IntroductionCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView):
+class IntroductionCreateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
+):
     template_name = "todo_update.html"
     form_class = IntroductionForm
     success_url = reverse_lazy("introductions:list")
@@ -43,11 +46,13 @@ class IntroductionColleaguePreviewView(LoginRequiredMixin, AdminPermMixin, Detai
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['intro_person'] = context['object']
+        context["intro_person"] = context["object"]
         return context
 
 
-class IntroductionUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
+class IntroductionUpdateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "intro_update.html"
     form_class = IntroductionForm
     success_url = reverse_lazy("introductions:list")

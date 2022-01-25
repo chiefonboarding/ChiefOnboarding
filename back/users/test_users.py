@@ -1,10 +1,11 @@
-import pytest
-from freezegun import freeze_time
 import datetime
 
-from .models import User
+import pytest
+from freezegun import freeze_time
 
 from .factories import *
+from .models import User
+
 
 @pytest.mark.django_db
 def test_user_create(new_hire_factory, admin_factory, employee_factory, manager_factory):
@@ -27,6 +28,7 @@ def test_user_create(new_hire_factory, admin_factory, employee_factory, manager_
     assert manager.is_admin_or_manager
     assert not new_hire.is_admin_or_manager
     assert not employee.is_admin_or_manager
+
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
@@ -76,15 +78,20 @@ def test_days_before_starting(date, daybefore, new_hire_factory):
 @pytest.mark.django_db
 def test_personalize(manager_factory, new_hire_factory):
     manager = manager_factory(first_name="jane", last_name="smith")
-    new_hire = new_hire_factory(first_name="john", last_name="smith", manager=manager, position="developer")
+    new_hire = new_hire_factory(
+        first_name="john", last_name="smith", manager=manager, position="developer"
+    )
 
-    text = 'Hello {{ first_name }} {{ last_name }}, your manager is {{ manager }} and you will be our {{ position }}'
-    text_without_spaces = 'Hello {{first_name}} {{last_name}}, your manager is {{manager}} and you will be our {{position}}'
+    text = "Hello {{ first_name }} {{ last_name }}, your manager is {{ manager }} and you will be our {{ position }}"
+    text_without_spaces = "Hello {{first_name}} {{last_name}}, your manager is {{manager}} and you will be our {{position}}"
 
-    expected_output = 'Hello john smith, your manager is jane smith and you will be our developer'
+    expected_output = (
+        "Hello john smith, your manager is jane smith and you will be our developer"
+    )
 
     assert new_hire.personalize(text) == expected_output
     assert new_hire.personalize(text_without_spaces) == expected_output
+
 
 # @pytest.mark.django_db
 # def test_resource_user(resource):

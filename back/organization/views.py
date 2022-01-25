@@ -30,18 +30,20 @@ class FileView(APIView):
         f.key = key
         f.save()
         # Specifics based on Editor.js expectations
-        return Response({
-            "success": 1,
-            "file": {
-                "url": S3().get_presigned_url(key),
-                "id": f.id,
-                "name": f.name,
-                "ext": f.ext,
-                "get_url": f.get_url(),
-                "size": None,
-                "title": f.name
+        return Response(
+            {
+                "success": 1,
+                "file": {
+                    "url": S3().get_presigned_url(key),
+                    "id": f.id,
+                    "name": f.name,
+                    "ext": f.ext,
+                    "get_url": f.get_url(),
+                    "size": None,
+                    "title": f.name,
+                },
             }
-        })
+        )
 
     def put(self, request, id):
         file = get_object_or_404(File, pk=id)

@@ -1,21 +1,19 @@
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
+from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
-from django.urls import reverse_lazy
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from django.views.generic.base import TemplateView, RedirectView
 from rest_framework.response import Response
 
 from users import permissions
-
-from .forms import AdminTaskCommentForm, AdminTaskUpdateForm, AdminTaskCreateForm
-from .models import AdminTask, AdminTaskComment
-from .serializers import (AdminTaskSerializer, CommentPostSerializer,
-                          CommentSerializer)
 from users.mixins import LoginRequiredMixin, ManagerPermMixin
+
+from .forms import AdminTaskCommentForm, AdminTaskCreateForm, AdminTaskUpdateForm
+from .models import AdminTask, AdminTaskComment
+from .serializers import AdminTaskSerializer, CommentPostSerializer, CommentSerializer
 
 
 class MyAdminTasksListView(LoginRequiredMixin, ManagerPermMixin, ListView):
@@ -60,7 +58,9 @@ class AdminTaskToggleDoneView(LoginRequiredMixin, ManagerPermMixin, RedirectView
         return super().get(request, *args, **kwargs)
 
 
-class AdminTasksUpdateView(LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, UpdateView):
+class AdminTasksUpdateView(
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "admin_tasks_detail.html"
     form_class = AdminTaskUpdateForm
     model = AdminTask
@@ -79,7 +79,9 @@ class AdminTasksUpdateView(LoginRequiredMixin, ManagerPermMixin, SuccessMessageM
         return context
 
 
-class AdminTasksCreateView(LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, CreateView):
+class AdminTasksCreateView(
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, CreateView
+):
     template_name = "admin_tasks_create.html"
     form_class = AdminTaskCreateForm
     model = AdminTask
@@ -90,8 +92,8 @@ class AdminTasksCreateView(LoginRequiredMixin, ManagerPermMixin, SuccessMessageM
         self.object = form.save()
         AdminTaskComment.objects.create(
             admin_task=self.object,
-            content=form.cleaned_data['comment'],
-            comment_by=self.request.user
+            content=form.cleaned_data["comment"],
+            comment_by=self.request.user,
         )
         return super().form_valid(form)
 
@@ -102,7 +104,9 @@ class AdminTasksCreateView(LoginRequiredMixin, ManagerPermMixin, SuccessMessageM
         return context
 
 
-class AdminTasksCommentCreateView(LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, CreateView):
+class AdminTasksCommentCreateView(
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, CreateView
+):
     template_name = "admin_tasks_detail.html"
     model = AdminTaskComment
     fields = [
@@ -123,7 +127,11 @@ class AdminTasksCommentCreateView(LoginRequiredMixin, ManagerPermMixin, SuccessM
 
 class AdminTaskViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.ManagerPermission,)
-    queryset = AdminTask.objects.all().select_related("new_hire", "assigned_to").prefetch_related("comment")
+    queryset = (
+        AdminTask.objects.all()
+        .select_related("new_hire", "assigned_to")
+        .prefetch_related("comment")
+    )
     serializer_class = AdminTaskSerializer
 
     def create(self, request):
@@ -152,5 +160,3 @@ class AdminTaskViewSet(viewsets.ModelViewSet):
 
         self.perform_update(serializer)
         return Response(serializer.data)
-
-

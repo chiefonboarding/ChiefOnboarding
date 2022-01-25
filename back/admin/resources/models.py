@@ -1,7 +1,7 @@
 from django.db import models
-from django.urls import reverse
 from django.db.models import Prefetch
 from django.template.loader import render_to_string
+from django.urls import reverse
 
 from misc.models import Content
 from organization.models import BaseItem
@@ -53,7 +53,9 @@ class Resource(BaseItem):
 class Chapter(models.Model):
     CHAPTER_TYPE = ((0, "page"), (1, "folder"), (2, "questions"))
     parent_chapter = models.ForeignKey("self", on_delete=models.CASCADE, null=True)
-    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="chapters", null=True)
+    resource = models.ForeignKey(
+        Resource, on_delete=models.CASCADE, related_name="chapters", null=True
+    )
     name = models.CharField(max_length=240)
     content = models.ManyToManyField(Content)
     type = models.IntegerField(choices=CHAPTER_TYPE)

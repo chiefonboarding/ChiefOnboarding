@@ -11,12 +11,15 @@ from slack_bot.slack import Slack
 from users.models import ToDoUser
 
 
-def link_slack_users():
+def link_slack_users(users=[]):
     if not AccessToken.objects.filter(integration=0).exists():
         return
     s = Slack()
 
-    for user in get_user_model().objects.filter(slack_user_id__isnull=True, role=0):
+    if len(users) == 0:
+        users = get_user_model().new_hires.filter(slack_user_id="")
+
+    for user in users:
         response = s.find_by_email(email=user.email.lower())
         if response:
             translation.activate(user.language)
@@ -29,7 +32,9 @@ def link_slack_users():
                     "text": {
                         "type": "mrkdwn",
                         "text": s.personalize(
-                            WelcomeMessage.objects.get(language=user.language, message_type=3).message
+                            WelcomeMessage.objects.get(
+                                language=user.language, message_type=3
+                            ).message
                         ),
                     },
                 }
@@ -75,9 +80,9 @@ def link_slack_users():
             user.slack_channel_id = res["channel"]
             user.save()
             # send user to do items for that day (and perhaps over due ones)
-            tasks = ToDoUser.objects.filter(user=user, completed=False, to_do__due_on_day__lte=user.workday()).exclude(
-                to_do__due_on_day=0
-            )
+            tasks = ToDoUser.objects.filter(
+                user=user, completed=False, to_do__due_on_day__lte=user.workday()
+            ).exclude(to_do__due_on_day=0)
 
             if tasks.exists():
                 blocks = s.format_to_do_block(
@@ -94,27 +99,42 @@ def update_new_hire():
         return
     s = Slack()
 
-    for user in get_user_model().objects.filter(slack_user_id__isnull=False, role=0):
+    for user in get_user_model().new_hires.exclude(slack_user_id=""):
         local_datetime = user.get_local_time()
-        if local_datetime.hour == 8 and local_datetime.weekday() < 5 and local_datetime.date() >= user.start_day:
+        if (
+            local_datetime.hour == 8
+            and local_datetime.weekday() < 5
+            and local_datetime.date() >= user.start_day
+        ):
             s.set_user(user)
             translation.activate(user.language)
+
             # overdue items
-            tasks = ToDoUser.objects.filter(user=user, completed=False, to_do__due_on_day__lt=user.workday()).exclude(
-                to_do__due_on_day=0
-            )
+            tasks = ToDoUser.objects.filter(
+                user=user, completed=False, to_do__due_on_day__lt=user.workday()
+            ).exclude(to_do__due_on_day=0)
             if tasks.exists():
+                # If any overdue tasks exist, then notify the user
                 blocks = s.format_to_do_block(
-                    pre_message=_("Some to do items are overdue. Please complete those as " "soon as possible!"),
+                    pre_message=_(
+                        "Some to do items are overdue. Please complete those as "
+                        "soon as possible!"
+                    ),
                     items=tasks,
                 )
                 s.send_message(blocks=blocks)
 
             # to do items for today
-            tasks = ToDoUser.objects.filter(user=user, completed=False, to_do__due_on_day=user.workday())
+            tasks = ToDoUser.objects.filter(
+                user=user, completed=False, to_do__due_on_day=user.workday()
+            )
+
             if tasks.exists():
+                # If any tasks exist that are due today, then notify the user
                 blocks = s.format_to_do_block(
-                    pre_message=_("Good morning! These are the tasks you need to complete " "today:"),
+                    pre_message=_(
+                        "Good morning! These are the tasks you need to complete today:"
+                    ),
                     items=tasks,
                 )
                 s.send_message(blocks=blocks)
@@ -123,16 +143,27 @@ def update_new_hire():
 
 def first_day_reminder():
     org = Organization.object.get()
-    if not AccessToken.objects.filter(integration=0).exists() or not org.send_new_hire_start_reminder:
+    if (
+        not AccessToken.objects.filter(integration=0).exists()
+        or not org.send_new_hire_start_reminder
+    ):
         return
     translation.activate(org.language)
-    user = get_user_model().objects.filter(role=1).first()
-    us_state = user.get_local_time()
-    new_hires_starting_today = get_user_model().objects.filter(start_day=datetime.now().date(), role=0)
-    if us_state.hour == 8 and org.send_new_hire_start_reminder and new_hires_starting_today.exists():
+    user = get_user_model().admins.first()
+    local_time_date = user.get_local_time()
+    new_hires_starting_today = get_user_model().new_hires.filter(
+        start_day=datetime.now().date()
+    )
+    if (
+        local_time_date.hour == 8
+        and org.send_new_hire_start_reminder
+        and new_hires_starting_today.exists()
+    ):
         text = ""
         if new_hires_starting_today.count() == 1:
-            text = _("Just a quick reminder: It's ") + user.full_name + _("'s first day today!")
+            text = (
+                _("Just a quick reminder: It's ") + user.full_name + _("'s first day today!")
+            )
         else:
             for i in new_hires_starting_today:
                 text += i.get_full_name() + ", "
@@ -148,17 +179,22 @@ def first_day_reminder():
 
 def introduce_new_people():
     org = Organization.object.get()
-    if not AccessToken.objects.filter(integration=0).exists() or not org.ask_colleague_welcome_message:
+    if (
+        not AccessToken.objects.filter(integration=0).exists()
+        or not org.ask_colleague_welcome_message
+    ):
         return
     s = Slack()
     translation.activate(org.language)
-    new_hires = get_user_model().objects.filter(
-        is_introduced_to_colleagues=False, role=0, start_day__gt=datetime.now().date()
+    new_hires = get_user_model().new_hires.filter(
+        is_introduced_to_colleagues=False, start_day__gt=datetime.now().date()
     )
     if new_hires.exists():
         blocks = []
         if new_hires.count() > 1:
-            text = _("We got some new hires coming in soon! Make sure to leave a welcome message for them!")
+            text = _(
+                "We got some new hires coming in soon! Make sure to leave a welcome message for them!"
+            )
         else:
             text = (
                 _("We have a new hire coming in soon! Make sure to leave a message for ")
@@ -168,9 +204,9 @@ def introduce_new_people():
         blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": text}})
 
         for new_hire in new_hires:
-            message = "*" + new_hire.full_name() + "*"
+            message = f"*{new_hire.full_name}*"
             if new_hire.message != "":
-                message += "\n_" + new_hire.message + "_"
+                message += f"\n_{new_hire.message}_"
             block = {"type": "section", "text": {"type": "mrkdwn", "text": message}}
             if new_hire.profile_image:
                 block["accessory"] = {
@@ -180,9 +216,9 @@ def introduce_new_people():
                 }
             blocks.append(block)
             footer_extra = ""
-            if new_hire.position is not None and new_hire.position != "":
+            if new_hire.position != "":
                 footer_extra = _(" and is our new ") + new_hire.position
-            context = new_hire.first_name + _(" starts on ") + localize(new_hire.start_day) + footer_extra + "."
+            context = f"{new_hire.first_name} starts on {localize(new_hire.start_day)} {footer_extra}."
             blocks.append(
                 {
                     "type": "context",
@@ -207,3 +243,4 @@ def introduce_new_people():
             new_hire.is_introduced_to_colleagues = True
             new_hire.save()
         s.send_message(channel="#general", blocks=blocks)
+

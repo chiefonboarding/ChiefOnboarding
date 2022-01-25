@@ -34,7 +34,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="accesstoken",
             name="bot_token",
-            field=fernet_fields.fields.EncryptedTextField(blank=True, default="", max_length=10000),
+            field=fernet_fields.fields.EncryptedTextField(
+                blank=True, default="", max_length=10000
+            ),
         ),
         migrations.AlterField(
             model_name="accesstoken",
@@ -59,7 +61,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="accesstoken",
             name="refresh_token",
-            field=fernet_fields.fields.EncryptedTextField(blank=True, default="", max_length=10000),
+            field=fernet_fields.fields.EncryptedTextField(
+                blank=True, default="", max_length=10000
+            ),
         ),
         migrations.AlterField(
             model_name="accesstoken",
@@ -69,7 +73,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="accesstoken",
             name="token",
-            field=fernet_fields.fields.EncryptedTextField(blank=True, default="", max_length=10000),
+            field=fernet_fields.fields.EncryptedTextField(
+                blank=True, default="", max_length=10000
+            ),
         ),
         migrations.AlterField(
             model_name="accesstoken",

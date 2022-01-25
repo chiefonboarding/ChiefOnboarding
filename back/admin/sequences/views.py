@@ -1,26 +1,21 @@
 from django.contrib import messages
-from django.shortcuts import get_object_or_404
-from django.shortcuts import render
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
+from django.views.generic import View
+from django.views.generic.base import RedirectView
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.views.generic.list import ListView
 
 from admin.integrations.models import AccessToken
+from admin.people.utils import get_model_form, get_templates_model, get_user_field
 from admin.to_do.models import ToDo
+from users.mixins import AdminPermMixin, LoginRequiredMixin
 
 from .emails import send_sequence_message
 from .forms import ConditionCreateForm, ConditionToDoUpdateForm, ConditionUpdateForm
 from .models import Condition, ExternalMessage, PendingAdminTask, Sequence
-from admin.people.utils import get_templates_model, get_user_field, get_model_form
-
-from django.views.generic.list import ListView
-from django.views.generic.edit import UpdateView, DeleteView, CreateView
-from django.views.generic.detail import DetailView
-from django.views.generic.base import RedirectView
-from django.views.generic import View
-
-from django.http import HttpResponse
-from django.http import Http404
-
-from users.mixins import LoginRequiredMixin, AdminPermMixin
 
 
 class SequenceListView(LoginRequiredMixin, AdminPermMixin, ListView):
@@ -66,9 +61,11 @@ class SequenceView(LoginRequiredMixin, AdminPermMixin, DetailView):
 class SequenceNameUpdateView(LoginRequiredMixin, AdminPermMixin, UpdateView):
     template_name = "_sequence_templates_list.html"
     model = Sequence
-    fields = ['name',]
+    fields = [
+        "name",
+    ]
     # fake page, we don't need to report back
-    success_url = '/health'
+    success_url = "/health"
 
 
 class SequenceConditionCreateView(LoginRequiredMixin, AdminPermMixin, CreateView):
@@ -76,14 +73,14 @@ class SequenceConditionCreateView(LoginRequiredMixin, AdminPermMixin, CreateView
     model = Condition
     form_class = ConditionCreateForm
     # fake page, we don't need to report back
-    success_url = '/health'
+    success_url = "/health"
 
     def form_valid(self, form):
         # add condition to sequence
         sequence = get_object_or_404(Sequence, pk=self.kwargs.get("pk", -1))
         form.instance.sequence = sequence
         form.save()
-        return HttpResponse(headers={'HX-Trigger': 'reload-sequence'})
+        return HttpResponse(headers={"HX-Trigger": "reload-sequence"})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -92,22 +89,24 @@ class SequenceConditionCreateView(LoginRequiredMixin, AdminPermMixin, CreateView
         context["todos"] = ToDo.templates.all()
         return context
 
+
 class SequenceConditionUpdateView(LoginRequiredMixin, AdminPermMixin, UpdateView):
     template_name = "_condition_form.html"
     model = Condition
     form_class = ConditionUpdateForm
     # fake page, we don't need to report back
-    success_url = '/health'
+    success_url = "/health"
 
     def form_valid(self, form):
         form.save()
-        return HttpResponse(headers={'HX-Trigger': 'reload-sequence'})
+        return HttpResponse(headers={"HX-Trigger": "reload-sequence"})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["object"] = get_object_or_404(Sequence, pk=self.kwargs.get("sequence_pk", -1))
         context["condition_form"] = context["form"]
         return context
+
 
 class SequenceTimelineDetailView(LoginRequiredMixin, AdminPermMixin, DetailView):
     template_name = "_sequence_timeline.html"
@@ -125,7 +124,6 @@ class SequenceTimelineDetailView(LoginRequiredMixin, AdminPermMixin, DetailView)
 
 
 class SequenceFormView(LoginRequiredMixin, AdminPermMixin, View):
-
     def get(self, request, template_type, template_pk, *args, **kwargs):
 
         form = get_model_form(template_type)
@@ -137,7 +135,7 @@ class SequenceFormView(LoginRequiredMixin, AdminPermMixin, View):
             templates_model = get_templates_model(template_type)
             template_item = get_object_or_404(templates_model, id=template_pk)
 
-        return render(request, '_item_form.html', { 'form': form(instance=template_item) })
+        return render(request, "_item_form.html", {"form": form(instance=template_item)})
 
 
 class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
@@ -175,13 +173,13 @@ class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
 
         else:
             # Form has valid, push back form with errors
-            return render(request, '_item_form.html', { 'form': item_form })
+            return render(request, "_item_form.html", {"form": item_form})
 
         # Succesfully created/updated item, request sequence reload
-        return HttpResponse(headers={'HX-Trigger': 'reload-sequence'})
+        return HttpResponse(headers={"HX-Trigger": "reload-sequence"})
+
 
 class SequenceConditionItemView(LoginRequiredMixin, AdminPermMixin, View):
-
     def delete(self, request, pk, type, template_pk, *args, **kwargs):
         condition = get_object_or_404(Condition, id=pk)
         templates_model = get_templates_model(type)
@@ -195,7 +193,11 @@ class SequenceConditionItemView(LoginRequiredMixin, AdminPermMixin, View):
         template_item = get_object_or_404(templates_model, id=template_pk)
         condition.add_item(template_item)
         todos = ToDo.templates.all()
-        return render(request, '_sequence_condition.html', { 'condition': condition, 'object': condition.sequence, 'todos': todos })
+        return render(
+            request,
+            "_sequence_condition.html",
+            {"condition": condition, "object": condition.sequence, "todos": todos},
+        )
 
 
 class SequenceConditionToDoUpdateView(LoginRequiredMixin, AdminPermMixin, UpdateView):
@@ -216,7 +218,6 @@ class SequenceConditionToDoUpdateView(LoginRequiredMixin, AdminPermMixin, Update
 
 
 class SequenceConditionDeleteView(LoginRequiredMixin, AdminPermMixin, View):
-
     def delete(self, request, pk, condition_pk, *args, **kwargs):
         sequence = get_object_or_404(Sequence, id=pk)
         condition = get_object_or_404(Condition, id=condition_pk, sequence=sequence)
@@ -241,14 +242,12 @@ class SequenceDefaultTemplatesView(LoginRequiredMixin, AdminPermMixin, ListView)
 
     def get_queryset(self):
         template_type = self.request.GET.get("type", "")
-        if template_type == 'account_provision':
+        if template_type == "account_provision":
             return AccessToken.objects.filter(active=True)
-
 
         if get_templates_model(template_type) is None:
             # if type does not exist, then return None
             return Sequence.objects.none()
-
 
         templates_model = get_templates_model(template_type)
         return templates_model.templates.all()

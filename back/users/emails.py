@@ -19,7 +19,9 @@ def email_new_admin_cred(user, password):
     content = [
         {
             "type": "p",
-            "text": _("Someone in your organisation invited you to join ChiefOnboarding. Here are your login details:"),
+            "text": _(
+                "Someone in your organisation invited you to join ChiefOnboarding. Here are your login details:"
+            ),
         },
         {
             "type": "block",
@@ -59,11 +61,18 @@ def email_reopen_task(task, message, user):
     content = [
         {
             "type": "p",
-            "text": "Hi " + user.first_name + ", " + _("we have just reopened this task.") + message,
+            "text": "Hi "
+            + user.first_name
+            + ", "
+            + _("we have just reopened this task.")
+            + message,
         },
         {
             "type": "block",
-            "text": "<strong>" + task.to_do.name + "</strong> <br />" + _("Go to your dashboard to complete it."),
+            "text": "<strong>"
+            + task.to_do.name
+            + "</strong> <br />"
+            + _("Go to your dashboard to complete it."),
         },
         {"type": "button", "text": "Dashboard", "url": settings.BASE_URL},
     ]
@@ -84,11 +93,17 @@ def send_reminder_email(task):
     content = [
         {
             "type": "p",
-            "text": "Hi " + task.user.first_name + ", " + _("Here is a quick reminder of the following task:"),
+            "text": "Hi "
+            + task.user.first_name
+            + ", "
+            + _("Here is a quick reminder of the following task:"),
         },
         {
             "type": "block",
-            "text": "<strong>" + task.to_do.name + "</strong> <br />" + _("Go to your dashboard to complete it."),
+            "text": "<strong>"
+            + task.to_do.name
+            + "</strong> <br />"
+            + _("Go to your dashboard to complete it."),
         },
         {"type": "button", "text": "Dashboard", "url": settings.BASE_URL},
     ]
@@ -114,7 +129,10 @@ def send_new_hire_cred(new_hire, message):
         {"type": "p", "text": message},
         {
             "type": "block",
-            "text": "<strong>Username: " + new_hire.email + "</strong> <br /><strong>Password: </strong>" + password,
+            "text": "<strong>Username: "
+            + new_hire.email
+            + "</strong> <br /><strong>Password: </strong>"
+            + password,
         },
         {"type": "button", "text": "Dashboard", "url": settings.BASE_URL},
     ]

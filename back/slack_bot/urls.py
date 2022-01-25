@@ -1,12 +1,8 @@
-from django.urls import include, path
-from rest_framework import routers
+from django.urls import path
 
 from . import views
-
-router = routers.DefaultRouter(trailing_slash=False)
 
 urlpatterns = [
     path("bot", views.BotView.as_view()),
     path("callback", views.CallbackView.as_view()),
-    path("channels", views.SlackChannelsView.as_view()),
 ]

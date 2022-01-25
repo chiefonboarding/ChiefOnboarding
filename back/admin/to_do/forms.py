@@ -1,9 +1,5 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import (
-    Div,
-    Field,
-    Layout,
-)
+from crispy_forms.layout import Div, Field, Layout
 from crispy_forms.utils import TEMPLATE_PACK
 from django import forms
 
@@ -30,15 +26,31 @@ class UploadField(Field):
         self.extra_context = kwargs.pop("extra_context", self.extra_context)
         super().__init__(*args, **kwargs)
 
-    def render(self, form, form_style, context, template_pack=TEMPLATE_PACK, extra_context=None, **kwargs):
+    def render(
+        self,
+        form,
+        form_style,
+        context,
+        template_pack=TEMPLATE_PACK,
+        extra_context=None,
+        **kwargs
+    ):
         if self.extra_context:
-            extra_context = extra_context.update(self.extra_context) if extra_context else self.extra_context
-        return super().render(form, form_style, context, template_pack, extra_context, **kwargs)
+            extra_context = (
+                extra_context.update(self.extra_context)
+                if extra_context
+                else self.extra_context
+            )
+        return super().render(
+            form, form_style, context, template_pack, extra_context, **kwargs
+        )
 
 
 class ToDoForm(forms.ModelForm):
     content_json = WYSIWYGField(label="content")
-    tags = forms.ModelMultipleChoiceField(queryset=Tag.objects.all(), to_field_name="name", required=False)
+    tags = forms.ModelMultipleChoiceField(
+        queryset=Tag.objects.all(), to_field_name="name", required=False
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -56,12 +68,11 @@ class ToDoForm(forms.ModelForm):
                     WYSIWYGField("content_json"),
                     Field("send_back"),
                     Field("channel"),
-                    css_class="col-8"
+                    css_class="col-8",
                 ),
                 css_class="row",
             ),
         )
-
 
     class Meta:
         model = ToDo

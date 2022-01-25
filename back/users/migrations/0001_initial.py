@@ -288,17 +288,23 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="user",
             name="preboarding",
-            field=models.ManyToManyField(through="users.PreboardingUser", to="preboarding.Preboarding"),
+            field=models.ManyToManyField(
+                through="users.PreboardingUser", to="preboarding.Preboarding"
+            ),
         ),
         migrations.AddField(
             model_name="user",
             name="profile_image",
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to="misc.File"),
+            field=models.ForeignKey(
+                null=True, on_delete=django.db.models.deletion.CASCADE, to="misc.File"
+            ),
         ),
         migrations.AddField(
             model_name="user",
             name="resources",
-            field=models.ManyToManyField(through="users.ResourceUser", to="resources.Resource"),
+            field=models.ManyToManyField(
+                through="users.ResourceUser", to="resources.Resource"
+            ),
         ),
         migrations.AddField(
             model_name="user",

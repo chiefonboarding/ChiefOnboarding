@@ -6,20 +6,29 @@
   <a href="."><img src="./static/logo.svg" height="36" alt=""></a>
 </div>
 <form class="card card-md" method="post">
-  {% csrf_token %}
-  <div class="card-body">
-    <div class="mb-2">
-      {{ form|crispy }}
-    </div>
-    <div class="form-footer">
-      <button type="submit" class="btn btn-primary w-100">Log in</button>
-    </div>
+  {% for message in messages %}
+  <div class="alert alert-success">
+    <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
   </div>
+  {% endfor %}
+  {% if organization.credentials_login %}
+    {% csrf_token %}
+    <div class="card-body">
+      <div class="mb-2">
+        {{ form|crispy }}
+      </div>
+      <div class="form-footer">
+        <button type="submit" class="btn btn-primary w-100">Log in</button>
+      </div>
+    </div>
+  {% endif %}
+  {% if organization.credentials_login and organization.google_login %}
   <div class="hr-text">or</div>
+  {% endif %}
+  {% if organization.google_login %}
   <div class="card-body">
     <div class="row">
-      <div class="col"><a href="#" class="btn btn-white w-100">
-          <!-- Download SVG icon from http://tabler-icons.io/i/brand-github -->
+      <div class="col"><a href="https://accounts.google.com/o/oauth2/auth?protocol=oauth2&response_type=code&client_id={{ google_login.client_id }}&redirect_uri={{ base_url }}/api/auth/google_login&scope=email" class="btn btn-white w-100">
           <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-google" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
             <path d="M17.788 5.108a9 9 0 1 0 3.212 6.892h-8"/>
@@ -28,8 +37,11 @@
         </a></div>
     </div>
   </div>
+  {% endif %}
 </form>
+{% if organization.credentials_login %}
 <div class="text-center text-muted mt-3">
   <a href="{% url 'password-reset' %}" tabindex="-1">Forgot password?</a>
 </div>
+{% endif %}
 {% endblock %}

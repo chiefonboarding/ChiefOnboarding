@@ -47,7 +47,9 @@ class ExternalMessageSerializer(serializers.ModelSerializer):
 
 class PendingAdminTaskSerializer(serializers.ModelSerializer):
     assigned_to = SeqEmployeeSerializer(read_only=True)
-    assigned_to_id = serializers.PrimaryKeyRelatedField(source="assigned_to", queryset=get_user_model().objects.all())
+    assigned_to_id = serializers.PrimaryKeyRelatedField(
+        source="assigned_to", queryset=get_user_model().objects.all()
+    )
     date = serializers.DateTimeField(required=False, allow_null=True)
     slack_user = serializers.CharField(required=False, allow_null=True)
     name = serializers.CharField(required=False)

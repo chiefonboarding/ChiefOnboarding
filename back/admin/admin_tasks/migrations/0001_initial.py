@@ -34,7 +34,9 @@ class Migration(migrations.Migration):
                 ("date", models.DateField(blank=True, null=True)),
                 (
                     "priority",
-                    models.IntegerField(choices=[(1, "Low"), (2, "Medium"), (3, "High")], default=2),
+                    models.IntegerField(
+                        choices=[(1, "Low"), (2, "Medium"), (3, "High")], default=2
+                    ),
                 ),
             ],
         ),

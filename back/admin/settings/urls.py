@@ -45,7 +45,11 @@ urlpatterns = [
         name="delete-integration",
     ),
     path("administrators/", views.AdministratorListView.as_view(), name="administrators"),
-    path("administrators/<int:pk>/update/", views.AdministratorUpdateView.as_view(), name="administrators-update"),
+    path(
+        "administrators/<int:pk>/update/",
+        views.AdministratorUpdateView.as_view(),
+        name="administrators-update",
+    ),
     path(
         "administrators/create/",
         views.AdministratorCreateView.as_view(),

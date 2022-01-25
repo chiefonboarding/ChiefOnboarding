@@ -1,7 +1,7 @@
 from django.db import models
+from django.template.loader import render_to_string
 from django.urls import reverse
 
-from django.template.loader import render_to_string
 from misc.models import File
 from organization.models import BaseItem
 

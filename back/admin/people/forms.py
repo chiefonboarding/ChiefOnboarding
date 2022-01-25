@@ -1,16 +1,17 @@
+import pytz
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import (ButtonHolder, Column, Div, Field, Fieldset,
-                                 Layout, Row, Submit)
+from crispy_forms.layout import ButtonHolder, Column, Div, Field, Fieldset, Layout, Row, Submit
 from django import forms
 from django.contrib.auth import get_user_model
 
 from admin.sequences.models import Sequence
 from admin.to_do.forms import MultiSelectField, UploadField
 
-import pytz
 
 class NewHireAddForm(forms.ModelForm):
-    sequences = forms.ModelMultipleChoiceField(queryset=Sequence.objects.all(), to_field_name="id", required=False)
+    sequences = forms.ModelMultipleChoiceField(
+        queryset=Sequence.objects.all(), to_field_name="id", required=False
+    )
     timezone = forms.ChoiceField(choices=[(x, x) for x in pytz.common_timezones])
     start_day = forms.DateField(required=True)
 
@@ -19,8 +20,18 @@ class NewHireAddForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
-                Div(Field("first_name"), Field("email"), Field("position"), css_class="col-6"),
-                Div(Field("last_name"), Field("phone"), Field("start_day"), css_class="col-6"),
+                Div(
+                    Field("first_name"),
+                    Field("email"),
+                    Field("position"),
+                    css_class="col-6",
+                ),
+                Div(
+                    Field("last_name"),
+                    Field("phone"),
+                    Field("start_day"),
+                    css_class="col-6",
+                ),
                 css_class="row",
             ),
             Div(
@@ -65,8 +76,18 @@ class NewHireProfileForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
-                Div(Field("first_name"), Field("email"), Field("position"), css_class="col-6"),
-                Div(Field("last_name"), Field("phone"), Field("start_day"), css_class="col-6"),
+                Div(
+                    Field("first_name"),
+                    Field("email"),
+                    Field("position"),
+                    css_class="col-6",
+                ),
+                Div(
+                    Field("last_name"),
+                    Field("phone"),
+                    Field("start_day"),
+                    css_class="col-6",
+                ),
                 css_class="row",
             ),
             Div(
@@ -121,7 +142,9 @@ class ColleagueUpdateForm(forms.ModelForm):
                 Div(Field("linkedin"), css_class="col-12"),
                 Div(Field("timezone"), css_class="col-12"),
                 Div(Field("language"), css_class="col-12"),
-                UploadField("profile_image", extra_context={"file": self.instance.profile_image}),
+                UploadField(
+                    "profile_image", extra_context={"file": self.instance.profile_image}
+                ),
                 css_class="row",
             ),
             Submit(name="submit", value="Update"),

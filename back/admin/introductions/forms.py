@@ -1,21 +1,18 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import (
-    Div,
-    Field,
-    Layout,
-    HTML,
-)
+from crispy_forms.layout import HTML, Div, Field, Layout
 from django import forms
 from django.template.loader import render_to_string
 
-from organization.models import Tag
 from admin.to_do.forms import MultiSelectField
+from organization.models import Tag
 
 from .models import Introduction
 
 
 class IntroductionForm(forms.ModelForm):
-    tags = forms.ModelMultipleChoiceField(queryset=Tag.objects.all(), to_field_name="name", required=False)
+    tags = forms.ModelMultipleChoiceField(
+        queryset=Tag.objects.all(), to_field_name="name", required=False
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

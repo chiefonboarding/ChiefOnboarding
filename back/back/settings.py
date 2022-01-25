@@ -187,7 +187,9 @@ REST_FRAMEWORK = {
 
 
 if env.bool("API_ACCESS", default=False):
-    REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].append("rest_framework.authentication.TokenAuthentication")
+    REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].append(
+        "rest_framework.authentication.TokenAuthentication"
+    )
 
 
 APPEND_SLASH = False
@@ -318,7 +320,9 @@ AXES_IP_BLACKLIST = None
 AXES_LOCK_OUT_BY_USER_OR_IP = False
 # message to show when locked out and have cooloff enabled
 AXES_COOLOFF_MESSAGE = "Account locked: too many login attempts. Please try again later"
-AXES_PERMALOCK_MESSAGE = "Account locked: too many login attempts. Contact an admin to unlock your account."
+AXES_PERMALOCK_MESSAGE = (
+    "Account locked: too many login attempts. Contact an admin to unlock your account."
+)
 PROXY_TRUSTED_IPS = None
 REST_FRAMEWORK_ACTIVE = True
 

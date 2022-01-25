@@ -2,7 +2,10 @@
 
 from django.db import migrations, models
 
-from misc.migration_scripts.content_migrations import migrate_wysiwyg_field, RunPythonWithArguments
+from misc.migration_scripts.content_migrations import (
+    RunPythonWithArguments,
+    migrate_wysiwyg_field,
+)
 
 
 class Migration(migrations.Migration):
@@ -18,5 +21,7 @@ class Migration(migrations.Migration):
             field=models.JSONField(default="[]", verbose_name=models.TextField(default="[]")),
             preserve_default=False,
         ),
-        RunPythonWithArguments(migrate_wysiwyg_field, context={'app': "to_do", 'model': 'todo'}),
+        RunPythonWithArguments(
+            migrate_wysiwyg_field, context={"app": "to_do", "model": "todo"}
+        ),
     ]

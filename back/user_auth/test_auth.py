@@ -1,8 +1,8 @@
 import pytest
 from django.urls import reverse
 
-from users.models import User
 from users.factories import *
+from users.models import User
 
 
 @pytest.mark.django_db

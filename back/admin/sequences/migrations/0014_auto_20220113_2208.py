@@ -6,21 +6,42 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sequences', '0013_auto_20220113_2146'),
+        ("sequences", "0013_auto_20220113_2146"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='AccountProvision',
+            name="AccountProvision",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('integration_type', models.CharField(choices=[('asana', 'Add Asana account to team'), ('google', 'Create Google account'), ('slack', 'Create Slack account')], max_length=10)),
-                ('additional_data', models.JSONField(default=dict, verbose_name=models.TextField(blank=True))),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "integration_type",
+                    models.CharField(
+                        choices=[
+                            ("asana", "Add Asana account to team"),
+                            ("google", "Create Google account"),
+                            ("slack", "Create Slack account"),
+                        ],
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "additional_data",
+                    models.JSONField(default=dict, verbose_name=models.TextField(blank=True)),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='condition',
-            name='account_provisions',
-            field=models.ManyToManyField(to='sequences.AccountProvision'),
+            model_name="condition",
+            name="account_provisions",
+            field=models.ManyToManyField(to="sequences.AccountProvision"),
         ),
     ]

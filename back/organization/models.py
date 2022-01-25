@@ -79,7 +79,9 @@ class Organization(models.Model):
         help_text="Slack only",
         default=False,
     )
-    slack_confirm_person = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    slack_confirm_person = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL
+    )
 
     object = ObjectManager()
     objects = models.Manager()

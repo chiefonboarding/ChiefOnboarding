@@ -14,12 +14,9 @@ class LoginRequiredMixin(AccessMixin):
             return self.handle_no_permission()
 
         # If MFA has been enabled, then force it
-        if request.user.requires_otp and not request.session.get('passed_mfa', False):
+        if request.user.requires_otp and not request.session.get("passed_mfa", False):
             path = self.request.get_full_path()
-            return redirect_to_login(
-                path,
-                "/mfa/"
-            )
+            return redirect_to_login(path, "/mfa/")
         return super().dispatch(request, *args, **kwargs)
 
 

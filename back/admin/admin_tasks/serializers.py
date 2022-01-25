@@ -26,9 +26,13 @@ class AdminTaskSerializer(serializers.ModelSerializer):
     date = serializers.DateField(required=False)
 
     new_hire = NewHireSerializer(read_only=True)
-    new_hire_id = serializers.PrimaryKeyRelatedField(source="new_hire", queryset=get_user_model().objects.all())
+    new_hire_id = serializers.PrimaryKeyRelatedField(
+        source="new_hire", queryset=get_user_model().objects.all()
+    )
     assigned_to = AdminSerializer(read_only=True)
-    assigned_to_id = serializers.PrimaryKeyRelatedField(source="assigned_to", queryset=get_user_model().objects.all())
+    assigned_to_id = serializers.PrimaryKeyRelatedField(
+        source="assigned_to", queryset=get_user_model().objects.all()
+    )
 
     def get_comments(self, instance):
         try:

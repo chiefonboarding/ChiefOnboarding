@@ -30,22 +30,32 @@ from admin.sequences.models import Condition, Sequence
 from admin.sequences.serializers import ConditionSerializer
 from admin.sequences.utils import get_task_items
 from admin.to_do.serializers import ToDoFormSerializer
-from new_hire.serializers import (NewHireResourceItemSerializer,
-                                  PreboardingUserSerializer,
-                                  ToDoUserSerializer)
+from new_hire.serializers import (
+    NewHireResourceItemSerializer,
+    PreboardingUserSerializer,
+    ToDoUserSerializer,
+)
 from organization.models import Organization, WelcomeMessage
 from slack_bot.slack import Slack as SlackBot
 
-from .emails import (email_new_admin_cred, email_reopen_task,
-                     send_new_hire_cred, send_new_hire_preboarding,
-                     send_reminder_email)
-from .models import (NewHireWelcomeMessage, PreboardingUser, ResourceUser,
-                     ToDoUser)
+from .emails import (
+    email_new_admin_cred,
+    email_reopen_task,
+    send_new_hire_cred,
+    send_new_hire_preboarding,
+    send_reminder_email,
+)
+from .models import NewHireWelcomeMessage, PreboardingUser, ResourceUser, ToDoUser
 from .permissions import ManagerPermission
-from .serializers import (AdminSerializer, EmployeeSerializer,
-                          NewHireProgressResourceSerializer, NewHireSerializer,
-                          NewHireWelcomeMessageSerializer,
-                          OTPRecoveryKeySerializer, UserLanguageSerializer)
+from .serializers import (
+    AdminSerializer,
+    EmployeeSerializer,
+    NewHireProgressResourceSerializer,
+    NewHireSerializer,
+    NewHireWelcomeMessageSerializer,
+    OTPRecoveryKeySerializer,
+    UserLanguageSerializer,
+)
 
 
 class NewHireViewSet(viewsets.ModelViewSet):
@@ -56,36 +66,6 @@ class NewHireViewSet(viewsets.ModelViewSet):
     serializer_class = NewHireSerializer
     permission_classes = [ManagerPermission]
 
-    def get_queryset(self):
-        # if user is not admin, then only show records relevant to the manager
-        all_new_hires = get_user_model().new_hires.all()
-        if self.request.user.role == 1:
-            return all_new_hires
-        return all_new_hires.filter(manager=self.request.user)
-
-    def create(self, request, *args, **kwargs):
-        sequences = request.data.pop("sequences")
-        org = Organization.object.get()
-        google = request.data.pop("google")
-        slack = request.data.pop("slack")
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        new_hire = serializer.save()
-        for i in sequences:
-            Sequence.objects.get(id=i["id"]).assign_to_user(new_hire)
-        if slack["create"]:
-            ScheduledAccess.objects.create(new_hire=new_hire, integration=1, status=0, email=slack["email"])
-        if google["create"]:
-            ScheduledAccess.objects.create(new_hire=new_hire, integration=2, status=0, email=google["email"])
-        new_hire_time = new_hire.get_local_time()
-        if (
-            new_hire_time.date() >= new_hire.start_day
-            and new_hire_time.hour >= 7
-            and new_hire_time.weekday() < 5
-            and org.new_hire_email
-        ):
-            async_task("users.tasks.send_new_hire_credentials", new_hire.id)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["post"])
     def send_login_email(self, request, pk=None):
@@ -100,96 +80,31 @@ class NewHireViewSet(viewsets.ModelViewSet):
         user = self.get_object()
         translation.activate(user.language)
         if request.data["type"] == "email":
-            message = WelcomeMessage.objects.get(language=user.language, message_type=0).message
+            message = WelcomeMessage.objects.get(
+                language=user.language, message_type=0
+            ).message
             send_new_hire_preboarding(user, message)
         else:
             client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
             client.messages.create(
                 to=user.phone,
                 from_=settings.TWILIO_FROM_NUMBER,
-                body=user.personalize(WelcomeMessage.objects.get(language=user.language, message_type=2).message),
+                body=user.personalize(
+                    WelcomeMessage.objects.get(language=user.language, message_type=2).message
+                ),
             )
         return Response(status=status.HTTP_201_CREATED)
-
-    @action(detail=True, methods=["get", "post"])
-    def notes(self, request, pk=None):
-        if request.method == "POST":
-            serializer = NoteSerializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save(new_hire=self.get_object(), admin=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        notes = Note.objects.filter(new_hire=self.get_object()).order_by("-created")
-        return Response(NoteSerializer(notes, many=True).data)
-
-    @action(detail=True, methods=["get"])
-    def forms(self, request, pk=None):
-        serializer = ToDoFormSerializer(ToDoUser.objects.filter(user=self.get_object(), completed=True), many=True)
-        return Response(serializer.data)
 
     @action(detail=True, methods=["get"])
     def progress(self, request, pk=None):
         user = self.get_object()
         todo_serializer = ToDoUserSerializer(ToDoUser.objects.filter(user=user), many=True)
-        resource_serializer = NewHireProgressResourceSerializer(ResourceUser.objects.filter(user=user), many=True)
+        resource_serializer = NewHireProgressResourceSerializer(
+            ResourceUser.objects.filter(user=user), many=True
+        )
         data = {"to_do": todo_serializer.data, "resources": resource_serializer.data}
         return Response(data)
 
-    @action(detail=True, methods=["get"])
-    def welcome_messages(self, request, pk=None):
-        serializer = NewHireWelcomeMessageSerializer(
-            NewHireWelcomeMessage.objects.filter(new_hire=self.get_object()), many=True
-        )
-        return Response(serializer.data)
-
-    @action(detail=True, methods=["get", "post", "put"])
-    def tasks(self, request, pk=None):
-        if request.method == "POST" or request.method == "PUT":
-            items = get_task_items(self.get_object())
-            for i in items:
-                if i["item"] == request.data["type"]:
-                    item = apps.get_model(app_label=i["app"], model_name=i["model"]).objects.get(
-                        id=request.data["item"]["id"]
-                    )
-                    i["s_model"].add(item) if request.method == "POST" else i["s_model"].remove(item)
-                    break
-            return Response(request.data["item"], status=status.HTTP_201_CREATED)
-        user = self.get_object()
-        return Response(
-            {
-                "preboarding": PreboardingUserSerializer(
-                    PreboardingUser.objects.filter(user=user)
-                    .select_related("preboarding")
-                    .prefetch_related("preboarding__content__files"),
-                    many=True,
-                ).data,
-                "to_do": ToDoUserSerializer(
-                    ToDoUser.objects.filter(user=user).select_related("to_do").prefetch_related("to_do__content__files"),
-                    many=True,
-                ).data,
-                "resources": NewHireResourceItemSerializer(
-                    ResourceUser.objects.filter(user=user)
-                    .select_related("resource")
-                    .prefetch_related("resource__chapters__content__files"),
-                    many=True,
-                ).data,
-                "introductions": IntroductionSerializer(
-                    user.introductions.select_related("intro_person"), many=True
-                ).data,
-                "appointments": AppointmentSerializer(user.appointments, many=True).data,
-                "conditions": ConditionSerializer(
-                    user.conditions.prefetch_related(
-                        "to_do",
-                        "resources",
-                        "badges",
-                        "admin_tasks",
-                        "external_messages",
-                        "introductions",
-                        "condition_to_do",
-                    ),
-                    many=True,
-                ).data,
-            }
-        )
 
     @action(detail=True, methods=["post"])
     def add_sequence(self, request, pk=None):
@@ -250,9 +165,9 @@ class NewHireViewSet(viewsets.ModelViewSet):
         s = SlackBot() if request.data["integration"] == 1 else Google()
         if s.find_by_email(new_hire.email):
             return Response({"status": "exists"})
-        items = ScheduledAccess.objects.filter(new_hire=new_hire, integration=request.data["integration"]).exclude(
-            status=1
-        )
+        items = ScheduledAccess.objects.filter(
+            new_hire=new_hire, integration=request.data["integration"]
+        ).exclude(status=1)
         if items.exists():
             return Response({"status": "pending"})
         return Response({"status": "not_found"})
@@ -260,7 +175,9 @@ class NewHireViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["put"])
     def revoke_access(self, request, pk=None):
         new_hire = self.get_object()
-        ScheduledAccess.objects.filter(new_hire=new_hire, integration=request.data["integration"]).delete()
+        ScheduledAccess.objects.filter(
+            new_hire=new_hire, integration=request.data["integration"]
+        ).delete()
         if request.data["integration"] == 1:
             s = Slack()
             try:
@@ -274,66 +191,6 @@ class NewHireViewSet(viewsets.ModelViewSet):
             # g.delete_user(new_hire.email)
             pass
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class AdminViewSet(viewsets.ModelViewSet):
-    serializer_class = AdminSerializer
-    queryset = get_user_model().admins.all()
-
-    def get_permissions(self):
-        if self.action == "list":
-            self.permission_classes = [ManagerPermission]
-        return super().get_permissions()
-
-    def perform_create(self, serializer):
-        user = serializer.save()
-        password = uuid.uuid4().hex[:12].upper()
-        user.set_password(password)
-        user.save()
-        email_new_admin_cred(user, password)
-
-    def delete(self, request):
-        # preventing lockout
-        if self.get_object() != request.user:
-            self.get_object().delete()
-        return Response()
-
-    @action(detail=False, methods=["post"])
-    def validate_totp(self, request):
-        otp = request.data["otp"] if "otp" in request.data else ""
-        totp = pyotp.TOTP(request.user.totp_secret)
-        is_valid = totp.verify(otp)
-        if is_valid:
-            request.user.requires_otp = True
-            request.user.save()
-            keys = request.user.reset_otp_keys()
-            return Response(OTPRecoveryKeySerializer(keys, many=True).data)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=False, methods=["get"])
-    def get_totp_qr(self, request):
-        otp_url = pyotp.totp.TOTP(request.user.totp_secret).provisioning_uri(
-            name=request.user.email, issuer_name="ChiefOnboarding"
-        )
-        return Response({"otp_url": otp_url})
-
-    @action(detail=False, methods=["get"], permission_classes=[ManagerPermission])
-    def me(self, request):
-        admin = AdminSerializer(request.user)
-        return Response(admin.data)
-
-    @action(detail=False, methods=["post"], permission_classes=[ManagerPermission])
-    def seen_updates(self, request):
-        request.user.seen_updates = request.user.get_local_time().date()
-        request.user.save()
-        return Response(AdminSerializer(request.user).data)
-
-    @action(detail=False, methods=["post"])
-    def language(self, request):
-        serializer = UserLanguageSerializer(request.user, request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
 
 
 class EmployeeViewSet(viewsets.ModelViewSet):
@@ -358,7 +215,9 @@ class EmployeeViewSet(viewsets.ModelViewSet):
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": _("Click on the button to see all the categories that are available to you!"),
+                        "text": _(
+                            "Click on the button to see all the categories that are available to you!"
+                        ),
                     },
                 },
                 {
@@ -437,7 +296,11 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"])
     def departments(self, request):
         departments = (
-            get_user_model().objects.all().distinct("department").exclude(department="").values_list("department")
+            get_user_model()
+            .objects.all()
+            .distinct("department")
+            .exclude(department="")
+            .values_list("department")
         )
         return Response(departments)
 
@@ -486,7 +349,9 @@ class ToDoUserView(APIView):
         if t_u.user.slack_user_id:
             s = SlackBot()
             s.set_user(t_u.user)
-            blocks = s.format_to_do_block(pre_message=_("Don't forget this to do item!"), items=[t_u])
+            blocks = s.format_to_do_block(
+                pre_message=_("Don't forget this to do item!"), items=[t_u]
+            )
             s.send_message(blocks=blocks)
         else:
             send_reminder_email(t_u)
@@ -524,7 +389,9 @@ class ResourceUserView(APIView):
         if t_u.user.slack_user_id:
             s = SlackBot()
             s.set_user(t_u.user)
-            blocks = s.format_resource_block(pre_message=_("Don't forget this to do item!"), items=[t_u])
+            blocks = s.format_resource_block(
+                pre_message=_("Don't forget this to do item!"), items=[t_u]
+            )
             s.send_message(blocks=blocks)
         else:
             send_reminder_email(t_u)

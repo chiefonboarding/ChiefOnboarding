@@ -47,7 +47,7 @@ class Slack:
                 "conversations.list",
                 data={
                     "exclude_archived": True,
-                    "types": "public_channel,private_channel",
+                    "types": "public_channel",
                 },
             )
         except Exception:
@@ -84,8 +84,12 @@ class Slack:
                     "email": self.user_obj.email,
                     "position": self.user_obj.position,
                     "start": self.user_obj.start_day,
-                    "manager": self.user_obj.manager.full_name() if self.user_obj.manager is not None else "",
-                    "buddy": self.user_obj.buddy.full_name() if self.user_obj.buddy is not None else "",
+                    "manager": self.user_obj.manager.full_name()
+                    if self.user_obj.manager is not None
+                    else "",
+                    "buddy": self.user_obj.buddy.full_name()
+                    if self.user_obj.buddy is not None
+                    else "",
                 }
             )
         else:
@@ -119,7 +123,9 @@ class Slack:
                 channel = self.channel
         if text is not None:
             blocks = self.format_simple_text(text)
-        return self.client.chat_postMessage(channel=channel, blocks=blocks, as_user=True, username=self.team.bot_id)
+        return self.client.chat_postMessage(
+            channel=channel, blocks=blocks, as_user=True, username=self.team.bot_id
+        )
 
     def update_message(self, ts, blocks=None):
         if blocks is None:
@@ -169,7 +175,11 @@ class Slack:
             return _("This task is overdue")
         if (item.due_on_day - workday) == 0:
             return _("This task is due today")
-        return _("This task needs to be completed in ") + str(item.due_on_day - workday) + _(" working days.")
+        return (
+            _("This task needs to be completed in ")
+            + str(item.due_on_day - workday)
+            + _(" working days.")
+        )
 
     def format_to_do_block(self, pre_message, items):
         blocks = [{"type": "section", "text": {"type": "plain_text", "text": pre_message}}]
@@ -203,18 +213,18 @@ class Slack:
 
         for i in items:
             if i.resource.course and not i.completed_course:
-                value = "dialog:course:" + str(i.id) + ":" + str(i.resource.chapters.filter(type=0).first().id)
+                value = "dialog:course:{i.id}:{i.resource.chapters.filter(type=0).first().id}"
                 action_text = "View course"
             else:
                 action_text = "View resource"
-                value = "dialog:resource:" + str(i.id) + ":" + str(i.resource.chapters.filter(type=0).first().id)
+                value = "dialog:resource:{i.id}:{i.resource.chapters.filter(type=0).first().id}"
             blocks.append(
                 {
                     "type": "section",
                     "block_id": str(i.id),
                     "text": {
                         "type": "mrkdwn",
-                        "text": "*" + self.personalize(i.resource.name) + "*",
+                        "text": f"*{self.personalize(i.resource.name)}*",
                     },
                     "accessory": {
                         "type": "button",
@@ -226,14 +236,13 @@ class Slack:
         return blocks
 
     def format_intro_block(self, intro):
-        text = "*" + intro.name + ":* " + intro.intro_person.full_name() + "\n"
-        if intro.intro_person.position is not None and intro.intro_person.position != "":
-            text += intro.intro_person.position + "\n"
-        if intro.intro_person.message is not None and intro.intro_person.message != "":
-            text += "_" + self.personalize(intro.intro_person.message) + "_\n"
-        if intro.intro_person.email is not None and intro.intro_person.email != "":
-            text += intro.intro_person.email + " "
-        if intro.intro_person.phone is not None and intro.intro_person.phone != "":
+        text = f"*{intro.name}:*{intro.intro_person.full_name}\n"
+        if intro.intro_person.position != "":
+            text += f"{intro.intro_person.position}\n"
+        if intro.intro_person.message != "":
+            text += f"_{self.personalize(intro.intro_person.message)}_\n"
+        text += intro.intro_person.email + " "
+        if intro.intro_person.phone != "":
             text += intro.intro_person.phone
         block = {"type": "section", "text": {"type": "mrkdwn", "text": text}}
         if intro.intro_person.profile_image is not None:
@@ -296,7 +305,7 @@ class Slack:
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": "*Our new hire " + to_do_user.user.first_name + " just answered some questions:*",
+                        "text": f"*Our new hire {to_do_user.user.first_name} just answered some questions:*",
                     },
                 },
                 {"type": "divider"},
@@ -307,7 +316,7 @@ class Slack:
                         "type": "section",
                         "text": {
                             "type": "mrkdwn",
-                            "text": "*" + i["text"] + "*\n" + i["value"],
+                            "text": f"*{i['text']}*\n{i['value']}",
                         },
                     }
                 )
@@ -330,8 +339,8 @@ class Slack:
                         {
                             "type": "button",
                             "text": {"type": "plain_text", "text": i["name"]},
-                            "value": "category:" + str(i["id"]),
-                            "action_id": "category:" + str(i["id"]),
+                            "value": f"category:{i['id']}",
+                            "action_id": f"category:{i['id']}",
                         }
                     ],
                 }
@@ -355,13 +364,13 @@ class Slack:
                         "type": "button",
                         "text": {"type": "plain_text", "text": "Yeah!"},
                         "style": "primary",
-                        "value": "create:newhire:approve:" + str(user_id),
+                        "value": f"create:newhire:approve:{user_id}",
                     },
                     {
                         "type": "button",
                         "text": {"type": "plain_text", "text": "Nope"},
                         "style": "danger",
-                        "value": "create:newhire:deny:" + str(user_id),
+                        "value": f"create:newhire:deny:{user_id}",
                     },
                 ],
             },
@@ -371,12 +380,14 @@ class Slack:
     def create_updated_view(self, value, view, course_completed):
         chapter = Chapter.objects.get(id=value)
         blocks = []
-        if course_completed or (view["blocks"][0]["type"] == "select_static" and not chapter.type == 2):
+        if course_completed or (
+            view["blocks"][0]["type"] == "select_static" and not chapter.type == 2
+        ):
             blocks = [view["blocks"][0]]
         blocks.append(
             {
                 "type": "section",
-                "text": {"type": "mrkdwn", "text": "*" + chapter.name + "*"},
+                "text": {"type": "mrkdwn", "text": f"*{chapter.name}*"},
             }
         )
         for i in chapter.content.all():
@@ -398,19 +409,20 @@ class Slack:
     def help(self):
         messages = [
             _("Happy to help! Here are all the things you can say to me: \n\n"),
-            _("*What do I need to do today?*\nThis will show all the tasks you need to do today. I will show you these every day as well, but just incase you want to get them again."),
-            _("*Do I have any to do items that are overdue?*\nThis will show all tasks that should have been completed. Please do those as soon as possible."),
+            _(
+                "*What do I need to do today?*\nThis will show all the tasks you need to do today. I will show you these every day as well, but just incase you want to get them again."
+            ),
+            _(
+                "*Do I have any to do items that are overdue?*\nThis will show all tasks that should have been completed. Please do those as soon as possible."
+            ),
             _("*Show me all to do items*\nThis will show all tasks"),
-            _("*Show me all resources*\nThis will show all resources.")
+            _("*Show me all resources*\nThis will show all resources."),
         ]
 
         blocks = [
             {
                 "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": item
-                },
+                "text": {"type": "mrkdwn", "text": item},
             }
             for item in messages
         ]

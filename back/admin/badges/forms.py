@@ -1,21 +1,19 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import (
-    Div,
-    Field,
-    Layout,
-)
+from crispy_forms.layout import Div, Field, Layout
 from crispy_forms.utils import TEMPLATE_PACK
 from django import forms
 
+from admin.to_do.forms import MultiSelectField, UploadField, WYSIWYGField
 from organization.models import Tag
-from admin.to_do.forms import UploadField, WYSIWYGField, MultiSelectField
 
 from .models import Badge
 
 
 class BadgeForm(forms.ModelForm):
     content_json = WYSIWYGField(label="content")
-    tags = forms.ModelMultipleChoiceField(queryset=Tag.objects.all(), to_field_name="name", required=False)
+    tags = forms.ModelMultipleChoiceField(
+        queryset=Tag.objects.all(), to_field_name="name", required=False
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

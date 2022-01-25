@@ -36,11 +36,15 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "token",
-                    fernet_fields.fields.EncryptedTextField(blank=True, max_length=10000, null=True),
+                    fernet_fields.fields.EncryptedTextField(
+                        blank=True, max_length=10000, null=True
+                    ),
                 ),
                 (
                     "refresh_token",
-                    fernet_fields.fields.EncryptedTextField(blank=True, max_length=10000, null=True),
+                    fernet_fields.fields.EncryptedTextField(
+                        blank=True, max_length=10000, null=True
+                    ),
                 ),
                 ("base_url", models.CharField(blank=True, max_length=22300, null=True)),
                 (
@@ -62,7 +66,9 @@ class Migration(migrations.Migration):
                 ("verification_token", models.CharField(max_length=100, null=True)),
                 (
                     "bot_token",
-                    fernet_fields.fields.EncryptedTextField(blank=True, max_length=10000, null=True),
+                    fernet_fields.fields.EncryptedTextField(
+                        blank=True, max_length=10000, null=True
+                    ),
                 ),
                 ("bot_id", models.CharField(max_length=100, null=True)),
             ],

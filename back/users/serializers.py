@@ -7,10 +7,12 @@ from admin.badges.serializers import BadgeSerializer
 from admin.introductions.serializers import IntroductionSerializer
 from admin.preboarding.serializers import PreboardingSerializer
 from admin.resources.models import Resource
-from admin.resources.serializers import (ChapterCourseSerializer,
-                                         ChapterSerializer,
-                                         CourseAnswerSerializer,
-                                         ResourceSerializer)
+from admin.resources.serializers import (
+    ChapterCourseSerializer,
+    ChapterSerializer,
+    CourseAnswerSerializer,
+    ResourceSerializer,
+)
 from admin.to_do.serializers import ToDoSerializer
 from misc.models import File
 from misc.serializers import FileSerializer
@@ -29,7 +31,9 @@ class BaseUserSerializer(serializers.ModelSerializer):
     slack_channel_id = serializers.CharField(read_only=True)
 
     def validate(self, value):
-        users_with_same_email = get_user_model().objects.filter(email=value["email"].lower().strip())
+        users_with_same_email = get_user_model().objects.filter(
+            email=value["email"].lower().strip()
+        )
         if self.instance:
             users_with_same_email = users_with_same_email.exclude(id=self.instance.id)
         if users_with_same_email.exists():

@@ -48,7 +48,6 @@ class AccessToken(models.Model):
         return self.get_integration_display()
 
 
-
 class ScheduledAccess(models.Model):
     new_hire = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     integration = models.IntegerField(choices=INTEGRATION_OPTIONS)

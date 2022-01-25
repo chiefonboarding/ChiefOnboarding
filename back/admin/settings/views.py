@@ -7,21 +7,29 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
-from django.views.generic.edit import (CreateView, DeleteView, FormView,
-                                       UpdateView)
+from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
 from django.views.generic.list import ListView
 
-from admin.integrations.models import (INTEGRATION_OPTIONS,
-                                       INTEGRATION_OPTIONS_URLS, AccessToken)
-from organization.models import (LANGUAGES_OPTIONS, Changelog, Organization,
-                                 WelcomeMessage)
+from admin.integrations.models import (
+    INTEGRATION_OPTIONS,
+    INTEGRATION_OPTIONS_URLS,
+    AccessToken,
+)
+from organization.models import LANGUAGES_OPTIONS, Changelog, Organization, WelcomeMessage
+from users.mixins import AdminPermMixin, LoginRequiredMixin
 
-from .forms import (AdministratorsCreateForm, OrganizationGeneralForm, AdministratorsUpdateForm,
-                    OTPVerificationForm, WelcomeMessagesUpdateForm)
+from .forms import (
+    AdministratorsCreateForm,
+    AdministratorsUpdateForm,
+    OrganizationGeneralForm,
+    OTPVerificationForm,
+    WelcomeMessagesUpdateForm,
+)
 
-from users.mixins import LoginRequiredMixin, AdminPermMixin
 
-class OrganizationGeneralUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
+class OrganizationGeneralUpdateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "org_general_update.html"
     form_class = OrganizationGeneralForm
     success_url = reverse_lazy("settings:general")
@@ -49,7 +57,9 @@ class AdministratorListView(LoginRequiredMixin, AdminPermMixin, ListView):
         return context
 
 
-class AdministratorCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView):
+class AdministratorCreateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
+):
     template_name = "settings_admins_create.html"
     queryset = get_user_model().admins.all()
     form_class = AdministratorsCreateForm
@@ -58,10 +68,10 @@ class AdministratorCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessage
 
     def form_valid(self, form):
         """If the form is valid, save the associated model."""
-        user = get_user_model().objects.filter(email=form.cleaned_data['email'])
+        user = get_user_model().objects.filter(email=form.cleaned_data["email"])
         if user.exists():
             # Change user if user already exists
-            user.role = form.cleaned_data['role']
+            user.role = form.cleaned_data["role"]
             user.save()
         else:
             form.save()
@@ -74,7 +84,9 @@ class AdministratorCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessage
         return context
 
 
-class AdministratorUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
+class AdministratorUpdateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "settings_admins_update.html"
     queryset = get_user_model().admins.all()
     form_class = AdministratorsUpdateForm
@@ -93,7 +105,9 @@ class AdministratorDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
     success_url = reverse_lazy("settings:administrators")
 
 
-class WelcomeMessageUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
+class WelcomeMessageUpdateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "org_welcome_message_update.html"
     form_class = WelcomeMessagesUpdateForm
     success_message = "Message has been updated"
@@ -102,7 +116,9 @@ class WelcomeMessageUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessag
         return self.request.path
 
     def get_object(self):
-        return WelcomeMessage.objects.get(language=self.kwargs.get("language"), message_type=self.kwargs.get("type"))
+        return WelcomeMessage.objects.get(
+            language=self.kwargs.get("language"), message_type=self.kwargs.get("type")
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -113,7 +129,9 @@ class WelcomeMessageUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessag
         return context
 
 
-class PersonalLanguageUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
+class PersonalLanguageUpdateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "personal_language_update.html"
     model = get_user_model()
     fields = [
@@ -176,7 +194,9 @@ class IntegrationsListView(LoginRequiredMixin, AdminPermMixin, TemplateView):
         context["integrations"] = [
             {
                 "name": integration[1],
-                "obj": AccessToken.objects.filter(integration=integration[0], active=True).first(),
+                "obj": AccessToken.objects.filter(
+                    integration=integration[0], active=True
+                ).first(),
                 "create_url": INTEGRATION_OPTIONS_URLS[idx][0],
             }
             for idx, integration in enumerate(INTEGRATION_OPTIONS)
@@ -185,8 +205,10 @@ class IntegrationsListView(LoginRequiredMixin, AdminPermMixin, TemplateView):
         return context
 
 
-class GoogleLoginSetupView(LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin):
-    template_name = "org_general_update.html"
+class GoogleLoginSetupView(
+    LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin
+):
+    template_name = "token_create.html"
     model = AccessToken
     fields = ["client_id", "client_secret"]
     success_message = "You can now login with your Google account"
@@ -205,8 +227,10 @@ class GoogleLoginSetupView(LoginRequiredMixin, AdminPermMixin, CreateView, Succe
         return super().form_valid(form)
 
 
-class GoogleAccountCreationSetupView(LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin):
-    template_name = "org_general_update.html"
+class GoogleAccountCreationSetupView(
+    LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin
+):
+    template_name = "token_create.html"
     model = AccessToken
     fields = ["client_id", "client_secret"]
     success_message = "You can now automatically create accounts for users"
@@ -225,8 +249,10 @@ class GoogleAccountCreationSetupView(LoginRequiredMixin, AdminPermMixin, CreateV
         return super().form_valid(form)
 
 
-class SlackAccountCreationSetupView(LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin):
-    template_name = "org_general_update.html"
+class SlackAccountCreationSetupView(
+    LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin
+):
+    template_name = "token_create.html"
     model = AccessToken
     fields = [
         "app_id",
@@ -252,7 +278,7 @@ class SlackAccountCreationSetupView(LoginRequiredMixin, AdminPermMixin, CreateVi
 
 
 class SlackBotSetupView(LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin):
-    template_name = "org_general_update.html"
+    template_name = "token_create.html"
     model = AccessToken
     fields = [
         "app_id",

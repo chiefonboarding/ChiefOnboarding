@@ -1,33 +1,38 @@
 from datetime import timedelta
 
-from django.http import Http404
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import (CreateView, DeleteView, FormView,
-                                       UpdateView)
+from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
 from django.views.generic.list import ListView
+from django_q.tasks import async_task
 
 from admin.admin_tasks.models import AdminTask
 from admin.notes.models import Note
 from admin.resources.models import Resource
-from users.models import (NewHireWelcomeMessage, PreboardingUser, ResourceUser,
-                          ToDoUser, User)
+from users.mixins import AdminPermMixin, LoginRequiredMixin
+from users.models import NewHireWelcomeMessage, PreboardingUser, ResourceUser, ToDoUser, User
+from organization.models import Organization
 
-from .forms import ColleagueUpdateForm, NewHireAddForm, NewHireProfileForm, ColleagueCreateForm
+from .forms import ColleagueCreateForm, ColleagueUpdateForm, NewHireAddForm, NewHireProfileForm
 from .utils import get_templates_model, get_user_field
-
-from users.mixins import LoginRequiredMixin, AdminPermMixin
+from slack_bot.tasks import link_slack_users
 
 
 class NewHireListView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "new_hires.html"
-    queryset = User.new_hires.all().order_by("-start_day")
     paginate_by = 10
+
+    def get_queryset(self):
+        all_new_hires = get_user_model().new_hires.all().order_by("-start_day")
+        if self.request.user.is_admin:
+            return all_new_hires
+        return all_new_hires.filter(manager=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -57,10 +62,25 @@ class NewHireAddView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, Cr
         # Set new hire role
         form.instance.role = 0
 
-        self.object = form.save()
+        new_hire = form.save()
 
         # Add sequences to new hire
-        self.object.add_sequences(sequences)
+        new_hire.add_sequences(sequences)
+
+        # Send credentials email if the user was created after their start day
+        org = Organization.object.get()
+        new_hire_datetime = new_hire.get_local_time()
+        if (
+            new_hire_datetime.date() >= new_hire.start_day
+            and new_hire_datetime.hour >= 7
+            and new_hire_datetime.weekday() < 5
+            and org.new_hire_email
+        ):
+            async_task("users.tasks.send_new_hire_credentials", new_hire.id)
+
+        # Linking user in Slack and sending welcome message (if exists)
+        link_slack_users([new_hire])
+
         return super().form_valid(form)
 
 
@@ -169,9 +189,9 @@ class ColleagueToggleResourceView(LoginRequiredMixin, AdminPermMixin, TemplateVi
             user.resources.remove(resource)
         else:
             user.resources.add(resource)
-        context['id'] = id
-        context['template'] = resource
-        context['object'] = user
+        context["id"] = id
+        context["template"] = resource
+        context["object"] = user
         return context
 
 
@@ -251,7 +271,9 @@ class NewHireAdminTasksView(LoginRequiredMixin, AdminPermMixin, TemplateView):
         context["object"] = new_hire
         context["title"] = new_hire.full_name
         context["subtitle"] = "new hire"
-        context["tasks_completed"] = AdminTask.objects.filter(new_hire=new_hire, completed=True)
+        context["tasks_completed"] = AdminTask.objects.filter(
+            new_hire=new_hire, completed=True
+        )
         context["tasks_open"] = AdminTask.objects.filter(new_hire=new_hire, completed=False)
         return context
 
@@ -266,8 +288,12 @@ class NewHireFormsView(LoginRequiredMixin, AdminPermMixin, DetailView):
         new_hire = self.object
         context["title"] = new_hire.full_name
         context["subtitle"] = "new hire"
-        context["preboarding_forms"] = PreboardingUser.objects.filter(user=new_hire, completed=True).exclude(form=[])
-        context["todo_forms"] = ToDoUser.objects.filter(user=new_hire, completed=True).exclude(form=[])
+        context["preboarding_forms"] = PreboardingUser.objects.filter(
+            user=new_hire, completed=True
+        ).exclude(form=[])
+        context["todo_forms"] = ToDoUser.objects.filter(user=new_hire, completed=True).exclude(
+            form=[]
+        )
         return context
 
 
@@ -281,7 +307,9 @@ class NewHireProgressView(LoginRequiredMixin, AdminPermMixin, DetailView):
         new_hire = self.object
         context["title"] = new_hire.full_name
         context["subtitle"] = "new hire"
-        context["resources"] = ResourceUser.objects.filter(user=new_hire, resource__course=True)
+        context["resources"] = ResourceUser.objects.filter(
+            user=new_hire, resource__course=True
+        )
         context["todos"] = ToDoUser.objects.filter(user=new_hire)
         return context
 
@@ -313,14 +341,16 @@ class NewHireTaskListView(LoginRequiredMixin, AdminPermMixin, DetailView):
         context["title"] = f"Add/Remove templates for {self.object.full_name}"
         context["subtitle"] = "new hire"
         context["object_list"] = templates_model.templates.all()
-        context["user_items"] = getattr(self.object, get_user_field(self.kwargs.get("type", "")))
+        context["user_items"] = getattr(
+            self.object, get_user_field(self.kwargs.get("type", ""))
+        )
         return context
 
 
 class NewHireToggleTaskView(LoginRequiredMixin, AdminPermMixin, TemplateView):
     template_name = "_toggle_button_new_hire_template.html"
 
-    def get_context_data(self, pk, template_id, type,  **kwargs):
+    def get_context_data(self, pk, template_id, type, **kwargs):
         context = super().get_context_data(**kwargs)
         user = get_object_or_404(get_user_model(), id=pk)
         templates_model = get_templates_model(type)
@@ -333,10 +363,9 @@ class NewHireToggleTaskView(LoginRequiredMixin, AdminPermMixin, TemplateView):
             user_items.remove(template)
         else:
             user_items.add(template)
-        context['id'] = id
-        context['template'] = template
-        context['user_items'] = user_items
-        context['object'] = user
-        context['template_type'] = type
+        context["id"] = id
+        context["template"] = template
+        context["user_items"] = user_items
+        context["object"] = user
+        context["template_type"] = type
         return context
-

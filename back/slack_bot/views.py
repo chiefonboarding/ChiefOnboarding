@@ -13,6 +13,7 @@ from integrations.models import AccessToken
 from users.models import NewHireWelcomeMessage, ResourceUser
 from resources.models import Category, Chapter
 from misc.serializers import ContentSerializer
+
 # from fuzzywuzzy import process
 from organization.models import Organization
 from users.models import NewHireWelcomeMessage, ResourceUser, ToDoUser, User
@@ -35,7 +36,9 @@ class BotView(APIView):
         # verify Slack request endpoint
         if (
             "token" not in request.data
-            or not AccessToken.objects.filter(verification_token=request.data["token"]).exists()
+            or not AccessToken.objects.filter(
+                verification_token=request.data["token"]
+            ).exists()
         ):
             return Response()
 
@@ -44,7 +47,10 @@ class BotView(APIView):
             "bot_id" in request.data["event"]
             or not "event" in request.data
             or "subtype" in request.data["event"]
-            or (request.data["event"]["type"] != "message" and request.data["event"]["type"] != "team_join")
+            or (
+                request.data["event"]["type"] != "message"
+                and request.data["event"]["type"] != "team_join"
+            )
         ):
             return Response("ok")
 
@@ -57,7 +63,10 @@ class BotView(APIView):
             org = Organization.object.get()
             s = Slack()
             user = s.find_user_by_id(request.data["event"]["user"]["id"])
-            if org.auto_create_user and not User.objects.filter(email=user["profile"]["email"]).exists():
+            if (
+                org.auto_create_user
+                and not User.objects.filter(email=user["profile"]["email"]).exists()
+            ):
                 if len(user["profile"]["real_name"].split(" ")) > 1:
                     first_name = user["profile"]["real_name"].split(" ")[0]
                     last_name = user["profile"]["real_name"].split(" ")[1]
@@ -85,13 +94,17 @@ class BotView(APIView):
                     # needs approval for new hire account
                     s = Slack()
                     s.set_user(org.slack_confirm_person)
-                    blocks = s.format_account_approval_approval(request.data["event"]["user"], user.id)
+                    blocks = s.format_account_approval_approval(
+                        request.data["event"]["user"], user.id
+                    )
                     s.send_message(blocks=blocks)
             return Response("ok")
 
         s = Slack(request.data)
         if not s.has_account():
-            s.send_message(text="You don't seem to be setup yet. Please ask your supervisor for access.")
+            s.send_message(
+                text="You don't seem to be setup yet. Please ask your supervisor for access."
+            )
             return Response()
 
         if s.text == "hello":
@@ -102,7 +115,11 @@ class BotView(APIView):
                 tasks = tasks.filter(to_do__due_on_day=s.user_obj.workday())
             if "overdue" in s.text:
                 tasks = tasks.filter(to_do__due_on_day__lt=s.user_obj.workday())
-            text = _("These are the tasks you need to complete:") if tasks.exists() else _("I couldn't find any tasks.")
+            text = (
+                _("These are the tasks you need to complete:")
+                if tasks.exists()
+                else _("I couldn't find any tasks.")
+            )
             blocks = s.format_to_do_block(pre_message=text, items=tasks)
             s.send_message(blocks=blocks)
 
@@ -137,7 +154,11 @@ class BotView(APIView):
             #     if o[1] > 50:
             #         resources.append(ResourceUser.objects.filter(user=s.user_obj, resource__name=o[0]).first())
             blocks = []
-            text = _("Here is what I found: ") if len(resources) > 0 else _("Unfortunately, I couldn't find anything.")
+            text = (
+                _("Here is what I found: ")
+                if len(resources) > 0
+                else _("Unfortunately, I couldn't find anything.")
+            )
             blocks.extend(s.format_resource_block(resources, pre_message=text))
             s.send_message(blocks=blocks)
 
@@ -157,7 +178,10 @@ class CallbackView(APIView):
         response = json.loads(response.replace('+', ' '))
 
         # verify Slack request endpoint
-        if "token" not in response or not AccessToken.objects.filter(verification_token=response["token"]).exists():
+        if (
+            "token" not in response
+            or not AccessToken.objects.filter(verification_token=response["token"]).exists()
+        ):
             return Response()
 
         s = Slack(response)
@@ -256,7 +280,10 @@ class CallbackView(APIView):
                         response["trigger_id"],
                         to_do_user.to_do.name,
                         blocks,
-                        callback="complete:to_do:" + value.split(":")[2] + ":" + s.container["message_ts"],
+                        callback="complete:to_do:"
+                        + value.split(":")[2]
+                        + ":"
+                        + s.container["message_ts"],
                         private_metadata=str(private_metadata),
                         submit_name=None,
                     )
@@ -290,7 +317,9 @@ class CallbackView(APIView):
 
                 # show first resource
                 if "resource" in value or "course" in value:
-                    book_user = ResourceUser.objects.get(user=s.user_obj, id=int(value.split(":")[2]))
+                    book_user = ResourceUser.objects.get(
+                        user=s.user_obj, id=int(value.split(":")[2])
+                    )
                     options = []
                     blocks = []
                     type = "course"
@@ -332,7 +361,7 @@ class CallbackView(APIView):
                         response["trigger_id"],
                         "Resource",
                         blocks,
-                        callback="dialog:" + type + ":" + str(book_user.id) + ":" + str(resource.id),
+                        callback=f"dialog:{type}:{book_user.id}:{resource.id}",
                         private_metadata="",
                         submit_name="Next",
                     )
@@ -342,7 +371,9 @@ class CallbackView(APIView):
             if "to_do:external" in value:
                 to_do_user = ToDoUser.objects.get(id=value.split(":")[2], user=s.user_obj)
                 if len(to_do_user.form) == 0:
-                    s.send_message(text="Please complete the form first. Click on 'View details' to complete it.")
+                    s.send_message(
+                        text="Please complete the form first. Click on 'View details' to complete it."
+                    )
                     return Response()
                 items = to_do_user.mark_completed()
                 s.send_sequence_triggers(items, to_do_user)
@@ -388,9 +419,13 @@ class CallbackView(APIView):
                 for i in form:
                     user_data = response["view"]["state"]["values"][i["id"]][i["id"]]
                     if user_data["type"] == "static_select":
-                        i["answer"] = response["view"]["state"]["values"][i["id"]][i["id"]]["selected_option"]["value"]
+                        i["answer"] = response["view"]["state"]["values"][i["id"]][i["id"]][
+                            "selected_option"
+                        ]["value"]
                     else:
-                        i["answer"] = response["view"]["state"]["values"][i["id"]][i["id"]]["value"]
+                        i["answer"] = response["view"]["state"]["values"][i["id"]][i["id"]][
+                            "value"
+                        ]
                 to_do_user.form = form
                 to_do_user.save()
                 items = to_do_user.mark_completed()
@@ -411,7 +446,9 @@ class CallbackView(APIView):
                     answers = []
                     for i in form:
                         answers.append(
-                            response["view"]["state"]["values"][str(i["id"])][str(i["id"])]["selected_option"]["value"]
+                            response["view"]["state"]["values"][str(i["id"])][str(i["id"])][
+                                "selected_option"
+                            ]["value"]
                         )
                     course_answer, cre = book_user.answers.get_or_create(
                         resource=resource, defaults={"answers": answers}
@@ -425,14 +462,18 @@ class CallbackView(APIView):
                 book_user.add_step(resource)
                 if resource is None:
                     return Response()
-                view = s.create_updated_view(resource.id, response["view"], book_user.completed_course)
+                view = s.create_updated_view(
+                    resource.id, response["view"], book_user.completed_course
+                )
                 return Response({"response_action": "update", "view": view})
 
             if "approve:newhire" in value:
                 new_hire = User.objects.get(id=int(response["view"]["private_metadata"]))
                 new_hire.role = 0
                 new_hire.save()
-                for i in response["view"]["state"]["values"]["seq"]["answers"]["selected_options"]:
+                for i in response["view"]["state"]["values"]["seq"]["answers"][
+                    "selected_options"
+                ]:
                     seq = Sequence.objects.get(id=i["value"])
                     seq.assign_to_user(new_hire)
                 s.client.chat_delete(
@@ -443,26 +484,3 @@ class CallbackView(APIView):
 
         return Response()
 
-
-class SlackChannelsView(APIView):
-    """
-    API endpoint that allows notes to be deleted.
-    """
-
-    def get(self, request):
-        if not AccessToken.objects.filter(integration=0, active=True).exists():
-            return Response([])
-        s = Slack()
-        return Response(s.get_channels())
-
-
-class SlackPeopleView(APIView):
-    """
-    API endpoint that allows notes to be deleted.
-    """
-
-    def get(self, request):
-        if not AccessToken.objects.filter(integration=0).exists():
-            return Response()
-        s = Slack()
-        return Response(s.get_channels())

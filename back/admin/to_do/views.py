@@ -1,13 +1,14 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.contrib import messages
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
+from users.mixins import AdminPermMixin, LoginRequiredMixin
+
 from .forms import ToDoForm
 from .models import ToDo
-from users.mixins import LoginRequiredMixin, AdminPermMixin
 
 
 class ToDoListView(LoginRequiredMixin, AdminPermMixin, ListView):

@@ -66,6 +66,9 @@ class CustomUserManager(BaseUserManager):
     def create_manager(self, first_name, last_name, email, password, **extra_fields):
         return self._create_user(first_name, last_name, email, password, 2, **extra_fields)
 
+    def get_by_natural_key(self, email):
+        return self.get(**{self.model.USERNAME_FIELD + '__iexact': email})
+
 
 class ManagerManager(models.Manager):
     def get_queryset(self):
@@ -76,6 +79,8 @@ class NewHireManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(role=0)
 
+    def without_slack(self):
+        return self.get_queryset().filter(slack_user_id="")
 
 class AdminManager(models.Manager):
     def get_queryset(self):
@@ -115,16 +120,24 @@ class User(AbstractBaseUser):
     # new hire specific
     completed_tasks = models.IntegerField(default=0)
     total_tasks = models.IntegerField(default=0)
-    buddy = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, related_name="new_hire_buddy")
-    manager = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, related_name="new_hire_manager")
+    buddy = models.ForeignKey(
+        "self", on_delete=models.SET_NULL, null=True, related_name="new_hire_buddy"
+    )
+    manager = models.ForeignKey(
+        "self", on_delete=models.SET_NULL, null=True, related_name="new_hire_manager"
+    )
     start_day = models.DateField(null=True, blank=True, help_text="First working day")
     unique_url = models.CharField(max_length=250, null=True, unique=True, blank=True)
 
     to_do = models.ManyToManyField(ToDo, through="ToDoUser", related_name="user_todos")
     introductions = models.ManyToManyField(Introduction, related_name="user_introductions")
-    resources = models.ManyToManyField(Resource, through="ResourceUser", related_name="user_resources")
+    resources = models.ManyToManyField(
+        Resource, through="ResourceUser", related_name="user_resources"
+    )
     appointments = models.ManyToManyField(Appointment, related_name="user_appointments")
-    preboarding = models.ManyToManyField(Preboarding, through="PreboardingUser", related_name="user_preboardings")
+    preboarding = models.ManyToManyField(
+        Preboarding, through="PreboardingUser", related_name="user_preboardings"
+    )
     badges = models.ManyToManyField(Badge, related_name="user_introductions")
 
     # Conditions copied over from chosen sequences
@@ -194,7 +207,11 @@ class User(AbstractBaseUser):
 
         local_tz = pytz.timezone("UTC")
         org = Organization.object.get()
-        us_tz = pytz.timezone(org.timezone) if self.timezone == "" else pytz.timezone(self.timezone)
+        us_tz = (
+            pytz.timezone(org.timezone)
+            if self.timezone == ""
+            else pytz.timezone(self.timezone)
+        )
         local = local_tz.localize(datetime.now()) if date is None else local_tz.localize(date)
         return us_tz.normalize(local.astimezone(us_tz))
 
@@ -242,6 +259,10 @@ class User(AbstractBaseUser):
         return self.role in (1, 2)
 
     @property
+    def is_admin(self):
+        return self.role == 1
+
+    @property
     def has_new_changelog_notifications(self):
         last_changelog_item = Changelog.objects.last()
         return self.seen_updates < last_changelog_item.added
@@ -251,7 +272,9 @@ class User(AbstractBaseUser):
 
 
 class ToDoUser(models.Model):
-    user = models.ForeignKey(get_user_model(), related_name="to_do_new_hire", on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        get_user_model(), related_name="to_do_new_hire", on_delete=models.CASCADE
+    )
     to_do = models.ForeignKey(ToDo, related_name="to_do", on_delete=models.CASCADE)
     completed = models.BooleanField(default=False)
     form = models.JSONField(models.TextField(default="[]"), default=list)
@@ -280,8 +303,12 @@ class ToDoUser(models.Model):
 
 
 class PreboardingUser(models.Model):
-    user = models.ForeignKey(get_user_model(), related_name="new_hire_preboarding", on_delete=models.CASCADE)
-    preboarding = models.ForeignKey(Preboarding, related_name="preboarding_new_hire", on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        get_user_model(), related_name="new_hire_preboarding", on_delete=models.CASCADE
+    )
+    preboarding = models.ForeignKey(
+        Preboarding, related_name="preboarding_new_hire", on_delete=models.CASCADE
+    )
     form = models.JSONField(models.TextField(max_length=100000, default="[]"), default=list)
     completed = models.BooleanField(default=False)
     order = models.IntegerField(default=0)
@@ -289,13 +316,19 @@ class PreboardingUser(models.Model):
     def save(self, *args, **kwargs):
         # adding order number when record is not created yet (always the last item in the list)
         if not self.pk:
-            self.order = PreboardingUser.objects.filter(user=self.user, preboarding=self.preboarding).count()
+            self.order = PreboardingUser.objects.filter(
+                user=self.user, preboarding=self.preboarding
+            ).count()
         super(PreboardingUser, self).save(*args, **kwargs)
 
 
 class ResourceUser(models.Model):
-    user = models.ForeignKey(get_user_model(), related_name="new_hire_resource", on_delete=models.CASCADE)
-    resource = models.ForeignKey(Resource, related_name="resource_new_hire", on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        get_user_model(), related_name="new_hire_resource", on_delete=models.CASCADE
+    )
+    resource = models.ForeignKey(
+        Resource, related_name="resource_new_hire", on_delete=models.CASCADE
+    )
     step = models.IntegerField(default=0)
     answers = models.ManyToManyField(CourseAnswer)
     reminded = models.DateTimeField(null=True)
@@ -326,12 +359,18 @@ class ResourceUser(models.Model):
 
 class NewHireWelcomeMessage(models.Model):
     # messages placed through the slack bot
-    new_hire = models.ForeignKey(get_user_model(), related_name="welcome_new_hire", on_delete=models.CASCADE)
-    colleague = models.ForeignKey(get_user_model(), related_name="welcome_colleague", on_delete=models.CASCADE)
+    new_hire = models.ForeignKey(
+        get_user_model(), related_name="welcome_new_hire", on_delete=models.CASCADE
+    )
+    colleague = models.ForeignKey(
+        get_user_model(), related_name="welcome_colleague", on_delete=models.CASCADE
+    )
     message = models.TextField()
 
 
 class OTPRecoveryKey(models.Model):
-    user = models.ForeignKey(get_user_model(), related_name="user_otp", on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        get_user_model(), related_name="user_otp", on_delete=models.CASCADE
+    )
     key = EncryptedTextField(default=uuid.uuid4)
     is_used = models.BooleanField(default=False)

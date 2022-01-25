@@ -4,9 +4,10 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
+from users.mixins import AdminPermMixin, LoginRequiredMixin
+
 from .forms import BadgeForm
 from .models import Badge
-from users.mixins import LoginRequiredMixin, AdminPermMixin
 
 
 class BadgeListView(LoginRequiredMixin, AdminPermMixin, ListView):
@@ -48,7 +49,6 @@ class BadgeUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, U
         context["title"] = "Update badge item"
         context["subtitle"] = "templates"
         return context
-
 
 
 class BadgeDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):

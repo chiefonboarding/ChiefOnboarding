@@ -1,12 +1,11 @@
 from django.conf import settings
 from django.db import models
 from django.db.models import Prefetch
-from django.urls import reverse
 from django.template.loader import render_to_string
+from django.urls import reverse
 from twilio.rest import Client
 
-from admin.admin_tasks.models import (NOTIFICATION_CHOICES, PRIORITY_CHOICES,
-                                      AdminTask)
+from admin.admin_tasks.models import NOTIFICATION_CHOICES, PRIORITY_CHOICES, AdminTask
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
 from admin.introductions.models import Introduction
@@ -54,7 +53,10 @@ class Sequence(models.Model):
                 condition = None
                 for j in conditions:
                     valid = True
-                    if original_record.condition_to_do.count() is not j.condition_to_do.count():
+                    if (
+                        original_record.condition_to_do.count()
+                        is not j.condition_to_do.count()
+                    ):
                         continue
                     for h in original_record.condition_to_do.all():
                         if not j.condition_to_do.filter(pk=h.pk).exists():
@@ -101,13 +103,17 @@ class ExternalMessage(models.Model):
     content = models.CharField(max_length=12000, blank=True)
     content_json = models.ManyToManyField(Content)
     send_via = models.IntegerField(choices=EXTERNAL_TYPE)
-    send_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
+    send_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True
+    )
     subject = models.CharField(max_length=78, default="Here is an update!", blank=True)
     person_type = models.IntegerField(choices=PEOPLE_CHOICES, default=1)
 
     def email_message(self):
         email_data = []
-        for i in self.content_json.filter(type__in=["p", "quote", "hr", "ul", "ol", "h1", "h2", "h3", "image", "file"]):
+        for i in self.content_json.filter(
+            type__in=["p", "quote", "hr", "ul", "ol", "h1", "h2", "h3", "image", "file"]
+        ):
             if i.type == "quote":
                 email_data.append({"type": "block", "text": i.content})
             else:
@@ -161,7 +167,9 @@ class ExternalMessage(models.Model):
 class PendingAdminTask(models.Model):
     name = models.CharField(max_length=500)
     comment = models.CharField(max_length=12500, default="", blank=True)
-    assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="assigned_user")
+    assigned_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="assigned_user"
+    )
     option = models.CharField(max_length=12500, choices=NOTIFICATION_CHOICES)
     slack_user = models.CharField(max_length=12500, default="", blank=True)
     email = models.EmailField(max_length=12500, default="", blank=True)
@@ -175,17 +183,24 @@ class PendingAdminTask(models.Model):
 
 class AccountProvision(models.Model):
     INTEGRATION_OPTIONS = (
-        ('asana', 'Add Asana account to team'),
-        ('google', 'Create Google account'),
-        ('slack', 'Create Slack account')
+        ("asana", "Add Asana account to team"),
+        ("google", "Create Google account"),
+        ("slack", "Create Slack account"),
     )
     integration_type = models.CharField(max_length=10, choices=INTEGRATION_OPTIONS)
     additional_data = models.JSONField(models.TextField(blank=True), default=dict)
 
 
 class Condition(models.Model):
-    CONDITION_TYPE = ((0, "After new hire has started"), (1, "Based on one or more to do item(s)"), (2, "Before the new hire has started"), (3, "Without trigger"))
-    sequence = models.ForeignKey(Sequence, on_delete=models.CASCADE, null=True, related_name="conditions")
+    CONDITION_TYPE = (
+        (0, "After new hire has started"),
+        (1, "Based on one or more to do item(s)"),
+        (2, "Before the new hire has started"),
+        (3, "Without trigger"),
+    )
+    sequence = models.ForeignKey(
+        Sequence, on_delete=models.CASCADE, null=True, related_name="conditions"
+    )
     condition_type = models.IntegerField(choices=CONDITION_TYPE, default=0)
     days = models.IntegerField(default=0)
     time = models.TimeField(default="08:00")
@@ -204,7 +219,7 @@ class Condition(models.Model):
         # model_item is a template item. I.e. a ToDo object.
         for field in self._meta.many_to_many:
             # We only want to remove assigned items, not triggers
-            if field.name == 'condition_to_do':
+            if field.name == "condition_to_do":
                 continue
             if field.related_model._meta.model_name == type(model_item)._meta.model_name:
                 self.__getattribute__(field.name).remove(model_item)
@@ -213,11 +228,10 @@ class Condition(models.Model):
         # model_item is a template item. I.e. a ToDo object.
         for field in self._meta.many_to_many:
             # We only want to add assigned items, not triggers
-            if field.name == 'condition_to_do':
+            if field.name == "condition_to_do":
                 continue
             if field.related_model._meta.model_name == type(model_item)._meta.model_name:
                 self.__getattribute__(field.name).add(model_item)
-
 
     def process_condition(self, user):
         from admin_tasks.models import AdminTaskComment
@@ -245,17 +259,23 @@ class Condition(models.Model):
                 user.introductions.add(i)
 
         for i in self.admin_tasks.all():
-            if not AdminTask.objects.filter(new_hire=user, assigned_to=i.assigned_to, name=i.name).exists():
+            if not AdminTask.objects.filter(
+                new_hire=user, assigned_to=i.assigned_to, name=i.name
+            ).exists():
                 serializer = PendingAdminTaskSerializer(i).data
                 serializer.pop("assigned_to")
                 serializer.pop("id")
                 comment = serializer.pop("comment")
-                task = AdminTask.objects.create(**serializer, assigned_to=i.assigned_to, new_hire=user)
+                task = AdminTask.objects.create(
+                    **serializer, assigned_to=i.assigned_to, new_hire=user
+                )
                 if comment is not None:
-                    AdminTaskComment.objects.create(content=comment, comment_by=task.assigned_to, admin_task=task)
+                    AdminTaskComment.objects.create(
+                        content=comment, comment_by=task.assigned_to, admin_task=task
+                    )
 
         for i in self.external_messages.all():
-            if i.get_user(user) == None:
+            if i.get_user(user) is None:
                 continue
             if i.send_via == 0:  # email
                 try:
@@ -270,7 +290,7 @@ class Condition(models.Model):
                     blocks.append(j.to_slack_block(user))
                 s.send_message(blocks=blocks)
             else:  # text
-                if i.get_user(user).phone is not None and i.get_user(user).phone != "":
+                if i.get_user(user).phone != "":
                     client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
                     client.messages.create(
                         to=i.get_user(user).phone,

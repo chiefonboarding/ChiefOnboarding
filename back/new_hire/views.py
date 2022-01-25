@@ -23,19 +23,20 @@ from admin.resources.models import Chapter, CourseAnswer, Resource
 from admin.resources.serializers import ResourceSerializer
 from admin.to_do.models import ToDo
 from admin.to_do.serializers import ToDoSerializer
-from new_hire.serializers import (NewHireBadgeSerializer,
-                                  NewHireResourceItemSerializer,
-                                  NewHireResourceSerializer,
-                                  PreboardingUserSerializer,
-                                  ToDoUserSerializer)
+from new_hire.serializers import (
+    NewHireBadgeSerializer,
+    NewHireResourceItemSerializer,
+    NewHireResourceSerializer,
+    PreboardingUserSerializer,
+    ToDoUserSerializer,
+)
 from organization.models import Organization
 from organization.serializers import BaseOrganizationSerializer
-from users.models import (NewHireWelcomeMessage, PreboardingUser, ResourceUser,
-                          ToDoUser, User)
+from users.mixins import LoginRequiredMixin
+from users.models import NewHireWelcomeMessage, PreboardingUser, ResourceUser, ToDoUser, User
 from users.permissions import NewHirePermission
 from users.serializers import EmployeeSerializer, NewHireSerializer
 
-from users.mixins import LoginRequiredMixin
 
 class NewHireDashboard(LoginRequiredMixin, TemplateView):
     template_name = "new_hire_to_dos.html"
@@ -49,7 +50,9 @@ class NewHireDashboard(LoginRequiredMixin, TemplateView):
             user=new_hire, to_do__due_on_day__lt=new_hire.workday(), completed=False
         )
 
-        to_do_items = ToDoUser.objects.filter(user=new_hire, to_do__due_on_day__gte=new_hire.workday())
+        to_do_items = ToDoUser.objects.filter(
+            user=new_hire, to_do__due_on_day__gte=new_hire.workday()
+        )
 
         # Group items by amount work days
         items_by_date = []
@@ -66,7 +69,9 @@ class NewHireDashboard(LoginRequiredMixin, TemplateView):
                 items_by_date.append(new_date)
             else:
                 # Can never be two or more, since it's catching it if it already exists
-                existing_date = [item for item in items_by_date if item["day"] == to_do.due_on_day][0]
+                existing_date = [
+                    item for item in items_by_date if item["day"] == to_do.due_on_day
+                ][0]
                 existing_date["items"].append(to_do_user)
 
         # Convert days to date object
@@ -91,7 +96,11 @@ class PreboardingShortURLRedirectView(LoginRequiredMixin, RedirectView):
 
     def dispatch(self, *args, **kwargs):
         try:
-            user = User.objects.get(unique_url=self.request.GET.get("token", ""), start_day__gte=timezone.now(), role=0)
+            user = User.objects.get(
+                unique_url=self.request.GET.get("token", ""),
+                start_day__gte=timezone.now(),
+                role=0,
+            )
         except User.DoesNotExist:
             # Log wrong keys by ip to prevent guessing/bruteforcing
             signals.user_login_failed.send(
@@ -111,7 +120,9 @@ class PreboardingShortURLRedirectView(LoginRequiredMixin, RedirectView):
         return super().dispatch(*args, **kwargs)
 
     def get_redirect_url(self, *args, **kwargs):
-        preboarding_user = PreboardingUser.objects.filter(user=self.request.user).order_by("order")
+        preboarding_user = PreboardingUser.objects.filter(user=self.request.user).order_by(
+            "order"
+        )
         return reverse("new_hire:preboarding", args=[preboarding_user.first().id])
 
 
@@ -127,13 +138,20 @@ class PreboardingDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         preboarding_user_items = list(
-            PreboardingUser.objects.filter(user=self.request.user).order_by("order").values_list("id", flat=True)
+            PreboardingUser.objects.filter(user=self.request.user)
+            .order_by("order")
+            .values_list("id", flat=True)
         )
         index_current_item = preboarding_user_items.index(self.object.id)
 
         # Add new hire welcome messages to first page
-        if index_current_item == 0 and NewHireWelcomeMessage.objects.filter(new_hire=self.request.user).exists():
-            context["welcome_messages"] = NewHireWelcomeMessage.objects.filter(new_hire=self.request.user)
+        if (
+            index_current_item == 0
+            and NewHireWelcomeMessage.objects.filter(new_hire=self.request.user).exists()
+        ):
+            context["welcome_messages"] = NewHireWelcomeMessage.objects.filter(
+                new_hire=self.request.user
+            )
 
         # Check that current item is not last, otherwise push first
         if self.object.id != preboarding_user_items[-1]:
@@ -160,7 +178,9 @@ class ColleagueSearchView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         search = self.request.GET.get("search", "")
-        return get_user_model().objects.filter(Q(first_name__icontains=search), Q(last_name__icontains=search))
+        return get_user_model().objects.filter(
+            Q(first_name__icontains=search), Q(last_name__icontains=search)
+        )
 
 
 class ResourceListView(LoginRequiredMixin, TemplateView):
