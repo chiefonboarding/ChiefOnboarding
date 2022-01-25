@@ -3,13 +3,13 @@ from django.contrib.auth.views import (LoginView, LogoutView,
                                        PasswordResetConfirmView,
                                        PasswordResetDoneView,
                                        PasswordResetView)
-from django.urls import include, path
-from rest_framework import routers
+from django.urls import path
 
 from . import views
 
 urlpatterns = [
     path("", LoginView.as_view(template_name="login.html"), name="login"),
+    path("mfa/", views.MFAView.as_view(), name="mfa"),
     path("login", LoginView.as_view(), name="login-url"),
     path("logout", LogoutView.as_view(), name="logout"),
     path(
@@ -33,10 +33,4 @@ urlpatterns = [
         name="password_reset_done",
     ),
     path("redirect", views.LoginRedirectView.as_view(), name="logged_in_user_redirect"),
-    path("mfa/", views.MFAView.as_view(), name="mfa"),
-    # SPA
-    path("google_login", views.GoogleLoginView.as_view()),
-    # path('logout', LogoutView.as_view()),
-    # path('user', UserDetailsView.as_view()),
-    # path('password/change', PasswordChangeView.as_view()),
 ]

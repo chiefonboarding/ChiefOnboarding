@@ -99,7 +99,7 @@
                     </span>
                   </a>
                 </li>
-                <li class="nav-item dropdown">
+                <li class="nav-item dropdown {% if 'tasks' in request.path %}active{% endif %}">
                   <a class="nav-link dropdown-toggle" href="#navbar-tasks" data-bs-toggle="dropdown" role="button" aria-expanded="false" >
                     <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/star -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3.5 5.5l1.5 1.5l2.5 -2.5"></path><path d="M3.5 11.5l1.5 1.5l2.5 -2.5"></path><path d="M3.5 17.5l1.5 1.5l2.5 -2.5"></path><line x1="11" y1="6" x2="20" y2="6"></line><line x1="11" y1="12" x2="20" y2="12"></line><line x1="11" y1="18" x2="20" y2="18"></line></svg>
@@ -117,7 +117,7 @@
                       </a>
                   </div>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item {% if 'settings' in request.path %}active{% endif %}">
                   <a class="nav-link" href="{% url 'settings:general' %}" role="button" aria-expanded="false">
                     <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/star -->
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-settings" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
@@ -216,16 +216,6 @@
     <!-- scripts for editor -->
     <script src="{% static 'js/editor-2.22.2.min.js' %}" type="text/javascript"></script>
 
-    {% comment %}
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/nested-list@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/delimiter@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/image@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/attaches@latest"></script>
-    {% endcomment %}
-
     <!-- script for datepicker -->
     <script src="{% static 'js/litepicker-2.0.12.min.js' %}" type="text/javascript"></script>
     <script>
@@ -248,6 +238,11 @@
         if ($("#id_start_day").length) {
           new Litepicker({
             element: document.getElementById("id_start_day")
+          });
+        }
+        if ($("#id_date").length) {
+          new Litepicker({
+            element: document.getElementById("id_date")
           });
         }
         initSelectize()
@@ -294,11 +289,6 @@
           $('.modal').modal('hide')
           document.getElementById("add-condition-form").reset();
       })
-      // reload selectboxes when we get a new form back from backend
-      document.getElementById("condition_form").addEventListener('htmx:load', function(evt) {
-        $("#id_condition_to_do").selectize()
-        $("#id_condition_type").selectize()
-      });
       function triggerChange(event){
         const url = event.target.dataset.url
         const values = $('#' + event.target.getAttribute('id')).val()
@@ -422,7 +412,6 @@
       }
       $(document).on('change', "select#id_condition_type", function() {
         // Change things to fill in when condition_type changes
-        console.log("got here")
         if ($(this).val() == 1){
           $("#add-condition-form #div_id_condition_to_do").parent().removeClass("d-none")
           $("#div_id_days").parent().addClass("d-none")

@@ -7,9 +7,11 @@ from django.contrib.auth import get_user_model
 from admin.sequences.models import Sequence
 from admin.to_do.forms import MultiSelectField, UploadField
 
+import pytz
 
 class NewHireAddForm(forms.ModelForm):
     sequences = forms.ModelMultipleChoiceField(queryset=Sequence.objects.all(), to_field_name="id", required=False)
+    timezone = forms.ChoiceField(choices=[(x, x) for x in pytz.common_timezones])
     start_day = forms.DateField(required=True)
 
     def __init__(self, *args, **kwargs):
@@ -56,6 +58,8 @@ class NewHireAddForm(forms.ModelForm):
 
 
 class NewHireProfileForm(forms.ModelForm):
+    timezone = forms.ChoiceField(choices=[(x, x) for x in pytz.common_timezones])
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()

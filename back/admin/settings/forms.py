@@ -12,8 +12,11 @@ from organization.models import Organization, WelcomeMessage
 
 from django.core.cache import cache
 
+import pytz
 
 class OrganizationGeneralForm(forms.ModelForm):
+    timezone = forms.ChoiceField(choices=[(x, x) for x in pytz.common_timezones])
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()

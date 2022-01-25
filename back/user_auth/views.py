@@ -50,6 +50,13 @@ class MFAView(LoginRequiredMixin, FormView):
         return kwargs
 
     def form_invalid(self, form):
+        # Check if recovery key was entered instead
+        recovery_key = self.request.user.check_otp_recovery_key(form.data['otp'])
+        if recovery_key is not None:
+            self.request.user.requires_otp = False
+            self.request.user.save()
+            return redirect("logged_in_user_redirect")
+
         # Log wrong keys by ip to prevent guessing/bruteforcing
         signals.user_login_failed.send(
             sender=self.request.user,

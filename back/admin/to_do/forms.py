@@ -56,7 +56,6 @@ class ToDoForm(forms.ModelForm):
                     WYSIWYGField("content_json"),
                     Field("send_back"),
                     Field("channel"),
-                    Field("form"),
                     css_class="col-8"
                 ),
                 css_class="row",

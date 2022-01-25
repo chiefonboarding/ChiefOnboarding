@@ -117,5 +117,10 @@ function editCondition(id) {
     htmx.ajax('GET', `/api/sequences/{{ object.id }}/condition/${id}/`, `#add-condition-form`)
   $('#modal-block').modal('show')
 }
+// reload selectboxes when we get a new form back from backend
+document.getElementById("condition_form").addEventListener('htmx:load', function(evt) {
+  $("#id_condition_to_do").selectize()
+  $("#id_condition_type").selectize()
+});
 </script>
 {% endblock %}

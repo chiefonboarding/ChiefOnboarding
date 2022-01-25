@@ -1,92 +1,12 @@
-import boto3
-from botocore.config import Config
-from django.conf import settings
-from django.core import management
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from admin.sequences.models import Sequence
 from misc.models import File
 from misc.s3 import S3
 from misc.serializers import FileSerializer
-from users.permissions import (AdminPermission, ManagerPermission,
-                               NewHirePermission)
-
-from .models import Organization, Tag, WelcomeMessage
-from .serializers import (BaseOrganizationSerializer,
-                          DetailOrganizationSerializer, ExportSerializer,
-                          WelcomeMessageSerializer)
-
-
-def home(request):
-    return render(request, "index.html")
-
-
-class OrgView(APIView):
-    permission_classes = (AllowAny,)
-
-    def get(self, request):
-        org = BaseOrganizationSerializer(Organization.object.get())
-        return Response(org.data)
-
-
-class OrgDetailView(APIView):
-    permission_classes = (ManagerPermission,)
-
-    def get(self, request):
-        org = DetailOrganizationSerializer(Organization.object.get())
-        return Response(org.data)
-
-    def patch(self, request):
-        serializer = DetailOrganizationSerializer(Organization.object.get(), data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        if "auto_add_sequence" in request.data:
-            Sequence.objects.all().update(auto_add=False)
-            for i in request.data["auto_add_sequence"]:
-                seq = Sequence.objects.get(id=i)
-                seq.auto_add = True
-                seq.save()
-
-        serializer.save()
-        return Response(serializer.data)
-
-
-class WelcomeMessageView(APIView):
-    def get(self, request):
-        welcome_messages = WelcomeMessage.objects.all()
-        serializer = WelcomeMessageSerializer(welcome_messages, many=True)
-        return Response(serializer.data)
-
-    def post(self, request):
-        serializer = WelcomeMessageSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        welcome_message = WelcomeMessage.objects.get(
-            language=serializer.data["language"],
-            message_type=serializer.data["message_type"],
-        )
-        welcome_message.message = serializer.data["message"]
-        welcome_message.save()
-        return Response(serializer.data)
-
-
-class TagView(APIView):
-    def get(self, request):
-        tags = [i.name for i in Tag.objects.all()]
-        return Response(tags)
-
-
-class CSRFTokenView(APIView):
-    permission_classes = (AllowAny,)
-
-    @method_decorator(ensure_csrf_cookie)
-    def get(self, request):
-        return HttpResponse()
 
 
 class FileView(APIView):
@@ -106,7 +26,7 @@ class FileView(APIView):
         )
         serializer.is_valid(raise_exception=True)
         f = serializer.save()
-        key = str(f.id) + "-" + request.data["name"].split(".")[0] + "/" + request.data["name"]
+        key = f"{f.id}-{serializer['name'].split('.')[0]}/{serializer['name']}"
         f.key = key
         f.save()
         # Specifics based on Editor.js expectations
@@ -130,38 +50,7 @@ class FileView(APIView):
         return Response(FileSerializer(file).data)
 
     def delete(self, request, id):
-        if request.user.role == 1:
+        if request.user.is_admin_or_manager:
             file = get_object_or_404(File, pk=id)
             file.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class LogoView(APIView):
-    def put(self, request, id):
-        file = get_object_or_404(File, pk=id)
-        file.active = True
-        file.save()
-        org = Organization.object.get()
-        org.logo = file
-        org.save()
-        return Response(FileSerializer(file).data)
-
-
-class ExportView(APIView):
-    def post(self, request):
-        import json
-        from io import StringIO
-
-        from django.core.files.base import ContentFile
-
-        buf = StringIO()
-        serializer = ExportSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        management.call_command(
-            "dumpdata",
-            serializer.data["export_model"],
-            stdout=buf,
-            natural_foreign=True,
-        )
-        buf.seek(0)
-        return Response(json.loads(buf.read()))

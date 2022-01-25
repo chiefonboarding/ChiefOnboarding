@@ -11,11 +11,11 @@ from rest_framework.response import Response
 
 from users import permissions
 
-from .forms import AdminTaskCommentForm, AdminTaskUpdateForm
+from .forms import AdminTaskCommentForm, AdminTaskUpdateForm, AdminTaskCreateForm
 from .models import AdminTask, AdminTaskComment
 from .serializers import (AdminTaskSerializer, CommentPostSerializer,
                           CommentSerializer)
-from users.mixins import LoginRequiredMixin, AdminPermMixin, ManagerPermMixin
+from users.mixins import LoginRequiredMixin, ManagerPermMixin
 
 
 class MyAdminTasksListView(LoginRequiredMixin, ManagerPermMixin, ListView):
@@ -29,6 +29,7 @@ class MyAdminTasksListView(LoginRequiredMixin, ManagerPermMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["title"] = "Your tasks"
         context["subtitle"] = "Tasks"
+        context["add_action"] = reverse_lazy("admin_tasks:create")
         return context
 
 
@@ -43,6 +44,7 @@ class AllAdminTasksListView(LoginRequiredMixin, ManagerPermMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["title"] = "All tasks"
         context["subtitle"] = "Tasks"
+        context["add_action"] = reverse_lazy("admin_tasks:create")
         return context
 
 
@@ -74,7 +76,29 @@ class AdminTasksUpdateView(LoginRequiredMixin, ManagerPermMixin, SuccessMessageM
         context["title"] = f"Task: {task.name}"
         context["subtitle"] = "Tasks"
         context["comment_form"] = AdminTaskCommentForm
-        context["delete_action"] = reverse_lazy("sequences:create")
+        return context
+
+
+class AdminTasksCreateView(LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, CreateView):
+    template_name = "admin_tasks_create.html"
+    form_class = AdminTaskCreateForm
+    model = AdminTask
+    success_message = "Task has been created"
+    success_url = reverse_lazy("admin_tasks:all")
+
+    def form_valid(self, form):
+        self.object = form.save()
+        AdminTaskComment.objects.create(
+            admin_task=self.object,
+            content=form.cleaned_data['comment'],
+            comment_by=self.request.user
+        )
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "New task"
+        context["subtitle"] = "Tasks"
         return context
 
 
@@ -129,31 +153,4 @@ class AdminTaskViewSet(viewsets.ModelViewSet):
         self.perform_update(serializer)
         return Response(serializer.data)
 
-    @action(detail=True)
-    def complete(self, request, pk):
-        task = self.get_object()
-        task.completed = not task.completed
-        task.save()
-        return Response({"completed": task.completed})
 
-    @action(detail=True, methods=["POST"])
-    def add_comment(self, request, pk):
-        task = self.get_object()
-        serializer = CommentPostSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(admin_task=task, comment_by=request.user)
-        comment = CommentSerializer(task.comment.last())
-        return Response(comment.data)
-
-    @action(detail=False, methods=["GET"])
-    def done(self, request):
-        tasks = self.get_serializer(self.get_queryset().filter(completed=True), many=True)
-        return Response(tasks.data)
-
-    @action(detail=False, methods=["GET"])
-    def done_by_user(self, request):
-        tasks = self.get_serializer(
-            self.get_queryset().filter(completed=True, assigned_to=request.user),
-            many=True,
-        )
-        return Response(tasks.data)

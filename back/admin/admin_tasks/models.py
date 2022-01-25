@@ -51,12 +51,7 @@ class AdminTask(models.Model):
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": self.assigned_to.full_name()
-                        + " needs your help with this task:\n*"
-                        + self.title
-                        + "*\n_"
-                        + self.comment.last().content
-                        + "_",
+                        "text": f"{self.assigned_to.full_name()} needs your help with this task:\n*{self.title}*\n_{self.comment.last().content}_",
                     },
                 },
                 {
@@ -111,6 +106,9 @@ class AdminTask(models.Model):
         else:
             send_email_new_assigned_admin(self)
 
+    class Meta:
+        ordering = ["completed", "date"]
+
 
 class AdminTaskComment(models.Model):
     admin_task = models.ForeignKey("AdminTask", on_delete=models.CASCADE, related_name="comment")
@@ -129,12 +127,7 @@ class AdminTaskComment(models.Model):
                         "type": "section",
                         "text": {
                             "type": "mrkdwn",
-                            "text": self.comment_by.full_name()
-                            + " added a message to your task:\n*"
-                            + self.admin_task.title
-                            + "*\n_"
-                            + self.comment
-                            + "_",
+                            "text": f"{self.comment_by.full_name} added a message to your task:\n*{self.admin_task.title}*\n_{self.comment}_",
                         },
                     },
                     {
