@@ -93,6 +93,12 @@ class WelcomeMessagesUpdateForm(forms.ModelForm):
     class Meta:
         model = WelcomeMessage
         fields = ["message"]
+        widgets = {
+            'message': forms.Textarea,
+        }
+        help_texts = {
+            'message': 'You can use {{ first_name }}, {{ last_name }}, {{ position }}, {{ manager }} and {{ buddy }} above. It will be replaced by the values corresponding to the new hire.'
+        }
 
 
 class OTPVerificationForm(forms.Form):

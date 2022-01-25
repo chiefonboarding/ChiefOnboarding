@@ -17,3 +17,27 @@
   </div>
 </div>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function () {
+  $("#div_id_slack_user").addClass("d-none")
+  $("#div_id_email").addClass("d-none")
+})
+
+$("select#id_option").on('change', function() {
+  // Change things to fill in when condition_type changes
+  console.log($(this).val())
+  if ($(this).val() == 0){
+    $("#div_id_slack_user").addClass("d-none")
+    $("#div_id_email").addClass("d-none")
+  } else if ($(this).val() == 2){
+    $("#div_id_slack_user").removeClass("d-none")
+    $("#div_id_email").addClass("d-none")
+  } else {
+    $("#div_id_slack_user").addClass("d-none")
+    $("#div_id_email").removeClass("d-none")
+  }
+})
+</script>
+{% endblock %}
