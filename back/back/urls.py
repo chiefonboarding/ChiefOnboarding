@@ -18,8 +18,13 @@ from organization import views
 from slack_bot import urls as slack_urls
 from user_auth import urls as auth_urls
 from users import urls as user_urls
+from django.views.generic.base import TemplateView
 
 urlpatterns = [
+    path(
+        "robots.txt",
+        TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
+    ),
     path("", include(auth_urls)),
     path("admin/people/", include((people_urls, "admin.people"), namespace="admin")),
     path("admin/settings/", include(settings_urls)),
