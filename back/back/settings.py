@@ -84,6 +84,7 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 LOGIN_REDIRECT_URL = "logged_in_user_redirect"
 LOGOUT_REDIRECT_URL = "login"
+LOGIN_URL = "login"
 
 if env.bool("API_ACCESS", default=False):
     INSTALLED_APPS += ["rest_framework.authtoken"]
