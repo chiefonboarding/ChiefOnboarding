@@ -25,8 +25,10 @@ class LoginRedirectView(LoginWithMFARequiredMixin, View):
     def get(self, request, *args, **kwargs):
         if request.user.is_admin_or_manager:
             return redirect("admin:new_hires")
-        else:
+        elif request.user.role == 0:
             return redirect("new_hire:todos")
+        else:
+            return redirect("new_hire:colleagues")
 
 
 class AuthenticateView(LoginView):

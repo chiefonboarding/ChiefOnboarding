@@ -103,6 +103,8 @@ class ColleagueListView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "colleagues.html"
     queryset = User.objects.all().order_by("first_name")
     paginate_by = 20
+    ordering = ["first_name", "last_name"]
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

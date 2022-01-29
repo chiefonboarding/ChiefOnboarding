@@ -291,7 +291,9 @@ class User(AbstractBaseUser):
     @property
     def has_new_changelog_notifications(self):
         last_changelog_item = Changelog.objects.last()
-        return self.seen_updates < last_changelog_item.added
+        if last_changelog_item is not None:
+            return self.seen_updates < last_changelog_item.added
+        return False
 
     def __str__(self):
         return "%s" % self.full_name

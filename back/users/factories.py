@@ -1,11 +1,12 @@
 import factory
-from factory.fuzzy import FuzzyText
+from factory.fuzzy import FuzzyText, FuzzyDate
 from pytest_factoryboy import register
 
 from organization.factories import OrganizationFactory
 from organization.models import Organization
 
 from .models import User
+import datetime
 
 
 @register
@@ -24,6 +25,7 @@ class NewHireFactory(factory.django.DjangoModelFactory):
             OrganizationFactory()
 
         user = model_class(*args, **kwargs)
+        user.start_day = datetime.datetime.now().date()
         user.save()
         return user
 
