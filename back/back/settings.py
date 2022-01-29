@@ -82,12 +82,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
+# Login Defaults
 LOGIN_REDIRECT_URL = "logged_in_user_redirect"
 LOGOUT_REDIRECT_URL = "login"
 LOGIN_URL = "login"
 
-if env.bool("API_ACCESS", default=False):
-    INSTALLED_APPS += ["rest_framework.authtoken"]
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -187,49 +186,49 @@ REST_FRAMEWORK = {
 }
 
 
+# API
 if env.bool("API_ACCESS", default=False):
     REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].append(
         "rest_framework.authentication.TokenAuthentication"
     )
+    INSTALLED_APPS += ["rest_framework.authtoken"]
 
-
-APPEND_SLASH = False
+# Email
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-if env.bool("ANYMAIL", default=False):
-    if env.bool("MAILGUN", default=False):
-        ANYMAIL = {
-            "MAILGUN_API_KEY": env("MAILGUN_KEY", default=""),
-            "MAILGUN_SENDER_DOMAIN": env("MAILGUN_DOMAIN", default=""),
-        }
-        EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
+if env.bool("MAILGUN", default=False):
+    ANYMAIL = {
+        "MAILGUN_API_KEY": env("MAILGUN_KEY", default=""),
+        "MAILGUN_SENDER_DOMAIN": env("MAILGUN_DOMAIN", default=""),
+    }
+    EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
 
-    if env.bool("MAILJET", default=False):
-        ANYMAIL = {
-            "MAILJET_API_KEY": env("MAILJET_API_KEY", default=""),
-            "MAILJET_SECRET_KEY": env("MAILJET_SECRET_KEY", default=""),
-        }
-        EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
+if env.bool("MAILJET", default=False):
+    ANYMAIL = {
+        "MAILJET_API_KEY": env("MAILJET_API_KEY", default=""),
+        "MAILJET_SECRET_KEY": env("MAILJET_SECRET_KEY", default=""),
+    }
+    EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
 
-    if env.bool("MANDRILL", default=False):
-        ANYMAIL = {"MANDRILL_API_KEY": env("MANDRILL_KEY", default="")}
-        EMAIL_BACKEND = "anymail.backends.mandrill.EmailBackend"
+if env.bool("MANDRILL", default=False):
+    ANYMAIL = {"MANDRILL_API_KEY": env("MANDRILL_KEY", default="")}
+    EMAIL_BACKEND = "anymail.backends.mandrill.EmailBackend"
 
-    if env.bool("POSTMARK", default=False):
-        ANYMAIL = {"POSTMARK_SERVER_TOKEN": env("POSTMARK_KEY", default="")}
-        EMAIL_BACKEND = "anymail.backends.postmark.EmailBackend"
+if env.bool("POSTMARK", default=False):
+    ANYMAIL = {"POSTMARK_SERVER_TOKEN": env("POSTMARK_KEY", default="")}
+    EMAIL_BACKEND = "anymail.backends.postmark.EmailBackend"
 
-    if env.bool("SENDGRID", default=False):
-        ANYMAIL = {"SENDGRID_API_KEY": env("SENDGRID_KEY", default="")}
-        EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
+if env.bool("SENDGRID", default=False):
+    ANYMAIL = {"SENDGRID_API_KEY": env("SENDGRID_KEY", default="")}
+    EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
 
-    if env.bool("SENDINBLUE", default=False):
-        ANYMAIL = {"SENDINBLUE_API_KEY": env("SENDINBLUE_KEY", default="")}
-        EMAIL_BACKEND = "anymail.backends.sendinblue.EmailBackend"
+if env.bool("SENDINBLUE", default=False):
+    ANYMAIL = {"SENDINBLUE_API_KEY": env("SENDINBLUE_KEY", default="")}
+    EMAIL_BACKEND = "anymail.backends.sendinblue.EmailBackend"
 
-    if env.bool("SPARKPOST", default=False):
-        ANYMAIL = {"SPARKPOST_API_KEY": env("SPARKPOST_KEY", default="")}
-        EMAIL_BACKEND = "anymail.backends.sparkpost.EmailBackend"
+if env.bool("SPARKPOST", default=False):
+    ANYMAIL = {"SPARKPOST_API_KEY": env("SPARKPOST_KEY", default="")}
+    EMAIL_BACKEND = "anymail.backends.sparkpost.EmailBackend"
 
 if env.bool("SMTP", default=False):
     EMAIL_HOST = env("EMAIL_HOST", default="localhost")
@@ -242,8 +241,8 @@ if env.bool("SMTP", default=False):
 
 
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="example@example.com")
+
 OLD_PASSWORD_FIELD_ENABLED = True
-REST_SESSION_LOGIN = True
 
 # Caching
 CACHES = {
@@ -272,6 +271,8 @@ AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default="")
 AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME", default="")
 AWS_REGION = env("AWS_REGION", default="eu-west-1")
 
+if env.str("BASE_URL", "") == "":
+    BASE_URL = "https://" + ALLOWED_HOSTS[0]
 BASE_URL = env("BASE_URL")
 
 # Twilio
@@ -348,11 +349,15 @@ if not env.bool("DEBUG", default=False) and not env.bool("HTTP_INSECURE", defaul
 
 FIXTURE_DIRS = ["fixtures"]
 
+# Forcing SSL from Django - preferably done a few levels before,
+# but this is a last resort in the case of Heroku
 if env.bool("SSL_REDIRECT", default=False):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = True
 
+# Storing static files compressed
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+# Initial account creation
 ACCOUNT_EMAIL = env("ACCOUNT_EMAIL", default="")
 ACCOUNT_PASSWORD = env("ACCOUNT_PASSWORD", default="")

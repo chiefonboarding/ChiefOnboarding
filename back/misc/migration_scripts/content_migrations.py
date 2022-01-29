@@ -2,8 +2,8 @@ from django.apps import apps
 from django.db import migrations, router
 
 
-# Credits: https://stackoverflow.com/a/62899691
 class RunPythonWithArguments(migrations.RunPython):
+    # Credits: https://stackoverflow.com/a/62899691
     def __init__(self, *args, **kwargs):
         self.context = kwargs.pop("context", {})
         super().__init__(*args, **kwargs)

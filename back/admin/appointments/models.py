@@ -1,12 +1,12 @@
 from django.db import models
 from django.urls import reverse
 
-from misc.models import Content
+from misc.fields import ContentJSONField
 from organization.models import BaseItem
 
 
 class Appointment(BaseItem):
-    content = models.ManyToManyField(Content)
+    content = ContentJSONField(default=dict)
     time = models.TimeField(blank=True, null=True)
     date = models.DateField(blank=True, null=True)
     fixed_date = models.BooleanField(default=False)

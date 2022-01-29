@@ -62,6 +62,11 @@ urlpatterns = [
         views.ColleagueCreateView.as_view(),
         name="colleague_create",
     ),
+    path(
+        "colleagues/syncslack/",
+        views.ColleagueSyncSlack.as_view(),
+        name="sync-slack",
+    ),
     path("colleagues/<int:pk>/", views.ColleagueUpdateView.as_view(), name="colleague"),
     path(
         "colleagues/<int:pk>/delete/",

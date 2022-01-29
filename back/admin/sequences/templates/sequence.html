@@ -94,8 +94,8 @@
 {% block extra_js %}
 <script>
 function changeTemplate(item, condition, type) {
-  document.getElementById("form-add-item").setAttribute("hx-post", `/api/sequences/update_item/${type}/${item}/${condition}/`)
-  htmx.ajax('GET', `/api/sequences/forms/${type}/${item}/`, `#form`)
+  document.getElementById("form-add-item").setAttribute("hx-post", `/sequences/update_item/${type}/${item}/${condition}/`)
+  htmx.ajax('GET', `/sequences/forms/${type}/${item}/`, `#form`)
   htmx.process('#form-modal-content');
   setTimeout(function() {
     initWYSIWYGEditor()
@@ -114,7 +114,7 @@ $("select#id_condition_type").on('change', function() {
   }
 })
 function editCondition(id) {
-    htmx.ajax('GET', `/api/sequences/{{ object.id }}/condition/${id}/`, `#add-condition-form`)
+    htmx.ajax('GET', `/sequences/{{ object.id }}/condition/${id}/`, `#add-condition-form`)
   $('#modal-block').modal('show')
 }
 // reload selectboxes when we get a new form back from backend

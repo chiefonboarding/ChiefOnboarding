@@ -158,7 +158,16 @@ class User(AbstractBaseUser):
 
     @cached_property
     def initials(self):
-        return f"{self.first_name[0]} {self.last_name[0]}"
+        initial_characters = ""
+        if len(self.first_name):
+            initial_characters += self.first_name[0]
+        if len(self.last_name):
+            initial_characters += self.last_name[0]
+        return initial_characters
+
+    @cached_property
+    def has_password(self):
+        return self.password == ''
 
     @cached_property
     def progress(self):

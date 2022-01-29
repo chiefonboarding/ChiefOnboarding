@@ -8,11 +8,12 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from admin_tasks.models import AdminTask
-from integrations.models import AccessToken
+from admin.admin_tasks.models import AdminTask
+from admin.integrations.models import AccessToken
 from users.models import NewHireWelcomeMessage, ResourceUser
-from resources.models import Category, Chapter
+from admin.resources.models import Category, Chapter
 from misc.serializers import ContentSerializer
+from admin.sequences.models import Sequence
 
 # from fuzzywuzzy import process
 from organization.models import Organization
@@ -451,7 +452,7 @@ class CallbackView(APIView):
                             ]["value"]
                         )
                     course_answer, cre = book_user.answers.get_or_create(
-                        resource=resource, defaults={"answers": answers}
+                        chapter=chapter, defaults={"answers": answers}
                     )
                     if not cre:
                         course_answer.answers = answers
@@ -483,4 +484,3 @@ class CallbackView(APIView):
 
 
         return Response()
-

@@ -22,6 +22,11 @@ class S3:
         )
 
     def get_file(self, key, time=3600):
+        # # If a user uploads some files and then removes the keys, this would error
+        # # Therefore the quick check here
+        # if settings.AWS_ACCESS_KEY_ID == "":
+        #     return ""
+
         return self.client.generate_presigned_url(
             ClientMethod="get_object",
             ExpiresIn=time,

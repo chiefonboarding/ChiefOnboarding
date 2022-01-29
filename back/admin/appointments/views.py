@@ -20,7 +20,6 @@ class AppointmentListView(LoginRequiredMixin, AdminPermMixin, ListView):
         context["title"] = "Appointment items"
         context["subtitle"] = "templates"
         context["add_action"] = reverse_lazy("appointments:create")
-        context["wysiwyg"] = []
         return context
 
 
@@ -52,7 +51,6 @@ class AppointmentUpdateView(
         context = super().get_context_data(**kwargs)
         context["title"] = "Update appointment item"
         context["subtitle"] = "templates"
-        # context["wysiwyg"] = context["appointment"].content_json
         return context
 
 

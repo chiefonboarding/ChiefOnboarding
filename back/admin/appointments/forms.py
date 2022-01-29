@@ -10,7 +10,7 @@ from .models import Appointment
 
 
 class AppointmentForm(forms.ModelForm):
-    content_json = WYSIWYGField(label="content")
+    content = WYSIWYGField(label="Content")
     tags = forms.ModelMultipleChoiceField(
         queryset=Tag.objects.all(), to_field_name="name", required=False
     )
@@ -18,18 +18,25 @@ class AppointmentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
+        fixed_date = self.instance.fixed_date
         self.helper.layout = Layout(
             Div(
                 Div(
                     Field("name"),
                     MultiSelectField("tags"),
                     Field("fixed_date"),
-                    Field("on_day"),
-                    Field("date"),
-                    Field("time"),
+                    Div(
+                        Field("on_day"),
+                        css_class="d-none" if fixed_date else "",
+                    ),
+                    Div(
+                        Field("date"),
+                        Field("time"),
+                        css_class="" if fixed_date else "d-none",
+                    ),
                     css_class="col-4",
                 ),
-                # Div(WYSIWYGField("content_json"), css_class="col-8"),
+                Div(WYSIWYGField("content"), css_class="col-8"),
                 css_class="row",
             ),
         )
@@ -37,6 +44,9 @@ class AppointmentForm(forms.ModelForm):
     class Meta:
         model = Appointment
         exclude = ("template",)
+        widgets = {
+            "time": forms.TimeInput(attrs={"type": "time", "step": 300}),
+        }
 
     def clean_tags(self):
         tags = self.cleaned_data["tags"]

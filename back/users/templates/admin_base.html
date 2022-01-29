@@ -320,15 +320,15 @@
         forms.forEach(function(form) {
           console.log("form")
           console.log(form)
-          console.log('content_json' in form)
+          console.log('content' in form)
 
-          if ('content_json' in form) {
+          if ('content' in form) {
             console.log("yup")
-            console.log(document.getElementById('content_json').textContent)
-            let content = JSON.parse(document.getElementById('content_json').textContent)
+            console.log(document.getElementById('content').textContent)
+            let content = JSON.parse(document.getElementById('content').textContent)
             content = JSON.parse(content)
             console.log(typeof(content))
-            form['content_json'].attributes.value.nodeValue = JSON.stringify(content)
+            form['content'].attributes.value.nodeValue = JSON.stringify(content)
 
             const editor = new EditorJS({
               minHeight: 30,
@@ -388,7 +388,7 @@
               },
               onChange: function (value) {
                 value.saver.save().then(function(data) {
-                  form['content_json'].attributes.value.nodeValue = JSON.stringify(data)
+                  form['content'].attributes.value.nodeValue = JSON.stringify(data)
                 })
               }
             });
@@ -399,15 +399,15 @@
         initWYSIWYGEditor()
       }
       function changeTemplate(item, condition, type) {
-        document.getElementById("form-add-item").setAttribute("hx-post", `/api/sequences/update_item/${type}/${item}/${condition}/`)
-        htmx.ajax('GET', `/api/sequences/forms/${type}/${item}/`, `#form`)
+        document.getElementById("form-add-item").setAttribute("hx-post", `/sequences/update_item/${type}/${item}/${condition}/`)
+        htmx.ajax('GET', `/sequences/forms/${type}/${item}/`, `#form`)
         htmx.process('#form-modal-content');
         setTimeout(function() {
           initWYSIWYGEditor()
         }, 300)
       }
       function editCondition(id) {
-          htmx.ajax('GET', `/api/sequences/{{ object.id }}/condition/${id}/`, `#add-condition-form`)
+          htmx.ajax('GET', `/sequences/{{ object.id }}/condition/${id}/`, `#add-condition-form`)
           $('#modal-block').modal('show')
       }
       $(document).on('change', "select#id_condition_type", function() {

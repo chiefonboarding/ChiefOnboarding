@@ -41,7 +41,7 @@
 <script>
 $("select#id_intro_person").on('change', function() {
     const userId = $(this).val()
-    htmx.ajax('GET', `/api/introductions/${userId}/preview/`, `.update-intro`)
+    htmx.ajax('GET', `/templates/introductions/${userId}/preview/`, `.update-intro`)
 })
 </script>
 

@@ -3,18 +3,19 @@ from datetime import timedelta
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic.base import TemplateView
+from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 from django_q.tasks import async_task
 
 from admin.admin_tasks.models import AdminTask
 from admin.notes.models import Note
 from admin.resources.models import Resource
+from admin.integrations.models import AccessToken
 from users.mixins import AdminPermMixin, LoginRequiredMixin
 from users.models import NewHireWelcomeMessage, PreboardingUser, ResourceUser, ToDoUser, User
 from organization.models import Organization
@@ -22,6 +23,7 @@ from organization.models import Organization
 from .forms import ColleagueCreateForm, ColleagueUpdateForm, NewHireAddForm, NewHireProfileForm
 from .utils import get_templates_model, get_user_field
 from slack_bot.tasks import link_slack_users
+from slack_bot.slack import Slack
 
 
 class NewHireListView(LoginRequiredMixin, AdminPermMixin, ListView):
@@ -93,6 +95,7 @@ class ColleagueListView(LoginRequiredMixin, AdminPermMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["title"] = "Colleagues"
         context["subtitle"] = "people"
+        context["slack_active"] = AccessToken.objects.filter(integration=0).exists()
         context["add_action"] = reverse_lazy("people:colleague_create")
         return context
 
@@ -369,3 +372,45 @@ class NewHireToggleTaskView(LoginRequiredMixin, AdminPermMixin, TemplateView):
         context["object"] = user
         context["template_type"] = type
         return context
+
+
+class ColleagueSyncSlack(LoginRequiredMixin, AdminPermMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        slack_users = Slack().get_all_users()
+
+        for user in slack_users:
+            # Skip all bots, fake users, and people with missing profile or missing email
+            # We need to be extra careful here. Slack doesn't always respond back with all info
+            # Sometimes it might be None, an emtpy string or not exist at all!
+            if user["id"] == "USLACKBOT" or user["is_bot"] or "real_name" not in user["profile"] or "email" not in user["profile"] or user["profile"]["email"] == "" or user["profile"]["email"] == None:
+                continue
+
+            user_info = {}
+
+            # Get the props we need and put them into a user object
+            user_props = [
+                ['first_name', 'first_name'],
+                ['last_name', 'last_name'],
+                ['title', 'position'],
+            ]
+            for slack_prop, chief_prop in user_props:
+                if slack_prop in user["profile"] and user["profile"][slack_prop] is not None:
+                    user_info[chief_prop] = user["profile"][slack_prop]
+
+            # If we don't have the first_name, then attempt on splitting the "real_name" property.
+            # This is less accurate, as names like "John van Klaas" will have three words.
+            if "first_name" not in user_info:
+                split_name = user["profile"]["real_name"].split(" ", 1)
+                user_info['first_name'] = split_name[0]
+                user_info['last_name'] = "" if len(split_name) == 1 else split_name[1]
+
+            # Find user, if email already exists, then update the user.
+            # Otherwise, create the user.
+            get_user_model().objects.get_or_create(
+                email=user["profile"]["email"],
+                defaults=user_info,
+            )
+        # Force refresh of page
+        return HttpResponse(headers={"HX-Refresh": "true"})
+

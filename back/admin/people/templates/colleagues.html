@@ -1,5 +1,21 @@
 {% extends 'admin_base.html' %}
 
+{% block actions %}
+{% if slack_active %}
+<a hx-get="{% url 'people:sync-slack' %}" hx-swap="outerHTML" hx-target="body" class="btn btn-primary d-none d-sm-inline-block" hx-indicator="#spinner-slack">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-slack" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+     <path d="M12 12v-6a2 2 0 0 1 4 0v6m0 -2a2 2 0 1 1 2 2h-6"></path>
+     <path d="M12 12h6a2 2 0 0 1 0 4h-6m2 0a2 2 0 1 1 -2 2v-6"></path>
+     <path d="M12 12v6a2 2 0 0 1 -4 0v-6m0 2a2 2 0 1 1 -2 -2h6"></path>
+     <path d="M12 12h-6a2 2 0 0 1 0 -4h6m-2 0a2 2 0 1 1 2 -2v6"></path>
+  </svg>
+  Sync with Slack
+  <span class="requesting alsodisplay spinner-border spinner-border-sm me-2" id="spinner-slack" role="status"></span>
+</a>
+{% endif %}
+{% endblock %}
+
 {% block content %}
 <div class="col-12">
   <div class="card">
@@ -22,7 +38,7 @@
               {{ colleague.position }}
             </td>
             <td class="text-end">
-              <a href="{% url 'people:new_hire' colleague.id %}" class="btn btn-white">
+              <a href="{% url 'people:new_hire' colleague.id %}" class="btn btn-{% if colleague.slack_user_id != '' %}danger{% else %}primary{% endif %}">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-slack" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                    <path d="M12 12v-6a2 2 0 0 1 4 0v6m0 -2a2 2 0 1 1 2 2h-6"></path>
@@ -36,14 +52,14 @@
                   Give access
                 {% endif %}
               </a>
-              <a href="{% url 'people:new_hire' colleague.id %}" class="btn btn-white">
+              <a href="{% url 'people:new_hire' colleague.id %}" class="btn btn-{% if colleague.is_active %}danger{% else %}primary{% endif %}">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                    <polyline points="5 12 3 12 12 3 21 12 19 12"></polyline>
                    <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"></path>
                    <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"></path>
                 </svg>
-                {% if colleague.slack_user_id != '' %}
+                {% if colleague.is_active %}
                   Deny access
                 {% else %}
                   Give access

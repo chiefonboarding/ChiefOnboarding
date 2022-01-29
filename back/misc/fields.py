@@ -5,6 +5,7 @@ from rest_framework import serializers
 from .models import Content, File
 from .serializers import ContentPostSerializer, ContentSerializer
 
+from django.db.models import JSONField
 
 class ContentField(serializers.Field):
     def to_representation(self, value):
@@ -22,6 +23,18 @@ class ContentField(serializers.Field):
                 item.files.add(File.objects.get(id=j["id"]))
             all_values.append(item)
         return all_values
+
+
+class ContentJSONField(JSONField):
+    def from_db_value(self, value, expression, connection):
+        value = super().from_db_value(value, expression, connection)
+        if 'blocks' not in value:
+            return value
+
+        for block in value['blocks']:
+            if block['type'] in ['file', 'image']:
+                block['data']['file']['url'] = File.objects.get(id=block['data']['file']['id']).get_url()
+        return value
 
 
 class WYSIWYGInput(TextInput):

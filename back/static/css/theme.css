@@ -12840,7 +12840,7 @@ Antialiasing
 }
 .htmx-request.alsodisplay.requesting, .htmx-request.alsodisplay .requesting {
   opacity: 1;
-  display:block;
+  display:inline-block;
   margin-left:5px;
 }
 .seq-icons svg {
