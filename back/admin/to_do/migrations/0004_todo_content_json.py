@@ -18,7 +18,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="todo",
             name="content_json",
-            field=models.JSONField(default="[]", verbose_name=models.TextField(default="[]")),
+            field=models.JSONField(
+                default="[]", verbose_name=models.TextField(default="[]")
+            ),
             preserve_default=False,
         ),
         RunPythonWithArguments(

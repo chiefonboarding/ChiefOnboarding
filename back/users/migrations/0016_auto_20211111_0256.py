@@ -26,7 +26,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="user",
             name="badges",
-            field=models.ManyToManyField(related_name="user_introductions", to="badges.Badge"),
+            field=models.ManyToManyField(
+                related_name="user_introductions", to="badges.Badge"
+            ),
         ),
         migrations.AlterField(
             model_name="user",

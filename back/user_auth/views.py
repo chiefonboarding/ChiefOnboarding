@@ -21,7 +21,6 @@ from organization.models import Organization
 from users.mixins import LoginRequiredMixin as LoginWithMFARequiredMixin
 
 
-
 class LoginRedirectView(LoginWithMFARequiredMixin, View):
     def get(self, request, *args, **kwargs):
         if request.user.is_admin_or_manager:
@@ -31,7 +30,7 @@ class LoginRedirectView(LoginWithMFARequiredMixin, View):
 
 
 class AuthenticateView(LoginView):
-    template_name = 'login.html'
+    template_name = "login.html"
 
     def dispatch(self, request, *args, **kwargs):
         org = Organization.objects.get()
@@ -43,11 +42,13 @@ class AuthenticateView(LoginView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['organization'] = Organization.object.get()
-        context['google_client'] = None
-        context['base_url'] = settings.BASE_URL
+        context["organization"] = Organization.object.get()
+        context["google_client"] = None
+        context["base_url"] = settings.BASE_URL
         if AccessToken.objects.filter(integration=3, active=True).exists():
-            context['google_login'] = AccessToken.objects.get(integration=3, active=True)
+            context["google_login"] = AccessToken.objects.get(
+                integration=3, active=True
+            )
 
         return context
 
@@ -100,33 +101,40 @@ class GoogleLoginView(View):
 
         return super().dispatch(request, *args, **kwargs)
 
-
     def get(self, request):
         access_code = AccessToken.objects.get(integration=3, active=True)
         try:
             r = requests.post(
-                'https://oauth2.googleapis.com/token',
-                data = {
-                    'code': request.GET.get('code', ''),
-                    'client_id': access_code.client_id,
-                    'client_secret': access_code.client_secret,
-                    'redirect_url': settings.BASE_URL + '/api/auth/google_login',
-                    'grant_type': 'authorization_code',
-                }
+                "https://oauth2.googleapis.com/token",
+                data={
+                    "code": request.GET.get("code", ""),
+                    "client_id": access_code.client_id,
+                    "client_secret": access_code.client_secret,
+                    "redirect_url": settings.BASE_URL + "/api/auth/google_login",
+                    "grant_type": "authorization_code",
+                },
             )
             user_access_token = r.json().access_token
 
-            user_info = requests.get('https://www.googleapis.com/auth/userinfo.email', headers={'Authorization': user_access_token}).json()
+            user_info = requests.get(
+                "https://www.googleapis.com/auth/userinfo.email",
+                headers={"Authorization": user_access_token},
+            ).json()
         except:
-            messages.error(request, 'Something went wrong with reaching Google. Please try again.')
-            return redirect('login')
-        if 'email' in user_info:
-            users = get_user_model().objects.filter(email=user_info['email'])
+            messages.error(
+                request, "Something went wrong with reaching Google. Please try again."
+            )
+            return redirect("login")
+        if "email" in user_info:
+            users = get_user_model().objects.filter(email=user_info["email"])
             if users.exists():
                 user = users.first()
-                user.backend = 'django.contrib.auth.backends.ModelBackend'
+                user.backend = "django.contrib.auth.backends.ModelBackend"
                 login(request, user)
                 return redirect("logged_in_user_redirect")
 
-        messages.error(request, "There is no account associated with your email address. Did you try to log in with the correct account?")
-        return redirect('login')
+        messages.error(
+            request,
+            "There is no account associated with your email address. Did you try to log in with the correct account?",
+        )
+        return redirect("login")

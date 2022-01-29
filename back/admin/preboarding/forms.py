@@ -11,7 +11,9 @@ from .models import Preboarding
 
 class PreboardingForm(forms.ModelForm):
     content_json = WYSIWYGField(label="content")
-    tags = forms.ModelMultipleChoiceField(queryset=Tag.objects.all(), to_field_name="name")
+    tags = forms.ModelMultipleChoiceField(
+        queryset=Tag.objects.all(), to_field_name="name"
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

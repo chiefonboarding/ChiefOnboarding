@@ -43,7 +43,10 @@ class Sequence(models.Model):
         for i in self.conditions.all():
             original_record = Condition.objects.get(id=i.id)
             # checking if this condition is already
-            if original_record.condition_type == 0 or original_record.condition_type == 2:
+            if (
+                original_record.condition_type == 0
+                or original_record.condition_type == 2
+            ):
                 condition = user.conditions.filter(
                     condition_type=original_record.condition_type,
                     days=original_record.days,
@@ -221,7 +224,10 @@ class Condition(models.Model):
             # We only want to remove assigned items, not triggers
             if field.name == "condition_to_do":
                 continue
-            if field.related_model._meta.model_name == type(model_item)._meta.model_name:
+            if (
+                field.related_model._meta.model_name
+                == type(model_item)._meta.model_name
+            ):
                 self.__getattribute__(field.name).remove(model_item)
 
     def add_item(self, model_item):
@@ -230,7 +236,10 @@ class Condition(models.Model):
             # We only want to add assigned items, not triggers
             if field.name == "condition_to_do":
                 continue
-            if field.related_model._meta.model_name == type(model_item)._meta.model_name:
+            if (
+                field.related_model._meta.model_name
+                == type(model_item)._meta.model_name
+            ):
                 self.__getattribute__(field.name).add(model_item)
 
     def process_condition(self, user):
@@ -279,7 +288,9 @@ class Condition(models.Model):
                 continue
             if i.send_via == 0:  # email
                 try:
-                    send_sequence_message(i.get_user(user), i.email_message(), i.subject)
+                    send_sequence_message(
+                        i.get_user(user), i.email_message(), i.subject
+                    )
                 except:
                     pass
             elif i.send_via == 1:  # slack
@@ -291,7 +302,9 @@ class Condition(models.Model):
                 s.send_message(blocks=blocks)
             else:  # text
                 if i.get_user(user).phone != "":
-                    client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+                    client = Client(
+                        settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN
+                    )
                     client.messages.create(
                         to=i.get_user(user).phone,
                         from_=settings.TWILIO_FROM_NUMBER,

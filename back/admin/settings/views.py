@@ -15,7 +15,12 @@ from admin.integrations.models import (
     INTEGRATION_OPTIONS_URLS,
     AccessToken,
 )
-from organization.models import LANGUAGES_OPTIONS, Changelog, Organization, WelcomeMessage
+from organization.models import (
+    LANGUAGES_OPTIONS,
+    Changelog,
+    Organization,
+    WelcomeMessage,
+)
 from users.mixins import AdminPermMixin, LoginRequiredMixin
 
 from .forms import (
@@ -277,7 +282,9 @@ class SlackAccountCreationSetupView(
         return super().form_valid(form)
 
 
-class SlackBotSetupView(LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin):
+class SlackBotSetupView(
+    LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin
+):
     template_name = "token_create.html"
     model = AccessToken
     fields = [
@@ -287,7 +294,9 @@ class SlackBotSetupView(LoginRequiredMixin, AdminPermMixin, CreateView, SuccessM
         "signing_secret",
         "verification_token",
     ]
-    success_message = "Slack has now been connected, check if you got a message from your bot!"
+    success_message = (
+        "Slack has now been connected, check if you got a message from your bot!"
+    )
     success_url = reverse_lazy("settings:integrations")
 
     def get_context_data(self, **kwargs):

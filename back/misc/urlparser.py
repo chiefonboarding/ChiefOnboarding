@@ -16,7 +16,9 @@ class URLParser(HTMLParser):
             builder.end(tag)
             full_tag = builder.close()
             self.link = {
-                "original_tag": etree.tostring(full_tag).decode("utf-8").replace(" /", ""),
+                "original_tag": etree.tostring(full_tag)
+                .decode("utf-8")
+                .replace(" /", ""),
                 "url": dict(attrs)["href"],
                 "text": "",
             }

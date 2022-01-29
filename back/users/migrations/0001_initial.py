@@ -37,7 +37,9 @@ class Migration(migrations.Migration):
                 ("password", models.CharField(max_length=128, verbose_name="password")),
                 (
                     "last_login",
-                    models.DateTimeField(blank=True, null=True, verbose_name="last login"),
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="last login"
+                    ),
                 ),
                 ("first_name", models.CharField(max_length=200)),
                 ("last_name", models.CharField(max_length=200)),
@@ -57,7 +59,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "message",
-                    models.CharField(blank=True, default="", max_length=100000, null=True),
+                    models.CharField(
+                        blank=True, default="", max_length=100000, null=True
+                    ),
                 ),
                 (
                     "linkedin",
@@ -107,11 +111,15 @@ class Migration(migrations.Migration):
                 ("total_tasks", models.IntegerField(default=0)),
                 (
                     "start_day",
-                    models.DateField(blank=True, help_text="First working day", null=True),
+                    models.DateField(
+                        blank=True, help_text="First working day", null=True
+                    ),
                 ),
                 (
                     "unique_url",
-                    models.CharField(blank=True, max_length=250, null=True, unique=True),
+                    models.CharField(
+                        blank=True, max_length=250, null=True, unique=True
+                    ),
                 ),
                 ("appointments", models.ManyToManyField(to="appointments.Appointment")),
                 ("badges", models.ManyToManyField(to="badges.Badge")),

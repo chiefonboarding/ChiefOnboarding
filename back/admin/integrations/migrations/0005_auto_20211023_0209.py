@@ -15,7 +15,9 @@ class Migration(migrations.Migration):
         AccessToken.objects.filter(client_secret__isnull=True).update(client_secret="")
         AccessToken.objects.filter(name__isnull=True).update(name="")
         AccessToken.objects.filter(refresh_token__isnull=True).update(refresh_token="")
-        AccessToken.objects.filter(signing_secret__isnull=True).update(signing_secret="")
+        AccessToken.objects.filter(signing_secret__isnull=True).update(
+            signing_secret=""
+        )
         AccessToken.objects.filter(token__isnull=True).update(token="")
         AccessToken.objects.filter(refresh_token__isnull=True).update(refresh_token="")
 

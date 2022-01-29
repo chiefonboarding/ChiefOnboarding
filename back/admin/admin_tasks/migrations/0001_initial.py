@@ -26,7 +26,9 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=500)),
                 (
                     "option",
-                    models.IntegerField(choices=[(0, "No"), (1, "Email"), (2, "Slack")]),
+                    models.IntegerField(
+                        choices=[(0, "No"), (1, "Email"), (2, "Slack")]
+                    ),
                 ),
                 ("slack_user", models.CharField(max_length=12500, null=True)),
                 ("email", models.EmailField(max_length=12500, null=True)),

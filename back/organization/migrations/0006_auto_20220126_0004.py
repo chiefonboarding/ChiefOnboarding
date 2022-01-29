@@ -21,9 +21,8 @@ class Migration(migrations.Migration):
         schedule.func = "admin.integrations.tasks.create_accounts"
         schedule.save()
 
-
     dependencies = [
-        ('organization', '0005_auto_20211109_0307'),
+        ("organization", "0005_auto_20211109_0307"),
     ]
 
     operations = [

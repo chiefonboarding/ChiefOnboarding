@@ -175,7 +175,9 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = True
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": ["rest_framework.authentication.SessionAuthentication"],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication"
+    ],
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
     ],
@@ -265,7 +267,9 @@ Q_CLUSTER = {
 }
 
 # AWS
-AWS_S3_ENDPOINT_URL = env("AWS_S3_ENDPOINT_URL", default="https://s3.eu-west-1.amazonaws.com")
+AWS_S3_ENDPOINT_URL = env(
+    "AWS_S3_ENDPOINT_URL", default="https://s3.eu-west-1.amazonaws.com"
+)
 AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default="")
 AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default="")
 AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME", default="")
@@ -343,7 +347,9 @@ if env.bool("SENTRY", default=False):
         send_default_pii=False,
     )
 
-if not env.bool("DEBUG", default=False) and not env.bool("HTTP_INSECURE", default=False):
+if not env.bool("DEBUG", default=False) and not env.bool(
+    "HTTP_INSECURE", default=False
+):
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 

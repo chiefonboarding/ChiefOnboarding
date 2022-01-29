@@ -24,7 +24,9 @@ class ResourceListView(LoginRequiredMixin, AdminPermMixin, ListView):
         return context
 
 
-class ResourceCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView):
+class ResourceCreateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
+):
     template_name = "todo_update.html"
     form_class = ResourceForm
     success_url = reverse_lazy("resources:list")
@@ -37,7 +39,9 @@ class ResourceCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin
         return context
 
 
-class ResourceUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
+class ResourceUpdateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "todo_update.html"
     form_class = ResourceForm
     success_url = reverse_lazy("resources:list")

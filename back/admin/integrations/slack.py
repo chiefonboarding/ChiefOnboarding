@@ -44,10 +44,15 @@ class Slack:
         return self.record is not None
 
     def add_user(self, email):
-        r = requests.get("https://slack.com/api/users.admin.invite?token={self.record.token}&email={email}")
+        r = requests.get(
+            "https://slack.com/api/users.admin.invite?token={self.record.token}&email={email}"
+        )
         if r.json()["ok"]:
             return
-        elif "error" in r.json() and r.json()["error"] in ["already_in_team", "already_invited"]:
+        elif "error" in r.json() and r.json()["error"] in [
+            "already_in_team",
+            "already_invited",
+        ]:
             return
         elif "error" in r.json() and r.json()["error"] == "token_revoked":
             slack_error_email(
@@ -59,7 +64,9 @@ class Slack:
         return Error
 
     def delete_user(self, email):
-        response = requests.get("https://slack.com/api/users.admin.setInactive?token={self.record.token}&user={email}")
+        response = requests.get(
+            "https://slack.com/api/users.admin.setInactive?token={self.record.token}&user={email}"
+        )
         if response.json()["ok"]:
             return True
         else:

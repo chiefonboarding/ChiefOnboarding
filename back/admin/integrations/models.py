@@ -32,7 +32,9 @@ class AccessToken(models.Model):
     active = models.BooleanField(default=True)
     ttl = models.IntegerField(null=True, blank=True)
     expiring = models.DateTimeField(null=True, blank=True)
-    one_time_auth_code = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    one_time_auth_code = models.UUIDField(
+        default=uuid.uuid4, editable=False, unique=True
+    )
 
     # Slack
     app_id = models.CharField(max_length=100, default="")

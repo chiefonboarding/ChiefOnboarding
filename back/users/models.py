@@ -38,7 +38,9 @@ ROLE_CHOICES = ((0, "New Hire"), (1, "Administrator"), (2, "Manager"), (3, "Othe
 
 
 class CustomUserManager(BaseUserManager):
-    def _create_user(self, first_name, last_name, email, password, role, **extra_fields):
+    def _create_user(
+        self, first_name, last_name, email, password, role, **extra_fields
+    ):
         now = datetime.now()
         if not email:
             raise ValueError("The given email must be set")
@@ -56,18 +58,26 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_new_hire(self, first_name, last_name, email, password=None, **extra_fields):
-        user = self._create_user(first_name, last_name, email, password, 0, **extra_fields)
+    def create_new_hire(
+        self, first_name, last_name, email, password=None, **extra_fields
+    ):
+        user = self._create_user(
+            first_name, last_name, email, password, 0, **extra_fields
+        )
         return user
 
     def create_admin(self, first_name, last_name, email, password, **extra_fields):
-        return self._create_user(first_name, last_name, email, password, 1, **extra_fields)
+        return self._create_user(
+            first_name, last_name, email, password, 1, **extra_fields
+        )
 
     def create_manager(self, first_name, last_name, email, password, **extra_fields):
-        return self._create_user(first_name, last_name, email, password, 2, **extra_fields)
+        return self._create_user(
+            first_name, last_name, email, password, 2, **extra_fields
+        )
 
     def get_by_natural_key(self, email):
-        return self.get(**{self.model.USERNAME_FIELD + '__iexact': email})
+        return self.get(**{self.model.USERNAME_FIELD + "__iexact": email})
 
 
 class ManagerManager(models.Manager):
@@ -81,6 +91,7 @@ class NewHireManager(models.Manager):
 
     def without_slack(self):
         return self.get_queryset().filter(slack_user_id="")
+
 
 class AdminManager(models.Manager):
     def get_queryset(self):
@@ -130,7 +141,9 @@ class User(AbstractBaseUser):
     unique_url = models.CharField(max_length=250, null=True, unique=True, blank=True)
 
     to_do = models.ManyToManyField(ToDo, through="ToDoUser", related_name="user_todos")
-    introductions = models.ManyToManyField(Introduction, related_name="user_introductions")
+    introductions = models.ManyToManyField(
+        Introduction, related_name="user_introductions"
+    )
     resources = models.ManyToManyField(
         Resource, through="ResourceUser", related_name="user_resources"
     )
@@ -167,7 +180,7 @@ class User(AbstractBaseUser):
 
     @cached_property
     def has_password(self):
-        return self.password == ''
+        return self.password == ""
 
     @cached_property
     def progress(self):
@@ -221,7 +234,11 @@ class User(AbstractBaseUser):
             if self.timezone == ""
             else pytz.timezone(self.timezone)
         )
-        local = local_tz.localize(datetime.now()) if date is None else local_tz.localize(date)
+        local = (
+            local_tz.localize(datetime.now())
+            if date is None
+            else local_tz.localize(date)
+        )
         return us_tz.normalize(local.astimezone(us_tz))
 
     def personalize(self, text):
@@ -318,7 +335,9 @@ class PreboardingUser(models.Model):
     preboarding = models.ForeignKey(
         Preboarding, related_name="preboarding_new_hire", on_delete=models.CASCADE
     )
-    form = models.JSONField(models.TextField(max_length=100000, default="[]"), default=list)
+    form = models.JSONField(
+        models.TextField(max_length=100000, default="[]"), default=list
+    )
     completed = models.BooleanField(default=False)
     order = models.IntegerField(default=0)
 
@@ -363,7 +382,9 @@ class ResourceUser(models.Model):
     @property
     def is_course(self):
         # used to determine if item should show up as course or as article
-        return self.resource.course and self.amount_chapters_in_course is not self.step - 1
+        return (
+            self.resource.course and self.amount_chapters_in_course is not self.step - 1
+        )
 
 
 class NewHireWelcomeMessage(models.Model):

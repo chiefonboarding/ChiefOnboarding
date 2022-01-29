@@ -17,10 +17,21 @@ from admin.notes.models import Note
 from admin.resources.models import Resource
 from admin.integrations.models import AccessToken
 from users.mixins import AdminPermMixin, LoginRequiredMixin
-from users.models import NewHireWelcomeMessage, PreboardingUser, ResourceUser, ToDoUser, User
+from users.models import (
+    NewHireWelcomeMessage,
+    PreboardingUser,
+    ResourceUser,
+    ToDoUser,
+    User,
+)
 from organization.models import Organization
 
-from .forms import ColleagueCreateForm, ColleagueUpdateForm, NewHireAddForm, NewHireProfileForm
+from .forms import (
+    ColleagueCreateForm,
+    ColleagueUpdateForm,
+    NewHireAddForm,
+    NewHireProfileForm,
+)
 from .utils import get_templates_model, get_user_field
 from slack_bot.tasks import link_slack_users
 from slack_bot.slack import Slack
@@ -44,7 +55,9 @@ class NewHireListView(LoginRequiredMixin, AdminPermMixin, ListView):
         return context
 
 
-class NewHireAddView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView):
+class NewHireAddView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
+):
     template_name = "new_hire_add.html"
     model = get_user_model()
     form_class = NewHireAddForm
@@ -130,7 +143,9 @@ class NewHireSequenceView(LoginRequiredMixin, AdminPermMixin, DetailView):
         return context
 
 
-class NewHireProfileView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
+class NewHireProfileView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "new_hire_profile.html"
     model = User
     form_class = NewHireProfileForm
@@ -148,7 +163,9 @@ class NewHireProfileView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin
         return context
 
 
-class ColleagueUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
+class ColleagueUpdateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "colleague_update.html"
     model = User
     form_class = ColleagueUpdateForm
@@ -166,7 +183,9 @@ class ColleagueUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixi
         return context
 
 
-class ColleagueCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView):
+class ColleagueCreateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
+):
     template_name = "colleague_create.html"
     model = User
     form_class = ColleagueCreateForm
@@ -222,7 +241,9 @@ class ColleagueDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
         return response
 
 
-class NewHireNotesView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView):
+class NewHireNotesView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
+):
     template_name = "new_hire_notes.html"
     model = Note
     fields = [
@@ -277,7 +298,9 @@ class NewHireAdminTasksView(LoginRequiredMixin, AdminPermMixin, TemplateView):
         context["tasks_completed"] = AdminTask.objects.filter(
             new_hire=new_hire, completed=True
         )
-        context["tasks_open"] = AdminTask.objects.filter(new_hire=new_hire, completed=False)
+        context["tasks_open"] = AdminTask.objects.filter(
+            new_hire=new_hire, completed=False
+        )
         return context
 
 
@@ -294,9 +317,9 @@ class NewHireFormsView(LoginRequiredMixin, AdminPermMixin, DetailView):
         context["preboarding_forms"] = PreboardingUser.objects.filter(
             user=new_hire, completed=True
         ).exclude(form=[])
-        context["todo_forms"] = ToDoUser.objects.filter(user=new_hire, completed=True).exclude(
-            form=[]
-        )
+        context["todo_forms"] = ToDoUser.objects.filter(
+            user=new_hire, completed=True
+        ).exclude(form=[])
         return context
 
 
@@ -375,7 +398,6 @@ class NewHireToggleTaskView(LoginRequiredMixin, AdminPermMixin, TemplateView):
 
 
 class ColleagueSyncSlack(LoginRequiredMixin, AdminPermMixin, View):
-
     def get(self, request, *args, **kwargs):
         slack_users = Slack().get_all_users()
 
@@ -383,27 +405,37 @@ class ColleagueSyncSlack(LoginRequiredMixin, AdminPermMixin, View):
             # Skip all bots, fake users, and people with missing profile or missing email
             # We need to be extra careful here. Slack doesn't always respond back with all info
             # Sometimes it might be None, an emtpy string or not exist at all!
-            if user["id"] == "USLACKBOT" or user["is_bot"] or "real_name" not in user["profile"] or "email" not in user["profile"] or user["profile"]["email"] == "" or user["profile"]["email"] == None:
+            if (
+                user["id"] == "USLACKBOT"
+                or user["is_bot"]
+                or "real_name" not in user["profile"]
+                or "email" not in user["profile"]
+                or user["profile"]["email"] == ""
+                or user["profile"]["email"] == None
+            ):
                 continue
 
             user_info = {}
 
             # Get the props we need and put them into a user object
             user_props = [
-                ['first_name', 'first_name'],
-                ['last_name', 'last_name'],
-                ['title', 'position'],
+                ["first_name", "first_name"],
+                ["last_name", "last_name"],
+                ["title", "position"],
             ]
             for slack_prop, chief_prop in user_props:
-                if slack_prop in user["profile"] and user["profile"][slack_prop] is not None:
+                if (
+                    slack_prop in user["profile"]
+                    and user["profile"][slack_prop] is not None
+                ):
                     user_info[chief_prop] = user["profile"][slack_prop]
 
             # If we don't have the first_name, then attempt on splitting the "real_name" property.
             # This is less accurate, as names like "John van Klaas" will have three words.
             if "first_name" not in user_info:
                 split_name = user["profile"]["real_name"].split(" ", 1)
-                user_info['first_name'] = split_name[0]
-                user_info['last_name'] = "" if len(split_name) == 1 else split_name[1]
+                user_info["first_name"] = split_name[0]
+                user_info["last_name"] = "" if len(split_name) == 1 else split_name[1]
 
             # Find user, if email already exists, then update the user.
             # Otherwise, create the user.
@@ -413,4 +445,3 @@ class ColleagueSyncSlack(LoginRequiredMixin, AdminPermMixin, View):
             )
         # Force refresh of page
         return HttpResponse(headers={"HX-Refresh": "true"})
-

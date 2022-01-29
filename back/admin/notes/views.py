@@ -6,7 +6,9 @@ from .models import Note
 from .serializers import NoteSerializer
 
 
-class NoteViewSet(mixins.CreateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
+class NoteViewSet(
+    mixins.CreateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet
+):
     """
     API endpoint that allows notes to be deleted.
     """

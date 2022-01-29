@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('admin_tasks', '0005_alter_admintaskcomment_options'),
+        ("admin_tasks", "0005_alter_admintaskcomment_options"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='admintask',
-            options={'ordering': ['completed', 'date']},
+            name="admintask",
+            options={"ordering": ["completed", "date"]},
         ),
     ]

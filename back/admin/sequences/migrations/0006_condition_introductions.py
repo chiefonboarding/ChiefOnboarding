@@ -12,7 +12,9 @@ class Migration(migrations.Migration):
             # finding sequences with introductions
             if i.introductions.all().count():
                 # check if condition exists or otherwise create it
-                if Condition.objects.filter(sequence=i, days=1, condition_type=0).exists():
+                if Condition.objects.filter(
+                    sequence=i, days=1, condition_type=0
+                ).exists():
                     con = Condition.objects.filter(
                         sequence=i, days=1, condition_type=0
                     ).first()

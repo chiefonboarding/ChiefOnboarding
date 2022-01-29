@@ -103,7 +103,9 @@ class SequenceConditionUpdateView(LoginRequiredMixin, AdminPermMixin, UpdateView
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["object"] = get_object_or_404(Sequence, pk=self.kwargs.get("sequence_pk", -1))
+        context["object"] = get_object_or_404(
+            Sequence, pk=self.kwargs.get("sequence_pk", -1)
+        )
         context["condition_form"] = context["form"]
         return context
 
@@ -135,7 +137,9 @@ class SequenceFormView(LoginRequiredMixin, AdminPermMixin, View):
             templates_model = get_templates_model(template_type)
             template_item = get_object_or_404(templates_model, id=template_pk)
 
-        return render(request, "_item_form.html", {"form": form(instance=template_item)})
+        return render(
+            request, "_item_form.html", {"form": form(instance=template_item)}
+        )
 
 
 class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):

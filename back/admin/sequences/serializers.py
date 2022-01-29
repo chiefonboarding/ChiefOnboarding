@@ -37,7 +37,9 @@ class SequenceListSerializer(serializers.ModelSerializer):
 
 
 class ExternalMessageSerializer(serializers.ModelSerializer):
-    send_to = PrimaryKeyRelatedField(queryset=get_user_model().objects.all(), allow_null=True)
+    send_to = PrimaryKeyRelatedField(
+        queryset=get_user_model().objects.all(), allow_null=True
+    )
     content_json = ContentField()
 
     class Meta:

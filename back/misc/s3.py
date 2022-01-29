@@ -34,4 +34,6 @@ class S3:
         )
 
     def delete_file(self, key):
-        return self.client.delete_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=key)
+        return self.client.delete_object(
+            Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=key
+        )

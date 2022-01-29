@@ -13,6 +13,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="courseanswer",
             name="answers",
-            field=models.JSONField(default=list, verbose_name=models.TextField(default="[]")),
+            field=models.JSONField(
+                default=list, verbose_name=models.TextField(default="[]")
+            ),
         ),
     ]

@@ -8,19 +8,21 @@ from misc.migration_scripts.content_migrations import (
     migrate_wysiwyg_field,
 )
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('appointments', '0004_alter_appointment_managers'),
+        ("appointments", "0004_alter_appointment_managers"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='appointment',
-            name='content_json',
+            model_name="appointment",
+            name="content_json",
             field=misc.fields.ContentJSONField(default=dict),
         ),
         RunPythonWithArguments(
-            migrate_wysiwyg_field, context={"app": "appointments", "model": "Appointment"}
+            migrate_wysiwyg_field,
+            context={"app": "appointments", "model": "Appointment"},
         ),
     ]

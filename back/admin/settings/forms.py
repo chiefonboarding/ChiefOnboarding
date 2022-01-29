@@ -2,7 +2,16 @@ import pyotp
 import pytz
 from crispy_forms.bootstrap import Tab, TabHolder
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import ButtonHolder, Column, Div, Field, Fieldset, Layout, Submit, HTML
+from crispy_forms.layout import (
+    ButtonHolder,
+    Column,
+    Div,
+    Field,
+    Fieldset,
+    Layout,
+    Submit,
+    HTML,
+)
 from django import forms
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
@@ -78,11 +87,10 @@ class OrganizationGeneralForm(forms.ModelForm):
             "credentials_login": "Allow users to login with their username and password",
         }
 
-
     def clean(self):
-        credentials_login = self.cleaned_data['credentials_login']
-        google_login = self.cleaned_data['google_login']
-        slack_login = self.cleaned_data['slack_login']
+        credentials_login = self.cleaned_data["credentials_login"]
+        google_login = self.cleaned_data["google_login"]
+        slack_login = self.cleaned_data["slack_login"]
         if not any([credentials_login, google_login, slack_login]):
             raise ValidationError("You must enable at least one login option")
         return self.cleaned_data

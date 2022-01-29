@@ -61,7 +61,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "send_via",
-                    models.IntegerField(choices=[(0, "Email"), (1, "Slack"), (2, "Text")]),
+                    models.IntegerField(
+                        choices=[(0, "Email"), (1, "Slack"), (2, "Text")]
+                    ),
                 ),
                 (
                     "person_type",

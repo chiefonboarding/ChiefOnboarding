@@ -42,8 +42,12 @@ class AdminTaskSerializer(serializers.ModelSerializer):
         return CommentSerializer(comments, many=True, read_only=True).data
 
     def validate(self, value):
-        if value["option"] == 2 and (value["slack_user"] == "" or value["slack_user"] is None):
-            raise serializers.ValidationError("Please select a user to send a message to.")
+        if value["option"] == 2 and (
+            value["slack_user"] == "" or value["slack_user"] is None
+        ):
+            raise serializers.ValidationError(
+                "Please select a user to send a message to."
+            )
         if value["option"] == 1 and (value["email"] == "" or value["email"] is None):
             raise serializers.ValidationError("Please enter an email address.")
         return value

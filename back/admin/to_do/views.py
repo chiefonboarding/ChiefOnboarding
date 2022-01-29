@@ -25,7 +25,9 @@ class ToDoListView(LoginRequiredMixin, AdminPermMixin, ListView):
         return context
 
 
-class ToDoCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView):
+class ToDoCreateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
+):
     template_name = "todo_update.html"
     form_class = ToDoForm
     success_url = reverse_lazy("todo:list")
@@ -38,7 +40,9 @@ class ToDoCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, Cr
         return context
 
 
-class ToDoUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
+class ToDoUpdateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "todo_update.html"
     form_class = ToDoForm
     success_url = reverse_lazy("todo:list")

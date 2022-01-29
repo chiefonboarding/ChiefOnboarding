@@ -155,7 +155,9 @@ def send_new_hire_preboarding(new_hire, message):
         {
             "type": "button",
             "text": "See pages",
-            "url": settings.BASE_URL + "/#/preboarding/auth?token=" + new_hire.unique_url,
+            "url": settings.BASE_URL
+            + "/#/preboarding/auth?token="
+            + new_hire.unique_url,
         },
     ]
     html_message = render_to_string("email/base.html", {"org": org, "content": content})

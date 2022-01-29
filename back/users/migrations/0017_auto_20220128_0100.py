@@ -4,13 +4,12 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     def set_users_without_password_inactive(apps, schema_editor):
         User = apps.get_model("users", "User")
-        User.objects.filter(password='').update(is_active=False)
+        User.objects.filter(password="").update(is_active=False)
 
     dependencies = [
-        ('users', '0016_auto_20211111_0256'),
+        ("users", "0016_auto_20211111_0256"),
     ]
 
     operations = [

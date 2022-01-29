@@ -24,7 +24,9 @@ class BadgeListView(LoginRequiredMixin, AdminPermMixin, ListView):
         return context
 
 
-class BadgeCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView):
+class BadgeCreateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
+):
     template_name = "todo_update.html"
     form_class = BadgeForm
     success_url = reverse_lazy("badges:list")
@@ -37,7 +39,9 @@ class BadgeCreateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, C
         return context
 
 
-class BadgeUpdateView(LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView):
+class BadgeUpdateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "todo_update.html"
     form_class = BadgeForm
     success_url = reverse_lazy("badges:list")

@@ -162,14 +162,20 @@ def first_day_reminder():
         text = ""
         if new_hires_starting_today.count() == 1:
             text = (
-                _("Just a quick reminder: It's ") + user.full_name + _("'s first day today!")
+                _("Just a quick reminder: It's ")
+                + user.full_name
+                + _("'s first day today!")
             )
         else:
             for i in new_hires_starting_today:
                 text += i.get_full_name() + ", "
             # remove last comma
             text = text[:-2]
-            text = _("We got some new hires coming in! ") + text + _(" are starting today!")
+            text = (
+                _("We got some new hires coming in! ")
+                + text
+                + _(" are starting today!")
+            )
         s = Slack()
         blocks = [{"type": "section", "text": {"type": "mrkdwn", "text": text}}]
         s.send_message(blocks=blocks, channel="#general")
@@ -197,7 +203,9 @@ def introduce_new_people():
             )
         else:
             text = (
-                _("We have a new hire coming in soon! Make sure to leave a message for ")
+                _(
+                    "We have a new hire coming in soon! Make sure to leave a message for "
+                )
                 + new_hires.first().first_name
                 + "!"
             )
@@ -243,4 +251,3 @@ def introduce_new_people():
             new_hire.is_introduced_to_colleagues = True
             new_hire.save()
         s.send_message(channel="#general", blocks=blocks)
-

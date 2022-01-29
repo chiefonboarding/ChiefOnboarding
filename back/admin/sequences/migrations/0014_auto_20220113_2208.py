@@ -35,7 +35,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "additional_data",
-                    models.JSONField(default=dict, verbose_name=models.TextField(blank=True)),
+                    models.JSONField(
+                        default=dict, verbose_name=models.TextField(blank=True)
+                    ),
                 ),
             ],
         ),

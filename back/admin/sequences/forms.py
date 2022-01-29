@@ -20,7 +20,9 @@ class ConditionCreateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        is_time_condition = self.instance.condition_type in [0, 2] or self.instance == None
+        is_time_condition = (
+            self.instance.condition_type in [0, 2] or self.instance == None
+        )
         self.helper.layout = Layout(
             Field("condition_type"),
             Div(

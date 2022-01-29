@@ -8,7 +8,9 @@ from .models import User
 
 
 @pytest.mark.django_db
-def test_user_create(new_hire_factory, admin_factory, employee_factory, manager_factory):
+def test_user_create(
+    new_hire_factory, admin_factory, employee_factory, manager_factory
+):
     new_hire = new_hire_factory()
     admin = admin_factory()
     employee = employee_factory()

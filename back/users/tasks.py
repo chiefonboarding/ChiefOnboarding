@@ -31,4 +31,3 @@ def daily_check_for_new_hire_send_credentials():
             # In case an email address is incorrect (or not available), it will
             # not block the rest of the emails
             async_task("users.tasks.send_new_hire_credentials", new_hire.id)
-

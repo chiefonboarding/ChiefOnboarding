@@ -1,6 +1,15 @@
 import pytz
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import ButtonHolder, Column, Div, Field, Fieldset, Layout, Row, Submit
+from crispy_forms.layout import (
+    ButtonHolder,
+    Column,
+    Div,
+    Field,
+    Fieldset,
+    Layout,
+    Row,
+    Submit,
+)
 from django import forms
 from django.contrib.auth import get_user_model
 

@@ -38,7 +38,9 @@ def template_model_exists(template_slug):
 
 def get_templates_model(template_slug):
     if template_model_exists(template_slug):
-        model_item = next((x for x in MODELS if x["model"].lower() == template_slug), None)
+        model_item = next(
+            (x for x in MODELS if x["model"].lower() == template_slug), None
+        )
         return apps.get_model(model_item["app"], model_item["model"])
 
 
@@ -53,7 +55,9 @@ def get_user_field(template_slug):
 def get_model_item(template_slug):
     model_item = None
     if template_model_exists(template_slug):
-        model_item = next((x for x in MODELS if x["model"].lower() == template_slug), None)
+        model_item = next(
+            (x for x in MODELS if x["model"].lower() == template_slug), None
+        )
     return model_item
 
 

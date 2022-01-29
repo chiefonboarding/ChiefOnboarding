@@ -1,6 +1,8 @@
 # import google.oauth2.credentials
 # from google.auth.transport.requests import AuthorizedSession
 import json
+import requests
+from datetime import datetime, timedelta
 
 from .models import AccessToken
 
@@ -26,67 +28,71 @@ class UnauthorizedError(Error):
 
 
 class Google:
-    auth_session = None
-    credentials = None
-    record = None
+    access_obj = AccessToken.objects.filter(active=True, integration=2).first()
 
     def __init__(self):
-        google_code = AccessToken.objects.filter(active=True, integration=2)
-        # if google_code.exists():
-        #     self.record = google_code.first()
-        #     self.credentials = google.oauth2.credentials.Credentials(token=self.record.token,
-        #                                                              refresh_token=self.record.refresh_token,
-        #                                                              token_uri='https://www.googleapis.com/oauth2/v4/token',
-        #                                                              client_id=self.record.client_id,
-        #                                                              client_secret=self.record.client_secret)
-        #     self.auth_session = AuthorizedSession(self.credentials)
-        # if datetime.now() > self.record.expiring:
-        # 	self.refresh()
+        if self.access_obj.count() == 0:
+            raise Error("No tokens available")
 
-    def exists(self):
-        return self.record is not None
+    def get_token(self):
+        # Add in a bit of margin so it has time to process requests
+        if self.access_obj.expiring < (datetime.now() + timedelta(minutes=1)):
+            return self.access_obj.token
 
-    def refresh(self):
-        self.credentials.refresh(Request)
-        self.record.token_encrypt = self.credentials.token
-        self.record.expiring = self.credentials.expiry
-        self.record.save()
+        # Refresh token if token is not valid anymore
+        r = requests.post(
+            "https://oauth2.googleapis.com/token",
+            data={
+                "client_id": self.access_obj.client_id,
+                "client_secret": self.access_obj.client_secret,
+                "grant_type": "refresh_token",
+                "refresh_token": self.access_obj.refresh_token,
+            },
+        )
+        results = r.json()
+
+        self.access_obj.token = results.access_token
+        self.access_obj.expiring = datetime.now() + timedelta(
+            seconds=results["expires_in"]
+        )
+        self.access_obj.ttl = results["expires_in"]
+        self.access_obj.save()
+        return results.access_token
+
+    def get_authentication_header(self):
+        return {"Authorization": "Bearer {}".format(self.get_token())}
 
     def find_by_email(self, email):
-        response = self.auth_session.get(
-            "https://www.googleapis.com/admin/directory/v1/users?customer=my_customer&query=email%3D"
-            + email.lower()
+        r = requests.post(
+            "https://www.googleapis.com/admin/directory/v1/users?customer=my_customer&query=email%3D{}".format(
+                email.lower
+            ),
+            headers=self.get_authentication_header(),
         )
-        if "users" in response.json():
-            return True
-        return False
+        # if users is in the response, then the user was found
+        return "users" in r.json()
 
     def get_all_users(self):
-        response = self.auth_session.get(
-            "https://www.googleapis.com/admin/directory/v1/users?customer=my_customer"
+        r = requests.post(
+            "https://www.googleapis.com/admin/directory/v1/users?customer=my_customer",
+            headers=self.get_authentication_header(),
         )
-        if "users" in response.json():
-            return response.json()["users"]
-        return False
+        if "users" in r.json():
+            return r.json()["users"]
+        return []
 
     def add_user(self, payload):
-        headers = {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "charset": "UTF-8",
-        }
-        response = self.auth_session.post(
+        r = requests.post(
             "https://www.googleapis.com/admin/directory/v1/users",
             data=json.dumps(payload),
-            headers=headers,
+            headers=self.get_authentication_header(),
         )
-
-        if response.status_code == 400:
-            if response.json()["error"]["errors"][0]["reason"] == "invalid":
+        if r.status_code == 400:
+            if r.json()["error"]["errors"][0]["reason"] == "invalid":
                 raise EmailAddressNotValidError
-        if response.status_code == 403 or response.status_code == 404:
+        if r.status_code == 403 or r.status_code == 404:
             raise EmailAddressNotValidError
-        if response.status_code == 401:
+        if r.status_code == 401:
             raise UnauthorizedError
-        if response.status_code == 200:
+        if r.status_code == 200:
             return

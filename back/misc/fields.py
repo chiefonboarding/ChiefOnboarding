@@ -7,6 +7,7 @@ from .serializers import ContentPostSerializer, ContentSerializer
 
 from django.db.models import JSONField
 
+
 class ContentField(serializers.Field):
     def to_representation(self, value):
         return ContentSerializer(value, many=True).data
@@ -28,19 +29,23 @@ class ContentField(serializers.Field):
 class ContentJSONField(JSONField):
     def from_db_value(self, value, expression, connection):
         value = super().from_db_value(value, expression, connection)
-        if 'blocks' not in value:
+        if "blocks" not in value:
             return value
 
-        for block in value['blocks']:
-            if block['type'] in ['file', 'image']:
-                block['data']['file']['url'] = File.objects.get(id=block['data']['file']['id']).get_url()
+        for block in value["blocks"]:
+            if block["type"] in ["file", "image"]:
+                block["data"]["file"]["url"] = File.objects.get(
+                    id=block["data"]["file"]["id"]
+                ).get_url()
         return value
 
 
 class WYSIWYGInput(TextInput):
     def render(self, name, value, attrs=None, renderer=None):
         """Render the widget as an HTML string."""
-        context = self.get_context(name, ContentSerializer(value, many=True).data, attrs)
+        context = self.get_context(
+            name, ContentSerializer(value, many=True).data, attrs
+        )
         return self._render("wysiwyg_field.html", context, renderer)
 
 

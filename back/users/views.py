@@ -66,12 +66,13 @@ class NewHireViewSet(viewsets.ModelViewSet):
     serializer_class = NewHireSerializer
     permission_classes = [ManagerPermission]
 
-
     @action(detail=True, methods=["post"])
     def send_login_email(self, request, pk=None):
         user = self.get_object()
         translation.activate(user.language)
-        message = WelcomeMessage.objects.get(language=user.language, message_type=1).message
+        message = WelcomeMessage.objects.get(
+            language=user.language, message_type=1
+        ).message
         send_new_hire_cred(user, message)
         return Response(status=status.HTTP_201_CREATED)
 
@@ -90,7 +91,9 @@ class NewHireViewSet(viewsets.ModelViewSet):
                 to=user.phone,
                 from_=settings.TWILIO_FROM_NUMBER,
                 body=user.personalize(
-                    WelcomeMessage.objects.get(language=user.language, message_type=2).message
+                    WelcomeMessage.objects.get(
+                        language=user.language, message_type=2
+                    ).message
                 ),
             )
         return Response(status=status.HTTP_201_CREATED)
@@ -98,13 +101,14 @@ class NewHireViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["get"])
     def progress(self, request, pk=None):
         user = self.get_object()
-        todo_serializer = ToDoUserSerializer(ToDoUser.objects.filter(user=user), many=True)
+        todo_serializer = ToDoUserSerializer(
+            ToDoUser.objects.filter(user=user), many=True
+        )
         resource_serializer = NewHireProgressResourceSerializer(
             ResourceUser.objects.filter(user=user), many=True
         )
         data = {"to_do": todo_serializer.data, "resources": resource_serializer.data}
         return Response(data)
-
 
     @action(detail=True, methods=["post"])
     def add_sequence(self, request, pk=None):
@@ -129,7 +133,9 @@ class NewHireViewSet(viewsets.ModelViewSet):
             )
             items.extend(
                 ConditionSerializer(
-                    seq.conditions.filter(condition_type=2, days__gte=amount_days_before),
+                    seq.conditions.filter(
+                        condition_type=2, days__gte=amount_days_before
+                    ),
                     many=True,
                 ).data
             )
@@ -238,7 +244,11 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             user.save()
             return Response()
         return Response(
-            {"error": _("We couldn't find anyone in Slack with the same email address.")},
+            {
+                "error": _(
+                    "We couldn't find anyone in Slack with the same email address."
+                )
+            },
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -270,7 +280,11 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         s = SlackBot()
         users = s.get_all_users()
         for i in users:
-            if i["id"] != "USLACKBOT" and not i["is_bot"] and "real_name" in i["profile"]:
+            if (
+                i["id"] != "USLACKBOT"
+                and not i["is_bot"]
+                and "real_name" in i["profile"]
+            ):
                 if len(i["profile"]["real_name"].split()) > 1:
                     first_name = i["profile"]["real_name"].split()[0]
                     last_name = i["profile"]["real_name"].split()[1]
@@ -314,14 +328,18 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             seq = get_object_or_404(Sequence, id=request.data["sequence"])
             for i in seq.resources.all():
                 user.resources.add(i)
-        return Response(ResourceSlimSerializer(self.get_object().resources, many=True).data)
+        return Response(
+            ResourceSlimSerializer(self.get_object().resources, many=True).data
+        )
 
     @action(detail=True, methods=["put"])
     def delete_resource(self, request, pk):
         user = self.get_object()
         book = get_object_or_404(Resource, id=self.request.data["resource"])
         user.resources.remove(book)
-        return Response(ResourceSlimSerializer(self.get_object().resources, many=True).data)
+        return Response(
+            ResourceSlimSerializer(self.get_object().resources, many=True).data
+        )
 
     @action(detail=True, methods=["post"])
     def send_employee_email(self, request, pk):
@@ -367,7 +385,9 @@ class ToDoUserView(APIView):
             s = SlackBot()
             s.set_user(t_u.user)
             blocks = s.format_to_do_block(
-                pre_message=_("This task has just been reopened! " + request.data["message"]),
+                pre_message=_(
+                    "This task has just been reopened! " + request.data["message"]
+                ),
                 items=[t_u],
             )
             s.send_message(blocks=blocks)
@@ -407,7 +427,9 @@ class ResourceUserView(APIView):
             s = SlackBot()
             s.set_user(t_u.user)
             blocks = s.format_resource_block(
-                pre_message=_("This task has just been reopened! " + request.data["message"]),
+                pre_message=_(
+                    "This task has just been reopened! " + request.data["message"]
+                ),
                 items=[t_u],
             )
             s.send_message(blocks=blocks)

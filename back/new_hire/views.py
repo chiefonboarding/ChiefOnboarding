@@ -33,7 +33,13 @@ from new_hire.serializers import (
 from organization.models import Organization
 from organization.serializers import BaseOrganizationSerializer
 from users.mixins import LoginRequiredMixin
-from users.models import NewHireWelcomeMessage, PreboardingUser, ResourceUser, ToDoUser, User
+from users.models import (
+    NewHireWelcomeMessage,
+    PreboardingUser,
+    ResourceUser,
+    ToDoUser,
+    User,
+)
 from users.permissions import NewHirePermission
 from users.serializers import EmployeeSerializer, NewHireSerializer
 
@@ -59,7 +65,9 @@ class NewHireDashboard(LoginRequiredMixin, TemplateView):
         for to_do_user in to_do_items:
             # Check if to do is already in any of the new items_by_date
             to_do = to_do_user.to_do
-            if not any([item for item in items_by_date if item["day"] == to_do.due_on_day]):
+            if not any(
+                [item for item in items_by_date if item["day"] == to_do.due_on_day]
+            ):
                 new_date = {
                     "day": to_do.due_on_day,
                     "items": [
@@ -120,9 +128,9 @@ class PreboardingShortURLRedirectView(LoginRequiredMixin, RedirectView):
         return super().dispatch(*args, **kwargs)
 
     def get_redirect_url(self, *args, **kwargs):
-        preboarding_user = PreboardingUser.objects.filter(user=self.request.user).order_by(
-            "order"
-        )
+        preboarding_user = PreboardingUser.objects.filter(
+            user=self.request.user
+        ).order_by("order")
         return reverse("new_hire:preboarding", args=[preboarding_user.first().id])
 
 
@@ -147,7 +155,9 @@ class PreboardingDetailView(LoginRequiredMixin, DetailView):
         # Add new hire welcome messages to first page
         if (
             index_current_item == 0
-            and NewHireWelcomeMessage.objects.filter(new_hire=self.request.user).exists()
+            and NewHireWelcomeMessage.objects.filter(
+                new_hire=self.request.user
+            ).exists()
         ):
             context["welcome_messages"] = NewHireWelcomeMessage.objects.filter(
                 new_hire=self.request.user
@@ -198,7 +208,9 @@ class ToDoCompleteView(LoginRequiredMixin, RedirectView):
     pattern_name = "new_hire:to_do"
 
     def get_redirect_url(self, *args, **kwargs):
-        to_do_user = get_object_or_404(ToDoUser, pk=kwargs["pk"], user=self.request.user)
+        to_do_user = get_object_or_404(
+            ToDoUser, pk=kwargs["pk"], user=self.request.user
+        )
         to_do_user.completed = True
         to_do_user.save()
         return super().get_redirect_url(*args, **kwargs)
