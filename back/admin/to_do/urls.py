@@ -1,15 +1,12 @@
-from django.urls import include, path
-from rest_framework import routers
+from django.urls import path
 
 from admin.to_do import views
 
-router = routers.DefaultRouter(trailing_slash=False)
 
 app_name = "todo"
 urlpatterns = [
-    path("", include(router.urls)),
-    path("todo/", views.ToDoListView.as_view(), name="list"),
-    path("todo/create", views.ToDoCreateView.as_view(), name="create"),
-    path("todo/<int:pk>/edit", views.ToDoUpdateView.as_view(), name="update"),
-    path("todo/<int:pk>/delete", views.ToDoDeleteView.as_view(), name="delete"),
+    path("", views.ToDoListView.as_view(), name="list"),
+    path("create", views.ToDoCreateView.as_view(), name="create"),
+    path("<int:pk>/edit", views.ToDoUpdateView.as_view(), name="update"),
+    path("<int:pk>/delete", views.ToDoDeleteView.as_view(), name="delete"),
 ]

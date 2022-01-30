@@ -33,5 +33,7 @@ urlpatterns = [
         PasswordResetCompleteView.as_view(template_name="password_change_done.html"),
         name="password_reset_done",
     ),
-    path("redirect/", views.LoginRedirectView.as_view(), name="logged_in_user_redirect"),
+    path(
+        "redirect/", views.LoginRedirectView.as_view(), name="logged_in_user_redirect"
+    ),
 ]

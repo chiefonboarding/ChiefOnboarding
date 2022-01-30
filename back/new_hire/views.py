@@ -140,7 +140,8 @@ class PreboardingDetailView(LoginRequiredMixin, DetailView):
 
     def dispatch(self, *args, **kwargs):
         # Make sure user is authenticated to view this object
-        get_object_or_404(PreboardingUser, user=self.request.user, id=kwargs["pk"])
+        if self.request.user.is_authenticated:
+            get_object_or_404(PreboardingUser, user=self.request.user, id=kwargs["pk"])
         return super().dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):

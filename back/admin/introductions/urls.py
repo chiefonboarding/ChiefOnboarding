@@ -4,22 +4,20 @@ from . import views
 
 app_name = "introductions"
 urlpatterns = [
-    path("introductions/", views.IntroductionListView.as_view(), name="list"),
+    path("", views.IntroductionListView.as_view(), name="list"),
+    path("create/", views.IntroductionCreateView.as_view(), name="create"),
     path(
-        "introductions/create/", views.IntroductionCreateView.as_view(), name="create"
-    ),
-    path(
-        "introductions/<int:pk>/edit/",
+        "<int:pk>/edit/",
         views.IntroductionUpdateView.as_view(),
         name="update",
     ),
     path(
-        "introductions/<int:pk>/delete/",
+        "<int:pk>/delete/",
         views.IntroductionDeleteView.as_view(),
         name="delete",
     ),
     path(
-        "introductions/<int:pk>/preview/",
+        "<int:pk>/preview/",
         views.IntroductionColleaguePreviewView.as_view(),
         name="preview",
     ),

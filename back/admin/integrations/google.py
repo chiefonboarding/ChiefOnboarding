@@ -1,12 +1,8 @@
-# import google.oauth2.credentials
-# from google.auth.transport.requests import AuthorizedSession
 import json
 import requests
 from datetime import datetime, timedelta
 
 from .models import AccessToken
-
-# from google.auth.transport import Request
 
 
 class Error(Exception):
@@ -28,11 +24,19 @@ class UnauthorizedError(Error):
 
 
 class Google:
-    access_obj = AccessToken.objects.filter(active=True, integration=2).first()
+    access_obj = AccessToken.objects.none()
+    integration_type = 2
 
     def __init__(self):
+        self.access_obj = AccessToken.objects.filter(
+            active=True, integration=self.integration_type
+        )
         if self.access_obj.count() == 0:
             raise Error("No tokens available")
+
+        self.access_obj = AccessToken.objects.filter(
+            active=True, integration=self.integration_type
+        ).first()
 
     def get_token(self):
         # Add in a bit of margin so it has time to process requests
