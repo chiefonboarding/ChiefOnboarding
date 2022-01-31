@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "django_q",
     "crispy_forms",
     # admin
+    "admin.templates",
     "admin.notes",
     "admin.to_do",
     "admin.resources",

@@ -3,7 +3,7 @@ from crispy_forms.layout import HTML, Div, Field, Layout
 from django import forms
 from django.core.exceptions import ValidationError
 
-from admin.to_do.forms import MultiSelectField
+from admin.templates.forms import MultiSelectField
 from admin.to_do.models import ToDo
 
 from .models import Condition

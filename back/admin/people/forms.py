@@ -14,7 +14,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 
 from admin.sequences.models import Sequence
-from admin.to_do.forms import MultiSelectField, UploadField
+from admin.templates.forms import MultiSelectField, UploadField
 
 
 class NewHireAddForm(forms.ModelForm):

@@ -9,7 +9,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
 from admin.integrations.models import AccessToken
-from admin.people.utils import get_model_form, get_templates_model, get_user_field
+from admin.templates.utils import get_model_form, get_templates_model, get_user_field
 from admin.to_do.models import ToDo
 from users.mixins import AdminPermMixin, LoginRequiredMixin
 

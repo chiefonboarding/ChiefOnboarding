@@ -67,28 +67,6 @@ class NewHireViewSet(viewsets.ModelViewSet):
     permission_classes = [ManagerPermission]
 
     @action(detail=True, methods=["post"])
-    def send_login_email(self, request, pk=None):
-        user = self.get_object()
-        translation.activate(user.language)
-        message = WelcomeMessage.objects.get(
-            language=user.language, message_type=1
-        ).message
-        send_new_hire_cred(user, message)
-        return Response(status=status.HTTP_201_CREATED)
-
-    @action(detail=True, methods=["get"])
-    def progress(self, request, pk=None):
-        user = self.get_object()
-        todo_serializer = ToDoUserSerializer(
-            ToDoUser.objects.filter(user=user), many=True
-        )
-        resource_serializer = NewHireProgressResourceSerializer(
-            ResourceUser.objects.filter(user=user), many=True
-        )
-        data = {"to_do": todo_serializer.data, "resources": resource_serializer.data}
-        return Response(data)
-
-    @action(detail=True, methods=["post"])
     def add_sequence(self, request, pk=None):
         user = self.get_object()
         Sequence.objects.get(id=request.data["id"]).assign_to_user(user)

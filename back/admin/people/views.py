@@ -41,7 +41,7 @@ from .forms import (
     NewHireAddForm,
     NewHireProfileForm,
 )
-from .utils import get_templates_model, get_user_field
+from admin.templates.utils import get_templates_model, get_user_field
 from slack_bot.tasks import link_slack_users
 from slack_bot.slack import Slack
 from organization.models import WelcomeMessage

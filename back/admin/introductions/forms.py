@@ -3,7 +3,7 @@ from crispy_forms.layout import HTML, Div, Field, Layout
 from django import forms
 from django.template.loader import render_to_string
 
-from admin.to_do.forms import MultiSelectField
+from admin.templates.forms import MultiSelectField
 from organization.models import Tag
 
 from .models import Introduction

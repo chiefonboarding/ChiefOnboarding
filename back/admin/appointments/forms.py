@@ -3,7 +3,7 @@ from crispy_forms.layout import Div, Field, Layout
 from crispy_forms.utils import TEMPLATE_PACK
 from django import forms
 
-from admin.to_do.forms import MultiSelectField, UploadField, WYSIWYGField
+from admin.templates.forms import MultiSelectField, WYSIWYGField
 from organization.models import Tag
 
 from .models import Appointment

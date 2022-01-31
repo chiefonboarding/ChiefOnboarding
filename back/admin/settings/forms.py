@@ -17,7 +17,7 @@ from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 
-from admin.to_do.forms import UploadField
+from admin.templates.forms import UploadField
 from organization.models import Organization, WelcomeMessage
 from slack_bot.models import SlackChannel
 
