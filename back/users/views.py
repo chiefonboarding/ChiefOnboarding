@@ -260,52 +260,6 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         user.save()
         return Response()
 
-    @action(detail=False, methods=["post"])
-    def sync_google(self, request):
-        g = Google()
-        users = g.get_all_users()
-        if users is not False:
-            for i in users:
-                get_user_model().objects.create(
-                    email=i["primaryEmail"],
-                    defaults={
-                        "first_name": i["name"]["givenName"],
-                        "last_name": i["name"]["familyName"],
-                    },
-                )
-        return Response()
-
-    @action(detail=False, methods=["post"])
-    def sync_slack(self, request):
-        s = SlackBot()
-        users = s.get_all_users()
-        for i in users:
-            if (
-                i["id"] != "USLACKBOT"
-                and not i["is_bot"]
-                and "real_name" in i["profile"]
-            ):
-                if len(i["profile"]["real_name"].split()) > 1:
-                    first_name = i["profile"]["real_name"].split()[0]
-                    last_name = i["profile"]["real_name"].split()[1]
-                else:
-                    first_name = i["profile"]["real_name"]
-                    last_name = ""
-                get_user_model().objects.get_or_create(
-                    email=i["profile"]["email"],
-                    defaults={
-                        "position": i["profile"]["title"],
-                        "phone": i["profile"]["phone"],
-                        "first_name": first_name,
-                        "last_name": last_name,
-                    },
-                )
-        return Response()
-
-    @action(detail=True, methods=["get"])
-    def get_resources(self, request, pk):
-        books = ResourceSlimSerializer(self.get_object().resources, many=True)
-        return Response(books.data)
 
     @action(detail=False, methods=["get"])
     def departments(self, request):
@@ -328,15 +282,6 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             seq = get_object_or_404(Sequence, id=request.data["sequence"])
             for i in seq.resources.all():
                 user.resources.add(i)
-        return Response(
-            ResourceSlimSerializer(self.get_object().resources, many=True).data
-        )
-
-    @action(detail=True, methods=["put"])
-    def delete_resource(self, request, pk):
-        user = self.get_object()
-        book = get_object_or_404(Resource, id=self.request.data["resource"])
-        user.resources.remove(book)
         return Response(
             ResourceSlimSerializer(self.get_object().resources, many=True).data
         )

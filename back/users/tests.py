@@ -57,6 +57,67 @@ def test_workday(date, workday, new_hire_factory):
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
+    "first_name, last_name, initials, full_name",
+    [
+        ("", "Smith", "S", "Smith"),
+        ("John", "Smith", "JS", "John Smith"),
+        ("Zoe", "Tender", "ZT", "Zoe Tender"),
+        ("", "", "", ""),
+    ],
+)
+def test_name(first_name, last_name, initials, full_name, new_hire_factory):
+    user = new_hire_factory(first_name=first_name, last_name=last_name)
+    assert user.initials == initials
+    assert user.full_name == full_name
+
+
+@pytest.mark.django_db
+def test_unique_user_props(new_hire_factory):
+    user1 = new_hire_factory()
+    user2 = new_hire_factory()
+    assert user1.totp_secret != user2.totp_secret
+    assert user1.unique_url != user2.unique_url
+
+
+@pytest.mark.django_db
+def test_generating_and_validating_otp_keys(new_hire_factory):
+    user1 = new_hire_factory()
+    user2 = new_hire_factory()
+
+    user1_new_keys = user1.reset_otp_recovery_keys()
+    user2_new_keys = user2.reset_otp_recovery_keys()
+
+
+    # We cannot search through an encrypted field, so we have to loop through it
+    recovery_key = None
+    for item in OTPRecoveryKey.objects.all():
+        if item.key == user1_new_keys[0]:
+            recovery_key = item
+
+    assert recovery_key is not None
+    # Generate new keys and check that there are 10 items available and returned
+    assert len(user1_new_keys) == 10
+    assert OTPRecoveryKey.objects.count() == 20
+
+    # Check wrong keys
+    assert user1.check_otp_recovery_key("12324") == None
+    assert user1.check_otp_recovery_key(user2_new_keys[0]) == None
+
+    # Check correct key
+    assert recovery_key.is_used == False
+    assert user1.check_otp_recovery_key(user1_new_keys[0]) != None
+
+    recovery_key.refresh_from_db()
+
+    # Key has been used and set to used
+    assert recovery_key.is_used == True
+
+    # Key cannot be reused
+    assert user1.check_otp_recovery_key(user1_new_keys[0]) == None
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
     "date, daybefore",
     [
         ("2021-01-11", 1),

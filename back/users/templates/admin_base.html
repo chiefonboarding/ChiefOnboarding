@@ -225,8 +225,9 @@
     </script>
     <script defer>
       function initSelectize() {
-        $('select:not(.multi-with-add)').selectize()
+        $('select:not(.multi-with-add):not(.add)').selectize()
         $('.multi-with-add').selectize({ create: true })
+        $('.add').selectize({ create: true })
       }
       $(document).ready(function () {
         // Trigger file input when clicking on upload button

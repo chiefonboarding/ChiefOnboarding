@@ -11,21 +11,9 @@ from rest_framework.views import APIView
 
 from .models import AccessToken, ScheduledAccess
 from .serializers import (
-    GoogleAPITokenSerializer,
     GoogleOAuthTokenSerializer,
-    ScheduledAccessSerializer,
-    SlackTokenSerializer,
 )
 
-
-class SlackTokenCreateView(generics.CreateAPIView, generics.RetrieveAPIView):
-    queryset = AccessToken.objects.all()
-    serializer_class = SlackTokenSerializer
-
-
-class GoogleTokenCreateView(generics.CreateAPIView):
-    queryset = AccessToken.objects.all()
-    serializer_class = GoogleAPITokenSerializer
 
 
 class GoogleAddTokenView(APIView):
@@ -103,17 +91,3 @@ class SlackCreateAccountView(APIView):
             access_token.save()
         return redirect("/#/admin/newhire")
 
-
-class TokenRemoveView(APIView):
-    def delete(self, request, id):
-        AccessToken.objects.filter(integration=id).delete()
-        return Response()
-
-
-class AccessViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows books/resources to be viewed or edited.
-    """
-
-    queryset = ScheduledAccess.objects.all()
-    serializer_class = ScheduledAccessSerializer

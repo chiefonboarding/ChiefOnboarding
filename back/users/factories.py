@@ -5,7 +5,7 @@ from pytest_factoryboy import register
 from organization.factories import OrganizationFactory
 from organization.models import Organization
 
-from .models import User
+from .models import User, OTPRecoveryKey
 import datetime
 
 
@@ -61,3 +61,9 @@ class EmployeeFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = User
+
+@register
+class OTPRecoveryKeyFactory(factory.django.DjangoModelFactory):
+
+    class Meta:
+        model = OTPRecoveryKey

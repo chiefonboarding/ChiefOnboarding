@@ -132,7 +132,16 @@ class NewHireProfileForm(forms.ModelForm):
         )
 
 
+# Credits: https://stackoverflow.com/a/19772069
+class ChoiceFieldNoValidation(forms.ChoiceField):
+    def validate(self, value):
+        pass
+
+
 class ColleagueUpdateForm(forms.ModelForm):
+    timezone = forms.ChoiceField(choices=[(x, x) for x in pytz.common_timezones])
+    department = ChoiceFieldNoValidation(choices=[(x.department, x.department) for x in get_user_model().objects.all()])
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -145,6 +154,7 @@ class ColleagueUpdateForm(forms.ModelForm):
             Div(
                 Div(Field("email"), css_class="col-12"),
                 Div(Field("position"), css_class="col-12"),
+                Div(Field("department", css_class="add"), css_class="col-12"),
                 Div(Field("phone"), css_class="col-12"),
                 Div(Field("message"), css_class="col-12"),
                 Div(Field("facebook"), css_class="col-12"),
@@ -165,6 +175,7 @@ class ColleagueUpdateForm(forms.ModelForm):
             "first_name",
             "last_name",
             "position",
+            "department",
             "email",
             "phone",
             "message",
@@ -178,6 +189,8 @@ class ColleagueUpdateForm(forms.ModelForm):
 
 
 class ColleagueCreateForm(forms.ModelForm):
+    timezone = forms.ChoiceField(choices=[(x, x) for x in pytz.common_timezones])
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
