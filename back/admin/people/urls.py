@@ -56,6 +56,21 @@ urlpatterns = [
         views.NewHireToggleTaskView.as_view(),
         name="toggle_new_hire_task",
     ),
+    path(
+        "new_hire/<int:pk>/send_login_email/",
+        views.NewHireSendLoginEmailView.as_view(),
+        name="send_login_email",
+    ),
+    path(
+        "new_hire/<int:pk>/add_sequence/",
+        views.NewHireAddSequenceView.as_view(),
+        name="add_sequence",
+    ),
+    path(
+        "new_hire/<int:pk>/send_preboarding_notification/",
+        views.NewHireSendPreboardingNotificationView.as_view(),
+        name="send_preboarding_notification",
+    ),
     path("colleagues/", views.ColleagueListView.as_view(), name="colleagues"),
     path(
         "colleagues/create/",

@@ -76,28 +76,6 @@ class NewHireViewSet(viewsets.ModelViewSet):
         send_new_hire_cred(user, message)
         return Response(status=status.HTTP_201_CREATED)
 
-    @action(detail=True, methods=["post"])
-    def send_preboarding_details(self, request, pk=None):
-        user = self.get_object()
-        translation.activate(user.language)
-        if request.data["type"] == "email":
-            message = WelcomeMessage.objects.get(
-                language=user.language, message_type=0
-            ).message
-            send_new_hire_preboarding(user, message)
-        else:
-            client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-            client.messages.create(
-                to=user.phone,
-                from_=settings.TWILIO_FROM_NUMBER,
-                body=user.personalize(
-                    WelcomeMessage.objects.get(
-                        language=user.language, message_type=2
-                    ).message
-                ),
-            )
-        return Response(status=status.HTTP_201_CREATED)
-
     @action(detail=True, methods=["get"])
     def progress(self, request, pk=None):
         user = self.get_object()

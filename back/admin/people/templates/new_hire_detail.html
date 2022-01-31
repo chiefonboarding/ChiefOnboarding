@@ -1,5 +1,19 @@
 {% extends 'admin_base.html' %}
 
+{% block actions %}
+<div class="dropdown">
+  <button class="btn btn-white dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+    Settings
+  </button>
+  <div class="dropdown-menu dropdown-menu-right">
+    <a class="dropdown-item" href="{% url 'people:send_preboarding_notification' object.id %}">Send Preboarding email</a>
+    <a class="dropdown-item" href="{% url 'people:send_login_email' object.id %}">Send login email (day 1 and onwards)</a>
+    <div class="dropdown-divider"></div>
+    <a class="dropdown-item" href="#">Add Sequence</a>
+  </div>
+</div>
+{% endblock %}
+
 {% block content %}
 {% include "_new_hire_menu.html" %}
 <div class="card mt-3">

@@ -4,13 +4,15 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 from django_q.tasks import async_task
+from django.conf import settings
+from twilio.rest import Client
 
 from admin.admin_tasks.models import AdminTask
 from admin.notes.models import Note
@@ -25,6 +27,13 @@ from users.models import (
     User,
 )
 from organization.models import Organization
+from users.emails import (
+    email_new_admin_cred,
+    email_reopen_task,
+    send_new_hire_credentials,
+    send_new_hire_preboarding,
+    send_reminder_email,
+)
 
 from .forms import (
     ColleagueCreateForm,
@@ -35,6 +44,7 @@ from .forms import (
 from .utils import get_templates_model, get_user_field
 from slack_bot.tasks import link_slack_users
 from slack_bot.slack import Slack
+from organization.models import WelcomeMessage
 
 
 class NewHireListView(LoginRequiredMixin, AdminPermMixin, ListView):
@@ -97,6 +107,44 @@ class NewHireAddView(
         link_slack_users([new_hire])
 
         return super().form_valid(form)
+
+
+class NewHireSendPreboardingNotificationView(LoginRequiredMixin, AdminPermMixin, View):
+
+    def post(self, request, pk, *args, **kwargs):
+        new_hire = get_object_or_404(User, id=pk)
+        if request.data["type"] == "email":
+            send_new_hire_preboarding(new_hire)
+        else:
+            client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+            client.messages.create(
+                to=user.phone,
+                from_=settings.TWILIO_FROM_NUMBER,
+                body=user.personalize(
+                    WelcomeMessage.objects.get(
+                        language=new_hire.language, message_type=2
+                    ).message
+                ),
+            )
+        return redirect("people:new_hire", pk=new_hire.id)
+
+
+class NewHireAddSequenceView(LoginRequiredMixin, AdminPermMixin, View):
+
+    def post(self, request, pk, *args, **kwargs):
+        sequences = request.data['sequences']
+        new_hire = get_object_or_404(User, id=pk)
+        new_hire.add_sequences(sequences)
+        return redirect("people:new_hire", pk=new_hire.id)
+
+
+class NewHireSendLoginEmailView(LoginRequiredMixin, AdminPermMixin, View):
+
+    def get(self, request, pk, *args, **kwargs):
+        new_hire = get_object_or_404(User, id=pk)
+        send_new_hire_credentials(new_hire)
+        messages.success(request, "Sent email to new hire")
+        return redirect("people:new_hire", pk=new_hire.id)
 
 
 class ColleagueListView(LoginRequiredMixin, AdminPermMixin, ListView):

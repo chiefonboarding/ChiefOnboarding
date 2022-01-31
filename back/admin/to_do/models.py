@@ -12,7 +12,7 @@ class ToDo(BaseItem):
     content = models.ManyToManyField(Content)
     content_json = ContentJSONField(default=dict)
     due_on_day = models.IntegerField(default=0)
-    form = models.JSONField(models.TextField(default="[]"), default=list)
+    form = models.JSONField(default=list)
     # Chat bot specific actions
     send_back = models.BooleanField(default=False)
     slack_channel = models.ForeignKey(
