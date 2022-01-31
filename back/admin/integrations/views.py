@@ -15,7 +15,6 @@ from .serializers import (
 )
 
 
-
 class GoogleAddTokenView(APIView):
     def get(self, request):
         access_code = AccessToken.objects.filter(integration=2)
@@ -90,4 +89,3 @@ class SlackCreateAccountView(APIView):
             access_token.token = data["access_token"]
             access_token.save()
         return redirect("/#/admin/newhire")
-

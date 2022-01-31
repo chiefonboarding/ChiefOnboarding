@@ -28,7 +28,6 @@ NO_GET_URLS = [
 ]
 
 
-
 @pytest.mark.django_db
 @pytest.mark.parametrize(
     "email, password, logged_in",
@@ -228,4 +227,3 @@ def test_authed_view(url, client, new_hire_factory):
     data = {"username": new_hire.email, "password": "strong_pass"}
     response = client.post(url, data, follow=True)
     assert "/mfa/" in response.redirect_chain[-1][0]
-

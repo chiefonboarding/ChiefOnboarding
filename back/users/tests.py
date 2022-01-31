@@ -6,6 +6,8 @@ from freezegun import freeze_time
 from .factories import *
 from .models import User
 
+## MODEL TESTS
+
 
 @pytest.mark.django_db
 def test_user_create(
@@ -86,7 +88,6 @@ def test_generating_and_validating_otp_keys(new_hire_factory):
 
     user1_new_keys = user1.reset_otp_recovery_keys()
     user2_new_keys = user2.reset_otp_recovery_keys()
-
 
     # We cannot search through an encrypted field, so we have to loop through it
     recovery_key = None
@@ -173,3 +174,5 @@ def test_personalize(manager_factory, new_hire_factory):
 #     assert resource_user.completed_course == True
 #     assert resource_user.step == 1
 #     assert resource_user.is_course() == False
+
+## View TESTS

@@ -178,7 +178,7 @@ def first_day_reminder():
             )
         s = Slack()
         blocks = [{"type": "section", "text": {"type": "mrkdwn", "text": text}}]
-        s.send_message(blocks=blocks, channel="#general")
+        s.send_message(blocks=blocks, channel="#" + org.slack_default_channel)
 
     return True
 
@@ -250,4 +250,4 @@ def introduce_new_people():
             )
             new_hire.is_introduced_to_colleagues = True
             new_hire.save()
-        s.send_message(channel="#general", blocks=blocks)
+        s.send_message(channel="#" + org.slack_default_channel, blocks=blocks)

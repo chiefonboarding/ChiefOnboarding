@@ -47,12 +47,12 @@ class Slack:
                 "conversations.list",
                 data={
                     "exclude_archived": True,
-                    "types": "public_channel",
+                    "types": "public_channel,private_channel",
                 },
             )
-        except Exception:
+        except Exception as e:
             return []
-        return [x["name"] for x in response["channels"]]
+        return [[x["name"], x["is_private"]] for x in response["channels"]]
 
     def get_all_users(self):
         try:

@@ -82,6 +82,9 @@ class Organization(models.Model):
     slack_confirm_person = models.ForeignKey(
         settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL
     )
+    slack_default_channel = models.ForeignKey(
+        "slack_bot.SlackChannel", null=True, on_delete=models.SET_NULL
+    )
 
     object = ObjectManager()
     objects = models.Manager()

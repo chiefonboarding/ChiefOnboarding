@@ -260,7 +260,6 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         user.save()
         return Response()
 
-
     @action(detail=False, methods=["get"])
     def departments(self, request):
         departments = (

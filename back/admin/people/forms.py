@@ -140,7 +140,9 @@ class ChoiceFieldNoValidation(forms.ChoiceField):
 
 class ColleagueUpdateForm(forms.ModelForm):
     timezone = forms.ChoiceField(choices=[(x, x) for x in pytz.common_timezones])
-    department = ChoiceFieldNoValidation(choices=[(x.department, x.department) for x in get_user_model().objects.all()])
+    department = ChoiceFieldNoValidation(
+        choices=[(x.department, x.department) for x in get_user_model().objects.all()]
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

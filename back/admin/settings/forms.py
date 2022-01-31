@@ -19,10 +19,12 @@ from django.core.exceptions import ValidationError
 
 from admin.to_do.forms import UploadField
 from organization.models import Organization, WelcomeMessage
+from slack_bot.models import SlackChannel
 
 
 class OrganizationGeneralForm(forms.ModelForm):
     timezone = forms.ChoiceField(choices=[(x, x) for x in pytz.common_timezones])
+    slack_default_channel = forms.ModelChoiceField(queryset=SlackChannel.objects.all())
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -52,6 +54,7 @@ class OrganizationGeneralForm(forms.ModelForm):
                     Field("send_new_hire_start_reminder"),
                     Field("auto_create_user"),
                     Field("create_new_hire_without_confirm"),
+                    Field("slack_default_channel"),
                     css_class="col-6",
                 ),
                 css_class="row",
@@ -80,11 +83,13 @@ class OrganizationGeneralForm(forms.ModelForm):
             "credentials_login",
             "google_login",
             "slack_login",
+            "slack_default_channel",
         ]
         labels = {
             "slack_login": "Allow users to login with their Slack account",
             "google_login": "Allow users to login with their Google account",
             "credentials_login": "Allow users to login with their username and password",
+            "slack_default_channel": "This is the default channel where the bot will post messages in",
         }
 
     def clean(self):

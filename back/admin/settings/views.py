@@ -1,12 +1,14 @@
 from datetime import datetime
 
 import pyotp
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
+from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
 from django.views.generic.list import ListView
 
@@ -22,6 +24,7 @@ from organization.models import (
     WelcomeMessage,
 )
 from users.mixins import AdminPermMixin, LoginRequiredMixin
+from slack_bot.models import SlackChannel
 
 from .forms import (
     AdministratorsCreateForm,
@@ -196,17 +199,14 @@ class IntegrationsListView(LoginRequiredMixin, AdminPermMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context["title"] = "Integrations"
         context["subtitle"] = "settings"
-        context["integrations"] = [
-            {
-                "name": integration[1],
-                "obj": AccessToken.objects.filter(
-                    integration=integration[0], active=True
-                ).first(),
-                "create_url": INTEGRATION_OPTIONS_URLS[idx][0],
-            }
-            for idx, integration in enumerate(INTEGRATION_OPTIONS)
-        ]
-        context["integrations"].sort(key=lambda x: x["name"].lower())
+        for idx, integration in enumerate(INTEGRATION_OPTIONS_URLS):
+            integration["name"] = INTEGRATION_OPTIONS[idx][1]
+            integration["obj"] = AccessToken.objects.filter(
+                integration=INTEGRATION_OPTIONS[idx][0], active=True
+            ).first()
+
+        context["integrations"] = INTEGRATION_OPTIONS_URLS
+        # context["integrations"].sort(key=lambda x: x["name"].lower())
         return context
 
 
@@ -310,6 +310,20 @@ class SlackBotSetupView(
         AccessToken.objects.filter(integration=0).delete()
         form.instance.integration = 0
         return super().form_valid(form)
+
+
+class SlackChannelsUpdateView(LoginRequiredMixin, AdminPermMixin, RedirectView):
+    permanent = False
+    pattern_name = "settings:integrations"
+
+    def get(self, request, *args, **kwargs):
+        SlackChannel.objects.update_channels()
+        print("got here")
+        messages.success(
+            request,
+            "Newly added channels have been added. Make sure the bot has been added to that channel too if you want it to post/get info there!",
+        )
+        return super().get(request, *args, **kwargs)
 
 
 class IntegrationDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):

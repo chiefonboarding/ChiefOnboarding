@@ -15,6 +15,11 @@
       <tr>
         <td>{{ integration.name }}</td>
         <td style="text-align: right">
+          {% if integration.extra_action_url and integration.obj is not None  %}
+          <a href="{% url integration.extra_action_url %}" class="btn btn-primary">
+            {{ integration.extra_action_text }}
+          </a>
+          {% endif %}
           {% if integration.obj is not None %}
           <a href="{% url 'settings:delete-integration' integration.obj.id %}" class="btn btn-danger">
             Remove

@@ -19,10 +19,10 @@ from admin.badges.models import Badge
 from admin.introductions.models import Introduction
 from admin.preboarding.models import Preboarding
 from admin.resources.models import CourseAnswer, Resource
-from admin.sequences.models import Condition, Sequence
+from admin.sequences.models import Condition
 from admin.to_do.models import ToDo
 from misc.models import File
-from organization.models import BaseItem, Changelog
+from organization.models import Changelog
 
 LANGUAGE_CHOICES = (
     ("en", "English"),

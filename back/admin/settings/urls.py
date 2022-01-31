@@ -34,6 +34,11 @@ urlpatterns = [
         name="slack-account",
     ),
     path(
+        "integrations/slack_account/update_channels",
+        views.SlackChannelsUpdateView.as_view(),
+        name="slack-account-update-channels",
+    ),
+    path(
         "integrations/asana",
         views.SlackAccountCreationSetupView.as_view(),
         name="asana",
