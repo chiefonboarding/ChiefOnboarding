@@ -67,7 +67,10 @@ class ToDoForm(forms.ModelForm):
                 Div(
                     WYSIWYGField("content_json"),
                     Field("send_back"),
-                    Field("channel"),
+                    Div(
+                        Field("slack_channel"),
+                        css_class="d-none slack_channel_dissapear"
+                    ),
                     css_class="col-8",
                 ),
                 css_class="row",
@@ -77,6 +80,13 @@ class ToDoForm(forms.ModelForm):
     class Meta:
         model = ToDo
         exclude = ("template", "form", "content")
+
+        labels = {
+            "send_back": "Post new hire's answers from form (if applicable) back to Slack channel"
+        }
+        help_texts = {
+            "send_back": "Let your new hire now that the answers are going to be shared with the team!"
+        }
 
     def clean_tags(self):
         tags = self.cleaned_data["tags"]

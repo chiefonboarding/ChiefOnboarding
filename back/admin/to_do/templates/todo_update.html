@@ -40,5 +40,16 @@ $("#id_fixed_date").on('change', function() {
     $("#div_id_on_day").parent().removeClass("d-none")
   }
 })
+// FOR TODOS
+$("#id_send_back").on('change', function() {
+  console.log($(this))
+  console.log($(this).parent().parent())
+  if (this.checked == true){
+    console.log("checked")
+    $(".slack_channel_dissapear").removeClass("d-none")
+  } else {
+    $(".slack_channel_dissapear").addClass("d-none")
+  }
+})
 </script>
 {% endblock %}

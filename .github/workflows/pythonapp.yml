@@ -38,6 +38,7 @@ jobs:
       run: |
         cd back
         mv back/.env.example back/.env
+        python manage.py migrate users
         python manage.py migrate
     - name: Check formatting flake8/black/isort
       run: |

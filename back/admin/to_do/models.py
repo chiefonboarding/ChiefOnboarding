@@ -15,7 +15,9 @@ class ToDo(BaseItem):
     form = models.JSONField(models.TextField(default="[]"), default=list)
     # Chat bot specific actions
     send_back = models.BooleanField(default=False)
-    channel = models.TextField(blank=True)
+    slack_channel = models.ForeignKey(
+        "slack_bot.SlackChannel", null=True, on_delete=models.SET_NULL
+    )
 
     @property
     def get_icon_template(self):
