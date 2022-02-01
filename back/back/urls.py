@@ -17,6 +17,7 @@ from new_hire import urls as new_hire_urls
 from organization import urls as org_urls
 from slack_bot import urls as slack_urls
 from user_auth import urls as auth_urls
+from admin.templates import urls as template_urls
 
 urlpatterns = [
     path(
@@ -29,6 +30,7 @@ urlpatterns = [
     path("admin/tasks/", include(admin_tasks_urls)),
     # path("api/", include("rest_framework.urls")),
     # path("api/", include(note_urls)),
+    path("templates/", include(template_urls)),
     path("templates/todo/", include(to_do_urls)),
     path("templates/introductions/", include(intro_urls)),
     path("templates/resources/", include(resource_urls)),

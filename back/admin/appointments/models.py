@@ -15,10 +15,6 @@ class Appointment(BaseItem):
     def __str__(self):
         return self.name
 
-    def duplicate(self):
-        self.pk = None
-        self.save()
-
     def update_url(self):
         return reverse("appointments:update", args=[self.id])
 

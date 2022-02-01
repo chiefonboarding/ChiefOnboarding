@@ -19,10 +19,6 @@ class Introduction(BaseItem):
     def delete_url(self):
         return reverse("introductions:delete", args=[self.id])
 
-    def duplicate(self):
-        self.pk = None
-        new_object = self.save()
-
     @property
     def get_icon_template(self):
         return render_to_string("_intro_icon.html")

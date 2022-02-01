@@ -3,6 +3,12 @@
 
 {% block actions %}
   {% if object %}
+    <form method="POST" action="{% url 'templates:duplicate' object.class_name object.id %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary">
+        Duplicate
+      </button>
+    </form>
     <form method="POST" action="{{ object.delete_url }}">
       {% csrf_token %}
       <button type="submit" class="btn btn-danger">

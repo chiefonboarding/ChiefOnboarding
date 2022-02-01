@@ -138,6 +138,14 @@ class BaseItem(models.Model):
                     Tag.objects.get_or_create(name=i)
         super(BaseItem, self).save(*args, **kwargs)
 
+    def class_name(self):
+        return self.__class__.__name__
+
+    def duplicate(self):
+        self.pk = None
+        self.name = self.name + " (duplicate)"
+        self.save()
+        return self
 
 class Changelog(models.Model):
     added = models.DateField(auto_now_add=True)

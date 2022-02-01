@@ -141,11 +141,12 @@ class ChoiceFieldNoValidation(forms.ChoiceField):
 class ColleagueUpdateForm(forms.ModelForm):
     timezone = forms.ChoiceField(choices=[(x, x) for x in pytz.common_timezones])
     department = ChoiceFieldNoValidation(
-        choices=[(x.department, x.department) for x in get_user_model().objects.all()]
+        choices=[(x.department, x.department) for x in get_user_model().objects.all().distinct("department")]
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["profile_image"].required = False
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
@@ -188,6 +189,9 @@ class ColleagueUpdateForm(forms.ModelForm):
             "language",
             "profile_image",
         )
+
+    def clean(self):
+        print(self.cleaned_data)
 
 
 class ColleagueCreateForm(forms.ModelForm):

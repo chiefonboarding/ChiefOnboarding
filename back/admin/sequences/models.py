@@ -27,64 +27,68 @@ class Sequence(models.Model):
     def update_url(self):
         return reverse("sequences:update", args=[self.id])
 
+    def class_name(self):
+        return self.__class__.__name__
+
+    def duplicate(self):
+        old_sequence = Sequence.objects.get(pk=self.pk)
+        self.pk = None
+        self.name = self.name + " (duplicate)"
+        self.save()
+        for condition in old_sequence.conditions.all():
+            new_condition = condition.duplicate()
+            self.conditions.add(new_condition)
+        return self
+
     def assign_to_user(self, user):
-        a = [
-            {"u_model": user.to_do, "s_model": self.to_do},
-            {"u_model": user.resources, "s_model": self.resources},
-            {"u_model": user.preboarding, "s_model": self.preboarding},
-        ]
-        # check for every one if they are already there, if not -> adding it.
-        for j in a:
-            for x in j["s_model"].all():
-                if not j["u_model"].filter(id=x.id).exists():
-                    j["u_model"].add(x)
+        user_condition = None
 
         # adding conditions
-        for i in self.conditions.all():
-            original_record = Condition.objects.get(id=i.id)
-            # checking if this condition is already
-            if (
-                original_record.condition_type == 0
-                or original_record.condition_type == 2
-            ):
-                condition = user.conditions.filter(
-                    condition_type=original_record.condition_type,
-                    days=original_record.days,
+        for sequence_condition in self.conditions.all():
+            # Check what kind of condition it is
+            if sequence_condition.condition_type in [0, 2]:
+                # Get the timed based condition or return None if not exist
+                user_condition = user.conditions.filter(
+                    condition_type=sequence_condition.condition_type,
+                    days=sequence_condition.days,
                 ).first()
-            else:
-                conditions = user.conditions.filter(condition_type=1)
-                condition = None
-                for j in conditions:
-                    valid = True
-                    if (
-                        original_record.condition_to_do.count()
-                        is not j.condition_to_do.count()
-                    ):
-                        continue
-                    for h in original_record.condition_to_do.all():
-                        if not j.condition_to_do.filter(pk=h.pk).exists():
-                            valid = False
-                            break
-                    if valid:
-                        condition = j
-                        break
 
-            if condition is not None:
+            elif sequence_condition.condition_type == 1:
+                # For to_do items, filter all condition items to find if one matches
+                # Both the amount and the todos itself need to match exactly
+                conditions = user.conditions.filter(condition_type=1)
+                original_condition_to_do_ids = sequence_condition.condition_to_do.all().values_list("id", flat=True)
+                for condition in conditions:
+                    # Quickly check if the amount of items match - if not match, then drop
+                    if condition.condition_to_do.all().count() != len(original_condition_to_do_ids):
+                        continue
+
+                    found_to_do_items = condition.condition_to_do.filter(id__in=original_condition_to_do_ids).count()
+                    if found_to_do_items == len(original_condition_to_do_ids):
+                        # We found our match. Amount matches AND the todos match
+                        user_condition = condition
+                        break
+            else:
+                # Condition is the unconditional one. Check if exists, otherwise create and
+                user_condition = user.conditions.get(condition_type=3)
+
+            # Let's add the condition to the new hire. Either through adding it to the exising one
+            # or creating a new one
+            if user_condition is not None:
                 # adding items to existing condition
-                b = get_condition_items(i, condition)
-                for j in b:
-                    for x in j["old_model"].all():
-                        if not j["new_model"].filter(id=x.id).exists():
-                            j["new_model"].add(x)
+                user_condition.include_other_condition(sequence_condition)
             else:
                 # duplicating condition and adding to user
-                i.pk = None
-                i.sequence = None
-                i.save()
-                b = get_condition_items(original_record, i)
-                for j in b:
-                    j["new_model"].set(j["old_model"].all())
-                user.conditions.add(i)
+                # Force getting it, as we are about to duplicate it and set the pk to None
+                old_condition = Condition.objects.get(id=sequence_condition.id)
+
+                sequence_condition.pk = None
+                sequence_condition.sequence = None
+                sequence_condition.save()
+                sequence_condition.include_other_condition(old_condition)
+
+                # Add newly created condition back to user
+                user.conditions.add(sequence_condition)
 
 
 class ExternalMessageManager(models.Manager):
@@ -111,6 +115,11 @@ class ExternalMessage(models.Model):
     )
     subject = models.CharField(max_length=78, default="Here is an update!", blank=True)
     person_type = models.IntegerField(choices=PEOPLE_CHOICES, default=1)
+
+    def duplicate(self):
+        self.pk = None
+        self.save()
+        return self
 
     def email_message(self):
         email_data = []
@@ -183,6 +192,11 @@ class PendingAdminTask(models.Model):
     def get_icon_template(self):
         return render_to_string("_admin_task_icon.html")
 
+    def duplicate(self):
+        self.pk = None
+        self.save()
+        return self
+
 
 class AccountProvision(models.Model):
     INTEGRATION_OPTIONS = (
@@ -193,6 +207,10 @@ class AccountProvision(models.Model):
     integration_type = models.CharField(max_length=10, choices=INTEGRATION_OPTIONS)
     additional_data = models.JSONField(models.TextField(blank=True), default=dict)
 
+    def duplicate(self):
+        self.pk = None
+        self.save()
+        return self
 
 class Condition(models.Model):
     CONDITION_TYPE = (
@@ -241,6 +259,48 @@ class Condition(models.Model):
                 == type(model_item)._meta.model_name
             ):
                 self.__getattribute__(field.name).add(model_item)
+
+    def include_other_condition(self, condition):
+        # this will put another condition into this one
+        for field in self._meta.many_to_many:
+            # We only want to add assigned items, not triggers
+            if field.name == "condition_to_do":
+                continue
+
+            condition_field = condition.__getattribute__(field.name)
+            for item in condition_field.all():
+                self.__getattribute__(field.name).add(item)
+
+
+    def duplicate(self):
+        old_condition = Condition.objects.get(id=self.id)
+        self.pk = None
+        self.save()
+        # This function is not being used except for duplicating sequences
+        # It can't be triggered standalone (for now)
+        for field in old_condition._meta.many_to_many:
+
+            if field.name not in ['admin_tasks', 'external_messages', 'account_provisions']:
+                # Duplicate old ones
+                old_custom_templates = old_condition.__getattribute__(field.name).filter(template=False)
+                for old in old_custom_templates:
+                    dup = old.duplicate()
+                    self.__getattribute__(field.name).add(dup)
+
+                # Only using set() for template items. The other ones need to be duplicated as they are unique to the condition
+                old_templates = old_condition.__getattribute__(field.name).filter(template=True)
+                self.__getattribute__(field.name).set(old_templates)
+
+            else:
+                # For items that do not have templates, just duplicate them
+                old_custom_templates = old_condition.__getattribute__(field.name).all()
+                for old in old_custom_templates:
+                    dup = old.duplicate()
+                    self.__getattribute__(field.name).add(dup)
+
+        # returning the new item
+        return self
+
 
     def process_condition(self, user):
         from admin_tasks.models import AdminTaskComment

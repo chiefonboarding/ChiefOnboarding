@@ -28,18 +28,19 @@ MODELS = [
         "form": PreboardingForm,
     },
     {"app": "badges", "model": "Badge", "user_field": "badges", "form": BadgeForm},
+    {"app": "sequences", "model": "Sequence", "user_field": "conditions"},
     # { 'app': 'integrations', 'model': 'Badge', 'user_field': 'badges'},
 ]
 
 
 def template_model_exists(template_slug):
-    return any([x["model"].lower() == template_slug for x in MODELS])
+    return any([x["model"].lower() == template_slug.lower() for x in MODELS])
 
 
 def get_templates_model(template_slug):
     if template_model_exists(template_slug):
         model_item = next(
-            (x for x in MODELS if x["model"].lower() == template_slug), None
+            (x for x in MODELS if x["model"].lower() == template_slug.lower()), None
         )
         return apps.get_model(model_item["app"], model_item["model"])
 
@@ -47,7 +48,7 @@ def get_templates_model(template_slug):
 def get_user_field(template_slug):
     if template_model_exists(template_slug):
         return next(
-            (x["user_field"] for x in MODELS if x["model"].lower() == template_slug),
+            (x["user_field"] for x in MODELS if x["model"].lower() == template_slug.lower()),
             None,
         )
 
@@ -56,7 +57,7 @@ def get_model_item(template_slug):
     model_item = None
     if template_model_exists(template_slug):
         model_item = next(
-            (x for x in MODELS if x["model"].lower() == template_slug), None
+            (x for x in MODELS if x["model"].lower() == template_slug.lower()), None
         )
     return model_item
 
