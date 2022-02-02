@@ -15,6 +15,7 @@ from django.contrib.auth import get_user_model
 
 from admin.sequences.models import Sequence
 from admin.templates.forms import MultiSelectField, UploadField
+from users.models import User
 
 
 class NewHireAddForm(forms.ModelForm):
@@ -141,7 +142,7 @@ class ChoiceFieldNoValidation(forms.ChoiceField):
 class ColleagueUpdateForm(forms.ModelForm):
     timezone = forms.ChoiceField(choices=[(x, x) for x in pytz.common_timezones])
     department = ChoiceFieldNoValidation(
-        choices=[(x.department, x.department) for x in get_user_model().objects.all().distinct("department")]
+        choices=[(x.department, x.department) for x in User.objects.all().distinct("department")]
     )
 
     def __init__(self, *args, **kwargs):

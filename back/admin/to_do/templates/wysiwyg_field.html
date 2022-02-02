@@ -14,6 +14,6 @@
   </div>
 </div>
 
-{% if field.value %}
+{% if field.value and field.value is not None %}
 {{ field.value|json_script:"content" }}
 {% endif %}

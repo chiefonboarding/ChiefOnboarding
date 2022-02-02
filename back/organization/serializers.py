@@ -3,7 +3,6 @@ from rest_framework import serializers
 
 from admin.integrations.models import AccessToken
 from admin.sequences.models import Sequence
-from admin.sequences.serializers import SequenceListSerializer
 from misc.serializers import FileSerializer
 
 from .models import Organization, Tag, WelcomeMessage

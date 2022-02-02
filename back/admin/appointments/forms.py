@@ -19,6 +19,7 @@ class AppointmentForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         fixed_date = self.instance.fixed_date
+        self.helper.form_tag = False
         self.helper.layout = Layout(
             Div(
                 Div(

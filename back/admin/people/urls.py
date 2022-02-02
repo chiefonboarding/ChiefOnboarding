@@ -62,6 +62,16 @@ urlpatterns = [
         name="send_login_email",
     ),
     path(
+        "new_hire/<int:pk>/delete/",
+        views.NewHireDeleteView.as_view(),
+        name="delete",
+    ),
+    path(
+        "new_hire/<int:pk>/migrate_to_normal/",
+        views.NewHireMigrateToNormalAccountView.as_view(),
+        name="migrate-to-normal",
+    ),
+    path(
         "new_hire/<int:pk>/add_sequence/",
         views.NewHireAddSequenceView.as_view(),
         name="add_sequence",

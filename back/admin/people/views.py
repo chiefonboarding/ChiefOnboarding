@@ -290,6 +290,29 @@ class ColleagueDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
         return response
 
 
+class NewHireDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
+    template_name = "new_hire_delete.html"
+    queryset = get_user_model().objects.all()
+    success_url = reverse_lazy("people:new_hires")
+
+    def delete(self, request, *args, **kwargs):
+        response = super().delete(request, *args, **kwargs)
+        messages.info(request, "New hire has been removed")
+        return response
+
+
+class NewHireMigrateToNormalAccountView(LoginRequiredMixin, AdminPermMixin, View):
+    queryset = get_user_model().objects.all()
+    success_url = reverse_lazy("people:new_hires")
+
+    def post(self, request, pk, *args, **kwargs):
+        user = get_object_or_404(get_user_model(), id=pk)
+        user.role = 3
+        user.save()
+        messages.info(request, "New hire is now a normal account.")
+        return redirect("people:new_hires")
+
+
 class NewHireNotesView(
     LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
 ):

@@ -1,4 +1,5 @@
 from django.db import models
+from django.template.loader import render_to_string
 from django.urls import reverse
 
 from misc.fields import ContentJSONField
@@ -14,6 +15,10 @@ class Appointment(BaseItem):
 
     def __str__(self):
         return self.name
+
+    @property
+    def get_icon_template(self):
+        return render_to_string("_appointment_icon.html")
 
     def update_url(self):
         return reverse("appointments:update", args=[self.id])

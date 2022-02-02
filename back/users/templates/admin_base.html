@@ -224,10 +224,10 @@
       })
     </script>
     <script defer>
-      function initSelectize() {
-        $('select:not(.multi-with-add):not(.add)').selectize()
-        $('.multi-with-add').selectize({ create: true })
-        $('.add').selectize({ create: true })
+      function initSelectize(prefix="") {
+        $(prefix + ' select:not(.multi-with-add):not(.add):not(.selectized)').selectize()
+        $(prefix + ' .multi-with-add:not(.selectized)').selectize({ create: true })
+        $(prefix + ' .add:not(.selectized)').selectize({ create: true })
       }
       $(document).ready(function () {
         // Trigger file input when clicking on upload button
@@ -400,6 +400,10 @@
         initWYSIWYGEditor()
       }
       function changeTemplate(item, condition, type) {
+        console.log(item)
+        console.log(condition)
+        console.log(type)
+
         document.getElementById("form-add-item").setAttribute("hx-post", `/sequences/update_item/${type}/${item}/${condition}/`)
         htmx.ajax('GET', `/sequences/forms/${type}/${item}/`, `#form`)
         htmx.process('#form-modal-content');

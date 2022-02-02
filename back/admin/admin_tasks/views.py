@@ -7,13 +7,13 @@ from django.views.generic.list import ListView
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django_q.tasks import async_task
 
 from users import permissions
 from users.mixins import LoginRequiredMixin, ManagerPermMixin
 
 from .forms import AdminTaskCommentForm, AdminTaskCreateForm, AdminTaskUpdateForm
 from .models import AdminTask, AdminTaskComment
-from .serializers import AdminTaskSerializer, CommentPostSerializer, CommentSerializer
 
 
 class MyAdminTasksListView(LoginRequiredMixin, ManagerPermMixin, ListView):
@@ -78,6 +78,13 @@ class AdminTasksUpdateView(
         context["comment_form"] = AdminTaskCommentForm
         return context
 
+    def form_valid(self, form):
+        # send email/bot message to newly assigned person
+        initial_assigned_to = form.instance.assigned_to
+        form.save()
+        if form.validated_data['assigned_to'] != initial_assigned_to:
+            async_task(form.instance.send_notification_new_assigned())
+        return super().form_valid(form)
 
 class AdminTasksCreateView(
     LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, CreateView
@@ -95,6 +102,9 @@ class AdminTasksCreateView(
             content=form.cleaned_data["comment"],
             comment_by=self.request.user,
         )
+        # Send message to person that got assigned to this
+        if self.request.user.id != form.cleaned_data["assigned_to"]:
+            async_task(self.object.send_notification_new_assigned())
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -124,39 +134,3 @@ class AdminTasksCommentCreateView(
         form.instance.admin_task = task
         return super().form_valid(form)
 
-
-class AdminTaskViewSet(viewsets.ModelViewSet):
-    permission_classes = (permissions.ManagerPermission,)
-    queryset = (
-        AdminTask.objects.all()
-        .select_related("new_hire", "assigned_to")
-        .prefetch_related("comment")
-    )
-    serializer_class = AdminTaskSerializer
-
-    def create(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        admin_task = serializer.save()
-
-        if "comment" in request.data:
-            comment = CommentPostSerializer(data={"content": request.data["comment"]})
-            if comment.is_valid():
-                comment.save(admin_task=admin_task, comment_by=request.user)
-
-        if request.user != admin_task.assigned_to:
-            admin_task.send_notification_new_assigned()
-        return Response({"id": admin_task.id}, status=status.HTTP_201_CREATED)
-
-    def update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        # send email/bot message to newly assigned person
-        if serializer.data.assigned_to.id != instance.assigned_to.id:
-            self.perform_update(serializer)
-            instance.send_notification_new_assigned()
-
-        self.perform_update(serializer)
-        return Response(serializer.data)

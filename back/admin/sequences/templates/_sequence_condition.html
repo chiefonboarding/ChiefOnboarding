@@ -57,7 +57,7 @@
       {% include '_condition_line_item.html' with type='preboarding' %}
     {% endfor %}
     {% for item in condition.appointments.all %}
-      {% include '_condition_line_item.html' with type='appointments' %}
+      {% include '_condition_line_item.html' with type='appointment' %}
     {% endfor %}
     {% for item in condition.external_messages.for_new_hire %}
       {% include '_condition_line_item.html' with type='external_message' %}

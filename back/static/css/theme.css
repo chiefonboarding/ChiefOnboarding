@@ -12865,3 +12865,10 @@ select {
 .form-select {
   z-index: 10000000;
 }
+.modal-dialog.modal-lg {
+  max-width: 1118px !important;
+}
+form .btn {
+  float:right;
+  margin-left: 5px;
+}

@@ -17,20 +17,7 @@ from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
 from rest_framework.views import APIView
 
-from admin.badges.serializers import BadgeSerializer
-from admin.introductions.serializers import IntroductionSerializer
-from admin.resources.models import Chapter, CourseAnswer, Resource
-from admin.resources.serializers import ResourceSerializer
-from admin.to_do.models import ToDo
-from admin.to_do.serializers import ToDoSerializer
-from new_hire.serializers import (
-    NewHireBadgeSerializer,
-    NewHireResourceItemSerializer,
-    NewHireResourceSerializer,
-    PreboardingUserSerializer,
-    ToDoUserSerializer,
-)
-from organization.models import Organization
+from admin.resources.models import Chapter, CourseAnswer
 from organization.serializers import BaseOrganizationSerializer
 from users.mixins import LoginRequiredMixin
 from users.models import (
@@ -41,7 +28,6 @@ from users.models import (
     User,
 )
 from users.permissions import NewHirePermission
-from users.serializers import EmployeeSerializer, NewHireSerializer
 
 
 class NewHireDashboard(LoginRequiredMixin, TemplateView):

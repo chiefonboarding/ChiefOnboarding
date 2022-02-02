@@ -105,12 +105,12 @@ function changeTemplate(item, condition, type) {
   htmx.process('#form-modal-content');
   setTimeout(function() {
     initWYSIWYGEditor()
+    initSelectize("#form-modal-content")
   }, 300)
 
 }
 $("select#id_condition_type").on('change', function() {
   // Change things to fill in when condition_type changes
-    console.log("got here")
   if ($(this).val() == 1){
     $("#add-condition-form #div_id_condition_to_do").parent().removeClass("d-none")
     $("#div_id_days").parent().addClass("d-none")
@@ -121,12 +121,35 @@ $("select#id_condition_type").on('change', function() {
 })
 function editCondition(id) {
     htmx.ajax('GET', `/sequences/{{ object.id }}/condition/${id}/`, `#add-condition-form`)
-  $('#modal-block').modal('show')
-}
+    $('#modal-block').modal('show')
+
+  }
 // reload selectboxes when we get a new form back from backend
 document.getElementById("condition_form").addEventListener('htmx:load', function(evt) {
   $("#id_condition_to_do").selectize()
   $("#id_condition_type").selectize()
 });
+</script>
+<script>
+// FOR APPOINTMENTS
+// Change when appointment date/time changes
+$(document).on('change', "#id_fixed_date", function() {
+  if (this.checked == true){
+    $("#div_id_date").parent().removeClass("d-none")
+    $("#div_id_on_day").parent().addClass("d-none")
+  } else {
+    $("#div_id_date").parent().addClass("d-none")
+    $("#div_id_on_day").parent().removeClass("d-none")
+  }
+})
+// FOR TODOS
+$(document).on('change', "#id_send_back", function() {
+  if (this.checked == true){
+    console.log("checked")
+    $(".slack_channel_dissapear").removeClass("d-none")
+  } else {
+    $(".slack_channel_dissapear").addClass("d-none")
+  }
+})
 </script>
 {% endblock %}

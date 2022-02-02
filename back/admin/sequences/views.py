@@ -157,8 +157,8 @@ class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
             template_item = get_object_or_404(templates_model, id=template_pk)
 
         # Push instance and data through form and save it
-        # Check if original item was template, if so, then create new
-        if template_item.template:
+        # Check if original item was template or doesn't exist (is new), if so, then create new
+        if template_item is None or template_item.template:
             item_form = form(request.POST)
         else:
             item_form = form(instance=template_item, data=request.POST)
@@ -172,11 +172,13 @@ class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
             # If it hasn't created a new object, then the old one is good enough.
             if obj.id != template_pk:
                 condition = get_object_or_404(Condition, id=condition)
-                condition.remove_item(template_item)
                 condition.add_item(obj)
+                # Delete the item that was added, if there is one
+                if template_item is not None:
+                    condition.remove_item(template_item)
 
         else:
-            # Form has valid, push back form with errors
+            # Form is not valid, push back form with errors
             return render(request, "_item_form.html", {"form": item_form})
 
         # Succesfully created/updated item, request sequence reload
