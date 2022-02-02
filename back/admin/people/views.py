@@ -4,11 +4,11 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView, FormView
 from django.views.generic.list import ListView
 from django_q.tasks import async_task
 from django.conf import settings
@@ -40,11 +40,13 @@ from .forms import (
     ColleagueUpdateForm,
     NewHireAddForm,
     NewHireProfileForm,
+    SequenceChoiceForm
 )
 from admin.templates.utils import get_templates_model, get_user_field
 from slack_bot.tasks import link_slack_users
 from slack_bot.slack import Slack
 from organization.models import WelcomeMessage
+from admin.sequences.models import Sequence, Condition
 
 
 class NewHireListView(LoginRequiredMixin, AdminPermMixin, ListView):
@@ -118,9 +120,9 @@ class NewHireSendPreboardingNotificationView(LoginRequiredMixin, AdminPermMixin,
         else:
             client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
             client.messages.create(
-                to=user.phone,
+                to=new_hire.phone,
                 from_=settings.TWILIO_FROM_NUMBER,
-                body=user.personalize(
+                body=new_hire.personalize(
                     WelcomeMessage.objects.get(
                         language=new_hire.language, message_type=2
                     ).message
@@ -129,12 +131,28 @@ class NewHireSendPreboardingNotificationView(LoginRequiredMixin, AdminPermMixin,
         return redirect("people:new_hire", pk=new_hire.id)
 
 
-class NewHireAddSequenceView(LoginRequiredMixin, AdminPermMixin, View):
+class NewHireAddSequenceView(LoginRequiredMixin, AdminPermMixin, FormView):
+    template_name = "new_hire_add_sequence.html"
+    form_class = SequenceChoiceForm
 
-    def post(self, request, pk, *args, **kwargs):
-        sequences = request.data['sequences']
-        new_hire = get_object_or_404(User, id=pk)
+    def form_valid(self, form):
+        user_id = self.kwargs.get("pk", -1)
+        new_hire = get_object_or_404(User, id=user_id)
+        sequences = Sequence.objects.filter(id__in=form.cleaned_data['sequences'])
         new_hire.add_sequences(sequences)
+        messages.success(self.request, "Sequence(s) have been added to this new hire")
+        # Check if there are items that will not be triggered since date passed
+        conditions = Condition.objects.none()
+        if new_hire.workday() == 0:
+            for seq in sequences:
+                conditions = conditions | seq.conditions.filter(condition_type=2, days__lte=new_hire.days_before_starting)
+        else:
+            # user has already started
+            for seq in sequences:
+                conditions = seq.conditions.filter(condition_type=2) | seq.conditions.filter(condition_type=0, days__lte=new_hire.workday())
+        if conditions.count():
+            self.request.session["added_sequences"] = form.cleaned_data['sequences']
+            return render(self.request, 'not_triggered_conditions.html', conditions)
         return redirect("people:new_hire", pk=new_hire.id)
 
 

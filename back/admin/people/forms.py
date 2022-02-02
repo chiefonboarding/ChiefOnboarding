@@ -236,3 +236,7 @@ class ColleagueCreateForm(forms.ModelForm):
             "timezone",
             "language",
         )
+
+class SequenceChoiceForm(forms.Form):
+    sequences = forms.MultipleChoiceField(label="Select sequences you want to add ", widget=forms.CheckboxSelectMultiple, choices=[(x.id, x.name) for x in Sequence.objects.all()])
+

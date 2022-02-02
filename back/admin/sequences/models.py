@@ -69,8 +69,18 @@ class Sequence(models.Model):
                         user_condition = condition
                         break
             else:
-                # Condition is the unconditional one. Check if exists, otherwise create and
-                user_condition = user.conditions.get(condition_type=3)
+                # Condition is the unconditional one. Add them directly to the new hire
+                # Needs to be rewritten to clean it up
+                for preboarding in sequence_condition.preboarding.all():
+                    user.preboarding.add(preboarding)
+                for todo in sequence_condition.to_do.all():
+                    user.to_do.add(todo)
+                for resource in sequence_condition.resources.all():
+                    user.resources.add(resource)
+                for intro in sequence_condition.introductions.all():
+                    user.introductions.add(intro)
+
+                continue
 
             # Let's add the condition to the new hire. Either through adding it to the exising one
             # or creating a new one
