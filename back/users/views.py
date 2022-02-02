@@ -67,12 +67,6 @@ class NewHireViewSet(viewsets.ModelViewSet):
     permission_classes = [ManagerPermission]
 
     @action(detail=True, methods=["post"])
-    def add_sequence(self, request, pk=None):
-        user = self.get_object()
-        Sequence.objects.get(id=request.data["id"]).assign_to_user(user)
-        return Response()
-
-    @action(detail=True, methods=["post"])
     def check_past_sequence(self, request, pk=None):
         user = self.get_object()
         items = []
@@ -226,20 +220,6 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             .values_list("department")
         )
         return Response(departments)
-
-    @action(detail=True, methods=["post"])
-    def add_resource(self, request, pk):
-        user = self.get_object()
-        if "resource" in self.request.data:
-            book = get_object_or_404(Resource, id=self.request.data["resource"])
-            user.resources.add(book)
-        if "sequence" in self.request.data:
-            seq = get_object_or_404(Sequence, id=request.data["sequence"])
-            for i in seq.resources.all():
-                user.resources.add(i)
-        return Response(
-            ResourceSlimSerializer(self.get_object().resources, many=True).data
-        )
 
     @action(detail=True, methods=["post"])
     def send_employee_email(self, request, pk):
