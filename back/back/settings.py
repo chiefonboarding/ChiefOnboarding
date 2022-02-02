@@ -41,23 +41,17 @@ if DEBUG:
     ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
-    "users",
-    "organization",
-    "user_auth",
-    "misc",
-    "back",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.humanize",
-    # external
-    "rest_framework",
-    "axes",
-    "anymail",
-    "django_q",
-    "crispy_forms",
+    "users",
+    "organization",
+    "user_auth",
+    "misc",
+    "back",
     # admin
     "admin.templates",
     "admin.notes",
@@ -76,6 +70,12 @@ INSTALLED_APPS = [
     "new_hire",
     # slack
     "slack_bot",
+    # external
+    "rest_framework",
+    "axes",
+    "anymail",
+    "django_q",
+    "crispy_forms",
 ]
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

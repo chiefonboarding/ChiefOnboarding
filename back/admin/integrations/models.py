@@ -14,25 +14,25 @@ INTEGRATION_OPTIONS = (
 )
 INTEGRATION_OPTIONS_URLS = [
     {
-        "enable_url": reverse_lazy("settings:slack-bot"),
+        "create_url": reverse_lazy("settings:slack-bot"),
         "disable_url": reverse_lazy("settings:google-login"),
         "extra_action_url": "settings:slack-account-update-channels",
         "extra_action_text": "Update Slack channels list",
     },
     {
-        "enable_url": reverse_lazy("settings:slack-account"),
+        "create_url": reverse_lazy("settings:slack-account"),
         "disable_url": reverse_lazy("settings:google-login"),
     },
     {
-        "enable_url": reverse_lazy("settings:google-account"),
+        "create_url": reverse_lazy("settings:google-account"),
         "disable_url": reverse_lazy("settings:google-account"),
     },
     {
-        "enable_url": reverse_lazy("settings:google-login"),
+        "create_url": reverse_lazy("settings:google-login"),
         "disable_url": reverse_lazy("settings:google-account"),
     },
     {
-        "enable_url": reverse_lazy("settings:asana"),
+        "create_url": reverse_lazy("settings:asana"),
         "disable_url": reverse_lazy("settings:asana"),
     },
 ]

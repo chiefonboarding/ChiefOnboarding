@@ -232,6 +232,26 @@ class GoogleLoginSetupView(
         return super().form_valid(form)
 
 
+class AsanaSetupView(LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin):
+    template_name = "token_create.html"
+    model = AccessToken
+    fields = ["token"]
+    success_message = "Your Asana integration has been set up!"
+    success_url = reverse_lazy("settings:integrations")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Asana setup"
+        context["subtitle"] = "settings"
+        context["button_text"] = "Enable"
+        return context
+
+    def form_valid(self, form):
+        AccessToken.objects.filter(integration=4).delete()
+        form.instance.integration = 4
+        return super().form_valid(form)
+
+
 class GoogleAccountCreationSetupView(
     LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin
 ):
