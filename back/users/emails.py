@@ -11,7 +11,10 @@ from organization.models import Organization, WelcomeMessage
 from users.models import User
 
 
-def email_new_admin_cred(user, password):
+def email_new_admin_cred(user):
+    password = User.objects.make_random_password()
+    user.set_password(password)
+    user.save()
     translation.activate(user.language)
     org = Organization.object.get()
     subject = _("Your login credentials!")

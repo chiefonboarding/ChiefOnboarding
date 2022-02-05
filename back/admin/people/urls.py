@@ -77,6 +77,11 @@ urlpatterns = [
         name="add_sequence",
     ),
     path(
+        "new_hire/<int:pk>/trigger_condition/<int:condition_pk>/",
+        views.NewHireTriggerConditionView.as_view(),
+        name="trigger-condition",
+    ),
+    path(
         "new_hire/<int:pk>/send_preboarding_notification/",
         views.NewHireSendPreboardingNotificationView.as_view(),
         name="send_preboarding_notification",
@@ -91,6 +96,16 @@ urlpatterns = [
         "colleagues/syncslack/",
         views.ColleagueSyncSlack.as_view(),
         name="sync-slack",
+    ),
+    path(
+        "colleagues/<int:pk>/connect_to_slack/",
+        views.ColleagueGiveSlackAccessView.as_view(),
+        name="connect-to-slack",
+    ),
+    path(
+        "colleagues/<int:pk>/toggle_portal_access/",
+        views.ColleagueTogglePortalAccessView.as_view(),
+        name="toggle-portal-access",
     ),
     path("colleagues/<int:pk>/", views.ColleagueUpdateView.as_view(), name="colleague"),
     path(

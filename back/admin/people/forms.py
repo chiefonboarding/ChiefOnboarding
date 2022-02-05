@@ -1,13 +1,9 @@
 import pytz
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import (
-    ButtonHolder,
-    Column,
     Div,
     Field,
-    Fieldset,
     Layout,
-    Row,
     Submit,
 )
 from django import forms
@@ -16,6 +12,7 @@ from django.contrib.auth import get_user_model
 from admin.sequences.models import Sequence
 from admin.templates.forms import MultiSelectField, UploadField
 from users.models import User
+from django.conf import settings
 
 
 class NewHireAddForm(forms.ModelForm):
@@ -237,6 +234,18 @@ class ColleagueCreateForm(forms.ModelForm):
             "language",
         )
 
+
 class SequenceChoiceForm(forms.Form):
     sequences = forms.MultipleChoiceField(label="Select sequences you want to add ", widget=forms.CheckboxSelectMultiple, choices=[(x.id, x.name) for x in Sequence.objects.all()])
+
+
+class PreboardingSendForm(forms.Form):
+    send_type = forms.ChoiceField(choices=[("text", "Send via text"), ("email", "Send via email")])
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # if Twillio is not configured, then auto select text and make it disabled
+        if settings.TWILIO_ACCOUNT_SID == "":
+            self.fields['send_type'].widget.attrs['disabled'] = 'true'
+            self.fields['send_type'].initial = 'text'
 

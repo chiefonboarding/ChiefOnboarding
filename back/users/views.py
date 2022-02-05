@@ -67,38 +67,6 @@ class NewHireViewSet(viewsets.ModelViewSet):
     permission_classes = [ManagerPermission]
 
     @action(detail=True, methods=["post"])
-    def check_past_sequence(self, request, pk=None):
-        user = self.get_object()
-        items = []
-        amount_days = user.workday()
-        amount_days_before = user.days_before_starting()
-        sequence_ids = request.data["sequence_ids"]
-        for i in sequence_ids:
-            seq = Sequence.objects.get(id=i)
-            items.extend(
-                ConditionSerializer(
-                    seq.conditions.filter(condition_type=0, days__lte=amount_days),
-                    many=True,
-                ).data
-            )
-            items.extend(
-                ConditionSerializer(
-                    seq.conditions.filter(
-                        condition_type=2, days__gte=amount_days_before
-                    ),
-                    many=True,
-                ).data
-            )
-        return Response(items)
-
-    @action(detail=True, methods=["post"])
-    def trigger_conditions(self, request, pk=None):
-        user = self.get_object()
-        for i in request.data["condition_ids"]:
-            Condition.objects.get(id=i).process_condition(user)
-        return Response()
-
-    @action(detail=True, methods=["post"])
     def change_preboarding_order(self, request, pk=None):
         user = self.get_object()
         for idx, i in enumerate(request.data):
@@ -147,91 +115,6 @@ class NewHireViewSet(viewsets.ModelViewSet):
             # g.delete_user(new_hire.email)
             pass
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class EmployeeViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows employees to be viewed or created.
-    """
-
-    serializer_class = EmployeeSerializer
-    queryset = get_user_model().objects.all().order_by("id")
-
-    @action(detail=True, methods=["post"])
-    def give_slack_access(self, request, pk):
-        user = self.get_object()
-        s = SlackBot()
-        response = s.find_by_email(user.email)
-        if response:
-            user.slack_user_id = response["user"]["id"]
-            user.save()
-            translation.activate(user.language)
-            blocks = [
-                {
-                    "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": _(
-                            "Click on the button to see all the categories that are available to you!"
-                        ),
-                    },
-                },
-                {
-                    "type": "actions",
-                    "elements": [
-                        {
-                            "type": "button",
-                            "text": {"type": "plain_text", "text": _("resources")},
-                            "style": "primary",
-                            "value": "show:resources",
-                        }
-                    ],
-                },
-            ]
-            s.set_user(user)
-            res = s.send_message(blocks=blocks)
-            user.slack_channel_id = res["channel"]
-            user.save()
-            return Response()
-        return Response(
-            {
-                "error": _(
-                    "We couldn't find anyone in Slack with the same email address."
-                )
-            },
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-    @action(detail=True, methods=["delete"])
-    def revoke_slack_access(self, request, pk):
-        user = self.get_object()
-        user.slack_channel_id = None
-        user.slack_user_id = None
-        user.save()
-        return Response()
-
-    @action(detail=False, methods=["get"])
-    def departments(self, request):
-        departments = (
-            get_user_model()
-            .objects.all()
-            .distinct("department")
-            .exclude(department="")
-            .values_list("department")
-        )
-        return Response(departments)
-
-    @action(detail=True, methods=["post"])
-    def send_employee_email(self, request, pk):
-        user = self.get_object()
-        password = uuid.uuid4().hex[:12].upper()
-        user.set_password(password)
-        user.save()
-        email_new_admin_cred(user, password)
-        return Response()
-
-
-# these two views should be made DRY
 
 
 class ToDoUserView(APIView):

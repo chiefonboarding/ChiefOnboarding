@@ -126,6 +126,27 @@ class ExternalMessage(models.Model):
     subject = models.CharField(max_length=78, default="Here is an update!", blank=True)
     person_type = models.IntegerField(choices=PEOPLE_CHOICES, default=1)
 
+    @property
+    def is_email_message(self):
+        return self.send_via == 0
+
+    @property
+    def is_slack_message(self):
+        return self.send_via == 1
+
+    @property
+    def is_text_message(self):
+        return self.send_via == 2
+
+    @property
+    def get_icon_template(self):
+        if self.is_email_message:
+            return render_to_string("_email_icon.html")
+        if self.is_slack_message:
+            return render_to_string("_slack_icon.html")
+        if self.is_text_message:
+            return render_to_string("_text_icon.html")
+
     def duplicate(self):
         self.pk = None
         self.save()
@@ -162,26 +183,37 @@ class ExternalMessage(models.Model):
         elif self.person_type == 3:
             return self.send_to
 
-    @property
-    def is_email_message(self):
-        return self.send_via == 0
-
-    @property
-    def is_slack_message(self):
-        return self.send_via == 1
-
-    @property
-    def is_text_message(self):
-        return self.send_via == 2
-
-    @property
-    def get_icon_template(self):
+    def execute(self, user):
         if self.is_email_message:
-            return render_to_string("_email_icon.html")
-        if self.is_slack_message:
-            return render_to_string("_slack_icon.html")
-        if self.is_text_message:
-            return render_to_string("_text_icon.html")
+            try:
+                send_sequence_message(
+                    self.get_user(user), self.email_message(), self.subject
+                )
+            except:
+                pass
+        elif self.is_slack_message:
+            s = Slack()
+            s.set_user(self.get_user(user))
+            blocks = []
+            # TODO: Needs to be rewritten based on new comment system
+            for j in self.content_json.all():
+                blocks.append(j.to_slack_block(user))
+            s.send_message(blocks=blocks)
+        else:  # text message
+            phone_number = self.get_user(user).phone
+            if phone_number == "":
+                # TODO: Add notification
+                return
+
+            client = Client(
+                settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN
+            )
+            client.messages.create(
+                to=phone_number,
+                from_=settings.TWILIO_FROM_NUMBER,
+                body=self.content,
+            )
+
 
     objects = ExternalMessageManager()
 
@@ -197,6 +229,19 @@ class PendingAdminTask(models.Model):
     email = models.EmailField(max_length=12500, default="", blank=True)
     date = models.DateField(blank=True, null=True)
     priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
+
+    def execute(self, user):
+        from admin.admin_tasks.models import AdminTask, AdminTaskComment
+
+        admin_task, created = AdminTask.objects.get_or_create(
+            new_hire=user, assigned_to=self.assigned_to, name=self.name,
+            defaults={'option': self.option, 'slack_user': self.slack_user, 'email': self.email, 'date': self.date, 'priority': self.priority}
+        )
+        if created and self.comment != "":
+            AdminTaskComment.objects.create(
+                content=self.comment, comment_by=admin_task.assigned_to, admin_task=admin_task
+            )
+
 
     @property
     def get_icon_template(self):
@@ -313,72 +358,12 @@ class Condition(models.Model):
 
 
     def process_condition(self, user):
-        from admin_tasks.models import AdminTaskComment
-        from sequences.serializers import PendingAdminTaskSerializer
+        # Loop over all m2m fields and add the ones that can be easily added
+        for field in ["to_do", "resources", "badges", "appointments", "introductions", "preboarding"]:
+            for item in self.__getattribute__(field).all():
+                user.__getattribute__(field).add(item)
 
-        items_added = {"to_do": [], "resources": [], "badges": [], "introductions": []}
-        for i in self.to_do.all():
-            if not user.to_do.filter(pk=i.pk).exists():
-                items_added["to_do"].append(i)
-                user.to_do.add(i)
-
-        for i in self.resources.all():
-            if not user.resources.filter(pk=i.pk).exists():
-                items_added["resources"].append(i)
-                user.resources.add(i)
-
-        for i in self.badges.all():
-            if not user.badges.filter(pk=i.pk).exists():
-                items_added["badges"].append(i)
-                user.badges.add(i)
-
-        for i in self.introductions.all():
-            if not user.introductions.filter(pk=i.pk).exists():
-                items_added["introductions"].append(i)
-                user.introductions.add(i)
-
-        for i in self.admin_tasks.all():
-            if not AdminTask.objects.filter(
-                new_hire=user, assigned_to=i.assigned_to, name=i.name
-            ).exists():
-                serializer = PendingAdminTaskSerializer(i).data
-                serializer.pop("assigned_to")
-                serializer.pop("id")
-                comment = serializer.pop("comment")
-                task = AdminTask.objects.create(
-                    **serializer, assigned_to=i.assigned_to, new_hire=user
-                )
-                if comment is not None:
-                    AdminTaskComment.objects.create(
-                        content=comment, comment_by=task.assigned_to, admin_task=task
-                    )
-
-        for i in self.external_messages.all():
-            if i.get_user(user) is None:
-                continue
-            if i.send_via == 0:  # email
-                try:
-                    send_sequence_message(
-                        i.get_user(user), i.email_message(), i.subject
-                    )
-                except:
-                    pass
-            elif i.send_via == 1:  # slack
-                s = Slack()
-                s.set_user(i.get_user(user))
-                blocks = []
-                for j in i.content_json.all():
-                    blocks.append(j.to_slack_block(user))
-                s.send_message(blocks=blocks)
-            else:  # text
-                if i.get_user(user).phone != "":
-                    client = Client(
-                        settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN
-                    )
-                    client.messages.create(
-                        to=i.get_user(user).phone,
-                        from_=settings.TWILIO_FROM_NUMBER,
-                        body=i.content,
-                    )
-
-        return items_added
+        # For the ones that aren't a quick copy/paste, follow back to their model and execute them
+        for field in ["admin_tasks", "external_messages", "account_provisions"]:
+            for item in self.__getattribute__(field).all():
+                item.execute(user)

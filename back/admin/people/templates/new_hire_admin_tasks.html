@@ -2,6 +2,10 @@
 {% load crispy_forms_tags %}
 {% load humanize %}
 
+{% block actions %}
+{% include "_new_hire_settings_menu.html" %}
+{% endblock %}
+
 {% block content %}
 {% include "_new_hire_menu.html" %}
 <div class="card mt-3">

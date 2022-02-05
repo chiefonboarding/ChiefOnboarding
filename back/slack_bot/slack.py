@@ -111,19 +111,17 @@ class Slack:
         t = Template(message)
         return t.render(c)
 
-    def send_message(self, attachments=None, blocks=None, channel=None, text=None):
+    def send_message(self, blocks=[], channel="", text=""):
         # if user is unknown in system, don't send message
-        if channel is None and self.channel is None and self.user is None:
+        if (channel == "" and self.channel == "") or self.user is None:
             return False
 
-        if blocks is None:
-            blocks = []
-        if channel is None:
-            if self.channel is None:
+        if channel is "":
+            if self.channel is "":
                 channel = self.user
             else:
                 channel = self.channel
-        if text is not None:
+        if text != "":
             blocks = self.format_simple_text(text)
         return self.client.chat_postMessage(
             channel=channel, blocks=blocks, as_user=True, username=self.team.bot_id

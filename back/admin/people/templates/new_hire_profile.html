@@ -1,5 +1,8 @@
 {% extends 'admin_base.html' %}
 {% load crispy_forms_tags %}
+{% block actions %}
+{% include "_new_hire_settings_menu.html" %}
+{% endblock %}
 
 {% block content %}
 {% include "_new_hire_menu.html" %}

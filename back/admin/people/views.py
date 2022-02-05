@@ -1,5 +1,7 @@
 from datetime import timedelta
+from django.utils.translation import ugettext as _
 
+from django.utils import translation
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
@@ -40,7 +42,8 @@ from .forms import (
     ColleagueUpdateForm,
     NewHireAddForm,
     NewHireProfileForm,
-    SequenceChoiceForm
+    SequenceChoiceForm,
+    PreboardingSendForm
 )
 from admin.templates.utils import get_templates_model, get_user_field
 from slack_bot.tasks import link_slack_users
@@ -111,11 +114,13 @@ class NewHireAddView(
         return super().form_valid(form)
 
 
-class NewHireSendPreboardingNotificationView(LoginRequiredMixin, AdminPermMixin, View):
+class NewHireSendPreboardingNotificationView(LoginRequiredMixin, AdminPermMixin, FormView):
+    template_name = "trigger_preboarding_notification.html"
+    form_class = PreboardingSendForm
 
-    def post(self, request, pk, *args, **kwargs):
-        new_hire = get_object_or_404(User, id=pk)
-        if request.data["type"] == "email":
+    def form_valid(self, form):
+        new_hire = get_object_or_404(User, id=self.kwargs.get('pk', -1))
+        if form.cleaned_data['send_type'] == "email":
             send_new_hire_preboarding(new_hire)
         else:
             client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
@@ -130,6 +135,14 @@ class NewHireSendPreboardingNotificationView(LoginRequiredMixin, AdminPermMixin,
             )
         return redirect("people:new_hire", pk=new_hire.id)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_id = self.kwargs.get("pk", -1)
+        new_hire = get_object_or_404(User, id=user_id)
+        context["title"] = new_hire.full_name
+        context["subtitle"] = "new hire"
+        return context
+
 
 class NewHireAddSequenceView(LoginRequiredMixin, AdminPermMixin, FormView):
     template_name = "new_hire_add_sequence.html"
@@ -141,19 +154,50 @@ class NewHireAddSequenceView(LoginRequiredMixin, AdminPermMixin, FormView):
         sequences = Sequence.objects.filter(id__in=form.cleaned_data['sequences'])
         new_hire.add_sequences(sequences)
         messages.success(self.request, "Sequence(s) have been added to this new hire")
+
         # Check if there are items that will not be triggered since date passed
         conditions = Condition.objects.none()
-        if new_hire.workday() == 0:
-            for seq in sequences:
+        for seq in sequences:
+            if new_hire.workday() == 0:
+                # User has not started yet, so we only need the items before they new hire started that passed
                 conditions = conditions | seq.conditions.filter(condition_type=2, days__lte=new_hire.days_before_starting)
-        else:
-            # user has already started
-            for seq in sequences:
+            else:
+                # user has already started, check both before start day and after for conditions that are not triggered
                 conditions = seq.conditions.filter(condition_type=2) | seq.conditions.filter(condition_type=0, days__lte=new_hire.workday())
+
         if conditions.count():
-            self.request.session["added_sequences"] = form.cleaned_data['sequences']
-            return render(self.request, 'not_triggered_conditions.html', conditions)
+            return render(self.request, 'not_triggered_conditions.html', {'conditions': conditions, 'title': new_hire.full_name, 'subtitle': 'new hire', 'new_hire_id': new_hire.id})
         return redirect("people:new_hire", pk=new_hire.id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_id = self.kwargs.get("pk", -1)
+        new_hire = get_object_or_404(User, id=user_id)
+        context["title"] = new_hire.full_name
+        context["subtitle"] = "new hire"
+        return context
+
+
+class NewHireTriggerConditionView(LoginRequiredMixin, AdminPermMixin, TemplateView):
+    template_name = "_trigger_sequence_items.html"
+
+    def get(self, request, pk, condition_pk, *args, **kwargs):
+        condition = get_object_or_404(Condition, id=condition_pk)
+        new_hire = get_object_or_404(User, id=pk)
+        condition.process_condition(new_hire)
+
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        condition_id = self.kwargs.get("condition_pk", -1)
+        condition = get_object_or_404(Condition, id=condition_id)
+        context["completed"] = True
+        context["condition"] = condition
+        # not relevant, still needed for processing the template
+        context["new_hire_id"] = 0
+        return context
 
 
 class NewHireSendLoginEmailView(LoginRequiredMixin, AdminPermMixin, View):
@@ -535,3 +579,90 @@ class ColleagueSyncSlack(LoginRequiredMixin, AdminPermMixin, View):
             )
         # Force refresh of page
         return HttpResponse(headers={"HX-Refresh": "true"})
+
+
+class ColleagueGiveSlackAccessView(LoginRequiredMixin, AdminPermMixin, View):
+    template_name = "_toggle_colleague_access.html"
+
+    def post(self, request, pk, *args, **kwargs):
+        context = {}
+        user = get_object_or_404(User, pk=pk)
+        context["colleague"] = user
+        context["slack"] = True
+        context["url_name"] = "people:connect-to-slack"
+
+        if user.slack_user_id != "":
+            user.slack_user.id = ""
+            user.slack_channel_id = ""
+            user.save()
+            context['button_name'] = "Give access"
+            return render(request, self.template_name, context)
+
+        s = Slack()
+        response = s.find_by_email(user.email)
+        if not response:
+            context['button_name'] = "Could not find user"
+            return render(request, self.template_name, context)
+
+        user.slack_user_id = response["user"]["id"]
+        user.save()
+        translation.activate(user.language)
+        blocks = [
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": _(
+                        "Click on the button to see all the categories that are available to you!"
+                    ),
+                },
+            },
+            {
+                "type": "actions",
+                "elements": [
+                    {
+                        "type": "button",
+                        "text": {"type": "plain_text", "text": _("resources")},
+                        "style": "primary",
+                        "value": "show:resources",
+                    }
+                ],
+            },
+        ]
+        s.set_user(user)
+        res = s.send_message(blocks=blocks)
+        user.slack_channel_id = res["channel"]
+        user.save()
+
+        button_name = "Revoke Slack access"
+        if user.slack_channel_id == "":
+            button_name = "Give access"
+
+        context["button_name"] = button_name
+        return render(request, self.template_name, context)
+
+
+class ColleagueTogglePortalAccessView(LoginRequiredMixin, AdminPermMixin, View):
+    template_name = "_toggle_colleague_access.html"
+
+    def post(self, request, pk, *args, **kwargs):
+        context = {}
+        user = get_object_or_404(User, pk=pk)
+        context["colleague"] = user
+        context["url_name"] = "people:toggle-portal-access"
+
+        user.is_active = not user.is_active
+        user.save()
+
+        if user.is_active:
+            button_name = "Revoke access"
+            exists = True
+            email_new_admin_cred(user)
+        else:
+            button_name = "Give portal access"
+            exists = False
+
+        context["button_name"] = button_name
+        context["exists"] = exists
+        return render(request, self.template_name, context)
+
