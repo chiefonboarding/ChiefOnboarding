@@ -6,6 +6,7 @@ from django.urls import reverse
 from misc.models import Content
 from organization.models import BaseItem
 
+CHAPTER_TYPE = ((0, "page"), (1, "folder"), (2, "questions"))
 
 class Category(models.Model):
     name = models.CharField(max_length=500)
@@ -51,7 +52,6 @@ class Resource(BaseItem):
 
 
 class Chapter(models.Model):
-    CHAPTER_TYPE = ((0, "page"), (1, "folder"), (2, "questions"))
     parent_chapter = models.ForeignKey("self", on_delete=models.CASCADE, null=True)
     resource = models.ForeignKey(
         Resource, on_delete=models.CASCADE, related_name="chapters", null=True
