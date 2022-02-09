@@ -12872,3 +12872,12 @@ form .btn {
   float:right;
   margin-left: 5px;
 }
+
+/* editor js extra styling */
+.border-left {
+  border-left: 4px solid gray;
+  padding-left: 10px;
+  margin-bottom: 0px;
+  padding-bottom: 0px;
+}
+

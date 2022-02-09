@@ -215,6 +215,7 @@
 
     <!-- scripts for editor -->
     <script src="{% static 'js/editor-2.22.2.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/editor-form.js' %}" type="text/javascript"></script>
 
     <!-- script for datepicker -->
     <script src="{% static 'js/litepicker-2.0.12.min.js' %}" type="text/javascript"></script>
@@ -338,6 +339,9 @@
               data: content,
               tools: {
                 header: Header,
+                {% if 'todo' in request.path or 'preboarding' in request.path %}
+                form: Form,
+                {% endif %}
                 quote: Quote,
                 list: {
                   class: NestedList,

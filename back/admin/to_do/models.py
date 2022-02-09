@@ -2,14 +2,12 @@ from django.db import models
 from django.template.loader import render_to_string
 from django.urls import reverse
 
-from misc.models import Content
 from misc.fields import ContentJSONField
 from organization.models import BaseItem
 
 
 class ToDo(BaseItem):
-    content = models.ManyToManyField(Content)
-    content_json = ContentJSONField(default=dict)
+    content = ContentJSONField(default=dict)
     due_on_day = models.IntegerField(default=0)
     form = models.JSONField(default=list)
     # Chat bot specific actions

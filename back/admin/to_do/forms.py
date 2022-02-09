@@ -10,7 +10,6 @@ from admin.templates.forms import WYSIWYGField, MultiSelectField
 
 
 class ToDoForm(forms.ModelForm):
-    content_json = WYSIWYGField(label="content")
     tags = forms.ModelMultipleChoiceField(
         queryset=Tag.objects.all(), to_field_name="name", required=False
     )
@@ -28,7 +27,7 @@ class ToDoForm(forms.ModelForm):
                     css_class="col-4",
                 ),
                 Div(
-                    WYSIWYGField("content_json"),
+                    WYSIWYGField("content"),
                     Field("send_back"),
                     Div(
                         Field("slack_channel"),
@@ -42,7 +41,7 @@ class ToDoForm(forms.ModelForm):
 
     class Meta:
         model = ToDo
-        exclude = ("template", "form", "content")
+        exclude = ("template", "form")
 
         labels = {
             "send_back": "Post new hire's answers from form (if applicable) back to Slack channel"

@@ -15,6 +15,9 @@ class RunPythonWithArguments(migrations.RunPython):
         ):
             self.code(from_state.apps, schema_editor, **self.context)
 
+    def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        pass
+
 
 def migrate_wysiwyg_field(apps, schema_context, **context):
     Model = apps.get_model(context["app"], context["model"])
@@ -98,4 +101,53 @@ def migrate_wysiwyg_field(apps, schema_context, **context):
             if block.type == "question":
                 pass
         item.content_json = {"time": 0, "blocks": new_json}
+        item.save()
+
+
+# used for prebaording and todo items
+# This is ugly. I know. But it works and will only be used once or twice
+def migrate_forms_to_wysiwyg(apps, schema_context, **context):
+    Model = apps.get_model(context["app"], context["model"])
+    for item in Model.objects.all():
+        content = item.content
+        for form_item in item.form:
+            if form_item['type'] in ['text', 'input', 'upload']:
+                content['blocks'].append(
+                    {
+                        "type": "form",
+                        "data": {
+                            "type": form_item['type'],
+                            "text": form_item['text'],
+                        },
+                    }
+                )
+            else:
+                content['blocks'].append(
+                    {
+                        "type": "paragraph",
+                        "data": {
+                            "text": form_item['text'],
+                            "caption": "",
+                            "alignment": "left",
+                        },
+                    }
+                )
+
+                if 'options' in form_item:
+                    key = 'options'
+                else:
+                    key = 'items'
+
+                for sub_item in form_item[key]:
+                    content['blocks'].append(
+                        {
+                            "type": "form",
+                            "data": {
+                                "type": form_item['type'],
+                                "text": sub_item['text'],
+                            },
+                        }
+                    )
+
+        item.content = content
         item.save()

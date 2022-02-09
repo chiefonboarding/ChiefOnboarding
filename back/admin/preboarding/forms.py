@@ -10,7 +10,6 @@ from .models import Preboarding
 
 
 class PreboardingForm(forms.ModelForm):
-    content_json = WYSIWYGField(label="content")
     tags = forms.ModelMultipleChoiceField(
         queryset=Tag.objects.all(), to_field_name="name"
     )
@@ -26,14 +25,14 @@ class PreboardingForm(forms.ModelForm):
                     MultiSelectField("tags"),
                     css_class="col-4",
                 ),
-                # Div(WYSIWYGField("content_json"), css_class="col-8"),
+                Div(WYSIWYGField("content"), css_class="col-8"),
                 css_class="row",
             ),
         )
 
     class Meta:
         model = Preboarding
-        exclude = ("template",)
+        exclude = ("template", "picture")
 
     def clean_tags(self):
         tags = self.cleaned_data["tags"]

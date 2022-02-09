@@ -22,7 +22,6 @@ class ToDoListView(LoginRequiredMixin, AdminPermMixin, ListView):
         context["title"] = "To do items"
         context["subtitle"] = "templates"
         context["add_action"] = reverse_lazy("todo:create")
-        context["wysiwyg"] = []
         return context
 
 
@@ -54,7 +53,6 @@ class ToDoUpdateView(
         context = super().get_context_data(**kwargs)
         context["title"] = "Update to do item"
         context["subtitle"] = "templates"
-        context["wysiwyg"] = context["todo"].content_json
         return context
 
 
