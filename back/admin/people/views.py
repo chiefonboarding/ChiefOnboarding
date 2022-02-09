@@ -1,4 +1,5 @@
 from datetime import timedelta
+from os import wait
 from django.utils.translation import ugettext as _
 
 from django.utils import translation
@@ -484,6 +485,62 @@ class NewHireTasksView(LoginRequiredMixin, AdminPermMixin, DetailView):
         new_hire = self.object
         context["title"] = new_hire.full_name
         context["subtitle"] = "new hire"
+        return context
+
+
+class NewHireAccessView(LoginRequiredMixin, AdminPermMixin, DetailView):
+    template_name = "new_hire_access.html"
+    model = User
+    context_object_name = "object"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        new_hire = self.object
+        context["title"] = new_hire.full_name
+        context["subtitle"] = "new hire"
+        context["loading"] = True
+        context["integrations"] = AccessToken.objects.account_provision_options()
+        return context
+
+
+class NewHireCheckAccessView(LoginRequiredMixin, AdminPermMixin, DetailView):
+    template_name = "_new_hire_access_card.html"
+    model = User
+    context_object_name = "object"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        new_hire = self.object
+        integration = get_object_or_404(AccessToken, id=self.kwargs.get('integration_id', -1))
+        found_user = integration.api_class().find_by_email(new_hire.email)
+        context['integration'] = integration
+        context['active'] = found_user
+        return context
+
+
+class NewHireGiveAccessView(LoginRequiredMixin, AdminPermMixin, FormView):
+    template_name = "give_new_hire_access.html"
+
+    def get_form_class(self):
+        integration = get_object_or_404(AccessToken, id=self.kwargs.get('integration_id', -1))
+        return integration.add_user_form_class()
+
+    def form_valid(self, form):
+        new_hire = get_object_or_404(User, id=self.kwargs.get('pk', -1))
+        integration = get_object_or_404(AccessToken, id=self.kwargs.get('integration_id', -1))
+        # TODO: make this async
+        integration.add_user(new_hire.email, form.cleaned_data)
+
+        return redirect("people:new_hire_access", pk=new_hire.id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        new_hire = get_object_or_404(User, id=self.kwargs.get('pk', -1))
+        integration = get_object_or_404(AccessToken, id=self.kwargs.get('integration_id', -1))
+        context['integration'] = integration
+        context["title"] = new_hire.full_name
+        context["subtitle"] = "new hire"
+        context['new_hire'] = new_hire
         return context
 
 

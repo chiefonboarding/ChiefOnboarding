@@ -47,6 +47,21 @@ urlpatterns = [
         name="new_hire_tasks",
     ),
     path(
+        "new_hire/<int:pk>/access/",
+        views.NewHireAccessView.as_view(),
+        name="new_hire_access",
+    ),
+    path(
+        "new_hire/<int:pk>/check_access/<int:integration_id>/",
+        views.NewHireCheckAccessView.as_view(),
+        name="new_hire_check_integration",
+    ),
+    path(
+        "new_hire/<int:pk>/give_access/<int:integration_id>/",
+        views.NewHireGiveAccessView.as_view(),
+        name="new_hire_give_integration",
+    ),
+    path(
         "new_hire/<int:pk>/task/<slug:type>/",
         views.NewHireTaskListView.as_view(),
         name="new_hire_task_list",

@@ -35,6 +35,16 @@
               </span>
             </a>
           </li>
+          <li class="nav-item {% if 'access' in request.path %}active{% endif %}">
+            <a class="nav-link" href="{% url 'people:new_hire_access' object.id %}" role="button" aria-expanded="false">
+              <span class="nav-link-icon d-md-none d-lg-inline-block">
+                {% include '_account_provision.html' %}
+              </span>
+              <span class="nav-link-title">
+                Access
+              </span>
+            </a>
+          </li>
           <li class="nav-item {% if '/tasks/' in request.path %}active{% endif %}">
             <a class="nav-link" href="{% url 'people:new_hire_tasks' object.id %}" role="button" aria-expanded="false">
               <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/star -->

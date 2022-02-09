@@ -1,0 +1,18 @@
+{% extends 'admin_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row justify-content-md-center">
+  <div class="col-8">
+    <div class="card">
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          {{ form|crispy }}
+          <button class="btn btn-primary" type="submit">Create user</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
