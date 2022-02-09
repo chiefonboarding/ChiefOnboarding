@@ -9,42 +9,7 @@ from rest_framework import generics, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import AccessToken, ScheduledAccess
-from .serializers import (
-    GoogleOAuthTokenSerializer,
-)
-
-
-class GoogleAddTokenView(APIView):
-    def get(self, request):
-        access_code = AccessToken.objects.filter(integration=2)
-        if access_code.exists() and str(
-            access_code.first().one_time_auth_code
-        ) == request.GET.get("state", ""):
-            access_code = access_code.first()
-            # flow = Flow.from_client_config(client_config={
-            #     "web":
-            #         {"client_id": access_code.client_id,
-            #          "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-            #          "token_uri": "https://oauth2.googleapis.com/token",
-            #          "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-            #          "client_secret": access_code.client_secret,
-            #          "redirect_uris": [settings.BASE_URL + "/api/integrations/google_token"],
-            #          "javascript_origins": [settings.BASE_URL]}},
-            #     scopes=['https://www.googleapis.com/auth/admin.directory.user', ],
-            #     redirect_uri=settings.BASE_URL + "/api/integrations/google_token")
-            # flow.fetch_token(code=request.GET.get('code', ''))
-            # credentials = flow.credentials
-            # access_code.token = credentials.token
-            # access_code.refresh_token = credentials.refresh_token
-            # access_code.expiring = credentials.expiry
-            # access_code.save()
-        return redirect("/#/admin/newhire")
-
-
-class GoogleLoginTokenCreateView(generics.CreateAPIView):
-    queryset = AccessToken.objects.all()
-    serializer_class = GoogleOAuthTokenSerializer
+from .models import AccessToken
 
 
 class SlackOAuthView(APIView):

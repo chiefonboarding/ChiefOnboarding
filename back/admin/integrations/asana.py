@@ -40,7 +40,7 @@ class Asana:
         ).first()
 
     def get_token(self):
-        return self.access_obj.access_token
+        return self.access_obj.token
 
     def get_authentication_header(self):
         return {
@@ -49,7 +49,13 @@ class Asana:
             "Authorization": "Bearer {}".format(self.get_token())
         }
 
-    def find_by_email(self, email, team_id):
+    def find_by_email(self, email):
+        r = requests.get(f"{self.BASE_URL}users/{email}/teams?organization={self.access_obj.account_id}", headers=self.get_authentication_header())
+        if r.status_code == 200 and len(r.json()['data']):
+            return [x['name'] for x in r.json()['data']]
+        return False
+
+    def find_by_email_and_team(self, email, team_id):
         r = requests.get(f"{self.BASE_URL}users/{email}/teams?organization={self.access_obj.account_id}", headers=self.get_authentication_header())
         if r.status_code == 200:
             return any(x for x in r.json()['data'] if x['gid'] == str(team_id))
@@ -63,19 +69,41 @@ class Asana:
             return self.access_obj.account_id
         return False
 
-
-    def add_user(self, email, team_id):
+    def add_user_to_organization(self, email):
+        # This adds a user to a workspace/organization but not yet to a project
         data = {
           "data": {
             "user": email
           }
         }
         r = requests.post(
-            f"{self.BASE_URL}teams/{team_id}/addUser",
+            f"{self.BASE_URL}workspaces/{self.access_obj.account_id}/addUser",
             data=json.dumps(data),
             headers=self.get_authentication_header(),
         )
         if r.status_code == 200:
+            return True
+        return False
+
+    def add_user(self, email, payload):
+        self.add_user_to_organization(email)
+        # This adds a user to a team within asana. It is required that the user already exists in the workspace
+        data = {
+          "data": {
+            "user": email
+          }
+        }
+        results = []
+        for team_id in payload['teams']:
+            r = requests.post(
+                f"{self.BASE_URL}teams/{team_id}/addUser",
+                data=json.dumps(data),
+                headers=self.get_authentication_header(),
+            )
+            results.append(r.status_code)
+
+        # TODO: needs better handling
+        if all([result == 200 for result in results]):
             return True
         return False
 
@@ -85,6 +113,7 @@ class Asana:
         if self.access_obj.account_id == "":
             self.access_obj.account_id = self.get_org_id()
 
+        # Getting the teams to display in the form
         r = requests.get(f"{self.BASE_URL}organizations/{self.access_obj.account_id}/teams", headers=self.get_authentication_header())
         if r.status_code == 200:
             return [{'name': i['name'], 'id': i['gid']} for i in r.json()['data']]

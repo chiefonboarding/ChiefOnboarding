@@ -36,7 +36,14 @@ INTEGRATION_OPTIONS_URLS = [
         "disable_url": reverse_lazy("settings:asana"),
     },
 ]
-STATUS = ((0, "pending"), (1, "completed"), (2, "waiting on user"))
+
+class AccessTokenManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset()
+
+    def account_provision_options(self):
+        # Add items here that are meant for account creation. Making it static, as this won't change.
+        return self.get_queryset().filter(integration__in=[1,2,4])
 
 
 class AccessToken(models.Model):
@@ -66,9 +73,29 @@ class AccessToken(models.Model):
     def name(self):
         return self.get_integration_display()
 
+    def api_class(self):
+        from .slack import Slack
+        from .asana import Asana
+        from .google import Google
+        if self.integration == 1:
+            return Slack()
+        if self.integration == 3:
+            return Google()
+        if self.integration == 4:
+            return Asana()
 
-class ScheduledAccess(models.Model):
-    new_hire = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    integration = models.IntegerField(choices=INTEGRATION_OPTIONS)
-    status = models.IntegerField(choices=STATUS, default=0)
-    email = models.EmailField(max_length=22300, null=True, blank=True)
+    def add_user_form_class(self):
+        from .forms import AddSlackUserForm, AddGoogleUserForm, AddAsanaUserForm
+        if self.integration == 1:
+            return AddSlackUserForm()
+        if self.integration == 3:
+            return AddGoogleUserForm()
+        if self.integration == 4:
+            return AddAsanaUserForm
+
+    def add_user(self, user, params):
+        self.api_class().add_user(user, params)
+
+    objects = AccessTokenManager()
+
+

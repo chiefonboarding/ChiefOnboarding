@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from .models import AccessToken, ScheduledAccess
+from .models import AccessToken
 
 
 class SlackTokenSerializer(serializers.ModelSerializer):
@@ -37,11 +37,3 @@ class GoogleOAuthTokenSerializer(serializers.ModelSerializer):
         fields = ("client_id", "client_secret", "integration", "redirect_url")
 
 
-class ScheduledAccessSerializer(serializers.ModelSerializer):
-    new_hire_id = serializers.PrimaryKeyRelatedField(
-        source="user", queryset=get_user_model().objects.all()
-    )
-
-    class Meta:
-        model = ScheduledAccess
-        fields = ("new_hire_id", "integration", "status", "integration", "email")

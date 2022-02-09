@@ -18,7 +18,6 @@ from twilio.rest import Client
 
 from admin.appointments.serializers import AppointmentSerializer
 from admin.integrations.google import Google
-from admin.integrations.models import ScheduledAccess
 from admin.integrations.slack import Error, PaidOnlyError, Slack
 from admin.introductions.serializers import IntroductionSerializer
 from admin.notes.models import Note
@@ -80,18 +79,10 @@ class NewHireViewSet(viewsets.ModelViewSet):
     def access(self, request, pk=None):
         new_hire = self.get_object()
         if request.method == "PUT":
-            ScheduledAccess.objects.create(
-                new_hire=new_hire,
-                integration=request.data["integration"],
-                email=request.data["email"],
-            )
             return Response({"status": "pending"})
         s = SlackBot() if request.data["integration"] == 1 else Google()
         if s.find_by_email(new_hire.email):
             return Response({"status": "exists"})
-        items = ScheduledAccess.objects.filter(
-            new_hire=new_hire, integration=request.data["integration"]
-        ).exclude(status=1)
         if items.exists():
             return Response({"status": "pending"})
         return Response({"status": "not_found"})
@@ -99,9 +90,6 @@ class NewHireViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["put"])
     def revoke_access(self, request, pk=None):
         new_hire = self.get_object()
-        ScheduledAccess.objects.filter(
-            new_hire=new_hire, integration=request.data["integration"]
-        ).delete()
         if request.data["integration"] == 1:
             s = Slack()
             try:
