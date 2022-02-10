@@ -17,10 +17,7 @@ LANGUAGES_OPTIONS = (
 
 class ObjectManager(models.Manager):
     def get(self):
-        # check if object actually exists
-        if not self.queryset().exists():
-            return None
-        return self.get_queryset()[0]
+        return self.get_queryset().first()
 
 
 class Organization(models.Model):
