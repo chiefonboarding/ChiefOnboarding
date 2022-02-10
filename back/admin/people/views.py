@@ -1,56 +1,42 @@
 from datetime import timedelta
 from os import wait
-from django.utils.translation import ugettext as _
 
-from django.utils import translation
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
+from django.utils import translation
+from django.utils.translation import ugettext as _
 from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, DeleteView, UpdateView, FormView
+from django.views.generic.edit import (CreateView, DeleteView, FormView,
+                                       UpdateView)
 from django.views.generic.list import ListView
 from django_q.tasks import async_task
-from django.conf import settings
 from twilio.rest import Client
 
 from admin.admin_tasks.models import AdminTask
+from admin.integrations.models import AccessToken
 from admin.notes.models import Note
 from admin.resources.models import Resource
-from admin.integrations.models import AccessToken
-from users.mixins import AdminPermMixin, LoginRequiredMixin
-from users.models import (
-    NewHireWelcomeMessage,
-    PreboardingUser,
-    ResourceUser,
-    ToDoUser,
-    User,
-)
-from organization.models import Organization
-from users.emails import (
-    email_new_admin_cred,
-    email_reopen_task,
-    send_new_hire_credentials,
-    send_new_hire_preboarding,
-    send_reminder_email,
-)
-
-from .forms import (
-    ColleagueCreateForm,
-    ColleagueUpdateForm,
-    NewHireAddForm,
-    NewHireProfileForm,
-    SequenceChoiceForm,
-    PreboardingSendForm
-)
+from admin.sequences.models import Condition, Sequence
 from admin.templates.utils import get_templates_model, get_user_field
-from slack_bot.tasks import link_slack_users
+from organization.models import Organization, WelcomeMessage
 from slack_bot.slack import Slack
-from organization.models import WelcomeMessage
-from admin.sequences.models import Sequence, Condition
+from slack_bot.tasks import link_slack_users
+from users.emails import (email_new_admin_cred, email_reopen_task,
+                          send_new_hire_credentials, send_new_hire_preboarding,
+                          send_reminder_email)
+from users.mixins import AdminPermMixin, LoginRequiredMixin
+from users.models import (NewHireWelcomeMessage, PreboardingUser, ResourceUser,
+                          ToDoUser, User)
+
+from .forms import (ColleagueCreateForm, ColleagueUpdateForm, NewHireAddForm,
+                    NewHireProfileForm, PreboardingSendForm,
+                    SequenceChoiceForm)
 
 
 class NewHireListView(LoginRequiredMixin, AdminPermMixin, ListView):
@@ -115,13 +101,15 @@ class NewHireAddView(
         return super().form_valid(form)
 
 
-class NewHireSendPreboardingNotificationView(LoginRequiredMixin, AdminPermMixin, FormView):
+class NewHireSendPreboardingNotificationView(
+    LoginRequiredMixin, AdminPermMixin, FormView
+):
     template_name = "trigger_preboarding_notification.html"
     form_class = PreboardingSendForm
 
     def form_valid(self, form):
-        new_hire = get_object_or_404(User, id=self.kwargs.get('pk', -1))
-        if form.cleaned_data['send_type'] == "email":
+        new_hire = get_object_or_404(User, id=self.kwargs.get("pk", -1))
+        if form.cleaned_data["send_type"] == "email":
             send_new_hire_preboarding(new_hire)
         else:
             client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
@@ -152,7 +140,7 @@ class NewHireAddSequenceView(LoginRequiredMixin, AdminPermMixin, FormView):
     def form_valid(self, form):
         user_id = self.kwargs.get("pk", -1)
         new_hire = get_object_or_404(User, id=user_id)
-        sequences = Sequence.objects.filter(id__in=form.cleaned_data['sequences'])
+        sequences = Sequence.objects.filter(id__in=form.cleaned_data["sequences"])
         new_hire.add_sequences(sequences)
         messages.success(self.request, "Sequence(s) have been added to this new hire")
 
@@ -161,13 +149,28 @@ class NewHireAddSequenceView(LoginRequiredMixin, AdminPermMixin, FormView):
         for seq in sequences:
             if new_hire.workday() == 0:
                 # User has not started yet, so we only need the items before they new hire started that passed
-                conditions = conditions | seq.conditions.filter(condition_type=2, days__lte=new_hire.days_before_starting())
+                conditions = conditions | seq.conditions.filter(
+                    condition_type=2, days__lte=new_hire.days_before_starting()
+                )
             else:
                 # user has already started, check both before start day and after for conditions that are not triggered
-                conditions = seq.conditions.filter(condition_type=2) | seq.conditions.filter(condition_type=0, days__lte=new_hire.workday())
+                conditions = seq.conditions.filter(
+                    condition_type=2
+                ) | seq.conditions.filter(
+                    condition_type=0, days__lte=new_hire.workday()
+                )
 
         if conditions.count():
-            return render(self.request, 'not_triggered_conditions.html', {'conditions': conditions, 'title': new_hire.full_name, 'subtitle': 'new hire', 'new_hire_id': new_hire.id})
+            return render(
+                self.request,
+                "not_triggered_conditions.html",
+                {
+                    "conditions": conditions,
+                    "title": new_hire.full_name,
+                    "subtitle": "new hire",
+                    "new_hire_id": new_hire.id,
+                },
+            )
         return redirect("people:new_hire", pk=new_hire.id)
 
     def get_context_data(self, **kwargs):
@@ -202,7 +205,6 @@ class NewHireTriggerConditionView(LoginRequiredMixin, AdminPermMixin, TemplateVi
 
 
 class NewHireSendLoginEmailView(LoginRequiredMixin, AdminPermMixin, View):
-
     def get(self, request, pk, *args, **kwargs):
         new_hire = get_object_or_404(User, id=pk)
         send_new_hire_credentials(new_hire)
@@ -511,10 +513,12 @@ class NewHireCheckAccessView(LoginRequiredMixin, AdminPermMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         new_hire = self.object
-        integration = get_object_or_404(AccessToken, id=self.kwargs.get('integration_id', -1))
+        integration = get_object_or_404(
+            AccessToken, id=self.kwargs.get("integration_id", -1)
+        )
         found_user = integration.api_class().find_by_email(new_hire.email)
-        context['integration'] = integration
-        context['active'] = found_user
+        context["integration"] = integration
+        context["active"] = found_user
         return context
 
 
@@ -522,12 +526,16 @@ class NewHireGiveAccessView(LoginRequiredMixin, AdminPermMixin, FormView):
     template_name = "give_new_hire_access.html"
 
     def get_form_class(self):
-        integration = get_object_or_404(AccessToken, id=self.kwargs.get('integration_id', -1))
+        integration = get_object_or_404(
+            AccessToken, id=self.kwargs.get("integration_id", -1)
+        )
         return integration.add_user_form_class()
 
     def form_valid(self, form):
-        new_hire = get_object_or_404(User, id=self.kwargs.get('pk', -1))
-        integration = get_object_or_404(AccessToken, id=self.kwargs.get('integration_id', -1))
+        new_hire = get_object_or_404(User, id=self.kwargs.get("pk", -1))
+        integration = get_object_or_404(
+            AccessToken, id=self.kwargs.get("integration_id", -1)
+        )
         # TODO: make this async
         integration.add_user(new_hire.email, form.cleaned_data)
 
@@ -535,12 +543,14 @@ class NewHireGiveAccessView(LoginRequiredMixin, AdminPermMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        new_hire = get_object_or_404(User, id=self.kwargs.get('pk', -1))
-        integration = get_object_or_404(AccessToken, id=self.kwargs.get('integration_id', -1))
-        context['integration'] = integration
+        new_hire = get_object_or_404(User, id=self.kwargs.get("pk", -1))
+        integration = get_object_or_404(
+            AccessToken, id=self.kwargs.get("integration_id", -1)
+        )
+        context["integration"] = integration
         context["title"] = new_hire.full_name
         context["subtitle"] = "new hire"
-        context['new_hire'] = new_hire
+        context["new_hire"] = new_hire
         return context
 
 
@@ -652,13 +662,13 @@ class ColleagueGiveSlackAccessView(LoginRequiredMixin, AdminPermMixin, View):
             user.slack_user.id = ""
             user.slack_channel_id = ""
             user.save()
-            context['button_name'] = "Give access"
+            context["button_name"] = "Give access"
             return render(request, self.template_name, context)
 
         s = Slack()
         response = s.find_by_email(user.email)
         if not response:
-            context['button_name'] = "Could not find user"
+            context["button_name"] = "Could not find user"
             return render(request, self.template_name, context)
 
         user.slack_user_id = response["user"]["id"]
@@ -722,4 +732,3 @@ class ColleagueTogglePortalAccessView(LoginRequiredMixin, AdminPermMixin, View):
         context["button_name"] = button_name
         context["exists"] = exists
         return render(request, self.template_name, context)
-

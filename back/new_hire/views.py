@@ -20,13 +20,8 @@ from rest_framework.views import APIView
 from admin.resources.models import Chapter, CourseAnswer
 from organization.serializers import BaseOrganizationSerializer
 from users.mixins import LoginRequiredMixin
-from users.models import (
-    NewHireWelcomeMessage,
-    PreboardingUser,
-    ResourceUser,
-    ToDoUser,
-    User,
-)
+from users.models import (NewHireWelcomeMessage, PreboardingUser, ResourceUser,
+                          ToDoUser, User)
 from users.permissions import NewHirePermission
 
 

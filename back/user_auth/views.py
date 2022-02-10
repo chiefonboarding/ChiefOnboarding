@@ -1,13 +1,11 @@
 import requests
-
 from axes.decorators import axes_dispatch
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login, signals
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
-from django.http import Http404
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
@@ -16,7 +14,6 @@ from django.views.generic.edit import FormView
 
 from admin.integrations.models import AccessToken
 from admin.settings.forms import OTPVerificationForm
-
 from organization.models import Organization
 from users.mixins import LoginRequiredMixin as LoginWithMFARequiredMixin
 

@@ -9,30 +9,20 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
-from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
+from django.views.generic.edit import (CreateView, DeleteView, FormView,
+                                       UpdateView)
 from django.views.generic.list import ListView
 
-from admin.integrations.models import (
-    INTEGRATION_OPTIONS,
-    INTEGRATION_OPTIONS_URLS,
-    AccessToken,
-)
-from organization.models import (
-    LANGUAGES_OPTIONS,
-    Changelog,
-    Organization,
-    WelcomeMessage,
-)
-from users.mixins import AdminPermMixin, LoginRequiredMixin
+from admin.integrations.models import (INTEGRATION_OPTIONS,
+                                       INTEGRATION_OPTIONS_URLS, AccessToken)
+from organization.models import (LANGUAGES_OPTIONS, Changelog, Organization,
+                                 WelcomeMessage)
 from slack_bot.models import SlackChannel
+from users.mixins import AdminPermMixin, LoginRequiredMixin
 
-from .forms import (
-    AdministratorsCreateForm,
-    AdministratorsUpdateForm,
-    OrganizationGeneralForm,
-    OTPVerificationForm,
-    WelcomeMessagesUpdateForm,
-)
+from .forms import (AdministratorsCreateForm, AdministratorsUpdateForm,
+                    OrganizationGeneralForm, OTPVerificationForm,
+                    WelcomeMessagesUpdateForm)
 
 
 class OrganizationGeneralUpdateView(
@@ -232,7 +222,9 @@ class GoogleLoginSetupView(
         return super().form_valid(form)
 
 
-class AsanaSetupView(LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin):
+class AsanaSetupView(
+    LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin
+):
     template_name = "token_create.html"
     model = AccessToken
     fields = ["token"]
@@ -338,7 +330,6 @@ class SlackChannelsUpdateView(LoginRequiredMixin, AdminPermMixin, RedirectView):
 
     def get(self, request, *args, **kwargs):
         SlackChannel.objects.update_channels()
-        print("got here")
         messages.success(
             request,
             "Newly added channels have been added. Make sure the bot has been added to that channel too if you want it to post/get info there!",

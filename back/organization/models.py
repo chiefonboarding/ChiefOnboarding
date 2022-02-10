@@ -147,6 +147,7 @@ class BaseItem(models.Model):
         self.save()
         return self
 
+
 class Changelog(models.Model):
     added = models.DateField(auto_now_add=True)
     title = models.CharField(max_length=100)

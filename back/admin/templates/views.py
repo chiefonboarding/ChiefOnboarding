@@ -1,13 +1,11 @@
-from django.shortcuts import render
-
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import View
-from users.mixins import AdminPermMixin, LoginRequiredMixin
-from admin.templates.utils import get_templates_model
 
-from django.shortcuts import get_object_or_404, redirect
+from admin.templates.utils import get_templates_model
+from users.mixins import AdminPermMixin, LoginRequiredMixin
+
 
 class TemplateDuplicateView(LoginRequiredMixin, AdminPermMixin, View):
-
     def post(self, request, template_pk, template_type, *args, **kwargs):
         templates_model = get_templates_model(template_type)
         template_item = get_object_or_404(templates_model, id=template_pk)

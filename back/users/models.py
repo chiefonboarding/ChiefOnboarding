@@ -42,6 +42,7 @@ class Department(models.Model):
     Department that has been attached to a user
     At the moment, only one department per user
     """
+
     name = models.TextField()
 
     def __str__(self):
@@ -308,8 +309,6 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return "%s" % self.full_name
-
-
 
 
 class ToDoUser(models.Model):

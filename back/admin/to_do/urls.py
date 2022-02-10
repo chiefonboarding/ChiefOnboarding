@@ -2,7 +2,6 @@ from django.urls import path
 
 from admin.to_do import views
 
-
 app_name = "todo"
 urlpatterns = [
     path("", views.ToDoListView.as_view(), name="list"),

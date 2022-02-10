@@ -111,40 +111,40 @@ def migrate_forms_to_wysiwyg(apps, schema_context, **context):
     for item in Model.objects.all():
         content = item.content
         for form_item in item.form:
-            if form_item['type'] in ['text', 'input', 'upload']:
-                content['blocks'].append(
+            if form_item["type"] in ["text", "input", "upload"]:
+                content["blocks"].append(
                     {
                         "type": "form",
                         "data": {
-                            "type": form_item['type'],
-                            "text": form_item['text'],
+                            "type": form_item["type"],
+                            "text": form_item["text"],
                         },
                     }
                 )
             else:
-                content['blocks'].append(
+                content["blocks"].append(
                     {
                         "type": "paragraph",
                         "data": {
-                            "text": form_item['text'],
+                            "text": form_item["text"],
                             "caption": "",
                             "alignment": "left",
                         },
                     }
                 )
 
-                if 'options' in form_item:
-                    key = 'options'
+                if "options" in form_item:
+                    key = "options"
                 else:
-                    key = 'items'
+                    key = "items"
 
                 for sub_item in form_item[key]:
-                    content['blocks'].append(
+                    content["blocks"].append(
                         {
                             "type": "form",
                             "data": {
-                                "type": form_item['type'],
-                                "text": sub_item['text'],
+                                "type": form_item["type"],
+                                "text": sub_item["text"],
                             },
                         }
                     )

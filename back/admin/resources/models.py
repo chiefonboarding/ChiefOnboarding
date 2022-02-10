@@ -8,6 +8,7 @@ from organization.models import BaseItem
 
 CHAPTER_TYPE = ((0, "page"), (1, "folder"), (2, "questions"))
 
+
 class Category(models.Model):
     name = models.CharField(max_length=500)
 

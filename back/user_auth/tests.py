@@ -1,10 +1,12 @@
+from unittest.mock import Mock, patch
+
 import pytest
+from django.conf import settings
+from django.contrib import auth
 from django.urls import reverse
 
 from users.factories import *
-from django.contrib import auth
-from unittest.mock import Mock, patch
-from django.conf import settings
+
 from .utils import get_all_urls
 
 # No need to login for those urls

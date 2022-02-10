@@ -12,12 +12,12 @@ from admin.preboarding import urls as preboarding_urls
 from admin.resources import urls as resource_urls
 from admin.sequences import urls as sequences_urls
 from admin.settings import urls as settings_urls
+from admin.templates import urls as template_urls
 from admin.to_do import urls as to_do_urls
 from new_hire import urls as new_hire_urls
 from organization import urls as org_urls
 from slack_bot import urls as slack_urls
 from user_auth import urls as auth_urls
-from admin.templates import urls as template_urls
 
 urlpatterns = [
     path(

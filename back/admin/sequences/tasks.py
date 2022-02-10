@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.utils import translation
 
 from slack_bot.slack import Slack
+
 from .emails import send_sequence_update_message
 
 

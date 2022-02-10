@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('preboarding', '0008_auto_20220209_0048'),
+        ("preboarding", "0008_auto_20220209_0048"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='preboarding',
-            name='content',
+            model_name="preboarding",
+            name="content",
         ),
     ]

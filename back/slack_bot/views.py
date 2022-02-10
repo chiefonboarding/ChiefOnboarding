@@ -10,11 +10,9 @@ from rest_framework.views import APIView
 
 from admin.admin_tasks.models import AdminTask
 from admin.integrations.models import AccessToken
-from users.models import NewHireWelcomeMessage, ResourceUser
 from admin.resources.models import Category, Chapter
-from misc.serializers import ContentSerializer
 from admin.sequences.models import Sequence
-
+from misc.serializers import ContentSerializer
 # from fuzzywuzzy import process
 from organization.models import Organization
 from users.models import NewHireWelcomeMessage, ResourceUser, ToDoUser, User

@@ -48,7 +48,11 @@ def get_templates_model(template_slug):
 def get_user_field(template_slug):
     if template_model_exists(template_slug):
         return next(
-            (x["user_field"] for x in MODELS if x["model"].lower() == template_slug.lower()),
+            (
+                x["user_field"]
+                for x in MODELS
+                if x["model"].lower() == template_slug.lower()
+            ),
             None,
         )
 

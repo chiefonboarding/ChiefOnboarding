@@ -37,13 +37,14 @@ INTEGRATION_OPTIONS_URLS = [
     },
 ]
 
+
 class AccessTokenManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset()
 
     def account_provision_options(self):
         # Add items here that are meant for account creation. Making it static, as this won't change.
-        return self.get_queryset().filter(integration__in=[1,2,4])
+        return self.get_queryset().filter(integration__in=[1, 2, 4])
 
 
 class AccessToken(models.Model):
@@ -74,9 +75,10 @@ class AccessToken(models.Model):
         return self.get_integration_display()
 
     def api_class(self):
-        from .slack import Slack
         from .asana import Asana
         from .google import Google
+        from .slack import Slack
+
         if self.integration == 1:
             return Slack()
         if self.integration == 3:
@@ -85,7 +87,9 @@ class AccessToken(models.Model):
             return Asana()
 
     def add_user_form_class(self):
-        from .forms import AddSlackUserForm, AddGoogleUserForm, AddAsanaUserForm
+        from .forms import (AddAsanaUserForm, AddGoogleUserForm,
+                            AddSlackUserForm)
+
         if self.integration == 1:
             return AddSlackUserForm()
         if self.integration == 3:
@@ -97,5 +101,3 @@ class AccessToken(models.Model):
         self.api_class().add_user(user, params)
 
     objects = AccessTokenManager()
-
-

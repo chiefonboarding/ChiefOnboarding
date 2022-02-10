@@ -144,7 +144,6 @@ $(document).on('change', "#id_fixed_date", function() {
 // FOR TODOS
 $(document).on('change', "#id_send_back", function() {
   if (this.checked == true){
-    console.log("checked")
     $(".slack_channel_dissapear").removeClass("d-none")
   } else {
     $(".slack_channel_dissapear").addClass("d-none")

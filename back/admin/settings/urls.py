@@ -43,7 +43,9 @@ urlpatterns = [
         views.AsanaSetupView.as_view(),
         name="asana",
     ),
-    path("integrations/slack_bot/", views.SlackBotSetupView.as_view(), name="slack-bot"),
+    path(
+        "integrations/slack_bot/", views.SlackBotSetupView.as_view(), name="slack-bot"
+    ),
     path(
         "integrations/<int:pk>/",
         views.IntegrationDeleteView.as_view(),

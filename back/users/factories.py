@@ -1,12 +1,13 @@
+import datetime
+
 import factory
-from factory.fuzzy import FuzzyText, FuzzyDate
+from factory.fuzzy import FuzzyDate, FuzzyText
 from pytest_factoryboy import register
 
 from organization.factories import OrganizationFactory
 from organization.models import Organization
 
-from .models import User, OTPRecoveryKey
-import datetime
+from .models import OTPRecoveryKey, User
 
 
 @register
@@ -62,8 +63,8 @@ class EmployeeFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
 
+
 @register
 class OTPRecoveryKeyFactory(factory.django.DjangoModelFactory):
-
     class Meta:
         model = OTPRecoveryKey

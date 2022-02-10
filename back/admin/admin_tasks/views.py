@@ -4,15 +4,16 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
+from django_q.tasks import async_task
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django_q.tasks import async_task
 
 from users import permissions
 from users.mixins import LoginRequiredMixin, ManagerPermMixin
 
-from .forms import AdminTaskCommentForm, AdminTaskCreateForm, AdminTaskUpdateForm
+from .forms import (AdminTaskCommentForm, AdminTaskCreateForm,
+                    AdminTaskUpdateForm)
 from .models import AdminTask, AdminTaskComment
 
 
@@ -82,9 +83,10 @@ class AdminTasksUpdateView(
         # send email/bot message to newly assigned person
         initial_assigned_to = form.instance.assigned_to
         form.save()
-        if form.validated_data['assigned_to'] != initial_assigned_to:
+        if form.validated_data["assigned_to"] != initial_assigned_to:
             async_task(form.instance.send_notification_new_assigned())
         return super().form_valid(form)
+
 
 class AdminTasksCreateView(
     LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, CreateView
@@ -133,4 +135,3 @@ class AdminTasksCommentCreateView(
         form.instance.comment_by = self.request.user
         form.instance.admin_task = task
         return super().form_valid(form)
-

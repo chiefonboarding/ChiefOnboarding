@@ -1,19 +1,14 @@
 import pytz
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import (
-    Div,
-    Field,
-    Layout,
-    Submit,
-)
+from crispy_forms.layout import Div, Field, Layout, Submit
 from django import forms
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 
 from admin.sequences.models import Sequence
 from admin.templates.forms import MultiSelectField, UploadField
 from users.models import Department
-from django.conf import settings
 
 
 class NewHireAddForm(forms.ModelForm):
@@ -146,8 +141,7 @@ class ModelChoiceFieldWithCreate(forms.ModelChoiceField):
             if isinstance(value, self.queryset.model):
                 value = getattr(value, key)
             value = self.queryset.get(**{key: value})
-        except (ValueError, TypeError) as e:
-            print(e)
+        except (ValueError, TypeError):
             raise ValidationError(
                 self.error_messages["invalid_choice"],
                 code="invalid_choice",
@@ -161,7 +155,9 @@ class ModelChoiceFieldWithCreate(forms.ModelChoiceField):
 
 class ColleagueUpdateForm(forms.ModelForm):
     timezone = forms.ChoiceField(choices=[(x, x) for x in pytz.common_timezones])
-    department = ModelChoiceFieldWithCreate(queryset=Department.objects.all(), to_field_name="name")
+    department = ModelChoiceFieldWithCreate(
+        queryset=Department.objects.all(), to_field_name="name"
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -212,7 +208,9 @@ class ColleagueUpdateForm(forms.ModelForm):
 
 class ColleagueCreateForm(forms.ModelForm):
     timezone = forms.ChoiceField(choices=[(x, x) for x in pytz.common_timezones])
-    department = ModelChoiceFieldWithCreate(queryset=Department.objects.all(), to_field_name="name")
+    department = ModelChoiceFieldWithCreate(
+        queryset=Department.objects.all(), to_field_name="name"
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -262,16 +260,21 @@ class ColleagueCreateForm(forms.ModelForm):
 
 
 class SequenceChoiceForm(forms.Form):
-    sequences = forms.ModelMultipleChoiceField(label="Select sequences you want to add ", widget=forms.CheckboxSelectMultiple, queryset=Sequence.objects.all())
+    sequences = forms.ModelMultipleChoiceField(
+        label="Select sequences you want to add ",
+        widget=forms.CheckboxSelectMultiple,
+        queryset=Sequence.objects.all(),
+    )
 
 
 class PreboardingSendForm(forms.Form):
-    send_type = forms.ChoiceField(choices=[("text", "Send via text"), ("email", "Send via email")])
+    send_type = forms.ChoiceField(
+        choices=[("text", "Send via text"), ("email", "Send via email")]
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # if Twillio is not configured, then auto select text and make it disabled
         if settings.TWILIO_ACCOUNT_SID == "":
-            self.fields['send_type'].widget.attrs['disabled'] = 'true'
-            self.fields['send_type'].initial = 'text'
-
+            self.fields["send_type"].widget.attrs["disabled"] = "true"
+            self.fields["send_type"].initial = "text"

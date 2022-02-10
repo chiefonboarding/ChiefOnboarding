@@ -6,11 +6,11 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('integrations', '0009_remove_accesstoken_name'),
+        ("integrations", "0009_remove_accesstoken_name"),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name='ScheduledAccess',
+            name="ScheduledAccess",
         ),
     ]

@@ -27,7 +27,6 @@ $(document).ready(function () {
 
 $("select#id_option").on('change', function() {
   // Change things to fill in when condition_type changes
-  console.log($(this).val())
   if ($(this).val() == 0){
     $("#div_id_slack_user").addClass("d-none")
     $("#div_id_email").addClass("d-none")

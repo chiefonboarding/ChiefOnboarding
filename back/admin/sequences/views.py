@@ -9,12 +9,14 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
 from admin.integrations.models import AccessToken
-from admin.templates.utils import get_model_form, get_templates_model, get_user_field
+from admin.templates.utils import (get_model_form, get_templates_model,
+                                   get_user_field)
 from admin.to_do.models import ToDo
 from users.mixins import AdminPermMixin, LoginRequiredMixin
 
 from .emails import send_sequence_message
-from .forms import ConditionCreateForm, ConditionToDoUpdateForm, ConditionUpdateForm
+from .forms import (ConditionCreateForm, ConditionToDoUpdateForm,
+                    ConditionUpdateForm)
 from .models import Condition, ExternalMessage, PendingAdminTask, Sequence
 
 
@@ -146,6 +148,7 @@ class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
     """
     This will update a specific line item (template or not) in a condition item
     """
+
     def post(self, request, template_type, template_pk, condition, *args, **kwargs):
 
         # Get form, if it doesn't exist, then 404
@@ -189,7 +192,8 @@ class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
 
 
 class SequenceConditionItemView(LoginRequiredMixin, AdminPermMixin, View):
-    """ This will delete or add a template item to a condition """
+    """This will delete or add a template item to a condition"""
+
     def delete(self, request, pk, type, template_pk, *args, **kwargs):
         condition = get_object_or_404(Condition, id=pk)
         templates_model = get_templates_model(type)
@@ -232,7 +236,8 @@ class SequenceConditionToDoUpdateView(LoginRequiredMixin, AdminPermMixin, Update
 
 
 class SequenceConditionDeleteView(LoginRequiredMixin, AdminPermMixin, View):
-    """ Delete an entire condition """
+    """Delete an entire condition"""
+
     def delete(self, request, pk, condition_pk, *args, **kwargs):
         sequence = get_object_or_404(Sequence, id=pk)
         condition = get_object_or_404(Condition, id=condition_pk, sequence=sequence)

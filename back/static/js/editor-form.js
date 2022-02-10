@@ -120,17 +120,13 @@ class Form {
     this._elements.wrapper = this.makeMainTag(this._data.type);
 
     // fill with data
-    console.log(this._elements.wrapper)
-    console.log(this._data.text.length)
     if (this._data.text != "") {
-      console.log("got here")
       this._elements.wrapper.textContent = this._data.text
     }
     // if (this._data.text.length) {
     //   this._elements.wrapper.appendChild(this._make('p', this.CSS.item));
     // }
 
-    console.log(this._elements.wrapper)
     return this._elements.wrapper;
   }
 
@@ -139,7 +135,6 @@ class Form {
    * @public
    */
   save() {
-    console.log(this.data)
     return this.data;
   }
 
@@ -266,8 +261,6 @@ class Form {
    */
   get data() {
     this._data.text = this._elements.wrapper.innerText
-    console.log(this._data.text)
-    console.log(this._data)
 
     return this._data;
   }

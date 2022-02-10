@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.utils import translation
 from django_q.tasks import async_task
 
-from organization.models import WelcomeMessage, Organization
+from organization.models import Organization, WelcomeMessage
 
 from .emails import send_new_hire_cred
 

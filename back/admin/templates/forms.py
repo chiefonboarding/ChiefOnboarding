@@ -1,5 +1,6 @@
-from crispy_forms.utils import TEMPLATE_PACK
 from crispy_forms.layout import Field
+from crispy_forms.utils import TEMPLATE_PACK
+
 
 class WYSIWYGField(Field):
     template = "wysiwyg_field.html"
@@ -37,4 +38,3 @@ class UploadField(Field):
         return super().render(
             form, form_style, context, template_pack, extra_context, **kwargs
         )
-

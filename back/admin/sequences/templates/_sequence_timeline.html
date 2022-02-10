@@ -98,7 +98,6 @@ document.addEventListener("dragleave", function( event ) {
   // prevent default action
   event.preventDefault();
   event.stopPropagation();
-  console.log(event.target)
   if (typeof event.target.closest !== "function") {
       return
   }

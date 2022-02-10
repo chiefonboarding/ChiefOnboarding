@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('to_do', '0012_remove_todo_channel'),
+        ("to_do", "0012_remove_todo_channel"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='todo',
-            name='form',
+            model_name="todo",
+            name="form",
             field=models.JSONField(default=list),
         ),
     ]

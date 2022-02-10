@@ -318,18 +318,11 @@
       }
       function initWYSIWYGEditor(){
         const forms = document.querySelectorAll('form')
-        console.log(forms)
         forms.forEach(function(form) {
-          console.log("form")
-          console.log(form)
-          console.log('content' in form)
 
           if ('content' in form) {
-            console.log("yup")
-            console.log(document.getElementById('content').textContent)
             let content = JSON.parse(document.getElementById('content').textContent)
             content = JSON.parse(content)
-            console.log(typeof(content))
             form['content'].attributes.value.nodeValue = JSON.stringify(content)
 
             const editor = new EditorJS({
@@ -404,9 +397,6 @@
         initWYSIWYGEditor()
       }
       function changeTemplate(item, condition, type) {
-        console.log(item)
-        console.log(condition)
-        console.log(type)
 
         document.getElementById("form-add-item").setAttribute("hx-post", `/sequences/update_item/${type}/${item}/${condition}/`)
         htmx.ajax('GET', `/sequences/forms/${type}/${item}/`, `#form`)

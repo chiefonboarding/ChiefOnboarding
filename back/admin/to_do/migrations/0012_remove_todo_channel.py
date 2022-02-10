@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('to_do', '0011_todo_slack_default_channel'),
+        ("to_do", "0011_todo_slack_default_channel"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='todo',
-            name='channel',
+            model_name="todo",
+            name="channel",
         ),
     ]

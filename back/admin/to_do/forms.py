@@ -2,11 +2,10 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, Layout
 from django import forms
 
+from admin.templates.forms import MultiSelectField, WYSIWYGField
 from organization.models import Tag
 
 from .models import ToDo
-from admin.templates.forms import WYSIWYGField, MultiSelectField
-
 
 
 class ToDoForm(forms.ModelForm):
@@ -31,7 +30,7 @@ class ToDoForm(forms.ModelForm):
                     Field("send_back"),
                     Div(
                         Field("slack_channel"),
-                        css_class="d-none slack_channel_dissapear"
+                        css_class="d-none slack_channel_dissapear",
                     ),
                     css_class="col-8",
                 ),

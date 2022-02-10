@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('preboarding', '0006_alter_preboarding_managers'),
+        ("preboarding", "0006_alter_preboarding_managers"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='preboarding',
-            name='content_json',
+            model_name="preboarding",
+            name="content_json",
             field=models.JSONField(default=dict),
         ),
     ]

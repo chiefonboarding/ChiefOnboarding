@@ -9,6 +9,7 @@ class ContentJSONField(JSONField):
     pushing it to the frontend. Signed urls expire. We will always want to fetch a new
     one, so users don't bump into files that can't be fetched in the editor
     """
+
     def from_db_value(self, value, expression, connection):
         value = super().from_db_value(value, expression, connection)
         if "blocks" not in value:

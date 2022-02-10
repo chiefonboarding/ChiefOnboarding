@@ -35,5 +35,3 @@ class GoogleOAuthTokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = AccessToken
         fields = ("client_id", "client_secret", "integration", "redirect_url")
-
-

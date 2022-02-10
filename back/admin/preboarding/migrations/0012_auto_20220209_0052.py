@@ -3,18 +3,18 @@
 from django.db import migrations
 
 from misc.migration_scripts.content_migrations import (
-    RunPythonWithArguments,
-    migrate_forms_to_wysiwyg,
-)
+    RunPythonWithArguments, migrate_forms_to_wysiwyg)
+
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('preboarding', '0011_alter_preboarding_content'),
+        ("preboarding", "0011_alter_preboarding_content"),
     ]
 
     operations = [
         RunPythonWithArguments(
-            migrate_forms_to_wysiwyg, context={"app": "preboarding", "model": "preboarding"},
+            migrate_forms_to_wysiwyg,
+            context={"app": "preboarding", "model": "preboarding"},
         ),
     ]

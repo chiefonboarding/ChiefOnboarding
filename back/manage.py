@@ -23,8 +23,8 @@ def main():
         from django.core import management
         from django.utils.crypto import get_random_string
 
-        from users.models import User
         from slack_bot.models import SlackChannel
+        from users.models import User
 
         if settings.ACCOUNT_EMAIL != "" and settings.ACCOUNT_PASSWORD != "":
             username = settings.ACCOUNT_EMAIL
@@ -45,7 +45,10 @@ def main():
                 % (username, password)
             )
         User.objects.create_admin("Demo", "User", username, password)
-        Organization.objects.create(name="Demo organization", slack_default_channel=SlackChannel.objects.get(name="general"))
+        Organization.objects.create(
+            name="Demo organization",
+            slack_default_channel=SlackChannel.objects.get(name="general"),
+        )
         welcome_message_path = os.path.join(
             settings.BASE_DIR, "fixtures/welcome_message.json"
         )

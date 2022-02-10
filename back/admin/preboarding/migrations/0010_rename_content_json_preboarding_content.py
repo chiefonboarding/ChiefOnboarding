@@ -6,13 +6,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('preboarding', '0009_remove_preboarding_content'),
+        ("preboarding", "0009_remove_preboarding_content"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='preboarding',
-            old_name='content_json',
-            new_name='content',
+            model_name="preboarding",
+            old_name="content_json",
+            new_name="content",
         ),
     ]

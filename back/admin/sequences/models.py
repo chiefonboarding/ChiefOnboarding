@@ -5,7 +5,8 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from twilio.rest import Client
 
-from admin.admin_tasks.models import NOTIFICATION_CHOICES, PRIORITY_CHOICES, AdminTask
+from admin.admin_tasks.models import (NOTIFICATION_CHOICES, PRIORITY_CHOICES,
+                                      AdminTask)
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
 from admin.introductions.models import Introduction
@@ -60,13 +61,21 @@ class Sequence(models.Model):
                 # For to_do items, filter all condition items to find if one matches
                 # Both the amount and the todos itself need to match exactly
                 conditions = user.conditions.filter(condition_type=1)
-                original_condition_to_do_ids = sequence_condition.condition_to_do.all().values_list("id", flat=True)
+                original_condition_to_do_ids = (
+                    sequence_condition.condition_to_do.all().values_list(
+                        "id", flat=True
+                    )
+                )
                 for condition in conditions:
                     # Quickly check if the amount of items match - if not match, then drop
-                    if condition.condition_to_do.all().count() != len(original_condition_to_do_ids):
+                    if condition.condition_to_do.all().count() != len(
+                        original_condition_to_do_ids
+                    ):
                         continue
 
-                    found_to_do_items = condition.condition_to_do.filter(id__in=original_condition_to_do_ids).count()
+                    found_to_do_items = condition.condition_to_do.filter(
+                        id__in=original_condition_to_do_ids
+                    ).count()
                     if found_to_do_items == len(original_condition_to_do_ids):
                         # We found our match. Amount matches AND the todos match
                         user_condition = condition
@@ -208,15 +217,12 @@ class ExternalMessage(models.Model):
                 # TODO: Add notification
                 return
 
-            client = Client(
-                settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN
-            )
+            client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
             client.messages.create(
                 to=phone_number,
                 from_=settings.TWILIO_FROM_NUMBER,
                 body=self.content,
             )
-
 
     objects = ExternalMessageManager()
 
@@ -237,14 +243,23 @@ class PendingAdminTask(models.Model):
         from admin.admin_tasks.models import AdminTask, AdminTaskComment
 
         admin_task, created = AdminTask.objects.get_or_create(
-            new_hire=user, assigned_to=self.assigned_to, name=self.name,
-            defaults={'option': self.option, 'slack_user': self.slack_user, 'email': self.email, 'date': self.date, 'priority': self.priority}
+            new_hire=user,
+            assigned_to=self.assigned_to,
+            name=self.name,
+            defaults={
+                "option": self.option,
+                "slack_user": self.slack_user,
+                "email": self.email,
+                "date": self.date,
+                "priority": self.priority,
+            },
         )
         if created and self.comment != "":
             AdminTaskComment.objects.create(
-                content=self.comment, comment_by=admin_task.assigned_to, admin_task=admin_task
+                content=self.comment,
+                comment_by=admin_task.assigned_to,
+                admin_task=admin_task,
             )
-
 
     @property
     def get_icon_template(self):
@@ -269,6 +284,7 @@ class AccountProvision(models.Model):
         self.pk = None
         self.save()
         return self
+
 
 class Condition(models.Model):
     CONDITION_TYPE = (
@@ -329,7 +345,6 @@ class Condition(models.Model):
             for item in condition_field.all():
                 self.__getattribute__(field.name).add(item)
 
-
     def duplicate(self):
         old_condition = Condition.objects.get(id=self.id)
         self.pk = None
@@ -338,15 +353,23 @@ class Condition(models.Model):
         # It can't be triggered standalone (for now)
         for field in old_condition._meta.many_to_many:
 
-            if field.name not in ['admin_tasks', 'external_messages', 'account_provisions']:
+            if field.name not in [
+                "admin_tasks",
+                "external_messages",
+                "account_provisions",
+            ]:
                 # Duplicate old ones
-                old_custom_templates = old_condition.__getattribute__(field.name).filter(template=False)
+                old_custom_templates = old_condition.__getattribute__(
+                    field.name
+                ).filter(template=False)
                 for old in old_custom_templates:
                     dup = old.duplicate()
                     self.__getattribute__(field.name).add(dup)
 
                 # Only using set() for template items. The other ones need to be duplicated as they are unique to the condition
-                old_templates = old_condition.__getattribute__(field.name).filter(template=True)
+                old_templates = old_condition.__getattribute__(field.name).filter(
+                    template=True
+                )
                 self.__getattribute__(field.name).set(old_templates)
 
             else:
@@ -359,10 +382,16 @@ class Condition(models.Model):
         # returning the new item
         return self
 
-
     def process_condition(self, user):
         # Loop over all m2m fields and add the ones that can be easily added
-        for field in ["to_do", "resources", "badges", "appointments", "introductions", "preboarding"]:
+        for field in [
+            "to_do",
+            "resources",
+            "badges",
+            "appointments",
+            "introductions",
+            "preboarding",
+        ]:
             for item in self.__getattribute__(field).all():
                 user.__getattribute__(field).add(item)
 

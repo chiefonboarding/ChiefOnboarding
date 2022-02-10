@@ -6,13 +6,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('badges', '0008_alter_badge_content_json'),
+        ("badges", "0008_alter_badge_content_json"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='badge',
-            old_name='content_json',
-            new_name='content',
+            model_name="badge",
+            old_name="content_json",
+            new_name="content",
         ),
     ]

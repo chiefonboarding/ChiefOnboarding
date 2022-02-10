@@ -6,13 +6,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('to_do', '0015_remove_todo_content'),
+        ("to_do", "0015_remove_todo_content"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='todo',
-            old_name='content_json',
-            new_name='content',
+            model_name="todo",
+            old_name="content_json",
+            new_name="content",
         ),
     ]
