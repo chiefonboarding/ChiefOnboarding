@@ -17,7 +17,11 @@ LANGUAGES_OPTIONS = (
 
 class ObjectManager(models.Manager):
     def get(self):
-        return self.get_queryset().first()
+        try:
+            return self.get_queryset().first()
+        except:
+            # this is needed for some migrations. Afterwards a organization will always exist
+            return None
 
 
 class Organization(models.Model):
