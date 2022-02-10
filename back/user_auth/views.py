@@ -35,7 +35,7 @@ class AuthenticateView(LoginView):
     template_name = "login.html"
 
     def dispatch(self, request, *args, **kwargs):
-        org = Organization.objects.get()
+        org = Organization.object.get()
         # Block anyone trying to login when credentials are not allowed
         if request.method == "POST" and not org.credentials_login:
             raise Http404
@@ -92,7 +92,7 @@ class GoogleLoginView(View):
     permanent = False
 
     def dispatch(self, request, *args, **kwargs):
-        org = Organization.objects.get()
+        org = Organization.object.get()
         if not org.google_login:
             raise Http404
 
