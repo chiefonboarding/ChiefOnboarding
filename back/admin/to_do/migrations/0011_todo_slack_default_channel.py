@@ -13,10 +13,12 @@ class Migration(migrations.Migration):
         # Not necessarily related, but let's fix the default channel for organization as well
         slack_channel, _ = SlackChannel.objects.get_or_create(name="general")
         # Check if organization exists. If not, then the site has not been set up yet and then just drop everything else
-        if Organization.objects.all().count() == 0:
+        try:
+            org = Organization.object.get()
+        except:
+            # Org does not exist yet
             return
 
-        org = Organization.object.get()
         org.slack_default_channel = slack_channel
         org.save()
 
