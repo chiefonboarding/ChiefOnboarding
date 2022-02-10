@@ -143,6 +143,9 @@ class SequenceFormView(LoginRequiredMixin, AdminPermMixin, View):
 
 
 class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
+    """
+    This will update a specific line item (template or not) in a condition item
+    """
     def post(self, request, template_type, template_pk, condition, *args, **kwargs):
 
         # Get form, if it doesn't exist, then 404
@@ -186,6 +189,7 @@ class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
 
 
 class SequenceConditionItemView(LoginRequiredMixin, AdminPermMixin, View):
+    """ This will delete or add a template item to a condition """
     def delete(self, request, pk, type, template_pk, *args, **kwargs):
         condition = get_object_or_404(Condition, id=pk)
         templates_model = get_templates_model(type)
@@ -207,6 +211,10 @@ class SequenceConditionItemView(LoginRequiredMixin, AdminPermMixin, View):
 
 
 class SequenceConditionToDoUpdateView(LoginRequiredMixin, AdminPermMixin, UpdateView):
+    """
+    This will update the conditions of a trigger based on a ToDo item.
+    """
+
     template_name = "_sequence_condition.html"
     model = Condition
     form_class = ConditionToDoUpdateForm

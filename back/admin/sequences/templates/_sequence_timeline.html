@@ -30,7 +30,7 @@
   </li>
   {% endfor %}
   {% for condition in conditions_based_on_todo %}
-  <li>
+  <li style="z-index:{{ 100|add:forloop.revcounter }}">
     <div class="list-timeline-icon">
     </div>
     <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">

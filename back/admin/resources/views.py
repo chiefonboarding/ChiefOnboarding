@@ -20,7 +20,6 @@ class ResourceListView(LoginRequiredMixin, AdminPermMixin, ListView):
         context["title"] = "Resource items"
         context["subtitle"] = "templates"
         context["add_action"] = reverse_lazy("resources:create")
-        context["wysiwyg"] = []
         return context
 
 
@@ -52,7 +51,6 @@ class ResourceUpdateView(
         context = super().get_context_data(**kwargs)
         context["title"] = "Update resource item"
         context["subtitle"] = "templates"
-        # context["wysiwyg"] = context["resource"].content_json
         return context
 
 

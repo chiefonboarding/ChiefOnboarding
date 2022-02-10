@@ -12862,7 +12862,7 @@ Antialiasing
 select {
   display: none !important;
 }
-.form-select {
+.selectize-dropdown {
   z-index: 10000000;
 }
 .modal-dialog.modal-lg {
