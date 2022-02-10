@@ -232,9 +232,11 @@ class SequenceConditionToDoUpdateView(LoginRequiredMixin, AdminPermMixin, Update
 
 
 class SequenceConditionDeleteView(LoginRequiredMixin, AdminPermMixin, View):
+    """ Delete an entire condition """
     def delete(self, request, pk, condition_pk, *args, **kwargs):
         sequence = get_object_or_404(Sequence, id=pk)
         condition = get_object_or_404(Condition, id=condition_pk, sequence=sequence)
+        # Can never delete the unconditioned condition
         if condition.condition_type == 3:
             raise Http404
         condition.delete()
