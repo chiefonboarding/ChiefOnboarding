@@ -262,7 +262,7 @@ class ColleagueCreateForm(forms.ModelForm):
 
 
 class SequenceChoiceForm(forms.Form):
-    sequences = forms.MultipleChoiceField(label="Select sequences you want to add ", widget=forms.CheckboxSelectMultiple, choices=[(x.id, x.name) for x in Sequence.objects.all()])
+    sequences = forms.ModelMultipleChoiceField(label="Select sequences you want to add ", widget=forms.CheckboxSelectMultiple, queryset=Sequence.objects.all())
 
 
 class PreboardingSendForm(forms.Form):
