@@ -12872,6 +12872,10 @@ form .btn {
   float:right;
   margin-left: 5px;
 }
+form .upload-field .btn {
+  float: unset !important;
+  margin-left: unset !important;
+}
 
 /* editor js extra styling */
 .border-left {

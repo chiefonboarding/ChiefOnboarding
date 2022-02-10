@@ -37,6 +37,17 @@ LANGUAGE_CHOICES = (
 ROLE_CHOICES = ((0, "New Hire"), (1, "Administrator"), (2, "Manager"), (3, "Other"))
 
 
+class Department(models.Model):
+    """
+    Department that has been attached to a user
+    At the moment, only one department per user
+    """
+    name = models.TextField()
+
+    def __str__(self):
+        return "%s" % self.name
+
+
 class CustomUserManager(BaseUserManager):
     def _create_user(
         self, first_name, last_name, email, password, role, **extra_fields
@@ -115,7 +126,7 @@ class User(AbstractBaseUser):
     facebook = models.CharField(default="", max_length=100, blank=True)
     twitter = models.CharField(default="", max_length=100, blank=True)
     timezone = models.CharField(default="", max_length=1000)
-    department = models.TextField(default="", blank=True)
+    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True)
     language = models.CharField(default="en", choices=LANGUAGE_CHOICES, max_length=5)
     role = models.IntegerField(
         choices=ROLE_CHOICES,
@@ -297,6 +308,8 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return "%s" % self.full_name
+
+
 
 
 class ToDoUser(models.Model):
