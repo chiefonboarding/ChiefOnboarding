@@ -26,7 +26,7 @@ class ResourceListView(LoginRequiredMixin, AdminPermMixin, ListView):
 class ResourceCreateView(
     LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
 ):
-    template_name = "todo_update.html"
+    template_name = "resource_update.html"
     form_class = ResourceForm
     success_url = reverse_lazy("resources:list")
     success_message = "Resource item has been updated"
@@ -41,7 +41,7 @@ class ResourceCreateView(
 class ResourceUpdateView(
     LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
 ):
-    template_name = "todo_update.html"
+    template_name = "resource_update.html"
     form_class = ResourceForm
     success_url = reverse_lazy("resources:list")
     queryset = Resource.templates.all()

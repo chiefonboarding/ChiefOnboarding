@@ -99,7 +99,20 @@ def migrate_wysiwyg_field(apps, schema_context, **context):
                     }
                 )
             if block.type == "question":
-                pass
+                new_json.append(
+                    {
+                        "type": "question",
+                        "data": {
+                            "items": [
+                                {"id": item.id, "text": item.text}
+                                for item in block.items
+                            ],
+                            "answer": block.answer,
+                            "content": block.content,
+                        },
+                    }
+                )
+
         item.content_json = {"time": 0, "blocks": new_json}
         item.save()
 

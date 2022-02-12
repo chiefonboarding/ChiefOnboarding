@@ -1,0 +1,56 @@
+{% load crispy_forms_filters %}
+{% load l10n %}
+{% load settings_values %}
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="row" id="app">
+  <div class="col-4">
+    <div class="card mt-2">
+      <div class="card-header">
+        <h3 class="card-title">Chapters</h3>
+      </div>
+      <div class="list-group list-group-flush list-group-hoverable">
+        <v-node v-for="child in chapters" :chapter="child" :current-item="chapter"></v-node>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-8">
+    <div class="card mt-2">
+      <div class="card-header">
+        <h3 class="card-title">Content</h3>
+        <div class="card-actions">
+          <input type="text" class="form-control" v-model="chapter.name" name="example-text-input" placeholder="Input placeholder">
+        </div>
+      </div>
+      <div class="card-body">
+        <div v-show="chapter.type === 0" id="element"></div>
+        <div v-show="chapter.type === 1"><p class="mb-0">Folders can't have content</p></div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+<script type="text/x-template" id="v-node">
+  <div>
+    <div class="list-group-item" style="border-left:0px" >
+      <div class="row align-items-center" >
+        <div class="col-auto"><span :class="{ 'bg-primary': chapter.id === currentItem.id }" class="badge"></span></div>
+        <div role="button" @click="changeChapter(chapter)" class="col text-truncate">
+          <a class="text-body d-block">[[ chapter.name ]]</a>
+        </div>
+        <div class="col-auto">{% include '_chapter_options.html' %}</div>
+      </div>
+    </div>
+    <div v-if="chapter.children && chapter.children.length" style="margin-left: 10px; border-left: 0px">
+      <v-node v-for="child in chapter.children" :chapter="child" :current-item="currentItem"></v-node>
+    </div>
+  </div>
+</script>
+{% if field.value and field.value is not None %}
+{{ chapters|json_script:"chapters" }}
+{% endif %}

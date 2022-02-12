@@ -3,36 +3,59 @@ from crispy_forms.layout import Div, Field, Layout
 from crispy_forms.utils import TEMPLATE_PACK
 from django import forms
 
-from admin.templates.forms import MultiSelectField, WYSIWYGField
+from admin.templates.forms import MultiSelectField, WYSIWYGField, FieldWithExtraContext
 from organization.models import Tag
 
 from .models import Resource
+from .serializers import ChapterSerializer
+
+
+class ChapterField(FieldWithExtraContext):
+    template = "chapter_field.html"
 
 
 class ResourceForm(forms.ModelForm):
-    content_json = WYSIWYGField(label="content")
     tags = forms.ModelMultipleChoiceField(
         queryset=Tag.objects.all(), to_field_name="name"
     )
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(ResourceForm, self).__init__(*args, **kwargs)
+        self.fields['chapters'] = forms.JSONField()
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
                 Div(
                     Field("name"),
-                    MultiSelectField("tags"),
-                    css_class="col-4",
+                    css_class="col-6",
                 ),
-                # Div(WYSIWYGField("content_json"), css_class="col-8"),
+                Div(
+                    MultiSelectField("tags"),
+                    css_class="col-6",
+                ),
                 css_class="row",
+            ),
+            Div(
+                Div(
+                    Field("category", css_class="add"),
+                    css_class="col-6",
+                ),
+                Div(
+                    Field("course"),
+                    Field("on_day"),
+                    Field("remove_on_complete"),
+                    css_class="col-6",
+                ),
+                css_class="row",
+            ),
+            Div(
+                Div(ChapterField("chapters", extra_context={"chapters": ChapterSerializer(self.instance.chapters.filter(parent_chapter__isnull=True), many=True).data}), css_class="col-12"),
             ),
         )
 
     class Meta:
         model = Resource
-        exclude = ("template",)
+        fields = ("name", "tags", "category", "course", "on_day", "remove_on_complete")
 
     def clean_tags(self):
         tags = self.cleaned_data["tags"]

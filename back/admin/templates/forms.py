@@ -10,10 +10,9 @@ class MultiSelectField(Field):
     template = "multi_select_field.html"
 
 
-class UploadField(Field):
+class FieldWithExtraContext(Field):
     # Copied from SO, this allows us to add extra content to the field (such as the file object)
     # https://stackoverflow.com/a/41189149
-    template = "upload_field.html"
     extra_context = {}
 
     def __init__(self, *args, **kwargs):
@@ -38,3 +37,8 @@ class UploadField(Field):
         return super().render(
             form, form_style, context, template_pack, extra_context, **kwargs
         )
+
+class UploadField(FieldWithExtraContext):
+    template = "upload_field.html"
+
+

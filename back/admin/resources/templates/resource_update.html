@@ -1,0 +1,223 @@
+{% extends 'admin_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block actions %}
+  {% if object %}
+    <form method="POST" action="{% url 'templates:duplicate' object.class_name object.id %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary">
+        Duplicate
+      </button>
+    </form>
+    <form method="POST" action="{{ object.delete_url }}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">
+        Delete
+      </button>
+    </form>
+  {% endif %}
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <form method="POST">
+      <div class="card">
+        <div class="card-body">
+          {% crispy form %}
+          <div class="form-footer">
+            <button type="submit" class="btn btn-primary">{% if object %}Update{% else %}Create{% endif %}</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+
+var currentData = {};
+var editor = undefined;
+function initEditor(data) {
+  editor = new EditorJS({
+    minHeight: 30,
+    autofocus: true,
+    holder: 'element',
+    data: data,
+    tools: {
+      header: Header,
+      quote: Quote,
+      list: {
+        class: NestedList,
+        inlineToolbar: true,
+      },
+      delimiter: Delimiter,
+      image: {
+        class: ImageTool,
+        config: {
+          uploader: {
+            /**
+             * Upload file to the server and return an uploaded image data
+             * @param {File} file - file selected from the device or pasted by drag-n-drop
+             * @return {Promise.<{success, file: {url}}>}
+             */
+            async uploadByFile(file){
+              // your own uploading logic here
+              let response = await getSignedURL(file)
+              let completed = await uploadFile(file, response)
+              return {
+                success: 1,
+                file: {
+                  url: response.get_url,
+                  id: response.id
+                }
+              }
+            },
+          }
+        }
+      },
+      attaches: {
+        class: AttachesTool,
+        config: {
+          uploader: {
+            /**
+             * Upload file to the server and return an uploaded image data
+             * @param {File} file - file selected from the device or pasted by drag-n-drop
+             * @return {Promise.<{success, file: {url}}>}
+             */
+            async uploadByFile(file){
+              // your own uploading logic here
+              let response = await getSignedURL(file)
+              let completed = await uploadFile(file, response.file)
+              return response
+            },
+          }
+        }
+      }
+    },
+    onChange: function (value) {
+      value.saver.save().then(function(data) {
+        app.saveData(data)
+      })
+    }
+  });
+}
+
+Vue.component('v-node', {
+  template: '#v-node',
+  data() {
+    return {
+      checked: false,
+      title: 'Check me'
+    }
+  },
+  delimiters: ['[[', ']]'],
+  props: {
+    chapter: Object,
+    currentItem: Object,
+  },
+  methods: {
+    changeChapter (chapter) {
+      app.chapter = chapter
+      if (!(editor === undefined)){
+        editor.destroy()
+      }
+      initEditor(app.chapter.content)
+    },
+    move (item, upOrDown) {
+      app.findParent(app.chapters, item.id)
+      const oldIndex = app.parent.findIndex(a => a.id === item.id)
+      // check if new index exists
+      if ((oldIndex + 1 === app.parent.length && upOrDown === 1) || (oldIndex === 0 && upOrDown === -1)) { return }
+      app.parent.splice(oldIndex, 1)
+      app.parent.splice(oldIndex + upOrDown, 0, item)
+    },
+    add (item, contentType) {
+      console.log('got here')
+      app.findParent(app.chapters, item.id)
+      console.log('got here')
+      const index = app.parent.findIndex(a => a.id === item.id)
+      console.log('got here')
+      const newItem = {
+        id: app.getRandomString(),
+        type: contentType,
+        name: 'New item',
+        content: {},
+        parent_chapter: null
+      }
+      if (contentType === 1) {
+        newItem.children = [{
+          id: app.getRandomString(),
+          type: 0,
+          name: 'New item',
+          content: {},
+          parent_chapter: -1
+        }]
+      }
+      console.log('got here')
+      app.parent.splice(index + 1, 0, newItem)
+      console.log('got here')
+    },
+    deleteItem (item) {
+      app.findParent(app.chapters, item.id)
+      if (app.parent.length === 1) {
+        // can't delete last item
+        return
+      }
+      const indexAt = app.parent.findIndex(a => a.id === item.id)
+      app.parent.splice(indexAt, 1)
+    },
+  }
+});
+
+let chapters = JSON.parse(document.getElementById('chapters').textContent)
+
+var app = new Vue({
+  el: '#app',
+  delimiters: ['[[', ']]'],
+  data: {
+    chapters: chapters,
+    chapter: {},
+    parent: undefined
+  },
+  mounted () {
+    this.chapter = chapters[0]
+    initEditor(this.chapter.content)
+  },
+  methods: {
+    saveData (data) {
+      this.chapter.content = data
+    },
+    findParent (source, id) {
+      // https://stackoverflow.com/a/23460304
+      if (id === undefined) {
+        this.parent = null
+        return
+      }
+      let key
+      for (key in source) {
+        const item = source[key]
+        if (item.id === id) {
+          this.parent = source
+          return
+        }
+        if (item.children) {
+          const subresult = this.findParent(item.children, id)
+          if (subresult) {
+            this.parent = item.children
+            return
+          }
+        }
+      }
+      return null
+    },
+    getRandomString () {
+      // from https://stackoverflow.com/a/6860916
+      return "temp-" + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
+    }
+  }
+})
+
+</script>
+{% endblock %}

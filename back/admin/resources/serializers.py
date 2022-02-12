@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 
-from misc.fields import ContentField
 from misc.serializers import ContentCourseSerializer
 
 from .fields import CategoryField
@@ -15,12 +14,15 @@ class CategorySerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ChapterSerializer(serializers.HyperlinkedModelSerializer):
-    parent_chapter = serializers.PrimaryKeyRelatedField(read_only=True)
-    content = ContentField()
+    children = SerializerMethodField()
 
     class Meta:
         model = Chapter
-        fields = ("id", "name", "content", "type", "parent_chapter")
+        fields = ("id", "name", "content", "type", "children")
+
+    def get_children(self, obj):
+        return ChapterSerializer(Chapter.objects.filter(parent_chapter=obj), many=True).data
+
 
 
 class ChapterCourseSerializer(ChapterSerializer):

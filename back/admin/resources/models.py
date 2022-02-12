@@ -1,8 +1,8 @@
 from django.db import models
-from django.db.models import Prefetch
 from django.template.loader import render_to_string
 from django.urls import reverse
 
+from misc.fields import ContentJSONField
 from misc.models import Content
 from organization.models import BaseItem
 
@@ -35,6 +35,8 @@ class Resource(BaseItem):
         return reverse("resources:delete", args=[self.id])
 
     def next_chapter(self, current_id, course):
+        # We can't fetch course from the object, as the user might have already
+        # passed it and it now should show as normal resource for them
         chapters = self.chapters.exclude(type=1)
         if not course:
             chapters = self.chapters.filter(type=0)
@@ -58,15 +60,19 @@ class Chapter(models.Model):
         Resource, on_delete=models.CASCADE, related_name="chapters", null=True
     )
     name = models.CharField(max_length=240)
-    content = models.ManyToManyField(Content)
+    content = ContentJSONField(default=dict)
     type = models.IntegerField(choices=CHAPTER_TYPE)
 
     def slack_menu_item(self):
-        name = self.name
-        if len(name) > 75:
-            name = name[:70] + "..."
+        # Small top menu in the dialog
+
+        # Slack's max length for the name is 75 chars
+        name = self.name if len(self.name) < 75 else self.name[:70] + "..."
+
+        # If it's within another item, then add a - to indicate that
         if self.parent_chapter is not None:
             name = "- " + name
+
         return {
             "text": {"type": "plain_text", "text": name, "emoji": True},
             "value": str(self.id),
@@ -75,4 +81,5 @@ class Chapter(models.Model):
 
 class CourseAnswer(models.Model):
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
-    answers = models.JSONField(models.TextField(default="[]"), default=list)
+    answers = models.JSONField(default=list)
+
