@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from admin.sequences.models import Sequence
 from admin.templates.forms import MultiSelectField, UploadField
 from users.models import Department
+from admin.templates.forms import ModelChoiceFieldWithCreate
 
 
 class NewHireAddForm(forms.ModelForm):
@@ -124,33 +125,6 @@ class NewHireProfileForm(forms.ModelForm):
             "buddy",
             "manager",
         )
-
-
-class ModelChoiceFieldWithCreate(forms.ModelChoiceField):
-    def prepare_value(self, value):
-        # Forcing pk value in this case. Otherwise "selected" will not work
-        if hasattr(value, "_meta"):
-            return value.pk
-        return super().prepare_value(value)
-
-    def to_python(self, value):
-        if value in self.empty_values:
-            return None
-        try:
-            key = self.to_field_name or "pk"
-            if isinstance(value, self.queryset.model):
-                value = getattr(value, key)
-            value = self.queryset.get(**{key: value})
-        except (ValueError, TypeError):
-            raise ValidationError(
-                self.error_messages["invalid_choice"],
-                code="invalid_choice",
-                params={"value": value},
-            )
-
-        except self.queryset.model.DoesNotExist:
-            value = self.queryset.create(**{key: value})
-        return value
 
 
 class ColleagueUpdateForm(forms.ModelForm):

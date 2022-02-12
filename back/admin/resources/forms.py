@@ -6,8 +6,9 @@ from django import forms
 from admin.templates.forms import MultiSelectField, WYSIWYGField, FieldWithExtraContext
 from organization.models import Tag
 
-from .models import Resource
+from .models import Resource, Category
 from .serializers import ChapterSerializer
+from admin.templates.forms import ModelChoiceFieldWithCreate
 
 
 class ChapterField(FieldWithExtraContext):
@@ -17,6 +18,9 @@ class ChapterField(FieldWithExtraContext):
 class ResourceForm(forms.ModelForm):
     tags = forms.ModelMultipleChoiceField(
         queryset=Tag.objects.all(), to_field_name="name"
+    )
+    category = ModelChoiceFieldWithCreate(
+        queryset=Category.objects.all(), to_field_name="name", required=False
     )
 
     def __init__(self, *args, **kwargs):
@@ -42,9 +46,15 @@ class ResourceForm(forms.ModelForm):
                 ),
                 Div(
                     Field("course"),
+                    css_class="col-2",
+                ),
+                Div(
                     Field("on_day"),
+                    css_class="col-2 d-none",
+                ),
+                Div(
                     Field("remove_on_complete"),
-                    css_class="col-6",
+                    css_class="col-2 d-none",
                 ),
                 css_class="row",
             ),
@@ -56,6 +66,15 @@ class ResourceForm(forms.ModelForm):
     class Meta:
         model = Resource
         fields = ("name", "tags", "category", "course", "on_day", "remove_on_complete")
+        labels = {
+            'course': 'Is a course item',
+            'on_day': 'Workday that this item is due',
+            'remove_on_complete': 'Remove item when new hire walked through'
+        }
+        help_texts = {
+            'course': 'When enabled, new hires will have to walk through this',
+            'remove_on_complete': 'If disabled, it will turn into a normal resource after completing'
+        }
 
     def clean_tags(self):
         tags = self.cleaned_data["tags"]

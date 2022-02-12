@@ -42,8 +42,8 @@ var editor = undefined;
 function initEditor(data) {
   editor = new EditorJS({
     minHeight: 30,
-    autofocus: true,
     holder: 'element',
+    placeholder: 'Start typing here...',
     data: data,
     tools: {
       header: Header,
@@ -106,12 +106,6 @@ function initEditor(data) {
 
 Vue.component('v-node', {
   template: '#v-node',
-  data() {
-    return {
-      checked: false,
-      title: 'Check me'
-    }
-  },
   delimiters: ['[[', ']]'],
   props: {
     chapter: Object,
@@ -120,9 +114,7 @@ Vue.component('v-node', {
   methods: {
     changeChapter (chapter) {
       app.chapter = chapter
-      if (!(editor === undefined)){
-        editor.destroy()
-      }
+      editor.destroy()
       initEditor(app.chapter.content)
     },
     move (item, upOrDown) {
@@ -134,17 +126,15 @@ Vue.component('v-node', {
       app.parent.splice(oldIndex + upOrDown, 0, item)
     },
     add (item, contentType) {
-      console.log('got here')
       app.findParent(app.chapters, item.id)
-      console.log('got here')
       const index = app.parent.findIndex(a => a.id === item.id)
-      console.log('got here')
       const newItem = {
         id: app.getRandomString(),
         type: contentType,
         name: 'New item',
-        content: {},
-        parent_chapter: null
+        content: { blocks: [] },
+        parent_chapter: null,
+        children: []
       }
       if (contentType === 1) {
         newItem.children = [{
@@ -152,12 +142,11 @@ Vue.component('v-node', {
           type: 0,
           name: 'New item',
           content: {},
+          children: [],
           parent_chapter: -1
         }]
       }
-      console.log('got here')
       app.parent.splice(index + 1, 0, newItem)
-      console.log('got here')
     },
     deleteItem (item) {
       app.findParent(app.chapters, item.id)
@@ -171,18 +160,32 @@ Vue.component('v-node', {
   }
 });
 
-let chapters = JSON.parse(document.getElementById('chapters').textContent)
+let chapters_from_html = JSON.parse(document.getElementById('chapters').textContent)
 
 var app = new Vue({
   el: '#app',
   delimiters: ['[[', ']]'],
-  data: {
-    chapters: chapters,
-    chapter: {},
-    parent: undefined
+  data: function () {
+    return {
+      chapters: [],
+      chapter: { content: [] },
+      parent: undefined
+    }
   },
   mounted () {
-    this.chapter = chapters[0]
+    this.chapters = chapters_from_html
+    if (!this.chapters.length) {
+      console.log('got here')
+      this.chapters = [{
+        id: this.getRandomString(),
+        type: 0,
+        name: 'New item',
+        content: { blocks: [] },
+        parent_chapter: null,
+        children: []
+      }]
+    }
+    this.chapter = this.chapters[0]
     initEditor(this.chapter.content)
   },
   methods: {
@@ -212,6 +215,18 @@ var app = new Vue({
       }
       return null
     },
+    addQuestion () {
+      const uniqueId = this.getRandomString()
+      this.chapter.content.blocks.push({
+        'content': "",
+        'items': [{ 'id': uniqueId, 'text': '' }],
+        'type': 'question',
+        'answer': uniqueId
+      })
+    },
+    addOption (items) {
+      items.push({ 'text': '', 'id': this.getRandomString() })
+    },
     getRandomString () {
       // from https://stackoverflow.com/a/6860916
       return "temp-" + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
@@ -219,5 +234,15 @@ var app = new Vue({
   }
 })
 
+// FOR RESOURCE/COURSE
+$("#id_course").on('change', function() {
+  if (this.checked == true){
+    $("#div_id_on_day").parent().removeClass("d-none")
+    $("#div_id_remove_on_complete").parent().parent().removeClass("d-none")
+  } else {
+    $("#div_id_on_day").parent().addClass("d-none")
+    $("#div_id_remove_on_complete").parent().parent().addClass("d-none")
+  }
+})
 </script>
 {% endblock %}

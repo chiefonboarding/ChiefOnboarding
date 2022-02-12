@@ -1,5 +1,6 @@
 from crispy_forms.layout import Field
 from crispy_forms.utils import TEMPLATE_PACK
+from django import forms
 
 
 class WYSIWYGField(Field):
@@ -42,3 +43,28 @@ class UploadField(FieldWithExtraContext):
     template = "upload_field.html"
 
 
+class ModelChoiceFieldWithCreate(forms.ModelChoiceField):
+    def prepare_value(self, value):
+        # Forcing pk value in this case. Otherwise "selected" will not work
+        if hasattr(value, "_meta"):
+            return value.pk
+        return super().prepare_value(value)
+
+    def to_python(self, value):
+        if value in self.empty_values:
+            return None
+        try:
+            key = self.to_field_name or "pk"
+            if isinstance(value, self.queryset.model):
+                value = getattr(value, key)
+            value = self.queryset.get(**{key: value})
+        except (ValueError, TypeError):
+            raise ValidationError(
+                self.error_messages["invalid_choice"],
+                code="invalid_choice",
+                params={"value": value},
+            )
+
+        except self.queryset.model.DoesNotExist:
+            value = self.queryset.create(**{key: value})
+        return value

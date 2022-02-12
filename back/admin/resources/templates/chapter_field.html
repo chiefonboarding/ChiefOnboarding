@@ -7,14 +7,14 @@
 </div>
 </div>
 
-<div class="row" id="app">
+<div class="row mt-2" id="app">
   <div class="col-4">
     <div class="card mt-2">
       <div class="card-header">
         <h3 class="card-title">Chapters</h3>
       </div>
       <div class="list-group list-group-flush list-group-hoverable">
-        <v-node v-for="child in chapters" :chapter="child" :current-item="chapter"></v-node>
+        <v-node v-for="child in chapters" :chapter="child" :key="child.id" :current-item="chapter"></v-node>
       </div>
     </div>
   </div>
@@ -30,10 +30,23 @@
       <div class="card-body">
         <div v-show="chapter.type === 0" id="element"></div>
         <div v-show="chapter.type === 1"><p class="mb-0">Folders can't have content</p></div>
+        <div v-show="chapter.type === 2">
+          <div class="mb-3" v-for="item in chapter.content.blocks" :key="item.id">
+            <label class="form-label">The question you want to ask:</label>
+            <input type="text" class="form-control" name="example-text-input" v-model="item.content" placeholder="What's...">
+            <div class="form-check" v-for="option in item.items" :key="option.id">
+              <input class="form-check-input" type="radio" placeholder="option..." :name="'name' + option.id" v-model="item.answer" :value="option.id" @click="item.answer = option.id" style="margin-top: 10px;">
+              <input type="text" class="form-control mt-1" v-model="option.text" name="example-text-input" placeholder="option...">
+            </div>
+            <a class="btn btn-primary" style="float:unset" role="button" @click="addOption(item.items)">Add option</a>
+          </div>
+          <a class="btn btn-primary" role="button" @click="addQuestion">Add question</a>
+        </div>
       </div>
     </div>
   </div>
-  </div>
+  <input name="chapters" v-model="JSON.stringify(chapters)" style="display:none" />
+</div>
 
 <script type="text/x-template" id="v-node">
   <div>
@@ -47,10 +60,14 @@
       </div>
     </div>
     <div v-if="chapter.children && chapter.children.length" style="margin-left: 10px; border-left: 0px">
-      <v-node v-for="child in chapter.children" :chapter="child" :current-item="currentItem"></v-node>
+      <v-node v-for="child in chapter.children" :key="child.id" :chapter="child" :current-item="currentItem"></v-node>
     </div>
   </div>
 </script>
 {% if field.value and field.value is not None %}
 {{ chapters|json_script:"chapters" }}
 {% endif %}
+
+<div>
+<div>
+<div>
