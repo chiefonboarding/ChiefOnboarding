@@ -27,6 +27,10 @@ class ResourceForm(forms.ModelForm):
         super(ResourceForm, self).__init__(*args, **kwargs)
         self.fields['chapters'] = forms.JSONField()
         self.helper = FormHelper()
+        none_class = ""
+        if self.instance is None or not self.instance.course:
+            none_class = " d-none"
+
         self.helper.layout = Layout(
             Div(
                 Div(
@@ -50,11 +54,11 @@ class ResourceForm(forms.ModelForm):
                 ),
                 Div(
                     Field("on_day"),
-                    css_class="col-2 d-none",
+                    css_class="col-2" + none_class,
                 ),
                 Div(
                     Field("remove_on_complete"),
-                    css_class="col-2 d-none",
+                    css_class="col-2" + none_class,
                 ),
                 css_class="row",
             ),

@@ -2,14 +2,18 @@ from datetime import datetime, timedelta
 
 from axes.decorators import axes_dispatch
 from django.conf import settings
+from django.views.generic import View
+from django.http import HttpResponse
 from django.contrib.auth import get_user_model, login, signals
 from django.db.models import Q
 from django.http import Http404
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.decorators import method_decorator
+from django.contrib import messages
 from django.views.generic.base import RedirectView, TemplateView
+from django.views.generic.edit import FormView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from rest_framework.permissions import AllowAny
@@ -23,6 +27,9 @@ from users.mixins import LoginRequiredMixin
 from users.models import (NewHireWelcomeMessage, PreboardingUser, ResourceUser,
                           ToDoUser, User)
 from users.permissions import NewHirePermission
+from admin.resources.models import Resource
+
+from .forms import QuestionsForm
 
 
 class NewHireDashboard(LoginRequiredMixin, TemplateView):
@@ -176,14 +183,42 @@ class ColleagueSearchView(LoginRequiredMixin, ListView):
         )
 
 
-class ResourceListView(LoginRequiredMixin, TemplateView):
+class ResourceListView(LoginRequiredMixin, ListView):
     template_name = "new_hire_resources.html"
     paginate_by = 20
 
+    def get_queryset(self):
+        return ResourceUser.objects.filter(user=self.request.user).order_by("resource__category")
+
+
+class ResourceDetailView(LoginRequiredMixin, DetailView):
+    template_name = "new_hire_resource_detail.html"
+    model = Resource
+
+    def dispatch(self, *args, **kwargs):
+        # Make sure it's either a course or if it's a course the user is not skipping items
+        if self.request.user.is_authenticated:
+            resource_user = get_object_or_404(ResourceUser, user=self.request.user, resource__id=self.kwargs.get('pk', -1))
+            # Early return if not course
+            if not resource_user.resource.course:
+                return super().dispatch(*args, **kwargs)
+
+            # Check if user is allowed to see the requested chapter otherwise raise 404
+            # User should only be allowed to see the next chapter and previous ones
+            chapter = get_object_or_404(Chapter, id=self.kwargs.get('chapter', -1))
+            if chapter.order > resource_user.step + 1:
+                raise Http404
+
+        return super().dispatch(*args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # resources = ResourceUser.objects.filter(user=request.user)
-
+        context['resource_user'] = get_object_or_404(ResourceUser, user=self.request.user, resource__id=self.kwargs.get('pk', -1))
+        context['chapter'] = get_object_or_404(Chapter, id=self.kwargs.get('chapter', -1))
+        context["title"] = context['resource_user'].resource.name
+        # chapter is questions tab, so add form if not filled in yet
+        if context['chapter'].type == 2 and not context['resource_user'].answers.filter(chapter=context['chapter']).exists():
+            context['form'] = QuestionsForm(items=context['chapter'].content['blocks'])
         return context
 
 
@@ -199,36 +234,42 @@ class ToDoCompleteView(LoginRequiredMixin, RedirectView):
         return super().get_redirect_url(*args, **kwargs)
 
 
-# class CourseStep(APIView):
-#     """
-#     API endpoint that allows a resource item to be viewed.
-#     """
-#     permission_classes = (NewHirePermission,)
+class CourseNextStepView(LoginRequiredMixin, View):
+    def post(self, request, pk, *args, **kwargs):
+        resource_user = get_object_or_404(ResourceUser, pk=pk, user=request.user)
+        chapter = resource_user.add_step()
 
-#     def post(self, request, id):
-#         resource_user = get_object_or_404(ResourceUser, id=id)
+        if chapter is None:
+            messages.success(request, "You have completed this course!")
+            return redirect("new_hire:resources")
 
-#         if resource_user.step < int(request.data["step"]):
-#             resource_user.step = int(request.data["step"])
-#             resource_user.save()
-#         return Response()
+        return redirect("new_hire:resource-detail", pk=resource_user.resource.id, chapter=chapter.id)
 
 
-# class CourseItemView(APIView):
-#     """
-#     API endpoint that allows a resource item to be viewed.
-#     """
+class CourseAnswerView(LoginRequiredMixin, FormView):
+    template_name = '_question_form.html'
+    form_class = QuestionsForm
 
-#     permission_classes = (NewHirePermission,)
+    def get_form(self, form_class=None):
+        """
+        Return an instance of the form to be used in this view.
+        Adding chapter form arguments
+        """
+        chapter = get_object_or_404(Chapter, id=self.kwargs.get('chapter', -1))
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(items=chapter.content['blocks'], **self.get_form_kwargs())
 
-#     def get(self, request, id):
-#         b_u = ResourceUser.objects.filter(resource=request.user.resources.get(id=id)).first()
-#         resources = NewHireResourceItemSerializer(b_u, context={"request": request})
-#         return Response(resources.data)
+    def form_valid(self, form):
+        resource_user = get_object_or_404(ResourceUser, resource__pk=self.kwargs.get('pk', -1), user=self.request.user)
+        chapter = get_object_or_404(Chapter, id=self.kwargs.get('chapter', -1))
+        course_answers = CourseAnswer.objects.create(chapter=chapter, answers=form.cleaned_data)
+        resource_user.answers.add(course_answers)
+        return HttpResponse(headers={"HX-Refresh": "true"})
 
-#     def post(self, request, id):
-#         b_u = ResourceUser.objects.get(id=id)
-#         resource = Resource.objects.get(id=request.data["id"])
-#         c_a = CourseAnswer.objects.create(resource=resource, answers=request.data["answers"])
-#         b_u.answers.add(c_a)
-#         return Response()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['object'] = get_object_or_404(Resource, id=self.kwargs.get('pk', -1))
+        context['chapter'] = get_object_or_404(Chapter, id=self.kwargs.get('chapter', -1))
+        return context
+

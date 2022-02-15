@@ -13,7 +13,7 @@ class FileSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def get_file_url(self, obj):
-        if settings.AWS_STORAGE_BUCKET_NAME == "":
+        if settings.AWS_STORAGE_BUCKET_NAME == "" or obj.key == "":
             return ""
         return S3().get_file(obj.key)
 

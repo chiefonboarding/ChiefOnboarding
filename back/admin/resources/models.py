@@ -3,7 +3,6 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 
 from misc.fields import ContentJSONField
-from misc.models import Content
 from organization.models import BaseItem
 
 CHAPTER_TYPE = ((0, "page"), (1, "folder"), (2, "questions"))
@@ -28,11 +27,39 @@ class Resource(BaseItem):
     def get_icon_template(self):
         return render_to_string("_resource_icon.html")
 
+    def duplicate(self):
+        old_resource = Resource.objects.get(pk=self.pk)
+        self.pk = None
+        self.name = self.name + " (duplicate)"
+        self.save()
+
+        # old vs new ids for referencing parent_chapters
+        chapter_ids = []
+
+        for chapter in old_resource.chapters.all().order_by('parent_chapter'):
+            new_chapter = chapter.duplicate()
+            new_chapter.resource = self
+            new_chapter.save()
+            if new_chapter.parent_chapter is not None:
+                new_parent_chapter = next((x['new'] for x in chapter_ids if x['old'] == chapter.parent_chapter.id), None)
+                new_chapter.parent_chapter = new_parent_chapter
+                new_chapter.save()
+
+            chapter_ids.append({'old': chapter.id, 'new': new_chapter.id })
+
+        return self
+
     def update_url(self):
         return reverse("resources:update", args=[self.id])
 
     def delete_url(self):
         return reverse("resources:delete", args=[self.id])
+
+    def chapters_display(self):
+        return self.chapters.all().filter(parent_chapter__isnull=True)
+
+    def first_chapter_id(self):
+        return self.chapters.all()[0].id
 
     def next_chapter(self, current_id, course):
         # We can't fetch course from the object, as the user might have already
@@ -62,6 +89,15 @@ class Chapter(models.Model):
     name = models.CharField(max_length=240)
     content = ContentJSONField(default=dict)
     type = models.IntegerField(choices=CHAPTER_TYPE)
+    order = models.IntegerField(default=0)
+
+    def duplicate(self):
+        self.pk = None
+        self.save()
+        return self
+
+    def children(self):
+        return Chapter.objects.filter(parent_chapter__id=self.id).order_by("order")
 
     def slack_menu_item(self):
         # Small top menu in the dialog
@@ -77,6 +113,9 @@ class Chapter(models.Model):
             "text": {"type": "plain_text", "text": name, "emoji": True},
             "value": str(self.id),
         }
+
+    class Meta:
+        ordering = ("order", "pk")
 
 
 class CourseAnswer(models.Model):

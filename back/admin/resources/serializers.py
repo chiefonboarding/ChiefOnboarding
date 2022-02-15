@@ -18,11 +18,10 @@ class ChapterSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Chapter
-        fields = ("id", "name", "content", "type", "children")
+        fields = ("id", "name", "content", "type", "children", "order")
 
     def get_children(self, obj):
-        return ChapterSerializer(Chapter.objects.filter(parent_chapter=obj), many=True).data
-
+        return ChapterSerializer(Chapter.objects.filter(parent_chapter=obj).order_by("order"), many=True).data
 
 
 class ChapterCourseSerializer(ChapterSerializer):

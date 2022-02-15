@@ -162,6 +162,7 @@ Vue.component('v-node', {
 
 let chapters_from_html = JSON.parse(document.getElementById('chapters').textContent)
 
+console.log(chapters_from_html)
 var app = new Vue({
   el: '#app',
   delimiters: ['[[', ']]'],
@@ -175,7 +176,6 @@ var app = new Vue({
   mounted () {
     this.chapters = chapters_from_html
     if (!this.chapters.length) {
-      console.log('got here')
       this.chapters = [{
         id: this.getRandomString(),
         type: 0,

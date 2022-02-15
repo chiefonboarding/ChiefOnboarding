@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.core.cache import cache
 
 from misc.models import File
 
@@ -88,6 +89,13 @@ class Organization(models.Model):
 
     object = ObjectManager()
     objects = models.Manager()
+
+    def get_logo_url(self):
+        # Check if cache option already exists AND the logo name is in the url
+        # If the latter is not the case, then the logo changed and cache should refresh
+        if cache.get('logo_url', None) is None or self.logo.name not in cache.get('logo_url'):
+            cache.set('logo_url', self.logo.get_url(), 3500)
+        return cache.get('logo_url')
 
 
 class Tag(models.Model):

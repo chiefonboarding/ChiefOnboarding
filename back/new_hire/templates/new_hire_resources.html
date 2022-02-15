@@ -1,0 +1,44 @@
+{% extends 'new_hire_base.html' %}
+{% load humanize %}
+
+{% block actions %}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-4">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Resources</h3>
+      </div>
+      <div class="list-group list-group-flush list-group-hoverable">
+        {% for  resource_user in object_list %}
+          {% ifchanged resource_user.resource.category %}
+          <div class="list-group-header sticky-top">{{ resource_user.resource.category }}</div>
+          {% endifchanged %}
+        <div class="list-group-item" style="border-left: 0px none;">
+          <div class="row align-items-center">
+            <div class="col-auto">
+              <span class="badge {% if resource_user.resource.course %} bg-primary {% endif %}"></span>
+            </div>
+            <div class="col text-truncate">
+              <a href="{% url 'new_hire:resource-detail' resource_user.resource.id resource_user.resource.first_chapter_id %}" class="text-body d-block">{{ resource_user.resource.name }}</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="col-8">
+    <div class="card">
+      <div class="card-body" style="position: relative;">
+        <h3 class="card-title" style="color: red">Overdue</h3>
+        <table class="table table-vcenter">
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

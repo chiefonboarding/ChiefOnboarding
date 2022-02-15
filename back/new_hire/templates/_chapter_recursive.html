@@ -1,0 +1,28 @@
+<div style="margin-left:{{extra_margin}}px;">
+{% if sub_chapter_item.children|length > 0 %}
+  <div class="list-group-header sticky-top">{{ sub_chapter_item.name }}</div>
+  {% for item in sub_chapter_item.children %}
+    {% include '_chapter_recursive.html' with sub_chapter_item=item extra_margin=10 %}
+  {% endfor %}
+{% else %}
+  {% if object.course and sub_chapter_item.type == 2 and resource_user.completed_course %}
+    {# check if questions should be shown #}
+  {% else %}
+  <div class="list-group-item" style="border-left: 0px none; ">
+    <div class="row align-items-center">
+      <div class="col-auto">
+        <span class="badge {% if view.kwargs.chapter == sub_chapter_item.id %}bg-primary{% endif %}"></span>
+      </div>
+      <div class="col text-truncate">
+        {% if object.course and resource_user.step < sub_chapter_item.order and not resource_step.completed_course %}
+          <s><span class="text-body d-block">{{ sub_chapter_item.name }}</span></s>
+        {% else %}
+          <a href="{% url 'new_hire:resource-detail' object.id sub_chapter_item.id %}" class="text-body d-block">{{ sub_chapter_item.name }}</a>
+        {% endif %}
+    </span>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+{% endif %}
+</div>

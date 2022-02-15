@@ -42,6 +42,11 @@ urlpatterns = [
         name="new_hire_progress",
     ),
     path(
+        "new_hire/<int:pk>/course_answers/<int:resource_user>/",
+        views.NewHireCourseAnswersView.as_view(),
+        name="new-hire-rating",
+    ),
+    path(
         "new_hire/<int:pk>/tasks/",
         views.NewHireTasksView.as_view(),
         name="new_hire_tasks",

@@ -477,6 +477,20 @@ class NewHireProgressView(LoginRequiredMixin, AdminPermMixin, DetailView):
         return context
 
 
+class NewHireCourseAnswersView(LoginRequiredMixin, AdminPermMixin, DetailView):
+    template_name = "new_hire_course_answers.html"
+    model = User
+    context_object_name = "object"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        new_hire = self.object
+        context["title"] = new_hire.full_name
+        context["subtitle"] = "new hire"
+        context["resource_user"] = get_object_or_404(ResourceUser, user=new_hire, pk=self.kwargs.get("resource_user", -1))
+        return context
+
+
 class NewHireTasksView(LoginRequiredMixin, AdminPermMixin, DetailView):
     template_name = "new_hire_tasks.html"
     model = User

@@ -1,0 +1,42 @@
+{% extends 'admin_base.html' %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block content %}
+{% include "_new_hire_menu.html" %}
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">Answers</h3>
+  </div>
+  <div class="card-body">
+    {% for chapter in resource_user.resource.chapters.all %}
+      {% if chapter.type == 2 %}
+        {% for item in chapter.content.blocks %}
+          <div class="mb-3">
+            <label class="form-label requiredField">{{ item.content }}</label>
+            <div>
+              {% for option in item.items %}
+              <div class="form-check">
+                <input type="radio" disabled class="form-check-input" name="item-0" value="temp-d52b" id="id_item-0_0" {% if item.answer == option.id %}checked{% endif %} >
+                <label for="id_item-0_0" class="form-check-label">
+                  {{ option.text }}
+                </label>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          <b> Answer given by new hire: </b>
+        {% endfor %}
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+
+{% if not resource_user.answers.all|length %}
+<div class="card mt-3">
+  <div class="card-body">
+    <p>No answers were given in yet.</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -10,14 +10,14 @@
   </head>
   <body class="">
     <div class="wrapper">
-      <header class="navbar navbar-expand-md navbar-dark navbar-overlap d-print-none">
+      <header class="navbar navbar-expand-md navbar-dark navbar-overlap d-print-none" style="background-color: {{ request.user.org.base_color }}">
         <div class="container-xl">
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
             <span class="navbar-toggler-icon"></span>
           </button>
           <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
             <a href=".">
-              <img src="./static/logo-white.svg" alt="Tabler" class="navbar-brand-image" width="110" height="32">
+              <img src="{{ request.user.org.get_logo_url }}" class="navbar-brand-image" width="110" height="32">
             </a>
           </h1>
           <div class="navbar-nav flex-row order-md-last">
@@ -61,7 +61,7 @@
                   </a>
                 </li>
                 <li class="nav-item {% if 'resources' in request.path %}active{% endif %}">
-                  <a class="nav-link" href="./index.html">
+                  <a class="nav-link" href="{% url 'new_hire:resources' %}">
                     <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folders" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -111,6 +111,11 @@
                 </div>
               </div>
               <!-- Page title actions -->
+              {% for message in messages %}
+              <div class="alert alert-success" style="color: black;">
+                <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+              </div>
+            {% endfor %}
               {% block actions %}
               {% endblock %}
             </div>
@@ -130,5 +135,6 @@
         event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
       })
     </script>
+    {% block extra_js %}{% endblock %}
   </body>
 </html>

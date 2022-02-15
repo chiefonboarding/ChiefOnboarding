@@ -25,6 +25,7 @@ urlpatterns = [
         TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
     ),
     path("", include(auth_urls)),
+    path("api/org/", include(org_urls)),
     path("admin/people/", include((people_urls, "admin.people"), namespace="admin")),
     path("admin/settings/", include(settings_urls)),
     path("admin/tasks/", include(admin_tasks_urls)),

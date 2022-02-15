@@ -22,7 +22,7 @@ from admin.resources.models import CourseAnswer, Resource
 from admin.sequences.models import Condition
 from admin.to_do.models import ToDo
 from misc.models import File
-from organization.models import Changelog
+from organization.models import Changelog, Organization
 
 LANGUAGE_CHOICES = (
     ("en", "English"),
@@ -307,6 +307,10 @@ class User(AbstractBaseUser):
             return self.seen_updates < last_changelog_item.added
         return False
 
+    @property
+    def org(self):
+        return Organization.object.get()
+
     def __str__(self):
         return "%s" % self.full_name
 
@@ -376,22 +380,34 @@ class ResourceUser(models.Model):
     reminded = models.DateTimeField(null=True)
     completed_course = models.BooleanField(default=False)
 
-    def add_step(self, resource_id):
-        if resource_id is None:
+    def add_step(self):
+        self.step += 1
+        self.save()
+
+        # Check if that's the last one and wrap up if so
+        chapters = self.resource.chapters
+        if self.step == chapters.count():
             self.completed_course = True
             self.save()
-            return
-        for idx, i in enumerate(self.resource.chapters.all()):
-            if i.id == resource_id.id:
-                if self.resource.chapters.count() == idx + 1:
-                    self.completed_course = True
-                self.step = idx
-                self.save()
-                break
+            return None
+
+        # Skip over any folders
+        # This is safe, as a folder can never be the last type
+        while (chapters.get(order=self.step).type == 1):
+            self.step += 1
+            self.save()
+
+        # Return next chapter
+        return chapters.get(order=self.step)
+
 
     @property
     def amount_chapters_in_course(self):
         return self.resource.chapters.count()
+
+    @property
+    def percentage_completed(self):
+        return self.step / self.resource.chapters.count() * 100
 
     @property
     def is_course(self):
@@ -399,6 +415,21 @@ class ResourceUser(models.Model):
         return (
             self.resource.course and self.amount_chapters_in_course is not self.step - 1
         )
+
+    @property
+    def get_rating(self):
+        if not self.answers.exists():
+            return "n/a"
+
+        amount_of_questions = 0
+        amount_of_correct_answers = 0
+        for question_page in self.answers.all():
+            amount_of_questions += len(question_page.chapter.content['blocks'])
+            for idx, answer in enumerate(question_page.chapter.content['blocks']):
+                if question_page.answers[f"item-{idx}"] == answer['answer']:
+                    amount_of_correct_answers += 1
+        return f"{amount_of_correct_answers} correct answers out of {amount_of_questions} questions"
+
 
 
 class NewHireWelcomeMessage(models.Model):

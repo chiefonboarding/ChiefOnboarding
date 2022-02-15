@@ -47,6 +47,7 @@ class ResourceUpdateView(
     success_url = reverse_lazy("resources:list")
     queryset = Resource.templates.all()
     success_message = "Resource item has been updated"
+    counter = 0
 
     def _create_or_update_chapter(self, resource, parent, chapter):
         if isinstance(chapter['id'], int):
@@ -54,17 +55,20 @@ class ResourceUpdateView(
             chap.name = chapter['name']
             chap.content = chapter['content']
             chap.resource = resource
+            chap.order = self.counter
             chap.save()
         else:
             chap = Chapter.objects.create(
                 resource=resource,
                 name=chapter['name'],
                 content=chapter['content'],
-                type=chapter['type']
+                type=chapter['type'],
+                order=self.counter
             )
             if parent is not None:
                 chap.parent_chapter = Chapter.objects.get(id=parent)
                 chap.save()
+        self.counter += 1
 
         # Return new/updated item id
         return chap.id

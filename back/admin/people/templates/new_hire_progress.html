@@ -26,9 +26,15 @@
               {{ todo.to_do.name }}
             </td>
             <td class="text-end">
-              <a href="" class="btn btn-white">
-                Remind
-              </a>
+              {% if todo.completed %}
+                <a href="" class="btn btn-white">
+                  Reopen
+                </a>
+              {% else %}
+                <a href="" class="btn btn-primary">
+                  Remind
+                </a>
+              {% endif %}
             </td>
           </tr>
           {% endfor %}
@@ -43,7 +49,7 @@
 {% if resources|length %}
 <div class="card mt-3">
   <div class="card-header">
-    <h3 class="card-title">Resource items</h3>
+    <h3 class="card-title">Courses</h3>
   </div>
   <div>
     <div class="table-responsive">
@@ -54,16 +60,36 @@
             <td class="w-1 pe-0">
               <input type="checkbox" disabled class="form-check-input m-0 align-middle" aria-label="Select task" {% if resource.completed_course %}checked=""{% endif %}>
             </td>
-            <td class="w-100">
+            <td>
               {{ resource.resource.name }}
             </td>
+            <td style="width: 100px">
+              <div class="progress">
+                <div class="progress-bar" style="width: {{resource.percentage_completed}}%" role="progressbar" aria-valuenow="{{resource.percentage_completed}}" aria-valuemin="0" aria-valuemax="100">
+                  <span class="visually-hidden">{{ resource.percentage_completed }}% Complete</span>
+                </div>
+              </div>
+            </td>
             <td class="">
+              {% if resource.course_completed %}
               At step {{ resource.step }} of {{ resource.amount_chapters_in_course }}
+              {% else %}
+              New hire has completed the course!
+              {% endif %}
+            </td>
+            <td class="">
+              <a href="{% url 'admin:new-hire-rating' object.id resource.id %}">Rating: {{ resource.get_rating }}</a>
             </td>
             <td class="text-end">
-              <a href="" class="btn btn-white">
-                Remind
-              </a>
+              {% if resource.completed_course %}
+                <a href="" class="btn btn-white">
+                  Reopen
+                </a>
+              {% else %}
+                <a href="" class="btn btn-primary">
+                  Remind
+                </a>
+              {% endif %}
             </td>
           </tr>
           {% endfor %}

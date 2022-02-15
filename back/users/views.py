@@ -65,36 +65,6 @@ class NewHireViewSet(viewsets.ModelViewSet):
             pre_user.save()
         return Response()
 
-    @action(detail=True, methods=["post", "put"])
-    def access(self, request, pk=None):
-        new_hire = self.get_object()
-        if request.method == "PUT":
-            return Response({"status": "pending"})
-        s = SlackBot() if request.data["integration"] == 1 else Google()
-        if s.find_by_email(new_hire.email):
-            return Response({"status": "exists"})
-        if items.exists():
-            return Response({"status": "pending"})
-        return Response({"status": "not_found"})
-
-    @action(detail=True, methods=["put"])
-    def revoke_access(self, request, pk=None):
-        new_hire = self.get_object()
-        if request.data["integration"] == 1:
-            s = Slack()
-            try:
-                s.delete_user(new_hire.email)
-            except PaidOnlyError:
-                return Response({"error": "paid"}, status=status.HTTP_400_BAD_REQUEST)
-            except:
-                return Response({"error": "error"}, status=status.HTTP_400_BAD_REQUEST)
-        if request.data["integration"] == 2:
-            # g = Google()
-            # g.delete_user(new_hire.email)
-            pass
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
 class ToDoUserView(APIView):
     """
     API endpoint that allows you to remind a new hire of a to do or reopen it.
