@@ -430,6 +430,19 @@ class ResourceUser(models.Model):
                     amount_of_correct_answers += 1
         return f"{amount_of_correct_answers} correct answers out of {amount_of_questions} questions"
 
+    @property
+    def get_new_hire_answer(self):
+        if not self.answers.exists():
+            return "n/a"
+
+        amount_of_questions = 0
+        amount_of_correct_answers = 0
+        for question_page in self.answers.all():
+            amount_of_questions += len(question_page.chapter.content['blocks'])
+            for idx, answer in enumerate(question_page.chapter.content['blocks']):
+                if question_page.answers[f"item-{idx}"] == answer['answer']:
+                    amount_of_correct_answers += 1
+        return f"{amount_of_correct_answers} correct answers out of {amount_of_questions} questions"
 
 
 class NewHireWelcomeMessage(models.Model):
