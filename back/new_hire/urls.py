@@ -6,9 +6,19 @@ app_name = "new_hire"
 urlpatterns = [
     path("todos/", views.NewHireDashboard.as_view(), name="todos"),
     path("resources/", views.ResourceListView.as_view(), name="resources"),
-    path("resources/<int:pk>/<int:chapter>/", views.ResourceDetailView.as_view(), name="resource-detail"),
-    path("form/<int:pk>/<int:chapter>/", views.CourseAnswerView.as_view(), name="question-form"),
-    path("course/<int:pk>/", views.CourseNextStepView.as_view(), name="course-next-step"),
+    path(
+        "resources/<int:pk>/<int:chapter>/",
+        views.ResourceDetailView.as_view(),
+        name="resource-detail",
+    ),
+    path(
+        "form/<int:pk>/<int:chapter>/",
+        views.CourseAnswerView.as_view(),
+        name="question-form",
+    ),
+    path(
+        "course/<int:pk>/", views.CourseNextStepView.as_view(), name="course-next-step"
+    ),
     path("todos/<int:pk>/", views.ToDoDetailView.as_view(), name="to_do"),
     path(
         "todos/<int:pk>/complete/",

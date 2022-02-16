@@ -1,13 +1,16 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Div, Field, Layout, HTML
+from crispy_forms.layout import HTML, Div, Field, Layout
 from django import forms
 
-from admin.templates.forms import MultiSelectField, FieldWithExtraContext
+from admin.templates.forms import (
+    FieldWithExtraContext,
+    ModelChoiceFieldWithCreate,
+    MultiSelectField,
+)
 from organization.models import Tag
 
-from .models import Resource, Category
+from .models import Category, Resource
 from .serializers import ChapterSerializer
-from admin.templates.forms import ModelChoiceFieldWithCreate
 
 
 class ChapterField(FieldWithExtraContext):
@@ -24,7 +27,7 @@ class ResourceForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ResourceForm, self).__init__(*args, **kwargs)
-        self.fields['chapters'] = forms.JSONField()
+        self.fields["chapters"] = forms.JSONField()
         self.helper = FormHelper()
         none_class = ""
         if self.instance is None or not self.instance.course:
@@ -45,7 +48,9 @@ class ResourceForm(forms.ModelForm):
             Div(
                 Div(
                     Field("category", css_class="add"),
-                    HTML("<small style='top: -11px; position: relative;'>Do not use only numbers as a category. Always add some text.</small>"),
+                    HTML(
+                        "<small style='top: -11px; position: relative;'>Do not use only numbers as a category. Always add some text.</small>"
+                    ),
                     css_class="col-6",
                 ),
                 Div(
@@ -63,7 +68,20 @@ class ResourceForm(forms.ModelForm):
                 css_class="row",
             ),
             Div(
-                Div(ChapterField("chapters", extra_context={"chapters": ChapterSerializer(self.instance.chapters.filter(parent_chapter__isnull=True), many=True).data}), css_class="col-12"),
+                Div(
+                    ChapterField(
+                        "chapters",
+                        extra_context={
+                            "chapters": ChapterSerializer(
+                                self.instance.chapters.filter(
+                                    parent_chapter__isnull=True
+                                ),
+                                many=True,
+                            ).data
+                        },
+                    ),
+                    css_class="col-12",
+                ),
             ),
         )
 
@@ -71,13 +89,13 @@ class ResourceForm(forms.ModelForm):
         model = Resource
         fields = ("name", "tags", "category", "course", "on_day", "remove_on_complete")
         labels = {
-            'course': 'Is a course item',
-            'on_day': 'Workday that this item is due',
-            'remove_on_complete': 'Remove item when new hire walked through'
+            "course": "Is a course item",
+            "on_day": "Workday that this item is due",
+            "remove_on_complete": "Remove item when new hire walked through",
         }
         help_texts = {
-            'course': 'When enabled, new hires will have to walk through this',
-            'remove_on_complete': 'If disabled, it will turn into a normal resource after completing',
+            "course": "When enabled, new hires will have to walk through this",
+            "remove_on_complete": "If disabled, it will turn into a normal resource after completing",
         }
 
     def clean_tags(self):

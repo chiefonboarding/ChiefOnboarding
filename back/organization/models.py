@@ -1,9 +1,7 @@
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
-from django.db import models
 from django.core.cache import cache
-
-from django.conf import settings
+from django.db import models
 
 from misc.models import File
 
@@ -95,9 +93,11 @@ class Organization(models.Model):
     def get_logo_url(self):
         # Check if cache option already exists AND the logo name is in the url
         # If the latter is not the case, then the logo changed and cache should refresh
-        if cache.get('logo_url', None) is None or self.logo.name not in cache.get('logo_url'):
-            cache.set('logo_url', self.logo.get_url(), 3500)
-        return cache.get('logo_url')
+        if cache.get("logo_url", None) is None or self.logo.name not in cache.get(
+            "logo_url"
+        ):
+            cache.set("logo_url", self.logo.get_url(), 3500)
+        return cache.get("logo_url")
 
 
 class Tag(models.Model):
@@ -172,8 +172,18 @@ class Notification(models.Model):
     name = models.CharField(max_length=244)
     description = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE, related_name="notification_owners")
-    created_for = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE, related_name="notification_receivers")
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="notification_owners",
+    )
+    created_for = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="notification_receivers",
+    )
     public_to_new_hire = models.BooleanField(default=False)
     reverse_link = models.CharField(max_length=200, default="")
     reverse_link_params = models.JSONField(default=dict)

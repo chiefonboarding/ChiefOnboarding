@@ -5,8 +5,11 @@ from django.utils.translation import gettext as _
 
 from slack_bot.slack import Slack
 
-from .emails import (send_email_new_assigned_admin, send_email_new_comment,
-                     send_email_notification_to_external_person)
+from .emails import (
+    send_email_new_assigned_admin,
+    send_email_new_comment,
+    send_email_notification_to_external_person,
+)
 
 PRIORITY_CHOICES = ((1, _("Low")), (2, _("Medium")), (3, _("High")))
 

@@ -5,8 +5,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from twilio.rest import Client
 
-from admin.admin_tasks.models import (NOTIFICATION_CHOICES, PRIORITY_CHOICES,
-                                      AdminTask)
+from admin.admin_tasks.models import NOTIFICATION_CHOICES, PRIORITY_CHOICES, AdminTask
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
 from admin.introductions.models import Introduction

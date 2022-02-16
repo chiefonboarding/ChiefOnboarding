@@ -2,7 +2,8 @@
 
 from django.db import migrations
 
-class MigrationResource():
+
+class MigrationResource:
     counter = 0
     model = None
 
@@ -28,19 +29,20 @@ class MigrationResource():
                 self.counter += 1
                 chapter.save()
 
-                if self.chapter_model.objects.filter(parent_chapter__id=chapter.id).count():
+                if self.chapter_model.objects.filter(
+                    parent_chapter__id=chapter.id
+                ).count():
                     self._recursive_chapters(chapter)
 
 
 class Migration(migrations.Migration):
-
     def update_resource_order(apps, schema_editor):
         Resource = apps.get_model("resources", "Resource")
         Chapter = apps.get_model("resources", "Chapter")
         MigrationResource(Resource, Chapter).update_order()
 
     dependencies = [
-        ('resources', '0011_alter_chapter_options'),
+        ("resources", "0011_alter_chapter_options"),
     ]
 
     operations = [

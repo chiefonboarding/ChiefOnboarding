@@ -87,8 +87,7 @@ class AccessToken(models.Model):
             return Asana()
 
     def add_user_form_class(self):
-        from .forms import (AddAsanaUserForm, AddGoogleUserForm,
-                            AddSlackUserForm)
+        from .forms import AddAsanaUserForm, AddGoogleUserForm, AddSlackUserForm
 
         if self.integration == 1:
             return AddSlackUserForm()

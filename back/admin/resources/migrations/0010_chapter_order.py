@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('resources', '0009_rename_content_json_chapter_content'),
+        ("resources", "0009_rename_content_json_chapter_content"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='chapter',
-            name='order',
+            model_name="chapter",
+            name="order",
             field=models.IntegerField(default=0),
         ),
     ]

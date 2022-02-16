@@ -397,13 +397,12 @@ class ResourceUser(models.Model):
 
         # Skip over any folders
         # This is safe, as a folder can never be the last type
-        while (chapters.get(order=self.step).type == 1):
+        while chapters.get(order=self.step).type == 1:
             self.step += 1
             self.save()
 
         # Return next chapter
         return chapters.get(order=self.step)
-
 
     @property
     def amount_chapters_in_course(self):
@@ -428,9 +427,9 @@ class ResourceUser(models.Model):
         amount_of_questions = 0
         amount_of_correct_answers = 0
         for question_page in self.answers.all():
-            amount_of_questions += len(question_page.chapter.content['blocks'])
-            for idx, answer in enumerate(question_page.chapter.content['blocks']):
-                if question_page.answers[f"item-{idx}"] == answer['answer']:
+            amount_of_questions += len(question_page.chapter.content["blocks"])
+            for idx, answer in enumerate(question_page.chapter.content["blocks"]):
+                if question_page.answers[f"item-{idx}"] == answer["answer"]:
                     amount_of_correct_answers += 1
         return f"{amount_of_correct_answers} correct answers out of {amount_of_questions} questions"
 
@@ -438,7 +437,6 @@ class ResourceUser(models.Model):
         if not self.answers.filter(chapter=chapter).exists():
             return None
         return self.answers.get(chapter=chapter)
-
 
 
 class NewHireWelcomeMessage(models.Model):

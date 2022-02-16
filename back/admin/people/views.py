@@ -1,4 +1,4 @@
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 
 from django.apps import apps
 from django.conf import settings
@@ -11,8 +11,7 @@ from django.urls import reverse_lazy
 from django.utils.translation import ugettext as _
 from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import (CreateView, DeleteView, FormView,
-                                       UpdateView)
+from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
 from django.views.generic.list import ListView
 from django_q.tasks import async_task
 from twilio.rest import Client
@@ -26,16 +25,31 @@ from admin.templates.utils import get_templates_model
 from organization.models import Organization, WelcomeMessage
 from slack_bot.slack import Slack
 from slack_bot.tasks import link_slack_users
-from users.emails import (email_new_admin_cred, email_reopen_task,
-                          send_new_hire_credentials, send_new_hire_preboarding,
-                          send_reminder_email)
+from users.emails import (
+    email_new_admin_cred,
+    email_reopen_task,
+    send_new_hire_credentials,
+    send_new_hire_preboarding,
+    send_reminder_email,
+)
 from users.mixins import AdminPermMixin, LoginRequiredMixin
-from users.models import (NewHireWelcomeMessage, PreboardingUser, ResourceUser,
-                          ToDoUser, User)
+from users.models import (
+    NewHireWelcomeMessage,
+    PreboardingUser,
+    ResourceUser,
+    ToDoUser,
+    User,
+)
 
-from .forms import (ColleagueCreateForm, ColleagueUpdateForm, NewHireAddForm,
-                    NewHireProfileForm, PreboardingSendForm, RemindMessageForm,
-                    SequenceChoiceForm)
+from .forms import (
+    ColleagueCreateForm,
+    ColleagueUpdateForm,
+    NewHireAddForm,
+    NewHireProfileForm,
+    PreboardingSendForm,
+    RemindMessageForm,
+    SequenceChoiceForm,
+)
 
 
 class NewHireListView(LoginRequiredMixin, AdminPermMixin, ListView):
@@ -477,9 +491,8 @@ class NewHireProgressView(LoginRequiredMixin, AdminPermMixin, DetailView):
 
 
 class NewHireRemindView(LoginRequiredMixin, AdminPermMixin, View):
-
     def post(self, request, pk, template_type, *args, **kwargs):
-        if template_type not in ['todouser', 'resourceuser']:
+        if template_type not in ["todouser", "resourceuser"]:
             raise Http404
 
         template_user_model = apps.get_model("users", template_type)
@@ -492,13 +505,15 @@ class NewHireRemindView(LoginRequiredMixin, AdminPermMixin, View):
             s = Slack()
             s.set_user(template_user_obj.user)
 
-            if template_type == 'todouser':
+            if template_type == "todouser":
                 blocks = s.format_to_do_block(
-                    pre_message=_("Don't forget this to do item!"), items=[template_user_obj]
+                    pre_message=_("Don't forget this to do item!"),
+                    items=[template_user_obj],
                 )
             else:
                 blocks = s.format_resource_block(
-                    pre_message=_("Don't forget to complete this course!"), items=[template_user_obj]
+                    pre_message=_("Don't forget to complete this course!"),
+                    items=[template_user_obj],
                 )
 
             s.send_message(blocks=blocks)
@@ -511,20 +526,20 @@ class NewHireRemindView(LoginRequiredMixin, AdminPermMixin, View):
 
 
 class NewHireReopenTaskView(LoginRequiredMixin, AdminPermMixin, FormView):
-    template_name = 'new_hire_reopen_task.html'
+    template_name = "new_hire_reopen_task.html"
     form_class = RemindMessageForm
 
     def form_valid(self, form):
-        template_type = self.kwargs.get('template_type', '')
-        pk = self.kwargs.get('pk', -1)
+        template_type = self.kwargs.get("template_type", "")
+        pk = self.kwargs.get("pk", -1)
 
-        if template_type not in ['todouser', 'resourceuser']:
+        if template_type not in ["todouser", "resourceuser"]:
             raise Http404
 
         template_user_model = apps.get_model("users", template_type)
 
         template_user_obj = template_user_model.objects.get(pk=pk)
-        if template_type == 'todouser':
+        if template_type == "todouser":
             template_user_obj.completed = False
             template_user_obj.form = []
         else:
@@ -537,20 +552,21 @@ class NewHireReopenTaskView(LoginRequiredMixin, AdminPermMixin, FormView):
             s = Slack()
             s.set_user(template_user_obj.user)
 
-            if template_type == 'todouser':
+            if template_type == "todouser":
                 blocks = s.format_to_do_block(
-                    pre_message=form.cleaned_data['message'],
-                    items=[template_user_obj]
+                    pre_message=form.cleaned_data["message"], items=[template_user_obj]
                 )
             else:
                 blocks = s.format_resource_block(
-                    pre_message=form.cleaned_data['message'],
+                    pre_message=form.cleaned_data["message"],
                     items=[template_user_obj],
                 )
 
             s.send_message(blocks=blocks)
         else:
-            email_reopen_task(template_user_obj, form.cleaned_data['message'], template_user_obj.user)
+            email_reopen_task(
+                template_user_obj, form.cleaned_data["message"], template_user_obj.user
+            )
 
         messages.success(self.request, "Item has been reopened")
 
@@ -558,10 +574,10 @@ class NewHireReopenTaskView(LoginRequiredMixin, AdminPermMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        template_type = self.kwargs.get('template_type', '')
-        pk = self.kwargs.get('pk', -1)
+        template_type = self.kwargs.get("template_type", "")
+        pk = self.kwargs.get("pk", -1)
 
-        if template_type not in ['todouser', 'resourceuser']:
+        if template_type not in ["todouser", "resourceuser"]:
             raise Http404
 
         template_user_model = apps.get_model("users", template_type)
@@ -581,7 +597,9 @@ class NewHireCourseAnswersView(LoginRequiredMixin, AdminPermMixin, DetailView):
         new_hire = self.object
         context["title"] = new_hire.full_name
         context["subtitle"] = "new hire"
-        context["resource_user"] = get_object_or_404(ResourceUser, user=new_hire, pk=self.kwargs.get("resource_user", -1))
+        context["resource_user"] = get_object_or_404(
+            ResourceUser, user=new_hire, pk=self.kwargs.get("resource_user", -1)
+        )
         return context
 
 

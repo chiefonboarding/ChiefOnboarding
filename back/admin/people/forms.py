@@ -1,5 +1,6 @@
-import pytz
 from datetime import datetime
+
+import pytz
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, Layout, Submit
 from django import forms
@@ -8,9 +9,12 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 
 from admin.sequences.models import Sequence
-from admin.templates.forms import MultiSelectField, UploadField
+from admin.templates.forms import (
+    ModelChoiceFieldWithCreate,
+    MultiSelectField,
+    UploadField,
+)
 from users.models import Department
-from admin.templates.forms import ModelChoiceFieldWithCreate
 
 
 class NewHireAddForm(forms.ModelForm):
@@ -22,8 +26,8 @@ class NewHireAddForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['buddy'].required = False
-        self.fields['manager'].required = False
+        self.fields["buddy"].required = False
+        self.fields["manager"].required = False
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
@@ -243,6 +247,7 @@ class SequenceChoiceForm(forms.Form):
         queryset=Sequence.objects.all(),
     )
 
+
 class RemindMessageForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -253,6 +258,7 @@ class RemindMessageForm(forms.Form):
         widget=forms.Textarea,
         max_length=1200,
     )
+
 
 class PreboardingSendForm(forms.Form):
     send_type = forms.ChoiceField(

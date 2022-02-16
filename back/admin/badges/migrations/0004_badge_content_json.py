@@ -2,8 +2,10 @@
 
 from django.db import migrations, models
 
-from misc.migration_scripts.content_migrations import (RunPythonWithArguments,
-                                                       migrate_wysiwyg_field)
+from misc.migration_scripts.content_migrations import (
+    RunPythonWithArguments,
+    migrate_wysiwyg_field,
+)
 
 
 class Migration(migrations.Migration):

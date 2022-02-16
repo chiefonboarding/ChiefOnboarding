@@ -36,16 +36,23 @@ class Resource(BaseItem):
         # old vs new ids for referencing parent_chapters
         chapter_ids = []
 
-        for chapter in old_resource.chapters.all().order_by('parent_chapter'):
+        for chapter in old_resource.chapters.all().order_by("parent_chapter"):
             new_chapter = chapter.duplicate()
             new_chapter.resource = self
             new_chapter.save()
             if new_chapter.parent_chapter is not None:
-                new_parent_chapter = next((x['new'] for x in chapter_ids if x['old'] == chapter.parent_chapter.id), None)
+                new_parent_chapter = next(
+                    (
+                        x["new"]
+                        for x in chapter_ids
+                        if x["old"] == chapter.parent_chapter.id
+                    ),
+                    None,
+                )
                 new_chapter.parent_chapter = new_parent_chapter
                 new_chapter.save()
 
-            chapter_ids.append({'old': chapter.id, 'new': new_chapter.id })
+            chapter_ids.append({"old": chapter.id, "new": new_chapter.id})
 
         return self
 

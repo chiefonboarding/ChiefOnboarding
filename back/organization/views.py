@@ -26,7 +26,9 @@ class FileView(APIView):
         )
         serializer.is_valid(raise_exception=True)
         f = serializer.save()
-        key = f"{f.id}-{serializer.data['name'].split('.')[0]}/{serializer.data['name']}"
+        key = (
+            f"{f.id}-{serializer.data['name'].split('.')[0]}/{serializer.data['name']}"
+        )
         f.key = key
         f.save()
         # Specifics based on Editor.js expectations

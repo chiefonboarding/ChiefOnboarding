@@ -39,6 +39,7 @@ class FieldWithExtraContext(Field):
             form, form_style, context, template_pack, extra_context, **kwargs
         )
 
+
 class UploadField(FieldWithExtraContext):
     template = "upload_field.html"
 

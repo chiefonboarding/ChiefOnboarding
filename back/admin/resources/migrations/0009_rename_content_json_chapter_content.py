@@ -6,13 +6,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('resources', '0008_remove_chapter_content'),
+        ("resources", "0008_remove_chapter_content"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='chapter',
-            old_name='content_json',
-            new_name='content',
+            model_name="chapter",
+            old_name="content_json",
+            new_name="content",
         ),
     ]

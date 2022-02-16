@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('organization', '0008_notification'),
+        ("organization", "0008_notification"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='notification',
-            name='reverse_link',
-            field=models.CharField(default='', max_length=200),
+            model_name="notification",
+            name="reverse_link",
+            field=models.CharField(default="", max_length=200),
         ),
     ]

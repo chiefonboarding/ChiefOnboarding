@@ -9,7 +9,7 @@ from users.mixins import AdminPermMixin, LoginRequiredMixin
 
 from .forms import ResourceForm
 from .mixins import ResourceMixin
-from .models import Resource, Chapter
+from .models import Chapter, Resource
 
 
 class ResourceListView(LoginRequiredMixin, AdminPermMixin, ListView):
@@ -35,13 +35,13 @@ class ResourceCreateView(
 
     @transaction.atomic
     def form_valid(self, form):
-        chapters = form.cleaned_data.pop('chapters', [])
+        chapters = form.cleaned_data.pop("chapters", [])
         resource = form.save()
         # Root chapters
         for chapter in chapters:
             parent_id = self._create_or_update_chapter(resource, None, chapter)
 
-            self._get_child_chapters(resource, parent_id, chapter['children'])
+            self._get_child_chapters(resource, parent_id, chapter["children"])
 
         return super().form_valid(form)
 
@@ -64,17 +64,16 @@ class ResourceUpdateView(
     @transaction.atomic
     def form_valid(self, form):
         resource = form.instance
-        chapters = form.cleaned_data['chapters']
+        chapters = form.cleaned_data["chapters"]
         # Detach all chapters and start rebuilding
         Chapter.objects.filter(resource=resource).update(resource=None)
         # Root chapters
         for chapter in chapters:
             parent_id = self._create_or_update_chapter(resource, None, chapter)
 
-            self._get_child_chapters(resource, parent_id, chapter['children'])
+            self._get_child_chapters(resource, parent_id, chapter["children"])
 
         return super().form_valid(form)
-
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
