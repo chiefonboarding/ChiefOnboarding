@@ -55,8 +55,14 @@ class ModelChoiceFieldWithCreate(forms.ModelChoiceField):
             return None
         try:
             key = self.to_field_name or "pk"
-            if isinstance(value, self.queryset.model):
-                value = getattr(value, key)
+
+            # This needs to be refactored. If a user enters a number for this field,
+            # then it will pick a category instead. Warning added to help_text
+            try:
+                value = self.queryset.get(pk=value).name
+            except:
+                pass
+
             value = self.queryset.get(**{key: value})
         except (ValueError, TypeError):
             raise ValidationError(

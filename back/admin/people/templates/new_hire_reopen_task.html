@@ -1,0 +1,18 @@
+{% extends 'admin_base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <form method="POST">
+        <div class="card-body">
+          {% crispy form %}
+          <div class="form-footer">
+            <button type="submit" class="btn btn-primary">Reopen this task for new hire</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

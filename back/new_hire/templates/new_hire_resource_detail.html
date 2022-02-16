@@ -13,7 +13,7 @@
           <div class="col-8">
             <h3 class="card-title">Chapters</h3>
           </div>
-          {% if not object.course and not resource_step.completed_course %}
+          {% if object.course and not resource_user.completed_course %}
           <div class="col-4">
             <div class="progress" style="margin-top:11px !important">
               <div class="progress-bar" style="width: {{resource_user.percentage_completed}}%" role="progressbar" aria-valuenow="{{resource_user.percentage_completed}}" aria-valuemin="0" aria-valuemax="100">

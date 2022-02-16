@@ -195,6 +195,10 @@ class User(AbstractBaseUser):
         return self.password == ""
 
     @cached_property
+    def has_slack_account(self):
+        return self.slack_user_id != ""
+
+    @cached_property
     def progress(self):
         return self.total_tasks - self.completed_tasks
 
@@ -430,19 +434,11 @@ class ResourceUser(models.Model):
                     amount_of_correct_answers += 1
         return f"{amount_of_correct_answers} correct answers out of {amount_of_questions} questions"
 
-    @property
-    def get_new_hire_answer(self):
-        if not self.answers.exists():
-            return "n/a"
+    def get_user_answer_by_chapter(self, chapter):
+        if not self.answers.filter(chapter=chapter).exists():
+            return None
+        return self.answers.get(chapter=chapter)
 
-        amount_of_questions = 0
-        amount_of_correct_answers = 0
-        for question_page in self.answers.all():
-            amount_of_questions += len(question_page.chapter.content['blocks'])
-            for idx, answer in enumerate(question_page.chapter.content['blocks']):
-                if question_page.answers[f"item-{idx}"] == answer['answer']:
-                    amount_of_correct_answers += 1
-        return f"{amount_of_correct_answers} correct answers out of {amount_of_questions} questions"
 
 
 class NewHireWelcomeMessage(models.Model):

@@ -64,6 +64,7 @@ class Resource(BaseItem):
     def next_chapter(self, current_id, course):
         # We can't fetch course from the object, as the user might have already
         # passed it and it now should show as normal resource for them
+        # Only used for Slack
         chapters = self.chapters.exclude(type=1)
         if not course:
             chapters = self.chapters.filter(type=0)
@@ -122,3 +123,6 @@ class CourseAnswer(models.Model):
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
     answers = models.JSONField(default=list)
 
+    @property
+    def get_new_hire_answer(self, idx):
+        return self.answers[idx]

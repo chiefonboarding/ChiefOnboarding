@@ -8,6 +8,7 @@ from django.views.generic.list import ListView
 from users.mixins import AdminPermMixin, LoginRequiredMixin
 
 from .forms import ResourceForm
+from .mixins import ResourceMixin
 from .models import Resource, Chapter
 
 
@@ -25,12 +26,24 @@ class ResourceListView(LoginRequiredMixin, AdminPermMixin, ListView):
 
 
 class ResourceCreateView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
+    LoginRequiredMixin, AdminPermMixin, ResourceMixin, SuccessMessageMixin, CreateView
 ):
     template_name = "resource_update.html"
     form_class = ResourceForm
     success_url = reverse_lazy("resources:list")
     success_message = "Resource item has been updated"
+
+    @transaction.atomic
+    def form_valid(self, form):
+        chapters = form.cleaned_data.pop('chapters', [])
+        resource = form.save()
+        # Root chapters
+        for chapter in chapters:
+            parent_id = self._create_or_update_chapter(resource, None, chapter)
+
+            self._get_child_chapters(resource, parent_id, chapter['children'])
+
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -40,50 +53,13 @@ class ResourceCreateView(
 
 
 class ResourceUpdateView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+    LoginRequiredMixin, AdminPermMixin, ResourceMixin, SuccessMessageMixin, UpdateView
 ):
     template_name = "resource_update.html"
     form_class = ResourceForm
     success_url = reverse_lazy("resources:list")
     queryset = Resource.templates.all()
     success_message = "Resource item has been updated"
-    counter = 0
-
-    def _create_or_update_chapter(self, resource, parent, chapter):
-        if isinstance(chapter['id'], int):
-            chap = Chapter.objects.get(id=chapter['id'])
-            chap.name = chapter['name']
-            chap.content = chapter['content']
-            chap.resource = resource
-            chap.order = self.counter
-            chap.save()
-        else:
-            chap = Chapter.objects.create(
-                resource=resource,
-                name=chapter['name'],
-                content=chapter['content'],
-                type=chapter['type'],
-                order=self.counter
-            )
-            if parent is not None:
-                chap.parent_chapter = Chapter.objects.get(id=parent)
-                chap.save()
-        self.counter += 1
-
-        # Return new/updated item id
-        return chap.id
-
-    def _get_child_chapters(self, resource, parent, children):
-        if len(children) == 0:
-            return
-
-        for chapter in children:
-            # Save or update item
-            parent_id = self._create_or_update_chapter(resource, parent, chapter)
-
-            # Go one level deeper - check and create chapters
-            self._get_child_chapters(resource, parent_id, chapter['children'])
-
 
     @transaction.atomic
     def form_valid(self, form):
@@ -97,7 +73,7 @@ class ResourceUpdateView(
 
             self._get_child_chapters(resource, parent_id, chapter['children'])
 
-        return super(ResourceUpdateView, self).form_valid(form)
+        return super().form_valid(form)
 
 
     def get_context_data(self, **kwargs):

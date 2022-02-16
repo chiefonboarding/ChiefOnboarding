@@ -1,9 +1,8 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Div, Field, Layout
-from crispy_forms.utils import TEMPLATE_PACK
+from crispy_forms.layout import Div, Field, Layout, HTML
 from django import forms
 
-from admin.templates.forms import MultiSelectField, WYSIWYGField, FieldWithExtraContext
+from admin.templates.forms import MultiSelectField, FieldWithExtraContext
 from organization.models import Tag
 
 from .models import Resource, Category
@@ -46,6 +45,7 @@ class ResourceForm(forms.ModelForm):
             Div(
                 Div(
                     Field("category", css_class="add"),
+                    HTML("<small style='top: -11px; position: relative;'>Do not use only numbers as a category. Always add some text.</small>"),
                     css_class="col-6",
                 ),
                 Div(
@@ -77,7 +77,7 @@ class ResourceForm(forms.ModelForm):
         }
         help_texts = {
             'course': 'When enabled, new hires will have to walk through this',
-            'remove_on_complete': 'If disabled, it will turn into a normal resource after completing'
+            'remove_on_complete': 'If disabled, it will turn into a normal resource after completing',
         }
 
     def clean_tags(self):

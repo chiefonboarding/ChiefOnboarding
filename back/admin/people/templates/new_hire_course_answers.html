@@ -1,6 +1,7 @@
 {% extends 'admin_base.html' %}
 {% load crispy_forms_tags %}
 {% load humanize %}
+{% load model_functions %}
 
 {% block content %}
 {% include "_new_hire_menu.html" %}
@@ -25,7 +26,7 @@
               {% endfor %}
             </div>
           </div>
-          <b> Answer given by new hire: </b>
+          <b> Answer given by new hire: {% get_user_answer_by_chapter resource_user chapter forloop.counter0 %} </b>
         {% endfor %}
       {% endif %}
     {% endfor %}

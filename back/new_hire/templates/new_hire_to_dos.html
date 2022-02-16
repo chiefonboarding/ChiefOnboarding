@@ -20,6 +20,7 @@
       </div>
     </div>
     {% endif %}
+    {% if to_do_items %}
     <div class="card">
       <div class="card-body" style="position: relative;">
         {% for obj in to_do_items %}
@@ -34,6 +35,7 @@
         {% endfor %}
       </div>
     </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

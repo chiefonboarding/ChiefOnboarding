@@ -42,6 +42,16 @@ urlpatterns = [
         name="new_hire_progress",
     ),
     path(
+        "new_hire/remind/<str:template_type>/<int:pk>/",
+        views.NewHireRemindView.as_view(),
+        name="new_hire_remind",
+    ),
+    path(
+        "new_hire/reopen/<str:template_type>/<int:pk>/",
+        views.NewHireReopenTaskView.as_view(),
+        name="new_hire_reopen",
+    ),
+    path(
         "new_hire/<int:pk>/course_answers/<int:resource_user>/",
         views.NewHireCourseAnswersView.as_view(),
         name="new-hire-rating",

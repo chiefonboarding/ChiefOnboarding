@@ -1,6 +1,6 @@
-from datetime import timedelta
-from os import wait
+from datetime import timedelta, datetime
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -8,7 +8,6 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
-from django.utils import translation
 from django.utils.translation import ugettext as _
 from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
@@ -23,7 +22,7 @@ from admin.integrations.models import AccessToken
 from admin.notes.models import Note
 from admin.resources.models import Resource
 from admin.sequences.models import Condition, Sequence
-from admin.templates.utils import get_templates_model, get_user_field
+from admin.templates.utils import get_templates_model
 from organization.models import Organization, WelcomeMessage
 from slack_bot.slack import Slack
 from slack_bot.tasks import link_slack_users
@@ -35,7 +34,7 @@ from users.models import (NewHireWelcomeMessage, PreboardingUser, ResourceUser,
                           ToDoUser, User)
 
 from .forms import (ColleagueCreateForm, ColleagueUpdateForm, NewHireAddForm,
-                    NewHireProfileForm, PreboardingSendForm,
+                    NewHireProfileForm, PreboardingSendForm, RemindMessageForm,
                     SequenceChoiceForm)
 
 
@@ -474,6 +473,101 @@ class NewHireProgressView(LoginRequiredMixin, AdminPermMixin, DetailView):
             user=new_hire, resource__course=True
         )
         context["todos"] = ToDoUser.objects.filter(user=new_hire)
+        return context
+
+
+class NewHireRemindView(LoginRequiredMixin, AdminPermMixin, View):
+
+    def post(self, request, pk, template_type, *args, **kwargs):
+        if template_type not in ['todouser', 'resourceuser']:
+            raise Http404
+
+        template_user_model = apps.get_model("users", template_type)
+
+        template_user_obj = template_user_model.objects.get(pk=pk)
+        template_user_obj.reminded = datetime.now()
+        template_user_obj.save()
+
+        if template_user_obj.user.has_slack_account:
+            s = Slack()
+            s.set_user(template_user_obj.user)
+
+            if template_type == 'todouser':
+                blocks = s.format_to_do_block(
+                    pre_message=_("Don't forget this to do item!"), items=[template_user_obj]
+                )
+            else:
+                blocks = s.format_resource_block(
+                    pre_message=_("Don't forget to complete this course!"), items=[template_user_obj]
+                )
+
+            s.send_message(blocks=blocks)
+        else:
+            send_reminder_email(template_user_obj)
+
+        messages.success(self.request, "Reminder has been sent!")
+
+        return redirect("people:new_hire_progress", pk=template_user_obj.user.id)
+
+
+class NewHireReopenTaskView(LoginRequiredMixin, AdminPermMixin, FormView):
+    template_name = 'new_hire_reopen_task.html'
+    form_class = RemindMessageForm
+
+    def form_valid(self, form):
+        template_type = self.kwargs.get('template_type', '')
+        pk = self.kwargs.get('pk', -1)
+
+        if template_type not in ['todouser', 'resourceuser']:
+            raise Http404
+
+        template_user_model = apps.get_model("users", template_type)
+
+        template_user_obj = template_user_model.objects.get(pk=pk)
+        if template_type == 'todouser':
+            template_user_obj.completed = False
+            template_user_obj.form = []
+        else:
+            template_user_obj.completed_course = False
+            template_user_obj.answers.clean()
+
+        template_user_obj.save()
+
+        if template_user_obj.user.has_slack_account:
+            s = Slack()
+            s.set_user(template_user_obj.user)
+
+            if template_type == 'todouser':
+                blocks = s.format_to_do_block(
+                    pre_message=form.cleaned_data['message'],
+                    items=[template_user_obj]
+                )
+            else:
+                blocks = s.format_resource_block(
+                    pre_message=form.cleaned_data['message'],
+                    items=[template_user_obj],
+                )
+
+            s.send_message(blocks=blocks)
+        else:
+            email_reopen_task(template_user_obj, form.cleaned_data['message'], template_user_obj.user)
+
+        messages.success(self.request, "Item has been reopened")
+
+        return redirect("people:new_hire_progress", pk=template_user_obj.user.id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        template_type = self.kwargs.get('template_type', '')
+        pk = self.kwargs.get('pk', -1)
+
+        if template_type not in ['todouser', 'resourceuser']:
+            raise Http404
+
+        template_user_model = apps.get_model("users", template_type)
+        template_user_obj = template_user_model.objects.get(pk=pk)
+        context["title"] = template_user_obj.user.full_name
+        context["subtitle"] = "new hire"
         return context
 
 

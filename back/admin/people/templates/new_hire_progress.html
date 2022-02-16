@@ -27,13 +27,16 @@
             </td>
             <td class="text-end">
               {% if todo.completed %}
-                <a href="" class="btn btn-white">
+                <a href="{% url 'people:new_hire_reopen' 'todouser' todo.id %}" class="btn btn-white">
                   Reopen
                 </a>
               {% else %}
-                <a href="" class="btn btn-primary">
+              <form method="post" action="{% url 'people:new_hire_remind' 'todouser' todo.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">
                   Remind
-                </a>
+                </button>
+              </form>
               {% endif %}
             </td>
           </tr>
@@ -86,7 +89,7 @@
                   Reopen
                 </a>
               {% else %}
-                <a href="" class="btn btn-primary">
+                <a href="{% url 'people:new_hire_reopen' 'resourceuser' todo.id %}" class="btn btn-primary">
                   Remind
                 </a>
               {% endif %}
