@@ -1,4 +1,5 @@
 {% extends 'new_hire_base.html' %}
+{% load i18n %}
 {% load humanize %}
 {% load static %}
 
@@ -11,13 +12,13 @@
       <div class="card-header">
         <div class="row" style="width: 110%">
           <div class="col-8">
-            <h3 class="card-title">Chapters</h3>
+            <h3 class="card-title">{% translate "Chapters" %}</h3>
           </div>
           {% if object.course and not resource_user.completed_course %}
           <div class="col-4">
             <div class="progress" style="margin-top:11px !important">
               <div class="progress-bar" style="width: {{resource_user.percentage_completed}}%" role="progressbar" aria-valuenow="{{resource_user.percentage_completed}}" aria-valuemin="0" aria-valuemax="100">
-                <span class="visually-hidden">{{ resource_user.percentage_completed }}% Complete</span>
+                <span class="visually-hidden">{{ resource_user.percentage_completed }}% {% translate "Complete" %}</span>
               </div>
             </div>
           </div>
@@ -42,7 +43,7 @@
         {% else %}
           {% if chapter.type == 2 %}
             {# Got a refresh from htmx and answers got saved as no form returned #}
-            <p>Answers saved successfully! Click on "next" to continue.</p>
+            <p>{% translate "Answers saved successfully! Click on 'next' to continue." %}</p>
           {% endif %}
 
           {% include '_content.html' with content=chapter.content %}
@@ -50,7 +51,7 @@
           {% if object.course and not resource_step.completed_course and resource_user.step == chapter.order and not form %}
           <form method="post" action="{% url 'new_hire:course-next-step' resource_user.id %}">
             {% csrf_token %}
-            <button class="btn btn-primary" style="float:right">Next</button>
+            <button class="btn btn-primary" style="float:right">{% translate "Next" %}</button>
           </form>
           {% endif %}
 

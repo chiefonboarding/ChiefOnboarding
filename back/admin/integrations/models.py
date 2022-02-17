@@ -5,19 +5,21 @@ from django.db import models
 from django.urls import reverse_lazy
 from fernet_fields import EncryptedTextField
 
+from django.utils.translation import ugettext_lazy as _
+
 INTEGRATION_OPTIONS = (
-    (0, "Slack bot"),
-    (1, "Slack account creation"),
-    (2, "Google account creation"),
-    (3, "Google Login"),
-    (4, "Asana"),
+    (0, _("Slack bot")),
+    (1, _("Slack account creation")),
+    (2, _("Google account creation")),
+    (3, _("Google Login")),
+    (4, _("Asana")),
 )
 INTEGRATION_OPTIONS_URLS = [
     {
         "create_url": reverse_lazy("settings:slack-bot"),
         "disable_url": reverse_lazy("settings:google-login"),
         "extra_action_url": "settings:slack-account-update-channels",
-        "extra_action_text": "Update Slack channels list",
+        "extra_action_text": _("Update Slack channels list"),
     },
     {
         "create_url": reverse_lazy("settings:slack-account"),

@@ -1,4 +1,5 @@
 {% extends 'admin_base.html' %}
+{% load i18n %}
 {% load crispy_forms_tags %}
 {% load humanize %}
 
@@ -11,7 +12,7 @@
 {% if todos|length %}
 <div class="card mt-3">
   <div class="card-header">
-    <h3 class="card-title">To do items</h3>
+    <h3 class="card-title">{% translate "To do items" %}</h3>
   </div>
   <div>
     <div class="table-responsive">
@@ -28,13 +29,13 @@
             <td class="text-end">
               {% if todo.completed %}
                 <a href="{% url 'people:new_hire_reopen' 'todouser' todo.id %}" class="btn btn-white">
-                  Reopen
+                  {% translate "Reopen" %}
                 </a>
               {% else %}
               <form method="post" action="{% url 'people:new_hire_remind' 'todouser' todo.id %}">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-primary">
-                  Remind
+                  {% translate "Remind" %}
                 </button>
               </form>
               {% endif %}
@@ -52,7 +53,7 @@
 {% if resources|length %}
 <div class="card mt-3">
   <div class="card-header">
-    <h3 class="card-title">Courses</h3>
+    <h3 class="card-title">{% translate "Courses" %}</h3>
   </div>
   <div>
     <div class="table-responsive">
@@ -69,15 +70,15 @@
             <td style="width: 100px">
               <div class="progress">
                 <div class="progress-bar" style="width: {{resource.percentage_completed}}%" role="progressbar" aria-valuenow="{{resource.percentage_completed}}" aria-valuemin="0" aria-valuemax="100">
-                  <span class="visually-hidden">{{ resource.percentage_completed }}% Complete</span>
+                  <span class="visually-hidden">{{ resource.percentage_completed }}% {% translate "Complete" %}</span>
                 </div>
               </div>
             </td>
             <td class="">
               {% if resource.course_completed %}
-              At step {{ resource.step }} of {{ resource.amount_chapters_in_course }}
+                {% blocktranslate %} At step {{ resource.step }} of {{ resource.amount_chapters_in_course }} {% endblocktranslate %}
               {% else %}
-              New hire has completed the course!
+                {% translate "New hire has completed the course!" %}
               {% endif %}
             </td>
             <td class="">
@@ -86,11 +87,11 @@
             <td class="text-end">
               {% if resource.completed_course %}
                 <a href="" class="btn btn-white">
-                  Reopen
+                  {% translate "Reopen" %}
                 </a>
               {% else %}
                 <a href="{% url 'people:new_hire_reopen' 'resourceuser' todo.id %}" class="btn btn-primary">
-                  Remind
+                  {% translate "Remind" %}
                 </a>
               {% endif %}
             </td>
@@ -107,7 +108,7 @@
 {% if not todos|length and not resources|length %}
 <div class="card mt-3">
   <div class="card-body">
-    <p>There are no todo items or resources attached assigned to this user</p>
+    <p>{% translate "There are no todo items or resources assigned to this user" %}</p>
   </div>
 </div>
 {% endif %}

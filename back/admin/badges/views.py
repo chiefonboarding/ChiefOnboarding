@@ -9,6 +9,7 @@ from users.mixins import AdminPermMixin, LoginRequiredMixin
 from .forms import BadgeForm
 from .models import Badge
 
+from django.utils.translation import ugettext as _
 
 class BadgeListView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "templates.html"
@@ -20,7 +21,6 @@ class BadgeListView(LoginRequiredMixin, AdminPermMixin, ListView):
         context["title"] = "Badge items"
         context["subtitle"] = "templates"
         context["add_action"] = reverse_lazy("badges:create")
-        context["wysiwyg"] = []
         return context
 
 
@@ -30,12 +30,12 @@ class BadgeCreateView(
     template_name = "todo_update.html"
     form_class = BadgeForm
     success_url = reverse_lazy("badges:list")
-    success_message = "badge item has been updated"
+    success_message = _("badge item has been updated")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Create badge item"
-        context["subtitle"] = "templates"
+        context["title"] = _("Create badge item")
+        context["subtitle"] = _("templates")
         return context
 
 
@@ -46,12 +46,12 @@ class BadgeUpdateView(
     form_class = BadgeForm
     success_url = reverse_lazy("badges:list")
     queryset = Badge.templates.all()
-    success_message = "Badge item has been updated"
+    success_message = _("Badge item has been updated")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Update badge item"
-        context["subtitle"] = "templates"
+        context["title"] = _("Update badge item")
+        context["subtitle"] = _("templates")
         return context
 
 
@@ -61,5 +61,5 @@ class BadgeDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         response = super().delete(request, *args, **kwargs)
-        messages.info(request, "badge item has been removed")
+        messages.info(request, _("badge item has been removed"))
         return response

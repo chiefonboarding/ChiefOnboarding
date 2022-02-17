@@ -27,7 +27,7 @@ def email_new_admin_cred(user):
         },
         {
             "type": "block",
-            "text": "<strong>Username:</strong>&nbsp;{user.email}<br /><strong>Password:</strong>&nbsp;{password}<strong><br />Login URL:</strong>&nbsp;{settings.BASE_URL}",
+            "text": "<strong>"+_("Username:") + f"</strong>&nbsp;{user.email}<br /><strong>" + _("Password:") + f"</strong>&nbsp;{password}<strong><br />" + _("Login URL:") +f"</strong>&nbsp;{settings.BASE_URL}",
         },
     ]
     message = ""
@@ -52,13 +52,13 @@ def email_reopen_task(task, message, user):
     content = [
         {
             "type": "p",
-            "text": "Hi {user.first_name}, we have just reopened this task. {message}",
+            "text": _("Hi %(name), we have just reopened this task. %(message)") % {"name": user.first_name, "message": message}
         },
         {
             "type": "block",
-            "text": "<strong>{task.to_do.name}</strong> <br />Go to your dashboard to complete it",
+            "text": _("<strong>%(task_name)</strong> <br />Go to your dashboard to complete it") % {"task_name": task.to_do.name}
         },
-        {"type": "button", "text": "Dashboard", "url": settings.BASE_URL},
+        {"type": "button", "text": _("Dashboard"), "url": settings.BASE_URL},
     ]
     html_message = render_to_string("email/base.html", {"org": org, "content": content})
     send_mail(
@@ -77,13 +77,13 @@ def send_reminder_email(task):
     content = [
         {
             "type": "p",
-            "text": f"Hi {task.user.first_name}, Here is a quick reminder of the following task:",
+            "text": _("Hi %(name), Here is a quick reminder of the following task:") % {'name': task.user.first_name}
         },
         {
             "type": "block",
-            "text": f"<strong>{task.to_do.name}</strong> <br />Go to your dashboard to complete it.",
+            "text": _("<strong>%(task_name)</strong> <br />Go to your dashboard to complete it") % {"task_name": task.to_do.name}
         },
-        {"type": "button", "text": "Dashboard", "url": settings.BASE_URL},
+        {"type": "button", "text": _("Dashboard"), "url": settings.BASE_URL},
     ]
     html_message = render_to_string("email/base.html", {"org": org, "content": content})
     send_mail(
@@ -110,9 +110,9 @@ def send_new_hire_credentials(new_hire):
         {"type": "p", "text": personalized_message},
         {
             "type": "block",
-            "text": "<strong>Username: {new_hire.email}</strong> <br /><strong>Password: </strong>{password}",
+            "text": "<strong>" + _("Username: ") + f"</strong>{new_hire.email}<br /><strong>" + _("Password: ") + f"</strong>{password}",
         },
-        {"type": "button", "text": "Dashboard", "url": settings.BASE_URL},
+        {"type": "button", "text": _("Dashboard"), "url": settings.BASE_URL},
     ]
     html_message = render_to_string("email/base.html", {"org": org, "content": content})
     message = ""
@@ -131,12 +131,12 @@ def send_new_hire_preboarding(new_hire):
         language=new_hire.language, message_type=0
     ).message
     personalized_message = new_hire.personalize(message)
-    subject = f"Welcome to {org.name}!"
+    subject = _("Welcome to %(name)!") % {'name': org.name}
     content = [
         {"type": "p", "text": personalized_message},
         {
             "type": "button",
-            "text": "See pages",
+            "text": _("See pages"),
             "url": f"{settings.BASE_URL}/#/preboarding/auth?token={new_hire.unique_url}",
         },
     ]

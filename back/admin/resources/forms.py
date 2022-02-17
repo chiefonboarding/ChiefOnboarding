@@ -8,6 +8,7 @@ from admin.templates.forms import (
     MultiSelectField,
 )
 from organization.models import Tag
+from django.utils.translation import ugettext_lazy as _
 
 from .models import Category, Resource
 from .serializers import ChapterSerializer
@@ -89,13 +90,13 @@ class ResourceForm(forms.ModelForm):
         model = Resource
         fields = ("name", "tags", "category", "course", "on_day", "remove_on_complete")
         labels = {
-            "course": "Is a course item",
-            "on_day": "Workday that this item is due",
-            "remove_on_complete": "Remove item when new hire walked through",
+            "course": _("Is a course item"),
+            "on_day": _("Workday that this item is due"),
+            "remove_on_complete": _("Remove item when new hire walked through"),
         }
         help_texts = {
-            "course": "When enabled, new hires will have to walk through this",
-            "remove_on_complete": "If disabled, it will turn into a normal resource after completing",
+            "course": _("When enabled, new hires will have to walk through this"),
+            "remove_on_complete": _("If disabled, it will turn into a normal resource after completing"),
         }
 
     def clean_tags(self):

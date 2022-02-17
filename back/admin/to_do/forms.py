@@ -4,6 +4,7 @@ from django import forms
 
 from admin.templates.forms import MultiSelectField, WYSIWYGField
 from organization.models import Tag
+from django.utils.translation import gettext_lazy as _
 
 from .models import ToDo
 
@@ -43,10 +44,10 @@ class ToDoForm(forms.ModelForm):
         exclude = ("template", "form")
 
         labels = {
-            "send_back": "Post new hire's answers from form (if applicable) back to Slack channel"
+            "send_back": _("Post new hire's answers from form (if applicable) back to Slack channel")
         }
         help_texts = {
-            "send_back": "Let your new hire now that the answers are going to be shared with the team!"
+            "send_back": _("Let your new hire now that the answers are going to be shared with the team!")
         }
 
     def clean_tags(self):

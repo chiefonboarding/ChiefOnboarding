@@ -1,8 +1,9 @@
+{% load i18n %}
 <button {% if completed %}disabled{% endif %} hx-get="{% url 'people:trigger-condition' user.id new_hire_id %}" hx-swap="outerHTML" class="btn {% if not completed %}btn-primary{% else %}btn-green{% endif %}" hx-indicator="#spinner-{{condition.id}}">
   {% if completed %}
-    Done!
+    {% translate "Done!" %}
   {% else %}
-    Trigger all these items now
+    {% translate "Trigger all these items now" %}
   {% endif %}
   <span class="requesting alsodisplay" id="spinner-{{condition.id}}">
     <div class="spinner-border spinner-border-sm text-muted" role="status"></div>

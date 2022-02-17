@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.template.loader import render_to_string
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from slack_bot.slack import Slack
 
@@ -54,7 +54,7 @@ class AdminTask(models.Model):
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": f"{self.assigned_to.full_name()} needs your help with this task:\n*{self.title}*\n_{self.comment.last().content}_",
+                        "text": _("%(name_assigned_to) needs your help with this task:\n*%(task_name)*\n_%(comment)_") % {'name_assigned_to': self.assigned_to.full_name(), 'task_name': self.title, 'comment': self.comment.last().content}
                     },
                 },
                 {
@@ -66,7 +66,7 @@ class AdminTask(models.Model):
                                 "text": {
                                     "type": "plain_text",
                                     "emoji": True,
-                                    "text": "I have completed this",
+                                    "text": _("I have completed this"),
                                 },
                                 "style": "primary",
                                 "value": "admin_task:complete:" + self.pk,
@@ -79,20 +79,16 @@ class AdminTask(models.Model):
             s.send_message(channel=self.slack_user, blocks=blocks)
 
     def send_notification_new_assigned(self):
-        if self.assigned_to.slack_user_id is not None:
+        if self.assigned_to.has_slack_account:
             s = Slack()
             comment = ""
             if self.comment.all().exists():
-                comment = (
-                    "_"
-                    + self.comment.last()
-                    + "\n by "
-                    + self.comment.last().comment_by.full_name()
-                    + "_"
-                )
-            text = f"You have just been assigned to *{self.title}* for *{self.new_hire.full_name()}\n{comment}"
+                comment = _("_%(comment)\n by %(name)_") % {'comment':self.comment.last(), 'name':self.comment.last().comment_by.full_name() }
+
+            text = _("You have just been assigned to *%(title)* for *%(name)\n%(comment)") % {'title': self.title, 'name': self.new_hire.full_name(), 'comment': comment}
 
             blocks = [
+                {"type": "section", "text": {"type": "mrkdwn", "text": text}},
                 {"type": "section", "text": {"type": "mrkdwn", "text": comment}},
                 {
                     {
@@ -112,6 +108,7 @@ class AdminTask(models.Model):
                     }
                 },
             ]
+            s.send_message(channel=self.slack_user, blocks=blocks)
         else:
             send_email_new_assigned_admin(self)
 
@@ -132,13 +129,13 @@ class AdminTaskComment(models.Model):
 
     def send_notification_new_message(self, team):
         if self.admin_task.assigned_to != self.comment_by:
-            if self.admin_task.assigned_to.slack_user_id != "" and team is not None:
+            if self.admin_task.assigned_to.has_slack_account and team is not None:
                 blocks = [
                     {
                         "type": "section",
                         "text": {
                             "type": "mrkdwn",
-                            "text": f"{self.comment_by.full_name} added a message to your task:\n*{self.admin_task.title}*\n_{self.comment}_",
+                            "text": _("%(name) added a message to your task:\n*%(task_title)*\n_%(comment)_") % {'name': self.comment_by.full_name, 'title': self.admin_task.title, 'comment':self.comment}
                         },
                     },
                     {
@@ -150,7 +147,7 @@ class AdminTaskComment(models.Model):
                                     "text": {
                                         "type": "plain_text",
                                         "emoji": True,
-                                        "text": "I have completed this",
+                                        "text": _("I have completed this"),
                                     },
                                     "style": "primary",
                                     "value": "admin_task:complete:" + self.pk,

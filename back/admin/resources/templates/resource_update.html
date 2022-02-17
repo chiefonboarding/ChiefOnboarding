@@ -1,4 +1,5 @@
 {% extends 'admin_base.html' %}
+{% load i18n %}
 {% load crispy_forms_tags %}
 
 {% block actions %}
@@ -6,13 +7,13 @@
     <form method="POST" action="{% url 'templates:duplicate' object.class_name object.id %}">
       {% csrf_token %}
       <button type="submit" class="btn btn-primary">
-        Duplicate
+        {% translate "Duplicate" %}
       </button>
     </form>
     <form method="POST" action="{{ object.delete_url }}">
       {% csrf_token %}
       <button type="submit" class="btn btn-danger">
-        Delete
+        {% translate "Delete" %}
       </button>
     </form>
   {% endif %}
@@ -25,7 +26,7 @@
         <div class="card-body">
           {% crispy form %}
           <div class="form-footer">
-            <button type="submit" class="btn btn-primary">{% if object %}Update{% else %}Create{% endif %}</button>
+            <button type="submit" class="btn btn-primary">{% if object %}{% translate "Update" %}{% else %}{% translate "Create" %}{% endif %}</button>
           </div>
         </div>
       </div>
@@ -43,7 +44,7 @@ function initEditor(data) {
   editor = new EditorJS({
     minHeight: 30,
     holder: 'element',
-    placeholder: 'Start typing here...',
+    placeholder: {% translate "Start typing here..." %},
     data: data,
     tools: {
       header: Header,
@@ -131,7 +132,7 @@ Vue.component('v-node', {
       const newItem = {
         id: app.getRandomString(),
         type: contentType,
-        name: 'New item',
+        name: {% translate "New item" %},
         content: { blocks: [] },
         parent_chapter: null,
         children: []
@@ -140,7 +141,7 @@ Vue.component('v-node', {
         newItem.children = [{
           id: app.getRandomString(),
           type: 0,
-          name: 'New item',
+          name: {% translate "New item" %},
           content: {},
           children: [],
           parent_chapter: -1
@@ -179,7 +180,7 @@ var app = new Vue({
       this.chapters = [{
         id: this.getRandomString(),
         type: 0,
-        name: 'New item',
+        name: {% translate "New item" %},
         content: { blocks: [] },
         parent_chapter: null,
         children: []

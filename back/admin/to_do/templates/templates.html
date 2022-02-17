@@ -1,4 +1,5 @@
 {% extends 'admin_base.html' %}
+{% load i18n %}
 
 {% block content %}
 <div class="col-12">
@@ -8,8 +9,8 @@
           class="table table-vcenter table-nowrap">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Tags</th>
+            <th>{% translate "Name" %}</th>
+            <th>{% translate "Tags" %}</th>
             <th></th>
           </tr>
         </thead>
@@ -20,7 +21,7 @@
             <td>{% for tag in template.tags %}<span class="badge bg-blue" style="margin-right: 10px">{{ tag }}</span>{% endfor %}</td>
             <td class="text-end">
               <a href="{{ template.update_url }}" class="btn btn-white">
-                View
+                {% translate "View" %}
               </a>
             </td>
           </tr>

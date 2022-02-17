@@ -1,5 +1,6 @@
+{% load i18n %}
 <div class="card-body" >
-  <h3>Templates</h3>
+  <h3>{% translate "Templates" %}</h3>
 
   <button hx-get="{% url 'sequences:template_list' %}?type=todo" class="btn btn-{% if active == 'todo' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_todo_icon.html' %}
@@ -68,7 +69,7 @@
       </div>
       <div class="col">
         <div class="text-truncate">
-          <strong>Create new one</strong>
+          <strong>{% translate "Create new one" %}</strong>
         </div>
       </div>
     </div>

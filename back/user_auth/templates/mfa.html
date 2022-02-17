@@ -1,10 +1,8 @@
 {% extends 'no_login_base.html' %}
+{% load i18n %}
 {% load crispy_forms_tags %}
 
 {% block content %}
-<div class="text-center mb-4">
-  <a href="."><img src="./static/logo.svg" height="36" alt=""></a>
-</div>
 <form class="card card-md" method="post">
   {% csrf_token %}
   <div class="card-body">
@@ -12,7 +10,7 @@
       {{ form|crispy }}
     </div>
     <div class="form-footer">
-      <button type="submit" class="btn btn-primary w-100">Log in</button>
+      <button type="submit" class="btn btn-primary w-100">{% translate "Log in" %}</button>
     </div>
   </div>
 </form>

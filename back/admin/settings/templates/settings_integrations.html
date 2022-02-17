@@ -1,4 +1,5 @@
 {% extends 'settings_base.html' %}
+{% load i18n %}
 
 {% block settings_content %}
   <div class="table-responsive">
@@ -6,7 +7,7 @@
 		class="table table-vcenter table-nowrap">
     <thead>
       <tr>
-        <th>Name</th>
+        <th>{% translate "Name" %}</th>
         <th></th>
       </tr>
     </thead>
@@ -22,11 +23,11 @@
           {% endif %}
           {% if integration.obj is not None %}
           <a href="{% url 'settings:delete-integration' integration.obj.id %}" class="btn btn-danger">
-            Remove
+            {% translate "Remove" %}
           </a>
           {% else %}
           <a href="{{ integration.create_url }}" class="btn btn-primary">
-            Enable
+            {% translate "Enable" %}
           </a>
           {% endif %}
       </tr>

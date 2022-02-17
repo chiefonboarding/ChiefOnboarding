@@ -1,4 +1,5 @@
 {% extends 'admin_base.html' %}
+{% load i18n %}
 
 {% block actions %}
 {% if slack_active %}
@@ -10,7 +11,7 @@
      <path d="M12 12v6a2 2 0 0 1 -4 0v-6m0 2a2 2 0 1 1 -2 -2h6"></path>
      <path d="M12 12h-6a2 2 0 0 1 0 -4h6m-2 0a2 2 0 1 1 2 -2v6"></path>
   </svg>
-  Sync with Slack
+  {% translate "Sync with Slack" %}
   <span class="requesting alsodisplay spinner-border spinner-border-sm me-2" id="spinner-slack" role="status"></span>
 </a>
 {% endif %}
@@ -23,8 +24,8 @@
       <table class="table card-table table-vcenter text-nowrap">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Position</th>
+            <th>{% translate "Name" %}</th>
+            <th>{% translate "Position" %}</th>
             <th></th>
           </tr>
         </thead>
@@ -41,7 +42,7 @@
               {% include "_toggle_colleague_access.html" with url_name="people:connect-to-slack" slack=True exists=colleague.slack_channel_id %}
               {% include "_toggle_colleague_access.html" with url_name="people:toggle-portal-access" exists=colleague.is_active %}
               <a href="{% url 'people:colleague' colleague.id %}" class="btn btn-white">
-                View
+                {% translate "View" %}
               </a>
             </td>
           </tr>

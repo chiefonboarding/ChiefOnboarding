@@ -16,6 +16,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 from admin.templates.forms import UploadField
 from organization.models import Organization, WelcomeMessage
@@ -86,10 +87,10 @@ class OrganizationGeneralForm(forms.ModelForm):
             "slack_default_channel",
         ]
         labels = {
-            "slack_login": "Allow users to login with their Slack account",
-            "google_login": "Allow users to login with their Google account",
-            "credentials_login": "Allow users to login with their username and password",
-            "slack_default_channel": "This is the default channel where the bot will post messages in",
+            "slack_login": _("Allow users to login with their Slack account"),
+            "google_login": _("Allow users to login with their Google account"),
+            "credentials_login": _("Allow users to login with their username and password"),
+            "slack_default_channel": _("This is the default channel where the bot will post messages in"),
         }
 
     def clean(self):
@@ -97,14 +98,14 @@ class OrganizationGeneralForm(forms.ModelForm):
         google_login = self.cleaned_data["google_login"]
         slack_login = self.cleaned_data["slack_login"]
         if not any([credentials_login, google_login, slack_login]):
-            raise ValidationError("You must enable at least one login option")
+            raise ValidationError(_("You must enable at least one login option"))
         return self.cleaned_data
 
 
 class AdministratorsCreateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(AdministratorsCreateForm, self).__init__(*args, **kwargs)
-        self.fields["role"].choices = ((1, "Administrator"), (2, "Manager"))
+        self.fields["role"].choices = ((1, _("Administrator")), (2, _("Manager")))
 
     class Meta:
         model = get_user_model()
@@ -114,7 +115,7 @@ class AdministratorsCreateForm(forms.ModelForm):
 class AdministratorsUpdateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(AdministratorsUpdateForm, self).__init__(*args, **kwargs)
-        self.fields["role"].choices = ((1, "Administrator"), (2, "Manager"))
+        self.fields["role"].choices = ((1, _("Administrator")), (2, _("Manager")))
 
     class Meta:
         model = get_user_model()
@@ -131,14 +132,14 @@ class WelcomeMessagesUpdateForm(forms.ModelForm):
             "message": forms.Textarea,
         }
         help_texts = {
-            "message": "You can use {{ first_name }}, {{ last_name }}, {{ position }}, {{ manager }} and {{ buddy }} above. It will be replaced by the values corresponding to the new hire."
+            "message": _("You can use {{ first_name }}, {{ last_name }}, {{ position }}, {{ manager }} and {{ buddy }} above. It will be replaced by the values corresponding to the new hire.")
         }
 
 
 class OTPVerificationForm(forms.Form):
     otp = forms.CharField(
-        label="6 digit OTP code",
-        help_text="This is the code that your 2FA application shows you.",
+        label=_("6 digit OTP code"),
+        help_text=_("This is the code that your 2FA application shows you."),
         max_length=6,
     )
 
@@ -153,7 +154,7 @@ class OTPVerificationForm(forms.Form):
         # Check if token is correct and block replay attacks
         if not valid and cache.get(f"{self.user.email}_totp_passed") is None:
             raise ValidationError(
-                "OTP token was not correct. Please wait 30 seconds and then try again"
+                _("OTP token was not correct. Please wait 30 seconds and then try again")
             )
 
         cache.set(f"{self.user.email}_totp_passed", "true", 30)

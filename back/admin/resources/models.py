@@ -4,8 +4,9 @@ from django.urls import reverse
 
 from misc.fields import ContentJSONField
 from organization.models import BaseItem
+from django.utils.translation import ugettext_lazy as _
 
-CHAPTER_TYPE = ((0, "page"), (1, "folder"), (2, "questions"))
+CHAPTER_TYPE = ((0, _("page")), (1, _("folder")), (2, _("questions")))
 
 
 class Category(models.Model):
@@ -27,10 +28,14 @@ class Resource(BaseItem):
     def get_icon_template(self):
         return render_to_string("_resource_icon.html")
 
+    @property
+    def notification_add_type(self):
+        return 'added_resource'
+
     def duplicate(self):
         old_resource = Resource.objects.get(pk=self.pk)
         self.pk = None
-        self.name = self.name + " (duplicate)"
+        self.name = _("%(name) (duplicate)") % {'name': self.name}
         self.save()
 
         # old vs new ids for referencing parent_chapters
@@ -129,7 +134,3 @@ class Chapter(models.Model):
 class CourseAnswer(models.Model):
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
     answers = models.JSONField(default=list)
-
-    @property
-    def get_new_hire_answer(self, idx):
-        return self.answers[idx]

@@ -1,4 +1,5 @@
 {% extends 'admin_base.html' %}
+{% load i18n %}
 
 {% block content %}
 <div class="col-12">
@@ -8,8 +9,8 @@
           class="table table-vcenter table-nowrap">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Tags</th>
+            <th>{% translate "Name" %}</th>
+            <th>{% translate "Tags" %}</th>
             <th></th>
           </tr>
         </thead>

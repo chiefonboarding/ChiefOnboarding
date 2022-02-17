@@ -20,6 +20,10 @@ class Appointment(BaseItem):
     def get_icon_template(self):
         return render_to_string("_appointment_icon.html")
 
+    @property
+    def notification_add_type(self):
+        return 'added_appointment'
+
     def update_url(self):
         return reverse("appointments:update", args=[self.id])
 

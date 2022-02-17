@@ -9,6 +9,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from django.utils.translation import ugettext as _
 from users import permissions
 from users.mixins import LoginRequiredMixin, ManagerPermMixin
 
@@ -64,7 +65,7 @@ class AdminTasksUpdateView(
     template_name = "admin_tasks_detail.html"
     form_class = AdminTaskUpdateForm
     model = AdminTask
-    success_message = "Task has been updated"
+    success_message = _("Task has been updated")
 
     def get_success_url(self):
         return self.request.path
@@ -73,8 +74,8 @@ class AdminTasksUpdateView(
         context = super().get_context_data(**kwargs)
         task = get_object_or_404(AdminTask, pk=self.kwargs.get("pk"))
         context["object"] = task
-        context["title"] = f"Task: {task.name}"
-        context["subtitle"] = "Tasks"
+        context["title"] = _("Task: %(name)") % {'name': task.name }
+        context["subtitle"] = _("Tasks")
         context["comment_form"] = AdminTaskCommentForm
         return context
 
@@ -93,7 +94,7 @@ class AdminTasksCreateView(
     template_name = "admin_tasks_create.html"
     form_class = AdminTaskCreateForm
     model = AdminTask
-    success_message = "Task has been created"
+    success_message = _("Task has been created")
     success_url = reverse_lazy("admin_tasks:all")
 
     def form_valid(self, form):
@@ -110,8 +111,8 @@ class AdminTasksCreateView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "New task"
-        context["subtitle"] = "Tasks"
+        context["title"] = _("New task")
+        context["subtitle"] = _("Tasks")
         return context
 
 
@@ -123,7 +124,7 @@ class AdminTasksCommentCreateView(
     fields = [
         "content",
     ]
-    success_message = "Comment has been posted"
+    success_message = _("Comment has been posted")
 
     def get_success_url(self):
         task = get_object_or_404(AdminTask, pk=self.kwargs.get("pk"))

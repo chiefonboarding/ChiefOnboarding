@@ -1,4 +1,5 @@
 {% extends 'admin_base.html' %}
+{% load i18n %}
 {% load crispy_forms_tags %}
 
 {% block actions %}
@@ -11,11 +12,11 @@
   <div class="card-header">
     <div class="row w-100">
       <div class="col">
-        <h3 class="card-title mt-2">Preboarding</h3>
+        <h3 class="card-title mt-2">{% translate "Preboarding" %}</h3>
       </div>
       <div class="col text-end">
         <a href="{% url 'people:new_hire_task_list' object.id 'preboarding' %}" class="btn btn-primary">
-          Change
+          {% translate "Change" %}
         </a>
       </div>
     </div>
@@ -30,7 +31,7 @@
     {% empty %}
     <div class="row">
       <div class="col">
-        There are no preboarding items yet
+        {% translate "There are no preboarding items yet" %}
       </div>
     </div>
     {% endfor %}
@@ -41,11 +42,11 @@
   <div class="card-header">
     <div class="row w-100">
       <div class="col">
-        <h3 class="card-title mt-2">To do</h3>
+        <h3 class="card-title mt-2">{% translate "To do" %}</h3>
       </div>
       <div class="col text-end">
         <a href="{% url 'people:new_hire_task_list' object.id 'todo' %}" class="btn btn-primary">
-          Change
+          {% translate "Change" %}
         </a>
       </div>
     </div>
@@ -60,7 +61,7 @@
     {% empty %}
     <div class="row">
       <div class="col">
-        There are no to do items yet
+        {% translate "There are no to do items yet" %}
       </div>
     </div>
     {% endfor %}
@@ -71,11 +72,11 @@
   <div class="card-header">
     <div class="row w-100">
       <div class="col">
-        <h3 class="card-title mt-2">Resources</h3>
+        <h3 class="card-title mt-2">{% translate "Resources" %}</h3>
       </div>
       <div class="col text-end">
         <a href="{% url 'people:new_hire_task_list' object.id 'resource' %}" class="btn btn-primary">
-          Change
+          {% translate "Change" %}
         </a>
       </div>
     </div>
@@ -90,7 +91,7 @@
     {% empty %}
     <div class="row">
       <div class="col">
-        There are no resource items yet
+        {% translate "There are no resource items yet" %}
       </div>
     </div>
     {% endfor %}
@@ -101,11 +102,11 @@
   <div class="card-header">
     <div class="row w-100">
       <div class="col">
-        <h3 class="card-title">Introductions</h3>
+        <h3 class="card-title">{% translate "Introductions" %}</h3>
       </div>
       <div class="col text-end">
         <a href="{% url 'people:new_hire_task_list' object.id 'introduction' %}" class="btn btn-primary">
-          Change
+          {% translate "Change" %}
         </a>
       </div>
     </div>
@@ -120,7 +121,7 @@
     {% empty %}
     <div class="row">
       <div class="col">
-        There are no introduction items yet
+        {% translate "There are no introduction items yet" %}
       </div>
     </div>
     {% endfor %}
@@ -131,11 +132,11 @@
   <div class="card-header">
     <div class="row w-100">
       <div class="col">
-        <h3 class="card-title">Appointments</h3>
+        <h3 class="card-title">{% translate "Appointments" %}</h3>
       </div>
       <div class="col text-end">
         <a href="{% url 'people:new_hire_task_list' object.id 'appointment' %}" class="btn btn-primary">
-          Change
+          {% translate "Change" %}
         </a>
       </div>
     </div>
@@ -150,7 +151,7 @@
     {% empty %}
     <div class="row">
       <div class="col">
-        There are no appointment items yet
+        {% translate "There are no appointment items yet" %}
       </div>
     </div>
     {% endfor %}

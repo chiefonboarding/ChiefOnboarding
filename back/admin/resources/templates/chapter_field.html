@@ -1,4 +1,5 @@
 {% load crispy_forms_filters %}
+{% load i18n %}
 {% load l10n %}
 {% load settings_values %}
 
@@ -29,18 +30,18 @@
       </div>
       <div class="card-body">
         <div v-show="chapter.type === 0" id="element"></div>
-        <div v-show="chapter.type === 1"><p class="mb-0">Folders can't have content</p></div>
+        <div v-show="chapter.type === 1"><p class="mb-0">{% translate "Folders can't have content" %}</p></div>
         <div v-show="chapter.type === 2">
           <div class="mb-3" v-for="item in chapter.content.blocks" :key="item.id">
-            <label class="form-label">The question you want to ask:</label>
+            <label class="form-label">{% translate "The question you want to ask:" %}</label>
             <input type="text" class="form-control" name="example-text-input" v-model="item.content" placeholder="What's...">
             <div class="form-check" v-for="option in item.items" :key="option.id">
               <input class="form-check-input" type="radio" placeholder="option..." :name="'name' + option.id" v-model="item.answer" :value="option.id" @click="item.answer = option.id" style="margin-top: 10px;">
               <input type="text" class="form-control mt-1" v-model="option.text" name="example-text-input" placeholder="option...">
             </div>
-            <a class="btn btn-primary" style="float:unset" role="button" @click="addOption(item.items)">Add option</a>
+            <a class="btn btn-primary" style="float:unset" role="button" @click="addOption(item.items)">{% translate "Add option" %}</a>
           </div>
-          <a class="btn btn-primary" role="button" @click="addQuestion">Add question</a>
+          <a class="btn btn-primary" role="button" @click="addQuestion">{% translate "Add question" %}</a>
         </div>
       </div>
     </div>

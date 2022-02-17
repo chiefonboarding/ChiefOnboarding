@@ -1,4 +1,5 @@
 {% extends 'admin_base.html' %}
+{% load i18n %}
 
 {% block content %}
 <div class="col-12">
@@ -7,10 +8,10 @@
       <table class="table card-table table-vcenter text-nowrap">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Start date</th>
-            <th>Position</th>
-            <th>Progress</th>
+            <th>{% translate "Name" %}</th>
+            <th>{% translate "Start date" %}</th>
+            <th>{% translate "Position" %}</th>
+            <th>{% translate "Progress" %}</th>
             <th></th>
           </tr>
         </thead>
@@ -34,7 +35,7 @@
             </td>
             <td class="text-end">
               <a href="{% url 'people:new_hire' new_hire.id %}" class="btn btn-white">
-                View
+                {% translate "View" %}
               </a>
             </td>
           </tr>

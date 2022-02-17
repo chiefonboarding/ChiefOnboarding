@@ -103,7 +103,7 @@ class BotView(APIView):
         s = Slack(request.data)
         if not s.has_account():
             s.send_message(
-                text="You don't seem to be setup yet. Please ask your supervisor for access."
+                text=_("You don't seem to be setup yet. Please ask your supervisor for access.")
             )
             return Response()
 
@@ -127,7 +127,7 @@ class BotView(APIView):
             # show categories
             categories = []
             if s.user_obj.resources.filter(category__isnull=True).exists():
-                categories.append({"name": "No category", "id": -1})
+                categories.append({"name": _("No category"), "id": -1})
             for i in s.user_obj.resources.all():
                 if i.category is not None and categories.index(i.category.name) != -1:
                     categories.append(i.category)
@@ -250,13 +250,13 @@ class CallbackView(APIView):
                                 "block_id": "seq",
                                 "label": {
                                     "type": "plain_text",
-                                    "text": "Select sequences",
+                                    "text": _("Select sequences"),
                                 },
                                 "element": {
                                     "type": "multi_static_select",
                                     "placeholder": {
                                         "type": "plain_text",
-                                        "text": "Select sequences",
+                                        "text": _("Select sequences"),
                                     },
                                     "options": options,
                                     "action_id": "answers",
@@ -264,7 +264,7 @@ class CallbackView(APIView):
                             }
                         ],
                         private_metadata=value.split(":")[3],
-                        submit_name="Create new hire",
+                        submit_name=_("Create new hire"),
                     )
                 return Response()
 
@@ -301,7 +301,7 @@ class CallbackView(APIView):
                 if "welcome" in value:
                     s.open_modal(
                         response["trigger_id"],
-                        "Leave a kind message!",
+                        _("Leave a kind message!"),
                         [
                             {
                                 "block_id": "input",
@@ -313,7 +313,7 @@ class CallbackView(APIView):
                                 },
                                 "label": {
                                     "type": "plain_text",
-                                    "text": "What would you like to say to our new hire?",
+                                    "text": _("What would you like to say to our new hire?"),
                                 },
                             }
                         ],
@@ -344,7 +344,7 @@ class CallbackView(APIView):
                                         "type": "static_select",
                                         "placeholder": {
                                             "type": "plain_text",
-                                            "text": "Select chapter",
+                                            "text": _("Select chapter"),
                                             "emoji": True,
                                         },
                                         "options": options,
@@ -357,9 +357,7 @@ class CallbackView(APIView):
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": "*"
-                                + book_user.resource.chapters.first().name
-                                + "*",
+                                "text": f"*{book_user.resource.chapters.first().name}*",
                             },
                         }
                     )
@@ -373,7 +371,7 @@ class CallbackView(APIView):
                         blocks,
                         callback=f"dialog:{type}:{book_user.id}:{resource.id}",
                         private_metadata="",
-                        submit_name="Next",
+                        submit_name=_("Next"),
                     )
                     return Response()
 
@@ -384,7 +382,7 @@ class CallbackView(APIView):
                 )
                 if len(to_do_user.form) == 0:
                     s.send_message(
-                        text="Please complete the form first. Click on 'View details' to complete it."
+                        text=_("Please complete the form first. Click on 'View details' to complete it.")
                     )
                     return Response()
                 items = to_do_user.mark_completed()

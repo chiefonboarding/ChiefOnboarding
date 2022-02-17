@@ -4,6 +4,7 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
+from django.utils.translation import ugettext as _
 from users.mixins import AdminPermMixin, LoginRequiredMixin
 
 from .forms import PreboardingForm
@@ -17,10 +18,9 @@ class PreboardingListView(LoginRequiredMixin, AdminPermMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Preboarding items"
-        context["subtitle"] = "templates"
+        context["title"] = _("Preboarding items")
+        context["subtitle"] = _("templates")
         context["add_action"] = reverse_lazy("preboarding:create")
-        context["wysiwyg"] = []
         return context
 
 
@@ -30,12 +30,12 @@ class PreboardingCreateView(
     template_name = "todo_update.html"
     form_class = PreboardingForm
     success_url = reverse_lazy("preboarding:list")
-    success_message = "Preboarding item has been updated"
+    success_message = _("Preboarding item has been updated")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Create preboarding item"
-        context["subtitle"] = "templates"
+        context["title"] = _("Create preboarding item")
+        context["subtitle"] = _("templates")
         return context
 
 
@@ -46,13 +46,12 @@ class PreboardingUpdateView(
     form_class = PreboardingForm
     success_url = reverse_lazy("preboarding:list")
     queryset = Preboarding.templates.all()
-    success_message = "Preboarding item has been updated"
+    success_message = _("Preboarding item has been updated")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Update preboarding item"
-        context["subtitle"] = "templates"
-        # context["wysiwyg"] = context["preboarding"].content_json
+        context["title"] = _("Update preboarding item")
+        context["subtitle"] = _("templates")
         return context
 
 
@@ -62,5 +61,5 @@ class PreboardingDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         response = super().delete(request, *args, **kwargs)
-        messages.info(request, "Preboarding item has been removed")
+        messages.info(request, _("Preboarding item has been removed"))
         return response

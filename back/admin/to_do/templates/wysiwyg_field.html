@@ -1,4 +1,5 @@
 {% load crispy_forms_field %}
+{% load i18n %}
 
 <div class="form-group">
   <div class="custom-control custom-checkbox">
@@ -8,7 +9,7 @@
     <div id="element"></div>
     {% verbatim %}
     <div class="alert alert-info" role="alert">
-      <p><small>You can use {{ first_name }}, {{ last_name }}, {{ position }}, {{ manager }}, {{ buddy }} in the editor. It will be replaced by the values corresponding to the new hire.</small></p>
+      <p><small>{% translate "You can use {{ first_name }}, {{ last_name }}, {{ position }}, {{ manager }}, {{ buddy }} in the editor. It will be replaced by the values corresponding to the new hire." %}</small></p>
   </div>
     {% endverbatim %}
   </div>

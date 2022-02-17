@@ -1,3 +1,4 @@
+{% load i18n %}
 <div class="dropdown">
   <span role="button" class="btn-action" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><!-- Download SVG icon from http://tabler-icons.io/i/dots-vertical -->
     <span v-if="chapter.type === 1">
@@ -25,13 +26,13 @@
     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="19" r="1"></circle><circle cx="12" cy="5" r="1"></circle></svg>
   </span>
   <div class="dropdown-menu dropdown-menu-end" style="">
-    <a class="dropdown-item" role="button" @click="add(chapter, 0)">Add page</a>
-    <a class="dropdown-item" role="button" @click="add(chapter, 1)">Add folder</a>
-    <a class="dropdown-item" role="button" @click="add(chapter, 2)">Add questions</a>
+    <a class="dropdown-item" role="button" @click="add(chapter, 0)">{% translate "Add page" %}</a>
+    <a class="dropdown-item" role="button" @click="add(chapter, 1)">{% translate "Add folder" %}</a>
+    <a class="dropdown-item" role="button" @click="add(chapter, 2)">{% translate "Add questions" %}</a>
     <div class="dropdown-divider"></div>
-    <a class="dropdown-item" role="button" @click="move(chapter, -1)">Move up</a>
-    <a class="dropdown-item" role="button" @click="move(chapter, 1)">Move down</a>
+    <a class="dropdown-item" role="button" @click="move(chapter, -1)">{% translate "Move up" %}</a>
+    <a class="dropdown-item" role="button" @click="move(chapter, 1)">{% translate "Move down" %}</a>
     <div class="dropdown-divider"></div>
-    <a class="dropdown-item text-danger" @click="deleteItem(chapter)" role="button">Delete</a>
+    <a class="dropdown-item text-danger" @click="deleteItem(chapter)" role="button">{% translate "Delete" %}</a>
   </div>
 </div>

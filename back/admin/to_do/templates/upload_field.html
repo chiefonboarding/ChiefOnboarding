@@ -12,7 +12,7 @@
     <input class="file-id d-none" id="{{ field.id_for_label }}" name="{% if field.name|wordcount > 1 %}{{ field.name|slugify }}{% else %}{{ field.name }}{% endif %}" value="{{ field.value|default_if_none:"" }}">
 
     {% if file %}
-      <p class="mt-1 mb-1">Current file: <span class="file-name">{{ file.name }}</span>.</p>
+      <p class="mt-1 mb-1">{% translate "Current file:" %}<span class="file-name">{{ file.name }}</span>.</p>
     {% endif %}
     <a class="btn btn-sm btn-primary mb-3 upload-button">
       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-upload" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -21,11 +21,11 @@
         <polyline points="7 9 12 4 17 9"></polyline>
         <line x1="12" y1="4" x2="12" y2="16"></line>
       </svg>
-      Upload
+      {% translate "Upload" %}
     </a>
   {% else %}
     <div class="alert alert-warning" role="alert">
-      File storage has not been set up. Please read the docs here: <a href="https://docs.chiefonboarding.com/integrations/s3/">Set up object storage</a>.
+      {% translate "File storage has not been set up. Please read the docs here: " %}<a href="https://docs.chiefonboarding.com/integrations/s3/">{% translate "Set up object storage" %}</a>.
     </div>
   {% endif %}
 </div>

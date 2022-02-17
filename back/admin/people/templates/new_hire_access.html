@@ -1,4 +1,5 @@
 {% extends 'admin_base.html' %}
+{% load i18n %}
 {% load crispy_forms_tags %}
 
 {% block actions %}
@@ -15,7 +16,7 @@
   {% empty %}
   <div class="card">
     <div class="card-body">
-      You have not enabled any integrations for account provisitioning.
+      {% translate "You have not enabled any integrations for account provisitioning." %}
     </div>
   </div>
   {% endfor %}

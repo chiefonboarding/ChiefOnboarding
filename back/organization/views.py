@@ -3,10 +3,13 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.views.generic.list import ListView
 
 from misc.models import File
 from misc.s3 import S3
 from misc.serializers import FileSerializer
+from users.mixins import AdminPermMixin, LoginRequiredMixin
+from .models import Notification
 
 
 class FileView(APIView):
@@ -58,3 +61,16 @@ class FileView(APIView):
             file = get_object_or_404(File, pk=id)
             file.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class NotificationListView(LoginRequiredMixin, AdminPermMixin, ListView):
+    template_name = "notifications.html"
+    queryset = Notification.objects.all()
+    paginate_by = 40
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Notifications"
+        context["subtitle"] = "global"
+        return context
+

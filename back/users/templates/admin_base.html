@@ -1,10 +1,11 @@
 {% load static %}
+{% load i18n %}
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-    <title>Employee onboarding</title>
+    <title>{% translate "Employee onboarding" %}</title>
     <link rel="icon" type="image/x-icon" href="{% static 'favicon.png' %}">
     <!-- CSS files -->
     <link rel="stylesheet" href="{% static 'css/theme.css' %}">
@@ -19,10 +20,10 @@
           </button>
           <div class="navbar-nav flex-row order-md-last">
             <div class="nav-item dropdown d-none d-md-flex me-3">
-              <a href="{% url 'settings:changelog' %}" class="nav-link px-0" tabindex="-1">
+              <a href="{% url 'organization:notifications' %}" class="nav-link d-flex lh-1 text-reset p-0">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6" /><path d="M9 17v1a3 3 0 0 0 6 0v-1" /></svg>
                 {% if request.user.has_new_changelog_notifications %}
-                <span class="badge bg-red"></span>
+                  <span class="badge bg-red"></span>
                 {% endif %}
               </a>
             </div>
@@ -35,7 +36,13 @@
                 </div>
               </a>
               <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
+                <a href="{% url 'settings:changelog' %}" class="dropdown-item">
+                  {% translate "Changelog" %}
+                  {% if request.user.has_new_changelog_notifications %}
+                  <span class="badge bg-red"></span>
+                  {% endif %}
+                </a>
+                <a href="{% url 'logout' %}" class="dropdown-item">{% translate "Logout" %}</a>
               </div>
             </div>
           </div>
@@ -48,15 +55,15 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-users" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="9" cy="7" r="4"></circle><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path><path d="M21 21v-2a4 4 0 0 0 -3 -3.85"></path></svg> </span>
                     </span>
                     <span class="nav-link-title">
-                      People
+                      {% translate "People" %}
                     </span>
                   </a>
                   <div class="dropdown-menu">
                     <a class="dropdown-item" href="{% url 'admin:new_hires' %}">
-                      New hires
+                      {% translate "New hires" %}
                     </a>
                     <a class="dropdown-item" href="{% url 'admin:colleagues' %}">
-                      Colleagues
+                      {% translate "Colleagues" %}
                     </a>
                   </div>
                 </li>
@@ -66,28 +73,28 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-box-multiple" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><rect x="7" y="3" width="14" height="14" rx="2"></rect><path d="M17 17v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h2"></path></svg>
                     </span>
                     <span class="nav-link-title">
-                      Templates
+                      {% translate "Templates" %}
                     </span>
                   </a>
                   <div class="dropdown-menu">
                     <a class="dropdown-item" href="{% url 'todo:list' %}" >
-                      To do
+                      {% translate "To do" %}
                     </a>
-                    <a class="dropdown-item" href="{% url 'resources:list' %}" >
-                      Resources
-                    </a>
-                    <a class="dropdown-item" href="{% url 'introductions:list' %}" >
-                      Introductions
-                    </a>
-                    <a class="dropdown-item" href="{% url 'appointments:list' %}" >
-                      Appointments
-                    </a>
-                    <a class="dropdown-item" href="{% url 'preboarding:list' %}">
-                      Preboarding
-                    </a>
-                    <a class="dropdown-item" href="{% url 'badges:list' %}">
-                      Badges
-                    </a>
+                      <a class="dropdown-item" href="{% url 'resources:list' %}" >
+                        {% translate "Resources" %}
+                      </a>
+                        <a class="dropdown-item" href="{% url 'introductions:list' %}" >
+                          {% translate "Introductions" %}
+                        </a>
+                          <a class="dropdown-item" href="{% url 'appointments:list' %}" >
+                            {% translate "Appointments" %}
+                          </a>
+                            <a class="dropdown-item" href="{% url 'preboarding:list' %}">
+                              {% translate "Preboarding" %}
+                            </a>
+                            <a class="dropdown-item" href="{% url 'badges:list' %}">
+                              {% translate "Badges" %}
+                            </a>
                   </div>
                 </li>
                 <li class="nav-item {% if 'sequences' in request.path %}active{% endif %}">
@@ -96,7 +103,7 @@
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-subtask" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><line x1="6" y1="9" x2="12" y2="9"></line><line x1="4" y1="5" x2="8" y2="5"></line><path d="M6 5v11a1 1 0 0 0 1 1h5"></path><rect x="12" y="7" width="8" height="4" rx="1"></rect> <rect x="12" y="15" width="8" height="4" rx="1"></rect></svg>
                     </span>
                     <span class="nav-link-title">
-                      Sequences
+                      {% translate "Sequences" %}
                     </span>
                   </a>
                 </li>
@@ -106,15 +113,15 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3.5 5.5l1.5 1.5l2.5 -2.5"></path><path d="M3.5 11.5l1.5 1.5l2.5 -2.5"></path><path d="M3.5 17.5l1.5 1.5l2.5 -2.5"></path><line x1="11" y1="6" x2="20" y2="6"></line><line x1="11" y1="12" x2="20" y2="12"></line><line x1="11" y1="18" x2="20" y2="18"></line></svg>
                     </span>
                     <span class="nav-link-title">
-                      Tasks
+                      {% translate "Tasks" %}
                     </span>
                   </a>
                   <div class="dropdown-menu">
                     <a class="dropdown-item" href="{% url 'admin_tasks:mine' %}" >
-                      Your tasks
+                      {% translate "Your tasks" %}
                     </a>
                       <a class="dropdown-item" href="{% url 'admin_tasks:all' %}" >
-                        All tasks
+                        {% translate "All tasks" %}
                       </a>
                   </div>
                 </li>
@@ -124,7 +131,7 @@
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-settings" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                     </span>
                     <span class="nav-link-title">
-                      Settings
+                      {% translate "Settings" %}
                     </span>
                   </a>
                 </li>
@@ -179,12 +186,12 @@
             <div class="row text-center align-items-center flex-row-reverse">
               <div class="col-lg-auto ms-lg-auto">
                 <ul class="list-inline list-inline-dots mb-0">
-                  <li class="list-inline-item"><a href="https://docs.chiefonboarding.com" class="link-secondary">Documentation</a></li>
+                  <li class="list-inline-item"><a href="https://docs.chiefonboarding.com" class="link-secondary">{% translate "Documentation" %}</a></li>
                   <li class="list-inline-item">
                     <a href="https://github.com/chiefonboarding/chiefonboarding" target="_blank" class="link-secondary" rel="noopener">
                       <!-- Download SVG icon from http://tabler-icons.io/i/heart -->
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5"></path></svg>
-                      Source code
+                      {% translate "Source code" %}
                     </a>
                   </li>
                 </ul>
@@ -192,7 +199,7 @@
               <div class="col-12 col-lg-auto mt-3 mt-lg-0">
                 <ul class="list-inline list-inline-dots mb-0">
                   <li class="list-inline-item">
-                    <a href="https://chiefonboarding.com" class="link-secondary">ChiefOnboarding</a>
+                    <a href="https://chiefonboarding.com" class="link-secondary">{% translate "ChiefOnboarding" %}</a>
                   </li>
                   <li class="list-inline-item">
                     <a href="https://docs.chiefonboarding.com/changelog" class="link-secondary">v2.0.0</a>
@@ -222,8 +229,8 @@
     <script src="{% static 'js/litepicker-2.0.12.min.js' %}" type="text/javascript"></script>
     <script>
       document.body.addEventListener('htmx:configRequest', function(event) {
-        event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
-      })
+              event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+            })
     </script>
     <script defer>
       function initSelectize(prefix="") {
@@ -260,7 +267,7 @@
             const fileNameSpan = $(this).parent().find(".file-name");
             const filePreview = $(this).parent().find("img");
 
-            $(this).parent().find(".upload-button").text("uploading...")
+            $(this).parent().find(".upload-button").text('{% translate "uploading..." %}')
             $.ajax({
               url: "/api/org/file",
               type: 'post',

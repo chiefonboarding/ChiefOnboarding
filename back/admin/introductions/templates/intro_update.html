@@ -1,4 +1,5 @@
 {% extends 'admin_base.html' %}
+{% load i18n %}
 {% load crispy_forms_tags %}
 
 {% block actions %}
@@ -6,13 +7,13 @@
     <form method="POST" action="{% url 'templates:duplicate' object.class_name object.id %}">
       {% csrf_token %}
       <button type="submit" class="btn btn-primary">
-        Duplicate
+        {% translate "Duplicate" %}
       </button>
     </form>
     <form method="POST" action="{{ object.delete_url }}">
       {% csrf_token %}
       <button type="submit" class="btn btn-danger">
-        Delete
+        {% translate "Delete" %}
       </button>
     </form>
   {% endif %}
@@ -27,11 +28,11 @@
             <div class="col-6">
               {% crispy form %}
               <div class="form-footer">
-                <button type="submit" class="btn btn-primary">{% if object %}Update{% else %}Create{% endif %}</button>
+                <button type="submit" class="btn btn-primary">{% if object %}{% translate "Update" %}{% else %}{% translate "Create" %}{% endif %}</button>
               </div>
             </div>
             <div class="col-6">
-              <h3>Preview</h3>
+              <h3>{% translate "Preview" %}</h3>
               <div class="update-intro">
                 {% include "_colleague_intro.html" with intro_person=object.intro_person  %}
               </div>

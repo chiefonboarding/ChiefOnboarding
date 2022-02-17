@@ -1,4 +1,5 @@
 {% extends 'admin_base.html' %}
+{% load i18n %}
 {% load crispy_forms_tags %}
 {% load humanize %}
 
@@ -10,16 +11,16 @@
 {% include "_new_hire_menu.html" %}
 <div class="card mt-3">
   <div class="card-header">
-    <h3 class="card-title">Open admin tasks</h3>
+    <h3 class="card-title">{% translate "Open admin tasks" %}</h3>
   </div>
   <div class="">
     <div class="divide-y">
       <table class="table table-responsive table-vcenter text-nowrap">
         <thead>
           <tr>
-            <th>Assigned to</th>
-            <th>Task</th>
-            <th>Due in</th>
+            <th>{% translate "Assigned to" %}</th>
+            <th>{% translate "Task" %}</th>
+            <th>{% translate "Due in" %}</th>
           </tr>
         </thead>
         <tbody>
@@ -33,12 +34,12 @@
                 {{ task.name }}
               </div>
             </td>
-            <td>{% if task.date|naturaltime is not None %}{{ task.date|naturaltime }}{% else %}No deadline set{%endif %}</td>
+            <td>{% if task.date|naturaltime is not None %}{{ task.date|naturaltime }}{% else %}{% translate "No deadline set" %}{%endif %}</td>
           </tr>
           {% empty %}
           <tr>
             <td colspan="3">
-              There are no open items
+              {% translate "There are no open items" %}
             </td>
           </tr>
           {% endfor %}
@@ -50,15 +51,15 @@
 
 <div class="card mt-3">
   <div class="card-header">
-    <h3 class="card-title">Completed admin tasks</h3>
+    <h3 class="card-title">{% translate "Completed admin tasks" %}</h3>
   </div>
   <div class="">
     <div class="divide-y">
       <table class="table table-responsive table-vcenter text-nowrap">
         <thead>
           <tr>
-            <th>Assigned to</th>
-            <th>Task</th>
+            <th>{% translate "Assigned to" %}</th>
+            <th>{% translate "Task" %}</th>
           </tr>
         </thead>
         <tbody>
@@ -76,7 +77,7 @@
           {% empty %}
           <tr>
             <td colspan="3">
-              There are no closed items
+              {% translate "There are no closed items" %}
             </td>
           </tr>
           {% endfor %}

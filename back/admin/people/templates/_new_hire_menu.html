@@ -1,3 +1,4 @@
+{% load i18n %}
 <header class="card mb-2 navbar navbar-expand-md navbar-light d-print-none">
   <div class="container-xl">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
@@ -17,7 +18,7 @@
                 </svg>
               </span>
               <span class="nav-link-title">
-                Overview
+                {% translate "Overview" %}
               </span>
             </a>
           </li>
@@ -31,7 +32,7 @@
                 </svg>
               </span>
               <span class="nav-link-title">
-                Profile
+                {% translate "Profile" %}
               </span>
             </a>
           </li>
@@ -41,7 +42,7 @@
                 {% include '_account_provision.html' %}
               </span>
               <span class="nav-link-title">
-                Access
+                {% translate "Access" %}
               </span>
             </a>
           </li>
@@ -61,7 +62,7 @@
                 </svg>
               </span>
               <span class="nav-link-title">
-                Tasks
+                {% translate "Tasks" %}
               </span>
             </a>
           </li>
@@ -77,7 +78,7 @@
                 </svg>
               </span>
               <span class="nav-link-title">
-                Progress
+                {% translate "Progress" %}
               </span>
             </a>
           </li>
@@ -95,7 +96,7 @@
                 </svg>
               </span>
               <span class="nav-link-title">
-                Forms
+                {% translate "Forms" %}
               </span>
             </a>
           </li>
@@ -111,7 +112,7 @@
                 </svg>
               </span>
               <span class="nav-link-title">
-                Notes
+                {% translate "Notes" %}
               </span>
             </a>
           </li>
@@ -129,7 +130,7 @@
                 </svg>
               </span>
               <span class="nav-link-title">
-                Admin Tasks
+                {% translate "Admin Tasks" %}
               </span>
             </a>
           </li>
@@ -145,7 +146,7 @@
                 </svg>
               </span>
               <span class="nav-link-title">
-                Welcome Messages
+                {% translate "Welcome Messages" %}
               </span>
             </a>
           </li>

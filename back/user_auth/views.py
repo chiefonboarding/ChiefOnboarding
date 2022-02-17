@@ -8,7 +8,7 @@ from django.contrib.auth.views import LoginView
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 from django.views.generic import View
 from django.views.generic.edit import FormView
 
@@ -96,7 +96,7 @@ class GoogleLoginView(View):
         # Make sure access token exists. Technically, it shouldn't be possible
         # to enable `google_login` when this is not set, but just to be safe
         if not AccessToken.objects.filter(integration=3, active=True):
-            return HttpResponse("Google login access token has not been set")
+            return HttpResponse(_("Google login access token has not been set"))
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -121,7 +121,7 @@ class GoogleLoginView(View):
             ).json()
         except:
             messages.error(
-                request, "Something went wrong with reaching Google. Please try again."
+                request, _("Something went wrong with reaching Google. Please try again.")
             )
             return redirect("login")
         if "email" in user_info:
@@ -134,6 +134,6 @@ class GoogleLoginView(View):
 
         messages.error(
             request,
-            "There is no account associated with your email address. Did you try to log in with the correct account?",
+            _("There is no account associated with your email address. Did you try to log in with the correct account?"),
         )
         return redirect("login")

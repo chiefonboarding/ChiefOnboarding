@@ -1,4 +1,5 @@
 {% extends 'admin_base.html' %}
+{% load i18n %}
 {% load crispy_forms_tags %}
 {% block content %}
 <div class="row justify-content-center">
@@ -9,7 +10,7 @@
           {% csrf_token %}
           {{ form|crispy }}
           <div class="form-footer">
-            <button type="submit" class="btn btn-primary">Create</button>
+            <button type="submit" class="btn btn-primary">{% translate "Create" %}</button>
           </div>
         </form>
       </div>

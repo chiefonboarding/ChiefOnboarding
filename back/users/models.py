@@ -1,18 +1,17 @@
 import uuid
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 
 import pyotp
 import pytz
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Q
 from django.template import Context, Template
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
 from fernet_fields import EncryptedTextField
+from django.utils.translation import ugettext_lazy as _
 
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
@@ -25,16 +24,16 @@ from misc.models import File
 from organization.models import Changelog, Organization
 
 LANGUAGE_CHOICES = (
-    ("en", "English"),
-    ("nl", "Dutch"),
-    ("fr", "French"),
-    ("de", "German"),
-    ("tr", "Turkish"),
-    ("pt", "Portuguese"),
-    ("es", "Spanish"),
+    ("en", _("English")),
+    ("nl", _("Dutch")),
+    ("fr", _("French")),
+    ("de", _("German")),
+    ("tr", _("Turkish")),
+    ("pt", _("Portuguese")),
+    ("es", _("Spanish")),
 )
 
-ROLE_CHOICES = ((0, "New Hire"), (1, "Administrator"), (2, "Manager"), (3, "Other"))
+ROLE_CHOICES = ((0, _("New Hire")), (1, _("Administrator")), (2, _("Manager")), (3, _("Other")))
 
 
 class Department(models.Model):
@@ -55,7 +54,7 @@ class CustomUserManager(BaseUserManager):
     ):
         now = datetime.now()
         if not email:
-            raise ValueError("The given email must be set")
+            raise ValueError(_("The given email must be set"))
         email = self.normalize_email(email)
         user = self.model(
             first_name=first_name,
@@ -132,7 +131,7 @@ class User(AbstractBaseUser):
     role = models.IntegerField(
         choices=ROLE_CHOICES,
         default=3,
-        help_text="An administrator has access to everything. A manager has only access to their new hires and their tasks.",
+        help_text=_("An administrator has access to everything. A manager has only access to their new hires and their tasks."),
     )
     is_active = models.BooleanField(default=True)
     is_introduced_to_colleagues = models.BooleanField(default=False)
@@ -357,9 +356,7 @@ class PreboardingUser(models.Model):
     preboarding = models.ForeignKey(
         Preboarding, related_name="preboarding_new_hire", on_delete=models.CASCADE
     )
-    form = models.JSONField(
-        models.TextField(max_length=100000, default="[]"), default=list
-    )
+    form = models.JSONField(default=list)
     completed = models.BooleanField(default=False)
     order = models.IntegerField(default=0)
 
@@ -431,7 +428,7 @@ class ResourceUser(models.Model):
             for idx, answer in enumerate(question_page.chapter.content["blocks"]):
                 if question_page.answers[f"item-{idx}"] == answer["answer"]:
                     amount_of_correct_answers += 1
-        return f"{amount_of_correct_answers} correct answers out of {amount_of_questions} questions"
+        return _("%(amount_of_correct_answers) correct answers out of %(amount_of_questions) questions") % {'amount_of_correct_answers': amount_of_correct_answers, 'amount_of_questions': amount_of_questions}
 
     def get_user_answer_by_chapter(self, chapter):
         if not self.answers.filter(chapter=chapter).exists():

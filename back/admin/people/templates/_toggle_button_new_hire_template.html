@@ -1,8 +1,9 @@
+{% load i18n %}
 <div hx-get="{% url 'people:toggle_new_hire_task' object.id template.id view.kwargs.type %}" hx-swap="outerHTML" class="btn {% if template in user_items.all %}btn-primary{% else %}btn-white{% endif %}" hx-indicator="#spinner-{{template.id}}">
   {% if template in user_items.all %}
-    Added
+    {% translate "Added" %}
   {% else %}
-    Add
+    {% translate "Add" %}
   {% endif %}
   <span class="requesting alsodisplay" id="spinner-{{template.id}}">
     <div class="spinner-border spinner-border-sm text-muted" role="status"></div>

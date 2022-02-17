@@ -1,4 +1,5 @@
 {% extends 'no_login_base.html' %}
+{% load i18n %}
 {% load crispy_forms_tags %}
 
 {% block content %}
@@ -15,12 +16,12 @@
         {{ form|crispy }}
       </div>
       <div class="form-footer">
-        <button type="submit" class="btn btn-primary w-100">Log in</button>
+        <button type="submit" class="btn btn-primary w-100">{% translate "Log in" %}</button>
       </div>
     </div>
   {% endif %}
   {% if organization.credentials_login and organization.google_login %}
-  <div class="hr-text">or</div>
+  <div class="hr-text">{% translate "or" %}</div>
   {% endif %}
   {% if organization.google_login %}
   <div class="card-body">
@@ -30,7 +31,7 @@
             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
             <path d="M17.788 5.108a9 9 0 1 0 3.212 6.892h-8"/>
           </svg>
-          Log in with Google
+          {% translate "Log in with Google" %}
         </a></div>
     </div>
   </div>
@@ -38,7 +39,7 @@
 </form>
 {% if organization.credentials_login %}
 <div class="text-center text-muted mt-3">
-  <a href="{% url 'password-reset' %}" tabindex="-1">Forgot password?</a>
+  <a href="{% url 'password-reset' %}" tabindex="-1">{% translate "Forgot password?" %}</a>
 </div>
 {% endif %}
 {% endblock %}

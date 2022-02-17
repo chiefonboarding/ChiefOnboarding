@@ -1,3 +1,4 @@
+{% load i18n %}
 <button hx-post="{% url url_name colleague.id %}" class="btn btn-{% if exists %}danger{% else %}primary{% endif %}" hx-swap="outerHTML" hx-indicator="#spinner-{{colleague.id}}-{% if slack %}1{% else %}0{% endif %}">
   {% if slack %}
     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-slack" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -16,11 +17,11 @@
     </svg>
   {% endif %}
   {% if not exists and not button_name %}
-  Give access
+    {% translate "Give access" %}
   {% elif exists and not button_name %}
-  Revoke access
+    {% translate "Revoke access" %}
   {% else %}
-  {{ button_name }}
+    {{ button_name }}
   {% endif %}
   <span class="requesting alsodisplay spinner-border spinner-border-sm me-2" id="spinner-{{colleague.id}}-{% if slack %}1{% else %}0{% endif %}" role="status"></span>
 </button>

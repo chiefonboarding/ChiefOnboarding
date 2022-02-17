@@ -1,6 +1,7 @@
 from django.db import models
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from misc.fields import ContentJSONField
 from organization.models import BaseItem
@@ -19,6 +20,10 @@ class ToDo(BaseItem):
     @property
     def get_icon_template(self):
         return render_to_string("_todo_icon.html")
+
+    @property
+    def notification_add_type(self):
+        return 'added_todo'
 
     def update_url(self):
         return reverse("todo:update", args=[self.id])
@@ -51,7 +56,7 @@ class ToDo(BaseItem):
                             "type": "static_select",
                             "placeholder": {
                                 "type": "plain_text",
-                                "text": "Select an item",
+                                "text": _("Select an item"),
                                 "emoji": True,
                             },
                             "options": options,

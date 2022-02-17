@@ -1,0 +1,27 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-8">
+    <div class="card">
+      <div class="card-body">
+        <div class="divide-y">
+          {% for object in object_list %}
+            <div>
+              <div class="row">
+                <div class="col">
+                  <div class="text-truncate">
+                    <strong>{{ object.get_notification_type_display }}: {{ object.extra_text }}</strong>
+                  </div>
+                  <div class="text-truncate text-muted">{% if object.created_for %}{% translate "For " %} {{ object.created_for.full_name }} - {% endif %}{% translate "By " %}{% if object.created_by %}{{ object.created_by.full_name }}{% else %}ChiefOnboarding{% endif %}</div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

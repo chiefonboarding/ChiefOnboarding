@@ -1,4 +1,5 @@
 {% extends 'admin_base.html' %}
+{% load i18n %}
 {% load crispy_forms_tags %}
 {% block content %}
 <div class="row">
@@ -8,7 +9,7 @@
         <div class="card-body">
           {% crispy form %}
           <div class="form-footer">
-            <button type="submit" class="btn btn-primary">Reopen this task for new hire</button>
+            <button type="submit" class="btn btn-primary">{% translate "Reopen this task for new hire" %}</button>
           </div>
         </div>
       </form>

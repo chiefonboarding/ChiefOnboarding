@@ -1,4 +1,5 @@
 {% extends 'settings_base.html' %}
+{% load i18n %}
 
 {% block settings_content %}
   <div class="table-responsive">
@@ -6,8 +7,8 @@
 		class="table table-vcenter table-nowrap">
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Role</th>
+        <th>{% translate "Name" %}</th>
+        <th>{% translate "Role" %}</th>
         <th></th>
       </tr>
     </thead>
@@ -18,12 +19,12 @@
         <td>{{ admin.get_role_display }}</td>
         <td style="text-align: right">
           <a href="{% url 'settings:administrators-update' admin.id %}" class="btn btn-primary">
-            Change
+            {% translate "Change" %}
           </a>
           <form method="post" action="{% url 'settings:administrators-delete' admin.id %}" class="mb-0" style="display:inline-block">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">
-              Delete
+              {% translate "Delete" %}
             </button>
           </form>
       </tr>

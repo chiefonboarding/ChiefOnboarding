@@ -1,7 +1,6 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from axes.decorators import axes_dispatch
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login, signals
 from django.db.models import Q
@@ -15,13 +14,9 @@ from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from rest_framework.throttling import AnonRateThrottle
-from rest_framework.views import APIView
+from django.utils.translation import gettext_lazy as _
 
 from admin.resources.models import Chapter, CourseAnswer, Resource
-from organization.serializers import BaseOrganizationSerializer
 from users.mixins import LoginRequiredMixin
 from users.models import (
     NewHireWelcomeMessage,
@@ -30,7 +25,7 @@ from users.models import (
     ToDoUser,
     User,
 )
-from users.permissions import NewHirePermission
+from organization.models import Notification
 
 from .forms import QuestionsForm
 
@@ -79,8 +74,8 @@ class NewHireDashboard(LoginRequiredMixin, TemplateView):
 
         context["to_do_items"] = items_by_date
 
-        context["title"] = "Things you need to do"
-        context["subtitle"] = "Tasks"
+        context["title"] = _("Things you need to do")
+        context["subtitle"] = _("Tasks")
         return context
 
 
@@ -249,6 +244,12 @@ class ToDoCompleteView(LoginRequiredMixin, RedirectView):
         )
         to_do_user.completed = True
         to_do_user.save()
+
+        Notification.objects.create(
+            notification_type='completed_todo',
+            extra_text=to_do_user.todo.name,
+            created_by=self.request.user
+        )
         return super().get_redirect_url(*args, **kwargs)
 
 
@@ -258,7 +259,12 @@ class CourseNextStepView(LoginRequiredMixin, View):
         chapter = resource_user.add_step()
 
         if chapter is None:
-            messages.success(request, "You have completed this course!")
+            messages.success(request, _("You have completed this course!"))
+            Notification.objects.create(
+                notification_type='completed_course',
+                extra_text=resource_user.resource.name,
+                created_by=self.request.user
+            )
             return redirect("new_hire:resources")
 
         return redirect(

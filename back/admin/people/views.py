@@ -22,7 +22,7 @@ from admin.notes.models import Note
 from admin.resources.models import Resource
 from admin.sequences.models import Condition, Sequence
 from admin.templates.utils import get_templates_model
-from organization.models import Organization, WelcomeMessage
+from organization.models import Organization, WelcomeMessage, Notification
 from slack_bot.slack import Slack
 from slack_bot.tasks import link_slack_users
 from users.emails import (
@@ -64,8 +64,8 @@ class NewHireListView(LoginRequiredMixin, AdminPermMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "New hires"
-        context["subtitle"] = "people"
+        context["title"] = _("New hires")
+        context["subtitle"] = _("people")
         context["add_action"] = reverse_lazy("people:new_hire_add")
         return context
 
@@ -77,13 +77,13 @@ class NewHireAddView(
     model = get_user_model()
     form_class = NewHireAddForm
     context_object_name = "object"
-    success_message = "New hire has been created"
+    success_message = _("New hire has been created")
     success_url = reverse_lazy("people:new_hires")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Add new hire"
-        context["subtitle"] = "people"
+        context["title"] = _("Add new hire")
+        context["subtitle"] = _("people")
         return context
 
     def form_valid(self, form):
@@ -110,6 +110,12 @@ class NewHireAddView(
 
         # Linking user in Slack and sending welcome message (if exists)
         link_slack_users([new_hire])
+
+        Notification.objects.create(
+            notification_type='added_new_hire',
+            extra_text=new_hire.full_name,
+            created_by=self.request.user
+        )
 
         return super().form_valid(form)
 
@@ -155,7 +161,7 @@ class NewHireAddSequenceView(LoginRequiredMixin, AdminPermMixin, FormView):
         new_hire = get_object_or_404(User, id=user_id)
         sequences = Sequence.objects.filter(id__in=form.cleaned_data["sequences"])
         new_hire.add_sequences(sequences)
-        messages.success(self.request, "Sequence(s) have been added to this new hire")
+        messages.success(self.request, _("Sequence(s) have been added to this new hire"))
 
         # Check if there are items that will not be triggered since date passed
         conditions = Condition.objects.none()
@@ -221,7 +227,7 @@ class NewHireSendLoginEmailView(LoginRequiredMixin, AdminPermMixin, View):
     def get(self, request, pk, *args, **kwargs):
         new_hire = get_object_or_404(User, id=pk)
         send_new_hire_credentials(new_hire)
-        messages.success(request, "Sent email to new hire")
+        messages.success(request, _("Sent email to new hire"))
         return redirect("people:new_hire", pk=new_hire.id)
 
 
@@ -233,8 +239,8 @@ class ColleagueListView(LoginRequiredMixin, AdminPermMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Colleagues"
-        context["subtitle"] = "people"
+        context["title"] = _("Colleagues")
+        context["subtitle"] = _("people")
         context["slack_active"] = AccessToken.objects.filter(integration=0).exists()
         context["add_action"] = reverse_lazy("people:colleague_create")
         return context
@@ -249,7 +255,7 @@ class NewHireSequenceView(LoginRequiredMixin, AdminPermMixin, DetailView):
         context = super().get_context_data(**kwargs)
         new_hire = context["object"]
         context["title"] = new_hire.full_name
-        context["subtitle"] = "new hire"
+        context["subtitle"] = _("new hire")
 
         # condition items
         conditions_before_first_day = new_hire.conditions.filter(
@@ -267,6 +273,7 @@ class NewHireSequenceView(LoginRequiredMixin, AdminPermMixin, DetailView):
         context["conditions_before_first_day"] = conditions_before_first_day
         context["conditions_after_first_day"] = conditions_after_first_day
 
+        context["notifications"] = Notification.objects.filter(created_for=new_hire)
         return context
 
 
@@ -276,7 +283,7 @@ class NewHireProfileView(
     template_name = "new_hire_profile.html"
     model = User
     form_class = NewHireProfileForm
-    success_message = "New hire has been updated"
+    success_message = _("New hire has been updated")
     context_object_name = "object"
 
     def get_success_url(self):
@@ -286,7 +293,7 @@ class NewHireProfileView(
         context = super().get_context_data(**kwargs)
         new_hire = context["object"]
         context["title"] = new_hire.full_name
-        context["subtitle"] = "new hire"
+        context["subtitle"] = _("new hire")
         return context
 
 
@@ -296,7 +303,7 @@ class ColleagueUpdateView(
     template_name = "colleague_update.html"
     model = User
     form_class = ColleagueUpdateForm
-    success_message = "Employee has been updated"
+    success_message = _("Employee has been updated")
     context_object_name = "object"
 
     def get_success_url(self):
@@ -306,7 +313,7 @@ class ColleagueUpdateView(
         context = super().get_context_data(**kwargs)
         new_hire = context["object"]
         context["title"] = new_hire.full_name
-        context["subtitle"] = "Employee"
+        context["subtitle"] = _("Employee")
         return context
 
 
@@ -316,14 +323,14 @@ class ColleagueCreateView(
     template_name = "colleague_create.html"
     model = User
     form_class = ColleagueCreateForm
-    success_message = "Colleague has been added"
+    success_message = _("Colleague has been added")
     context_object_name = "object"
     success_url = reverse_lazy("people:colleagues")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Create new colleague"
-        context["subtitle"] = "Employee"
+        context["title"] = _("Create new colleague")
+        context["subtitle"] = _("Employee")
         return context
 
 
@@ -352,8 +359,8 @@ class ColleagueResourceView(LoginRequiredMixin, AdminPermMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         new_hire = context["object"]
-        context["title"] = f"Add new resource for {new_hire.full_name}"
-        context["subtitle"] = "Employee"
+        context["title"] = _("Add new resource for %(name)") % {'name': new_hire.full_name}
+        context["subtitle"] = _("Employee")
         context["object_list"] = Resource.objects.all()
         return context
 
@@ -364,7 +371,7 @@ class ColleagueDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         response = super().delete(request, *args, **kwargs)
-        messages.info(request, "Colleague has been removed")
+        messages.info(request, _("Colleague has been removed"))
         return response
 
 
@@ -375,7 +382,7 @@ class NewHireDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         response = super().delete(request, *args, **kwargs)
-        messages.info(request, "New hire has been removed")
+        messages.info(request, _("New hire has been removed"))
         return response
 
 
@@ -387,7 +394,7 @@ class NewHireMigrateToNormalAccountView(LoginRequiredMixin, AdminPermMixin, View
         user = get_object_or_404(get_user_model(), id=pk)
         user.role = 3
         user.save()
-        messages.info(request, "New hire is now a normal account.")
+        messages.info(request, _("New hire is now a normal account."))
         return redirect("people:new_hires")
 
 
@@ -399,7 +406,7 @@ class NewHireNotesView(
     fields = [
         "content",
     ]
-    success_message = "Note has been added"
+    success_message = _("Note has been added")
 
     def get_success_url(self):
         return self.request.path
@@ -415,7 +422,7 @@ class NewHireNotesView(
         new_hire = get_object_or_404(get_user_model(), pk=self.kwargs.get("pk"))
         context["object"] = new_hire
         context["title"] = new_hire.full_name
-        context["subtitle"] = "new hire"
+        context["subtitle"] = _("new hire")
         context["notes"] = Note.objects.filter(new_hire=new_hire).order_by("-id")
         return context
 
@@ -432,7 +439,7 @@ class NewHireWelcomeMessagesView(LoginRequiredMixin, AdminPermMixin, ListView):
         new_hire = get_object_or_404(get_user_model(), pk=self.kwargs.get("pk"))
         context["object"] = new_hire
         context["title"] = new_hire.full_name
-        context["subtitle"] = "new hire"
+        context["subtitle"] = _("new hire")
         return context
 
 
@@ -444,7 +451,7 @@ class NewHireAdminTasksView(LoginRequiredMixin, AdminPermMixin, TemplateView):
         new_hire = get_object_or_404(get_user_model(), pk=self.kwargs.get("pk"))
         context["object"] = new_hire
         context["title"] = new_hire.full_name
-        context["subtitle"] = "new hire"
+        context["subtitle"] = _("new hire")
         context["tasks_completed"] = AdminTask.objects.filter(
             new_hire=new_hire, completed=True
         )
@@ -463,7 +470,7 @@ class NewHireFormsView(LoginRequiredMixin, AdminPermMixin, DetailView):
         context = super().get_context_data(**kwargs)
         new_hire = self.object
         context["title"] = new_hire.full_name
-        context["subtitle"] = "new hire"
+        context["subtitle"] = _("new hire")
         context["preboarding_forms"] = PreboardingUser.objects.filter(
             user=new_hire, completed=True
         ).exclude(form=[])
@@ -482,7 +489,7 @@ class NewHireProgressView(LoginRequiredMixin, AdminPermMixin, DetailView):
         context = super().get_context_data(**kwargs)
         new_hire = self.object
         context["title"] = new_hire.full_name
-        context["subtitle"] = "new hire"
+        context["subtitle"] = _("new hire")
         context["resources"] = ResourceUser.objects.filter(
             user=new_hire, resource__course=True
         )
@@ -520,7 +527,7 @@ class NewHireRemindView(LoginRequiredMixin, AdminPermMixin, View):
         else:
             send_reminder_email(template_user_obj)
 
-        messages.success(self.request, "Reminder has been sent!")
+        messages.success(self.request, _("Reminder has been sent!"))
 
         return redirect("people:new_hire_progress", pk=template_user_obj.user.id)
 
@@ -568,7 +575,7 @@ class NewHireReopenTaskView(LoginRequiredMixin, AdminPermMixin, FormView):
                 template_user_obj, form.cleaned_data["message"], template_user_obj.user
             )
 
-        messages.success(self.request, "Item has been reopened")
+        messages.success(self.request, _("Item has been reopened"))
 
         return redirect("people:new_hire_progress", pk=template_user_obj.user.id)
 
@@ -583,7 +590,7 @@ class NewHireReopenTaskView(LoginRequiredMixin, AdminPermMixin, FormView):
         template_user_model = apps.get_model("users", template_type)
         template_user_obj = template_user_model.objects.get(pk=pk)
         context["title"] = template_user_obj.user.full_name
-        context["subtitle"] = "new hire"
+        context["subtitle"] = _("new hire")
         return context
 
 
@@ -596,7 +603,7 @@ class NewHireCourseAnswersView(LoginRequiredMixin, AdminPermMixin, DetailView):
         context = super().get_context_data(**kwargs)
         new_hire = self.object
         context["title"] = new_hire.full_name
-        context["subtitle"] = "new hire"
+        context["subtitle"] = _("new hire")
         context["resource_user"] = get_object_or_404(
             ResourceUser, user=new_hire, pk=self.kwargs.get("resource_user", -1)
         )
@@ -612,7 +619,7 @@ class NewHireTasksView(LoginRequiredMixin, AdminPermMixin, DetailView):
         context = super().get_context_data(**kwargs)
         new_hire = self.object
         context["title"] = new_hire.full_name
-        context["subtitle"] = "new hire"
+        context["subtitle"] = _("new hire")
         return context
 
 
@@ -625,7 +632,7 @@ class NewHireAccessView(LoginRequiredMixin, AdminPermMixin, DetailView):
         context = super().get_context_data(**kwargs)
         new_hire = self.object
         context["title"] = new_hire.full_name
-        context["subtitle"] = "new hire"
+        context["subtitle"] = _("new hire")
         context["loading"] = True
         context["integrations"] = AccessToken.objects.account_provision_options()
         return context
@@ -675,7 +682,7 @@ class NewHireGiveAccessView(LoginRequiredMixin, AdminPermMixin, FormView):
         )
         context["integration"] = integration
         context["title"] = new_hire.full_name
-        context["subtitle"] = "new hire"
+        context["subtitle"] = _("new hire")
         context["new_hire"] = new_hire
         return context
 
@@ -691,8 +698,8 @@ class NewHireTaskListView(LoginRequiredMixin, AdminPermMixin, DetailView):
         if templates_model is None:
             raise Http404
 
-        context["title"] = f"Add/Remove templates for {self.object.full_name}"
-        context["subtitle"] = "new hire"
+        context["title"] = _("Add/Remove templates for %(name)") % {'name': self.object.full_name}
+        context["subtitle"] = _("new hire")
         context["object_list"] = templates_model.templates.all()
         context["user_items"] = getattr(
             self.object, get_user_field(self.kwargs.get("type", ""))
@@ -788,13 +795,13 @@ class ColleagueGiveSlackAccessView(LoginRequiredMixin, AdminPermMixin, View):
             user.slack_user.id = ""
             user.slack_channel_id = ""
             user.save()
-            context["button_name"] = "Give access"
+            context["button_name"] = _("Give access")
             return render(request, self.template_name, context)
 
         s = Slack()
         response = s.find_by_email(user.email)
         if not response:
-            context["button_name"] = "Could not find user"
+            context["button_name"] = _("Could not find user")
             return render(request, self.template_name, context)
 
         user.slack_user_id = response["user"]["id"]
@@ -827,9 +834,9 @@ class ColleagueGiveSlackAccessView(LoginRequiredMixin, AdminPermMixin, View):
         user.slack_channel_id = res["channel"]
         user.save()
 
-        button_name = "Revoke Slack access"
+        button_name = _("Revoke Slack access")
         if user.slack_channel_id == "":
-            button_name = "Give access"
+            button_name = _("Give access")
 
         context["button_name"] = button_name
         return render(request, self.template_name, context)
@@ -848,11 +855,11 @@ class ColleagueTogglePortalAccessView(LoginRequiredMixin, AdminPermMixin, View):
         user.save()
 
         if user.is_active:
-            button_name = "Revoke access"
+            button_name = _("Revoke access")
             exists = True
             email_new_admin_cred(user)
         else:
-            button_name = "Give portal access"
+            button_name = _("Give portal access")
             exists = False
 
         context["button_name"] = button_name

@@ -15,6 +15,7 @@ from admin.templates.forms import (
     UploadField,
 )
 from users.models import Department
+from django.utils.translation import gettext_lazy as _
 
 
 class NewHireAddForm(forms.ModelForm):
@@ -59,7 +60,7 @@ class NewHireAddForm(forms.ModelForm):
                 css_class="row",
             ),
             Div(MultiSelectField("sequences"), css_class="row"),
-            Submit(name="submit", value="Create new hire"),
+            Submit(name="submit", value=_("Create new hire")),
         )
 
     class Meta:
@@ -114,7 +115,7 @@ class NewHireProfileForm(forms.ModelForm):
                 Div(Field("language"), Field("manager"), css_class="col-6"),
                 css_class="row",
             ),
-            Submit(name="submit", value="Update"),
+            Submit(name="submit", value=_("Update")),
         )
 
     class Meta:
@@ -242,7 +243,7 @@ class ColleagueCreateForm(forms.ModelForm):
 
 class SequenceChoiceForm(forms.Form):
     sequences = forms.ModelMultipleChoiceField(
-        label="Select sequences you want to add ",
+        label=_("Select sequences you want to add "),
         widget=forms.CheckboxSelectMultiple,
         queryset=Sequence.objects.all(),
     )
@@ -251,10 +252,10 @@ class SequenceChoiceForm(forms.Form):
 class RemindMessageForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["message"].initial = "This task has just been reopened! "
+        self.fields["message"].initial = _("This task has just been reopened! ")
 
     message = forms.CharField(
-        label="Message that you want to leave for your new hire:",
+        label=_("Message that you want to leave for your new hire:"),
         widget=forms.Textarea,
         max_length=1200,
     )
@@ -262,7 +263,7 @@ class RemindMessageForm(forms.Form):
 
 class PreboardingSendForm(forms.Form):
     send_type = forms.ChoiceField(
-        choices=[("text", "Send via text"), ("email", "Send via email")]
+        choices=[("text", _("Send via text")), ("email", _("Send via email"))]
     )
 
     def __init__(self, *args, **kwargs):

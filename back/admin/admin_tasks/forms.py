@@ -1,6 +1,7 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, Layout
 from django import forms
+from django.utils.translation import ugettext_lazy as _
 
 from users.models import User
 
@@ -53,4 +54,4 @@ class AdminTaskCreateForm(forms.ModelForm):
             "slack_user",
             "email",
         ]
-        labels = {"option": "Send email or text to extra user?"}
+        labels = {"option": _("Send email or text to extra user?")}

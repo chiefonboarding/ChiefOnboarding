@@ -6,6 +6,7 @@ from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
+from django.utils.translation import gettext_lazy as _
 from users.mixins import AdminPermMixin, LoginRequiredMixin
 
 from .forms import ToDoForm
@@ -19,8 +20,8 @@ class ToDoListView(LoginRequiredMixin, AdminPermMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "To do items"
-        context["subtitle"] = "templates"
+        context["title"] = _("To do items")
+        context["subtitle"] = _("templates")
         context["add_action"] = reverse_lazy("todo:create")
         return context
 
@@ -31,12 +32,12 @@ class ToDoCreateView(
     template_name = "todo_update.html"
     form_class = ToDoForm
     success_url = reverse_lazy("todo:list")
-    success_message = "To do item has been created"
+    success_message = _("To do item has been created")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Create to do item"
-        context["subtitle"] = "templates"
+        context["title"] = _("Create to do item")
+        context["subtitle"] = _("templates")
         return context
 
 
@@ -47,12 +48,12 @@ class ToDoUpdateView(
     form_class = ToDoForm
     success_url = reverse_lazy("todo:list")
     queryset = ToDo.templates.all()
-    success_message = "To do item has been updated"
+    success_message = _("To do item has been updated")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Update to do item"
-        context["subtitle"] = "templates"
+        context["title"] = _("Update to do item")
+        context["subtitle"] = _("templates")
         return context
 
 
@@ -62,5 +63,5 @@ class ToDoDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         response = super().delete(request, *args, **kwargs)
-        messages.info(request, "To do item has been removed")
+        messages.info(request, _("To do item has been removed"))
         return response

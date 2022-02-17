@@ -10,6 +10,7 @@ from users.models import User
 
 from .forms import IntroductionForm
 from .models import Introduction
+from django.utils.translation import gettext as _
 
 
 class IntroductionListView(LoginRequiredMixin, AdminPermMixin, ListView):
@@ -19,8 +20,8 @@ class IntroductionListView(LoginRequiredMixin, AdminPermMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Introduction items"
-        context["subtitle"] = "templates"
+        context["title"] = _("Introduction items")
+        context["subtitle"] = _("templates")
         context["add_action"] = reverse_lazy("introductions:create")
         return context
 
@@ -31,12 +32,12 @@ class IntroductionCreateView(
     template_name = "todo_update.html"
     form_class = IntroductionForm
     success_url = reverse_lazy("introductions:list")
-    success_message = "Introduction item has been updated"
+    success_message = _("Introduction item has been updated")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Create introduction item"
-        context["subtitle"] = "templates"
+        context["title"] = _("Create introduction item")
+        context["subtitle"] = _("templates")
         return context
 
 
@@ -57,12 +58,12 @@ class IntroductionUpdateView(
     form_class = IntroductionForm
     success_url = reverse_lazy("introductions:list")
     queryset = Introduction.templates.all()
-    success_message = "Introduction item has been updated"
+    success_message = _("Introduction item has been updated")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Update introduction item"
-        context["subtitle"] = "templates"
+        context["title"] = _("Update introduction item")
+        context["subtitle"] = _("templates")
         return context
 
 
@@ -72,5 +73,5 @@ class IntroductionDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         response = super().delete(request, *args, **kwargs)
-        messages.info(request, "Introduction item has been removed")
+        messages.info(request, _("Introduction item has been removed"))
         return response

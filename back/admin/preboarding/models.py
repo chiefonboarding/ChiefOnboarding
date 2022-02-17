@@ -23,3 +23,7 @@ class Preboarding(BaseItem):
     @property
     def get_icon_template(self):
         return render_to_string("_preboarding_icon.html")
+
+    @property
+    def notification_add_type(self):
+        return 'added_preboarding'

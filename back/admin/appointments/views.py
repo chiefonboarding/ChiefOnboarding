@@ -5,6 +5,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
 from users.mixins import AdminPermMixin, LoginRequiredMixin
+from django.utils.translation import ugettext as _
 
 from .forms import AppointmentForm
 from .models import Appointment
@@ -17,8 +18,8 @@ class AppointmentListView(LoginRequiredMixin, AdminPermMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Appointment items"
-        context["subtitle"] = "templates"
+        context["title"] = _("Appointment items")
+        context["subtitle"] = _("templates")
         context["add_action"] = reverse_lazy("appointments:create")
         return context
 
@@ -29,12 +30,12 @@ class AppointmentCreateView(
     template_name = "todo_update.html"
     form_class = AppointmentForm
     success_url = reverse_lazy("appointments:list")
-    success_message = "Appointment item has been updated"
+    success_message = _("Appointment item has been updated")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Create appointment item"
-        context["subtitle"] = "templates"
+        context["title"] = _("Create appointment item")
+        context["subtitle"] = _("templates")
         return context
 
 
@@ -45,12 +46,12 @@ class AppointmentUpdateView(
     form_class = AppointmentForm
     success_url = reverse_lazy("appointments:list")
     queryset = Appointment.templates.all()
-    success_message = "Appointment item has been updated"
+    success_message = _("Appointment item has been updated")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Update appointment item"
-        context["subtitle"] = "templates"
+        context["title"] = _("Update appointment item")
+        context["subtitle"] = _("templates")
         return context
 
 
@@ -60,5 +61,5 @@ class AppointmentDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         response = super().delete(request, *args, **kwargs)
-        messages.info(request, "Appointment item has been removed")
+        messages.info(request, _("Appointment item has been removed"))
         return response

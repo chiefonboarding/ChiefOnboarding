@@ -1,11 +1,12 @@
 {% extends 'admin_base.html' %}
+{% load i18n %}
 {% load crispy_forms_tags %}
 {% block actions %}
 <a type="submit" href="{% url 'admin_tasks:completed' object.id %}" class="btn btn-primary">
   {% if object.completed %}
-  Reopen
+    {% translate "Reopen" %}
   {% else %}
-  Complete
+    {% translate "Complete" %}
   {% endif %}
 </a>
 {% endblock %}
@@ -21,7 +22,7 @@
           {{ form|crispy }}
           {% if not object.completed %}
           <div class="form-footer">
-            <button type="submit" class="btn btn-primary">Update</button>
+            <button type="submit" class="btn btn-primary">{% translate "Update" %}</button>
           </div>
           {% endif %}
         </form>
@@ -32,14 +33,14 @@
     {% if not object.completed %}
     <div class="card mb-3">
       <div class="card-header">
-        <h3 class="card-title">Add comment</h3>
+        <h3 class="card-title">{% translate "Add comment" %}</h3>
       </div>
       <div class="card-body">
         <form method="POST" action="{% url 'admin_tasks:comment' object.id %}">
           {% csrf_token %}
           {{ comment_form|crispy }}
           <div class="form-footer">
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary">{% translate "Submit" %}</button>
           </div>
         </form>
       </div>
@@ -47,7 +48,7 @@
     {% endif %}
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title">Comments</h3>
+        <h3 class="card-title">{% translate "Comments" %}</h3>
       </div>
       <div class="card-body">
         {% if object.comment.all|length %}
@@ -63,7 +64,7 @@
           {% endfor %}
         </ul>
         {% else %}
-        <p class="mt-3">There are no comments yet</p>
+        <p class="mt-3">{% translate "There are no comments yet" %}</p>
         {% endif %}
       </div>
     </div>

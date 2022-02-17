@@ -1,6 +1,7 @@
 {% load crispy_forms_tags %}
+{% load i18n %}
 <form method="post" hx-post="{% url 'new_hire:question-form' object.pk chapter.pk %}">
   {% csrf_token %}
   {{ form|crispy }}
-  <button type="submit" class="btn btn-primary">Submit</button>
+  <button type="submit" class="btn btn-primary">{% translate "Submit" %}</button>
 </form>

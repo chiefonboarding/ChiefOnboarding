@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.cache import cache
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from misc.models import File
 
@@ -39,45 +40,45 @@ class Organization(models.Model):
 
     # additional settings
     new_hire_email = models.BooleanField(
-        verbose_name="Send email to new hire with login credentials",
-        help_text="This is essential if you want your new hires to login to the dashboard (disable if using Slack)",
+        verbose_name=_("Send email to new hire with login credentials"),
+        help_text=_("This is essential if you want your new hires to login to the dashboard (disable if using Slack)"),
         default=True,
     )
     new_hire_email_reminders = models.BooleanField(
-        verbose_name="Send email to new hire with updates",
-        help_text="Think of new tasks that got assigned, new resources, badges... ",
+        verbose_name=_("Send email to new hire with updates"),
+        help_text=_("Think of new tasks that got assigned, new resources, badges... "),
         default=True,
     )
     new_hire_email_overdue_reminders = models.BooleanField(
-        verbose_name="Send email to new hire when tasks are overdue",
-        help_text="These are daily emails, until all overdue tasks are completed.",
+        verbose_name=_("Send email to new hire when tasks are overdue"),
+        help_text=_("These are daily emails, until all overdue tasks are completed."),
         default=False,
     )
 
     # Slack specific
     slack_buttons = models.BooleanField(
-        verbose_name="Add 'todo' and 'resource' buttons to the first message that's being sent to the new hire.",
+        verbose_name=_("Add 'todo' and 'resource' buttons to the first message that's being sent to the new hire."),
         help_text="Slack only",
         default=True,
     )
     ask_colleague_welcome_message = models.BooleanField(
-        verbose_name="Send a Slack message to the team to collect personal welcome messages from colleages.",
-        help_text="Slack only",
+        verbose_name=_("Send a Slack message to the team to collect personal welcome messages from colleages."),
+        help_text=_("Slack only"),
         default=True,
     )
     send_new_hire_start_reminder = models.BooleanField(
-        verbose_name="Send a Slack message to the team on the day the new hire starts",
-        help_text="Slack only",
+        verbose_name=_("Send a Slack message to the team on the day the new hire starts"),
+        help_text=_("Slack only"),
         default=False,
     )
     auto_create_user = models.BooleanField(
-        verbose_name="Create a new hire when they join your Slack team",
-        help_text="If the user does not exist yet - Slack only",
+        verbose_name=_("Create a new hire when they join your Slack team"),
+        help_text=_("If the user does not exist yet - Slack only"),
         default=False,
     )
     create_new_hire_without_confirm = models.BooleanField(
-        verbose_name="Create new hires without needing confirm from a user",
-        help_text="Slack only",
+        verbose_name=_("Create new hires without needing confirm from a user"),
+        help_text=_("Slack only"),
         default=False,
     )
     slack_confirm_person = models.ForeignKey(
@@ -109,11 +110,11 @@ class Tag(models.Model):
 
 class WelcomeMessage(models.Model):
     MESSAGE_TYPE = (
-        (0, "pre-boarding"),
-        (1, "new hire welcome"),
-        (2, "text welcome"),
-        (3, "slack welcome"),
-        (4, "slack knowledge"),
+        (0, _("pre-boarding")),
+        (1, _("new hire welcome")),
+        (2, _("text welcome")),
+        (3, _("slack welcome")),
+        (4, _("slack knowledge")),
     )
 
     message = models.CharField(max_length=20250, blank=True)
@@ -153,7 +154,7 @@ class BaseItem(models.Model):
 
     def duplicate(self):
         self.pk = None
-        self.name = self.name + " (duplicate)"
+        self.name = _("%(name) (duplicate)") % {'name': self.name}
         self.save()
         return self
 
@@ -168,9 +169,26 @@ class Changelog(models.Model):
         ordering = ["-id"]
 
 
+NOTIFICATION_TYPES = [
+    ('added_todo', _('A new to do item has been added')),
+    ('completed_todo', _('To do item has been marked as completed')),
+    ('added_resource', _('A new resource item has been added')),
+    ('completed_course', _('Course has been completed')),
+    ('added_badge', _('A new badge item has been added')),
+    ('added_introduction', _('A new introduction item has been added')),
+    ('added_preboarding', _('A new preboarding item has been added')),
+    ('added_new_hire', _('A new hire has been added')),
+    ('added_administrator', _('A new administrator has been added')),
+    ('added_admin_task', _('A new admin task has been added')),
+    ('sent_email_message', _('A new email has been sent')),
+    ('sent_text_message', _('A new text message has been sent')),
+    ('sent_slack_message', _('A new slack message has been sent')),
+    ('failed_no_phone', _('Couldn\'t sent text message: number is missing')),
+]
+
 class Notification(models.Model):
-    name = models.CharField(max_length=244)
-    description = models.TextField()
+    notification_type = models.CharField(choices=NOTIFICATION_TYPES, max_length=100, default='added_todo')
+    extra_text = models.TextField(default="")
     created = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -190,6 +208,3 @@ class Notification(models.Model):
 
     class Meta:
         ordering = ["-created"]
-
-    def __str__(self):
-        return self.name

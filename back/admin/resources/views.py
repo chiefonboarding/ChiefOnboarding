@@ -6,6 +6,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
 from users.mixins import AdminPermMixin, LoginRequiredMixin
+from django.utils.translation import ugettext as _
 
 from .forms import ResourceForm
 from .mixins import ResourceMixin
@@ -19,8 +20,8 @@ class ResourceListView(LoginRequiredMixin, AdminPermMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Resource items"
-        context["subtitle"] = "templates"
+        context["title"] = _("Resource items")
+        context["subtitle"] = _("templates")
         context["add_action"] = reverse_lazy("resources:create")
         return context
 
@@ -31,7 +32,7 @@ class ResourceCreateView(
     template_name = "resource_update.html"
     form_class = ResourceForm
     success_url = reverse_lazy("resources:list")
-    success_message = "Resource item has been updated"
+    success_message = _("Resource item has been updated")
 
     @transaction.atomic
     def form_valid(self, form):
@@ -47,8 +48,8 @@ class ResourceCreateView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Create resource item"
-        context["subtitle"] = "templates"
+        context["title"] = _("Create resource item")
+        context["subtitle"] = _("templates")
         return context
 
 
@@ -59,7 +60,7 @@ class ResourceUpdateView(
     form_class = ResourceForm
     success_url = reverse_lazy("resources:list")
     queryset = Resource.templates.all()
-    success_message = "Resource item has been updated"
+    success_message = _("Resource item has been updated")
 
     @transaction.atomic
     def form_valid(self, form):
@@ -77,8 +78,8 @@ class ResourceUpdateView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Update resource item"
-        context["subtitle"] = "templates"
+        context["title"] = _("Update resource item")
+        context["subtitle"] = _("templates")
         return context
 
 
@@ -88,5 +89,5 @@ class ResourceDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         response = super().delete(request, *args, **kwargs)
-        messages.info(request, "Resource item has been removed")
+        messages.info(request, _("Resource item has been removed"))
         return response

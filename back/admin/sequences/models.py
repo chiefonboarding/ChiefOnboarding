@@ -16,6 +16,7 @@ from admin.to_do.models import ToDo
 from misc.models import Content
 from misc.serializers import FileSerializer
 from slack_bot.slack import Slack
+from organization.models import Notification
 
 from .emails import send_sequence_message
 
@@ -150,6 +151,15 @@ class ExternalMessage(models.Model):
         return self.send_via == 2
 
     @property
+    def notification_add_type(self):
+        if self.is_text_message:
+            return 'sent_text_message'
+        if self.is_email_message:
+            return 'sent_email_message'
+        if self.is_slack_message:
+            return 'sent_slack_message'
+
+    @property
     def get_icon_template(self):
         if self.is_email_message:
             return render_to_string("_email_icon.html")
@@ -213,7 +223,11 @@ class ExternalMessage(models.Model):
         else:  # text message
             phone_number = self.get_user(user).phone
             if phone_number == "":
-                # TODO: Add notification
+                Notification.objects.create(
+                    notification_type='failed_no_phone',
+                    extra_text=self.name,
+                    created_for=self.get_user(user)
+                )
                 return
 
             client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
@@ -222,6 +236,12 @@ class ExternalMessage(models.Model):
                 from_=settings.TWILIO_FROM_NUMBER,
                 body=self.content,
             )
+
+        Notification.objects.create(
+            notification_type=self.notification_add_type,
+            extra_text=self.name,
+            created_for=self.get_user(user)
+        )
 
     objects = ExternalMessageManager()
 
@@ -259,6 +279,12 @@ class PendingAdminTask(models.Model):
                 comment_by=admin_task.assigned_to,
                 admin_task=admin_task,
             )
+
+        Notification.objects.create(
+            notification_type='added_admin_task',
+            extra_text=self.name,
+            created_for=self.assigned_to
+        )
 
     @property
     def get_icon_template(self):
@@ -393,6 +419,12 @@ class Condition(models.Model):
         ]:
             for item in self.__getattribute__(field).all():
                 user.__getattribute__(field).add(item)
+
+                Notification.objects.create(
+                    notification_type=item.notification_add_type,
+                    extra_text=item.name,
+                    created_for=user
+                )
 
         # For the ones that aren't a quick copy/paste, follow back to their model and execute them
         for field in ["admin_tasks", "external_messages", "account_provisions"]:

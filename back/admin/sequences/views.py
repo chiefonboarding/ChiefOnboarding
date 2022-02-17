@@ -7,6 +7,7 @@ from django.views.generic.base import RedirectView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
+from django.utils.translation import gettext as _
 
 from admin.integrations.models import AccessToken
 from admin.templates.utils import get_model_form, get_templates_model, get_user_field
@@ -25,7 +26,7 @@ class SequenceListView(LoginRequiredMixin, AdminPermMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Sequence items"
+        context["title"] = _("Sequence items")
         context["subtitle"] = ""
         context["add_action"] = reverse_lazy("sequences:create")
         return context
@@ -45,7 +46,7 @@ class SequenceView(LoginRequiredMixin, AdminPermMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Sequence"
+        context["title"] = _("Sequence")
         context["subtitle"] = ""
         context["object_list"] = ToDo.templates.all()
         context["condition_form"] = ConditionCreateForm()
@@ -252,7 +253,7 @@ class SequenceDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         response = super().delete(request, *args, **kwargs)
-        messages.info(request, "Sequence item has been removed")
+        messages.info(request, _("Sequence item has been removed"))
         return response
 
 

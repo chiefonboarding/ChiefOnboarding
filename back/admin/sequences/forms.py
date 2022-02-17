@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 
 from admin.templates.forms import MultiSelectField
 from admin.to_do.models import ToDo
+from django.utils.translation import ugettext_lazy as _
 
 from .models import Condition
 
@@ -15,7 +16,7 @@ class ConditionCreateForm(forms.ModelForm):
     )
 
     def _get_save_button(self):
-        return '<button hx-post="{% url "sequences:condition-create" object.id %}" hx-target="#condition_form" hx-swap="#add-condition-form" class="btn btn-primary ms-auto">Add block</button>'
+        return '<button hx-post="{% url "sequences:condition-create" object.id %}" hx-target="#condition_form" hx-swap="#add-condition-form" class="btn btn-primary ms-auto">' + _("Add block") +'</button>'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -48,23 +49,23 @@ class ConditionCreateForm(forms.ModelForm):
         model = Condition
         fields = ["condition_type", "days", "time", "condition_to_do"]
         labels = {
-            "condition_to_do": "Trigger after these to do items have been completed:",
-            "condition_type": "Block type",
-            "days": "Amount of days before/after new hire has started",
-            "time": "At",
+            "condition_to_do": _("Trigger after these to do items have been completed:"),
+            "condition_type": _("Block type"),
+            "days": _("Amount of days before/after new hire has started"),
+            "time": _("At"),
         }
         widgets = {
             "time": forms.TimeInput(attrs={"type": "time", "step": 300}),
         }
         help_texts = {
-            "time": "Must be in a 5 minute interval.",
+            "time": _("Must be in a 5 minute interval."),
         }
 
     def clean_days(self):
         day = self.cleaned_data["days"]
         if day == 0 and self.cleaned_data["condition_type"] in [0, 2]:
             raise ValidationError(
-                "You cannot use 0. The day before starting is 1 and the first workday is 1"
+                _("You cannot use 0. The day before starting is 1 and the first workday is 1")
             )
 
         return day
@@ -76,7 +77,7 @@ class ConditionCreateForm(forms.ModelForm):
             2,
         ]:
             raise ValidationError(
-                f"Time must be in an interval of 5 minutes. {time.minute} must end in 0 or 5."
+                _("Time must be in an interval of 5 minutes. %(minutes) must end in 0 or 5.") % {'minutes': time.minute}
             )
 
         return time
@@ -88,15 +89,15 @@ class ConditionCreateForm(forms.ModelForm):
         days = cleaned_data.get("days", None)
         condition_to_do = cleaned_data.get("condition_to_do", None)
         if condition_type == 1 and condition_to_do == None:
-            raise ValidationError("You must add at least one to do item")
+            raise ValidationError(_("You must add at least one to do item"))
         if condition_type in [0, 2] and (time is None or days is None):
-            raise ValidationError("Both the time and days have to be filled in.")
+            raise ValidationError(_("Both the time and days have to be filled in."))
         return cleaned_data
 
 
 class ConditionUpdateForm(ConditionCreateForm):
     def _get_save_button(self):
-        return '<button hx-post="{% url "sequences:condition-update" object.id condition.id %}" hx-target="#condition_form" hx-swap="#add-condition-form" class="btn btn-primary ms-auto">Edit block</button>'
+        return '<button hx-post="{% url "sequences:condition-update" object.id condition.id %}" hx-target="#condition_form" hx-swap="#add-condition-form" class="btn btn-primary ms-auto">' + _("Edit block") + '</button>'
 
 
 class ConditionToDoUpdateForm(forms.ModelForm):
