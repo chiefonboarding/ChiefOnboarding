@@ -131,7 +131,7 @@ def send_new_hire_preboarding(new_hire):
         language=new_hire.language, message_type=0
     ).message
     personalized_message = new_hire.personalize(message)
-    subject = _("Welcome to %(name)!") % {'name': org.name}
+    subject = _("Welcome to %(name)s!") % {'name': org.name}
     content = [
         {"type": "p", "text": personalized_message},
         {

@@ -22,16 +22,8 @@ from admin.sequences.models import Condition
 from admin.to_do.models import ToDo
 from misc.models import File
 from organization.models import Changelog, Organization
+from django.conf import settings
 
-LANGUAGE_CHOICES = (
-    ("en", _("English")),
-    ("nl", _("Dutch")),
-    ("fr", _("French")),
-    ("de", _("German")),
-    ("tr", _("Turkish")),
-    ("pt", _("Portuguese")),
-    ("es", _("Spanish")),
-)
 
 ROLE_CHOICES = ((0, _("New Hire")), (1, _("Administrator")), (2, _("Manager")), (3, _("Other")))
 
@@ -127,7 +119,7 @@ class User(AbstractBaseUser):
     twitter = models.CharField(default="", max_length=100, blank=True)
     timezone = models.CharField(default="", max_length=1000)
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True)
-    language = models.CharField(default="en", choices=LANGUAGE_CHOICES, max_length=5)
+    language = models.CharField(default="en", choices=settings.LANGUAGES, max_length=5)
     role = models.IntegerField(
         choices=ROLE_CHOICES,
         default=3,

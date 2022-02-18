@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 
 import environ
+from django.utils.translation import ugettext_lazy as _
 
 env = environ.Env()
 environ.Env.read_env(env.str("ENV_PATH", "back/.env"))
@@ -94,6 +95,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    'django.middleware.locale.LocaleMiddleware',
     "organization.middleware.HealthCheckMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -368,3 +370,16 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 # Initial account creation
 ACCOUNT_EMAIL = env("ACCOUNT_EMAIL", default="")
 ACCOUNT_PASSWORD = env("ACCOUNT_PASSWORD", default="")
+
+
+# Languages
+LANGUAGES = (
+    ("en", _("English")),
+    ("nl", _("Dutch")),
+    ("fr", _("French")),
+    ("de", _("German")),
+    ("tr", _("Turkish")),
+    ("pt", _("Portuguese")),
+    ("es", _("Spanish")),
+)
+LANGUAGE_SESSION_KEY = 'chief-language'

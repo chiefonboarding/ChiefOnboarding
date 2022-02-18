@@ -1,16 +1,12 @@
 from django.contrib.messages.views import SuccessMessageMixin
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
-from django.views.generic.base import RedirectView, TemplateView
+from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 from django_q.tasks import async_task
-from rest_framework import status, viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
 
 from django.utils.translation import ugettext as _
-from users import permissions
 from users.mixins import LoginRequiredMixin, ManagerPermMixin
 
 from .forms import AdminTaskCommentForm, AdminTaskCreateForm, AdminTaskUpdateForm

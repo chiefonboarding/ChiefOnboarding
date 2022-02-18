@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import pyotp
+from django.utils import translation
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
@@ -11,15 +12,15 @@ from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
 from django.views.generic.list import ListView
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext as _
 
+from django.conf import settings
 from admin.integrations.models import (
     INTEGRATION_OPTIONS,
     INTEGRATION_OPTIONS_URLS,
     AccessToken,
 )
 from organization.models import (
-    LANGUAGES_OPTIONS,
     Changelog,
     Organization,
     WelcomeMessage,
@@ -138,7 +139,7 @@ class WelcomeMessageUpdateView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["languages"] = LANGUAGES_OPTIONS
+        context["languages"] = settings.LANGUAGES
         context["types"] = WelcomeMessage.MESSAGE_TYPE
         context["title"] = _("Update welcome messages")
         context["subtitle"] = _("settings")
@@ -154,6 +155,12 @@ class PersonalLanguageUpdateView(
         "language",
     ]
     success_message = _("Your default language has been updated")
+
+    def form_valid(self, form):
+        # In case user changed language, then update it
+        self.request.session[settings.LANGUAGE_SESSION_KEY] = self.request.user.language
+        translation.activate(self.request.user.language)
+        return super().form_valid(form)
 
     def get_success_url(self):
         return self.request.path

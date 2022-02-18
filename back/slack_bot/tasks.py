@@ -198,7 +198,7 @@ def introduce_new_people():
                 "We got some new hires coming in soon! Make sure to leave a welcome message for them!"
             )
         else:
-            text = _("We have a new hire coming in soon! Make sure to leave a message for %(first_name)!") % {'first_name': new_hires.first().first_name }
+            text = _("We have a new hire coming in soon! Make sure to leave a message for %(first_name)s!") % {'first_name': new_hires.first().first_name }
         blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": text}})
 
         for new_hire in new_hires:
@@ -215,8 +215,8 @@ def introduce_new_people():
             blocks.append(block)
             footer_extra = ""
             if new_hire.position != "":
-                footer_extra = _(" and is our new %(postition)") % {'position': new_hire.position}
-            context = _("%(first_name) starts on %(start_day) %(footer_extra).") % {'first_name': new_hire.first_name, 'start_day': localize(new_hire.start_day), 'footer_extra': footer_extra}
+                footer_extra = _(" and is our new %(postition)s") % {'position': new_hire.position}
+            context = _("%(first_name)s starts on %(start_day)s %(footer_extra)s.") % {'first_name': new_hire.first_name, 'start_day': localize(new_hire.start_day), 'footer_extra': footer_extra}
             blocks.append(
                 {
                     "type": "context",

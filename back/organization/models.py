@@ -5,16 +5,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from misc.models import File
-
-LANGUAGES_OPTIONS = (
-    ("en", "English"),
-    ("nl", "Dutch"),
-    ("fr", "French"),
-    ("de", "German"),
-    ("tr", "Turkish"),
-    ("pt", "Portuguese"),
-    ("es", "Spanish"),
-)
+from django.conf import settings
 
 
 class ObjectManager(models.Manager):
@@ -24,7 +15,7 @@ class ObjectManager(models.Manager):
 
 class Organization(models.Model):
     name = models.CharField(max_length=500)
-    language = models.CharField(default="en", max_length=10, choices=LANGUAGES_OPTIONS)
+    language = models.CharField(default="en", max_length=10, choices=settings.LANGUAGES)
     timezone = models.CharField(default="UTC", max_length=1000)
 
     # customization
@@ -118,7 +109,7 @@ class WelcomeMessage(models.Model):
     )
 
     message = models.CharField(max_length=20250, blank=True)
-    language = models.CharField(choices=LANGUAGES_OPTIONS, max_length=3, default="en")
+    language = models.CharField(choices=settings.LANGUAGES, max_length=3, default="en")
     message_type = models.IntegerField(choices=MESSAGE_TYPE, default=0)
 
 
@@ -154,7 +145,7 @@ class BaseItem(models.Model):
 
     def duplicate(self):
         self.pk = None
-        self.name = _("%(name) (duplicate)") % {'name': self.name}
+        self.name = _("%(name)s (duplicate)") % {'name': self.name}
         self.save()
         return self
 

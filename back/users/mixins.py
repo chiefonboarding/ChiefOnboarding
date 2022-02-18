@@ -1,6 +1,8 @@
 from django.contrib.auth.mixins import AccessMixin, UserPassesTestMixin
 from django.contrib.auth.views import redirect_to_login
 
+from django.conf import settings
+
 
 class LoginRequiredMixin(AccessMixin):
     """
@@ -13,10 +15,14 @@ class LoginRequiredMixin(AccessMixin):
         if not request.user.is_authenticated:
             return self.handle_no_permission()
 
+        # User is logged in and therefore setting language
+        request.session[settings.LANGUAGE_SESSION_KEY] = self.request.user.language
+
         # If MFA has been enabled, then force it
         if request.user.requires_otp and not request.session.get("passed_mfa", False):
             path = self.request.get_full_path()
             return redirect_to_login(path, "/mfa/")
+
         return super().dispatch(request, *args, **kwargs)
 
 
