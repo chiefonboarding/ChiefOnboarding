@@ -2,10 +2,10 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Div, Field, Layout
 from django import forms
 from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 from admin.templates.forms import MultiSelectField
 from admin.to_do.models import ToDo
-from django.utils.translation import ugettext_lazy as _
 
 from .models import Condition
 
@@ -16,7 +16,11 @@ class ConditionCreateForm(forms.ModelForm):
     )
 
     def _get_save_button(self):
-        return '<button hx-post="{% url "sequences:condition-create" object.id %}" hx-target="#condition_form" hx-swap="#add-condition-form" class="btn btn-primary ms-auto">' + _("Add block") +'</button>'
+        return (
+            '<button hx-post="{% url "sequences:condition-create" object.id %}" hx-target="#condition_form" hx-swap="#add-condition-form" class="btn btn-primary ms-auto">'
+            + _("Add block")
+            + "</button>"
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -49,7 +53,9 @@ class ConditionCreateForm(forms.ModelForm):
         model = Condition
         fields = ["condition_type", "days", "time", "condition_to_do"]
         labels = {
-            "condition_to_do": _("Trigger after these to do items have been completed:"),
+            "condition_to_do": _(
+                "Trigger after these to do items have been completed:"
+            ),
             "condition_type": _("Block type"),
             "days": _("Amount of days before/after new hire has started"),
             "time": _("At"),
@@ -65,7 +71,9 @@ class ConditionCreateForm(forms.ModelForm):
         day = self.cleaned_data["days"]
         if day == 0 and self.cleaned_data["condition_type"] in [0, 2]:
             raise ValidationError(
-                _("You cannot use 0. The day before starting is 1 and the first workday is 1")
+                _(
+                    "You cannot use 0. The day before starting is 1 and the first workday is 1"
+                )
             )
 
         return day
@@ -77,7 +85,10 @@ class ConditionCreateForm(forms.ModelForm):
             2,
         ]:
             raise ValidationError(
-                _("Time must be in an interval of 5 minutes. %(minutes) must end in 0 or 5.") % {'minutes': time.minute}
+                _(
+                    "Time must be in an interval of 5 minutes. %(minutes) must end in 0 or 5."
+                )
+                % {"minutes": time.minute}
             )
 
         return time
@@ -97,7 +108,11 @@ class ConditionCreateForm(forms.ModelForm):
 
 class ConditionUpdateForm(ConditionCreateForm):
     def _get_save_button(self):
-        return '<button hx-post="{% url "sequences:condition-update" object.id condition.id %}" hx-target="#condition_form" hx-swap="#add-condition-form" class="btn btn-primary ms-auto">' + _("Edit block") + '</button>'
+        return (
+            '<button hx-post="{% url "sequences:condition-update" object.id condition.id %}" hx-target="#condition_form" hx-swap="#add-condition-form" class="btn btn-primary ms-auto">'
+            + _("Edit block")
+            + "</button>"
+        )
 
 
 class ConditionToDoUpdateForm(forms.ModelForm):

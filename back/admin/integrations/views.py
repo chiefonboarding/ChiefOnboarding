@@ -3,7 +3,6 @@ import json
 import requests
 from django.conf import settings
 from django.shortcuts import redirect
-
 # from google_auth_oauthlib.flow import Flow
 from rest_framework import generics, viewsets
 from rest_framework.response import Response

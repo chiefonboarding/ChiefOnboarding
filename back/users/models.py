@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 import pyotp
 import pytz
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
@@ -10,8 +11,8 @@ from django.db.models import Q
 from django.template import Context, Template
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
-from fernet_fields import EncryptedTextField
 from django.utils.translation import ugettext_lazy as _
+from fernet_fields import EncryptedTextField
 
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
@@ -22,10 +23,13 @@ from admin.sequences.models import Condition
 from admin.to_do.models import ToDo
 from misc.models import File
 from organization.models import Changelog, Organization
-from django.conf import settings
 
-
-ROLE_CHOICES = ((0, _("New Hire")), (1, _("Administrator")), (2, _("Manager")), (3, _("Other")))
+ROLE_CHOICES = (
+    (0, _("New Hire")),
+    (1, _("Administrator")),
+    (2, _("Manager")),
+    (3, _("Other")),
+)
 
 
 class Department(models.Model):
@@ -123,7 +127,9 @@ class User(AbstractBaseUser):
     role = models.IntegerField(
         choices=ROLE_CHOICES,
         default=3,
-        help_text=_("An administrator has access to everything. A manager has only access to their new hires and their tasks."),
+        help_text=_(
+            "An administrator has access to everything. A manager has only access to their new hires and their tasks."
+        ),
     )
     is_active = models.BooleanField(default=True)
     is_introduced_to_colleagues = models.BooleanField(default=False)
@@ -420,7 +426,12 @@ class ResourceUser(models.Model):
             for idx, answer in enumerate(question_page.chapter.content["blocks"]):
                 if question_page.answers[f"item-{idx}"] == answer["answer"]:
                     amount_of_correct_answers += 1
-        return _("%(amount_of_correct_answers)s correct answers out of %(amount_of_questions)s questions") % {'amount_of_correct_answers': amount_of_correct_answers, 'amount_of_questions': amount_of_questions}
+        return _(
+            "%(amount_of_correct_answers)s correct answers out of %(amount_of_questions)s questions"
+        ) % {
+            "amount_of_correct_answers": amount_of_correct_answers,
+            "amount_of_questions": amount_of_questions,
+        }
 
     def get_user_answer_by_chapter(self, chapter):
         if not self.answers.filter(chapter=chapter).exists():

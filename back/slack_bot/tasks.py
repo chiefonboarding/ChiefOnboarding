@@ -63,7 +63,10 @@ def link_slack_users(users=[]):
                                 },
                                 {
                                     "type": "button",
-                                    "text": {"type": "plain_text", "text": _("Resources")},
+                                    "text": {
+                                        "type": "plain_text",
+                                        "text": _("Resources"),
+                                    },
                                     "value": "resources",
                                 },
                             ],
@@ -161,17 +164,17 @@ def first_day_reminder():
     ):
         text = ""
         if new_hires_starting_today.count() == 1:
-            text = (
-                _("Just a quick reminder: It's %(name)s's first day today!") % {'name': user.full_name}
-            )
+            text = _("Just a quick reminder: It's %(name)s's first day today!") % {
+                "name": user.full_name
+            }
         else:
             for i in new_hires_starting_today:
                 text += i.get_full_name() + ", "
             # remove last comma
             text = text[:-2]
-            text = (
-                _("We got some new hires coming in! %(names)s are starting today!") % {'names': text}
-            )
+            text = _(
+                "We got some new hires coming in! %(names)s are starting today!"
+            ) % {"names": text}
         s = Slack()
         blocks = [{"type": "section", "text": {"type": "mrkdwn", "text": text}}]
         s.send_message(blocks=blocks, channel="#" + org.slack_default_channel)
@@ -198,7 +201,9 @@ def introduce_new_people():
                 "We got some new hires coming in soon! Make sure to leave a welcome message for them!"
             )
         else:
-            text = _("We have a new hire coming in soon! Make sure to leave a message for %(first_name)s!") % {'first_name': new_hires.first().first_name }
+            text = _(
+                "We have a new hire coming in soon! Make sure to leave a message for %(first_name)s!"
+            ) % {"first_name": new_hires.first().first_name}
         blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": text}})
 
         for new_hire in new_hires:
@@ -215,8 +220,14 @@ def introduce_new_people():
             blocks.append(block)
             footer_extra = ""
             if new_hire.position != "":
-                footer_extra = _(" and is our new %(postition)s") % {'position': new_hire.position}
-            context = _("%(first_name)s starts on %(start_day)s %(footer_extra)s.") % {'first_name': new_hire.first_name, 'start_day': localize(new_hire.start_day), 'footer_extra': footer_extra}
+                footer_extra = _(" and is our new %(postition)s") % {
+                    "position": new_hire.position
+                }
+            context = _("%(first_name)s starts on %(start_day)s %(footer_extra)s.") % {
+                "first_name": new_hire.first_name,
+                "start_day": localize(new_hire.start_day),
+                "footer_extra": footer_extra,
+            }
             blocks.append(
                 {
                     "type": "context",

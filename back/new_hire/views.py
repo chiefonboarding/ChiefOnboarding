@@ -9,23 +9,18 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.decorators import method_decorator
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
-from django.utils.translation import gettext_lazy as _
 
 from admin.resources.models import Chapter, CourseAnswer, Resource
-from users.mixins import LoginRequiredMixin
-from users.models import (
-    NewHireWelcomeMessage,
-    PreboardingUser,
-    ResourceUser,
-    ToDoUser,
-    User,
-)
 from organization.models import Notification
+from users.mixins import LoginRequiredMixin
+from users.models import (NewHireWelcomeMessage, PreboardingUser, ResourceUser,
+                          ToDoUser, User)
 
 from .forms import QuestionsForm
 
@@ -246,9 +241,9 @@ class ToDoCompleteView(LoginRequiredMixin, RedirectView):
         to_do_user.save()
 
         Notification.objects.create(
-            notification_type='completed_todo',
+            notification_type="completed_todo",
             extra_text=to_do_user.todo.name,
-            created_by=self.request.user
+            created_by=self.request.user,
         )
         return super().get_redirect_url(*args, **kwargs)
 
@@ -261,9 +256,9 @@ class CourseNextStepView(LoginRequiredMixin, View):
         if chapter is None:
             messages.success(request, _("You have completed this course!"))
             Notification.objects.create(
-                notification_type='completed_course',
+                notification_type="completed_course",
                 extra_text=resource_user.resource.name,
-                created_by=self.request.user
+                created_by=self.request.user,
             )
             return redirect("new_hire:resources")
 

@@ -1,7 +1,6 @@
+from django.conf import settings
 from django.contrib.auth.mixins import AccessMixin, UserPassesTestMixin
 from django.contrib.auth.views import redirect_to_login
-
-from django.conf import settings
 
 
 class LoginRequiredMixin(AccessMixin):

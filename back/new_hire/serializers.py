@@ -3,12 +3,10 @@ from rest_framework import serializers
 from admin.badges.models import Badge
 from admin.preboarding.serializers import PreboardingSerializer
 from admin.resources.models import Resource
-from admin.resources.serializers import (
-    ChapterSerializer,
-    CourseAnswerSerializer,
-    ResourceCourseSerializer,
-    ResourceSerializer,
-)
+from admin.resources.serializers import (ChapterSerializer,
+                                         CourseAnswerSerializer,
+                                         ResourceCourseSerializer,
+                                         ResourceSerializer)
 from admin.to_do.models import ToDo
 from misc.fields import ContentField
 from misc.s3 import S3

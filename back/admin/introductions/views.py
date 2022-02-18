@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
+from django.utils.translation import gettext as _
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
@@ -10,7 +11,6 @@ from users.models import User
 
 from .forms import IntroductionForm
 from .models import Introduction
-from django.utils.translation import gettext as _
 
 
 class IntroductionListView(LoginRequiredMixin, AdminPermMixin, ListView):

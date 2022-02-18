@@ -13,7 +13,6 @@ from admin.integrations.models import AccessToken
 from admin.resources.models import Category, Chapter
 from admin.sequences.models import Sequence
 from misc.serializers import ContentSerializer
-
 # from fuzzywuzzy import process
 from organization.models import Organization
 from users.models import NewHireWelcomeMessage, ResourceUser, ToDoUser, User
@@ -103,7 +102,9 @@ class BotView(APIView):
         s = Slack(request.data)
         if not s.has_account():
             s.send_message(
-                text=_("You don't seem to be setup yet. Please ask your supervisor for access.")
+                text=_(
+                    "You don't seem to be setup yet. Please ask your supervisor for access."
+                )
             )
             return Response()
 
@@ -313,7 +314,9 @@ class CallbackView(APIView):
                                 },
                                 "label": {
                                     "type": "plain_text",
-                                    "text": _("What would you like to say to our new hire?"),
+                                    "text": _(
+                                        "What would you like to say to our new hire?"
+                                    ),
                                 },
                             }
                         ],
@@ -382,7 +385,9 @@ class CallbackView(APIView):
                 )
                 if len(to_do_user.form) == 0:
                     s.send_message(
-                        text=_("Please complete the form first. Click on 'View details' to complete it.")
+                        text=_(
+                            "Please complete the form first. Click on 'View details' to complete it."
+                        )
                     )
                     return Response()
                 items = to_do_user.mark_completed()

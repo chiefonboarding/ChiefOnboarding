@@ -11,7 +11,8 @@ from django.urls import reverse_lazy
 from django.utils.translation import ugettext as _
 from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
+from django.views.generic.edit import (CreateView, DeleteView, FormView,
+                                       UpdateView)
 from django.views.generic.list import ListView
 from django_q.tasks import async_task
 from twilio.rest import Client
@@ -22,34 +23,19 @@ from admin.notes.models import Note
 from admin.resources.models import Resource
 from admin.sequences.models import Condition, Sequence
 from admin.templates.utils import get_templates_model
-from organization.models import Organization, WelcomeMessage, Notification
+from organization.models import Notification, Organization, WelcomeMessage
 from slack_bot.slack import Slack
 from slack_bot.tasks import link_slack_users
-from users.emails import (
-    email_new_admin_cred,
-    email_reopen_task,
-    send_new_hire_credentials,
-    send_new_hire_preboarding,
-    send_reminder_email,
-)
+from users.emails import (email_new_admin_cred, email_reopen_task,
+                          send_new_hire_credentials, send_new_hire_preboarding,
+                          send_reminder_email)
 from users.mixins import AdminPermMixin, LoginRequiredMixin
-from users.models import (
-    NewHireWelcomeMessage,
-    PreboardingUser,
-    ResourceUser,
-    ToDoUser,
-    User,
-)
+from users.models import (NewHireWelcomeMessage, PreboardingUser, ResourceUser,
+                          ToDoUser, User)
 
-from .forms import (
-    ColleagueCreateForm,
-    ColleagueUpdateForm,
-    NewHireAddForm,
-    NewHireProfileForm,
-    PreboardingSendForm,
-    RemindMessageForm,
-    SequenceChoiceForm,
-)
+from .forms import (ColleagueCreateForm, ColleagueUpdateForm, NewHireAddForm,
+                    NewHireProfileForm, PreboardingSendForm, RemindMessageForm,
+                    SequenceChoiceForm)
 
 
 class NewHireListView(LoginRequiredMixin, AdminPermMixin, ListView):
@@ -112,9 +98,9 @@ class NewHireAddView(
         link_slack_users([new_hire])
 
         Notification.objects.create(
-            notification_type='added_new_hire',
+            notification_type="added_new_hire",
             extra_text=new_hire.full_name,
-            created_by=self.request.user
+            created_by=self.request.user,
         )
 
         return super().form_valid(form)
@@ -161,7 +147,9 @@ class NewHireAddSequenceView(LoginRequiredMixin, AdminPermMixin, FormView):
         new_hire = get_object_or_404(User, id=user_id)
         sequences = Sequence.objects.filter(id__in=form.cleaned_data["sequences"])
         new_hire.add_sequences(sequences)
-        messages.success(self.request, _("Sequence(s) have been added to this new hire"))
+        messages.success(
+            self.request, _("Sequence(s) have been added to this new hire")
+        )
 
         # Check if there are items that will not be triggered since date passed
         conditions = Condition.objects.none()
@@ -359,7 +347,9 @@ class ColleagueResourceView(LoginRequiredMixin, AdminPermMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         new_hire = context["object"]
-        context["title"] = _("Add new resource for %(name)s") % {'name': new_hire.full_name}
+        context["title"] = _("Add new resource for %(name)s") % {
+            "name": new_hire.full_name
+        }
         context["subtitle"] = _("Employee")
         context["object_list"] = Resource.objects.all()
         return context
@@ -698,7 +688,9 @@ class NewHireTaskListView(LoginRequiredMixin, AdminPermMixin, DetailView):
         if templates_model is None:
             raise Http404
 
-        context["title"] = _("Add/Remove templates for %(name)") % {'name': self.object.full_name}
+        context["title"] = _("Add/Remove templates for %(name)") % {
+            "name": self.object.full_name
+        }
         context["subtitle"] = _("new hire")
         context["object_list"] = templates_model.templates.all()
         context["user_items"] = getattr(

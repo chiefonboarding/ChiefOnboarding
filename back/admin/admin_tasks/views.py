@@ -1,15 +1,16 @@
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
+from django.utils.translation import ugettext as _
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 from django_q.tasks import async_task
 
-from django.utils.translation import ugettext as _
 from users.mixins import LoginRequiredMixin, ManagerPermMixin
 
-from .forms import AdminTaskCommentForm, AdminTaskCreateForm, AdminTaskUpdateForm
+from .forms import (AdminTaskCommentForm, AdminTaskCreateForm,
+                    AdminTaskUpdateForm)
 from .models import AdminTask, AdminTaskComment
 
 
@@ -70,7 +71,7 @@ class AdminTasksUpdateView(
         context = super().get_context_data(**kwargs)
         task = get_object_or_404(AdminTask, pk=self.kwargs.get("pk"))
         context["object"] = task
-        context["title"] = _("Task: %(name)") % {'name': task.name }
+        context["title"] = _("Task: %(name)s") % {"name": task.name}
         context["subtitle"] = _("Tasks")
         context["comment_form"] = AdminTaskCommentForm
         return context

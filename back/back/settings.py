@@ -95,7 +95,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    'django.middleware.locale.LocaleMiddleware',
+    "django.middleware.locale.LocaleMiddleware",
     "organization.middleware.HealthCheckMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -382,4 +382,6 @@ LANGUAGES = (
     ("pt", _("Portuguese")),
     ("es", _("Spanish")),
 )
-LANGUAGE_SESSION_KEY = 'chief-language'
+LANGUAGE_SESSION_KEY = "chief-language"
+SITE_ROOT = os.path.dirname(os.path.realpath(__name__))
+LOCALE_PATHS = (os.path.join(SITE_ROOT, "locale"),)

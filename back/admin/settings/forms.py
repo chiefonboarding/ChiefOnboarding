@@ -2,16 +2,8 @@ import pyotp
 import pytz
 from crispy_forms.bootstrap import Tab, TabHolder
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import (
-    HTML,
-    ButtonHolder,
-    Column,
-    Div,
-    Field,
-    Fieldset,
-    Layout,
-    Submit,
-)
+from crispy_forms.layout import (HTML, ButtonHolder, Column, Div, Field,
+                                 Fieldset, Layout, Submit)
 from django import forms
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
@@ -89,8 +81,12 @@ class OrganizationGeneralForm(forms.ModelForm):
         labels = {
             "slack_login": _("Allow users to login with their Slack account"),
             "google_login": _("Allow users to login with their Google account"),
-            "credentials_login": _("Allow users to login with their username and password"),
-            "slack_default_channel": _("This is the default channel where the bot will post messages in"),
+            "credentials_login": _(
+                "Allow users to login with their username and password"
+            ),
+            "slack_default_channel": _(
+                "This is the default channel where the bot will post messages in"
+            ),
         }
 
     def clean(self):
@@ -132,7 +128,9 @@ class WelcomeMessagesUpdateForm(forms.ModelForm):
             "message": forms.Textarea,
         }
         help_texts = {
-            "message": _("You can use {{ first_name }}, {{ last_name }}, {{ position }}, {{ manager }} and {{ buddy }} above. It will be replaced by the values corresponding to the new hire.")
+            "message": _(
+                "You can use {{ first_name }}, {{ last_name }}, {{ position }}, {{ manager }} and {{ buddy }} above. It will be replaced by the values corresponding to the new hire."
+            )
         }
 
 
@@ -154,7 +152,9 @@ class OTPVerificationForm(forms.Form):
         # Check if token is correct and block replay attacks
         if not valid and cache.get(f"{self.user.email}_totp_passed") is None:
             raise ValidationError(
-                _("OTP token was not correct. Please wait 30 seconds and then try again")
+                _(
+                    "OTP token was not correct. Please wait 30 seconds and then try again"
+                )
             )
 
         cache.set(f"{self.user.email}_totp_passed", "true", 30)

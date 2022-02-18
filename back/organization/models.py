@@ -5,7 +5,6 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from misc.models import File
-from django.conf import settings
 
 
 class ObjectManager(models.Manager):
@@ -32,7 +31,9 @@ class Organization(models.Model):
     # additional settings
     new_hire_email = models.BooleanField(
         verbose_name=_("Send email to new hire with login credentials"),
-        help_text=_("This is essential if you want your new hires to login to the dashboard (disable if using Slack)"),
+        help_text=_(
+            "This is essential if you want your new hires to login to the dashboard (disable if using Slack)"
+        ),
         default=True,
     )
     new_hire_email_reminders = models.BooleanField(
@@ -48,17 +49,23 @@ class Organization(models.Model):
 
     # Slack specific
     slack_buttons = models.BooleanField(
-        verbose_name=_("Add 'todo' and 'resource' buttons to the first message that's being sent to the new hire."),
+        verbose_name=_(
+            "Add 'todo' and 'resource' buttons to the first message that's being sent to the new hire."
+        ),
         help_text="Slack only",
         default=True,
     )
     ask_colleague_welcome_message = models.BooleanField(
-        verbose_name=_("Send a Slack message to the team to collect personal welcome messages from colleages."),
+        verbose_name=_(
+            "Send a Slack message to the team to collect personal welcome messages from colleages."
+        ),
         help_text=_("Slack only"),
         default=True,
     )
     send_new_hire_start_reminder = models.BooleanField(
-        verbose_name=_("Send a Slack message to the team on the day the new hire starts"),
+        verbose_name=_(
+            "Send a Slack message to the team on the day the new hire starts"
+        ),
         help_text=_("Slack only"),
         default=False,
     )
@@ -145,7 +152,7 @@ class BaseItem(models.Model):
 
     def duplicate(self):
         self.pk = None
-        self.name = _("%(name)s (duplicate)") % {'name': self.name}
+        self.name = _("%(name)s (duplicate)") % {"name": self.name}
         self.save()
         return self
 
@@ -161,24 +168,27 @@ class Changelog(models.Model):
 
 
 NOTIFICATION_TYPES = [
-    ('added_todo', _('A new to do item has been added')),
-    ('completed_todo', _('To do item has been marked as completed')),
-    ('added_resource', _('A new resource item has been added')),
-    ('completed_course', _('Course has been completed')),
-    ('added_badge', _('A new badge item has been added')),
-    ('added_introduction', _('A new introduction item has been added')),
-    ('added_preboarding', _('A new preboarding item has been added')),
-    ('added_new_hire', _('A new hire has been added')),
-    ('added_administrator', _('A new administrator has been added')),
-    ('added_admin_task', _('A new admin task has been added')),
-    ('sent_email_message', _('A new email has been sent')),
-    ('sent_text_message', _('A new text message has been sent')),
-    ('sent_slack_message', _('A new slack message has been sent')),
-    ('failed_no_phone', _('Couldn\'t sent text message: number is missing')),
+    ("added_todo", _("A new to do item has been added")),
+    ("completed_todo", _("To do item has been marked as completed")),
+    ("added_resource", _("A new resource item has been added")),
+    ("completed_course", _("Course has been completed")),
+    ("added_badge", _("A new badge item has been added")),
+    ("added_introduction", _("A new introduction item has been added")),
+    ("added_preboarding", _("A new preboarding item has been added")),
+    ("added_new_hire", _("A new hire has been added")),
+    ("added_administrator", _("A new administrator has been added")),
+    ("added_admin_task", _("A new admin task has been added")),
+    ("sent_email_message", _("A new email has been sent")),
+    ("sent_text_message", _("A new text message has been sent")),
+    ("sent_slack_message", _("A new slack message has been sent")),
+    ("failed_no_phone", _("Couldn't sent text message: number is missing")),
 ]
 
+
 class Notification(models.Model):
-    notification_type = models.CharField(choices=NOTIFICATION_TYPES, max_length=100, default='added_todo')
+    notification_type = models.CharField(
+        choices=NOTIFICATION_TYPES, max_length=100, default="added_todo"
+    )
     extra_text = models.TextField(default="")
     created = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(

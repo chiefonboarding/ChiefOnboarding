@@ -10,9 +10,9 @@ from organization.models import Organization
 def send_access_email(user, password, email):
     translation.activate(user.language)
     subject = _("Here are your email login credentials!")
-    message = (
-            _("Hi %(name)s!\n\nI have just created a new email account for you. Here are the details: \n\nYour brand new email address: %(email)s\nPassword: %(password)s\n\nAnd you can login here: https://gmail.com \n\nTalk soon!" ) % {'name': user.first_name, 'email': user.email, 'password': password}
-    )
+    message = _(
+        "Hi %(name)s!\n\nI have just created a new email account for you. Here are the details: \n\nYour brand new email address: %(email)s\nPassword: %(password)s\n\nAnd you can login here: https://gmail.com \n\nTalk soon!"
+    ) % {"name": user.first_name, "email": user.email, "password": password}
     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
 
 

@@ -1,10 +1,10 @@
 from django.db import models
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 
 from misc.fields import ContentJSONField
 from organization.models import BaseItem
-from django.utils.translation import ugettext_lazy as _
 
 CHAPTER_TYPE = ((0, _("page")), (1, _("folder")), (2, _("questions")))
 
@@ -30,12 +30,12 @@ class Resource(BaseItem):
 
     @property
     def notification_add_type(self):
-        return 'added_resource'
+        return "added_resource"
 
     def duplicate(self):
         old_resource = Resource.objects.get(pk=self.pk)
         self.pk = None
-        self.name = _("%(name)s (duplicate)") % {'name': self.name}
+        self.name = _("%(name)s (duplicate)") % {"name": self.name}
         self.save()
 
         # old vs new ids for referencing parent_chapters

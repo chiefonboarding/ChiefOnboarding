@@ -1,14 +1,12 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Div, Field, Layout
 from django import forms
-
-from admin.templates.forms import (
-    FieldWithExtraContext,
-    ModelChoiceFieldWithCreate,
-    MultiSelectField,
-)
-from organization.models import Tag
 from django.utils.translation import ugettext_lazy as _
+
+from admin.templates.forms import (FieldWithExtraContext,
+                                   ModelChoiceFieldWithCreate,
+                                   MultiSelectField)
+from organization.models import Tag
 
 from .models import Category, Resource
 from .serializers import ChapterSerializer
@@ -96,7 +94,9 @@ class ResourceForm(forms.ModelForm):
         }
         help_texts = {
             "course": _("When enabled, new hires will have to walk through this"),
-            "remove_on_complete": _("If disabled, it will turn into a normal resource after completing"),
+            "remove_on_complete": _(
+                "If disabled, it will turn into a normal resource after completing"
+            ),
         }
 
     def clean_tags(self):

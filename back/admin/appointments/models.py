@@ -22,7 +22,7 @@ class Appointment(BaseItem):
 
     @property
     def notification_add_type(self):
-        return 'added_appointment'
+        return "added_appointment"
 
     def update_url(self):
         return reverse("appointments:update", args=[self.id])

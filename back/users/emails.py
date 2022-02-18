@@ -27,7 +27,13 @@ def email_new_admin_cred(user):
         },
         {
             "type": "block",
-            "text": "<strong>"+_("Username:") + f"</strong>&nbsp;{user.email}<br /><strong>" + _("Password:") + f"</strong>&nbsp;{password}<strong><br />" + _("Login URL:") +f"</strong>&nbsp;{settings.BASE_URL}",
+            "text": "<strong>"
+            + _("Username:")
+            + f"</strong>&nbsp;{user.email}<br /><strong>"
+            + _("Password:")
+            + f"</strong>&nbsp;{password}<strong><br />"
+            + _("Login URL:")
+            + f"</strong>&nbsp;{settings.BASE_URL}",
         },
     ]
     message = ""
@@ -52,11 +58,15 @@ def email_reopen_task(task, message, user):
     content = [
         {
             "type": "p",
-            "text": _("Hi %(name)s, we have just reopened this task. %(message)s") % {"name": user.first_name, "message": message}
+            "text": _("Hi %(name)s, we have just reopened this task. %(message)s")
+            % {"name": user.first_name, "message": message},
         },
         {
             "type": "block",
-            "text": _("<strong>%(task_name)s</strong> <br />Go to your dashboard to complete it") % {"task_name": task.to_do.name}
+            "text": _(
+                "<strong>%(task_name)s</strong> <br />Go to your dashboard to complete it"
+            )
+            % {"task_name": task.to_do.name},
         },
         {"type": "button", "text": _("Dashboard"), "url": settings.BASE_URL},
     ]
@@ -77,11 +87,15 @@ def send_reminder_email(task):
     content = [
         {
             "type": "p",
-            "text": _("Hi %(name)s, Here is a quick reminder of the following task:") % {'name': task.user.first_name}
+            "text": _("Hi %(name)s, Here is a quick reminder of the following task:")
+            % {"name": task.user.first_name},
         },
         {
             "type": "block",
-            "text": _("<strong>%(task_name)s</strong> <br />Go to your dashboard to complete it") % {"task_name": task.to_do.name}
+            "text": _(
+                "<strong>%(task_name)s</strong> <br />Go to your dashboard to complete it"
+            )
+            % {"task_name": task.to_do.name},
         },
         {"type": "button", "text": _("Dashboard"), "url": settings.BASE_URL},
     ]
@@ -110,7 +124,11 @@ def send_new_hire_credentials(new_hire):
         {"type": "p", "text": personalized_message},
         {
             "type": "block",
-            "text": "<strong>" + _("Username: ") + f"</strong>{new_hire.email}<br /><strong>" + _("Password: ") + f"</strong>{password}",
+            "text": "<strong>"
+            + _("Username: ")
+            + f"</strong>{new_hire.email}<br /><strong>"
+            + _("Password: ")
+            + f"</strong>{password}",
         },
         {"type": "button", "text": _("Dashboard"), "url": settings.BASE_URL},
     ]
@@ -131,7 +149,7 @@ def send_new_hire_preboarding(new_hire):
         language=new_hire.language, message_type=0
     ).message
     personalized_message = new_hire.personalize(message)
-    subject = _("Welcome to %(name)s!") % {'name': org.name}
+    subject = _("Welcome to %(name)s!") % {"name": org.name}
     content = [
         {"type": "p", "text": personalized_message},
         {

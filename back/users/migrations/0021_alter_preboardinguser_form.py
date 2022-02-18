@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0020_rename_department_obj_user_department'),
+        ("users", "0020_rename_department_obj_user_department"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='preboardinguser',
-            name='form',
+            model_name="preboardinguser",
+            name="form",
             field=models.JSONField(default=list),
         ),
     ]

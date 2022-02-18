@@ -5,7 +5,8 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from twilio.rest import Client
 
-from admin.admin_tasks.models import NOTIFICATION_CHOICES, PRIORITY_CHOICES, AdminTask
+from admin.admin_tasks.models import (NOTIFICATION_CHOICES, PRIORITY_CHOICES,
+                                      AdminTask)
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
 from admin.introductions.models import Introduction
@@ -15,8 +16,8 @@ from admin.sequences.utils import get_condition_items
 from admin.to_do.models import ToDo
 from misc.models import Content
 from misc.serializers import FileSerializer
-from slack_bot.slack import Slack
 from organization.models import Notification
+from slack_bot.slack import Slack
 
 from .emails import send_sequence_message
 
@@ -153,11 +154,11 @@ class ExternalMessage(models.Model):
     @property
     def notification_add_type(self):
         if self.is_text_message:
-            return 'sent_text_message'
+            return "sent_text_message"
         if self.is_email_message:
-            return 'sent_email_message'
+            return "sent_email_message"
         if self.is_slack_message:
-            return 'sent_slack_message'
+            return "sent_slack_message"
 
     @property
     def get_icon_template(self):
@@ -224,9 +225,9 @@ class ExternalMessage(models.Model):
             phone_number = self.get_user(user).phone
             if phone_number == "":
                 Notification.objects.create(
-                    notification_type='failed_no_phone',
+                    notification_type="failed_no_phone",
                     extra_text=self.name,
-                    created_for=self.get_user(user)
+                    created_for=self.get_user(user),
                 )
                 return
 
@@ -240,7 +241,7 @@ class ExternalMessage(models.Model):
         Notification.objects.create(
             notification_type=self.notification_add_type,
             extra_text=self.name,
-            created_for=self.get_user(user)
+            created_for=self.get_user(user),
         )
 
     objects = ExternalMessageManager()
@@ -281,9 +282,9 @@ class PendingAdminTask(models.Model):
             )
 
         Notification.objects.create(
-            notification_type='added_admin_task',
+            notification_type="added_admin_task",
             extra_text=self.name,
-            created_for=self.assigned_to
+            created_for=self.assigned_to,
         )
 
     @property
@@ -423,7 +424,7 @@ class Condition(models.Model):
                 Notification.objects.create(
                     notification_type=item.notification_add_type,
                     extra_text=item.name,
-                    created_for=user
+                    created_for=user,
                 )
 
         # For the ones that aren't a quick copy/paste, follow back to their model and execute them

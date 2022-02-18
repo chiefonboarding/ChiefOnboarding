@@ -7,15 +7,12 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 from admin.sequences.models import Sequence
-from admin.templates.forms import (
-    ModelChoiceFieldWithCreate,
-    MultiSelectField,
-    UploadField,
-)
+from admin.templates.forms import (ModelChoiceFieldWithCreate,
+                                   MultiSelectField, UploadField)
 from users.models import Department
-from django.utils.translation import gettext_lazy as _
 
 
 class NewHireAddForm(forms.ModelForm):

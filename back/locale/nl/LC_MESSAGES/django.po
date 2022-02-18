@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-18 01:52+0000\n"
+"POT-Creation-Date: 2022-02-18 14:43+0000\n"
 "PO-Revision-Date: 2022-02-17 22:39:+0000\n"
 "Last-Translator: Stan Triepels <hello@chiefonboarding.com>\n"
 "Language-Team: NL <nl@chiefonboarding.com>\n"
@@ -230,7 +230,8 @@ msgid "Task has been updated"
 msgstr "Taak is geüpdatet"
 
 #: admin/admin_tasks/views.py:73
-msgid "Task: %(name)"
+#, python-format
+msgid "Task: %(name)s"
 msgstr "Taak: %(name)"
 
 #: admin/admin_tasks/views.py:74 admin/admin_tasks/views.py:111
@@ -369,7 +370,7 @@ msgstr "Teams die de medeweker toegang tot zou moeten hebben"
 
 #: admin/integrations/models.py:11
 msgid "Slack bot"
-msgstr "Slack botj"
+msgstr "Slack bot"
 
 #: admin/integrations/models.py:12
 msgid "Slack account creation"

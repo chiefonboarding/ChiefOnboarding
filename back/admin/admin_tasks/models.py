@@ -5,11 +5,8 @@ from django.utils.translation import gettext_lazy as _
 
 from slack_bot.slack import Slack
 
-from .emails import (
-    send_email_new_assigned_admin,
-    send_email_new_comment,
-    send_email_notification_to_external_person,
-)
+from .emails import (send_email_new_assigned_admin, send_email_new_comment,
+                     send_email_notification_to_external_person)
 
 PRIORITY_CHOICES = ((1, _("Low")), (2, _("Medium")), (3, _("High")))
 
@@ -54,7 +51,14 @@ class AdminTask(models.Model):
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": _("%(name_assigned_to)s needs your help with this task:\n*%(task_name)s*\n_%(comment)s_") % {'name_assigned_to': self.assigned_to.full_name(), 'task_name': self.title, 'comment': self.comment.last().content}
+                        "text": _(
+                            "%(name_assigned_to)s needs your help with this task:\n*%(task_name)s*\n_%(comment)s_"
+                        )
+                        % {
+                            "name_assigned_to": self.assigned_to.full_name(),
+                            "task_name": self.title,
+                            "comment": self.comment.last().content,
+                        },
                     },
                 },
                 {
@@ -83,9 +87,18 @@ class AdminTask(models.Model):
             s = Slack()
             comment = ""
             if self.comment.all().exists():
-                comment = _("_%(comment)s\n by %(name)s_") % {'comment':self.comment.last(), 'name':self.comment.last().comment_by.full_name() }
+                comment = _("_%(comment)s\n by %(name)s_") % {
+                    "comment": self.comment.last(),
+                    "name": self.comment.last().comment_by.full_name(),
+                }
 
-            text = _("You have just been assigned to *%(title)s* for *%(name)s\n%(comment)s") % {'title': self.title, 'name': self.new_hire.full_name(), 'comment': comment}
+            text = _(
+                "You have just been assigned to *%(title)s* for *%(name)s\n%(comment)s"
+            ) % {
+                "title": self.title,
+                "name": self.new_hire.full_name(),
+                "comment": comment,
+            }
 
             blocks = [
                 {"type": "section", "text": {"type": "mrkdwn", "text": text}},
@@ -135,7 +148,14 @@ class AdminTaskComment(models.Model):
                         "type": "section",
                         "text": {
                             "type": "mrkdwn",
-                            "text": _("%(name)s added a message to your task:\n*%(task_title)s*\n_%(comment)s_") % {'name': self.comment_by.full_name, 'title': self.admin_task.title, 'comment':self.comment}
+                            "text": _(
+                                "%(name)s added a message to your task:\n*%(task_title)s*\n_%(comment)s_"
+                            )
+                            % {
+                                "name": self.comment_by.full_name,
+                                "title": self.admin_task.title,
+                                "comment": self.comment,
+                            },
                         },
                     },
                     {

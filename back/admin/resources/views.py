@@ -2,11 +2,11 @@ from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
 from django.urls import reverse_lazy
+from django.utils.translation import ugettext as _
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
 from users.mixins import AdminPermMixin, LoginRequiredMixin
-from django.utils.translation import ugettext as _
 
 from .forms import ResourceForm
 from .mixins import ResourceMixin

@@ -1,41 +1,31 @@
 from datetime import datetime
 
 import pyotp
-from django.utils import translation
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy
+from django.utils import translation
+from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
-from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
+from django.views.generic.edit import (CreateView, DeleteView, FormView,
+                                       UpdateView)
 from django.views.generic.list import ListView
-from django.utils.translation import ugettext as _
 
-from django.conf import settings
-from admin.integrations.models import (
-    INTEGRATION_OPTIONS,
-    INTEGRATION_OPTIONS_URLS,
-    AccessToken,
-)
-from organization.models import (
-    Changelog,
-    Organization,
-    WelcomeMessage,
-    Notification,
-)
+from admin.integrations.models import (INTEGRATION_OPTIONS,
+                                       INTEGRATION_OPTIONS_URLS, AccessToken)
+from organization.models import (Changelog, Notification, Organization,
+                                 WelcomeMessage)
 from slack_bot.models import SlackChannel
 from users.mixins import AdminPermMixin, LoginRequiredMixin
 
-from .forms import (
-    AdministratorsCreateForm,
-    AdministratorsUpdateForm,
-    OrganizationGeneralForm,
-    OTPVerificationForm,
-    WelcomeMessagesUpdateForm,
-)
+from .forms import (AdministratorsCreateForm, AdministratorsUpdateForm,
+                    OrganizationGeneralForm, OTPVerificationForm,
+                    WelcomeMessagesUpdateForm)
 
 
 class OrganizationGeneralUpdateView(
@@ -88,9 +78,9 @@ class AdministratorCreateView(
             form.save()
 
         Notification.objects.create(
-            notification_type='added_administrator',
+            notification_type="added_administrator",
             extra_text=user.full_name,
-            created_by=self.request.user
+            created_by=self.request.user,
         )
         return HttpResponseRedirect(self.get_success_url())
 
@@ -202,7 +192,9 @@ class OTPView(LoginRequiredMixin, AdminPermMixin, FormView):
             context["otp_url"] = pyotp.totp.TOTP(user.totp_secret).provisioning_uri(
                 name=user.email, issuer_name="ChiefOnboarding"
             )
-        context["title"] = _("Enable TOTP 2FA") if not user.requires_otp else _("TOTP 2FA")
+        context["title"] = (
+            _("Enable TOTP 2FA") if not user.requires_otp else _("TOTP 2FA")
+        )
         context["subtitle"] = _("settings")
         return context
 
@@ -331,8 +323,8 @@ class SlackBotSetupView(
         "signing_secret",
         "verification_token",
     ]
-    success_message = (
-        _("Slack has now been connected, check if you got a message from your bot!")
+    success_message = _(
+        "Slack has now been connected, check if you got a message from your bot!"
     )
     success_url = reverse_lazy("settings:integrations")
 
@@ -357,7 +349,9 @@ class SlackChannelsUpdateView(LoginRequiredMixin, AdminPermMixin, RedirectView):
         SlackChannel.objects.update_channels()
         messages.success(
             request,
-            _("Newly added channels have been added. Make sure the bot has been added to that channel too if you want it to post/get info there!"),
+            _(
+                "Newly added channels have been added. Make sure the bot has been added to that channel too if you want it to post/get info there!"
+            ),
         )
         return super().get(request, *args, **kwargs)
 

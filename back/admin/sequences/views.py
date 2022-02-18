@@ -2,20 +2,22 @@ from django.contrib import messages
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
+from django.utils.translation import gettext as _
 from django.views.generic import View
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
-from django.utils.translation import gettext as _
 
 from admin.integrations.models import AccessToken
-from admin.templates.utils import get_model_form, get_templates_model, get_user_field
+from admin.templates.utils import (get_model_form, get_templates_model,
+                                   get_user_field)
 from admin.to_do.models import ToDo
 from users.mixins import AdminPermMixin, LoginRequiredMixin
 
 from .emails import send_sequence_message
-from .forms import ConditionCreateForm, ConditionToDoUpdateForm, ConditionUpdateForm
+from .forms import (ConditionCreateForm, ConditionToDoUpdateForm,
+                    ConditionUpdateForm)
 from .models import Condition, ExternalMessage, PendingAdminTask, Sequence
 
 

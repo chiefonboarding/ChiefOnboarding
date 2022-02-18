@@ -23,4 +23,4 @@ class Badge(BaseItem):
 
     @property
     def notification_add_type(self):
-        return 'added_badge'
+        return "added_badge"

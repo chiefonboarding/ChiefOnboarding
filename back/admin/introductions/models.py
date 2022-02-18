@@ -25,4 +25,4 @@ class Introduction(BaseItem):
 
     @property
     def notification_add_type(self):
-        return 'added_introduction'
+        return "added_introduction"

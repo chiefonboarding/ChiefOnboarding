@@ -6,26 +6,48 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('organization', '0009_alter_notification_reverse_link'),
+        ("organization", "0009_alter_notification_reverse_link"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='notification',
-            name='description',
+            model_name="notification",
+            name="description",
         ),
         migrations.RemoveField(
-            model_name='notification',
-            name='name',
+            model_name="notification",
+            name="name",
         ),
         migrations.AddField(
-            model_name='notification',
-            name='extra_text',
-            field=models.TextField(default=''),
+            model_name="notification",
+            name="extra_text",
+            field=models.TextField(default=""),
         ),
         migrations.AddField(
-            model_name='notification',
-            name='notification_type',
-            field=models.CharField(choices=[('added_todo', 'A new to do item has been added.'), ('completed_todo', 'To do item has been marked as completed.'), ('added_resource', 'A new resource item has been added.'), ('completed_course', 'Course has been completed.'), ('added_badge', 'A new badge item has been added.'), ('added_introduction', 'A new introduction item has been added.'), ('added_preboarding', 'A new preboarding item has been added.'), ('added_new_hire', 'A new hire has been added.'), ('added_administrator', 'A new administrator has been added.'), ('added_admin_task', 'A new admin task has been added.'), ('sent_email_message', 'A new email has been sent.'), ('sent_text_message', 'A new text message has been sent.'), ('sent_slack_message', 'A new slack message has been sent.'), ('failed_no_phone', "Couldn't sent text message: number is missing.")], default='added_todo', max_length=100),
+            model_name="notification",
+            name="notification_type",
+            field=models.CharField(
+                choices=[
+                    ("added_todo", "A new to do item has been added."),
+                    ("completed_todo", "To do item has been marked as completed."),
+                    ("added_resource", "A new resource item has been added."),
+                    ("completed_course", "Course has been completed."),
+                    ("added_badge", "A new badge item has been added."),
+                    ("added_introduction", "A new introduction item has been added."),
+                    ("added_preboarding", "A new preboarding item has been added."),
+                    ("added_new_hire", "A new hire has been added."),
+                    ("added_administrator", "A new administrator has been added."),
+                    ("added_admin_task", "A new admin task has been added."),
+                    ("sent_email_message", "A new email has been sent."),
+                    ("sent_text_message", "A new text message has been sent."),
+                    ("sent_slack_message", "A new slack message has been sent."),
+                    (
+                        "failed_no_phone",
+                        "Couldn't sent text message: number is missing.",
+                    ),
+                ],
+                default="added_todo",
+                max_length=100,
+            ),
         ),
     ]

@@ -175,9 +175,9 @@ class Slack:
             return _("This task is overdue")
         if (item.due_on_day - workday) == 0:
             return _("This task is due today")
-        return (
-            _("This task needs to be completed in %(amount)s working days") % {'amount':str(item.due_on_day - workday)}
-        )
+        return _("This task needs to be completed in %(amount)s working days") % {
+            "amount": str(item.due_on_day - workday)
+        }
 
     def format_to_do_block(self, pre_message, items):
         blocks = [
@@ -193,7 +193,11 @@ class Slack:
             else:
                 action_text = "Mark completed"
                 value = "to_do:external:" + str(i.id)
-                text = f"*{i.to_do.name}* <{settings.BASE_URL}/#/slackform?token={self.user_obj.unique_url}&id={str(i.id)}|" + _("View details") + f">\n{self.footer_text(i.to_do)}"
+                text = (
+                    f"*{i.to_do.name}* <{settings.BASE_URL}/#/slackform?token={self.user_obj.unique_url}&id={str(i.id)}|"
+                    + _("View details")
+                    + f">\n{self.footer_text(i.to_do)}"
+                )
             blocks.append(
                 {
                     "type": "section",
@@ -291,7 +295,8 @@ class Slack:
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": _("*Congrats, you unlocked: %(item_name)s *") % {'item_name': self.personalize(i.name)}
+                        "text": _("*Congrats, you unlocked: %(item_name)s *")
+                        % {"item_name": self.personalize(i.name)},
                     },
                 }
             ]
@@ -316,7 +321,10 @@ class Slack:
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": _("*Our new hire %(name)s just answered some questions:*") % {'name': to_do_user.user.first_name},
+                        "text": _(
+                            "*Our new hire %(name)s just answered some questions:*"
+                        )
+                        % {"name": to_do_user.user.first_name},
                     },
                 },
                 {"type": "divider"},
@@ -364,7 +372,10 @@ class Slack:
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": _("Would you like to put this new hire through onboarding?\n*Name:* %(name)s ") % {'name': user["profile"]["real_name"]}
+                    "text": _(
+                        "Would you like to put this new hire through onboarding?\n*Name:* %(name)s "
+                    )
+                    % {"name": user["profile"]["real_name"]},
                 },
             },
             {

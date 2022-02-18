@@ -121,7 +121,8 @@ class GoogleLoginView(View):
             ).json()
         except:
             messages.error(
-                request, _("Something went wrong with reaching Google. Please try again.")
+                request,
+                _("Something went wrong with reaching Google. Please try again."),
             )
             return redirect("login")
         if "email" in user_info:
@@ -134,6 +135,8 @@ class GoogleLoginView(View):
 
         messages.error(
             request,
-            _("There is no account associated with your email address. Did you try to log in with the correct account?"),
+            _(
+                "There is no account associated with your email address. Did you try to log in with the correct account?"
+            ),
         )
         return redirect("login")

@@ -3,9 +3,8 @@ import uuid
 from django.conf import settings
 from django.db import models
 from django.urls import reverse_lazy
-from fernet_fields import EncryptedTextField
-
 from django.utils.translation import ugettext_lazy as _
+from fernet_fields import EncryptedTextField
 
 INTEGRATION_OPTIONS = (
     (0, _("Slack bot")),
@@ -89,7 +88,8 @@ class AccessToken(models.Model):
             return Asana()
 
     def add_user_form_class(self):
-        from .forms import AddAsanaUserForm, AddGoogleUserForm, AddSlackUserForm
+        from .forms import (AddAsanaUserForm, AddGoogleUserForm,
+                            AddSlackUserForm)
 
         if self.integration == 1:
             return AddSlackUserForm()

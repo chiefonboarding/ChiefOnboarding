@@ -26,4 +26,4 @@ class Preboarding(BaseItem):
 
     @property
     def notification_add_type(self):
-        return 'added_preboarding'
+        return "added_preboarding"
