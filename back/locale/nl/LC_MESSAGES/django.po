@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-18 01:27+0000\n"
+"POT-Creation-Date: 2022-02-18 01:52+0000\n"
 "PO-Revision-Date: 2022-02-17 22:39:+0000\n"
 "Last-Translator: Stan Triepels <hello@chiefonboarding.com>\n"
 "Language-Team: NL <nl@chiefonboarding.com>\n"
@@ -23,30 +23,34 @@ msgid "Can you please do this for me?"
 msgstr "Kun je dit voor mij doen?"
 
 #: admin/admin_tasks/emails.py:16
-msgid "Hi! Could you please help me with this? It's for our new hire %(name)"
+#, python-format
+msgid "Hi! Could you please help me with this? It's for our new hire %(name)s"
 msgstr ""
 "Hoi, zou je me hiermee kunnen helpen? Het is voor onze nieuwe medewerker "
-"%(name)"
+"%(name)s"
 
 #: admin/admin_tasks/emails.py:34
 msgid "A task has been assigned to you!"
 msgstr "Een nieuwe taak is aan jou toegekend!"
 
 #: admin/admin_tasks/emails.py:39
-msgid "This is about task: %(title) for %(new_hire)"
-msgstr "Het gaat om taak: %(title) voor %(new_hire)"
+#, python-format
+msgid "This is about task: %(title)s for %(new_hire)s"
+msgstr "Het gaat om taak: %(title)s voor %(new_hire)s"
 
 #: admin/admin_tasks/emails.py:47
 msgid "Last message: "
 msgstr "Laatste bericht: "
 
 #: admin/admin_tasks/emails.py:64
-msgid "Someone added something to task: %(task_name)"
-msgstr "Iemand heeft iets toegevoegd aan taak: %(task_name)"
+#, python-format
+msgid "Someone added something to task: %(task_name)s"
+msgstr "Iemand heeft iets toegevoegd aan taak: %(task_name)s"
 
 #: admin/admin_tasks/emails.py:67
-msgid "Hi %(name)"
-msgstr "Hoi %(name)"
+#, python-format
+msgid "Hi %(name)s"
+msgstr "Hoi %(name)s"
 
 #: admin/admin_tasks/emails.py:71
 msgid ""
@@ -85,44 +89,48 @@ msgid "Slack"
 msgstr "Slack"
 
 #: admin/admin_tasks/models.py:57
+#, python-format
 msgid ""
-"%(name_assigned_to) needs your help with this task:\n"
-"*%(task_name)*\n"
-"_%(comment)_"
+"%(name_assigned_to)s needs your help with this task:\n"
+"*%(task_name)s*\n"
+"_%(comment)s_"
 msgstr ""
-"%(name_assigned_to) heeft hulp nodig bij deze taak:\n"
-"*(task_name)*\n"
-"_%(comment)_"
+"%(name_assigned_to)s heeft hulp nodig bij deze taak:\n"
+"*%(task_name)s*\n"
+"_%(comment)s_"
 
 #: admin/admin_tasks/models.py:69 admin/admin_tasks/models.py:150
 msgid "I have completed this"
 msgstr "Ik heb dit gedaan"
 
 #: admin/admin_tasks/models.py:86
+#, python-format
 msgid ""
-"_%(comment)\n"
-" by %(name)_"
+"_%(comment)s\n"
+" by %(name)s_"
 msgstr ""
-"_%(comment)\n"
-" door %(name)_"
+"_%(comment)s\n"
+" door %(name)s_"
 
 #: admin/admin_tasks/models.py:88
+#, python-format
 msgid ""
-"You have just been assigned to *%(title)* for *%(name)\n"
-"%(comment)"
+"You have just been assigned to *%(title)s* for *%(name)s\n"
+"%(comment)s"
 msgstr ""
-"Jij bent nu toegekend aan taak: *%(title)* voor *%(name)\n"
-"%(comment)"
+"Jij bent nu toegekend aan taak: *%(title)s* voor *%(name)s\n"
+"%(comment)s"
 
 #: admin/admin_tasks/models.py:138
+#, python-format
 msgid ""
-"%(name) added a message to your task:\n"
-"*%(task_title)*\n"
-"_%(comment)_"
+"%(name)s added a message to your task:\n"
+"*%(task_title)s*\n"
+"_%(comment)s_"
 msgstr ""
-"%(name) heeft een bericht aan jouw taak toegevoegd:\n"
-"*%(task_title)*\n"
-"_%(comment)_"
+"%(name)s heeft een bericht aan jouw taak toegevoegd:\n"
+"*%(task_title)s*\n"
+"_%(comment)s_"
 
 #: admin/admin_tasks/templates/admin_tasks_all.html:8
 #: users/templates/admin_base.html:124
@@ -299,24 +307,25 @@ msgid "Here are your email login credentials!"
 msgstr "Hier zijn jouw login gegevens!"
 
 #: admin/integrations/emails.py:14
+#, python-format
 msgid ""
-"Hi %(name)!\n"
+"Hi %(name)s!\n"
 "\n"
 "I have just created a new email account for you. Here are the details: \n"
 "\n"
-"Your brand new email address: %(email)\n"
-"Password: %(password)\n"
+"Your brand new email address: %(email)s\n"
+"Password: %(password)s\n"
 "\n"
 "And you can login here: https://gmail.com \n"
 "\n"
 "Talk soon!"
 msgstr ""
-"Hoi %(name)!\n"
+"Hoi %(name)s!\n"
 "\n"
 "We hebben een e-mail account voor jouw aangemaakt. Hier zijn de details: \n"
 "\n"
-"Jouw nieuwe e-mailadres: %(email)\n"
-"Wachtwoord: %(password)\n"
+"Jouw nieuwe e-mailadres: %(email)s\n"
+"Wachtwoord: %(password)s\n"
 "\n"
 "Je kunt hier inloggen: https://gmail.com \n"
 "\n"
@@ -913,8 +922,9 @@ msgid "Create new colleague"
 msgstr "Maak nieuwe medewerker aan"
 
 #: admin/people/views.py:362
-msgid "Add new resource for %(name)"
-msgstr "Voeg nieuw artikel toe voor %(name)"
+#, python-format
+msgid "Add new resource for %(name)s"
+msgstr "Voeg nieuw artikel toe voor %(name)s"
 
 #: admin/people/views.py:374
 msgid "Colleague has been removed"
@@ -1029,9 +1039,10 @@ msgstr "map"
 msgid "questions"
 msgstr "vragen"
 
-#: admin/resources/models.py:38
-msgid "%(name) (duplicate)"
-msgstr "%(name) (dubbel)"
+#: admin/resources/models.py:38 organization/models.py:148
+#, python-format
+msgid "%(name)s (duplicate)"
+msgstr "%(name)s (dubbel)"
 
 #: admin/resources/templates/_chapter_options.html:29
 msgid "Add page"
@@ -1696,12 +1707,6 @@ msgstr "slack welkom"
 msgid "slack knowledge"
 msgstr "Slack artikelen"
 
-#: organization/models.py:148
-#, fuzzy, python-format
-#| msgid "%(name) (duplicate)"
-msgid "%(name)s (duplicate)"
-msgstr "%(name) (dubbel)"
-
 #: organization/models.py:164
 msgid "A new to do item has been added"
 msgstr "Een nieuwe te doen item is toegevoegd"
@@ -1783,8 +1788,9 @@ msgid "This task is due today"
 msgstr "Deze taak moet vandaag afgerond worden"
 
 #: slack_bot/slack.py:179
-msgid "This task needs to be completed in %(amount) working days"
-msgstr "Deze taak moet over %(amount) werkdagen afgerond zijn"
+#, python-format
+msgid "This task needs to be completed in %(amount)s working days"
+msgstr "Deze taak moet over %(amount)s werkdagen afgerond zijn"
 
 #: slack_bot/slack.py:196
 msgid "View details"
@@ -1799,8 +1805,9 @@ msgid "View resource"
 msgstr "Bekijk artikel"
 
 #: slack_bot/slack.py:294
-msgid "*Congrats, you unlocked: %(item_name) *"
-msgstr "*Gefeliciteerd, jij hebt %(item_name) unlocked *"
+#, python-format
+msgid "*Congrats, you unlocked: %(item_name)s *"
+msgstr "*Gefeliciteerd, jij hebt %(item_name)s unlocked *"
 
 #: slack_bot/slack.py:307
 msgid "We have just added these new to do items:"
@@ -1811,20 +1818,22 @@ msgid "We have just added a new to do item for you:"
 msgstr "We hebben net dit item toegoevoegd voor jou:"
 
 #: slack_bot/slack.py:319
-msgid "*Our new hire %(name) just answered some questions:*"
-msgstr "*Onze nieuwe medeweker %(name) heeft net deze vragen beantwoord:*"
+#, python-format
+msgid "*Our new hire %(name)s just answered some questions:*"
+msgstr "*Onze nieuwe medeweker %(name)s heeft net deze vragen beantwoord:*"
 
 #: slack_bot/slack.py:342
 msgid "No resources available"
 msgstr "Geen artikelen beschikbaar"
 
 #: slack_bot/slack.py:367
+#, python-format
 msgid ""
 "Would you like to put this new hire through onboarding?\n"
-"*Name:* %(name) "
+"*Name:* %(name)s "
 msgstr ""
 "Wil je deze nieuwe medewerker onboarden?\n"
-"*Naam:* %(name) "
+"*Naam:* %(name)s "
 
 #: slack_bot/slack.py:375
 msgid "Yeah!"
@@ -1901,13 +1910,15 @@ msgid "Good morning! These are the tasks you need to complete today:"
 msgstr "Goede morgen! Dit zijn de taken die je vandaag moet afronden:"
 
 #: slack_bot/tasks.py:165
-msgid "Just a quick reminder: It's %(name)'s first day today!"
-msgstr "Even een snelle herinnering: Het is %(name)'s eerste dag vandaag!"
+#, python-format
+msgid "Just a quick reminder: It's %(name)s's first day today!"
+msgstr "Even een snelle herinnering: Het is %(name)s's eerste dag vandaag!"
 
 #: slack_bot/tasks.py:173
-msgid "We got some new hires coming in! %(names) are starting today!"
+#, python-format
+msgid "We got some new hires coming in! %(names)s are starting today!"
 msgstr ""
-"Er starten vandaag een paar nieuwe medewerkers! %(names) starten vandaag!"
+"Er starten vandaag een paar nieuwe medewerkers! %(names)s starten vandaag!"
 
 #: slack_bot/tasks.py:198
 msgid ""
@@ -1918,28 +1929,23 @@ msgstr ""
 "een welkom bericht achter voor ze!"
 
 #: slack_bot/tasks.py:201
-#, fuzzy, python-format
-#| msgid ""
-#| "We have a new hire coming in soon! Make sure to leave a message for "
-#| "%(first_name)!"
+#, python-format
 msgid ""
 "We have a new hire coming in soon! Make sure to leave a message for "
 "%(first_name)s!"
 msgstr ""
 "Er start binnenkort een nieuwe medewerker! Zorg dat je een bericht "
-"achterlaat voor %(first_name)!"
+"achterlaat voor %(first_name)s!"
 
 #: slack_bot/tasks.py:218
-#, fuzzy, python-format
-#| msgid " and is our new %(postition)"
+#, python-format
 msgid " and is our new %(postition)s"
-msgstr " en is onze nieuwe %(position)"
+msgstr " en is onze nieuwe %(postition)s"
 
 #: slack_bot/tasks.py:219
-#, fuzzy, python-format
-#| msgid "%(first_name) starts on %(start_day) %(footer_extra)."
+#, python-format
 msgid "%(first_name)s starts on %(start_day)s %(footer_extra)s."
-msgstr "%(first_name) start op %(start_day) %(footer_extra)."
+msgstr "%(first_name) start op %(start_day)s %(footer_extra)s."
 
 #: slack_bot/tasks.py:234
 msgid "Welcome this new hire!"
@@ -2048,13 +2054,16 @@ msgid "Please redo this task"
 msgstr "Doe deze taak opnieuw alsjeblieft"
 
 #: users/emails.py:55
-msgid "Hi %(name), we have just reopened this task. %(message)"
-msgstr "Hoi %(name), we hebben zojuist deze taak opnieuw geopent. %(message)"
+#, python-format
+msgid "Hi %(name)s, we have just reopened this task. %(message)s"
+msgstr "Hoi %(name)s, we hebben zojuist deze taak opnieuw geopent. %(message)s"
 
 #: users/emails.py:59 users/emails.py:84
-msgid "<strong>%(task_name)</strong> <br />Go to your dashboard to complete it"
+#, python-format
+msgid ""
+"<strong>%(task_name)s</strong> <br />Go to your dashboard to complete it"
 msgstr ""
-"<strong>%(task_name)</strong> <br />Ga naar jouw dashboard om hem af te "
+"<strong>%(task_name)s</strong> <br />Ga naar jouw dashboard om hem af te "
 "ronden"
 
 #: users/emails.py:61 users/emails.py:86 users/emails.py:115
@@ -2066,8 +2075,9 @@ msgid "Please complete this task"
 msgstr "Rond deze taak af a.u.b."
 
 #: users/emails.py:80
-msgid "Hi %(name), Here is a quick reminder of the following task:"
-msgstr "Hoi %(name), Dit is een herinnering voor de volgende taak:"
+#, python-format
+msgid "Hi %(name)s, Here is a quick reminder of the following task:"
+msgstr "Hoi %(name)s, Dit is een herinnering voor de volgende taak:"
 
 #: users/emails.py:113
 msgid "Username: "
@@ -2078,10 +2088,9 @@ msgid "Password: "
 msgstr "Wachtwoord: "
 
 #: users/emails.py:134
-#, fuzzy, python-format
-#| msgid "Welcome to %(name)!"
+#, python-format
 msgid "Welcome to %(name)s!"
-msgstr "Welkom bij %(name)!"
+msgstr "Welkom bij %(name)s!"
 
 #: users/emails.py:139
 msgid "See pages"
@@ -2108,11 +2117,12 @@ msgstr ""
 "tot zijn eigen nieuwe medewerkers en hun taken."
 
 #: users/models.py:423
+#, python-format
 msgid ""
-"%(amount_of_correct_answers) correct answers out of %(amount_of_questions) "
+"%(amount_of_correct_answers)s correct answers out of %(amount_of_questions)s "
 "questions"
 msgstr ""
-"%(amount_of_correct_answers) goede antwoorden uit %(amount_of_questions) "
+"%(amount_of_correct_answers)s goede antwoorden uit %(amount_of_questions)s "
 "vragen"
 
 #: users/templates/admin_base.html:58

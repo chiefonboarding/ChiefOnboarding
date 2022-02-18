@@ -176,7 +176,7 @@ class Slack:
         if (item.due_on_day - workday) == 0:
             return _("This task is due today")
         return (
-            _("This task needs to be completed in %(amount) working days") % {'amount':str(item.due_on_day - workday)}
+            _("This task needs to be completed in %(amount)s working days") % {'amount':str(item.due_on_day - workday)}
         )
 
     def format_to_do_block(self, pre_message, items):
@@ -291,7 +291,7 @@ class Slack:
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": _("*Congrats, you unlocked: %(item_name) *") % {'item_name': self.personalize(i.name)}
+                        "text": _("*Congrats, you unlocked: %(item_name)s *") % {'item_name': self.personalize(i.name)}
                     },
                 }
             ]
@@ -316,7 +316,7 @@ class Slack:
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": _("*Our new hire %(name) just answered some questions:*") % {'name': to_do_user.user.first_name},
+                        "text": _("*Our new hire %(name)s just answered some questions:*") % {'name': to_do_user.user.first_name},
                     },
                 },
                 {"type": "divider"},
@@ -364,7 +364,7 @@ class Slack:
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": _("Would you like to put this new hire through onboarding?\n*Name:* %(name) ") % {'name': user["profile"]["real_name"]}
+                    "text": _("Would you like to put this new hire through onboarding?\n*Name:* %(name)s ") % {'name': user["profile"]["real_name"]}
                 },
             },
             {

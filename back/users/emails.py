@@ -52,11 +52,11 @@ def email_reopen_task(task, message, user):
     content = [
         {
             "type": "p",
-            "text": _("Hi %(name), we have just reopened this task. %(message)") % {"name": user.first_name, "message": message}
+            "text": _("Hi %(name)s, we have just reopened this task. %(message)s") % {"name": user.first_name, "message": message}
         },
         {
             "type": "block",
-            "text": _("<strong>%(task_name)</strong> <br />Go to your dashboard to complete it") % {"task_name": task.to_do.name}
+            "text": _("<strong>%(task_name)s</strong> <br />Go to your dashboard to complete it") % {"task_name": task.to_do.name}
         },
         {"type": "button", "text": _("Dashboard"), "url": settings.BASE_URL},
     ]
@@ -77,11 +77,11 @@ def send_reminder_email(task):
     content = [
         {
             "type": "p",
-            "text": _("Hi %(name), Here is a quick reminder of the following task:") % {'name': task.user.first_name}
+            "text": _("Hi %(name)s, Here is a quick reminder of the following task:") % {'name': task.user.first_name}
         },
         {
             "type": "block",
-            "text": _("<strong>%(task_name)</strong> <br />Go to your dashboard to complete it") % {"task_name": task.to_do.name}
+            "text": _("<strong>%(task_name)s</strong> <br />Go to your dashboard to complete it") % {"task_name": task.to_do.name}
         },
         {"type": "button", "text": _("Dashboard"), "url": settings.BASE_URL},
     ]

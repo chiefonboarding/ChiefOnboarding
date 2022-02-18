@@ -54,7 +54,7 @@ class AdminTask(models.Model):
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": _("%(name_assigned_to) needs your help with this task:\n*%(task_name)*\n_%(comment)_") % {'name_assigned_to': self.assigned_to.full_name(), 'task_name': self.title, 'comment': self.comment.last().content}
+                        "text": _("%(name_assigned_to)s needs your help with this task:\n*%(task_name)s*\n_%(comment)s_") % {'name_assigned_to': self.assigned_to.full_name(), 'task_name': self.title, 'comment': self.comment.last().content}
                     },
                 },
                 {
@@ -83,9 +83,9 @@ class AdminTask(models.Model):
             s = Slack()
             comment = ""
             if self.comment.all().exists():
-                comment = _("_%(comment)\n by %(name)_") % {'comment':self.comment.last(), 'name':self.comment.last().comment_by.full_name() }
+                comment = _("_%(comment)s\n by %(name)s_") % {'comment':self.comment.last(), 'name':self.comment.last().comment_by.full_name() }
 
-            text = _("You have just been assigned to *%(title)* for *%(name)\n%(comment)") % {'title': self.title, 'name': self.new_hire.full_name(), 'comment': comment}
+            text = _("You have just been assigned to *%(title)s* for *%(name)s\n%(comment)s") % {'title': self.title, 'name': self.new_hire.full_name(), 'comment': comment}
 
             blocks = [
                 {"type": "section", "text": {"type": "mrkdwn", "text": text}},
@@ -135,7 +135,7 @@ class AdminTaskComment(models.Model):
                         "type": "section",
                         "text": {
                             "type": "mrkdwn",
-                            "text": _("%(name) added a message to your task:\n*%(task_title)*\n_%(comment)_") % {'name': self.comment_by.full_name, 'title': self.admin_task.title, 'comment':self.comment}
+                            "text": _("%(name)s added a message to your task:\n*%(task_title)s*\n_%(comment)s_") % {'name': self.comment_by.full_name, 'title': self.admin_task.title, 'comment':self.comment}
                         },
                     },
                     {

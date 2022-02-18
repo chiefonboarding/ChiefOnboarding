@@ -420,7 +420,7 @@ class ResourceUser(models.Model):
             for idx, answer in enumerate(question_page.chapter.content["blocks"]):
                 if question_page.answers[f"item-{idx}"] == answer["answer"]:
                     amount_of_correct_answers += 1
-        return _("%(amount_of_correct_answers) correct answers out of %(amount_of_questions) questions") % {'amount_of_correct_answers': amount_of_correct_answers, 'amount_of_questions': amount_of_questions}
+        return _("%(amount_of_correct_answers)s correct answers out of %(amount_of_questions)s questions") % {'amount_of_correct_answers': amount_of_correct_answers, 'amount_of_questions': amount_of_questions}
 
     def get_user_answer_by_chapter(self, chapter):
         if not self.answers.filter(chapter=chapter).exists():

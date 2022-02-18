@@ -13,7 +13,7 @@ def send_email_notification_to_external_person(admin_task):
     content = [
         {
             "type": "p",
-            "text": _("Hi! Could you please help me with this? It's for our new hire %(name)") % {'name': admin_task.new_hire.full_name()}
+            "text": _("Hi! Could you please help me with this? It's for our new hire %(name)s") % {'name': admin_task.new_hire.full_name()}
         }
     ]
     if admin_task.comment.exists():
@@ -36,7 +36,7 @@ def send_email_new_assigned_admin(admin_task):
     content = [
         {
             "type": "p",
-            "text": _("This is about task: %(title) for %(new_hire)") % {'title': admin_task.name, 'new_hire': admin_task.new_hire.full_name()},
+            "text": _("This is about task: %(title)s for %(new_hire)s") % {'title': admin_task.name, 'new_hire': admin_task.new_hire.full_name()},
         }
     ]
     if admin_task.comment.exists():
@@ -61,10 +61,10 @@ def send_email_new_assigned_admin(admin_task):
 
 def send_email_new_comment(comment):
     translation.activate(comment.admin_task.assigned_to.language)
-    subject = _("Someone added something to task: %(task_name)") % {'task_name': comment.admin_task.name}
+    subject = _("Someone added something to task: %(task_name)s") % {'task_name': comment.admin_task.name}
     org = Organization.object.get()
     content = [
-        {"type": "p", "text": _("Hi %(name)") % {'name': comment.admin_task.assigned_to.first_name}},
+        {"type": "p", "text": _("Hi %(name)s") % {'name': comment.admin_task.assigned_to.first_name}},
         {
             "type": "p",
             "text": _(

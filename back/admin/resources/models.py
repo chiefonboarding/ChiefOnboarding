@@ -35,7 +35,7 @@ class Resource(BaseItem):
     def duplicate(self):
         old_resource = Resource.objects.get(pk=self.pk)
         self.pk = None
-        self.name = _("%(name) (duplicate)") % {'name': self.name}
+        self.name = _("%(name)s (duplicate)") % {'name': self.name}
         self.save()
 
         # old vs new ids for referencing parent_chapters

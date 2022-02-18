@@ -359,7 +359,7 @@ class ColleagueResourceView(LoginRequiredMixin, AdminPermMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         new_hire = context["object"]
-        context["title"] = _("Add new resource for %(name)") % {'name': new_hire.full_name}
+        context["title"] = _("Add new resource for %(name)s") % {'name': new_hire.full_name}
         context["subtitle"] = _("Employee")
         context["object_list"] = Resource.objects.all()
         return context

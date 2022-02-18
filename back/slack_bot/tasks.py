@@ -162,7 +162,7 @@ def first_day_reminder():
         text = ""
         if new_hires_starting_today.count() == 1:
             text = (
-                _("Just a quick reminder: It's %(name)'s first day today!") % {'name': user.full_name}
+                _("Just a quick reminder: It's %(name)s's first day today!") % {'name': user.full_name}
             )
         else:
             for i in new_hires_starting_today:
@@ -170,7 +170,7 @@ def first_day_reminder():
             # remove last comma
             text = text[:-2]
             text = (
-                _("We got some new hires coming in! %(names) are starting today!") % {'names': text}
+                _("We got some new hires coming in! %(names)s are starting today!") % {'names': text}
             )
         s = Slack()
         blocks = [{"type": "section", "text": {"type": "mrkdwn", "text": text}}]
