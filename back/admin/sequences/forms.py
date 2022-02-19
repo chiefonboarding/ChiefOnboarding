@@ -128,3 +128,8 @@ class ConditionToDoUpdateForm(forms.ModelForm):
         fields = [
             "condition_to_do",
         ]
+        labels = {
+            "condition_to_do": _(
+                "Trigger after these to do items have been completed:"
+            ),
+        }

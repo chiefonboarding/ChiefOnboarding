@@ -1,7 +1,5 @@
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Div, Field, Layout
 from django import forms
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from .asana import Asana
 from .google import Google

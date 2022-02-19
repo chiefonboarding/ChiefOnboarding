@@ -1,4 +1,5 @@
 {% load crispy_forms_tags %}
+{% load i18n %}
 <div class="card drop
     {% if condition.condition_type == 0 %}
       after
@@ -14,9 +15,9 @@
       <div class="col-10">
         <h4 class="card-title">
           {% if condition.condition_type == 0 %}
-            On day {{ condition.days }} at {{ condition.time }}
+            {% blocktranslate %}On day {{ condition.days }} at {{ condition.time }}{% endblocktranslate %}
           {% elif condition.condition_type == 1 %}
-            When these tasks are completed:
+            {% translate "When these tasks are completed:" %}
             <div id="div_id_condition_to_do">
               <select id="id_condition_to_do_{{condition.id}}" name="condition_to_do" value="None" multiple="" class="multi-with-add mb-3" onchange="triggerChange(event)" data-url="{% url 'sequences:condition-to-do-update' condition.id %}">
                 {% for todo in todos %}
@@ -25,9 +26,9 @@
               </select>
             </div>
           {% elif condition.condition_type == 2 %}
-            {{ condition.days }} days before starting at {{ condition.time }}
+            {% blocktranslate %}{{ condition.days }} days before starting at {{ condition.time }}{% endblocktranslate %}
           {% else %}
-            Without any trigger - assign directly
+            {% translate "Without any trigger - assign directly" %}
           {% endif %}
         </h4>
       </div>
@@ -51,7 +52,7 @@
 
     {# FOR NEW HIRES #}
     {% if condition.external_messages.for_new_hire|length or condition.to_do.all|length or condition.resources.all|length or condition.introductions.all|length %}
-    <span class="badge bg-azure mb-2">new hire</span>
+    <span class="badge bg-azure mb-2">{% translate "new hire" %}</span>
     {% endif %}
     {% for item in condition.preboarding.all %}
       {% include '_condition_line_item.html' with type='preboarding' %}
@@ -77,7 +78,7 @@
 
     {# FOR ADMINS #}
     {% if condition.external_messages.for_admins|length or condition.admin_tasks.all|length %}
-    <span class="badge bg-orange mb-2">admins</span>
+    <span class="badge bg-orange mb-2">{% translate "admins" %}</span>
     {% endif %}
     {% for item in condition.admin_tasks.all %}
       {% include '_condition_line_item.html' with type='admintask' %}

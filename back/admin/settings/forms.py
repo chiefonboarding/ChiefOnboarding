@@ -31,7 +31,7 @@ class OrganizationGeneralForm(forms.ModelForm):
                     Field("new_hire_email"),
                     Field("new_hire_email_reminders"),
                     Field("new_hire_email_overdue_reminders"),
-                    HTML("<h3 class='card-title mt-3'>Login options</h3>"),
+                    HTML("<h3 class='card-title mt-3'>" + _("Login options") + "</h3>"),
                     Field("credentials_login"),
                     Field("google_login"),
                     Field("slack_login"),
@@ -79,6 +79,13 @@ class OrganizationGeneralForm(forms.ModelForm):
             "slack_default_channel",
         ]
         labels = {
+            "name": _("Name"),
+            "language": _("Language"),
+            "timezone": _("Timezone"),
+            "base_color": _("Base color"),
+            "accent_color": _("Accent color"),
+            "bot_color": _("Bot color"),
+            "logo": _("Logo"),
             "slack_login": _("Allow users to login with their Slack account"),
             "google_login": _("Allow users to login with their Google account"),
             "credentials_login": _(
@@ -106,6 +113,9 @@ class AdministratorsCreateForm(forms.ModelForm):
     class Meta:
         model = get_user_model()
         fields = ["first_name", "last_name", "email", "role"]
+        labels = {
+            "role": _("Role"),
+        }
 
 
 class AdministratorsUpdateForm(forms.ModelForm):
@@ -118,6 +128,9 @@ class AdministratorsUpdateForm(forms.ModelForm):
         fields = [
             "role",
         ]
+        labels = {
+            "role": _("Role"),
+        }
 
 
 class WelcomeMessagesUpdateForm(forms.ModelForm):
@@ -131,6 +144,9 @@ class WelcomeMessagesUpdateForm(forms.ModelForm):
             "message": _(
                 "You can use {{ first_name }}, {{ last_name }}, {{ position }}, {{ manager }} and {{ buddy }} above. It will be replaced by the values corresponding to the new hire."
             )
+        }
+        labels = {
+            "message": _("Message"),
         }
 
 

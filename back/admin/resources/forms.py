@@ -88,6 +88,9 @@ class ResourceForm(forms.ModelForm):
         model = Resource
         fields = ("name", "tags", "category", "course", "on_day", "remove_on_complete")
         labels = {
+            "name": _("Name"),
+            "tags": _("Tags"),
+            "category": _("Category"),
             "course": _("Is a course item"),
             "on_day": _("Workday that this item is due"),
             "remove_on_complete": _("Remove item when new hire walked through"),

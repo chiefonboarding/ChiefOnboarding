@@ -1,7 +1,7 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, Layout
-from crispy_forms.utils import TEMPLATE_PACK
 from django import forms
+from django.utils.translation import ugettext_lazy as _
 
 from admin.templates.forms import MultiSelectField, WYSIWYGField
 from organization.models import Tag
@@ -10,7 +10,7 @@ from .models import Appointment
 
 
 class AppointmentForm(forms.ModelForm):
-    content = WYSIWYGField(label="Content")
+    content = WYSIWYGField()
     tags = forms.ModelMultipleChoiceField(
         queryset=Tag.objects.all(), to_field_name="name", required=False
     )
@@ -47,6 +47,15 @@ class AppointmentForm(forms.ModelForm):
         exclude = ("template",)
         widgets = {
             "time": forms.TimeInput(attrs={"type": "time", "step": 300}),
+        }
+        labels = {
+            "name": _("Name"),
+            "tags": _("Tags"),
+            "content": _("Content"),
+            "date": _("Date"),
+            "time": _("Time"),
+            "on_day": _("On day"),
+            "fixed_date": _("Fixed date"),
         }
 
     def clean_tags(self):

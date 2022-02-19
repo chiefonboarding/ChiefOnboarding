@@ -2,6 +2,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Div, Field, Layout
 from django import forms
 from django.template.loader import render_to_string
+from django.utils.translation import ugettext_lazy as _
 
 from admin.templates.forms import MultiSelectField
 from organization.models import Tag
@@ -33,6 +34,11 @@ class IntroductionForm(forms.ModelForm):
     class Meta:
         model = Introduction
         exclude = ("template",)
+        labels = {
+            "tags": _("Tags"),
+            "name": _("Name"),
+            "intro_person": _("Person to introduce"),
+        }
 
     def clean_tags(self):
         tags = self.cleaned_data["tags"]

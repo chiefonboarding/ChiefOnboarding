@@ -5,14 +5,14 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from twilio.rest import Client
 
-from admin.admin_tasks.models import (NOTIFICATION_CHOICES, PRIORITY_CHOICES,
-                                      AdminTask)
+from admin.admin_tasks.models import (NOTIFICATION_CHOICES, PRIORITY_CHOICES)
+
+from django.utils.translation import ugettext_lazy as _
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
 from admin.introductions.models import Introduction
 from admin.preboarding.models import Preboarding
 from admin.resources.models import Resource
-from admin.sequences.utils import get_condition_items
 from admin.to_do.models import ToDo
 from misc.models import Content
 from misc.serializers import FileSerializer
@@ -38,7 +38,7 @@ class Sequence(models.Model):
     def duplicate(self):
         old_sequence = Sequence.objects.get(pk=self.pk)
         self.pk = None
-        self.name = self.name + " (duplicate)"
+        self.name = _("%(name)s (duplicate)") % {'name': self.name}
         self.save()
         for condition in old_sequence.conditions.all():
             new_condition = condition.duplicate()
@@ -124,11 +124,11 @@ class ExternalMessageManager(models.Manager):
 
 class ExternalMessage(models.Model):
     EXTERNAL_TYPE = (
-        (0, "Email"),
-        (1, "Slack"),
-        (2, "Text"),
+        (0, _("Email")),
+        (1, _("Slack")),
+        (2, _("Text")),
     )
-    PEOPLE_CHOICES = ((0, "New hire"), (1, "Manager"), (2, "Buddy"), (3, "custom"))
+    PEOPLE_CHOICES = ((0, _("New hire")), (1, _("Manager")), (2, _("Buddy")), (3, _("custom")))
     name = models.CharField(max_length=240)
     content = models.CharField(max_length=12000, blank=True)
     content_json = models.ManyToManyField(Content)
@@ -136,7 +136,7 @@ class ExternalMessage(models.Model):
     send_to = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True
     )
-    subject = models.CharField(max_length=78, default="Here is an update!", blank=True)
+    subject = models.CharField(max_length=78, default=_("Here is an update!"), blank=True)
     person_type = models.IntegerField(choices=PEOPLE_CHOICES, default=1)
 
     @property
@@ -299,9 +299,9 @@ class PendingAdminTask(models.Model):
 
 class AccountProvision(models.Model):
     INTEGRATION_OPTIONS = (
-        ("asana", "Add Asana account to team"),
-        ("google", "Create Google account"),
-        ("slack", "Create Slack account"),
+        ("asana", _("Add Asana account to team")),
+        ("google", _("Create Google account")),
+        ("slack", _("Create Slack account")),
     )
     integration_type = models.CharField(max_length=10, choices=INTEGRATION_OPTIONS)
     additional_data = models.JSONField(models.TextField(blank=True), default=dict)
@@ -314,10 +314,10 @@ class AccountProvision(models.Model):
 
 class Condition(models.Model):
     CONDITION_TYPE = (
-        (0, "After new hire has started"),
-        (1, "Based on one or more to do item(s)"),
-        (2, "Before the new hire has started"),
-        (3, "Without trigger"),
+        (0, _("After new hire has started")),
+        (1, _("Based on one or more to do item(s)")),
+        (2, _("Before the new hire has started")),
+        (3, _("Without trigger")),
     )
     sequence = models.ForeignKey(
         Sequence, on_delete=models.CASCADE, null=True, related_name="conditions"

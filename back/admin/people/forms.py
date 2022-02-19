@@ -75,6 +75,19 @@ class NewHireAddForm(forms.ModelForm):
             "buddy",
             "manager",
         )
+        labels = {
+            "first_name": _("First name"),
+            "last_name": _("Last name"),
+            "position": _("Position"),
+            "email": _("Email"),
+            "phone": _("Phone"),
+            "start_day": _("Start day"),
+            "message": _("Message"),
+            "timezone": _("Timezone"),
+            "language": _("Language"),
+            "buddy": _("Buddy"),
+            "manager": _("Manager"),
+        }
 
 
 class NewHireProfileForm(forms.ModelForm):
@@ -130,6 +143,19 @@ class NewHireProfileForm(forms.ModelForm):
             "buddy",
             "manager",
         )
+        labels = {
+            "first_name": _("First name"),
+            "last_name": _("Last name"),
+            "position": _("Position"),
+            "email": _("Email"),
+            "phone": _("Phone"),
+            "start_day": _("Start day"),
+            "message": _("Message"),
+            "timezone": _("Timezone"),
+            "language": _("Language"),
+            "buddy": _("Buddy"),
+            "manager": _("Manager"),
+        }
 
 
 class ColleagueUpdateForm(forms.ModelForm):
@@ -183,6 +209,21 @@ class ColleagueUpdateForm(forms.ModelForm):
             "language",
             "profile_image",
         )
+        labels = {
+            "first_name": _("First name"),
+            "last_name": _("Last name"),
+            "position": _("Position"),
+            "department": _("Department"),
+            "email": _("Email"),
+            "phone": _("Phone"),
+            "message": _("Message"),
+            "facebook": _("Facebook"),
+            "twitter": _("Twitter"),
+            "linkedin": _("Linkedin"),
+            "timezone": _("Timezone"),
+            "language": _("Language"),
+            "profile_image": _("Profile image"),
+        }
 
 
 class ColleagueCreateForm(forms.ModelForm):
@@ -236,6 +277,21 @@ class ColleagueCreateForm(forms.ModelForm):
             "language",
             "profile_image",
         )
+        labels = {
+            "first_name": _("First name"),
+            "last_name": _("Last name"),
+            "position": _("Position"),
+            "department": _("Department"),
+            "email": _("Email"),
+            "phone": _("Phone"),
+            "message": _("Message"),
+            "facebook": _("Facebook"),
+            "twitter": _("Twitter"),
+            "linkedin": _("Linkedin"),
+            "timezone": _("Timezone"),
+            "language": _("Language"),
+            "profile_image": _("Profile image"),
+        }
 
 
 class SequenceChoiceForm(forms.Form):
@@ -269,3 +325,8 @@ class PreboardingSendForm(forms.Form):
         if settings.TWILIO_ACCOUNT_SID == "":
             self.fields["send_type"].widget.attrs["disabled"] = "true"
             self.fields["send_type"].initial = "text"
+
+    class Meta:
+        labels = {
+            "send_type": _("Send type"),
+        }

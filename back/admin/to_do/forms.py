@@ -46,7 +46,11 @@ class ToDoForm(forms.ModelForm):
         labels = {
             "send_back": _(
                 "Post new hire's answers from form (if applicable) back to Slack channel"
-            )
+            ),
+            "tags": _("Tags"),
+            "due_on_day": _("Due on day"),
+            "content": _("Content"),
+            "slack_channel": _("Slack channel"),
         }
         help_texts = {
             "send_back": _(

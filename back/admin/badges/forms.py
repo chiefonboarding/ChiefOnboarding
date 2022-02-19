@@ -1,8 +1,8 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, Layout
-from crispy_forms.utils import TEMPLATE_PACK
 from django import forms
 
+from django.utils.translation import gettext_lazy as _
 from admin.templates.forms import MultiSelectField, UploadField, WYSIWYGField
 from organization.models import Tag
 
@@ -34,6 +34,11 @@ class BadgeForm(forms.ModelForm):
     class Meta:
         model = Badge
         exclude = ("template",)
+        labels = {
+            "tags": _("Tags"),
+            "name": _("Name"),
+            "image": _("Image"),
+        }
 
     def clean_tags(self):
         tags = self.cleaned_data["tags"]
