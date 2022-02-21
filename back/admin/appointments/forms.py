@@ -48,15 +48,6 @@ class AppointmentForm(forms.ModelForm):
         widgets = {
             "time": forms.TimeInput(attrs={"type": "time", "step": 300}),
         }
-        labels = {
-            "name": _("Name"),
-            "tags": _("Tags"),
-            "content": _("Content"),
-            "date": _("Date"),
-            "time": _("Time"),
-            "on_day": _("On day"),
-            "fixed_date": _("Fixed date"),
-        }
 
     def clean_tags(self):
         tags = self.cleaned_data["tags"]

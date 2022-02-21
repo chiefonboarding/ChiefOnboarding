@@ -13,6 +13,7 @@ from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import (CreateView, DeleteView, FormView,
                                        UpdateView)
+from admin.templates.utils import get_user_field
 from django.views.generic.list import ListView
 from django_q.tasks import async_task
 from twilio.rest import Client
@@ -688,7 +689,7 @@ class NewHireTaskListView(LoginRequiredMixin, AdminPermMixin, DetailView):
         if templates_model is None:
             raise Http404
 
-        context["title"] = _("Add/Remove templates for %(name)") % {
+        context["title"] = _("Add/Remove templates for %(name)s") % {
             "name": self.object.full_name
         }
         context["subtitle"] = _("new hire")

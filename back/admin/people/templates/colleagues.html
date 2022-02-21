@@ -39,7 +39,7 @@
               {{ colleague.position }}
             </td>
             <td class="text-end">
-              {% include "_toggle_colleague_access.html" with url_name="people:connect-to-slack" slack=True exists=colleague.slack_channel_id %}
+              {% include "_toggle_colleague_access.html" with url_name="people:connect-to-slack" slack=True exists=colleague.has_slack_account %}
               {% include "_toggle_colleague_access.html" with url_name="people:toggle-portal-access" exists=colleague.is_active %}
               <a href="{% url 'people:colleague' colleague.id %}" class="btn btn-white">
                 {% translate "View" %}

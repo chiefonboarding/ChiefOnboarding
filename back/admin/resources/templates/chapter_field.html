@@ -12,7 +12,7 @@
   <div class="col-4">
     <div class="card mt-2">
       <div class="card-header" style="height: 60px;">
-        <h3 class="card-title">Chapters</h3>
+        <h3 class="card-title">{% translate "Chapters" %}</h3>
       </div>
       <div class="list-group list-group-flush list-group-hoverable">
         <v-node v-for="child in chapters" :chapter="child" :key="child.id" :current-item="chapter"></v-node>

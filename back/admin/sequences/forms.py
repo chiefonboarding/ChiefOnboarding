@@ -52,14 +52,6 @@ class ConditionCreateForm(forms.ModelForm):
     class Meta:
         model = Condition
         fields = ["condition_type", "days", "time", "condition_to_do"]
-        labels = {
-            "condition_to_do": _(
-                "Trigger after these to do items have been completed:"
-            ),
-            "condition_type": _("Block type"),
-            "days": _("Amount of days before/after new hire has started"),
-            "time": _("At"),
-        }
         widgets = {
             "time": forms.TimeInput(attrs={"type": "time", "step": 300}),
         }
@@ -128,8 +120,3 @@ class ConditionToDoUpdateForm(forms.ModelForm):
         fields = [
             "condition_to_do",
         ]
-        labels = {
-            "condition_to_do": _(
-                "Trigger after these to do items have been completed:"
-            ),
-        }

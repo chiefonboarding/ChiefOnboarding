@@ -23,7 +23,7 @@ from .emails import send_sequence_message
 
 
 class Sequence(models.Model):
-    name = models.CharField(max_length=240)
+    name = models.CharField(verbose_name=_("Name"), max_length=240)
     auto_add = models.BooleanField(default=False)
 
     def __str__(self):
@@ -129,15 +129,15 @@ class ExternalMessage(models.Model):
         (2, _("Text")),
     )
     PEOPLE_CHOICES = ((0, _("New hire")), (1, _("Manager")), (2, _("Buddy")), (3, _("custom")))
-    name = models.CharField(max_length=240)
-    content = models.CharField(max_length=12000, blank=True)
-    content_json = models.ManyToManyField(Content)
-    send_via = models.IntegerField(choices=EXTERNAL_TYPE)
+    name = models.CharField(verbose_name=_("Name"), max_length=240)
+    content = models.CharField(verbose_name=_("Content"), max_length=12000, blank=True)
+    content_json = models.ManyToManyField(Content, verbose_name=_("Content"))
+    send_via = models.IntegerField(verbose_name=_("Send via"), choices=EXTERNAL_TYPE)
     send_to = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True
+        settings.AUTH_USER_MODEL, verbose_name=_("Send to"), on_delete=models.CASCADE, blank=True, null=True
     )
-    subject = models.CharField(max_length=78, default=_("Here is an update!"), blank=True)
-    person_type = models.IntegerField(choices=PEOPLE_CHOICES, default=1)
+    subject = models.CharField(verbose_name=_("Subject"), max_length=78, default=_("Here is an update!"), blank=True)
+    person_type = models.IntegerField(verbose_name=_("Person type"), choices=PEOPLE_CHOICES, default=1)
 
     @property
     def is_email_message(self):
@@ -248,16 +248,16 @@ class ExternalMessage(models.Model):
 
 
 class PendingAdminTask(models.Model):
-    name = models.CharField(max_length=500)
-    comment = models.CharField(max_length=12500, default="", blank=True)
+    name = models.CharField(verbose_name=_("Name"), max_length=500)
+    comment = models.CharField(verbose_name=_("Comment"), max_length=12500, default="", blank=True)
     assigned_to = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="assigned_user"
+        settings.AUTH_USER_MODEL, verbose_name=_("Assigned to"), on_delete=models.CASCADE, related_name="assigned_user"
     )
-    option = models.CharField(max_length=12500, choices=NOTIFICATION_CHOICES)
-    slack_user = models.CharField(max_length=12500, default="", blank=True)
-    email = models.EmailField(max_length=12500, default="", blank=True)
-    date = models.DateField(blank=True, null=True)
-    priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
+    option = models.CharField(verbose_name=_("Option"), max_length=12500, choices=NOTIFICATION_CHOICES)
+    slack_user = models.CharField(verbose_name=_("Slack option"), max_length=12500, default="", blank=True)
+    email = models.EmailField(verbose_name=_("Email"), max_length=12500, default="", blank=True)
+    date = models.DateField(verbose_name=_("Due date"), blank=True, null=True)
+    priority = models.IntegerField(verbose_name=_("Priority"), choices=PRIORITY_CHOICES, default=2)
 
     def execute(self, user):
         from admin.admin_tasks.models import AdminTask, AdminTaskComment
@@ -322,10 +322,10 @@ class Condition(models.Model):
     sequence = models.ForeignKey(
         Sequence, on_delete=models.CASCADE, null=True, related_name="conditions"
     )
-    condition_type = models.IntegerField(choices=CONDITION_TYPE, default=0)
-    days = models.IntegerField(default=0)
-    time = models.TimeField(default="08:00")
-    condition_to_do = models.ManyToManyField(ToDo, related_name="condition_to_do")
+    condition_type = models.IntegerField(verbose_name=_("Block type"), choices=CONDITION_TYPE, default=0)
+    days = models.IntegerField(verbose_name=_("Amount of days before/after new hire has started"), default=0)
+    time = models.TimeField(verbose_name=_("At"), default="08:00")
+    condition_to_do = models.ManyToManyField(ToDo, verbose_name=_("Trigger after these to do items have been completed:"), related_name="condition_to_do")
     to_do = models.ManyToManyField(ToDo)
     badges = models.ManyToManyField(Badge)
     resources = models.ManyToManyField(Resource)

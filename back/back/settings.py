@@ -106,6 +106,17 @@ MIDDLEWARE = [
     "axes.middleware.AxesMiddleware",
 ]
 
+# Django Debug Bar
+if DEBUG:
+    import socket
+    INSTALLED_APPS += ["debug_toolbar",]
+    MIDDLEWARE += [
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+    ]
+    hostname, _dummy, ips = socket.gethostbyname_ex(socket.gethostname())
+    INTERNAL_IPS = [ip[:-1] + '1' for ip in ips] + ['127.0.0.1', '10.0.2.2']
+
+
 ROOT_URLCONF = "back.urls"
 
 TEMPLATES = [
@@ -373,7 +384,7 @@ ACCOUNT_PASSWORD = env("ACCOUNT_PASSWORD", default="")
 
 
 # Languages
-LANGUAGES = (
+LANGUAGES = [
     ("en", _("English")),
     ("nl", _("Dutch")),
     ("fr", _("French")),
@@ -381,7 +392,7 @@ LANGUAGES = (
     ("tr", _("Turkish")),
     ("pt", _("Portuguese")),
     ("es", _("Spanish")),
-)
+]
 LANGUAGE_SESSION_KEY = "chief-language"
 SITE_ROOT = os.path.dirname(os.path.realpath(__name__))
 LOCALE_PATHS = (os.path.join(SITE_ROOT, "locale"),)

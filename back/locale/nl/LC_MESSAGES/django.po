@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-19 01:00+0000\n"
+"POT-Creation-Date: 2022-02-21 13:35+0000\n"
 "PO-Revision-Date: 2022-02-17 22:39:+0000\n"
 "Last-Translator: Stan Triepels <hello@chiefonboarding.com>\n"
 "Language-Team: NL <nl@chiefonboarding.com>\n"
@@ -58,64 +58,6 @@ msgid ""
 msgstr ""
 "Een van de te doen taken is geupdated door iemand anders. Dit is het bericht:"
 
-#: admin/admin_tasks/forms.py:18 admin/appointments/forms.py:54
-#: admin/preboarding/forms.py:39 admin/to_do/forms.py:52
-msgid "Content"
-msgstr ""
-
-#: admin/admin_tasks/forms.py:34 admin/admin_tasks/forms.py:67
-#: admin/appointments/forms.py:52 admin/badges/forms.py:39
-#: admin/introductions/forms.py:39 admin/people/templates/add_resources.html:12
-#: admin/people/templates/colleagues.html:27
-#: admin/people/templates/new_hire_add_task.html:12
-#: admin/people/templates/new_hires.html:11 admin/preboarding/forms.py:37
-#: admin/resources/forms.py:91 admin/sequences/templates/sequence.html:29
-#: admin/settings/forms.py:82 admin/settings/templates/settings_admins.html:10
-#: admin/settings/templates/settings_integrations.html:10
-#: admin/to_do/templates/templates.html:12
-msgid "Name"
-msgstr "Naam"
-
-#: admin/admin_tasks/forms.py:35 admin/admin_tasks/forms.py:69
-#: admin/people/templates/new_hire_admin_tasks.html:21
-#: admin/people/templates/new_hire_admin_tasks.html:61
-msgid "Assigned to"
-msgstr "Toegekend aan"
-
-#: admin/admin_tasks/forms.py:36 admin/admin_tasks/forms.py:70
-#: admin/appointments/forms.py:55
-msgid "Date"
-msgstr "Datum"
-
-#: admin/admin_tasks/forms.py:37 admin/admin_tasks/forms.py:71
-msgid "Priority"
-msgstr "Prioriteit"
-
-#: admin/admin_tasks/forms.py:68 admin/sequences/models.py:131
-msgid "New hire"
-msgstr "Nieuwe medewerker"
-
-#: admin/admin_tasks/forms.py:72
-msgid "Comment"
-msgstr "Opmerking"
-
-#: admin/admin_tasks/forms.py:73
-msgid "Slack user"
-msgstr "Slack gebruiker"
-
-#: admin/admin_tasks/forms.py:74 admin/admin_tasks/models.py:13
-#: admin/people/forms.py:82 admin/people/forms.py:150 admin/people/forms.py:217
-#: admin/people/forms.py:285 admin/sequences/models.py:127
-#: new_hire/templates/_colleague_intro.html:16
-#: new_hire/templates/_new_hire_colleagues_search.html:20
-#: new_hire/templates/_new_hire_colleagues_search.html:51
-msgid "Email"
-msgstr "E-mail"
-
-#: admin/admin_tasks/forms.py:75
-msgid "Send email or text to extra user?"
-msgstr "Stuur een email of sms bericht naar iemand anders?"
-
 #: admin/admin_tasks/models.py:11
 msgid "Low"
 msgstr "Laag"
@@ -132,11 +74,65 @@ msgstr "Hoogj"
 msgid "No"
 msgstr "Nee"
 
+#: admin/admin_tasks/models.py:13 admin/admin_tasks/models.py:34
+#: admin/sequences/models.py:127 admin/sequences/models.py:258
+#: new_hire/templates/_colleague_intro.html:16
+#: new_hire/templates/_new_hire_colleagues_search.html:20
+#: new_hire/templates/_new_hire_colleagues_search.html:51 users/models.py:111
+msgid "Email"
+msgstr "E-mail"
+
 #: admin/admin_tasks/models.py:13 admin/sequences/models.py:128
 msgid "Slack"
 msgstr "Slack"
 
-#: admin/admin_tasks/models.py:55
+#: admin/admin_tasks/models.py:19 admin/sequences/models.py:131
+msgid "New hire"
+msgstr "Nieuwe medewerker"
+
+#: admin/admin_tasks/models.py:25
+#: admin/people/templates/new_hire_admin_tasks.html:21
+#: admin/people/templates/new_hire_admin_tasks.html:61
+#: admin/sequences/models.py:254
+msgid "Assigned to"
+msgstr "Toegekend aan"
+
+#: admin/admin_tasks/models.py:31 admin/people/templates/add_resources.html:12
+#: admin/people/templates/colleagues.html:27
+#: admin/people/templates/new_hire_add_task.html:12
+#: admin/people/templates/new_hires.html:11 admin/sequences/models.py:26
+#: admin/sequences/models.py:132 admin/sequences/models.py:251
+#: admin/sequences/templates/sequence.html:29
+#: admin/settings/templates/settings_admins.html:10
+#: admin/settings/templates/settings_integrations.html:10
+#: admin/to_do/templates/templates.html:12 organization/models.py:16
+#: organization/models.py:131
+msgid "Name"
+msgstr "Naam"
+
+#: admin/admin_tasks/models.py:32
+msgid "Send email or text to extra user?"
+msgstr "Stuur een email of sms bericht naar iemand anders?"
+
+#: admin/admin_tasks/models.py:33
+msgid "Slack user"
+msgstr "Slack gebruiker"
+
+#: admin/admin_tasks/models.py:35
+#, fuzzy
+#| msgid "Complete"
+msgid "Completed"
+msgstr "Voltooid"
+
+#: admin/admin_tasks/models.py:36 admin/appointments/models.py:13
+msgid "Date"
+msgstr "Datum"
+
+#: admin/admin_tasks/models.py:37 admin/sequences/models.py:260
+msgid "Priority"
+msgstr "Prioriteit"
+
+#: admin/admin_tasks/models.py:57
 #, python-format
 msgid ""
 "%(name_assigned_to)s needs your help with this task:\n"
@@ -147,11 +143,12 @@ msgstr ""
 "*%(task_name)s*\n"
 "_%(comment)s_"
 
-#: admin/admin_tasks/models.py:73 admin/admin_tasks/models.py:170
+#: admin/admin_tasks/models.py:75 admin/admin_tasks/models.py:117
+#: admin/admin_tasks/models.py:172
 msgid "I have completed this"
 msgstr "Ik heb dit gedaan"
 
-#: admin/admin_tasks/models.py:90
+#: admin/admin_tasks/models.py:92
 #, python-format
 msgid ""
 "_%(comment)s\n"
@@ -160,7 +157,7 @@ msgstr ""
 "_%(comment)s\n"
 " door %(name)s_"
 
-#: admin/admin_tasks/models.py:96
+#: admin/admin_tasks/models.py:98
 #, python-format
 msgid ""
 "You have just been assigned to *%(title)s* for *%(name)s\n"
@@ -169,7 +166,7 @@ msgstr ""
 "Jij bent nu toegekend aan taak: *%(title)s* voor *%(name)s\n"
 "%(comment)s"
 
-#: admin/admin_tasks/models.py:152
+#: admin/admin_tasks/models.py:154
 #, python-format
 msgid ""
 "%(name)s added a message to your task:\n"
@@ -234,7 +231,7 @@ msgid "Complete"
 msgstr "Voltooid"
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:25
-#: admin/introductions/templates/intro_update.html:31 admin/people/forms.py:128
+#: admin/introductions/templates/intro_update.html:31 admin/people/forms.py:119
 #: admin/people/templates/new_hire_notes.html:19
 #: admin/resources/templates/resource_update.html:29
 #: admin/settings/templates/org_welcome_message_update.html:26
@@ -280,7 +277,7 @@ msgstr "Taak is geüpdatet"
 #: admin/admin_tasks/views.py:74
 #, python-format
 msgid "Task: %(name)s"
-msgstr "Taak: %(name)"
+msgstr "Taak: %(name)s"
 
 #: admin/admin_tasks/views.py:75 admin/admin_tasks/views.py:112
 #: admin/people/templates/_new_hire_menu.html:65 new_hire/views.py:73
@@ -300,25 +297,23 @@ msgstr "Nieuwe taak"
 msgid "Comment has been posted"
 msgstr "Opmerking is geplaatst"
 
-#: admin/appointments/forms.py:53 admin/badges/forms.py:38
-#: admin/introductions/forms.py:38 admin/people/templates/add_resources.html:13
-#: admin/people/templates/new_hire_add_task.html:13
-#: admin/preboarding/forms.py:38 admin/resources/forms.py:92
-#: admin/to_do/forms.py:50 admin/to_do/templates/templates.html:13
-msgid "Tags"
-msgstr "Tags"
+#: admin/appointments/models.py:11 admin/badges/models.py:13
+#: admin/preboarding/models.py:11 admin/sequences/models.py:133
+#: admin/sequences/models.py:134 admin/to_do/models.py:11
+msgid "Content"
+msgstr ""
 
-#: admin/appointments/forms.py:56
+#: admin/appointments/models.py:12
 msgid "Time"
 msgstr "Tijd"
 
-#: admin/appointments/forms.py:57
-msgid "On day"
-msgstr "Op dag"
-
-#: admin/appointments/forms.py:58
+#: admin/appointments/models.py:14
 msgid "Fixed date"
 msgstr "Vaste datum"
+
+#: admin/appointments/models.py:15
+msgid "On day"
+msgstr "Op dag"
 
 #: admin/appointments/views.py:21
 msgid "Appointment items"
@@ -351,7 +346,16 @@ msgstr "Update kalender item"
 msgid "Appointment item has been removed"
 msgstr "Kalender item is verwijderd"
 
-#: admin/badges/forms.py:40
+#: admin/badges/forms.py:14 admin/introductions/forms.py:15
+#: admin/people/templates/add_resources.html:13
+#: admin/people/templates/new_hire_add_task.html:13
+#: admin/preboarding/forms.py:14 admin/resources/forms.py:21
+#: admin/to_do/forms.py:14 admin/to_do/templates/templates.html:13
+#: organization/models.py:132
+msgid "Tags"
+msgstr "Tags"
+
+#: admin/badges/models.py:12
 msgid "Image"
 msgstr "Afbeelding"
 
@@ -464,7 +468,7 @@ msgstr "Asana"
 msgid "Update Slack channels list"
 msgstr "Update Slack kanalen lijst"
 
-#: admin/introductions/forms.py:40
+#: admin/introductions/models.py:12
 msgid "Person to introduce"
 msgstr "Persoon om te introduceren"
 
@@ -509,105 +513,45 @@ msgstr "Update introductie"
 msgid "Introduction item has been removed"
 msgstr "Introductie is verwijderd"
 
-#: admin/people/forms.py:60 slack_bot/views.py:268
-msgid "Create new hire"
-msgstr "Nieuwe medewerker aanmaken"
+#: admin/people/forms.py:21 users/templates/admin_base.html:106
+msgid "Sequences"
+msgstr "Tijdlijnen"
 
-#: admin/people/forms.py:79 admin/people/forms.py:147 admin/people/forms.py:213
-#: admin/people/forms.py:281
-msgid "First name"
-msgstr "Voornaam"
-
-#: admin/people/forms.py:80 admin/people/forms.py:148 admin/people/forms.py:214
-#: admin/people/forms.py:282
-msgid "Last name"
-msgstr "Achternaam"
-
-#: admin/people/forms.py:81 admin/people/forms.py:149 admin/people/forms.py:215
-#: admin/people/forms.py:283 admin/people/templates/colleagues.html:28
-#: admin/people/templates/new_hires.html:13
-msgid "Position"
-msgstr "Positie"
-
-#: admin/people/forms.py:83 admin/people/forms.py:151 admin/people/forms.py:218
-#: admin/people/forms.py:286
-msgid "Phone"
-msgstr ""
-
-#: admin/people/forms.py:84 admin/people/forms.py:152
-#, fuzzy
-#| msgid "Start date"
-msgid "Start day"
-msgstr "Start datum"
-
-#: admin/people/forms.py:85 admin/people/forms.py:153 admin/people/forms.py:219
-#: admin/people/forms.py:287 admin/settings/forms.py:149
-msgid "Message"
-msgstr "Bericht"
-
-#: admin/people/forms.py:86 admin/people/forms.py:154 admin/people/forms.py:223
-#: admin/people/forms.py:291 admin/settings/forms.py:84
+#: admin/people/forms.py:23 admin/people/forms.py:85 admin/settings/forms.py:18
+#: organization/models.py:18 users/models.py:124
 msgid "Timezone"
 msgstr "Tijdzone"
 
-#: admin/people/forms.py:87 admin/people/forms.py:155 admin/people/forms.py:224
-#: admin/people/forms.py:292 admin/settings/forms.py:83
-#: admin/settings/templates/_personal_tabs.html:4
-msgid "Language"
-msgstr "Taal"
+#: admin/people/forms.py:24 admin/people/templates/new_hires.html:12
+#: users/models.py:149
+msgid "Start date"
+msgstr "Start datum"
 
-#: admin/people/forms.py:88 admin/people/forms.py:156
-#: admin/sequences/models.py:131
-msgid "Buddy"
-msgstr "Buddy"
+#: admin/people/forms.py:64 slack_bot/views.py:268
+msgid "Create new hire"
+msgstr "Nieuwe medewerker aanmaken"
 
-#: admin/people/forms.py:89 admin/people/forms.py:157
-#: admin/sequences/models.py:131 admin/settings/forms.py:111
-#: admin/settings/forms.py:124 users/models.py:30
-msgid "Manager"
-msgstr "Manager"
-
-#: admin/people/forms.py:216 admin/people/forms.py:284
-msgid "Department"
-msgstr "Afdeling"
-
-#: admin/people/forms.py:220 admin/people/forms.py:288
-msgid "Facebook"
-msgstr "Facebook"
-
-#: admin/people/forms.py:221 admin/people/forms.py:289
-msgid "Twitter"
-msgstr "Twitter"
-
-#: admin/people/forms.py:222 admin/people/forms.py:290
-msgid "Linkedin"
-msgstr "Linkedin"
-
-#: admin/people/forms.py:225 admin/people/forms.py:293
-msgid "Profile image"
-msgstr "Profile image"
-
-#: admin/people/forms.py:299
+#: admin/people/forms.py:247
 msgid "Select sequences you want to add "
 msgstr "Selecteer tijdlijn die je wil toevoegen"
 
-#: admin/people/forms.py:308
+#: admin/people/forms.py:256
 msgid "This task has just been reopened! "
 msgstr "Deze taak is geheropend!"
 
-#: admin/people/forms.py:311
+#: admin/people/forms.py:259
 msgid "Message that you want to leave for your new hire:"
 msgstr "Bericht die je wil achterlaten voor nieuwe medewerker:"
 
-#: admin/people/forms.py:319
+#: admin/people/forms.py:267
 msgid "Send via text"
 msgstr "Verstuur via SMS"
 
-#: admin/people/forms.py:319
+#: admin/people/forms.py:267
 msgid "Send via email"
 msgstr "Verstuur via e-mail"
 
-#: admin/people/forms.py:331
+#: admin/people/forms.py:279
 msgid "Send type"
 msgstr "Verstuur type"
 
@@ -621,7 +565,7 @@ msgstr "Actief"
 
 #: admin/people/templates/_new_hire_access_card.html:31
 #: admin/people/templates/_toggle_colleague_access.html:20
-#: admin/people/views.py:790 admin/people/views.py:831
+#: admin/people/views.py:791 admin/people/views.py:832
 msgid "Give access"
 msgstr "Toegang geven"
 
@@ -662,10 +606,8 @@ msgstr "Welkom berichten"
 
 #: admin/people/templates/_new_hire_settings_menu.html:4
 #: users/templates/admin_base.html:134
-#, fuzzy
-#| msgid "settings"
 msgid "Settings"
-msgstr "instellingen"
+msgstr "Instellingen"
 
 #: admin/people/templates/_new_hire_settings_menu.html:7
 msgid "Send Preboarding email"
@@ -695,7 +637,7 @@ msgid "Add"
 msgstr "Toevoegen"
 
 #: admin/people/templates/_toggle_colleague_access.html:22
-#: admin/people/views.py:850
+#: admin/people/views.py:851
 msgid "Revoke access"
 msgstr "Toegang beperken"
 
@@ -733,6 +675,11 @@ msgstr "Veranderen"
 #: admin/people/templates/colleagues.html:14
 msgid "Sync with Slack"
 msgstr "Sync met Slack"
+
+#: admin/people/templates/colleagues.html:28
+#: admin/people/templates/new_hires.html:13 users/models.py:115
+msgid "Position"
+msgstr "Positie"
 
 #: admin/people/templates/colleagues.html:45
 #: admin/people/templates/new_hires.html:38
@@ -822,13 +769,13 @@ msgstr "Voor de eerste dag"
 #: admin/people/templates/new_hire_detail.html:107
 #: admin/people/templates/new_hire_detail.html:139
 #: admin/people/templates/not_triggered_conditions.html:16
-#: admin/people/views.py:246 admin/people/views.py:284
-#: admin/people/views.py:415 admin/people/views.py:432
-#: admin/people/views.py:444 admin/people/views.py:463
-#: admin/people/views.py:482 admin/people/views.py:583
-#: admin/people/views.py:596 admin/people/views.py:612
-#: admin/people/views.py:625 admin/people/views.py:675
-#: admin/people/views.py:694
+#: admin/people/views.py:247 admin/people/views.py:285
+#: admin/people/views.py:416 admin/people/views.py:433
+#: admin/people/views.py:445 admin/people/views.py:464
+#: admin/people/views.py:483 admin/people/views.py:584
+#: admin/people/views.py:597 admin/people/views.py:613
+#: admin/people/views.py:626 admin/people/views.py:676
+#: admin/people/views.py:695
 #: admin/sequences/templates/_sequence_condition.html:55
 msgid "new hire"
 msgstr "Nieuwe medewerker"
@@ -970,10 +917,6 @@ msgstr ""
 "Nog niemand heeft een bericht achtergelaten. Dit dient gedaan te worden via "
 "Slack."
 
-#: admin/people/templates/new_hires.html:12
-msgid "Start date"
-msgstr "Start datum"
-
 #: admin/people/templates/not_triggered_conditions.html:9
 msgid "Items that will never be triggered"
 msgstr "Items die nooit zullen worden uitgevoerd"
@@ -1003,117 +946,118 @@ msgstr ""
 msgid "Send preboarding notification"
 msgstr "Verstuur pre-boarding bericht"
 
-#: admin/people/views.py:53 users/templates/admin_base.html:63
+#: admin/people/views.py:54 users/templates/admin_base.html:63
 msgid "New hires"
 msgstr "Nieuwe medewerkers"
 
-#: admin/people/views.py:54 admin/people/views.py:72 admin/people/views.py:231
+#: admin/people/views.py:55 admin/people/views.py:73 admin/people/views.py:232
 msgid "people"
 msgstr "Mensen"
 
-#: admin/people/views.py:66
+#: admin/people/views.py:67
 msgid "New hire has been created"
 msgstr "Nieuwe medewerker is aangemaakt"
 
-#: admin/people/views.py:71
+#: admin/people/views.py:72
 msgid "Add new hire"
 msgstr "Voeg nieuwe medewerker toe"
 
-#: admin/people/views.py:151
+#: admin/people/views.py:152
 msgid "Sequence(s) have been added to this new hire"
 msgstr "Tijdlijn(en) zijn toegevoegd aan de nieuwe medewerker"
 
-#: admin/people/views.py:218
+#: admin/people/views.py:219
 msgid "Sent email to new hire"
 msgstr "Verstuur e-mail naar nieuwe medewerker"
 
-#: admin/people/views.py:230 new_hire/templates/new_hire_base.html:91
+#: admin/people/views.py:231 new_hire/templates/new_hire_base.html:91
 #: new_hire/templates/new_hire_colleagues.html:20
 #: users/templates/admin_base.html:66
 msgid "Colleagues"
 msgstr "Collega's"
 
-#: admin/people/views.py:274
+#: admin/people/views.py:275
 msgid "New hire has been updated"
 msgstr "Nieuwe medewerker is geüpdatet"
 
-#: admin/people/views.py:294
+#: admin/people/views.py:295
 msgid "Employee has been updated"
 msgstr "Medewerker is geüpdatet"
 
-#: admin/people/views.py:304 admin/people/views.py:321
-#: admin/people/views.py:353
+#: admin/people/views.py:305 admin/people/views.py:322
+#: admin/people/views.py:354
 msgid "Employee"
 msgstr "Medewerker"
 
-#: admin/people/views.py:314
+#: admin/people/views.py:315
 msgid "Colleague has been added"
 msgstr "Medewerker is toegevoegd"
 
-#: admin/people/views.py:320
+#: admin/people/views.py:321
 msgid "Create new colleague"
 msgstr "Maak nieuwe medewerker aan"
 
-#: admin/people/views.py:350
+#: admin/people/views.py:351
 #, python-format
 msgid "Add new resource for %(name)s"
 msgstr "Voeg nieuw artikel toe voor %(name)s"
 
-#: admin/people/views.py:364
+#: admin/people/views.py:365
 msgid "Colleague has been removed"
 msgstr "Collega is verwijderd"
 
-#: admin/people/views.py:375
+#: admin/people/views.py:376
 msgid "New hire has been removed"
 msgstr "Nieuwe medewerker is verwijderd"
 
-#: admin/people/views.py:387
+#: admin/people/views.py:388
 msgid "New hire is now a normal account."
 msgstr "Nieuwe medewerker heeft nu een normaal account."
 
-#: admin/people/views.py:399
+#: admin/people/views.py:400
 msgid "Note has been added"
 msgstr "Notitie is toegevoegd"
 
-#: admin/people/views.py:507
+#: admin/people/views.py:508
 msgid "Don't forget this to do item!"
 msgstr "Vergeet dit item niet af te vinken!"
 
-#: admin/people/views.py:512
+#: admin/people/views.py:513
 msgid "Don't forget to complete this course!"
 msgstr "Vergeet deze cursus niet!"
 
-#: admin/people/views.py:520
+#: admin/people/views.py:521
 msgid "Reminder has been sent!"
 msgstr "Herinnering is verstuurd!"
 
-#: admin/people/views.py:568
+#: admin/people/views.py:569
 msgid "Item has been reopened"
 msgstr "Item is heropent"
 
-#: admin/people/views.py:691
-msgid "Add/Remove templates for %(name)"
-msgstr "Voeg toe/Verwijder items voor %(name)"
+#: admin/people/views.py:692
+#, python-format
+msgid "Add/Remove templates for %(name)s"
+msgstr "Voeg toe/Verwijder items voor %(name)s"
 
-#: admin/people/views.py:796
+#: admin/people/views.py:797
 msgid "Could not find user"
 msgstr "Kon gebruiker niet vinden"
 
-#: admin/people/views.py:808
+#: admin/people/views.py:809
 msgid ""
 "Click on the button to see all the categories that are available to you!"
 msgstr ""
 "Klik op de knop om de categorieën te zien die beschikbaar zijn voor jou!"
 
-#: admin/people/views.py:817
+#: admin/people/views.py:818
 msgid "resources"
 msgstr "artikelen"
 
-#: admin/people/views.py:829
+#: admin/people/views.py:830
 msgid "Revoke Slack access"
 msgstr "Slack toegang blokeren"
 
-#: admin/people/views.py:854
+#: admin/people/views.py:855
 msgid "Give portal access"
 msgstr "Geef toegang to website"
 
@@ -1137,28 +1081,20 @@ msgstr "Update pre-boarding item"
 msgid "Preboarding item has been removed"
 msgstr "Pre-boarding item is verwijderd"
 
-#: admin/resources/forms.py:93
+#: admin/resources/forms.py:24 admin/resources/models.py:20
 msgid "Category"
 msgstr "Categorie"
 
-#: admin/resources/forms.py:94
-msgid "Is a course item"
-msgstr "Is een cursus"
+#: admin/resources/forms.py:51
+msgid "Do not use only numbers as a category. Always add some text."
+msgstr ""
 
-#: admin/resources/forms.py:95
-msgid "Workday that this item is due"
-msgstr "Werkdag dat dit item klaar moet zijn"
-
-#: admin/resources/forms.py:96
-msgid "Remove item when new hire walked through"
-msgstr "Verwijder item als nieuwe medewerker deze heeft afgerond"
-
-#: admin/resources/forms.py:99
+#: admin/resources/forms.py:91
 msgid "When enabled, new hires will have to walk through this"
 msgstr ""
 "Als deze is ingeschakeld, dan moet de nieuwe medewerker erdoorheen gaan"
 
-#: admin/resources/forms.py:101
+#: admin/resources/forms.py:93
 msgid "If disabled, it will turn into a normal resource after completing"
 msgstr ""
 "Als deze is uitgeschakeld, dan zal deze cursus worden omgezet in een artikel "
@@ -1176,8 +1112,20 @@ msgstr "map"
 msgid "questions"
 msgstr "vragen"
 
+#: admin/resources/models.py:23
+msgid "Is a course item"
+msgstr "Is een cursus"
+
+#: admin/resources/models.py:24
+msgid "Workday that this item is due"
+msgstr "Werkdag dat dit item klaar moet zijn"
+
+#: admin/resources/models.py:25
+msgid "Remove item when new hire walked through"
+msgstr "Verwijder item als nieuwe medewerker deze heeft afgerond"
+
 #: admin/resources/models.py:38 admin/sequences/models.py:41
-#: organization/models.py:155
+#: organization/models.py:157
 #, python-format
 msgid "%(name)s (duplicate)"
 msgstr "%(name)s (dubbel)"
@@ -1201,6 +1149,11 @@ msgstr "Naar boven schuiven"
 #: admin/resources/templates/_chapter_options.html:34
 msgid "Move down"
 msgstr "Naar beneden schuiven"
+
+#: admin/resources/templates/chapter_field.html:15
+#: new_hire/templates/new_hire_resource_detail.html:15
+msgid "Chapters"
+msgstr "Hoofdstukken"
 
 #: admin/resources/templates/chapter_field.html:33
 msgid "Folders can't have content"
@@ -1226,7 +1179,7 @@ msgstr "Start met typen..."
 #: admin/resources/templates/resource_update.html:144
 #: admin/resources/templates/resource_update.html:183
 msgid "New item"
-msgstr "Nieuwe item"
+msgstr "Nieuw item"
 
 #: admin/resources/views.py:23
 msgid "Resource items"
@@ -1276,48 +1229,32 @@ msgstr "Badges"
 msgid "Add block"
 msgstr "Blok toevoegen"
 
-#: admin/sequences/forms.py:57 admin/sequences/forms.py:133
-msgid "Trigger after these to do items have been completed:"
-msgstr "Doorzetten nadat deze te doen items zijn afgerond:"
-
 #: admin/sequences/forms.py:59
-msgid "Block type"
-msgstr "Blok type"
-
-#: admin/sequences/forms.py:60
-msgid "Amount of days before/after new hire has started"
-msgstr "Aantal dagen voor/na de nieuwe medewerker is gestart"
-
-#: admin/sequences/forms.py:61
-msgid "At"
-msgstr "Om"
-
-#: admin/sequences/forms.py:67
 msgid "Must be in a 5 minute interval."
 msgstr "Moet in een 5 minuten interval zijn."
 
-#: admin/sequences/forms.py:75
+#: admin/sequences/forms.py:67
 msgid ""
 "You cannot use 0. The day before starting is 1 and the first workday is 1"
 msgstr ""
 "0 kan niet gekozen worden. De dag voor starten is 1 en de eerste werkdag is "
 "ook 1."
 
-#: admin/sequences/forms.py:89
+#: admin/sequences/forms.py:81
 msgid ""
 "Time must be in an interval of 5 minutes. %(minutes) must end in 0 or 5."
 msgstr ""
 "Tijd moet in een 5 minuten interval zijn. %(minutes) moet eindigen op 0 of 5."
 
-#: admin/sequences/forms.py:103
+#: admin/sequences/forms.py:95
 msgid "You must add at least one to do item"
 msgstr "Je moet minstens 1 te doen item toevoegen"
 
-#: admin/sequences/forms.py:105
+#: admin/sequences/forms.py:97
 msgid "Both the time and days have to be filled in."
 msgstr "Zowel de tijd als dagen moet worden ingevult."
 
-#: admin/sequences/forms.py:113
+#: admin/sequences/forms.py:105
 msgid "Edit block"
 msgstr "Blok aanpassen"
 
@@ -1325,9 +1262,50 @@ msgstr "Blok aanpassen"
 msgid "Text"
 msgstr "SMS"
 
+#: admin/sequences/models.py:131 admin/settings/forms.py:112
+#: admin/settings/forms.py:122 users/models.py:30 users/models.py:147
+msgid "Manager"
+msgstr "Manager"
+
+#: admin/sequences/models.py:131 users/models.py:144
+msgid "Buddy"
+msgstr "Buddy"
+
 #: admin/sequences/models.py:131
 msgid "custom"
 msgstr "Anders"
+
+#: admin/sequences/models.py:135
+msgid "Send via"
+msgstr "Verstuur via"
+
+#: admin/sequences/models.py:137
+msgid "Send to"
+msgstr "Verstuur naar"
+
+#: admin/sequences/models.py:139
+msgid "Subject"
+msgstr "Onderwerp"
+
+#: admin/sequences/models.py:140
+msgid "Person type"
+msgstr "Type persoon"
+
+#: admin/sequences/models.py:252
+msgid "Comment"
+msgstr "Opmerking"
+
+#: admin/sequences/models.py:256
+msgid "Option"
+msgstr "Optie"
+
+#: admin/sequences/models.py:257
+msgid "Slack option"
+msgstr "Slack optie"
+
+#: admin/sequences/models.py:259
+msgid "Due date"
+msgstr "Datum wanneer dit klaar moet zijn"
 
 #: admin/sequences/models.py:302
 msgid "Add Asana account to team"
@@ -1345,7 +1323,7 @@ msgstr "Verwijder Slack account"
 
 #: admin/sequences/models.py:317
 msgid "After new hire has started"
-msgstr "Een nieuwe medewerker is gestart"
+msgstr "Nadat de nieuwe medewerker is gestart"
 
 #: admin/sequences/models.py:318
 msgid "Based on one or more to do item(s)"
@@ -1358,6 +1336,22 @@ msgstr "Voordat de nieuwe medewerker is gestart"
 #: admin/sequences/models.py:320
 msgid "Without trigger"
 msgstr "Zonder trigger"
+
+#: admin/sequences/models.py:325
+msgid "Block type"
+msgstr "Blok type"
+
+#: admin/sequences/models.py:326
+msgid "Amount of days before/after new hire has started"
+msgstr "Aantal dagen voor/na de nieuwe medewerker is gestart"
+
+#: admin/sequences/models.py:327
+msgid "At"
+msgstr "Om"
+
+#: admin/sequences/models.py:328
+msgid "Trigger after these to do items have been completed:"
+msgstr "Doorzetten nadat deze te doen items zijn afgerond:"
 
 #: admin/sequences/templates/_sequence_condition.html:18
 #, python-format
@@ -1406,84 +1400,54 @@ msgstr "Verander item"
 msgid "Sequence items"
 msgstr "Tijdlijnen"
 
-#: admin/sequences/views.py:51
+#: admin/sequences/views.py:52
 msgid "Sequence"
 msgstr "Tijdlijn"
 
-#: admin/sequences/views.py:258
+#: admin/sequences/views.py:259
 msgid "Sequence item has been removed"
 msgstr "Tijdlijn is verwijderd"
 
-#: admin/settings/forms.py:34
+#: admin/settings/forms.py:42
 msgid "Login options"
 msgstr "Inlog opties"
 
-#: admin/settings/forms.py:85
-msgid "Base color"
-msgstr "Basis kleur"
-
-#: admin/settings/forms.py:86
-msgid "Accent color"
-msgstr "Accent kleur"
-
-#: admin/settings/forms.py:87
-msgid "Bot color"
-msgstr "Bot kleur"
-
-#: admin/settings/forms.py:88
-msgid "Logo"
-msgstr "Logo"
-
-#: admin/settings/forms.py:89
-msgid "Allow users to login with their Slack account"
-msgstr "Laat gebruikers inloggen met Slack"
-
-#: admin/settings/forms.py:90
-msgid "Allow users to login with their Google account"
-msgstr "Laat gebruikers inloggen met Google"
-
-#: admin/settings/forms.py:92
-msgid "Allow users to login with their username and password"
-msgstr "Laat gebruikers inloggen met gebruikersnaam en wachtwoord"
-
-#: admin/settings/forms.py:95
-msgid "This is the default channel where the bot will post messages in"
-msgstr "Het standaard kanaal waar de bot berichten stuurt"
-
-#: admin/settings/forms.py:104
+#: admin/settings/forms.py:105
 msgid "You must enable at least one login option"
 msgstr "Je moet minstens 1 login optie aanvinken"
 
-#: admin/settings/forms.py:111 admin/settings/forms.py:124 users/models.py:29
+#: admin/settings/forms.py:112 admin/settings/forms.py:122 users/models.py:29
 msgid "Administrator"
 msgstr "Administrator"
 
-#: admin/settings/forms.py:117 admin/settings/forms.py:132
-#: admin/settings/templates/settings_admins.html:11
-msgid "Role"
-msgstr "Rol"
-
-#: admin/settings/forms.py:145
+#: admin/settings/forms.py:140 admin/to_do/templates/wysiwyg_field.html:11
 msgid ""
-"You can use {{ first_name }}, {{ last_name }}, {{ position }}, {{ manager }} "
-"and {{ buddy }} above. It will be replaced by the values corresponding to "
-"the new hire."
+"You can use &#123;&#123; first_name &#125;&#125;, &#123;&#123; last_name "
+"&#125;&#125;, &#123;&#123; position &#125;&#125;, &#123;&#123; manager &#125;"
+"&#125;, and &#123;&#123; buddy &#125;&#125; in the editor. It will be "
+"replaced by the values corresponding to the new hire."
 msgstr ""
-"Je kunt hierboven gebruik maken van {{ first_name }}, {{ last_name }}, "
-"{{ position }}, {{ manager }} en {{ buddy }}. Dit wordt van veranderd door "
-"de waardes van de nieuwe medewerker."
+"Je kunt hierboven gebruik maken van &#123;&#123; first_name &#125;&#125;, "
+"&#123;&#123; last_name }}, &#123;&#123; position &#125;&#125;, &#123;&#123; "
+"manager &#125;&#125; en &#123;&#123; buddy &#125;&#125;. Deze worden dan "
+"veranderd door de waardes van de nieuwe medewerker."
 
-#: admin/settings/forms.py:155
+#: admin/settings/forms.py:147
 msgid "6 digit OTP code"
 msgstr "6-cijferige OTP code"
 
-#: admin/settings/forms.py:156
+#: admin/settings/forms.py:148
 msgid "This is the code that your 2FA application shows you."
 msgstr "Dit is de code die jouw 2FA applicatie laat zien."
 
-#: admin/settings/forms.py:172
+#: admin/settings/forms.py:164
 msgid "OTP token was not correct. Please wait 30 seconds and then try again"
 msgstr "OTP code was niet correct. Probeer over 30 seconden opnieuw"
+
+#: admin/settings/templates/_personal_tabs.html:4 organization/models.py:17
+#: users/models.py:126
+msgid "Language"
+msgstr "Taal"
 
 #: admin/settings/templates/_personal_tabs.html:7
 msgid "OTP"
@@ -1526,6 +1490,10 @@ msgid ""
 msgstr ""
 "Scan onderstaande qr code met jouw 2FA applicatie. Wij bevelen andOTP en "
 "Aegis aan. Maar je kunt ook Google Authenticator of Authy gebruiken."
+
+#: admin/settings/templates/settings_admins.html:11 users/models.py:127
+msgid "Role"
+msgstr "Rol"
 
 #: admin/settings/templates/settings_admins_create.html:12
 msgid "Add administrator"
@@ -1682,25 +1650,25 @@ msgstr "Verwijder integratie"
 msgid "Changelog"
 msgstr "Veranderingen"
 
-#: admin/to_do/forms.py:48
-msgid "Post new hire's answers from form (if applicable) back to Slack channel"
-msgstr ""
-"Verstuur nieuwe medewerkers' antwoorden terug in jouw standaard Slack kanaal"
-
-#: admin/to_do/forms.py:51
-msgid "Due on day"
-msgstr "Loop af op"
-
-#: admin/to_do/forms.py:53
-msgid "Slack channel"
-msgstr "Slack kanaal"
-
-#: admin/to_do/forms.py:57
+#: admin/to_do/forms.py:47
 msgid ""
 "Let your new hire now that the answers are going to be shared with the team!"
 msgstr ""
 "Laat jouw nieuwe medewerker weten dat de antwoorden zullen worden gedeelt "
 "met het team!"
+
+#: admin/to_do/models.py:12
+msgid "Due on day"
+msgstr "Moet klaar zijn op dag"
+
+#: admin/to_do/models.py:15
+msgid "Post new hire's answers from form (if applicable) back to Slack channel"
+msgstr ""
+"Verstuur nieuwe medewerkers' antwoorden terug in jouw standaard Slack kanaal"
+
+#: admin/to_do/models.py:17
+msgid "Slack channel"
+msgstr "Slack kanaal"
 
 #: admin/to_do/models.py:59
 msgid "Select an item"
@@ -1742,31 +1710,31 @@ msgstr "Update te doen item"
 msgid "To do item has been removed"
 msgstr "Te doen item is verwijderd"
 
-#: back/settings.py:377
+#: back/settings.py:388
 msgid "English"
 msgstr "Engels"
 
-#: back/settings.py:378
+#: back/settings.py:389
 msgid "Dutch"
 msgstr "Nederlands"
 
-#: back/settings.py:379
+#: back/settings.py:390
 msgid "French"
 msgstr "Frans"
 
-#: back/settings.py:380
+#: back/settings.py:391
 msgid "German"
 msgstr "Duits"
 
-#: back/settings.py:381
+#: back/settings.py:392
 msgid "Turkish"
 msgstr "Turks"
 
-#: back/settings.py:382
+#: back/settings.py:393
 msgid "Portuguese"
 msgstr "Portugees"
 
-#: back/settings.py:383
+#: back/settings.py:394
 msgid "Spanish"
 msgstr "Spaans"
 
@@ -1797,10 +1765,6 @@ msgstr "Medewerker inwerken"
 msgid "Logout"
 msgstr "Uitloggen"
 
-#: new_hire/templates/new_hire_resource_detail.html:15
-msgid "Chapters"
-msgstr "Hoofdstukken"
-
 #: new_hire/templates/new_hire_resource_detail.html:46
 msgid "Answers saved successfully! Click on 'next' to continue."
 msgstr "Antwoorden zijn opgeslagen! Klik op 'volgende' om door te gaan."
@@ -1823,7 +1787,7 @@ msgstr "Te laat"
 
 #: new_hire/templates/new_hire_to_dos.html:28
 msgid "Due on "
-msgstr "Loop af op"
+msgstr "Loopt af op "
 
 #: new_hire/views.py:72
 msgid "Things you need to do"
@@ -1832,6 +1796,34 @@ msgstr "Dingen die je moet doen"
 #: new_hire/views.py:257
 msgid "You have completed this course!"
 msgstr "Jij hebt deze cursus afgerond!"
+
+#: organization/models.py:21
+msgid "Base color"
+msgstr "Basis kleur"
+
+#: organization/models.py:22
+msgid "Accent color"
+msgstr "Accent kleur"
+
+#: organization/models.py:23
+msgid "Bot color"
+msgstr "Bot kleur"
+
+#: organization/models.py:24
+msgid "Logo"
+msgstr "Logo"
+
+#: organization/models.py:27
+msgid "Allow users to login with their username and password"
+msgstr "Laat gebruikers inloggen met gebruikersnaam en wachtwoord"
+
+#: organization/models.py:28
+msgid "Allow users to login with their Google account"
+msgstr "Laat gebruikers inloggen met Google"
+
+#: organization/models.py:29
+msgid "Allow users to login with their Slack account"
+msgstr "Laat gebruikers inloggen met Slack"
 
 #: organization/models.py:33
 msgid "Send email to new hire with login credentials"
@@ -1880,7 +1872,8 @@ msgstr ""
 "collega's."
 
 #: organization/models.py:62 organization/models.py:69
-#: organization/models.py:79
+#: organization/models.py:79 organization/models.py:84
+#: organization/models.py:88
 msgid "Slack only"
 msgstr "Alleen Slack"
 
@@ -1902,79 +1895,93 @@ msgstr "Als de gebruiker nog niet bestaat - Alleen Slack"
 msgid "Create new hires without needing confirm from a user"
 msgstr "Maak nieuwe gebruiker zonder bevestiging van gebruiker"
 
-#: organization/models.py:111
+#: organization/models.py:83
+msgid "User to sent new hire account requests to"
+msgstr ""
+"Gebruiker waar nieuwe medeweker account aanvragen naar toe moeten worden "
+"gestuurd:"
+
+#: organization/models.py:87
+msgid "This is the default channel where the bot will post messages in"
+msgstr "Het standaard kanaal waar de bot berichten stuurt"
+
+#: organization/models.py:113
 msgid "pre-boarding"
 msgstr "pre-boarding"
 
-#: organization/models.py:112
+#: organization/models.py:114
 msgid "new hire welcome"
 msgstr "Nieuwe medewerker welkom"
 
-#: organization/models.py:113
+#: organization/models.py:115
 msgid "text welcome"
 msgstr "sms welkom"
 
-#: organization/models.py:114
+#: organization/models.py:116
 msgid "slack welcome"
 msgstr "slack welkom"
 
-#: organization/models.py:115
+#: organization/models.py:117
 msgid "slack knowledge"
 msgstr "Slack artikelen"
 
-#: organization/models.py:171
+#: organization/models.py:120 users/models.py:119
+msgid "Message"
+msgstr "Bericht"
+
+#: organization/models.py:173
 msgid "A new to do item has been added"
 msgstr "Een nieuwe te doen item is toegevoegd"
 
-#: organization/models.py:172
+#: organization/models.py:174
 msgid "To do item has been marked as completed"
 msgstr "Te doen item is gemarkeerd als compleet"
 
-#: organization/models.py:173
+#: organization/models.py:175
 msgid "A new resource item has been added"
 msgstr "Een nieuw artikel is toegevoegd"
 
-#: organization/models.py:174
+#: organization/models.py:176
 msgid "Course has been completed"
 msgstr "Cursus is voltooid"
 
-#: organization/models.py:175
+#: organization/models.py:177
 msgid "A new badge item has been added"
 msgstr "Een nieuwe badge is toegevoegd"
 
-#: organization/models.py:176
+#: organization/models.py:178
 msgid "A new introduction item has been added"
 msgstr "Een nieuwe introductie is toegevoegd"
 
-#: organization/models.py:177
+#: organization/models.py:179
 msgid "A new preboarding item has been added"
 msgstr "Een nieuwe pre-boarding item is toegevoegd"
 
-#: organization/models.py:178
+#: organization/models.py:180
 msgid "A new hire has been added"
 msgstr "Een nieuwe medewerker is toegevoegd"
 
-#: organization/models.py:179
+#: organization/models.py:181
 msgid "A new administrator has been added"
 msgstr "Een nieuwe administrator is toegevoegd"
 
-#: organization/models.py:180
+#: organization/models.py:182
 msgid "A new admin task has been added"
 msgstr "Een nieuwe admin taak is toegevoegd"
 
-#: organization/models.py:181
+#: organization/models.py:183
 msgid "A new email has been sent"
 msgstr "Een nieuwe email is verstuurd"
 
-#: organization/models.py:182
+#: organization/models.py:184
 msgid "A new text message has been sent"
 msgstr "Een nieuw sms bericht is vestuurd"
 
-#: organization/models.py:183
+#: organization/models.py:185
 msgid "A new slack message has been sent"
 msgstr "Een nieuw Slack bericht is verstuurd"
 
-#: organization/models.py:184
+#: organization/models.py:186
 msgid "Couldn't sent text message: number is missing"
 msgstr "Kon sms bericht niet versturen: nummer mist"
 
@@ -1985,6 +1992,14 @@ msgstr "Voor"
 #: organization/templates/notifications.html:17
 msgid "By "
 msgstr "Door"
+
+#: organization/views.py:75
+msgid "Notifications"
+msgstr "Notificaties"
+
+#: organization/views.py:76
+msgid "global"
+msgstr "Globaal"
 
 #: slack_bot/slack.py:154
 msgid "You did all the things I mentioned in this message!"
@@ -2323,6 +2338,38 @@ msgstr "Anders"
 msgid "The given email must be set"
 msgstr "E-mailadres is niet opgegeven"
 
+#: users/models.py:109
+msgid "First name"
+msgstr "Voornaam"
+
+#: users/models.py:110
+msgid "Last name"
+msgstr "Achternaam"
+
+#: users/models.py:116
+msgid "Phone"
+msgstr "Telefoon"
+
+#: users/models.py:120
+msgid "Profile image"
+msgstr "Profile image"
+
+#: users/models.py:121
+msgid "Linkedin"
+msgstr "Linkedin"
+
+#: users/models.py:122
+msgid "Facebook"
+msgstr "Facebook"
+
+#: users/models.py:123
+msgid "Twitter"
+msgstr "Twitter"
+
+#: users/models.py:125
+msgid "Department"
+msgstr "Afdeling"
+
 #: users/models.py:131
 msgid ""
 "An administrator has access to everything. A manager has only access to "
@@ -2331,7 +2378,11 @@ msgstr ""
 "Een administrator heeft toegang to alles. Een manager heeft alleen toegang "
 "tot zijn eigen nieuwe medewerkers en hun taken."
 
-#: users/models.py:430
+#: users/models.py:149
+msgid "First working day"
+msgstr "Eerste werkdag"
+
+#: users/models.py:426
 #, python-format
 msgid ""
 "%(amount_of_correct_answers)s correct answers out of %(amount_of_questions)s "
@@ -2343,10 +2394,6 @@ msgstr ""
 #: users/templates/admin_base.html:58
 msgid "People"
 msgstr "Mensen"
-
-#: users/templates/admin_base.html:106
-msgid "Sequences"
-msgstr "Tijdlijnen"
 
 #: users/templates/admin_base.html:189
 msgid "Documentation"

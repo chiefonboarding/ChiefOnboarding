@@ -14,9 +14,6 @@ class AdminTaskCommentForm(forms.ModelForm):
         fields = [
             "content",
         ]
-        labels = {
-            "content": _("Content")
-        }
 
 
 class AdminTaskUpdateForm(forms.ModelForm):
@@ -30,12 +27,6 @@ class AdminTaskUpdateForm(forms.ModelForm):
     class Meta:
         model = AdminTask
         fields = ["name", "assigned_to", "date", "priority"]
-        labels = {
-            "name": _("Name"),
-            "assigned_to": _("Assigned to"),
-            "date": _("Date"),
-            "priority": _("Priority"),
-        }
 
 
 class AdminTaskCreateForm(forms.ModelForm):
@@ -63,14 +54,3 @@ class AdminTaskCreateForm(forms.ModelForm):
             "slack_user",
             "email",
         ]
-        labels = {
-            "name": _("Name"),
-            "new_hire": _("New hire"),
-            "assigned_to": _("Assigned to"),
-            "date": _("Date"),
-            "priority": _("Priority"),
-            "comment": _("Comment"),
-            "slack_user": _("Slack user"),
-            "email": _("Email"),
-            "option": _("Send email or text to extra user?"),
-        }

@@ -11,7 +11,7 @@ from .models import Badge
 
 class BadgeForm(forms.ModelForm):
     tags = forms.ModelMultipleChoiceField(
-        queryset=Tag.objects.all(), to_field_name="name", required=False
+        label=_("Tags"), queryset=Tag.objects.all(), to_field_name="name", required=False
     )
 
     def __init__(self, *args, **kwargs):
@@ -34,11 +34,6 @@ class BadgeForm(forms.ModelForm):
     class Meta:
         model = Badge
         exclude = ("template",)
-        labels = {
-            "tags": _("Tags"),
-            "name": _("Name"),
-            "image": _("Image"),
-        }
 
     def clean_tags(self):
         tags = self.cleaned_data["tags"]

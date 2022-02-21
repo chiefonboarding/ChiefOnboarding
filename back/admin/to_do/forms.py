@@ -11,7 +11,7 @@ from .models import ToDo
 
 class ToDoForm(forms.ModelForm):
     tags = forms.ModelMultipleChoiceField(
-        queryset=Tag.objects.all(), to_field_name="name", required=False
+        label=_("Tags"), queryset=Tag.objects.all(), to_field_name="name", required=False
     )
 
     def __init__(self, *args, **kwargs):
@@ -42,16 +42,6 @@ class ToDoForm(forms.ModelForm):
     class Meta:
         model = ToDo
         exclude = ("template", "form")
-
-        labels = {
-            "send_back": _(
-                "Post new hire's answers from form (if applicable) back to Slack channel"
-            ),
-            "tags": _("Tags"),
-            "due_on_day": _("Due on day"),
-            "content": _("Content"),
-            "slack_channel": _("Slack channel"),
-        }
         help_texts = {
             "send_back": _(
                 "Let your new hire now that the answers are going to be shared with the team!"

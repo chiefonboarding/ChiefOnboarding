@@ -16,23 +16,25 @@ NOTIFICATION_CHOICES = ((0, _("No")), (1, _("Email")), (2, _("Slack")))
 class AdminTask(models.Model):
     new_hire = models.ForeignKey(
         settings.AUTH_USER_MODEL,
+        verbose_name=_("New hire"),
         on_delete=models.CASCADE,
         related_name="new_hire_tasks",
     )
     assigned_to = models.ForeignKey(
         settings.AUTH_USER_MODEL,
+        verbose_name=_("Assigned to"),
         on_delete=models.CASCADE,
         related_name="owner",
         blank=True,
         null=True,
     )
-    name = models.CharField(max_length=500)
-    option = models.IntegerField(choices=NOTIFICATION_CHOICES)
-    slack_user = models.CharField(max_length=12500, default="", blank=True)
-    email = models.EmailField(max_length=12500, default="", blank=True)
-    completed = models.BooleanField(default=False)
-    date = models.DateField(blank=True, null=True)
-    priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
+    name = models.CharField(verbose_name=_("Name"), max_length=500)
+    option = models.IntegerField(verbose_name=_("Send email or text to extra user?"), choices=NOTIFICATION_CHOICES)
+    slack_user = models.CharField(verbose_name=_("Slack user"), max_length=12500, default="", blank=True)
+    email = models.EmailField(verbose_name=_("Email"), max_length=12500, default="", blank=True)
+    completed = models.BooleanField(verbose_name=_("Completed"), default=False)
+    date = models.DateField(verbose_name=_("Date"), blank=True, null=True)
+    priority = models.IntegerField(verbose_name=_("Priority"), choices=PRIORITY_CHOICES, default=2)
 
     @property
     def get_icon_template(self):
@@ -112,7 +114,7 @@ class AdminTask(models.Model):
                                 "text": {
                                     "type": "plain_text",
                                     "emoji": True,
-                                    "text": "I have completed this",
+                                    "text": _("I have completed this"),
                                 },
                                 "style": "primary",
                                 "value": "admin_task:complete:" + self.pk,

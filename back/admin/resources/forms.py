@@ -18,10 +18,10 @@ class ChapterField(FieldWithExtraContext):
 
 class ResourceForm(forms.ModelForm):
     tags = forms.ModelMultipleChoiceField(
-        queryset=Tag.objects.all(), to_field_name="name"
+        label=_("Tags"), queryset=Tag.objects.all(), to_field_name="name"
     )
     category = ModelChoiceFieldWithCreate(
-        queryset=Category.objects.all(), to_field_name="name", required=False
+        label=_("Category"), queryset=Category.objects.all(), to_field_name="name", required=False
     )
 
     def __init__(self, *args, **kwargs):
@@ -48,7 +48,7 @@ class ResourceForm(forms.ModelForm):
                 Div(
                     Field("category", css_class="add"),
                     HTML(
-                        "<small style='top: -11px; position: relative;'>Do not use only numbers as a category. Always add some text.</small>"
+                        "<small style='top: -11px; position: relative;'>" + _("Do not use only numbers as a category. Always add some text.") + "</small>"
                     ),
                     css_class="col-6",
                 ),
@@ -87,14 +87,6 @@ class ResourceForm(forms.ModelForm):
     class Meta:
         model = Resource
         fields = ("name", "tags", "category", "course", "on_day", "remove_on_complete")
-        labels = {
-            "name": _("Name"),
-            "tags": _("Tags"),
-            "category": _("Category"),
-            "course": _("Is a course item"),
-            "on_day": _("Workday that this item is due"),
-            "remove_on_complete": _("Remove item when new hire walked through"),
-        }
         help_texts = {
             "course": _("When enabled, new hires will have to walk through this"),
             "remove_on_complete": _(

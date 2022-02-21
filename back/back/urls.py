@@ -19,6 +19,8 @@ from organization import urls as org_urls
 from slack_bot import urls as slack_urls
 from user_auth import urls as auth_urls
 
+from django.conf import settings
+
 urlpatterns = [
     path(
         "robots.txt",
@@ -44,3 +46,7 @@ urlpatterns = [
     path("api/slack/", include(slack_urls)),
     # path("api/integrations/", include(integrations_urls)),
 ]
+
+# DJANGO DEBUG BAR
+if settings.DEBUG:
+    urlpatterns += [path('__debug__/', include('debug_toolbar.urls')),]

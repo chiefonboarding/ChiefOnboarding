@@ -13,20 +13,20 @@ class ObjectManager(models.Manager):
 
 
 class Organization(models.Model):
-    name = models.CharField(max_length=500)
-    language = models.CharField(default="en", max_length=10, choices=settings.LANGUAGES)
-    timezone = models.CharField(default="UTC", max_length=1000)
+    name = models.CharField(verbose_name=_("Name"),max_length=500)
+    language = models.CharField(verbose_name=_("Language"),default="en", max_length=10, choices=settings.LANGUAGES)
+    timezone = models.CharField(verbose_name=_("Timezone"),default="UTC", max_length=1000)
 
     # customization
-    base_color = models.CharField(max_length=10, default="#99835C")
-    accent_color = models.CharField(max_length=10, default="#ffbb42")
-    bot_color = models.CharField(max_length=10, default="#ffbb42")
-    logo = models.ForeignKey(File, on_delete=models.CASCADE, null=True)
+    base_color = models.CharField(verbose_name=_("Base color"),max_length=10, default="#99835C")
+    accent_color = models.CharField(verbose_name=_("Accent color"),max_length=10, default="#ffbb42")
+    bot_color = models.CharField(verbose_name=_("Bot color"),max_length=10, default="#ffbb42")
+    logo = models.ForeignKey(File, verbose_name=_("Logo"),on_delete=models.CASCADE, null=True)
 
     # login options
-    credentials_login = models.BooleanField(default=True)
-    google_login = models.BooleanField(default=False)
-    slack_login = models.BooleanField(default=False)
+    credentials_login = models.BooleanField(verbose_name=_("Allow users to login with their username and password"),default=True)
+    google_login = models.BooleanField(verbose_name=_("Allow users to login with their Google account"),default=False)
+    slack_login = models.BooleanField(verbose_name=_("Allow users to login with their Slack account"),default=False)
 
     # additional settings
     new_hire_email = models.BooleanField(
@@ -80,10 +80,12 @@ class Organization(models.Model):
         default=False,
     )
     slack_confirm_person = models.ForeignKey(
-        settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL
+        settings.AUTH_USER_MODEL, verbose_name=_("User to sent new hire account requests to"),null=True, on_delete=models.SET_NULL,
+        help_text=_("Slack only"),
     )
     slack_default_channel = models.ForeignKey(
-        "slack_bot.SlackChannel", null=True, on_delete=models.SET_NULL
+        "slack_bot.SlackChannel", verbose_name=_("This is the default channel where the bot will post messages in"),null=True, on_delete=models.SET_NULL,
+        help_text=_("Slack only"),
     )
 
     object = ObjectManager()
@@ -115,7 +117,7 @@ class WelcomeMessage(models.Model):
         (4, _("slack knowledge")),
     )
 
-    message = models.CharField(max_length=20250, blank=True)
+    message = models.CharField(verbose_name=_("Message"), max_length=20250, blank=True)
     language = models.CharField(choices=settings.LANGUAGES, max_length=3, default="en")
     message_type = models.IntegerField(choices=MESSAGE_TYPE, default=0)
 
@@ -126,8 +128,8 @@ class TemplateManager(models.Manager):
 
 
 class BaseItem(models.Model):
-    name = models.CharField(max_length=240)
-    tags = ArrayField(models.CharField(max_length=10200), blank=True)
+    name = models.CharField(verbose_name=_("Name"), max_length=240)
+    tags = ArrayField(models.CharField(max_length=10200), verbose_name=_("Tags"), blank=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     template = models.BooleanField(default=True)

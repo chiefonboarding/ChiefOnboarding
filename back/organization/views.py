@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.views.generic.list import ListView
+from django.utils.translation import gettext as _
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -71,6 +72,6 @@ class NotificationListView(LoginRequiredMixin, AdminPermMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = "Notifications"
-        context["subtitle"] = "global"
+        context["title"] = _("Notifications")
+        context["subtitle"] = _("global")
         return context

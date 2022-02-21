@@ -44,7 +44,7 @@ function initEditor(data) {
   editor = new EditorJS({
     minHeight: 30,
     holder: 'element',
-    placeholder: {% translate "Start typing here..." %},
+    placeholder: '{% translate "Start typing here..." %}',
     data: data,
     tools: {
       header: Header,
@@ -132,7 +132,7 @@ Vue.component('v-node', {
       const newItem = {
         id: app.getRandomString(),
         type: contentType,
-        name: {% translate "New item" %},
+        name: '{% translate "New item" %}',
         content: { blocks: [] },
         parent_chapter: null,
         children: []
@@ -141,7 +141,7 @@ Vue.component('v-node', {
         newItem.children = [{
           id: app.getRandomString(),
           type: 0,
-          name: {% translate "New item" %},
+          name: '{% translate "New item" %}',
           content: {},
           children: [],
           parent_chapter: -1
@@ -180,7 +180,7 @@ var app = new Vue({
       this.chapters = [{
         id: this.getRandomString(),
         type: 0,
-        name: {% translate "New item" %},
+        name: '{% translate "New item" %}',
         content: { blocks: [] },
         parent_chapter: null,
         children: []

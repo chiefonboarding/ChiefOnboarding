@@ -12,16 +12,24 @@ from django.utils.translation import gettext_lazy as _
 
 from admin.templates.forms import UploadField
 from organization.models import Organization, WelcomeMessage
-from slack_bot.models import SlackChannel
 
 
 class OrganizationGeneralForm(forms.ModelForm):
-    timezone = forms.ChoiceField(choices=[(x, x) for x in pytz.common_timezones])
-    slack_default_channel = forms.ModelChoiceField(queryset=SlackChannel.objects.all())
+    timezone = forms.ChoiceField(label=_("Timezone"), choices=[(x, x) for x in pytz.common_timezones])
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
+        self.fields['slack_confirm_person'].required = False
+
+        auto_create_new_hire_class = ""
+        if not self.instance.auto_create_user:
+            auto_create_new_hire_class = "d-none"
+
+        auto_create_without_confirm_class = ""
+        if self.instance.create_new_hire_without_confirm:
+            auto_create_without_confirm_class = "d-none"
+
         self.helper.layout = Layout(
             Div(
                 Div(
@@ -45,9 +53,16 @@ class OrganizationGeneralForm(forms.ModelForm):
                     Field("slack_buttons"),
                     Field("ask_colleague_welcome_message"),
                     Field("send_new_hire_start_reminder"),
-                    Field("auto_create_user"),
-                    Field("create_new_hire_without_confirm"),
                     Field("slack_default_channel"),
+                    Field("auto_create_user"),
+                    Div(
+                        Field("create_new_hire_without_confirm"),
+                        Div(
+                            Field("slack_confirm_person"),
+                            css_class=auto_create_without_confirm_class
+                        ),
+                        css_class=auto_create_new_hire_class
+                    ),
                     css_class="col-6",
                 ),
                 css_class="row",
@@ -77,24 +92,10 @@ class OrganizationGeneralForm(forms.ModelForm):
             "google_login",
             "slack_login",
             "slack_default_channel",
+            "auto_create_user",
+            "slack_confirm_person",
+            "create_new_hire_without_confirm",
         ]
-        labels = {
-            "name": _("Name"),
-            "language": _("Language"),
-            "timezone": _("Timezone"),
-            "base_color": _("Base color"),
-            "accent_color": _("Accent color"),
-            "bot_color": _("Bot color"),
-            "logo": _("Logo"),
-            "slack_login": _("Allow users to login with their Slack account"),
-            "google_login": _("Allow users to login with their Google account"),
-            "credentials_login": _(
-                "Allow users to login with their username and password"
-            ),
-            "slack_default_channel": _(
-                "This is the default channel where the bot will post messages in"
-            ),
-        }
 
     def clean(self):
         credentials_login = self.cleaned_data["credentials_login"]
@@ -113,9 +114,6 @@ class AdministratorsCreateForm(forms.ModelForm):
     class Meta:
         model = get_user_model()
         fields = ["first_name", "last_name", "email", "role"]
-        labels = {
-            "role": _("Role"),
-        }
 
 
 class AdministratorsUpdateForm(forms.ModelForm):
@@ -128,9 +126,6 @@ class AdministratorsUpdateForm(forms.ModelForm):
         fields = [
             "role",
         ]
-        labels = {
-            "role": _("Role"),
-        }
 
 
 class WelcomeMessagesUpdateForm(forms.ModelForm):
@@ -142,11 +137,8 @@ class WelcomeMessagesUpdateForm(forms.ModelForm):
         }
         help_texts = {
             "message": _(
-                "You can use {{ first_name }}, {{ last_name }}, {{ position }}, {{ manager }} and {{ buddy }} above. It will be replaced by the values corresponding to the new hire."
+                "You can use &#123;&#123; first_name &#125;&#125;, &#123;&#123; last_name &#125;&#125;, &#123;&#123; position &#125;&#125;, &#123;&#123; manager &#125;&#125;, and &#123;&#123; buddy &#125;&#125; in the editor. It will be replaced by the values corresponding to the new hire."
             )
-        }
-        labels = {
-            "message": _("Message"),
         }
 
 

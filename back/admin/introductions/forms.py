@@ -12,7 +12,7 @@ from .models import Introduction
 
 class IntroductionForm(forms.ModelForm):
     tags = forms.ModelMultipleChoiceField(
-        queryset=Tag.objects.all(), to_field_name="name", required=False
+        label=_("Tags"), queryset=Tag.objects.all(), to_field_name="name", required=False
     )
 
     def __init__(self, *args, **kwargs):
@@ -34,11 +34,6 @@ class IntroductionForm(forms.ModelForm):
     class Meta:
         model = Introduction
         exclude = ("template",)
-        labels = {
-            "tags": _("Tags"),
-            "name": _("Name"),
-            "intro_person": _("Person to introduce"),
-        }
 
     def clean_tags(self):
         tags = self.cleaned_data["tags"]

@@ -11,7 +11,7 @@ from .models import Preboarding
 
 class PreboardingForm(forms.ModelForm):
     tags = forms.ModelMultipleChoiceField(
-        queryset=Tag.objects.all(), to_field_name="name"
+            label=_("Tags"), queryset=Tag.objects.all(), to_field_name="name"
     )
 
     def __init__(self, *args, **kwargs):
@@ -33,11 +33,6 @@ class PreboardingForm(forms.ModelForm):
     class Meta:
         model = Preboarding
         exclude = ("template", "picture")
-        labels = {
-            "name": _("Name"),
-            "tags": _("Tags"),
-            "content": _("Content"),
-        }
 
     def clean_tags(self):
         tags = self.cleaned_data["tags"]

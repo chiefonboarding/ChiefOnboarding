@@ -4,11 +4,12 @@ from django.db import models
 from django.template.loader import render_to_string
 from django.urls import reverse
 
+from django.utils.translation import ugettext_lazy as _
 from organization.models import BaseItem
 
 
 class Introduction(BaseItem):
-    intro_person = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    intro_person = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("Person to introduce"), on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
