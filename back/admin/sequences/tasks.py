@@ -11,8 +11,8 @@ def timed_triggers():
         # make sure it's 8 AM for the new hire
         if user.get_local_time().hour == 8:
             translation.activate(user.language)
-            amount_days = user.workday()
-            amount_days_before = user.days_before_starting()
+            amount_days = user.workday
+            amount_days_before = user.days_before_starting
             # check if it's before or after they start
             conditions = []
             if amount_days == 0:

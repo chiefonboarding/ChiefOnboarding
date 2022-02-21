@@ -156,16 +156,18 @@ class NewHireAddSequenceView(LoginRequiredMixin, AdminPermMixin, FormView):
         conditions = Condition.objects.none()
         for seq in sequences:
             if new_hire.workday() == 0:
-                # User has not started yet, so we only need the items before they new hire started that passed
-                conditions = conditions | seq.conditions.filter(
-                    condition_type=2, days__lte=new_hire.days_before_starting()
+                # User has not started yet, so we only need the items before they new
+                # hire started that passed
+                conditions = seq.conditions.filter(
+                    condition_type=2, days__lte=new_hire.days_before_starting
                 )
             else:
-                # user has already started, check both before start day and after for conditions that are not triggered
+                # user has already started, check both before start day and after for
+                # conditions that are not triggered
                 conditions = seq.conditions.filter(
                     condition_type=2
                 ) | seq.conditions.filter(
-                    condition_type=0, days__lte=new_hire.workday()
+                    condition_type=0, days__lte=new_hire.workday
                 )
 
         if conditions.count():
@@ -248,10 +250,10 @@ class NewHireSequenceView(LoginRequiredMixin, AdminPermMixin, DetailView):
 
         # condition items
         conditions_before_first_day = new_hire.conditions.filter(
-            condition_type=2, days__lte=new_hire.days_before_starting()
+            condition_type=2, days__lte=new_hire.days_before_starting
         )
         conditions_after_first_day = new_hire.conditions.filter(
-            condition_type=0, days__lte=new_hire.days_before_starting()
+            condition_type=0, days__lte=new_hire.days_before_starting
         )
         for condition in conditions_before_first_day:
             condition.days = new_hire.start_day - timedelta(days=condition.days)
@@ -259,8 +261,8 @@ class NewHireSequenceView(LoginRequiredMixin, AdminPermMixin, DetailView):
         for condition in conditions_after_first_day:
             condition.days = new_hire.start_day + timedelta(days=condition.days)
 
-        context["conditions_before_first_day"] = conditions_before_first_day
-        context["conditions_after_first_day"] = conditions_after_first_day
+        context["conditions_before_first_day"] = conditions_before_first_day.prefetch_related("introductions", "to_do", "resources", "appointments", "badges", "external_messages")
+        context["conditions_after_first_day"] = conditions_after_first_day.prefetch_related("introductions", "to_do", "resources", "appointments", "badges", "external_messages")
 
         context["notifications"] = Notification.objects.filter(created_for=new_hire)
         return context

@@ -135,7 +135,7 @@ def test_days_before_starting(date, daybefore, new_hire_factory):
 
     freezer = freeze_time(date)
     freezer.start()
-    assert user.days_before_starting() == daybefore
+    assert user.days_before_starting == daybefore
     freezer.stop()
 
 

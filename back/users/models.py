@@ -216,17 +216,23 @@ class User(AbstractBaseUser):
         for sequence in sequences:
             sequence.assign_to_user(self)
 
+    @cached_property
     def workday(self):
         start_day = self.start_day
-        if start_day > self.get_local_time().date():
+        local_day = self.get_local_time().date()
+
+        if start_day > local_day:
             return 0
+
         amount_of_workdays = 1
-        while self.get_local_time().date() != start_day:
+        while local_day != start_day:
             start_day += timedelta(days=1)
             if start_day.weekday() != 5 and start_day.weekday() != 6:
                 amount_of_workdays += 1
+
         return amount_of_workdays
 
+    @cached_property
     def days_before_starting(self):
         # not counting workdays here
         if self.start_day <= self.get_local_time().date():
@@ -304,7 +310,7 @@ class User(AbstractBaseUser):
             return self.seen_updates < last_changelog_item.added
         return False
 
-    @property
+    @cached_property
     def org(self):
         return Organization.object.get()
 

@@ -56,9 +56,9 @@ class SequenceView(LoginRequiredMixin, AdminPermMixin, DetailView):
         context["todos"] = ToDo.templates.all()
         obj = self.get_object()
         context["conditions_unconditioned"] = obj.conditions.get(condition_type=3)
-        context["conditions_before_first_day"] = obj.conditions.filter(condition_type=2)
-        context["conditions_after_first_day"] = obj.conditions.filter(condition_type=0)
-        context["conditions_based_on_todo"] = obj.conditions.filter(condition_type=1)
+        context["conditions_before_first_day"] = obj.conditions.filter(condition_type=2).prefetch_related("introductions", "to_do", "resources", "appointments", "badges", "external_messages")
+        context["conditions_after_first_day"] = obj.conditions.filter(condition_type=0).prefetch_related("introductions", "to_do", "resources", "appointments", "badges", "external_messages")
+        context["conditions_based_on_todo"] = obj.conditions.filter(condition_type=1).prefetch_related("introductions", "to_do", "resources", "appointments", "badges", "external_messages")
         return context
 
 
