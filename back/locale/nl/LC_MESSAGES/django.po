@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-21 13:35+0000\n"
+"POT-Creation-Date: 2022-02-21 21:58+0000\n"
 "PO-Revision-Date: 2022-02-17 22:39:+0000\n"
 "Last-Translator: Stan Triepels <hello@chiefonboarding.com>\n"
 "Language-Team: NL <nl@chiefonboarding.com>\n"
@@ -565,7 +565,7 @@ msgstr "Actief"
 
 #: admin/people/templates/_new_hire_access_card.html:31
 #: admin/people/templates/_toggle_colleague_access.html:20
-#: admin/people/views.py:791 admin/people/views.py:832
+#: admin/people/views.py:793 admin/people/views.py:834
 msgid "Give access"
 msgstr "Toegang geven"
 
@@ -637,7 +637,7 @@ msgid "Add"
 msgstr "Toevoegen"
 
 #: admin/people/templates/_toggle_colleague_access.html:22
-#: admin/people/views.py:851
+#: admin/people/views.py:853
 msgid "Revoke access"
 msgstr "Toegang beperken"
 
@@ -722,8 +722,8 @@ msgstr "Nog geen antwoord gegeven."
 
 #: admin/people/templates/new_hire_delete.html:9
 #, python-format
-msgid "Are you sure you want to delete %(object.full_name)s?"
-msgstr "Ben je er zeker van dat je %(object.full_name)s wil verwijderen?"
+msgid "Are you sure you want to delete %(full_name)s?"
+msgstr "Ben je er zeker van dat je %(full_name)s wil verwijderen?"
 
 #: admin/people/templates/new_hire_delete.html:12
 msgid ""
@@ -769,13 +769,13 @@ msgstr "Voor de eerste dag"
 #: admin/people/templates/new_hire_detail.html:107
 #: admin/people/templates/new_hire_detail.html:139
 #: admin/people/templates/not_triggered_conditions.html:16
-#: admin/people/views.py:247 admin/people/views.py:285
-#: admin/people/views.py:416 admin/people/views.py:433
-#: admin/people/views.py:445 admin/people/views.py:464
-#: admin/people/views.py:483 admin/people/views.py:584
-#: admin/people/views.py:597 admin/people/views.py:613
-#: admin/people/views.py:626 admin/people/views.py:676
-#: admin/people/views.py:695
+#: admin/people/views.py:249 admin/people/views.py:287
+#: admin/people/views.py:418 admin/people/views.py:435
+#: admin/people/views.py:447 admin/people/views.py:466
+#: admin/people/views.py:485 admin/people/views.py:586
+#: admin/people/views.py:599 admin/people/views.py:615
+#: admin/people/views.py:628 admin/people/views.py:678
+#: admin/people/views.py:697
 #: admin/sequences/templates/_sequence_condition.html:55
 msgid "new hire"
 msgstr "Nieuwe medewerker"
@@ -789,8 +789,8 @@ msgstr "administrators"
 
 #: admin/people/templates/new_hire_detail.html:120
 #, python-format
-msgid "%(object.start_day)s - New hire's first day!"
-msgstr "%(object.start_day)s - Eerste dag!"
+msgid "%(start_day)s - New hire's first day!"
+msgstr "%(start_day)s - Eerste dag!"
 
 #: admin/people/templates/new_hire_detail.html:194
 msgid "Latest activity..."
@@ -798,8 +798,8 @@ msgstr "Laatste activiteit..."
 
 #: admin/people/templates/new_hire_detail.html:204
 #, python-format
-msgid "For %(object.created_for.full_name)s"
-msgstr "Voor %(object.created_for.full_name)s"
+msgid "For %(full_name)s"
+msgstr "Hoi %(full_name)s"
 
 #: admin/people/templates/new_hire_detail.html:204
 msgid "By"
@@ -827,7 +827,7 @@ msgid "There are no notes yet"
 msgstr "Er zijn nog geen notities"
 
 #: admin/people/templates/new_hire_progress.html:15 admin/to_do/views.py:23
-#: new_hire/templates/new_hire_base.html:61 slack_bot/tasks.py:60
+#: new_hire/templates/new_hire_base.html:70 slack_bot/tasks.py:60
 msgid "To do items"
 msgstr "Te doen items"
 
@@ -842,9 +842,8 @@ msgstr "Cursus"
 
 #: admin/people/templates/new_hire_progress.html:79
 #, python-format
-msgid " At step %(resource.step)s of %(resource.amount_chapters_in_course)s "
-msgstr ""
-" Bij stap %(resource.step)s van %(resource.amount_chapters_in_course)s "
+msgid " At step %(step)s of %(amount_chapters_in_course)s "
+msgstr " Bij stap %(step)s van %(amount_chapters_in_course)s "
 
 #: admin/people/templates/new_hire_progress.html:81
 msgid "New hire has completed the course!"
@@ -878,7 +877,7 @@ msgid "There are no to do items yet"
 msgstr "Er zijn nog geen te doen items"
 
 #: admin/people/templates/new_hire_tasks.html:75 admin/sequences/emails.py:46
-#: new_hire/templates/new_hire_base.html:75
+#: new_hire/templates/new_hire_base.html:84
 #: new_hire/templates/new_hire_resources.html:12 slack_bot/tasks.py:68
 #: users/templates/admin_base.html:84
 msgid "Resources"
@@ -950,7 +949,7 @@ msgstr "Verstuur pre-boarding bericht"
 msgid "New hires"
 msgstr "Nieuwe medewerkers"
 
-#: admin/people/views.py:55 admin/people/views.py:73 admin/people/views.py:232
+#: admin/people/views.py:55 admin/people/views.py:73 admin/people/views.py:234
 msgid "people"
 msgstr "Mensen"
 
@@ -966,98 +965,98 @@ msgstr "Voeg nieuwe medewerker toe"
 msgid "Sequence(s) have been added to this new hire"
 msgstr "Tijdlijn(en) zijn toegevoegd aan de nieuwe medewerker"
 
-#: admin/people/views.py:219
+#: admin/people/views.py:221
 msgid "Sent email to new hire"
 msgstr "Verstuur e-mail naar nieuwe medewerker"
 
-#: admin/people/views.py:231 new_hire/templates/new_hire_base.html:91
+#: admin/people/views.py:233 new_hire/templates/new_hire_base.html:100
 #: new_hire/templates/new_hire_colleagues.html:20
 #: users/templates/admin_base.html:66
 msgid "Colleagues"
 msgstr "Collega's"
 
-#: admin/people/views.py:275
+#: admin/people/views.py:277
 msgid "New hire has been updated"
 msgstr "Nieuwe medewerker is geüpdatet"
 
-#: admin/people/views.py:295
+#: admin/people/views.py:297
 msgid "Employee has been updated"
 msgstr "Medewerker is geüpdatet"
 
-#: admin/people/views.py:305 admin/people/views.py:322
-#: admin/people/views.py:354
+#: admin/people/views.py:307 admin/people/views.py:324
+#: admin/people/views.py:356
 msgid "Employee"
 msgstr "Medewerker"
 
-#: admin/people/views.py:315
+#: admin/people/views.py:317
 msgid "Colleague has been added"
 msgstr "Medewerker is toegevoegd"
 
-#: admin/people/views.py:321
+#: admin/people/views.py:323
 msgid "Create new colleague"
 msgstr "Maak nieuwe medewerker aan"
 
-#: admin/people/views.py:351
+#: admin/people/views.py:353
 #, python-format
 msgid "Add new resource for %(name)s"
 msgstr "Voeg nieuw artikel toe voor %(name)s"
 
-#: admin/people/views.py:365
+#: admin/people/views.py:367
 msgid "Colleague has been removed"
 msgstr "Collega is verwijderd"
 
-#: admin/people/views.py:376
+#: admin/people/views.py:378
 msgid "New hire has been removed"
 msgstr "Nieuwe medewerker is verwijderd"
 
-#: admin/people/views.py:388
+#: admin/people/views.py:390
 msgid "New hire is now a normal account."
 msgstr "Nieuwe medewerker heeft nu een normaal account."
 
-#: admin/people/views.py:400
+#: admin/people/views.py:402
 msgid "Note has been added"
 msgstr "Notitie is toegevoegd"
 
-#: admin/people/views.py:508
+#: admin/people/views.py:510
 msgid "Don't forget this to do item!"
 msgstr "Vergeet dit item niet af te vinken!"
 
-#: admin/people/views.py:513
+#: admin/people/views.py:515
 msgid "Don't forget to complete this course!"
 msgstr "Vergeet deze cursus niet!"
 
-#: admin/people/views.py:521
+#: admin/people/views.py:523
 msgid "Reminder has been sent!"
 msgstr "Herinnering is verstuurd!"
 
-#: admin/people/views.py:569
+#: admin/people/views.py:571
 msgid "Item has been reopened"
 msgstr "Item is heropent"
 
-#: admin/people/views.py:692
+#: admin/people/views.py:694
 #, python-format
 msgid "Add/Remove templates for %(name)s"
 msgstr "Voeg toe/Verwijder items voor %(name)s"
 
-#: admin/people/views.py:797
+#: admin/people/views.py:799
 msgid "Could not find user"
 msgstr "Kon gebruiker niet vinden"
 
-#: admin/people/views.py:809
+#: admin/people/views.py:811
 msgid ""
 "Click on the button to see all the categories that are available to you!"
 msgstr ""
 "Klik op de knop om de categorieën te zien die beschikbaar zijn voor jou!"
 
-#: admin/people/views.py:818
+#: admin/people/views.py:820
 msgid "resources"
 msgstr "artikelen"
 
-#: admin/people/views.py:830
+#: admin/people/views.py:832
 msgid "Revoke Slack access"
 msgstr "Slack toegang blokeren"
 
-#: admin/people/views.py:855
+#: admin/people/views.py:857
 msgid "Give portal access"
 msgstr "Geef toegang to website"
 
@@ -1355,8 +1354,8 @@ msgstr "Doorzetten nadat deze te doen items zijn afgerond:"
 
 #: admin/sequences/templates/_sequence_condition.html:18
 #, python-format
-msgid "On day %(condition.days)s at %(condition.time)s"
-msgstr "Op dag %(condition.days)s om %(condition.time)s"
+msgid "On day %(days)s at %(time)s"
+msgstr "Op dag %(days)s om %(time)s"
 
 #: admin/sequences/templates/_sequence_condition.html:20
 msgid "When these tasks are completed:"
@@ -1364,8 +1363,8 @@ msgstr "Zodra deze taken zijn voltooid:"
 
 #: admin/sequences/templates/_sequence_condition.html:29
 #, python-format
-msgid "%(condition.days)s days before starting at %(condition.time)s"
-msgstr "%(condition.days)s dagen voor starten om %(condition.time)s"
+msgid "%(days)s days before starting at %(time)s"
+msgstr "%(days)s dagen voor starten om %(time)s"
 
 #: admin/sequences/templates/_sequence_condition.html:31
 msgid "Without any trigger - assign directly"
@@ -1761,7 +1760,7 @@ msgstr "Niets gevonden"
 msgid "Employee onboarding"
 msgstr "Medewerker inwerken"
 
-#: new_hire/templates/new_hire_base.html:43 users/templates/admin_base.html:45
+#: new_hire/templates/new_hire_base.html:52 users/templates/admin_base.html:45
 msgid "Logout"
 msgstr "Uitloggen"
 
@@ -2382,7 +2381,7 @@ msgstr ""
 msgid "First working day"
 msgstr "Eerste werkdag"
 
-#: users/models.py:426
+#: users/models.py:432
 #, python-format
 msgid ""
 "%(amount_of_correct_answers)s correct answers out of %(amount_of_questions)s "
@@ -2478,3 +2477,7 @@ msgid ""
 msgstr ""
 "Als je deze e-mail niet hebt ontvnagen, zorg dan dat je een correct e-"
 "mailadres hebt ingevult en kijk in jouw spam box."
+
+#, python-format
+#~ msgid "For %(object.created_for.full_name)s"
+#~ msgstr "Voor %(object.created_for.full_name)s"

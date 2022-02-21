@@ -76,7 +76,7 @@
             </td>
             <td class="">
               {% if resource.course_completed %}
-                {% blocktranslate %} At step {{ resource.step }} of {{ resource.amount_chapters_in_course }} {% endblocktranslate %}
+                {% blocktranslate with step=resource.step amount_chapters=resource.amount_chapters_in_course %} At step {{ step }} of {{ amount_chapters_in_course }} {% endblocktranslate %}
               {% else %}
                 {% translate "New hire has completed the course!" %}
               {% endif %}

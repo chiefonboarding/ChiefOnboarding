@@ -117,7 +117,7 @@
               <div class="list-timeline-content pt-0" style="margin-top: -5px">
                 <div class="card">
                   <div class="card-header">
-                    <h4 class="card-title">{% blocktranslate %}{{ object.start_day }} - New hire's first day!{% endblocktranslate %}</h4>
+                    <h4 class="card-title">{% blocktranslate with start_day=object.start_day %}{{ start_day }} - New hire's first day!{% endblocktranslate %}</h4>
                   </div>
                 </div>
               </div>
@@ -201,7 +201,7 @@
                 <div class="text-truncate">
                   <strong>{{ object.get_notification_type_display }}: {{ object.extra_text }}</strong>
                 </div>
-                <div class="text-truncate text-muted">{% if object.created_for %}{% blocktranslate %}For {{ object.created_for.full_name }}{% endblocktranslate %}- {% endif %}{% translate "By" %}{% if object.created_by %}{{ object.created_by.full_name }}{% else %}ChiefOnboarding{% endif %}</div>
+                <div class="text-truncate text-muted">{% if object.created_for %}{% blocktranslate full_name=object.created_for_full_name %}For {{ full_name }}{% endblocktranslate %}- {% endif %}{% translate "By" %}{% if object.created_by %}{{ object.created_by.full_name }}{% else %}ChiefOnboarding{% endif %}</div>
               </div>
             </div>
           {% empty %}

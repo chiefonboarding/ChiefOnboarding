@@ -6,7 +6,7 @@
   <div class="col-6">
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title">{% blocktranslate %}Are you sure you want to delete {{ object.full_name }}?{% endblocktranslate %}</h3>
+        <h3 class="card-title">{% blocktranslate with full_name=object.full_name %}Are you sure you want to delete {{ full_name }}?{% endblocktranslate %}</h3>
       </div>
       <div class="card-body">
         <p>{% translate "Are you sure you want to delete this new hire? You have two options here:" %}</p>
