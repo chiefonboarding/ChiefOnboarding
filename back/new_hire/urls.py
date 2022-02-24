@@ -7,6 +7,11 @@ urlpatterns = [
     path("todos/", views.NewHireDashboard.as_view(), name="todos"),
     path("resources/", views.ResourceListView.as_view(), name="resources"),
     path(
+        "resources/search/",
+        views.ResourceSearchView.as_view(),
+        name="resources-search",
+    ),
+    path(
         "resources/<int:pk>/<int:chapter>/",
         views.ResourceDetailView.as_view(),
         name="resource-detail",
@@ -40,5 +45,10 @@ urlpatterns = [
         "preboarding/<int:pk>/",
         views.PreboardingDetailView.as_view(),
         name="preboarding",
+    ),
+    path(
+        "updates/",
+        views.SeenUpdatesView.as_view(),
+        name="seen-updates",
     ),
 ]

@@ -1,10 +1,8 @@
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 
-from misc.serializers import ContentCourseSerializer
-
 from .fields import CategoryField
-from .models import Category, Chapter, CourseAnswer, Resource
+from .models import Category, Chapter, Resource
 
 
 class CategorySerializer(serializers.HyperlinkedModelSerializer):
@@ -24,22 +22,6 @@ class ChapterSerializer(serializers.HyperlinkedModelSerializer):
         return ChapterSerializer(
             Chapter.objects.filter(parent_chapter=obj).order_by("order"), many=True
         ).data
-
-
-class ChapterCourseSerializer(ChapterSerializer):
-    content = ContentCourseSerializer(many=True)
-
-    class Meta:
-        model = Chapter
-        fields = ("id", "name", "content", "type", "parent_chapter")
-
-
-class CourseAnswerSerializer(serializers.ModelSerializer):
-    chapter = serializers.PrimaryKeyRelatedField(read_only=True)
-
-    class Meta:
-        model = CourseAnswer
-        fields = "__all__"
 
 
 class ResourceSerializer(serializers.HyperlinkedModelSerializer):
@@ -65,7 +47,6 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ResourceCourseSerializer(ResourceSerializer):
-    chapters = ChapterCourseSerializer(many=True, read_only=True)
 
     class Meta:
         model = Resource
@@ -79,11 +60,3 @@ class ResourceCourseSerializer(ResourceSerializer):
             "remove_on_complete",
             "chapters",
         )
-
-
-class ResourceSlimSerializer(serializers.HyperlinkedModelSerializer):
-    id = serializers.IntegerField(required=False)
-
-    class Meta:
-        model = Resource
-        fields = ("id", "name")

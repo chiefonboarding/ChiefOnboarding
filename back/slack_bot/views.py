@@ -12,7 +12,6 @@ from admin.admin_tasks.models import AdminTask
 from admin.integrations.models import AccessToken
 from admin.resources.models import Category, Chapter
 from admin.sequences.models import Sequence
-from misc.serializers import ContentSerializer
 # from fuzzywuzzy import process
 from organization.models import Organization
 from users.models import NewHireWelcomeMessage, ResourceUser, ToDoUser, User
@@ -468,21 +467,22 @@ class CallbackView(APIView):
                     "state" in response["view"]
                     and "values" in response["view"]["state"]
                 ):
-                    form = ContentSerializer(chapter.content, many=True).data
-                    answers = []
-                    for i in form:
-                        answers.append(
-                            response["view"]["state"]["values"][str(i["id"])][
-                                str(i["id"])
-                            ]["selected_option"]["value"]
-                        )
-                    course_answer, cre = book_user.answers.get_or_create(
-                        chapter=chapter, defaults={"answers": answers}
-                    )
-                    if not cre:
-                        course_answer.answers = answers
-                    else:
-                        book_user.answers.add(course_answer)
+                    #form = ContentSerializer(chapter.content, many=True).data
+                    # answers = []
+                    # for i in form:
+                    #     answers.append(
+                    #         response["view"]["state"]["values"][str(i["id"])][
+                    #             str(i["id"])
+                    #         ]["selected_option"]["value"]
+                    #     )
+                    # course_answer, cre = book_user.answers.get_or_create(
+                    #     chapter=chapter, defaults={"answers": answers}
+                    # )
+                    # if not cre:
+                    #     course_answer.answers = answers
+                    # else:
+                    #     book_user.answers.add(course_answer)
+                    pass
 
                 resource = book_user.book.next_chapter(
                     value.split(":")[3], "course" in value

@@ -14,7 +14,7 @@ from admin.introductions.models import Introduction
 from admin.preboarding.models import Preboarding
 from admin.resources.models import Resource
 from admin.to_do.models import ToDo
-from misc.models import Content
+from misc.fields import ContentJSONField
 from misc.serializers import FileSerializer
 from organization.models import Notification
 from slack_bot.slack import Slack
@@ -130,8 +130,8 @@ class ExternalMessage(models.Model):
     )
     PEOPLE_CHOICES = ((0, _("New hire")), (1, _("Manager")), (2, _("Buddy")), (3, _("custom")))
     name = models.CharField(verbose_name=_("Name"), max_length=240)
+    content_json = ContentJSONField(default=dict, verbose_name=_("Content"))
     content = models.CharField(verbose_name=_("Content"), max_length=12000, blank=True)
-    content_json = models.ManyToManyField(Content, verbose_name=_("Content"))
     send_via = models.IntegerField(verbose_name=_("Send via"), choices=EXTERNAL_TYPE)
     send_to = models.ForeignKey(
         settings.AUTH_USER_MODEL, verbose_name=_("Send to"), on_delete=models.CASCADE, blank=True, null=True

@@ -1,3 +1,5 @@
+{% load general %}
+{% with content=content|parse_to_json %}
 {% for block in content.blocks %}
   {% if block.type == 'paragraph' %}
     <p> {{ block.data.text | safe }} </p>
@@ -31,3 +33,4 @@
   {% endcomment %}
 {% endfor %}
 
+{% endwith %}

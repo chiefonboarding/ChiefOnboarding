@@ -23,13 +23,44 @@
             </a>
           </h1>
           <div class="navbar-nav flex-row order-md-last">
-            <div class="nav-item dropdown d-none d-md-flex me-3">
-              <a href="{% url 'settings:changelog' %}" class="nav-link px-0" tabindex="-1">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6" /><path d="M9 17v1a3 3 0 0 0 6 0v-1" /></svg>
-                {% if request.user.has_new_changelog_notifications %}
-                <span class="badge bg-red"></span>
-                {% endif %}
-              </a>
+            <div class="nav-item dropdown d-none d-md-flex me-3" onclick="updateSeen()">
+              <div class="dropdown">
+                <a class="nav-link dropdown-toggle" href="#navbar-templates" data-bs-toggle="dropdown" role="button" aria-expanded="false">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6" /><path d="M9 17v1a3 3 0 0 0 6 0v-1" /></svg>
+                  {% if request.user.has_new_hire_notifications %}
+                    <span class="badge bg-red"></span>
+                  {% endif %}
+                </a>
+                <div class="dropdown-menu dropdown-menu-card dropdown-menu-right" style="width: 30rem;">
+                  <div class="card d-flex flex-column">
+                    <div class="card-body d-flex flex-column">
+                      <h3 class="card-title">Notifications</h3>
+                      <div class="list-group list-group-flush list-group-hoverable">
+                        {% for notification in request.user.notification_receivers.all %}
+                          {% if notification.public_to_new_hire %}
+                          <div class="list-group-item">
+                            <div class="row align-items-center">
+                              {% if notification.has_not_seen %}
+                                <div class="col-auto"><span class="badge bg-primary"></span></div>
+                              {% endif %}
+                              <div class="col text-truncate">
+                                {% if notification.full_link == "" %}
+                                  <p class="text-reset d-block mb-0">{{ notification.get_notification_type_display }}: {{ notification.extra_text }}</p>
+                                {% else %}
+                                  <a href="{{ notification.full_link }}" class="text-reset d-block mb-0">{{ notification.get_notification_type_display }}: {{ notification.extra_text }}</a>
+                                {% endif %}
+                              </div>
+                            </div>
+                          </div>
+                          {% endif %}
+                        {% empty %}
+                          No notifications yet
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="nav-item dropdown">
               <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
@@ -129,6 +160,8 @@
           </div>
         </div>
       </div>
+      <div id="bin">
+      </div>
     </div>
     <script src="{% static 'js/tabler.js' %}"></script>
     <script src="https://unpkg.com/htmx.org@1.6.1" integrity="sha384-tvG/2mnCFmGQzYC1Oh3qxQ7CkQ9kMzYjWZSNtrRZygHPDDqottzEJsqS4oUVodhW" crossorigin="anonymous"></script>
@@ -136,6 +169,11 @@
       document.body.addEventListener('htmx:configRequest', function(event) {
         event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
       })
+    </script>
+    <script>
+      function updateSeen() {
+          htmx.ajax("get", "{% url 'new_hire:seen-updates' %}", "#bin")
+      }
     </script>
     {% block extra_js %}{% endblock %}
   </body>

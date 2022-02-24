@@ -14,7 +14,9 @@
       <div class="list-group list-group-flush list-group-hoverable">
         {% for  resource_user in object_list %}
           {% ifchanged resource_user.resource.category %}
-          <div class="list-group-header sticky-top">{{ resource_user.resource.category }}</div>
+            {% if resource_user.resource.category is not None %}
+              <div class="list-group-header sticky-top">{{ resource_user.resource.category }}</div>
+            {% endif %}
           {% endifchanged %}
         <div class="list-group-item" style="border-left: 0px none;">
           <div class="row align-items-center">
@@ -27,6 +29,30 @@
           </div>
         </div>
         {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="col-8">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">{% translate "Search through resources" %}</h3>
+      </div>
+      <div class="card-body">
+        <div class="input-icon float-right w-100">
+          <input type="search"
+                 class="form-control d-inline-block w-9 me-3"
+                 placeholder="Search resources…"
+                 name="search"
+                 hx-get="{% url 'new_hire:resources-search' %}"
+                 hx-trigger="keyup delay:500ms changed"
+                 hx-target="#search-results"
+                 hx-indicator="#spinner"
+                 >
+                 <span class="input-icon-addon requesting" id="spinner">
+                   <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
+                 </span>
+        </div>
+        <div id="search-results"></div>
       </div>
     </div>
   </div>

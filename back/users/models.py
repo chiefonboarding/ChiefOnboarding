@@ -136,7 +136,7 @@ class User(AbstractBaseUser):
     sent_preboarding_details = models.BooleanField(default=False)
     totp_secret = EncryptedTextField(blank=True)
     requires_otp = models.BooleanField(default=False)
-    seen_updates = models.DateField(auto_now_add=True)
+    seen_updates = models.DateTimeField(auto_now_add=True)
     # new hire specific
     completed_tasks = models.IntegerField(default=0)
     total_tasks = models.IntegerField(default=0)
@@ -190,6 +190,14 @@ class User(AbstractBaseUser):
     @cached_property
     def has_slack_account(self):
         return self.slack_user_id != ""
+
+    @cached_property
+    def has_new_hire_notifications(self):
+        # Notification bell badge on new hire pages
+        last_notification = self.notification_receivers.last()
+        if last_notification is not None:
+            return last_notification.created > self.seen_updates
+        return False
 
     @cached_property
     def progress(self):
@@ -305,9 +313,10 @@ class User(AbstractBaseUser):
 
     @property
     def has_new_changelog_notifications(self):
+        # Notification bell badge on admin pages
         last_changelog_item = Changelog.objects.last()
         if last_changelog_item is not None:
-            return self.seen_updates < last_changelog_item.added
+            return self.seen_updates.date() < last_changelog_item.added
         return False
 
     @cached_property
