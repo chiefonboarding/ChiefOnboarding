@@ -13,7 +13,6 @@ from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import (CreateView, DeleteView, FormView,
                                        UpdateView)
-from admin.templates.utils import get_user_field
 from django.views.generic.list import ListView
 from django_q.tasks import async_task
 from twilio.rest import Client
@@ -23,7 +22,7 @@ from admin.integrations.models import AccessToken
 from admin.notes.models import Note
 from admin.resources.models import Resource
 from admin.sequences.models import Condition, Sequence
-from admin.templates.utils import get_templates_model
+from admin.templates.utils import get_templates_model, get_user_field
 from organization.models import Notification, Organization, WelcomeMessage
 from slack_bot.slack import Slack
 from slack_bot.tasks import link_slack_users
@@ -166,9 +165,7 @@ class NewHireAddSequenceView(LoginRequiredMixin, AdminPermMixin, FormView):
                 # conditions that are not triggered
                 conditions = seq.conditions.filter(
                     condition_type=2
-                ) | seq.conditions.filter(
-                    condition_type=0, days__lte=new_hire.workday
-                )
+                ) | seq.conditions.filter(condition_type=0, days__lte=new_hire.workday)
 
         if conditions.count():
             return render(

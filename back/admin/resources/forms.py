@@ -5,11 +5,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from admin.templates.forms import (FieldWithExtraContext,
                                    ModelChoiceFieldWithCreate,
-                                   MultiSelectField)
+                                   MultiSelectField, TagModelForm)
 
 from .models import Category, Resource
 from .serializers import ChapterSerializer
-from admin.templates.forms import TagModelForm
 
 
 class ChapterField(FieldWithExtraContext):
@@ -18,7 +17,10 @@ class ChapterField(FieldWithExtraContext):
 
 class ResourceForm(TagModelForm):
     category = ModelChoiceFieldWithCreate(
-        label=_("Category"), queryset=Category.objects.all(), to_field_name="name", required=False
+        label=_("Category"),
+        queryset=Category.objects.all(),
+        to_field_name="name",
+        required=False,
     )
 
     def __init__(self, *args, **kwargs):
@@ -45,7 +47,11 @@ class ResourceForm(TagModelForm):
                 Div(
                     Field("category", css_class="add"),
                     HTML(
-                        "<small style='top: -11px; position: relative;'>" + _("Do not use only numbers as a category. Always add some text.") + "</small>"
+                        "<small style='top: -11px; position: relative;'>"
+                        + _(
+                            "Do not use only numbers as a category. Always add some text."
+                        )
+                        + "</small>"
                     ),
                     css_class="col-6",
                 ),

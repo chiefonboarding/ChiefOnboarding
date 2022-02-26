@@ -1,8 +1,11 @@
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 
 from axes.decorators import axes_dispatch
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login, signals
+from django.contrib.postgres.search import (SearchHeadline, SearchQuery,
+                                            SearchRank, SearchVector,
+                                            TrigramSimilarity)
 from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -20,9 +23,8 @@ from admin.resources.models import Chapter, CourseAnswer, Resource
 from organization.models import Notification
 from users.mixins import LoginRequiredMixin
 from users.models import (NewHireWelcomeMessage, PreboardingUser, ResourceUser,
-        ToDoUser, User)
+                          ToDoUser, User)
 
-from django.contrib.postgres.search import SearchHeadline, SearchQuery, SearchRank, SearchVector, TrigramSimilarity
 from .forms import QuestionsForm
 
 
@@ -35,24 +37,33 @@ class NewHireDashboard(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         context["overdue_to_do_items"] = ToDoUser.objects.filter(
-                user=new_hire, to_do__due_on_day__lt=new_hire.workday, completed=False
-                )
+            user=new_hire, to_do__due_on_day__lt=new_hire.workday, completed=False
+        )
 
         to_do_items = ToDoUser.objects.filter(
-                user=new_hire, to_do__due_on_day__gte=new_hire.workday
-                )
+            user=new_hire, to_do__due_on_day__gte=new_hire.workday
+        )
 
         # Group items by amount work days
         items_by_date = []
         for to_do_user in to_do_items:
             # Check if to do is already in any of the new items_by_date
             to_do = to_do_user.to_do
-            if not any([item for item in items_by_date if item["day"] == to_do.due_on_day]):
-                new_date = {"day": to_do.due_on_day,"items": [to_do,],}
+            if not any(
+                [item for item in items_by_date if item["day"] == to_do.due_on_day]
+            ):
+                new_date = {
+                    "day": to_do.due_on_day,
+                    "items": [
+                        to_do,
+                    ],
+                }
                 items_by_date.append(new_date)
             else:
                 # Can never be two or more, since it's catching it if it already exists
-                existing_date = [item for item in items_by_date if item["day"] == to_do.due_on_day][0]
+                existing_date = [
+                    item for item in items_by_date if item["day"] == to_do.due_on_day
+                ][0]
                 existing_date["items"].append(to_do_user)
 
         # Convert days to date object
@@ -77,6 +88,7 @@ class SeenUpdatesView(LoginRequiredMixin, View):
     the last seen updates prop. This way, the red marker on the notification icon will
     go away.
     """
+
     def get(self, request, *args, **kwargs):
         request.user.seen_updates = datetime.now()
         request.user.save()
@@ -90,19 +102,19 @@ class PreboardingShortURLRedirectView(LoginRequiredMixin, RedirectView):
     def dispatch(self, *args, **kwargs):
         try:
             user = User.objects.get(
-                    unique_url=self.request.GET.get("token", ""),
-                    start_day__gte=timezone.now(),
-                    role=0,
-                    )
+                unique_url=self.request.GET.get("token", ""),
+                start_day__gte=timezone.now(),
+                role=0,
+            )
         except User.DoesNotExist:
             # Log wrong keys by ip to prevent guessing/bruteforcing
             signals.user_login_failed.send(
-                    sender=User,
-                    request=self.request,
-                    credentials={
-                        "token": self.request.GET.get("token", ""),
-                        },
-                    )
+                sender=User,
+                request=self.request,
+                credentials={
+                    "token": self.request.GET.get("token", ""),
+                },
+            )
             raise Http404
         except:
             # fail safe
@@ -114,8 +126,8 @@ class PreboardingShortURLRedirectView(LoginRequiredMixin, RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         preboarding_user = PreboardingUser.objects.filter(
-                user=self.request.user
-                ).order_by("order")
+            user=self.request.user
+        ).order_by("order")
         return reverse("new_hire:preboarding", args=[preboarding_user.first().id])
 
 
@@ -133,22 +145,22 @@ class PreboardingDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         preboarding_user_items = list(
-                PreboardingUser.objects.filter(user=self.request.user)
-                .order_by("order")
-                .values_list("id", flat=True)
-                )
+            PreboardingUser.objects.filter(user=self.request.user)
+            .order_by("order")
+            .values_list("id", flat=True)
+        )
         index_current_item = preboarding_user_items.index(self.object.id)
 
         # Add new hire welcome messages to first page
         if (
-                index_current_item == 0
-                and NewHireWelcomeMessage.objects.filter(
-                    new_hire=self.request.user
-                    ).exists()
-                ):
+            index_current_item == 0
+            and NewHireWelcomeMessage.objects.filter(
+                new_hire=self.request.user
+            ).exists()
+        ):
             context["welcome_messages"] = NewHireWelcomeMessage.objects.filter(
-                    new_hire=self.request.user
-                    )
+                new_hire=self.request.user
+            )
 
         # Check that current item is not last, otherwise push first
         if self.object.id != preboarding_user_items[-1]:
@@ -177,8 +189,8 @@ class ColleagueSearchView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         search = self.request.GET.get("search", "")
         return get_user_model().objects.filter(
-                Q(first_name__icontains=search), Q(last_name__icontains=search)
-                )
+            Q(first_name__icontains=search), Q(last_name__icontains=search)
+        )
 
 
 class ResourceListView(LoginRequiredMixin, ListView):
@@ -195,23 +207,31 @@ class ResourceSearchView(LoginRequiredMixin, View):
     """
     HTMX: Search for resources that fit search criteria. Name and text.
     """
+
     def get(self, request, *args, **kwargs):
-        query = SearchQuery(request.GET.get('search'))
-        vector = SearchVector('name', weight='A') + SearchVector('chapters__content', weight='B')
-        results = Resource.objects.annotate(
-            rank=SearchRank(vector, query),
-            headline=SearchHeadline(
-                'name',
-                query,
-                fragment_delimiter="...",
-            ),
-            inner=SearchHeadline(
-               'chapters__content',
-                query,
-                fragment_delimiter="...",
-            ),
-        ).filter(rank__gte=0.3, resource_new_hire__user=request.user).order_by('rank').distinct()
-        return render(request, '_new_hire_resources_search.html', {'results': results})
+        query = SearchQuery(request.GET.get("search"))
+        vector = SearchVector("name", weight="A") + SearchVector(
+            "chapters__content", weight="B"
+        )
+        results = (
+            Resource.objects.annotate(
+                rank=SearchRank(vector, query),
+                headline=SearchHeadline(
+                    "name",
+                    query,
+                    fragment_delimiter="...",
+                ),
+                inner=SearchHeadline(
+                    "chapters__content",
+                    query,
+                    fragment_delimiter="...",
+                ),
+            )
+            .filter(rank__gte=0.3, resource_new_hire__user=request.user)
+            .order_by("rank")
+            .distinct()
+        )
+        return render(request, "_new_hire_resources_search.html", {"results": results})
 
 
 class ResourceDetailView(LoginRequiredMixin, DetailView):
@@ -222,10 +242,10 @@ class ResourceDetailView(LoginRequiredMixin, DetailView):
         # Make sure it's either a course or if it's a course the user is not skipping items
         if self.request.user.is_authenticated:
             resource_user = get_object_or_404(
-                    ResourceUser,
-                    user=self.request.user,
-                    resource__id=self.kwargs.get("pk", -1),
-                    )
+                ResourceUser,
+                user=self.request.user,
+                resource__id=self.kwargs.get("pk", -1),
+            )
             # Early return if not course
             if not resource_user.resource.course:
                 return super().dispatch(*args, **kwargs)
@@ -241,19 +261,19 @@ class ResourceDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["resource_user"] = get_object_or_404(
-                ResourceUser, user=self.request.user, resource__id=self.kwargs.get("pk", -1)
-                )
+            ResourceUser, user=self.request.user, resource__id=self.kwargs.get("pk", -1)
+        )
         context["chapter"] = get_object_or_404(
-                Chapter, id=self.kwargs.get("chapter", -1)
-                )
+            Chapter, id=self.kwargs.get("chapter", -1)
+        )
         context["title"] = context["resource_user"].resource.name
         # If chapter is a questions type, then add form if not filled in yet
         if (
-                context["chapter"].type == 2
-                and not context["resource_user"]
-                .answers.filter(chapter=context["chapter"])
-                .exists()
-                ):
+            context["chapter"].type == 2
+            and not context["resource_user"]
+            .answers.filter(chapter=context["chapter"])
+            .exists()
+        ):
             context["form"] = QuestionsForm(items=context["chapter"].content["blocks"])
         return context
 
@@ -263,16 +283,16 @@ class ToDoCompleteView(LoginRequiredMixin, RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         to_do_user = get_object_or_404(
-                ToDoUser, pk=kwargs["pk"], user=self.request.user
-                )
+            ToDoUser, pk=kwargs["pk"], user=self.request.user
+        )
         to_do_user.completed = True
         to_do_user.save()
 
         Notification.objects.create(
-                notification_type="completed_todo",
-                extra_text=to_do_user.todo.name,
-                created_by=self.request.user,
-                )
+            notification_type="completed_todo",
+            extra_text=to_do_user.todo.name,
+            created_by=self.request.user,
+        )
         return super().get_redirect_url(*args, **kwargs)
 
 
@@ -284,15 +304,15 @@ class CourseNextStepView(LoginRequiredMixin, View):
         if chapter is None:
             messages.success(request, _("You have completed this course!"))
             Notification.objects.create(
-                    notification_type="completed_course",
-                    extra_text=resource_user.resource.name,
-                    created_by=self.request.user,
-                    )
+                notification_type="completed_course",
+                extra_text=resource_user.resource.name,
+                created_by=self.request.user,
+            )
             return redirect("new_hire:resources")
 
         return redirect(
-                "new_hire:resource-detail", pk=resource_user.resource.id, chapter=chapter.id
-                )
+            "new_hire:resource-detail", pk=resource_user.resource.id, chapter=chapter.id
+        )
 
 
 class CourseAnswerView(LoginRequiredMixin, FormView):
@@ -311,12 +331,12 @@ class CourseAnswerView(LoginRequiredMixin, FormView):
 
     def form_valid(self, form):
         resource_user = get_object_or_404(
-                ResourceUser, resource__pk=self.kwargs.get("pk", -1), user=self.request.user
-                )
+            ResourceUser, resource__pk=self.kwargs.get("pk", -1), user=self.request.user
+        )
         chapter = get_object_or_404(Chapter, id=self.kwargs.get("chapter", -1))
         course_answers = CourseAnswer.objects.create(
-                chapter=chapter, answers=form.cleaned_data
-                )
+            chapter=chapter, answers=form.cleaned_data
+        )
         resource_user.answers.add(course_answers)
         return HttpResponse(headers={"HX-Refresh": "true"})
 
@@ -324,6 +344,6 @@ class CourseAnswerView(LoginRequiredMixin, FormView):
         context = super().get_context_data(**kwargs)
         context["object"] = get_object_or_404(Resource, id=self.kwargs.get("pk", -1))
         context["chapter"] = get_object_or_404(
-                Chapter, id=self.kwargs.get("chapter", -1)
-                )
+            Chapter, id=self.kwargs.get("chapter", -1)
+        )
         return context

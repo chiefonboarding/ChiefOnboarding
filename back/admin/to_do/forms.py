@@ -2,13 +2,12 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, Layout
 from django.utils.translation import gettext_lazy as _
 
-from admin.templates.forms import MultiSelectField, WYSIWYGField, TagModelForm
+from admin.templates.forms import MultiSelectField, TagModelForm, WYSIWYGField
 
 from .models import ToDo
 
 
 class ToDoForm(TagModelForm):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -42,4 +41,3 @@ class ToDoForm(TagModelForm):
                 "Let your new hire now that the answers are going to be shared with the team!"
             )
         }
-

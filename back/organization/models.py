@@ -1,12 +1,12 @@
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.cache import cache
-from django.utils.functional import cached_property
 from django.db import models
+from django.urls import reverse
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from misc.models import File
-from django.urls import reverse
 from misc.urlparser import URLParser
 
 
@@ -16,20 +16,42 @@ class ObjectManager(models.Manager):
 
 
 class Organization(models.Model):
-    name = models.CharField(verbose_name=_("Name"),max_length=500)
-    language = models.CharField(verbose_name=_("Language"),default="en", max_length=10, choices=settings.LANGUAGES)
-    timezone = models.CharField(verbose_name=_("Timezone"),default="UTC", max_length=1000)
+    name = models.CharField(verbose_name=_("Name"), max_length=500)
+    language = models.CharField(
+        verbose_name=_("Language"),
+        default="en",
+        max_length=10,
+        choices=settings.LANGUAGES,
+    )
+    timezone = models.CharField(
+        verbose_name=_("Timezone"), default="UTC", max_length=1000
+    )
 
     # customization
-    base_color = models.CharField(verbose_name=_("Base color"),max_length=10, default="#99835C")
-    accent_color = models.CharField(verbose_name=_("Accent color"),max_length=10, default="#ffbb42")
-    bot_color = models.CharField(verbose_name=_("Bot color"),max_length=10, default="#ffbb42")
-    logo = models.ForeignKey(File, verbose_name=_("Logo"),on_delete=models.CASCADE, null=True)
+    base_color = models.CharField(
+        verbose_name=_("Base color"), max_length=10, default="#99835C"
+    )
+    accent_color = models.CharField(
+        verbose_name=_("Accent color"), max_length=10, default="#ffbb42"
+    )
+    bot_color = models.CharField(
+        verbose_name=_("Bot color"), max_length=10, default="#ffbb42"
+    )
+    logo = models.ForeignKey(
+        File, verbose_name=_("Logo"), on_delete=models.CASCADE, null=True
+    )
 
     # login options
-    credentials_login = models.BooleanField(verbose_name=_("Allow users to login with their username and password"),default=True)
-    google_login = models.BooleanField(verbose_name=_("Allow users to login with their Google account"),default=False)
-    slack_login = models.BooleanField(verbose_name=_("Allow users to login with their Slack account"),default=False)
+    credentials_login = models.BooleanField(
+        verbose_name=_("Allow users to login with their username and password"),
+        default=True,
+    )
+    google_login = models.BooleanField(
+        verbose_name=_("Allow users to login with their Google account"), default=False
+    )
+    slack_login = models.BooleanField(
+        verbose_name=_("Allow users to login with their Slack account"), default=False
+    )
 
     # additional settings
     new_hire_email = models.BooleanField(
@@ -83,11 +105,19 @@ class Organization(models.Model):
         default=False,
     )
     slack_confirm_person = models.ForeignKey(
-        settings.AUTH_USER_MODEL, verbose_name=_("User to sent new hire account requests to"),null=True, on_delete=models.SET_NULL,
+        settings.AUTH_USER_MODEL,
+        verbose_name=_("User to sent new hire account requests to"),
+        null=True,
+        on_delete=models.SET_NULL,
         help_text=_("Slack only"),
     )
     slack_default_channel = models.ForeignKey(
-        "slack_bot.SlackChannel", verbose_name=_("This is the default channel where the bot will post messages in"),null=True, on_delete=models.SET_NULL,
+        "slack_bot.SlackChannel",
+        verbose_name=_(
+            "This is the default channel where the bot will post messages in"
+        ),
+        null=True,
+        on_delete=models.SET_NULL,
         help_text=_("Slack only"),
     )
 
@@ -132,7 +162,9 @@ class TemplateManager(models.Manager):
 
 class BaseItem(models.Model):
     name = models.CharField(verbose_name=_("Name"), max_length=240)
-    tags = ArrayField(models.CharField(max_length=10200), verbose_name=_("Tags"), blank=True)
+    tags = ArrayField(
+        models.CharField(max_length=10200), verbose_name=_("Tags"), blank=True
+    )
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     template = models.BooleanField(default=True)
@@ -189,32 +221,40 @@ class BaseItem(models.Model):
             for link in parser.get_links():
                 text = text.replace(
                     link["original_tag"] + link["text"] + "</a>",
-                    "<" + link["url"] + "|" + link["text"] + ">")
+                    "<" + link["url"] + "|" + link["text"] + ">",
+                )
         return text
-
 
     def to_slack_block(self, user):
         blocks = self.content.blocks
         slack_blocks = []
         for item in blocks:
-            if 'text' in item.data:
+            if "text" in item.data:
                 if item.data.text == "":
                     item.data.text = "-"
                 text = user.personalize(item.data.text)
                 item.data.text = self._prep_inner_text_for_slack(text)
-            if 'items' in item.data:
+            if "items" in item.data:
                 for list_item in item.data.items:
                     if list_item == "":
                         list_item = "-"
                     text = user.personalize(list_item)
                     item.data.text = self._prep_inner_text_for_slack(text)
-            slack_block = {"type": "section", "text": {"type": "mrkdwn", "text": item.data.text}}
+            slack_block = {
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": item.data.text},
+            }
             if item.type == "header":
                 slack_block["text"]["text"] = "*" + item.data.text + "*"
             elif item.type == "quote":
                 slack_block = {
                     "type": "context",
-                    "elements": {"text": {"type": "mrkdwn", "text": item.data.text + "\n" + item.data.caption }},
+                    "elements": {
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": item.data.text + "\n" + item.data.caption,
+                        }
+                    },
                 }
             elif item.type == "list" and item.data.style == "ordered":
                 ul_list = ""
@@ -232,7 +272,13 @@ class BaseItem(models.Model):
                 files_text = "<" + self.files[0].get_url() + "|Watch video>"
                 slack_block["text"]["text"] = files_text
             elif item.type == "video":
-                files_text = "<" + File.objects.get(id=item["file"]["id"]).get_url() + "|" + item["file"]["name"] + "> "
+                files_text = (
+                    "<"
+                    + File.objects.get(id=item["file"]["id"]).get_url()
+                    + "|"
+                    + item["file"]["name"]
+                    + "> "
+                )
                 slack_block["text"]["text"] = files_text
             elif item.type == "image":
                 slack_block = {
@@ -266,10 +312,15 @@ class BaseItem(models.Model):
                         },
                         "options": options,
                     },
-                    "label": {"type": "plain_text", "text": item.data.text, "emoji": True},
+                    "label": {
+                        "type": "plain_text",
+                        "text": item.data.text,
+                        "emoji": True,
+                    },
                 }
             slack_blocks.append(slack_block)
         return slack_blocks
+
 
 class Changelog(models.Model):
     added = models.DateField(auto_now_add=True)

@@ -15,12 +15,14 @@ from organization.models import Organization, WelcomeMessage
 
 
 class OrganizationGeneralForm(forms.ModelForm):
-    timezone = forms.ChoiceField(label=_("Timezone"), choices=[(x, x) for x in pytz.common_timezones])
+    timezone = forms.ChoiceField(
+        label=_("Timezone"), choices=[(x, x) for x in pytz.common_timezones]
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.fields['slack_confirm_person'].required = False
+        self.fields["slack_confirm_person"].required = False
 
         auto_create_new_hire_class = ""
         if not self.instance.auto_create_user:
@@ -59,9 +61,9 @@ class OrganizationGeneralForm(forms.ModelForm):
                         Field("create_new_hire_without_confirm"),
                         Div(
                             Field("slack_confirm_person"),
-                            css_class=auto_create_without_confirm_class
+                            css_class=auto_create_without_confirm_class,
                         ),
-                        css_class=auto_create_new_hire_class
+                        css_class=auto_create_new_hire_class,
                     ),
                     css_class="col-6",
                 ),

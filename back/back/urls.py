@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.urls import include, path
 from django.views.generic.base import TemplateView
 
@@ -18,8 +19,6 @@ from new_hire import urls as new_hire_urls
 from organization import urls as org_urls
 from slack_bot import urls as slack_urls
 from user_auth import urls as auth_urls
-
-from django.conf import settings
 
 urlpatterns = [
     path(
@@ -49,4 +48,6 @@ urlpatterns = [
 
 # DJANGO DEBUG BAR
 if settings.DEBUG:
-    urlpatterns += [path('__debug__/', include('debug_toolbar.urls')),]
+    urlpatterns += [
+        path("__debug__/", include("debug_toolbar.urls")),
+    ]

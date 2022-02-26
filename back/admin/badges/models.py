@@ -9,7 +9,9 @@ from organization.models import BaseItem
 
 
 class Badge(BaseItem):
-    image = models.ForeignKey(File, verbose_name=_("Image"), on_delete=models.SET_NULL, null=True, blank=True)
+    image = models.ForeignKey(
+        File, verbose_name=_("Image"), on_delete=models.SET_NULL, null=True, blank=True
+    )
     content = ContentJSONField(verbose_name=_("Content"), default=dict)
 
     def update_url(self):

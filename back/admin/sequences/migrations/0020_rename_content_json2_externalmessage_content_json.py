@@ -5,19 +5,21 @@ from django.db import migrations
 from misc.migration_scripts.content_migrations import (RunPythonWithArguments,
                                                        migrate_wysiwyg_field)
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sequences', '0019_rename_content_json_externalmessage_content'),
+        ("sequences", "0019_rename_content_json_externalmessage_content"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='externalmessage',
-            old_name='content_json2',
-            new_name='content_json',
+            model_name="externalmessage",
+            old_name="content_json2",
+            new_name="content_json",
         ),
         RunPythonWithArguments(
-            migrate_wysiwyg_field, context={"app": "sequences", "model": "externalmessage"}
+            migrate_wysiwyg_field,
+            context={"app": "sequences", "model": "externalmessage"},
         ),
     ]

@@ -9,7 +9,6 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-
 from admin.sequences.models import Sequence
 from admin.templates.forms import (ModelChoiceFieldWithCreate,
                                    MultiSelectField, UploadField)
@@ -18,13 +17,19 @@ from users.models import Department
 
 class NewHireAddForm(forms.ModelForm):
     sequences = forms.ModelMultipleChoiceField(
-        queryset=Sequence.objects.all(), to_field_name="id", required=False, label=_("Sequences")
+        queryset=Sequence.objects.all(),
+        to_field_name="id",
+        required=False,
+        label=_("Sequences"),
     )
-    timezone = forms.ChoiceField(label=_("Timezone"), choices=[(x, x) for x in pytz.common_timezones])
+    timezone = forms.ChoiceField(
+        label=_("Timezone"), choices=[(x, x) for x in pytz.common_timezones]
+    )
     start_day = forms.DateField(label=_("Start date"), required=True)
 
     def __init__(self, *args, **kwargs):
         from organization.models import Organization
+
         super().__init__(*args, **kwargs)
         self.fields["buddy"].required = False
         self.fields["manager"].required = False
@@ -82,7 +87,9 @@ class NewHireAddForm(forms.ModelForm):
 
 
 class NewHireProfileForm(forms.ModelForm):
-    timezone = forms.ChoiceField(label=_("Timezone"), choices=[(x, x) for x in pytz.common_timezones])
+    timezone = forms.ChoiceField(
+        label=_("Timezone"), choices=[(x, x) for x in pytz.common_timezones]
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

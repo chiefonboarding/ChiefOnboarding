@@ -467,7 +467,7 @@ class CallbackView(APIView):
                     "state" in response["view"]
                     and "values" in response["view"]["state"]
                 ):
-                    #form = ContentSerializer(chapter.content, many=True).data
+                    # form = ContentSerializer(chapter.content, many=True).data
                     # answers = []
                     # for i in form:
                     #     answers.append(

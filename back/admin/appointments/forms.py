@@ -3,8 +3,7 @@ from crispy_forms.layout import Div, Field, Layout
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from admin.templates.forms import MultiSelectField, WYSIWYGField
-from admin.templates.forms import TagModelForm
+from admin.templates.forms import MultiSelectField, TagModelForm, WYSIWYGField
 
 from .models import Appointment
 

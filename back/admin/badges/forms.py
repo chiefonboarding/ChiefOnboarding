@@ -1,16 +1,15 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, Layout
 from django import forms
-
 from django.utils.translation import gettext_lazy as _
-from admin.templates.forms import MultiSelectField, UploadField, WYSIWYGField
+
+from admin.templates.forms import (MultiSelectField, TagModelForm, UploadField,
+                                   WYSIWYGField)
 
 from .models import Badge
-from admin.templates.forms import TagModelForm
 
 
 class BadgeForm(TagModelForm):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()

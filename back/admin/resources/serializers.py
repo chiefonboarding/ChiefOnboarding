@@ -47,7 +47,6 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ResourceCourseSerializer(ResourceSerializer):
-
     class Meta:
         model = Resource
         fields = (

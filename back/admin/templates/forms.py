@@ -1,9 +1,10 @@
 from crispy_forms.layout import Field
 from crispy_forms.utils import TEMPLATE_PACK
-from django.core.exceptions import ValidationError
 from django import forms
-from organization.models import Tag
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+
+from organization.models import Tag
 
 
 class WYSIWYGField(Field):
@@ -116,10 +117,12 @@ class TagMultipleChoiceFieldWithCreate(forms.ModelMultipleChoiceField):
         return qs
 
 
-
 class TagModelForm(forms.ModelForm):
     tags = TagMultipleChoiceFieldWithCreate(
-        label=_("Tags"), queryset=Tag.objects.all(), to_field_name="name", required=False
+        label=_("Tags"),
+        queryset=Tag.objects.all(),
+        to_field_name="name",
+        required=False,
     )
 
     def clean_tags(self):

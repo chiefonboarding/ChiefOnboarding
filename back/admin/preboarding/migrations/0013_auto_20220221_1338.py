@@ -2,29 +2,35 @@
 
 import django.contrib.postgres.fields
 from django.db import migrations, models
+
 import misc.fields
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('preboarding', '0012_auto_20220209_0052'),
+        ("preboarding", "0012_auto_20220209_0052"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='preboarding',
-            name='content',
-            field=misc.fields.ContentJSONField(default=dict, verbose_name='Content'),
+            model_name="preboarding",
+            name="content",
+            field=misc.fields.ContentJSONField(default=dict, verbose_name="Content"),
         ),
         migrations.AlterField(
-            model_name='preboarding',
-            name='name',
-            field=models.CharField(max_length=240, verbose_name='Name'),
+            model_name="preboarding",
+            name="name",
+            field=models.CharField(max_length=240, verbose_name="Name"),
         ),
         migrations.AlterField(
-            model_name='preboarding',
-            name='tags',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=10200), blank=True, size=None, verbose_name='Tags'),
+            model_name="preboarding",
+            name="tags",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.CharField(max_length=10200),
+                blank=True,
+                size=None,
+                verbose_name="Tags",
+            ),
         ),
     ]

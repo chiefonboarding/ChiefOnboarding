@@ -8,7 +8,7 @@ from organization.models import BaseItem
 
 
 class Appointment(BaseItem):
-    content = ContentJSONField(verbose_name=_("Content"),default=dict)
+    content = ContentJSONField(verbose_name=_("Content"), default=dict)
     time = models.TimeField(verbose_name=_("Time"), blank=True, null=True)
     date = models.DateField(verbose_name=_("Date"), blank=True, null=True)
     fixed_date = models.BooleanField(verbose_name=_("Fixed date"), default=False)

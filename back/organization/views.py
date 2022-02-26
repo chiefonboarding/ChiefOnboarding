@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
-from django.views.generic.list import ListView
 from django.utils.translation import gettext as _
+from django.views.generic.list import ListView
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response

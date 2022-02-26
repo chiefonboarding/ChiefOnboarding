@@ -112,19 +112,39 @@ class User(AbstractBaseUser):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
-    position = models.CharField(verbose_name=_("Position"), max_length=300, default="", blank=True)
-    phone = models.CharField(verbose_name=_("Phone"), max_length=300, default="", blank=True)
+    position = models.CharField(
+        verbose_name=_("Position"), max_length=300, default="", blank=True
+    )
+    phone = models.CharField(
+        verbose_name=_("Phone"), max_length=300, default="", blank=True
+    )
     slack_user_id = models.CharField(max_length=100, default="", blank=True)
     slack_channel_id = models.CharField(max_length=100, default="", blank=True)
     message = models.TextField(verbose_name=_("Message"), default="", blank=True)
-    profile_image = models.ForeignKey(File, verbose_name=_("Profile image"), on_delete=models.CASCADE, null=True)
-    linkedin = models.CharField(verbose_name=_("Linkedin"), default="", max_length=100, blank=True)
-    facebook = models.CharField(verbose_name=_("Facebook"), default="", max_length=100, blank=True)
-    twitter = models.CharField(verbose_name=_("Twitter"), default="", max_length=100, blank=True)
+    profile_image = models.ForeignKey(
+        File, verbose_name=_("Profile image"), on_delete=models.CASCADE, null=True
+    )
+    linkedin = models.CharField(
+        verbose_name=_("Linkedin"), default="", max_length=100, blank=True
+    )
+    facebook = models.CharField(
+        verbose_name=_("Facebook"), default="", max_length=100, blank=True
+    )
+    twitter = models.CharField(
+        verbose_name=_("Twitter"), default="", max_length=100, blank=True
+    )
     timezone = models.CharField(verbose_name=_("Timezone"), default="", max_length=1000)
-    department = models.ForeignKey(Department, verbose_name=_("Department"),  on_delete=models.SET_NULL, null=True)
-    language = models.CharField(verbose_name=_("Language"), default="en", choices=settings.LANGUAGES, max_length=5)
-    role = models.IntegerField(verbose_name=_("Role"),
+    department = models.ForeignKey(
+        Department, verbose_name=_("Department"), on_delete=models.SET_NULL, null=True
+    )
+    language = models.CharField(
+        verbose_name=_("Language"),
+        default="en",
+        choices=settings.LANGUAGES,
+        max_length=5,
+    )
+    role = models.IntegerField(
+        verbose_name=_("Role"),
         choices=ROLE_CHOICES,
         default=3,
         help_text=_(
@@ -141,12 +161,25 @@ class User(AbstractBaseUser):
     completed_tasks = models.IntegerField(default=0)
     total_tasks = models.IntegerField(default=0)
     buddy = models.ForeignKey(
-        "self",verbose_name=_("Buddy"), on_delete=models.SET_NULL, null=True, related_name="new_hire_buddy"
+        "self",
+        verbose_name=_("Buddy"),
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="new_hire_buddy",
     )
     manager = models.ForeignKey(
-        "self",verbose_name=_("Manager"), on_delete=models.SET_NULL, null=True, related_name="new_hire_manager"
+        "self",
+        verbose_name=_("Manager"),
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="new_hire_manager",
     )
-    start_day = models.DateField(verbose_name=_("Start date"), null=True, blank=True, help_text=_("First working day"))
+    start_day = models.DateField(
+        verbose_name=_("Start date"),
+        null=True,
+        blank=True,
+        help_text=_("First working day"),
+    )
     unique_url = models.CharField(max_length=250, null=True, unique=True, blank=True)
 
     to_do = models.ManyToManyField(ToDo, through="ToDoUser", related_name="user_todos")

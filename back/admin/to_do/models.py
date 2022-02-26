@@ -12,9 +12,17 @@ class ToDo(BaseItem):
     due_on_day = models.IntegerField(verbose_name=_("Due on day"), default=0)
     form = models.JSONField(default=list)
     # Chat bot specific actions
-    send_back = models.BooleanField(verbose_name=_("Post new hire's answers from form (if applicable) back to Slack channel"), default=False)
+    send_back = models.BooleanField(
+        verbose_name=_(
+            "Post new hire's answers from form (if applicable) back to Slack channel"
+        ),
+        default=False,
+    )
     slack_channel = models.ForeignKey(
-        "slack_bot.SlackChannel", verbose_name=_("Slack channel"), null=True, on_delete=models.SET_NULL
+        "slack_bot.SlackChannel",
+        verbose_name=_("Slack channel"),
+        null=True,
+        on_delete=models.SET_NULL,
     )
 
     @property

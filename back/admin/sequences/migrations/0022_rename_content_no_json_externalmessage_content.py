@@ -6,13 +6,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sequences', '0021_remove_externalmessage_content'),
+        ("sequences", "0021_remove_externalmessage_content"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='externalmessage',
-            old_name='content_no_json',
-            new_name='content',
+            model_name="externalmessage",
+            old_name="content_no_json",
+            new_name="content",
         ),
     ]

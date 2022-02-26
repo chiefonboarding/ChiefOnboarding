@@ -2,49 +2,55 @@
 
 import django.contrib.postgres.fields
 from django.db import migrations, models
+
 import misc.fields
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('appointments', '0007_rename_content_json_appointment_content'),
+        ("appointments", "0007_rename_content_json_appointment_content"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='appointment',
-            name='content',
-            field=misc.fields.ContentJSONField(default=dict, verbose_name='Content'),
+            model_name="appointment",
+            name="content",
+            field=misc.fields.ContentJSONField(default=dict, verbose_name="Content"),
         ),
         migrations.AlterField(
-            model_name='appointment',
-            name='date',
-            field=models.DateField(blank=True, null=True, verbose_name='Date'),
+            model_name="appointment",
+            name="date",
+            field=models.DateField(blank=True, null=True, verbose_name="Date"),
         ),
         migrations.AlterField(
-            model_name='appointment',
-            name='fixed_date',
-            field=models.BooleanField(default=False, verbose_name='Fixed date'),
+            model_name="appointment",
+            name="fixed_date",
+            field=models.BooleanField(default=False, verbose_name="Fixed date"),
         ),
         migrations.AlterField(
-            model_name='appointment',
-            name='name',
-            field=models.CharField(max_length=240, verbose_name='Name'),
+            model_name="appointment",
+            name="name",
+            field=models.CharField(max_length=240, verbose_name="Name"),
         ),
         migrations.AlterField(
-            model_name='appointment',
-            name='on_day',
-            field=models.IntegerField(default=0, verbose_name='On day'),
+            model_name="appointment",
+            name="on_day",
+            field=models.IntegerField(default=0, verbose_name="On day"),
         ),
         migrations.AlterField(
-            model_name='appointment',
-            name='tags',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=10200), blank=True, size=None, verbose_name='Tags'),
+            model_name="appointment",
+            name="tags",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.CharField(max_length=10200),
+                blank=True,
+                size=None,
+                verbose_name="Tags",
+            ),
         ),
         migrations.AlterField(
-            model_name='appointment',
-            name='time',
-            field=models.TimeField(blank=True, null=True, verbose_name='Time'),
+            model_name="appointment",
+            name="time",
+            field=models.TimeField(blank=True, null=True, verbose_name="Time"),
         ),
     ]

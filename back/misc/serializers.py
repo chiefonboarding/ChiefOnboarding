@@ -16,4 +16,3 @@ class FileSerializer(serializers.ModelSerializer):
         if settings.AWS_STORAGE_BUCKET_NAME == "" or obj.key == "":
             return ""
         return S3().get_file(obj.key)
-

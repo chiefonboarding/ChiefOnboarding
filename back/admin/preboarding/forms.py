@@ -2,14 +2,12 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, Layout
 from django.utils.translation import ugettext_lazy as _
 
-from admin.templates.forms import MultiSelectField, WYSIWYGField
-from admin.templates.forms import TagModelForm
+from admin.templates.forms import MultiSelectField, TagModelForm, WYSIWYGField
 
 from .models import Preboarding
 
 
 class PreboardingForm(TagModelForm):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()

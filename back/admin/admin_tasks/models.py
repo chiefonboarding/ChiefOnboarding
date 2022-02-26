@@ -29,12 +29,21 @@ class AdminTask(models.Model):
         null=True,
     )
     name = models.CharField(verbose_name=_("Name"), max_length=500)
-    option = models.IntegerField(verbose_name=_("Send email or text to extra user?"), choices=NOTIFICATION_CHOICES)
-    slack_user = models.CharField(verbose_name=_("Slack user"), max_length=12500, default="", blank=True)
-    email = models.EmailField(verbose_name=_("Email"), max_length=12500, default="", blank=True)
+    option = models.IntegerField(
+        verbose_name=_("Send email or text to extra user?"),
+        choices=NOTIFICATION_CHOICES,
+    )
+    slack_user = models.CharField(
+        verbose_name=_("Slack user"), max_length=12500, default="", blank=True
+    )
+    email = models.EmailField(
+        verbose_name=_("Email"), max_length=12500, default="", blank=True
+    )
     completed = models.BooleanField(verbose_name=_("Completed"), default=False)
     date = models.DateField(verbose_name=_("Date"), blank=True, null=True)
-    priority = models.IntegerField(verbose_name=_("Priority"), choices=PRIORITY_CHOICES, default=2)
+    priority = models.IntegerField(
+        verbose_name=_("Priority"), choices=PRIORITY_CHOICES, default=2
+    )
 
     @property
     def get_icon_template(self):
