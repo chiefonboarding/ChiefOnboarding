@@ -1990,7 +1990,7 @@ msgstr "Voor"
 
 #: organization/templates/notifications.html:17
 msgid "By "
-msgstr "Door"
+msgstr "Door "
 
 #: organization/views.py:75
 msgid "Notifications"

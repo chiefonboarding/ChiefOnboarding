@@ -1,18 +1,13 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, Layout
-from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from admin.templates.forms import MultiSelectField, WYSIWYGField
-from organization.models import Tag
+from admin.templates.forms import MultiSelectField, WYSIWYGField, TagModelForm
 
 from .models import ToDo
 
 
-class ToDoForm(forms.ModelForm):
-    tags = forms.ModelMultipleChoiceField(
-        label=_("Tags"), queryset=Tag.objects.all(), to_field_name="name", required=False
-    )
+class ToDoForm(TagModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -48,6 +43,3 @@ class ToDoForm(forms.ModelForm):
             )
         }
 
-    def clean_tags(self):
-        tags = self.cleaned_data["tags"]
-        return [tag.name for tag in tags]

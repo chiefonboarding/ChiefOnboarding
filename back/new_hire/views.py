@@ -35,11 +35,11 @@ class NewHireDashboard(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         context["overdue_to_do_items"] = ToDoUser.objects.filter(
-                user=new_hire, to_do__due_on_day__lt=new_hire.workday(), completed=False
+                user=new_hire, to_do__due_on_day__lt=new_hire.workday, completed=False
                 )
 
         to_do_items = ToDoUser.objects.filter(
-                user=new_hire, to_do__due_on_day__gte=new_hire.workday()
+                user=new_hire, to_do__due_on_day__gte=new_hire.workday
                 )
 
         # Group items by amount work days

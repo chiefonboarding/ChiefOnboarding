@@ -16,7 +16,7 @@ class ContentJSONField(JSONField):
             return value
 
         for block in value["blocks"]:
-            if block["type"] in ["file", "image"]:
+            if block["type"] in ["attaches", "image"]:
                 block["data"]["file"]["url"] = File.objects.get(
                     id=block["data"]["file"]["id"]
                 ).get_url()

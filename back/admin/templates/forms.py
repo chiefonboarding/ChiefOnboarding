@@ -1,6 +1,9 @@
 from crispy_forms.layout import Field
 from crispy_forms.utils import TEMPLATE_PACK
+from django.core.exceptions import ValidationError
 from django import forms
+from organization.models import Tag
+from django.utils.translation import gettext_lazy as _
 
 
 class WYSIWYGField(Field):
@@ -75,3 +78,50 @@ class ModelChoiceFieldWithCreate(forms.ModelChoiceField):
         except self.queryset.model.DoesNotExist:
             value = self.queryset.create(**{key: value})
         return value
+
+
+class TagMultipleChoiceFieldWithCreate(forms.ModelMultipleChoiceField):
+    def _check_values(self, value):
+        """
+        Given a list of possible PK values, return a QuerySet of the
+        corresponding objects. Raise a ValidationError if a given value is
+        invalid (not a valid PK, not in the queryset, etc.)
+        """
+        key = self.to_field_name or "pk"
+        # deduplicate given values to avoid creating many querysets or
+        # requiring the database backend deduplicate efficiently.
+        try:
+            value = frozenset(value)
+        except TypeError:
+            # list of lists isn't hashable, for example
+            raise ValidationError(
+                self.error_messages["invalid_list"],
+                code="invalid_list",
+            )
+        for pk in value:
+            try:
+                self.queryset.filter(**{key: pk})
+            except (ValueError, TypeError):
+                raise ValidationError(
+                    self.error_messages["invalid_pk_value"],
+                    code="invalid_pk_value",
+                    params={"pk": pk},
+                )
+        qs = self.queryset.filter(**{"%s__in" % key: value})
+        pks = {str(getattr(o, key)) for o in qs}
+        for val in value:
+            if str(val) not in pks:
+                new_tag = Tag.objects.create(name=val)
+                qs |= Tag.objects.filter(id=new_tag.id)
+        return qs
+
+
+
+class TagModelForm(forms.ModelForm):
+    tags = TagMultipleChoiceFieldWithCreate(
+        label=_("Tags"), queryset=Tag.objects.all(), to_field_name="name", required=False
+    )
+
+    def clean_tags(self):
+        tags = self.cleaned_data["tags"]
+        return [tag.name for tag in tags]

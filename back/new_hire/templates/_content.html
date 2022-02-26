@@ -28,9 +28,34 @@
     {% endif %}
     <blockquote>{{ block.data.text }}</blockquote>
   {% endif %}
-  {% comment %}
-  TODO: image, files, personalize
-  {% endcomment %}
-{% endfor %}
+  {% if block.type == 'attaches' %}
+    {% if block.data.file.extension == 'mp4' or block.data.file.extension == 'webm' %}
+      <video controls width="800" class="mt-2">
+          <source src="{{ block.data.file.url }}"
+                  type="video/{{ block.data.file.extension }}">
 
+          Sorry, your browser doesn't support embedded videos.
+      </video>
+    {% else %}
+    <div class="d-block mt-2">
+      <a href="{{ block.data.file.url }}" type="button" class="btn btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+           <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5"></path>
+           <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5"></path>
+        </svg>
+        {{ block.data.file.name }}
+      </a>
+    </div>
+    {% endif %}
+  {% endif %}
+  {% if block.type == 'image' %}
+    <div class="d-block mt-2">
+      <figure>
+        <img src="{{ block.data.file.url }}" alt="{{block.data.caption}}" />
+        <figcaption>{{block.data.caption}}</figcaption>
+      </figure>
+    </div>
+  {% endif %}
+{% endfor %}
 {% endwith %}

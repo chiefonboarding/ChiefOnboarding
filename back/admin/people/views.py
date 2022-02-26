@@ -155,7 +155,7 @@ class NewHireAddSequenceView(LoginRequiredMixin, AdminPermMixin, FormView):
         # Check if there are items that will not be triggered since date passed
         conditions = Condition.objects.none()
         for seq in sequences:
-            if new_hire.workday() == 0:
+            if new_hire.workday == 0:
                 # User has not started yet, so we only need the items before they new
                 # hire started that passed
                 conditions = seq.conditions.filter(

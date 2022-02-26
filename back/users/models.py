@@ -316,7 +316,7 @@ class User(AbstractBaseUser):
         # Notification bell badge on admin pages
         last_changelog_item = Changelog.objects.last()
         if last_changelog_item is not None:
-            return self.seen_updates.date() < last_changelog_item.added
+            return self.seen_updates < last_changelog_item.added
         return False
 
     @cached_property
@@ -333,7 +333,7 @@ class ToDoUser(models.Model):
     )
     to_do = models.ForeignKey(ToDo, related_name="to_do", on_delete=models.CASCADE)
     completed = models.BooleanField(default=False)
-    form = models.JSONField(models.TextField(default="[]"), default=list)
+    form = models.JSONField(default=list)
     reminded = models.DateTimeField(null=True)
 
     def mark_completed(self):

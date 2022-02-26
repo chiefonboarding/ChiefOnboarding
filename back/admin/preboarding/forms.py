@@ -1,18 +1,14 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, Layout
-from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from admin.templates.forms import MultiSelectField, WYSIWYGField
-from organization.models import Tag
+from admin.templates.forms import TagModelForm
 
 from .models import Preboarding
 
 
-class PreboardingForm(forms.ModelForm):
-    tags = forms.ModelMultipleChoiceField(
-            label=_("Tags"), queryset=Tag.objects.all(), to_field_name="name"
-    )
+class PreboardingForm(TagModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -33,7 +29,3 @@ class PreboardingForm(forms.ModelForm):
     class Meta:
         model = Preboarding
         exclude = ("template", "picture")
-
-    def clean_tags(self):
-        tags = self.cleaned_data["tags"]
-        return [tag.name for tag in tags]

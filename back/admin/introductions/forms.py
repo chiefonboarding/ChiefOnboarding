@@ -5,16 +5,12 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
 from admin.templates.forms import MultiSelectField
-from organization.models import Tag
+from admin.templates.forms import TagModelForm
 
 from .models import Introduction
 
 
-class IntroductionForm(forms.ModelForm):
-    tags = forms.ModelMultipleChoiceField(
-        label=_("Tags"), queryset=Tag.objects.all(), to_field_name="name", required=False
-    )
-
+class IntroductionForm(TagModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -34,7 +30,3 @@ class IntroductionForm(forms.ModelForm):
     class Meta:
         model = Introduction
         exclude = ("template",)
-
-    def clean_tags(self):
-        tags = self.cleaned_data["tags"]
-        return [tag.name for tag in tags]

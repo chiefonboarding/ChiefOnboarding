@@ -4,16 +4,13 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from admin.templates.forms import MultiSelectField, WYSIWYGField
-from organization.models import Tag
+from admin.templates.forms import TagModelForm
 
 from .models import Appointment
 
 
-class AppointmentForm(forms.ModelForm):
+class AppointmentForm(TagModelForm):
     content = WYSIWYGField()
-    tags = forms.ModelMultipleChoiceField(
-        queryset=Tag.objects.all(), to_field_name="name", required=False
-    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -48,7 +45,3 @@ class AppointmentForm(forms.ModelForm):
         widgets = {
             "time": forms.TimeInput(attrs={"type": "time", "step": 300}),
         }
-
-    def clean_tags(self):
-        tags = self.cleaned_data["tags"]
-        return [tag.name for tag in tags]

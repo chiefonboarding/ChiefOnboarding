@@ -6,20 +6,17 @@ from django.utils.translation import ugettext_lazy as _
 from admin.templates.forms import (FieldWithExtraContext,
                                    ModelChoiceFieldWithCreate,
                                    MultiSelectField)
-from organization.models import Tag
 
 from .models import Category, Resource
 from .serializers import ChapterSerializer
+from admin.templates.forms import TagModelForm
 
 
 class ChapterField(FieldWithExtraContext):
     template = "chapter_field.html"
 
 
-class ResourceForm(forms.ModelForm):
-    tags = forms.ModelMultipleChoiceField(
-        label=_("Tags"), queryset=Tag.objects.all(), to_field_name="name"
-    )
+class ResourceForm(TagModelForm):
     category = ModelChoiceFieldWithCreate(
         label=_("Category"), queryset=Category.objects.all(), to_field_name="name", required=False
     )
@@ -93,7 +90,3 @@ class ResourceForm(forms.ModelForm):
                 "If disabled, it will turn into a normal resource after completing"
             ),
         }
-
-    def clean_tags(self):
-        tags = self.cleaned_data["tags"]
-        return [tag.name for tag in tags]
