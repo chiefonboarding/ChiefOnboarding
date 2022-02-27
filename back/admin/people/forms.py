@@ -1,12 +1,9 @@
-from datetime import datetime
-
 import pytz
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, Layout, Submit
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from admin.sequences.models import Sequence
@@ -90,6 +87,7 @@ class NewHireProfileForm(forms.ModelForm):
     timezone = forms.ChoiceField(
         label=_("Timezone"), choices=[(x, x) for x in pytz.common_timezones]
     )
+    start_day = forms.DateField(label=_("Start date"), required=True, widget=forms.DateInput(attrs={"type": "date"}, format=('%Y-%m-%d')))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
