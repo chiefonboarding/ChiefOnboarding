@@ -25,9 +25,13 @@
           <a href="{% url 'settings:delete-integration' integration.obj.id %}" class="btn btn-danger">
             {% translate "Remove" %}
           </a>
-          {% else %}
+          {% elif not integration.disabled %}
           <a href="{{ integration.create_url }}" class="btn btn-primary">
             {% translate "Enable" %}
+          </a>
+          {% else %}
+          <button class="btn btn-white" disabled>
+            {% translate "Disabled (legacy)" %}
           </a>
           {% endif %}
       </tr>
