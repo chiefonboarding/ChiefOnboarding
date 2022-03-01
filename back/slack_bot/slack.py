@@ -289,19 +289,18 @@ class Slack:
                     self.format_intro_block(Introduction.objects.get(id=i.id))
                 )
             self.send_message(blocks=blocks)
-        for i in items["badges"]:
+        for badge in items["badges"]:
             blocks = [
                 {
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
                         "text": _("*Congrats, you unlocked: %(item_name)s *")
-                        % {"item_name": self.personalize(i.name)},
+                        % {"item_name": self.personalize(badge.name)},
                     },
                 }
             ]
-            for j in i.content.all():
-                blocks.append(j.to_slack_block(self.user_obj))
+            blocks.append(badge.content.to_slack_block(self.user_obj))
             self.send_message(blocks=blocks)
         if len(items["to_do"]):
             to_do = [
@@ -411,8 +410,7 @@ class Slack:
                 "text": {"type": "mrkdwn", "text": f"*{chapter.name}*"},
             }
         )
-        for i in chapter.content.all():
-            blocks.append(i.to_slack_block(self.user_obj))
+        blocks.append(chapter.to_slack_block(self.user_obj))
         view["blocks"] = blocks
         del view["team_id"]
         del view["state"]

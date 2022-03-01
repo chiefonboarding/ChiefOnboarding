@@ -31,48 +31,54 @@ class Slack:
     auth_session = None
     credentials = None
     record = None
+    integration_type = 1
+    BASE_URL = "https://slack.com/api/"
 
     def __init__(self):
-        slack_code = AccessToken.objects.filter(active=True, integration=1)
-        if slack_code.exists():
-            self.record = slack_code.first()
-            self.auth_session = slack.WebClient(token=self.record.token)
-        # if datetime.now() > self.record.expiring:
-        # 	self.refresh()
+        self.access_obj = AccessToken.objects.filter(
+            active=True, integration=self.integration_type
+        )
+        if self.access_obj.count() == 0:
+            raise Error("No tokens available")
+
+        self.access_obj = AccessToken.objects.filter(
+            active=True, integration=self.integration_type
+        ).first()
+
+    def get_token(self):
+        return self.access_obj.token
 
     def exists(self):
         return self.record is not None
 
-    def add_user(self, email):
-        r = requests.get(
-            "https://slack.com/api/users.admin.invite?token={self.record.token}&email={email}"
+    def get_authentication_header(self):
+        return {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": "Bearer {}".format(self.get_token()),
+        }
+
+    def add_user(self, email, channels):
+        r = requests.post(
+            f"{self.BASE_URL}/users.admin.invite?token={self.get_token()}&email={email}channel_ids={channels}",
+            headers=self.get_authentication_header(),
         )
         if r.json()["ok"]:
-            return
-        elif "error" in r.json() and r.json()["error"] in [
-            "already_in_team",
-            "already_invited",
-        ]:
-            return
-        elif "error" in r.json() and r.json()["error"] == "token_revoked":
-            slack_error_email(
-                get_user_model().objects.filter(role=1).order_by("date_joined").first()
-            )
-            self.record.active = False
-            self.record.save()
-            raise UnauthorizedError
-        return Error
+            return True
+        return False
 
     def delete_user(self, email):
-        response = requests.get(
-            "https://slack.com/api/users.admin.setInactive?token={self.record.token}&user={email}"
+        response = requests.post(
+            f"{self.BASE_URL}/users.admin.setInactive?token={self.get_token()}&email={email}",
+            headers=self.get_authentication_header(),
         )
         if response.json()["ok"]:
             return True
-        else:
-            if response.json()["error"] == "paid_only":
-                raise PaidOnlyError
-            elif response.json()["error"] == "not_found":
-                return True
-            else:
-                raise Error
+        raise False
+
+    def get_channels(self):
+        response = requests.post(
+            f"{self.BASE_URL}/conversations.list?token={self.get_token()}&exclude_archived=true&types=public_channel,private_channel",
+            headers=self.get_authentication_header(),
+        )
+        return [[x["name"], x["is_private"]] for x in response["channels"]]
