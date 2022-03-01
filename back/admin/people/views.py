@@ -659,7 +659,6 @@ class NewHireGiveAccessView(LoginRequiredMixin, AdminPermMixin, FormView):
         integration = get_object_or_404(
             AccessToken, id=self.kwargs.get("integration_id", -1)
         )
-        # TODO: make this async
         integration.add_user(new_hire.email, form.cleaned_data)
 
         return redirect("people:new_hire_access", pk=new_hire.id)

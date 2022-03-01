@@ -193,6 +193,14 @@ class BaseItem(models.Model):
         self.save()
         return self
 
+    @property
+    def form_items(self):
+        blocks = []
+        for block in self.content['blocks']:
+            if block['type'] in ['form']:
+                blocks.append(block)
+        return blocks
+
     def _prep_inner_text_for_slack(self, text):
         replacements = (
             ("<p>", ""),

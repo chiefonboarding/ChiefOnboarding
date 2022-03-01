@@ -296,6 +296,31 @@ class ToDoCompleteView(LoginRequiredMixin, RedirectView):
         return super().get_redirect_url(*args, **kwargs)
 
 
+class ToDoFormSubmitView(LoginRequiredMixin, View):
+    def post(self, request, pk, *args, **kwargs):
+        to_do_user = get_object_or_404(
+            ToDoUser, pk=pk, user=self.request.user
+        )
+        answers = to_do_user.form
+        for key, value in request.POST.items():
+            # check if item is valid
+            item = next((x for x in to_do_user.to_do.form_items if x["id"] == key), None)
+            if item is not None:
+                item['answer'] = value
+                answers.append(item)
+            else:
+                return HttpResponse(
+                    "This form could not be processed - invalid items"
+                )
+
+        to_do_user.form = answers
+        to_do_user.save()
+
+        return HttpResponse(
+            "You have submitted this form successfully"
+        )
+
+
 class CourseNextStepView(LoginRequiredMixin, View):
     def post(self, request, pk, *args, **kwargs):
         resource_user = get_object_or_404(ResourceUser, pk=pk, user=request.user)

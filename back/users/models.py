@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timedelta
+from datetime import timedelta, datetime, date
 
 import pyotp
 import pytz
@@ -9,6 +9,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 from django.db.models import Q
 from django.template import Context, Template
+from django.utils import formats
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -349,7 +350,10 @@ class User(AbstractBaseUser):
         # Notification bell badge on admin pages
         last_changelog_item = Changelog.objects.last()
         if last_changelog_item is not None:
-            return self.seen_updates < last_changelog_item.added
+            if isinstance(self.seen_updates, date):
+                return self.seen_updates.date() < last_changelog_item.added
+            else:
+                return self.seen_updates < last_changelog_item.added
         return False
 
     @cached_property
@@ -368,6 +372,17 @@ class ToDoUser(models.Model):
     completed = models.BooleanField(default=False)
     form = models.JSONField(default=list)
     reminded = models.DateTimeField(null=True)
+
+    @cached_property
+    def completed_form_items(self):
+        completed_blocks = []
+        for block in self.to_do.content['blocks']:
+            if block['type'] in ['form']:
+                item = next((x for x in self.to_do.form_items if x["id"] == block['id']), None)
+                if item is not None:
+                    completed_blocks.append(item["id"])
+        return completed_blocks
+
 
     def mark_completed(self):
         self.completed = True

@@ -17,7 +17,7 @@ urlpatterns = [
         name="resource-detail",
     ),
     path(
-        "form/<int:pk>/<int:chapter>/",
+        "resources/form/<int:pk>/<int:chapter>/",
         views.CourseAnswerView.as_view(),
         name="question-form",
     ),
@@ -29,6 +29,11 @@ urlpatterns = [
         "todos/<int:pk>/complete/",
         views.ToDoCompleteView.as_view(),
         name="to_do_complete",
+    ),
+    path(
+        "todos/<int:pk>/form/",
+        views.ToDoFormSubmitView.as_view(),
+        name="to_do_form",
     ),
     path("colleagues/", views.ColleagueListView.as_view(), name="colleagues"),
     path(
