@@ -125,6 +125,9 @@ class Organization(models.Model):
     objects = models.Manager()
 
     def get_logo_url(self):
+        if self.logo is None:
+            return ""
+
         # Check if cache option already exists AND the logo name is in the url
         # If the latter is not the case, then the logo changed and cache should refresh
         if cache.get("logo_url", None) is None or self.logo.name not in cache.get(

@@ -52,12 +52,6 @@ class FileView(APIView):
             }
         )
 
-    def put(self, request, id):
-        file = get_object_or_404(File, pk=id)
-        file.active = True
-        file.save()
-        return Response(FileSerializer(file).data)
-
     def delete(self, request, id):
         if request.user.is_admin_or_manager:
             file = get_object_or_404(File, pk=id)

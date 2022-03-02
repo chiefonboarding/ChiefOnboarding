@@ -53,7 +53,7 @@ def test_workday(date, workday, new_hire_factory):
 
     freezer = freeze_time(date)
     freezer.start()
-    assert user.workday() == workday
+    assert user.workday == workday
     freezer.stop()
 
 

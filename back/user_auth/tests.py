@@ -23,7 +23,7 @@ WHITELISTED_URLS = [
     "new_hire/preboarding/",
 ]
 
-NO_GET_URLS = [
+POST_URLS = [
     "sequences/update_item/todo/1/1/",
     "sequences/forms/1/1/",
     "sequences/1/condition/1/",
@@ -203,6 +203,7 @@ def test_authed_view(url, client, new_hire_factory):
     # If url contains params placeholders than swap them
     swaps = [
         ["<int:pk>", "1"],
+        ["<int:id>", "1"],
         ["<slug:language>", "en"],
         ["<int:type>", "1"],
         ["<slug:type>", "todo"],
@@ -212,17 +213,21 @@ def test_authed_view(url, client, new_hire_factory):
         ["<int:sequence_pk>", "1"],
         ["<slug:template_type>", "1"],
         ["<int:condition>", "1"],
+        ["<int:chapter>", "1"],
+        ["<int:chapter>", "1"],
+        ["<int:integration_id>", "1"],
+        ["<int:resource_user>", "1"],
     ]
     for placeholder, real_value in swaps:
         url = url.replace(placeholder, real_value)
 
     # Some urls are only available with POST
-    if url in NO_GET_URLS:
+    if url in POST_URLS:
         response = client.post("/" + url, follow=True)
     else:
         response = client.get("/" + url, follow=True)
 
-    assert "Log in" in response.content.decode()
+    assert "Log in" in response.content.decode() or "Authentication credentials were not provided." in response.content.decode()
 
     # Make sure the url also has MFA enabled
     url = reverse("login")

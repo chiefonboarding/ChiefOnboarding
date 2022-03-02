@@ -3,7 +3,7 @@ import uuid
 from django.conf import settings
 from django.db import models
 from django.urls import reverse_lazy
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from fernet_fields import EncryptedTextField
 
 INTEGRATION_OPTIONS = (

@@ -12,7 +12,7 @@ from django.template import Context, Template
 from django.utils import formats
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from fernet_fields import EncryptedTextField
 
 from admin.appointments.models import Appointment

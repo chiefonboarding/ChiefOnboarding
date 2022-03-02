@@ -23,3 +23,10 @@ class File(models.Model):
 @receiver(pre_delete, sender=File)
 def remove_file(sender, instance, **kwargs):
     S3().delete_file(instance.key)
+
+
+# This needs to stay here, not connected to anything.
+# If we remove this model, then migrations will not be able to run.
+# This model used to be connected to multiple models.
+class Content(models.Model):
+    pass

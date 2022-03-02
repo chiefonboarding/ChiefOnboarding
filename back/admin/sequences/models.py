@@ -3,7 +3,7 @@ from django.db import models
 from django.db.models import Prefetch
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from twilio.rest import Client
 
 from admin.admin_tasks.models import NOTIFICATION_CHOICES, PRIORITY_CHOICES

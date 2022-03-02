@@ -4,21 +4,17 @@ from django.contrib.auth.views import (LogoutView, PasswordResetCompleteView,
                                        PasswordResetView)
 from django.urls import path
 
-from organization.models import Organization
-
 from . import views
 
 urlpatterns = [
     path(
         "",
-        views.AuthenticateView.as_view(
-            extra_context={"org": Organization.object.get()}
-        ),
+        views.AuthenticateView.as_view(),
         name="login",
     ),
     path(
         "mfa/",
-        views.MFAView.as_view(extra_context={"org": Organization.object.get()}),
+        views.MFAView.as_view(),
         name="mfa",
     ),
     path("logout/", LogoutView.as_view(), name="logout"),
@@ -26,7 +22,6 @@ urlpatterns = [
         "password/reset_request/",
         PasswordResetView.as_view(
             template_name="password_reset.html",
-            extra_context={"org": Organization.object.get()},
         ),
         name="password-reset",
     ),
@@ -34,7 +29,6 @@ urlpatterns = [
         "password/reset_request/done/",
         PasswordResetDoneView.as_view(
             template_name="password_reset_done.html",
-            extra_context={"org": Organization.object.get()},
         ),
         name="password_reset_done",
     ),
@@ -42,7 +36,6 @@ urlpatterns = [
         "password/reset_change/<uidb64>/<token>/",
         PasswordResetConfirmView.as_view(
             template_name="password_change.html",
-            extra_context={"org": Organization.object.get()},
         ),
         name="password_reset_confirm",
     ),
@@ -50,7 +43,6 @@ urlpatterns = [
         "password/reset_change/done/",
         PasswordResetCompleteView.as_view(
             template_name="password_change_done.html",
-            extra_context={"org": Organization.object.get()},
         ),
         name="password_reset_done",
     ),

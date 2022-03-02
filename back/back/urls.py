@@ -1,3 +1,5 @@
+import sys
+
 from django.conf import settings
 from django.urls import include, path
 from django.views.generic.base import TemplateView
@@ -7,7 +9,6 @@ from admin.appointments import urls as appointment_urls
 from admin.badges import urls as badge_urls
 from admin.integrations import urls as integrations_urls
 from admin.introductions import urls as intro_urls
-from admin.notes import urls as note_urls
 from admin.people import urls as people_urls
 from admin.preboarding import urls as preboarding_urls
 from admin.resources import urls as resource_urls
@@ -47,7 +48,7 @@ urlpatterns = [
 ]
 
 # DJANGO DEBUG BAR
-if settings.DEBUG:
+if settings.DEBUG and not 'pytest' in sys.modules:
     urlpatterns += [
         path("__debug__/", include("debug_toolbar.urls")),
     ]
