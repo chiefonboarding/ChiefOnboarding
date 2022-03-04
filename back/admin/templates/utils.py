@@ -28,8 +28,6 @@ MODELS = [
         "form": PreboardingForm,
     },
     {"app": "badges", "model": "Badge", "user_field": "badges", "form": BadgeForm},
-    {"app": "sequences", "model": "Sequence", "user_field": "conditions"},
-    # { 'app': 'integrations', 'model': 'Badge', 'user_field': 'badges'},
 ]
 
 

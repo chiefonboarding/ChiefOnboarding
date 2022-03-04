@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.utils.translation import gettext as _
 from django.views.generic import View
+
 from users.mixins import LoginRequiredMixin
 
 from .models import AccessToken
@@ -17,9 +18,7 @@ class SlackOAuthView(LoginRequiredMixin, View):
         if "code" not in request.GET:
             messages.error(
                 request,
-                _(
-                    "Could not optain slack authentication code."
-                ),
+                _("Could not optain slack authentication code."),
             )
             return redirect("settings:integrations")
         code = request.GET["code"]

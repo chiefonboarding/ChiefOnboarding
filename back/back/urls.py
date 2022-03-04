@@ -48,7 +48,7 @@ urlpatterns = [
 ]
 
 # DJANGO DEBUG BAR
-if settings.DEBUG and not 'pytest' in sys.modules:
+if settings.DEBUG and not "pytest" in sys.modules:
     urlpatterns += [
         path("__debug__/", include("debug_toolbar.urls")),
     ]

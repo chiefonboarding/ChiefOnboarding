@@ -12,6 +12,7 @@ from admin.admin_tasks.models import AdminTask
 from admin.integrations.models import AccessToken
 from admin.resources.models import Category, Chapter
 from admin.sequences.models import Sequence
+
 # from fuzzywuzzy import process
 from organization.models import Organization
 from users.models import NewHireWelcomeMessage, ResourceUser, ToDoUser, User

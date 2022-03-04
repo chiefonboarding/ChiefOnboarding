@@ -12,6 +12,7 @@ def parse_to_json(content):
     except:
         return content
 
+
 @register.filter(name="next_still_form")
 def next_still_form(content, current_index):
     """
@@ -19,6 +20,6 @@ def next_still_form(content, current_index):
     Returns False if it's at the end of the list.
     """
     try:
-        return content['blocks'][int(current_index) + 1]['type'] == 'form'
+        return content["blocks"][int(current_index) + 1]["type"] == "form"
     except:
         return False

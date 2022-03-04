@@ -12,20 +12,25 @@ from django.utils import translation
 from django.utils.translation import gettext as _
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
-from django.views.generic.edit import (CreateView, DeleteView, FormView,
-                                       UpdateView)
+from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
 from django.views.generic.list import ListView
 
-from admin.integrations.models import (INTEGRATION_OPTIONS,
-                                       INTEGRATION_OPTIONS_URLS, AccessToken)
-from organization.models import (Changelog, Notification, Organization,
-                                 WelcomeMessage)
+from admin.integrations.models import (
+    INTEGRATION_OPTIONS,
+    INTEGRATION_OPTIONS_URLS,
+    AccessToken,
+)
+from organization.models import Changelog, Notification, Organization, WelcomeMessage
 from slack_bot.models import SlackChannel
 from users.mixins import AdminPermMixin, LoginRequiredMixin
 
-from .forms import (AdministratorsCreateForm, AdministratorsUpdateForm,
-                    OrganizationGeneralForm, OTPVerificationForm,
-                    WelcomeMessagesUpdateForm)
+from .forms import (
+    AdministratorsCreateForm,
+    AdministratorsUpdateForm,
+    OrganizationGeneralForm,
+    OTPVerificationForm,
+    WelcomeMessagesUpdateForm,
+)
 
 
 class OrganizationGeneralUpdateView(

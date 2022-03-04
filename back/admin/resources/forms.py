@@ -3,9 +3,12 @@ from crispy_forms.layout import HTML, Div, Field, Layout
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from admin.templates.forms import (FieldWithExtraContext,
-                                   ModelChoiceFieldWithCreate,
-                                   MultiSelectField, TagModelForm)
+from admin.templates.forms import (
+    FieldWithExtraContext,
+    ModelChoiceFieldWithCreate,
+    MultiSelectField,
+    TagModelForm,
+)
 
 from .models import Category, Resource
 from .serializers import ChapterSerializer

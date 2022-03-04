@@ -10,7 +10,11 @@ from .models import Appointment
 
 class AppointmentForm(TagModelForm):
     content = WYSIWYGField()
-    date = forms.DateField(label=_("Date"), required=True, widget=forms.DateInput(attrs={"type": "date"}, format=('%Y-%m-%d')))
+    date = forms.DateField(
+        label=_("Date"),
+        required=True,
+        widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

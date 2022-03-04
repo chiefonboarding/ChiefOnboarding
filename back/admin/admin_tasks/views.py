@@ -9,8 +9,7 @@ from django_q.tasks import async_task
 
 from users.mixins import LoginRequiredMixin, ManagerPermMixin
 
-from .forms import (AdminTaskCommentForm, AdminTaskCreateForm,
-                    AdminTaskUpdateForm)
+from .forms import AdminTaskCommentForm, AdminTaskCreateForm, AdminTaskUpdateForm
 from .models import AdminTask, AdminTaskComment
 
 

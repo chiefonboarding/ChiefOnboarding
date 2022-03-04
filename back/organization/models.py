@@ -199,8 +199,8 @@ class BaseItem(models.Model):
     @property
     def form_items(self):
         blocks = []
-        for block in self.content['blocks']:
-            if block['type'] in ['form']:
+        for block in self.content["blocks"]:
+            if block["type"] in ["form"]:
                 blocks.append(block)
         return blocks
 
@@ -228,7 +228,7 @@ class BaseItem(models.Model):
         for r in replacements:
             text = text.replace(*r)
             parser = URLParser()
-            parser.feed(content)
+            parser.feed(text)
             for link in parser.get_links():
                 text = text.replace(
                     link["original_tag"] + link["text"] + "</a>",

@@ -3,7 +3,9 @@
 from django.db import migrations
 
 from misc.migration_scripts.content_migrations import (
-    RunPythonWithArguments, migrate_forms_to_wysiwyg)
+    RunPythonWithArguments,
+    migrate_forms_to_wysiwyg,
+)
 
 
 class Migration(migrations.Migration):

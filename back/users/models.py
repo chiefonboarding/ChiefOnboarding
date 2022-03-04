@@ -1,5 +1,5 @@
 import uuid
-from datetime import timedelta, datetime, date
+from datetime import date, datetime, timedelta
 
 import pyotp
 import pytz
@@ -376,13 +376,14 @@ class ToDoUser(models.Model):
     @cached_property
     def completed_form_items(self):
         completed_blocks = []
-        for block in self.to_do.content['blocks']:
-            if block['type'] in ['form']:
-                item = next((x for x in self.to_do.form_items if x["id"] == block['id']), None)
+        for block in self.to_do.content["blocks"]:
+            if block["type"] in ["form"]:
+                item = next(
+                    (x for x in self.to_do.form_items if x["id"] == block["id"]), None
+                )
                 if item is not None:
                     completed_blocks.append(item["id"])
         return completed_blocks
-
 
     def mark_completed(self):
         self.completed = True

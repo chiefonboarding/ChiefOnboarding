@@ -10,14 +10,12 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
 from admin.integrations.models import AccessToken
-from admin.templates.utils import (get_model_form, get_templates_model,
-                                   get_user_field)
+from admin.templates.utils import get_model_form, get_templates_model, get_user_field
 from admin.to_do.models import ToDo
 from users.mixins import AdminPermMixin, LoginRequiredMixin
 
 from .emails import send_sequence_message
-from .forms import (ConditionCreateForm, ConditionToDoUpdateForm,
-                    ConditionUpdateForm)
+from .forms import ConditionCreateForm, ConditionToDoUpdateForm, ConditionUpdateForm
 from .models import Condition, ExternalMessage, PendingAdminTask, Sequence
 
 
@@ -293,7 +291,7 @@ class SequenceDefaultTemplatesView(LoginRequiredMixin, AdminPermMixin, ListView)
     def get_queryset(self):
         template_type = self.request.GET.get("type", "")
         if template_type == "account_provision":
-            return AccessToken.objects.filter(active=True)
+            return AccessToken.objects.account_provision_options()
 
         if get_templates_model(template_type) is None:
             # if type does not exist, then return None

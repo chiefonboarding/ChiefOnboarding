@@ -11,8 +11,7 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import (CreateView, DeleteView, FormView,
-                                       UpdateView)
+from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
 from django.views.generic.list import ListView
 from django_q.tasks import async_task
 from twilio.rest import Client
@@ -26,16 +25,31 @@ from admin.templates.utils import get_templates_model, get_user_field
 from organization.models import Notification, Organization, WelcomeMessage
 from slack_bot.slack import Slack
 from slack_bot.tasks import link_slack_users
-from users.emails import (email_new_admin_cred, email_reopen_task,
-                          send_new_hire_credentials, send_new_hire_preboarding,
-                          send_reminder_email)
+from users.emails import (
+    email_new_admin_cred,
+    email_reopen_task,
+    send_new_hire_credentials,
+    send_new_hire_preboarding,
+    send_reminder_email,
+)
 from users.mixins import AdminPermMixin, LoginRequiredMixin
-from users.models import (NewHireWelcomeMessage, PreboardingUser, ResourceUser,
-                          ToDoUser, User)
+from users.models import (
+    NewHireWelcomeMessage,
+    PreboardingUser,
+    ResourceUser,
+    ToDoUser,
+    User,
+)
 
-from .forms import (ColleagueCreateForm, ColleagueUpdateForm, NewHireAddForm,
-                    NewHireProfileForm, PreboardingSendForm, RemindMessageForm,
-                    SequenceChoiceForm)
+from .forms import (
+    ColleagueCreateForm,
+    ColleagueUpdateForm,
+    NewHireAddForm,
+    NewHireProfileForm,
+    PreboardingSendForm,
+    RemindMessageForm,
+    SequenceChoiceForm,
+)
 
 
 class NewHireListView(LoginRequiredMixin, AdminPermMixin, ListView):

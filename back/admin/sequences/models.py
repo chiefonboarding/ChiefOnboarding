@@ -217,7 +217,7 @@ class ExternalMessage(models.Model):
             return new_hire.manager
         elif self.person_type == 2:
             return new_hire.buddy
-        elif self.person_type == 3:
+        else:
             return self.send_to
 
     def execute(self, user):
@@ -232,9 +232,9 @@ class ExternalMessage(models.Model):
             s = Slack()
             s.set_user(self.get_user(user))
             blocks = []
-            # TODO: Needs to be rewritten based on new comment system
-            for j in self.content_json.all():
-                blocks.append(j.to_slack_block(user))
+            # We don't have the model function on this model, so let's get it from a
+            # different model. A bit hacky, but should be okay.
+            blocks = ToDo(content=self.content_json).to_slack_block(user)
             s.send_message(blocks=blocks)
         else:  # text message
             phone_number = self.get_user(user).phone
@@ -260,6 +260,39 @@ class ExternalMessage(models.Model):
         )
 
     objects = ExternalMessageManager()
+
+
+class PendingEmailMessage(ExternalMessage):
+    # Email message model proxied from ExternalMessage
+
+    def save(self, *args, **kwargs):
+        self.send_via = 0
+        return super(PendingEmailMessage, self).save(*args, **kwargs)
+
+    class Meta:
+        proxy = True
+
+
+class PendingSlackMessage(ExternalMessage):
+    # Slack message model proxied from ExternalMessage
+
+    def save(self, *args, **kwargs):
+        self.send_via = 1
+        return super(PendingSlackMessage, self).save(*args, **kwargs)
+
+    class Meta:
+        proxy = True
+
+
+class PendingTextMessage(ExternalMessage):
+    # Text message model proxied from ExternalMessage
+
+    def save(self, *args, **kwargs):
+        self.send_via = 2
+        return super(PendingTextMessage, self).save(*args, **kwargs)
+
+    class Meta:
+        proxy = True
 
 
 class PendingAdminTask(models.Model):
@@ -428,7 +461,8 @@ class Condition(models.Model):
                     dup = old.duplicate()
                     self.__getattribute__(field.name).add(dup)
 
-                # Only using set() for template items. The other ones need to be duplicated as they are unique to the condition
+                # Only using set() for template items. The other ones need to be
+                # duplicated as they are unique to the condition
                 old_templates = old_condition.__getattribute__(field.name).filter(
                     template=True
                 )

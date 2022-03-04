@@ -4,11 +4,15 @@ from crispy_forms.layout import Div, Field, Layout, Submit
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from admin.sequences.models import Sequence
-from admin.templates.forms import (ModelChoiceFieldWithCreate,
-                                   MultiSelectField, UploadField)
+from admin.templates.forms import (
+    ModelChoiceFieldWithCreate,
+    MultiSelectField,
+    UploadField,
+)
 from users.models import Department
 
 
@@ -22,7 +26,11 @@ class NewHireAddForm(forms.ModelForm):
     timezone = forms.ChoiceField(
         label=_("Timezone"), choices=[(x, x) for x in pytz.common_timezones]
     )
-    start_day = forms.DateField(label=_("Start date"), required=True)
+    start_day = forms.DateField(
+        label=_("Start date"),
+        required=True,
+        widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
+    )
 
     def __init__(self, *args, **kwargs):
         from organization.models import Organization
@@ -32,6 +40,7 @@ class NewHireAddForm(forms.ModelForm):
         self.fields["manager"].required = False
         self.fields["language"].initial = Organization.objects.get().language
         self.fields["timezone"].initial = Organization.objects.get().timezone
+        self.fields["start_day"].initial = timezone.now().date()
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
@@ -87,7 +96,11 @@ class NewHireProfileForm(forms.ModelForm):
     timezone = forms.ChoiceField(
         label=_("Timezone"), choices=[(x, x) for x in pytz.common_timezones]
     )
-    start_day = forms.DateField(label=_("Start date"), required=True, widget=forms.DateInput(attrs={"type": "date"}, format=('%Y-%m-%d')))
+    start_day = forms.DateField(
+        label=_("Start date"),
+        required=True,
+        widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

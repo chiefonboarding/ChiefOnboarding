@@ -227,7 +227,10 @@ def test_authed_view(url, client, new_hire_factory):
     else:
         response = client.get("/" + url, follow=True)
 
-    assert "Log in" in response.content.decode() or "Authentication credentials were not provided." in response.content.decode()
+    assert (
+        "Log in" in response.content.decode()
+        or "Authentication credentials were not provided." in response.content.decode()
+    )
 
     # Make sure the url also has MFA enabled
     url = reverse("login")

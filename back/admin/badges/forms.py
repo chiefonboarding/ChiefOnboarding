@@ -3,8 +3,12 @@ from crispy_forms.layout import Div, Field, Layout
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from admin.templates.forms import (MultiSelectField, TagModelForm, UploadField,
-                                   WYSIWYGField)
+from admin.templates.forms import (
+    MultiSelectField,
+    TagModelForm,
+    UploadField,
+    WYSIWYGField,
+)
 
 from .models import Badge
 

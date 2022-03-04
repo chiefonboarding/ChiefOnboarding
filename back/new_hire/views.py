@@ -3,9 +3,13 @@ from datetime import datetime, timedelta
 from axes.decorators import axes_dispatch
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login, signals
-from django.contrib.postgres.search import (SearchHeadline, SearchQuery,
-                                            SearchRank, SearchVector,
-                                            TrigramSimilarity)
+from django.contrib.postgres.search import (
+    SearchHeadline,
+    SearchQuery,
+    SearchRank,
+    SearchVector,
+    TrigramSimilarity,
+)
 from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -22,8 +26,13 @@ from django.views.generic.list import ListView
 from admin.resources.models import Chapter, CourseAnswer, Resource
 from organization.models import Notification
 from users.mixins import LoginRequiredMixin
-from users.models import (NewHireWelcomeMessage, PreboardingUser, ResourceUser,
-                          ToDoUser, User)
+from users.models import (
+    NewHireWelcomeMessage,
+    PreboardingUser,
+    ResourceUser,
+    ToDoUser,
+    User,
+)
 
 from .forms import QuestionsForm
 
@@ -298,27 +307,23 @@ class ToDoCompleteView(LoginRequiredMixin, RedirectView):
 
 class ToDoFormSubmitView(LoginRequiredMixin, View):
     def post(self, request, pk, *args, **kwargs):
-        to_do_user = get_object_or_404(
-            ToDoUser, pk=pk, user=self.request.user
-        )
+        to_do_user = get_object_or_404(ToDoUser, pk=pk, user=self.request.user)
         answers = to_do_user.form
         for key, value in request.POST.items():
             # check if item is valid
-            item = next((x for x in to_do_user.to_do.form_items if x["id"] == key), None)
+            item = next(
+                (x for x in to_do_user.to_do.form_items if x["id"] == key), None
+            )
             if item is not None:
-                item['answer'] = value
+                item["answer"] = value
                 answers.append(item)
             else:
-                return HttpResponse(
-                    "This form could not be processed - invalid items"
-                )
+                return HttpResponse("This form could not be processed - invalid items")
 
         to_do_user.form = answers
         to_do_user.save()
 
-        return HttpResponse(
-            "You have submitted this form successfully"
-        )
+        return HttpResponse("You have submitted this form successfully")
 
 
 class CourseNextStepView(LoginRequiredMixin, View):
