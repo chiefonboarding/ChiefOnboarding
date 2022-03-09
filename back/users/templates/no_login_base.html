@@ -9,6 +9,21 @@
     <!-- CSS files -->
     <link rel="icon" type="image/x-icon" href="{% static 'favicon.png' %}">
     <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+    <style>
+      .btn-primary, .btn-outline-primary, .btn-ghost-primary, .btn-primary:hover, .btn-outline-primary:hover, .btn-ghost-primary:hover {
+        --tblr-btn-color: {{ org.base_color_rgb }};
+        --tblr-btn-color-darker: {{ org.base_color_rgb }};
+      }
+      a, a:hover, a:focus {
+        color: rgb({{ org.base_color_rgb }})
+      }
+      .form-control:focus {
+        color: inherit;
+        background-color: #ffffff;
+        border-color: rgb({{ org.base_color_rgb }});
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba({{ org.base_color_rgb }}, 0.25); }
+    </style>
   </head>
   <body class="antialiased border-top-wide border-primary d-flex flex-column">
     <div class="page page-center">

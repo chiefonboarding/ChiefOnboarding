@@ -9,17 +9,43 @@
     <link rel="icon" type="image/x-icon" href="{% static 'favicon.png' %}">
     <!-- CSS files -->
     <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+    <style>
+      .btn-primary, .btn-outline-primary, .btn-ghost-primary, .btn-primary:hover, .btn-outline-primary:hover, .btn-ghost-primary:hover {
+        --tblr-btn-color: {{ org.base_color_rgb }};
+        --tblr-btn-color-darker: {{ org.base_color_rgb }};
+      }
+      a, a:hover, a:focus {
+        color: rgb({{ org.base_color_rgb }})
+      }
+      .form-control:focus {
+        color: inherit;
+        background-color: #ffffff;
+        border-color: rgb({{ org.base_color_rgb }});
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba({{ org.base_color_rgb }}, 0.25);
+      }
+      .page-item.active .page-link {
+        background-color: rgb({{ org.base_color_rgb }});
+        border-color: rgb({{ org.base_color_rgb }});
+      }
+      .page-link:hover {
+        color: rgb({{ org.base_color_rgb }});
+      }
+      .form-check-input:checked, .bg-primary  {
+        background-color: rgb({{ org.base_color_rgb }}) !important;
+      }
+    </style>
   </head>
   <body class="">
     <div class="wrapper">
-      <header class="navbar navbar-expand-md navbar-dark navbar-overlap d-print-none" style="background-color: {{ request.user.org.base_color }}">
+      <header class="navbar navbar-expand-md navbar-dark navbar-overlap d-print-none" style="background-color: {{ org.base_color }}">
         <div class="container-xl">
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
             <span class="navbar-toggler-icon"></span>
           </button>
           <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
             <a href=".">
-              <img src="{{ request.user.org.get_logo_url }}" class="navbar-brand-image" width="110" height="32">
+              <img src="{{ org.get_logo_url }}" class="navbar-brand-image" width="110" height="32">
             </a>
           </h1>
           <div class="navbar-nav flex-row order-md-last">

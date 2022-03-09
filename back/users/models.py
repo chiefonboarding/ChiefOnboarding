@@ -356,10 +356,6 @@ class User(AbstractBaseUser):
                 return self.seen_updates < last_changelog_item.added
         return False
 
-    @cached_property
-    def org(self):
-        return Organization.object.get()
-
     def __str__(self):
         return "%s" % self.full_name
 
