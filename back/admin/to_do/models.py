@@ -10,7 +10,6 @@ from organization.models import BaseItem
 class ToDo(BaseItem):
     content = ContentJSONField(default=dict, verbose_name=_("Content"))
     due_on_day = models.IntegerField(verbose_name=_("Due on day"), default=0)
-    form = models.JSONField(default=list)
     # Chat bot specific actions
     send_back = models.BooleanField(
         verbose_name=_(

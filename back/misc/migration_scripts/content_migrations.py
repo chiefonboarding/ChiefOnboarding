@@ -157,7 +157,7 @@ def migrate_forms_to_wysiwyg(apps, schema_context, **context):
                             "type": "form",
                             "data": {
                                 "type": form_item["type"],
-                                "text": sub_item["text"],
+                                "text": sub_item["name"],
                             },
                         }
                     )

@@ -9,7 +9,6 @@ from organization.models import BaseItem
 
 class Preboarding(BaseItem):
     content = ContentJSONField(verbose_name=_("Content"), default=dict)
-    form = models.JSONField(null=True, blank=True)
     picture = models.FileField(null=True)
 
     def __str__(self):
