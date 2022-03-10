@@ -61,11 +61,10 @@ document.addEventListener("drop", function( event ) {
     const conditionID = droppedPlace.dataset.id
 
     $(".card").css("background-color", "white")
-    if (templateId !== '0') {
+    if (templateId !== '0' && type !== 'accountprovision') {
       htmx.ajax('POST', `/sequences/condition/${conditionID}/${type}/${templateId}/`, `#condition-${conditionID}`)
     } else {
-
-      changeTemplate(0, conditionID, type)
+      changeTemplate(parseInt(templateId), conditionID, type)
       $('#modal-template-edit').modal('show')
     }
   }

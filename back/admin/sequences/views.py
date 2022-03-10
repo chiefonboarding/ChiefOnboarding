@@ -10,13 +10,12 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
 from admin.integrations.models import AccessToken
-from admin.templates.utils import get_model_form, get_templates_model, get_user_field
+from admin.sequences.utils import get_model_form, get_templates_model
 from admin.to_do.models import ToDo
 from users.mixins import AdminPermMixin, LoginRequiredMixin
 
-from .emails import send_sequence_message
-from .forms import ConditionCreateForm, ConditionToDoUpdateForm, ConditionUpdateForm
-from .models import Condition, ExternalMessage, PendingAdminTask, Sequence
+from .forms import ConditionCreateForm, ConditionToDoUpdateForm, ConditionUpdateForm, AccountProvisionForm, PendingTextMessageForm, PendingSlackMessageForm, PendingEmailMessageForm
+from .models import Condition, Sequence, ExternalMessage, AccountProvision
 
 
 class SequenceListView(LoginRequiredMixin, AdminPermMixin, ListView):
@@ -158,6 +157,12 @@ class SequenceFormView(LoginRequiredMixin, AdminPermMixin, View):
     def get(self, request, template_type, template_pk, *args, **kwargs):
 
         form = get_model_form(template_type)
+        if form == AccountProvisionForm:
+            form = AccessToken.objects.get(pk=template_pk).add_user_form_class()
+            return render(
+                request, "_item_form.html", {"form": form()}
+            )
+
         if form is None:
             raise Http404
 
@@ -173,7 +178,7 @@ class SequenceFormView(LoginRequiredMixin, AdminPermMixin, View):
 
 class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
     """
-    This will update a specific line item (template or not) in a condition item
+    This will update or create a specific line item (template or not) in a condition item (excl. Account provision)
     """
 
     def post(self, request, template_type, template_pk, condition, *args, **kwargs):
@@ -205,8 +210,13 @@ class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
             # If it hasn't created a new object, then the old one is good enough.
             if obj.id != template_pk:
                 condition = get_object_or_404(Condition, id=condition)
+
+                # This can probably be cleaned up, we can't use proxy object. We need the base one
+                if form in [PendingEmailMessageForm, PendingSlackMessageForm, PendingTextMessageForm]:
+                    obj = ExternalMessage.objects.get(id=obj.id)
+
                 condition.add_item(obj)
-                # Delete the item that was added, if there is one
+                # Delete the old item, if there is one
                 if template_item is not None:
                     condition.remove_item(template_item)
 
@@ -216,6 +226,37 @@ class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
 
         # Succesfully created/updated item, request sequence reload
         return HttpResponse(headers={"HX-Trigger": "reload-sequence"})
+
+
+class SequenceFormUpdateAccountProvisionView(LoginRequiredMixin, AdminPermMixin, View):
+    """
+    This will update or create an account provision object
+    """
+
+    def post(self, request, template_type, template_pk, condition, *args, **kwargs):
+
+        condition = get_object_or_404(Condition, id=condition)
+        access_token = get_object_or_404(AccessToken, id=template_pk)
+        form_class = access_token.add_user_form_class()
+
+        existing_item = condition.account_provisions.filter(integration_type=access_token.account_provision_name).first()
+        item_form = form_class(request.POST)
+
+        if not item_form.is_valid():
+            # Form is not valid, push back form with errors
+            return render(request, "_item_form.html", {"form": item_form})
+
+        if existing_item is None:
+            account_provision = AccountProvision.objects.create(integration_type=access_token.account_provision_name, additional_data=item_form.cleaned_data)
+            condition.add_item(account_provision)
+            # Succesfully created/updated item, request sequence reload
+            return HttpResponse(headers={"HX-Trigger": "reload-sequence"})
+        else:
+            existing_item.additional_data = item_form.cleaned_data
+            existing_item.save()
+
+        # Succesfully created/updated item, request sequence reload
+        return HttpResponse()
 
 
 class SequenceConditionItemView(LoginRequiredMixin, AdminPermMixin, View):
@@ -290,7 +331,7 @@ class SequenceDefaultTemplatesView(LoginRequiredMixin, AdminPermMixin, ListView)
 
     def get_queryset(self):
         template_type = self.request.GET.get("type", "")
-        if template_type == "account_provision":
+        if template_type == "accountprovision":
             return AccessToken.objects.account_provision_options()
 
         if get_templates_model(template_type) is None:
@@ -304,33 +345,3 @@ class SequenceDefaultTemplatesView(LoginRequiredMixin, AdminPermMixin, ListView)
         context = super().get_context_data(**kwargs)
         context["active"] = self.request.GET.get("type", "")
         return context
-
-
-# class SendTestMessage(APIView):
-#     def post(self, request, id):
-#         ext_message = ExternalMessage.objects.select_related("send_to").prefetch_related("content_json").get(id=id)
-#         if ext_message.send_via == 0:  # email
-#             send_sequence_message(request.user, ext_message.email_message(), ext_message.subject)
-#         elif ext_message.send_via == 1:  # slack
-#             # User is not connected to slack. Needs -> employees -> 'give access'
-#             if request.user.slack_channel_id == None:
-#                 return Response({"slack": "not exist"}, status=status.HTTP_400_BAD_REQUEST)
-#             s = Slack()
-#             s.set_user(request.user)
-#             blocks = []
-#             for j in ext_message.content_json.all():
-#                 blocks.append(j.to_slack_block(request.user))
-#             s.send_message(blocks=blocks)
-#         return Response()
-
-
-# class SaveAdminTask(APIView):
-#     def post(self, request):
-#         if "id" in request.data:
-#             pending_admin_task = PendingAdminTask.objects.select_related("assigned_to").get(id=request.data["id"])
-#             pending_task = PendingAdminTaskSerializer(pending_admin_task, data=request.data, partial=True)
-#         else:
-#             pending_task = PendingAdminTaskSerializer(data=request.data)
-#         pending_task.is_valid(raise_exception=True)
-#         pending_task.save()
-#         return Response(pending_task.data)

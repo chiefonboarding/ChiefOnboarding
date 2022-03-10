@@ -299,7 +299,7 @@ class ToDoCompleteView(LoginRequiredMixin, RedirectView):
 
         Notification.objects.create(
             notification_type="completed_todo",
-            extra_text=to_do_user.todo.name,
+            extra_text=to_do_user.to_do.name,
             created_by=self.request.user,
         )
         return super().get_redirect_url(*args, **kwargs)

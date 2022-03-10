@@ -80,6 +80,17 @@ class AccessToken(models.Model):
     def name(self):
         return self.get_integration_display()
 
+    @property
+    def account_provision_name(self):
+        # Used with sequences
+        if self.integration == 1:
+            return 'slack'
+        if self.integration == 3:
+            return 'google'
+        if self.integration == 4:
+            return 'asana'
+
+
     def api_class(self):
         from .asana import Asana
         from .google import Google
@@ -106,3 +117,5 @@ class AccessToken(models.Model):
         self.api_class().add_user(user, params)
 
     objects = AccessTokenManager()
+
+

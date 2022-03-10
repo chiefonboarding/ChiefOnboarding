@@ -2,15 +2,18 @@ from django.apps import apps
 
 from admin.badges.forms import BadgeForm
 from admin.templates.utils import MODELS
+from admin.sequences.forms import PendingAdminTaskForm, PendingSlackMessageForm, PendingTextMessageForm, PendingEmailMessageForm, AccountProvisionForm
 
-MODELS += [
-    {"app": "sequences", "model": "PendingTextMessage", "form": BadgeForm},
-    {"app": "sequences", "model": "PendingEmailMessage", "form": BadgeForm},
-    {"app": "sequences", "model": "PendingSlackMessage", "form": BadgeForm},
-    {"app": "sequences", "model": "PendingAdminTask", "form": BadgeForm},
-    {"app": "sequences", "model": "AccountProvision", "form": BadgeForm},
+# These are models specific to sequences. They don't have templates.
+SEQUENCE_MODELS = [
+    {"app": "sequences", "model": "PendingTextMessage", "form": PendingTextMessageForm},
+    {"app": "sequences", "model": "PendingEmailMessage", "form": PendingEmailMessageForm},
+    {"app": "sequences", "model": "PendingSlackMessage", "form": PendingSlackMessageForm},
+    {"app": "sequences", "model": "PendingAdminTask", "form": PendingAdminTaskForm},
+    {"app": "sequences", "model": "AccountProvision", "form": AccountProvisionForm},
 ]
 
+MODELS += SEQUENCE_MODELS
 
 def template_model_exists(template_slug):
     return any([x["model"].lower() == template_slug.lower() for x in MODELS])
@@ -18,6 +21,12 @@ def template_model_exists(template_slug):
 
 def get_templates_model(template_slug):
     if template_model_exists(template_slug):
+        # no_templates_models = next(
+        #     (x for x in SEQUENCE_MODELS if x["model"].lower() == template_slug.lower()), None
+        # )
+        # if no_templates_models is not None:
+        #     return None
+
         model_item = next(
             (x for x in MODELS if x["model"].lower() == template_slug.lower()), None
         )

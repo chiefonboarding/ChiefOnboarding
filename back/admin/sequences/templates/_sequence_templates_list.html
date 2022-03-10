@@ -20,19 +20,19 @@
   <button hx-get="{% url 'sequences:template_list' %}?type=preboarding" class="btn btn-{% if active == 'preboarding' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_preboarding_icon.html' %}
   </button>
-  <button hx-get="{% url 'sequences:template_list' %}?type=admintask" class="btn btn-{% if active == 'admintask' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+  <button hx-get="{% url 'sequences:template_list' %}?type=pendingadmintask" class="btn btn-{% if active == 'pendingadmintask' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_admin_task_icon.html' %}
   </button>
-  <button hx-get="{% url 'sequences:template_list' %}?type=slack" class="btn btn-{% if active == 'slack' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+  <button hx-get="{% url 'sequences:template_list' %}?type=pendingslackmessage" class="btn btn-{% if active == 'pendingslackmessage' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_slack_icon.html' %}
   </button>
-  <button hx-get="{% url 'sequences:template_list' %}?type=text" class="btn btn-{% if active == 'text' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+  <button hx-get="{% url 'sequences:template_list' %}?type=pendingtextmessage" class="btn btn-{% if active == 'pendingtextmessage' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_text_icon.html' %}
   </button>
-  <button hx-get="{% url 'sequences:template_list' %}?type=email" class="btn btn-{% if active == 'email' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+  <button hx-get="{% url 'sequences:template_list' %}?type=pendingemailmessage" class="btn btn-{% if active == 'pendingemailmessage' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_email_icon.html' %}
   </button>
-  <button hx-get="{% url 'sequences:template_list' %}?type=account_provision" class="btn btn-{% if active == 'account_provision' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+  <button hx-get="{% url 'sequences:template_list' %}?type=accountprovision" class="btn btn-{% if active == 'accountprovision' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_account_provision.html' %}
   </button>
   <div style="display: inline-flex;">
@@ -60,7 +60,7 @@
   </div>
 </div>
 {% endif %}
-{% if active != 'account_provision' %}
+{% if active != 'accountprovision' %}
 <div class="card-footer">
   <div>
     <div class="row" draggable="true" style="cursor:pointer" data-id="0" data-type="{{ active }}">

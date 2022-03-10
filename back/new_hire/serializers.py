@@ -7,7 +7,6 @@ from admin.resources.serializers import (
     ChapterSerializer,
     CourseAnswerSerializer,
     ResourceCourseSerializer,
-    ResourceSerializer,
 )
 from admin.to_do.models import ToDo
 from misc.fields import ContentField

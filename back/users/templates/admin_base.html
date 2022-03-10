@@ -316,10 +316,14 @@
         const forms = document.querySelectorAll('form')
         forms.forEach(function(form) {
 
-          if ('content' in form) {
+          if ('content' in form || 'content_json' in form) {
+            let formName = 'content'
+            if ('content_json' in form) {
+              formName = 'content_json'
+            }
             let content = JSON.parse(document.getElementById('content').textContent)
             content = JSON.parse(content)
-            form['content'].attributes.value.nodeValue = JSON.stringify(content)
+            form[formName].attributes.value.nodeValue = JSON.stringify(content)
 
             const editor = new EditorJS({
               minHeight: 30,
@@ -382,7 +386,7 @@
               },
               onChange: function (value) {
                 value.saver.save().then(function(data) {
-                  form['content'].attributes.value.nodeValue = JSON.stringify(data)
+                  form[formName].attributes.value.nodeValue = JSON.stringify(data)
                 })
               }
             });

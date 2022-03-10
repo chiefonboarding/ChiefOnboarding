@@ -151,7 +151,7 @@ class ExternalMessage(models.Model):
         blank=True,
     )
     person_type = models.IntegerField(
-        verbose_name=_("Person type"), choices=PEOPLE_CHOICES, default=1
+        verbose_name=_("For"), choices=PEOPLE_CHOICES, default=1
     )
 
     @property
@@ -307,7 +307,8 @@ class PendingAdminTask(models.Model):
         related_name="assigned_user",
     )
     option = models.CharField(
-        verbose_name=_("Option"), max_length=12500, choices=NOTIFICATION_CHOICES
+        verbose_name=_("Send email or text to extra user?"), max_length=12500,
+        choices=NOTIFICATION_CHOICES
     )
     slack_user = models.CharField(
         verbose_name=_("Slack option"), max_length=12500, default="", blank=True
@@ -366,6 +367,10 @@ class AccountProvision(models.Model):
     )
     integration_type = models.CharField(max_length=10, choices=INTEGRATION_OPTIONS)
     additional_data = models.JSONField(models.TextField(blank=True), default=dict)
+
+    @property
+    def name(self):
+        return self.get_integration_type_display()
 
     def duplicate(self):
         self.pk = None

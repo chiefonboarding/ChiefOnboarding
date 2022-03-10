@@ -29,7 +29,11 @@ def test_user_create(
     assert User.managers.count() == 1
 
     assert admin.is_admin_or_manager
+    assert admin.is_admin
     assert manager.is_admin_or_manager
+    assert not manager.is_admin
+    assert not new_hire.is_admin
+    assert not employee.is_admin
     assert not new_hire.is_admin_or_manager
     assert not employee.is_admin_or_manager
 

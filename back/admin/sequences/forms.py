@@ -4,10 +4,12 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from admin.templates.forms import MultiSelectField
+from admin.templates.forms import MultiSelectField, WYSIWYGField
 from admin.to_do.models import ToDo
+from users.models import User
 
-from .models import Condition
+from .models import Condition, PendingAdminTask, PendingSlackMessage, PendingEmailMessage, PendingTextMessage
+
 
 
 class ConditionCreateForm(forms.ModelForm):
@@ -120,3 +122,116 @@ class ConditionToDoUpdateForm(forms.ModelForm):
         fields = [
             "condition_to_do",
         ]
+
+
+class PendingAdminTaskForm(forms.ModelForm):
+    assigned_to = forms.ModelChoiceField(queryset=User.admins.all())
+    slack_user = forms.ModelChoiceField(
+        queryset=User.objects.exclude(slack_user_id=""), to_field_name="slack_user_id"
+    )
+    date = forms.DateField(
+        label=_("Due date"),
+        required=False,
+        widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["option"].initial = 0
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+
+    class Meta:
+        model = PendingAdminTask
+        fields = [
+            "name",
+            "assigned_to",
+            "date",
+            "priority",
+            "comment",
+            "option",
+            "slack_user",
+            "email",
+        ]
+
+class PendingSlackMessageForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+
+        # Check if send_to field should be hidden
+        hide_send_to = "d-none"
+        if self.instance is not None and self.instance.send_to == 3:
+            hide_send_to = ""
+
+        self.helper.layout = Layout(
+            Div(
+                Field("name"),
+                WYSIWYGField("content_json"),
+                Field("person_type"),
+                Div(
+                    Field("send_to"),
+                    css_class=hide_send_to,
+                ),
+            ),
+        )
+
+
+    class Meta:
+        model = PendingSlackMessage
+        fields = [
+            "name",
+            "content_json",
+            "person_type",
+            "send_to",
+        ]
+
+
+class PendingTextMessageForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+
+        # Check if send_to field should be hidden
+        hide_send_to = "d-none"
+        if self.instance is not None and self.instance.send_to == 3:
+            hide_send_to = ""
+
+        self.helper.layout = Layout(
+            Div(
+                Field("name"),
+                Field("content"),
+                Field("person_type"),
+                Div(
+                    Field("send_to"),
+                    css_class=hide_send_to,
+                ),
+            ),
+        )
+
+
+    class Meta:
+        model = PendingTextMessage
+        fields = [
+            "name",
+            "content",
+            "person_type",
+            "send_to",
+        ]
+
+
+class PendingEmailMessageForm(PendingSlackMessageForm):
+
+    class Meta:
+        model = PendingEmailMessage
+        fields = [
+            "name",
+            "content_json",
+            "person_type",
+            "send_to",
+        ]
+
+class AccountProvisionForm(forms.Form):
+    pass

@@ -107,7 +107,10 @@ function changeTemplate(item, condition, type) {
   setTimeout(function() {
     initWYSIWYGEditor()
     initSelectize("#form-modal-content")
-  }, 300)
+    // Specific for Pending admin task
+    $("#div_id_slack_user").addClass("d-none")
+    $("#div_id_email").addClass("d-none")
+  }, 400)
 
 }
 $("select#id_condition_type").on('change', function() {
@@ -148,6 +151,30 @@ $(document).on('change', "#id_send_back", function() {
     $(".slack_channel_dissapear").removeClass("d-none")
   } else {
     $(".slack_channel_dissapear").addClass("d-none")
+  }
+})
+
+// FOR PENDING ADMIN TASKS
+$(document).on('change', "select#id_option", function() {
+  // Change things to fill in when condition_type changes
+  if ($(this).val() == 0){
+    $("#div_id_slack_user").addClass("d-none")
+    $("#div_id_email").addClass("d-none")
+  } else if ($(this).val() == 2){
+    $("#div_id_slack_user").removeClass("d-none")
+    $("#div_id_email").addClass("d-none")
+  } else {
+    $("#div_id_slack_user").addClass("d-none")
+    $("#div_id_email").removeClass("d-none")
+  }
+})
+
+// FOR PENDING MESSAGES
+$(document).on('change', "select#id_person_type", function() {
+  if ($(this).val() == 3){
+    $("#div_id_send_to").parent().removeClass("d-none")
+  } else {
+    $("#div_id_send_to").parent().addClass("d-none")
   }
 })
 </script>

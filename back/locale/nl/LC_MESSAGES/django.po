@@ -68,7 +68,7 @@ msgstr "Normaal"
 
 #: admin/admin_tasks/models.py:11
 msgid "High"
-msgstr "Hoogj"
+msgstr "Hoog"
 
 #: admin/admin_tasks/models.py:13
 msgid "No"
@@ -442,7 +442,7 @@ msgstr ""
 
 #: admin/integrations/forms.py:15
 msgid "Teams you want to add this new hire to"
-msgstr "Teams die de medeweker toegang tot zou moeten hebben"
+msgstr "Teams waar de medeweker toegang tot zou moeten hebben"
 
 #: admin/integrations/models.py:10
 msgid "Slack bot"
@@ -1287,8 +1287,8 @@ msgid "Subject"
 msgstr "Onderwerp"
 
 #: admin/sequences/models.py:140
-msgid "Person type"
-msgstr "Type persoon"
+msgid "For"
+msgstr "Voor"
 
 #: admin/sequences/models.py:252
 msgid "Comment"
