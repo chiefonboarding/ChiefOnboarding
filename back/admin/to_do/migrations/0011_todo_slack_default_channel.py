@@ -32,6 +32,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ("slack_bot", "0001_initial"),
         ("to_do", "0010_alter_todo_content_json"),
+        ("organization", "0001_initial"),
     ]
 
     operations = [
