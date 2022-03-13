@@ -61,7 +61,6 @@ class SequenceView(LoginRequiredMixin, AdminPermMixin, DetailView):
         obj = self.get_object()
         context["conditions"] = (
             obj.conditions
-            .annotate(new_hire_item_count=Count("external_messages") + Count("to_do") +  Count("resources") + Count("introductions"))
             .prefetch_related(
                 Prefetch("introductions", queryset=Introduction.objects.all()),
                 Prefetch("to_do", queryset=ToDo.objects.all().defer("content")),
