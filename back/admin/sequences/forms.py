@@ -14,7 +14,7 @@ from .models import Condition, PendingAdminTask, PendingSlackMessage, PendingEma
 
 class ConditionCreateForm(forms.ModelForm):
     condition_to_do = forms.ModelMultipleChoiceField(
-        queryset=ToDo.templates.all(), to_field_name="id", required=False
+        queryset=ToDo.templates.all().defer("content"), to_field_name="id", required=False
     )
 
     def _get_save_button(self):

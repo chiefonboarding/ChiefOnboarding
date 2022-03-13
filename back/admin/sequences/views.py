@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.db.models import Prefetch, Count
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
@@ -12,10 +13,16 @@ from django.views.generic.list import ListView
 from admin.integrations.models import AccessToken
 from admin.sequences.utils import get_model_form, get_templates_model
 from admin.to_do.models import ToDo
+from admin.resources.models import Resource
+from admin.preboarding.models import Preboarding
+from admin.badges.models import Badge
+from admin.appointments.models import Appointment
+from admin.introductions.models import Introduction
 from users.mixins import AdminPermMixin, LoginRequiredMixin
 
 from .forms import ConditionCreateForm, ConditionToDoUpdateForm, ConditionUpdateForm, AccountProvisionForm, PendingTextMessageForm, PendingSlackMessageForm, PendingEmailMessageForm
-from .models import Condition, Sequence, ExternalMessage, AccountProvision
+from .models import Condition, Sequence, ExternalMessage, AccountProvision, PendingAdminTask
+
 
 
 class SequenceListView(LoginRequiredMixin, AdminPermMixin, ListView):
@@ -48,40 +55,25 @@ class SequenceView(LoginRequiredMixin, AdminPermMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["title"] = _("Sequence")
         context["subtitle"] = ""
-        context["object_list"] = ToDo.templates.all()
+        context["object_list"] = ToDo.templates.all().defer("content")
         context["condition_form"] = ConditionCreateForm()
-        context["todos"] = ToDo.templates.all()
+        context["todos"] = ToDo.templates.all().defer("content")
         obj = self.get_object()
-        context["conditions_unconditioned"] = obj.conditions.get(condition_type=3)
-        context["conditions_before_first_day"] = obj.conditions.filter(
-            condition_type=2
-        ).prefetch_related(
-            "introductions",
-            "to_do",
-            "resources",
-            "appointments",
-            "badges",
-            "external_messages",
-        )
-        context["conditions_after_first_day"] = obj.conditions.filter(
-            condition_type=0
-        ).prefetch_related(
-            "introductions",
-            "to_do",
-            "resources",
-            "appointments",
-            "badges",
-            "external_messages",
-        )
-        context["conditions_based_on_todo"] = obj.conditions.filter(
-            condition_type=1
-        ).prefetch_related(
-            "introductions",
-            "to_do",
-            "resources",
-            "appointments",
-            "badges",
-            "external_messages",
+        context["conditions"] = (
+            obj.conditions
+            .annotate(new_hire_item_count=Count("external_messages") + Count("to_do") +  Count("resources") + Count("introductions"))
+            .prefetch_related(
+                Prefetch("introductions", queryset=Introduction.objects.all()),
+                Prefetch("to_do", queryset=ToDo.objects.all().defer("content")),
+                Prefetch("resources", queryset=Resource.objects.all()),
+                Prefetch("appointments", queryset=Appointment.objects.all().defer("content")),
+                Prefetch("badges", queryset=Badge.objects.all().defer("content")),
+                Prefetch("external_messages", queryset=ExternalMessage.objects.for_new_hire().defer("content", "content_json"), to_attr='external_new_hire'),
+                Prefetch("external_messages", queryset=ExternalMessage.objects.for_admins().defer("content", "content_json"), to_attr='external_admin'),
+                Prefetch("condition_to_do", queryset=ToDo.objects.all().defer("content")),
+                Prefetch("admin_tasks", queryset=PendingAdminTask.objects.all()),
+                Prefetch("preboarding", queryset=Preboarding.objects.all().defer("content")),
+            )
         )
         return context
 

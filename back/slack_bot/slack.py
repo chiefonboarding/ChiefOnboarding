@@ -116,8 +116,8 @@ class Slack:
         if (channel == "" and self.channel == "") or self.user is None:
             return False
 
-        if channel is "":
-            if self.channel is "":
+        if channel == "":
+            if self.channel == "":
                 channel = self.user
             else:
                 channel = self.channel

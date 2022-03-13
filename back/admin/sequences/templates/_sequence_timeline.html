@@ -4,39 +4,50 @@
   <li>
     <div class="list-timeline-icon bg-twitter">
     </div>
-    <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{conditions_unconditioned.id}}">
-      {% include '_sequence_condition.html' with condition=conditions_unconditioned disable_delete=True %}
-    </div>
+    {% for condition in conditions %}
+      {% if condition.condition_type == 3 %}
+      <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
+        {% include '_sequence_condition.html' with condition=condition disable_delete=True %}
+      </div>
+      {% endif %}
+    {% endfor %}
   </li>
 
   {# only show if user has not started yet #}
-  {% for condition in conditions_before_first_day %}
-  <li>
-    <div class="list-timeline-icon">
-    </div>
-    <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
-      {% include '_sequence_condition.html' %}
-    </div>
-  </li>
+  {% for condition in conditions %}
+    {% if condition.condition_type == 2 %}
+      <li>
+        <div class="list-timeline-icon">
+        </div>
+        <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
+          {% include '_sequence_condition.html' %}
+        </div>
+      </li>
+    {% endif %}
   {% endfor %}
 
-  {% for condition in conditions_after_first_day %}
-  <li>
-    <div class="list-timeline-icon">
-    </div>
-    <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
-      {% include '_sequence_condition.html' %}
-    </div>
-  </li>
+  {% for condition in conditions %}
+    {% if condition.condition_type == 0 %}
+      <li>
+        <div class="list-timeline-icon">
+        </div>
+        <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
+          {% include '_sequence_condition.html' %}
+        </div>
+      </li>
+    {% endif %}
   {% endfor %}
-  {% for condition in conditions_based_on_todo %}
-  <li style="z-index:{{ 100|add:forloop.revcounter }}">
-    <div class="list-timeline-icon">
-    </div>
-    <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
-      {% include '_sequence_condition.html' %}
-    </div>
-  </li>
+
+  {% for condition in conditions %}
+    {% if condition.condition_type == 1 %}
+      <li style="z-index:{{ 100|add:forloop.revcounter }}">
+        <div class="list-timeline-icon">
+        </div>
+        <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
+          {% include '_sequence_condition.html' %}
+        </div>
+      </li>
+    {% endif %}
   {% endfor %}
 </ul>
 <script>

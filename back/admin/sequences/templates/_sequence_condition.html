@@ -51,7 +51,7 @@
   <div class="card-body">
 
     {# FOR NEW HIRES #}
-    {% if condition.external_messages.for_new_hire|length or condition.to_do.all|length or condition.resources.all|length or condition.introductions.all|length %}
+    {% if condition.external_new_hire.all|length or condition.to_do.all|length or condition.resources.all|length or condition.introductions.all|length %}
     <span class="badge bg-azure mb-2">{% translate "new hire" %}</span>
     {% endif %}
     {% for item in condition.preboarding.all %}
@@ -60,7 +60,7 @@
     {% for item in condition.appointments.all %}
       {% include '_condition_line_item.html' with type='appointment' %}
     {% endfor %}
-    {% for item in condition.external_messages.for_new_hire %}
+    {% for item in condition.external_new_hire.all %}
       {% include '_condition_line_item.html' with type='external_message' %}
     {% endfor %}
     {% for item in condition.to_do.all %}
@@ -77,13 +77,13 @@
     {% endfor %}
 
     {# FOR ADMINS #}
-    {% if condition.external_messages.for_admins|length or condition.admin_tasks.all|length %}
+    {% if condition.external_admin.all|length or condition.admin_tasks.all|length %}
     <span class="badge bg-orange mb-2">{% translate "admins" %}</span>
     {% endif %}
     {% for item in condition.admin_tasks.all %}
       {% include '_condition_line_item.html' with type='admintask' %}
     {% endfor %}
-    {% for item in condition.external_messages.for_admins %}
+    {% for item in condition.external_admin.all %}
       {% include '_condition_line_item.html' with type='external_message' %}
     {% endfor %}
   </div>
