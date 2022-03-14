@@ -60,8 +60,14 @@
     {% for item in condition.appointments.all %}
       {% include '_condition_line_item.html' with type='appointment' %}
     {% endfor %}
-    {% for item in condition.external_new_hire.all %}
-      {% include '_condition_line_item.html' with type='external_message' %}
+    {% for item in condition.external_new_hire %}
+      {% if item.send_via == 0 %}{# email #}
+        {% include '_condition_line_item.html' with type='pendingemailmessage' %}
+      {% elif item.send_via == 1 %}{# slack #}
+        {% include '_condition_line_item.html' with type='pendingslackmessage' %}
+      {% else %}
+        {% include '_condition_line_item.html' with type='pendingtextmessage' %}
+      {% endif %}
     {% endfor %}
     {% for item in condition.to_do.all %}
       {% include '_condition_line_item.html' with type='todo' %}
@@ -83,8 +89,14 @@
     {% for item in condition.admin_tasks.all %}
       {% include '_condition_line_item.html' with type='admintask' %}
     {% endfor %}
-    {% for item in condition.external_admin.all %}
-      {% include '_condition_line_item.html' with type='external_message' %}
+    {% for item in condition.external_admin %}
+      {% if item.send_via == 0 %}{# email #}
+        {% include '_condition_line_item.html' with type='pendingemailmessage' %}
+      {% elif item.send_via == 1 %}{# slack #}
+        {% include '_condition_line_item.html' with type='pendingslackmessage' %}
+      {% else %}
+        {% include '_condition_line_item.html' with type='pendingtextmessage' %}
+      {% endif %}
     {% endfor %}
   </div>
 </div>

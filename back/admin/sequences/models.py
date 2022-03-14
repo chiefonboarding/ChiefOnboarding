@@ -115,10 +115,10 @@ class Sequence(models.Model):
 
 class ExternalMessageManager(models.Manager):
     def for_new_hire(self):
-        return self.filter(person_type=0)
+        return self.get_queryset().filter(person_type=0)
 
     def for_admins(self):
-        return self.exclude(person_type=0)
+        return self.get_queryset().exclude(person_type=0)
 
 
 class ExternalMessage(models.Model):

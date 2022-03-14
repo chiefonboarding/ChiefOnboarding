@@ -11,7 +11,8 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
 from admin.integrations.models import AccessToken
-from admin.sequences.utils import get_model_form, get_templates_model
+from admin.sequences.utils import get_sequence_model_form, get_sequence_templates_model
+from admin.templates.utils import get_model_form, get_templates_model
 from admin.to_do.models import ToDo
 from admin.resources.models import Resource
 from admin.preboarding.models import Preboarding
@@ -136,10 +137,21 @@ class SequenceTimelineDetailView(LoginRequiredMixin, AdminPermMixin, DetailView)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         obj = self.get_object()
-        context["conditions_unconditioned"] = obj.conditions.get(condition_type=3)
-        context["conditions_before_first_day"] = obj.conditions.filter(condition_type=2)
-        context["conditions_after_first_day"] = obj.conditions.filter(condition_type=0)
-        context["conditions_based_on_todo"] = obj.conditions.filter(condition_type=1)
+        context["conditions"] = (
+            obj.conditions
+            .prefetch_related(
+                Prefetch("introductions", queryset=Introduction.objects.all()),
+                Prefetch("to_do", queryset=ToDo.objects.all().defer("content")),
+                Prefetch("resources", queryset=Resource.objects.all()),
+                Prefetch("appointments", queryset=Appointment.objects.all().defer("content")),
+                Prefetch("badges", queryset=Badge.objects.all().defer("content")),
+                Prefetch("external_messages", queryset=ExternalMessage.objects.for_new_hire().defer("content", "content_json"), to_attr='external_new_hire'),
+                Prefetch("external_messages", queryset=ExternalMessage.objects.for_admins().defer("content", "content_json"), to_attr='external_admin'),
+                Prefetch("condition_to_do", queryset=ToDo.objects.all().defer("content")),
+                Prefetch("admin_tasks", queryset=PendingAdminTask.objects.all()),
+                Prefetch("preboarding", queryset=Preboarding.objects.all().defer("content")),
+            )
+        )
         context["todos"] = ToDo.templates.all()
         return context
 
@@ -147,7 +159,7 @@ class SequenceTimelineDetailView(LoginRequiredMixin, AdminPermMixin, DetailView)
 class SequenceFormView(LoginRequiredMixin, AdminPermMixin, View):
     def get(self, request, template_type, template_pk, *args, **kwargs):
 
-        form = get_model_form(template_type)
+        form = get_sequence_model_form(template_type)
         if form == AccountProvisionForm:
             form = AccessToken.objects.get(pk=template_pk).add_user_form_class()
             return render(
@@ -159,7 +171,7 @@ class SequenceFormView(LoginRequiredMixin, AdminPermMixin, View):
 
         template_item = None
         if template_pk != 0:
-            templates_model = get_templates_model(template_type)
+            templates_model = get_sequence_templates_model(template_type)
             template_item = get_object_or_404(templates_model, id=template_pk)
 
         return render(
@@ -175,19 +187,19 @@ class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
     def post(self, request, template_type, template_pk, condition, *args, **kwargs):
 
         # Get form, if it doesn't exist, then 404
-        form = get_model_form(template_type)
+        form = get_sequence_model_form(template_type)
         if form is None:
             raise Http404
 
         # Get template item if id was not 0. 0 means that it doesn't exist
         template_item = None
         if template_pk != 0:
-            templates_model = get_templates_model(template_type)
+            templates_model = get_sequence_templates_model(template_type)
             template_item = get_object_or_404(templates_model, id=template_pk)
 
         # Push instance and data through form and save it
         # Check if original item was template or doesn't exist (is new), if so, then create new
-        if template_item is None or template_item.template:
+        if template_item is None or (hasattr(template_item, "template") and template_item.template):
             item_form = form(request.POST)
         else:
             item_form = form(instance=template_item, data=request.POST)
@@ -266,6 +278,20 @@ class SequenceConditionItemView(LoginRequiredMixin, AdminPermMixin, View):
         template_item = get_object_or_404(templates_model, id=template_pk)
         condition.add_item(template_item)
         todos = ToDo.templates.all()
+        condition = (
+            Condition.objects.filter(id=condition.id).prefetch_related(
+                Prefetch("introductions", queryset=Introduction.objects.all()),
+                Prefetch("to_do", queryset=ToDo.objects.all().defer("content")),
+                Prefetch("resources", queryset=Resource.objects.all()),
+                Prefetch("appointments", queryset=Appointment.objects.all().defer("content")),
+                Prefetch("badges", queryset=Badge.objects.all().defer("content")),
+                Prefetch("external_messages", queryset=ExternalMessage.objects.for_new_hire().defer("content", "content_json"), to_attr='external_new_hire'),
+                Prefetch("external_messages", queryset=ExternalMessage.objects.for_admins().defer("content", "content_json"), to_attr='external_admin'),
+                Prefetch("condition_to_do", queryset=ToDo.objects.all().defer("content")),
+                Prefetch("admin_tasks", queryset=PendingAdminTask.objects.all()),
+                Prefetch("preboarding", queryset=Preboarding.objects.all().defer("content")),
+            ).first()
+        )
         return render(
             request,
             "_sequence_condition.html",
@@ -326,7 +352,7 @@ class SequenceDefaultTemplatesView(LoginRequiredMixin, AdminPermMixin, ListView)
             return AccessToken.objects.account_provision_options()
 
         if get_templates_model(template_type) is None:
-            # if type does not exist, then return None
+            # if type does not exist, then return empty queryset
             return Sequence.objects.none()
 
         templates_model = get_templates_model(template_type)
