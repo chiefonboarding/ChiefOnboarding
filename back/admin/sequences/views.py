@@ -73,7 +73,8 @@ class SequenceView(LoginRequiredMixin, AdminPermMixin, DetailView):
                 Prefetch("condition_to_do", queryset=ToDo.objects.all().defer("content")),
                 Prefetch("admin_tasks", queryset=PendingAdminTask.objects.all()),
                 Prefetch("preboarding", queryset=Preboarding.objects.all().defer("content")),
-            )
+                Prefetch("account_provisions", queryset=AccountProvision.objects.all()),
+            ).order_by("id")
         )
         return context
 
@@ -150,21 +151,20 @@ class SequenceTimelineDetailView(LoginRequiredMixin, AdminPermMixin, DetailView)
                 Prefetch("condition_to_do", queryset=ToDo.objects.all().defer("content")),
                 Prefetch("admin_tasks", queryset=PendingAdminTask.objects.all()),
                 Prefetch("preboarding", queryset=Preboarding.objects.all().defer("content")),
-            )
+                Prefetch("account_provisions", queryset=AccountProvision.objects.all()),
+            ).order_by("id")
         )
         context["todos"] = ToDo.templates.all()
         return context
 
 
 class SequenceFormView(LoginRequiredMixin, AdminPermMixin, View):
+    """
+    Get item when clicking on a line in a condition, either empty or filled in form
+    """
     def get(self, request, template_type, template_pk, *args, **kwargs):
 
         form = get_sequence_model_form(template_type)
-        if form == AccountProvisionForm:
-            form = AccessToken.objects.get(pk=template_pk).add_user_form_class()
-            return render(
-                request, "_item_form.html", {"form": form()}
-            )
 
         if form is None:
             raise Http404
@@ -173,6 +173,12 @@ class SequenceFormView(LoginRequiredMixin, AdminPermMixin, View):
         if template_pk != 0:
             templates_model = get_sequence_templates_model(template_type)
             template_item = get_object_or_404(templates_model, id=template_pk)
+
+        if form == AccountProvisionForm:
+            form = template_item.access_token.add_user_form_class()
+            return render(
+                request, "_item_form.html", {"form": form(template_item.additional_data)}
+            )
 
         return render(
             request, "_item_form.html", {"form": form(instance=template_item)}
@@ -236,13 +242,17 @@ class SequenceFormUpdateAccountProvisionView(LoginRequiredMixin, AdminPermMixin,
     This will update or create an account provision object
     """
 
-    def post(self, request, template_type, template_pk, condition, *args, **kwargs):
+    def post(self, request, template_type, template_pk, condition, exists, *args, **kwargs):
 
         condition = get_object_or_404(Condition, id=condition)
-        access_token = get_object_or_404(AccessToken, id=template_pk)
-        form_class = access_token.add_user_form_class()
+        if exists == 0:
+            access_token = get_object_or_404(AccessToken, id=template_pk)
+            form_class = access_token.add_user_form_class()
+            existing_item = None
+        else:
+            existing_item = get_object_or_404(AccountProvision, id=template_pk)
+            form_class = existing_item.access_token.add_user_form_class()
 
-        existing_item = condition.account_provisions.filter(integration_type=access_token.account_provision_name).first()
         item_form = form_class(request.POST)
 
         if not item_form.is_valid():
@@ -252,14 +262,12 @@ class SequenceFormUpdateAccountProvisionView(LoginRequiredMixin, AdminPermMixin,
         if existing_item is None:
             account_provision = AccountProvision.objects.create(integration_type=access_token.account_provision_name, additional_data=item_form.cleaned_data)
             condition.add_item(account_provision)
-            # Succesfully created/updated item, request sequence reload
-            return HttpResponse(headers={"HX-Trigger": "reload-sequence"})
         else:
             existing_item.additional_data = item_form.cleaned_data
             existing_item.save()
 
-        # Succesfully created/updated item, request sequence reload
-        return HttpResponse()
+        # Succesfully created/updated item
+        return HttpResponse(headers={"HX-Trigger": "reload-sequence"})
 
 
 class SequenceConditionItemView(LoginRequiredMixin, AdminPermMixin, View):
@@ -267,7 +275,7 @@ class SequenceConditionItemView(LoginRequiredMixin, AdminPermMixin, View):
 
     def delete(self, request, pk, type, template_pk, *args, **kwargs):
         condition = get_object_or_404(Condition, id=pk)
-        templates_model = get_templates_model(type)
+        templates_model = get_sequence_templates_model(type)
         template_item = get_object_or_404(templates_model, id=template_pk)
         condition.remove_item(template_item)
         return HttpResponse()
@@ -290,6 +298,7 @@ class SequenceConditionItemView(LoginRequiredMixin, AdminPermMixin, View):
                 Prefetch("condition_to_do", queryset=ToDo.objects.all().defer("content")),
                 Prefetch("admin_tasks", queryset=PendingAdminTask.objects.all()),
                 Prefetch("preboarding", queryset=Preboarding.objects.all().defer("content")),
+                Prefetch("account_provisions", queryset=AccountProvision.objects.all()),
             ).first()
         )
         return render(

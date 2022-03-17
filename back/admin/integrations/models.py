@@ -107,9 +107,9 @@ class AccessToken(models.Model):
         from .forms import AddAsanaUserForm, AddGoogleUserForm, AddSlackUserForm
 
         if self.integration == 1:
-            return AddSlackUserForm()
+            return AddSlackUserForm
         if self.integration == 3:
-            return AddGoogleUserForm()
+            return AddGoogleUserForm
         if self.integration == 4:
             return AddAsanaUserForm
 

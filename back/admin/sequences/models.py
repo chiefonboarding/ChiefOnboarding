@@ -10,6 +10,7 @@ from admin.admin_tasks.models import NOTIFICATION_CHOICES, PRIORITY_CHOICES
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
 from admin.introductions.models import Introduction
+from admin.integrations.models import AccessToken
 from admin.preboarding.models import Preboarding
 from admin.resources.models import Resource
 from admin.to_do.models import ToDo
@@ -366,11 +367,24 @@ class AccountProvision(models.Model):
         ("slack", _("Create Slack account")),
     )
     integration_type = models.CharField(max_length=10, choices=INTEGRATION_OPTIONS)
-    additional_data = models.JSONField(models.TextField(blank=True), default=dict)
+    additional_data = models.JSONField(default=dict)
+
+    @property
+    def access_token(self):
+        if self.integration_type == "asana":
+            return AccessToken.objects.get(active=True, integration=4)
+        if self.integration_type == "google":
+            return AccessToken.objects.get(active=True, integration=2)
+        if self.integration_type == "slack":
+            return AccessToken.objects.get(active=True, integration=1)
 
     @property
     def name(self):
-        return self.get_integration_type_display()
+        return self.integration_type.capitalize()
+
+    @property
+    def get_icon_template(self):
+        return render_to_string("_account_provision.html")
 
     def duplicate(self):
         self.pk = None

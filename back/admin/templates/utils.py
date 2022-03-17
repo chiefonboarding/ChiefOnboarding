@@ -5,10 +5,11 @@ from admin.badges.forms import BadgeForm
 from admin.introductions.forms import IntroductionForm
 from admin.preboarding.forms import PreboardingForm
 from admin.to_do.forms import ToDoForm
+from admin.resources.forms import ResourceForm
 
 MODELS = [
     {"app": "to_do", "model": "ToDo", "user_field": "to_do", "form": ToDoForm},
-    {"app": "resources", "model": "Resource", "user_field": "resources"},
+    {"app": "resources", "model": "Resource", "user_field": "resources", "form": ResourceForm},
     {
         "app": "introductions",
         "model": "Introduction",

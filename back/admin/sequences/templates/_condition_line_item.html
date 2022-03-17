@@ -1,7 +1,7 @@
 <div class="row d-flex" style="margin-bottom: 2px">
   <div class="col-11">
 
-    <div class="text-muted" style="margin-bottom: 5px; {% if not read_only %}cursor:pointer{% endif %}" {% if not read_only %}onclick="changeTemplate({{item.id}}, {{condition.pk}}, '{{type}}')" data-bs-toggle="modal" data-bs-target="#modal-template-edit" {% endif %}>
+    <div class="text-muted" style="margin-bottom: 5px; {% if not read_only %}cursor:pointer{% endif %}" {% if not read_only %}onclick="changeTemplate({{item.id}}, {{condition.pk}}, '{{type}}', {{ provision_created }})" data-bs-toggle="modal" data-bs-target="#modal-template-edit" {% endif %}>
       {{ item.get_icon_template }}
       {{ item.name }}
     </div>

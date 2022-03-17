@@ -54,9 +54,11 @@ urlpatterns = [
         name="update-forms",
     ),
     path(
+        "update_account_provision/<slug:template_type>/<int:template_pk>/<int:condition>/<int:exists>/",
+        views.SequenceFormUpdateAccountProvisionView.as_view(),
+        name="update-account-provision",
+    ),
+    path(
         "templates/", views.SequenceDefaultTemplatesView.as_view(), name="template_list"
     ),
-    # path("external_messages", views.SaveExternalMessage.as_view()),
-    # path("send_test_message/<int:id>/", views.SendTestMessage.as_view()),
-    # path("sequence/admin_task/", views.SaveAdminTask.as_view()),
 ]

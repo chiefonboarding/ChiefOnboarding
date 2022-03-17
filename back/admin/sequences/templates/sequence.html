@@ -1,4 +1,5 @@
 {% extends 'admin_base.html' %}
+{% load static %}
 {% load i18n %}
 
 {% block actions %}
@@ -80,11 +81,11 @@
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">{% translate "Change item" %}</h5>
+        <h5 class="modal-title">{% translate "Item" %}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body" id="form-modal-content" hx-target="#form">
-        <form id="form-add-item">
+      <div class="modal-body" id="form-modal-content">
+        <form id="form-add-item" method="post" action=".">
           <div id="form">
             <div class="text-center">
               <div class="spinner-border" role="status"></div>
@@ -100,19 +101,51 @@
 {% endblock %}
 {% block extra_js %}
 <script>
-function changeTemplate(item, condition, type) {
-  document.getElementById("form-add-item").setAttribute("hx-post", `/sequences/update_item/${type}/${item}/${condition}/`)
-  htmx.ajax('GET', `/sequences/forms/${type}/${item}/`, `#form`)
-  htmx.process('#form-modal-content');
-  setTimeout(function() {
-    initWYSIWYGEditor()
+var type = '';
+var item = '';
+var condition = '';
+var provisionCreated = '';
+function changeTemplate(itemId, conditionId, typeId, provCreated=0) {
+  $("#form").html('<div class="text-center"><div class="spinner-border" role="status"></div></div>')
+  type = typeId
+  item = itemId
+  condition = conditionId
+  provisionCreated = provCreated
+  htmx.ajax('GET', `/sequences/forms/${typeId}/${itemId}/`, `#form`).then(() => {
+    if (type === 'resource') {
+      initResource()
+    } else {
+      initWYSIWYGEditor()
+    }
     initSelectize("#form-modal-content")
     // Specific for Pending admin task
     $("#div_id_slack_user").addClass("d-none")
     $("#div_id_email").addClass("d-none")
-  }, 400)
-
+  });
 }
+// credits: https://stackoverflow.com/a/11339012
+function getFormData($form){
+  var unindexed_array = $form.serializeArray();
+  var indexed_array = {};
+
+  $.map(unindexed_array, function(n, i){
+      indexed_array[n['name']] = n['value'];
+  });
+
+  return indexed_array;
+}
+
+// Normally we would use `hx-post`, but for whatever reason, it won't always update the url
+// So this is a temporary workaround for that.
+// Nothing is as permanent as a temporary workaround.
+$("#form-add-item").submit(function (event) {
+    event.preventDefault();
+    if (type === 'accountprovision') {
+      htmx.ajax('POST', `/sequences/update_account_provision/${type}/${item}/${condition}/${provisionCreated}/`, {'values': getFormData($(this)), 'target': '#form'})
+    } else {
+      htmx.ajax('POST', `/sequences/update_item/${type}/${item}/${condition}/`, {'values': getFormData($(this)), 'target': '#form'})
+    }
+})
 $("select#id_condition_type").on('change', function() {
   // Change things to fill in when condition_type changes
   if ($(this).val() == 1){
@@ -178,4 +211,10 @@ $(document).on('change', "select#id_person_type", function() {
   }
 })
 </script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+var placeholder = '{% translate "Start typing here..." %}';
+var newItem = '{% translate "New item" %}';
+</script>
+<script src="{% static 'js/resources.js' %}"></script>
 {% endblock %}

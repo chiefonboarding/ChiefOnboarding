@@ -73,7 +73,9 @@ document.addEventListener("drop", function( event ) {
 
     $(".card").css("background-color", "white")
     if (templateId !== '0' && type !== 'accountprovision') {
-      htmx.ajax('POST', `/sequences/condition/${conditionID}/${type}/${templateId}/`, `#condition-${conditionID}`)
+      htmx.ajax('POST', `/sequences/condition/${conditionID}/${type}/${templateId}/`, `#condition-${conditionID}`).then(() => {
+        initSelectize(`#condition-${conditionID}`)
+      });
     } else {
       changeTemplate(parseInt(templateId), conditionID, type)
       $('#modal-template-edit').modal('show')

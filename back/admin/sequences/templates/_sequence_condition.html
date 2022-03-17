@@ -81,6 +81,9 @@
     {% for item in condition.badges.all %}
       {% include '_condition_line_item.html' with type='badge' %}
     {% endfor %}
+    {% for item in condition.account_provisions.all %}
+      {% include '_condition_line_item.html' with type='accountprovision' provision_created=1 %}
+    {% endfor %}
 
     {# FOR ADMINS #}
     {% if condition.external_admin.all|length or condition.admin_tasks.all|length %}
