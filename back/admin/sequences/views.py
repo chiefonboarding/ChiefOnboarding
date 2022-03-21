@@ -25,8 +25,10 @@ from .forms import ConditionCreateForm, ConditionToDoUpdateForm, ConditionUpdate
 from .models import Condition, Sequence, ExternalMessage, AccountProvision, PendingAdminTask
 
 
-
 class SequenceListView(LoginRequiredMixin, AdminPermMixin, ListView):
+    """
+    Lists all sequences in a table.
+    """
     template_name = "templates.html"
     queryset = Sequence.objects.all().order_by("name")
     paginate_by = 10
@@ -40,6 +42,10 @@ class SequenceListView(LoginRequiredMixin, AdminPermMixin, ListView):
 
 
 class SequenceCreateView(LoginRequiredMixin, AdminPermMixin, RedirectView):
+    """
+    Creates a new sequences, also adds a default (empty) sequence for unconditional
+    items. Redirects user back to the newly created sequence.
+    """
     permanent = False
 
     def get_redirect_url(self, *args, **kwargs):
@@ -49,6 +55,10 @@ class SequenceCreateView(LoginRequiredMixin, AdminPermMixin, RedirectView):
 
 
 class SequenceView(LoginRequiredMixin, AdminPermMixin, DetailView):
+    """
+    Shows one sequence to the user. This includes a list of `ToDo` items for on the
+    right side (the others will be loaded on click).
+    """
     template_name = "sequence.html"
     model = Sequence
 
@@ -80,6 +90,11 @@ class SequenceView(LoginRequiredMixin, AdminPermMixin, DetailView):
 
 
 class SequenceNameUpdateView(LoginRequiredMixin, AdminPermMixin, UpdateView):
+    """
+    Updates the name of the sequence when the user ends typing.
+
+    HTMX view.
+    """
     template_name = "_sequence_templates_list.html"
     model = Sequence
     fields = [
@@ -90,6 +105,13 @@ class SequenceNameUpdateView(LoginRequiredMixin, AdminPermMixin, UpdateView):
 
 
 class SequenceConditionCreateView(LoginRequiredMixin, AdminPermMixin, CreateView):
+    """
+    Add a new condition block to the sequence.
+    When valid, it will reload the sequence timeline to make sure everything is in
+    the correct order.
+
+    HTMX view
+    """
     template_name = "_condition_form.html"
     model = Condition
     form_class = ConditionCreateForm
@@ -112,6 +134,13 @@ class SequenceConditionCreateView(LoginRequiredMixin, AdminPermMixin, CreateView
 
 
 class SequenceConditionUpdateView(LoginRequiredMixin, AdminPermMixin, UpdateView):
+    """
+    Update a condition block in the sequence.
+    When valid, it will reload the sequence timeline to make sure everything is in
+    the correct order.
+
+    HTMX view
+    """
     template_name = "_condition_form.html"
     model = Condition
     form_class = ConditionUpdateForm
@@ -132,6 +161,12 @@ class SequenceConditionUpdateView(LoginRequiredMixin, AdminPermMixin, UpdateView
 
 
 class SequenceTimelineDetailView(LoginRequiredMixin, AdminPermMixin, DetailView):
+    """
+    Renders the sequence timeline.
+    HTMX view, this will only get called when the frontend requests an updated view.
+    On: added condition block, updated condition block, adding a template to the
+    condition
+    """
     template_name = "_sequence_timeline.html"
     model = Sequence
 
@@ -160,7 +195,10 @@ class SequenceTimelineDetailView(LoginRequiredMixin, AdminPermMixin, DetailView)
 
 class SequenceFormView(LoginRequiredMixin, AdminPermMixin, View):
     """
-    Get item when clicking on a line in a condition, either empty or filled in form
+    Get form when clicking on a line in a condition or dragging non-template, either
+    empty or filled in form.
+
+    HTMX view, this will only get called when the frontend requests a form.
     """
     def get(self, request, template_type, template_pk, *args, **kwargs):
 
@@ -170,10 +208,13 @@ class SequenceFormView(LoginRequiredMixin, AdminPermMixin, View):
             raise Http404
 
         template_item = None
+        # If template_pk is 0, then it shows an empty form
         if template_pk != 0:
             templates_model = get_sequence_templates_model(template_type)
             template_item = get_object_or_404(templates_model, id=template_pk)
 
+        # Get a custom form (depending on what provision) when it's a account provision
+        # like Slack, Asana, Google...
         if form == AccountProvisionForm:
             form = template_item.access_token.add_user_form_class()
             return render(
@@ -187,7 +228,13 @@ class SequenceFormView(LoginRequiredMixin, AdminPermMixin, View):
 
 class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
     """
-    This will update or create a specific line item (template or not) in a condition item (excl. Account provision)
+    Update or create a specific line item (template or not) in a condition item (excl. Account provision)
+
+    :params str template_type: i.e. todo, resource, introduction
+    :params int template_pk: the pk of the used template (0 if none)
+    :params int condition: the pk of the condition (can never be 0)
+
+    HTMX view, this will only get called when the frontend requests to update an item.
     """
 
     def post(self, request, template_type, template_pk, condition, *args, **kwargs):
@@ -240,25 +287,37 @@ class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
 class SequenceFormUpdateAccountProvisionView(LoginRequiredMixin, AdminPermMixin, View):
     """
     This will update or create an account provision object
+
+    :params str template_type: always `accountprovision` and is not used
+    :params int template_pk: either of `AccessToken` or `AccountProvision` depending if
+    object exists (see exists param)
+    :params int condition: the pk of the condition (can never be 0)
+    :params int exists: either 1 or 0 - basically boolean
+
+    HTMX view, this will only get called when the frontend requests to update or create
+    a account provision item.
     """
 
     def post(self, request, template_type, template_pk, condition, exists, *args, **kwargs):
 
         condition = get_object_or_404(Condition, id=condition)
         if exists == 0:
+            # If this provision item does not exist yet, then create one
             access_token = get_object_or_404(AccessToken, id=template_pk)
             form_class = access_token.add_user_form_class()
             existing_item = None
         else:
+            # If this provision item exist, then get it, so we can update it
             existing_item = get_object_or_404(AccountProvision, id=template_pk)
             form_class = existing_item.access_token.add_user_form_class()
 
         item_form = form_class(request.POST)
 
+        # if form is not valid, push back form with errors
         if not item_form.is_valid():
-            # Form is not valid, push back form with errors
             return render(request, "_item_form.html", {"form": item_form})
 
+        # Either create a provision item or update it
         if existing_item is None:
             account_provision = AccountProvision.objects.create(integration_type=access_token.account_provision_name, additional_data=item_form.cleaned_data)
             condition.add_item(account_provision)
@@ -266,12 +325,21 @@ class SequenceFormUpdateAccountProvisionView(LoginRequiredMixin, AdminPermMixin,
             existing_item.additional_data = item_form.cleaned_data
             existing_item.save()
 
-        # Succesfully created/updated item
+        # Succesfully created/updated item, reload the sequence
         return HttpResponse(headers={"HX-Trigger": "reload-sequence"})
 
 
 class SequenceConditionItemView(LoginRequiredMixin, AdminPermMixin, View):
-    """This will delete or add a template item to a condition"""
+    """
+    This will delete or add a template item to a condition
+
+    :params int pk: Condition pk
+    :params int type: template type, i.e. todo, resource...
+    :params int template_pk: the pk of object in the template type
+
+    HTMX view, this will only get called when the frontend requests to add or delete
+    a template to a sequence (drag/drop).
+    """
 
     def delete(self, request, pk, type, template_pk, *args, **kwargs):
         condition = get_object_or_404(Condition, id=pk)
@@ -310,7 +378,12 @@ class SequenceConditionItemView(LoginRequiredMixin, AdminPermMixin, View):
 
 class SequenceConditionToDoUpdateView(LoginRequiredMixin, AdminPermMixin, UpdateView):
     """
-    This will update the conditions of a trigger based on a ToDo item.
+    Update the conditions of a ToDo trigger block.
+
+    :params int pk: Condition pk
+
+    HTMX view, this will only get called when the frontend requests to show or update
+    a conditon based on ToDo in a sequence.
     """
 
     template_name = "_sequence_condition.html"
@@ -330,7 +403,14 @@ class SequenceConditionToDoUpdateView(LoginRequiredMixin, AdminPermMixin, Update
 
 
 class SequenceConditionDeleteView(LoginRequiredMixin, AdminPermMixin, View):
-    """Delete an entire condition"""
+    """
+    Delete an entire condition
+
+    :params int pk: Sequence pk
+    :params int condition_pk: Condition pk
+
+    HTMX view, the cross in a condition
+    """
 
     def delete(self, request, pk, condition_pk, *args, **kwargs):
         sequence = get_object_or_404(Sequence, id=pk)
@@ -343,6 +423,11 @@ class SequenceConditionDeleteView(LoginRequiredMixin, AdminPermMixin, View):
 
 
 class SequenceDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
+    """
+    Delete an entire sequence
+
+    :params int pk: Sequence pk
+    """
     queryset = Condition.objects.all()
     success_url = reverse_lazy("sequences:list")
 
@@ -353,6 +438,14 @@ class SequenceDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
 
 
 class SequenceDefaultTemplatesView(LoginRequiredMixin, AdminPermMixin, ListView):
+    """
+    Get a list of all available template items to drop in the sequence
+
+    :params str type: the template type
+
+    HTMX view, whenever clicked on any of the template icons on the right side
+    of the screen
+    """
     template_name = "_sequence_templates_list.html"
 
     def get_queryset(self):

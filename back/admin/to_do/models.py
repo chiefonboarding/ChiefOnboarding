@@ -108,7 +108,8 @@ class ToDo(BaseItem):
                 )
         return slack_form_items
 
-    def valid_for_slack(self):
+    @property
+    def inline_slack_form(self):
         valid = True
         for i in self.form:
             if i["type"] == "check" or i["type"] == "upload":

@@ -307,8 +307,8 @@ class PendingAdminTask(models.Model):
         on_delete=models.CASCADE,
         related_name="assigned_user",
     )
-    option = models.CharField(
-        verbose_name=_("Send email or text to extra user?"), max_length=12500,
+    option = models.IntegerField(
+        verbose_name=_("Send email or Slack message to extra user?"),
         choices=NOTIFICATION_CHOICES
     )
     slack_user = models.CharField(

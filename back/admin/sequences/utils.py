@@ -20,12 +20,6 @@ def template_model_exists(template_slug):
 
 def get_sequence_templates_model(template_slug):
     if template_model_exists(template_slug):
-        # no_templates_models = next(
-        #     (x for x in SEQUENCE_SEQUENCE_MODELS if x["model"].lower() == template_slug.lower()), None
-        # )
-        # if no_templates_models is not None:
-        #     return None
-
         model_item = next(
             (x for x in SEQUENCE_MODELS if x["model"].lower() == template_slug.lower()), None
         )

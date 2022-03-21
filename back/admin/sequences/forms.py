@@ -93,7 +93,7 @@ class ConditionCreateForm(forms.ModelForm):
         time = cleaned_data.get("time", None)
         days = cleaned_data.get("days", None)
         condition_to_do = cleaned_data.get("condition_to_do", None)
-        if condition_type == 1 and condition_to_do == None:
+        if condition_type == 1 and condition_to_do is None:
             raise ValidationError(_("You must add at least one to do item"))
         if condition_type in [0, 2] and (time is None or days is None):
             raise ValidationError(_("Both the time and days have to be filled in."))
@@ -127,7 +127,8 @@ class ConditionToDoUpdateForm(forms.ModelForm):
 class PendingAdminTaskForm(forms.ModelForm):
     assigned_to = forms.ModelChoiceField(queryset=User.admins.all())
     slack_user = forms.ModelChoiceField(
-        queryset=User.objects.exclude(slack_user_id=""), to_field_name="slack_user_id"
+        queryset=User.objects.exclude(slack_user_id=""), to_field_name="slack_user_id",
+        required=False
     )
     date = forms.DateField(
         label=_("Due date"),

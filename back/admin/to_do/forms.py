@@ -12,6 +12,7 @@ class ToDoForm(TagModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_tag = False
+        self.fields["slack_channel"].required = False
         self.helper.layout = Layout(
             Div(
                 Div(
@@ -35,7 +36,7 @@ class ToDoForm(TagModelForm):
 
     class Meta:
         model = ToDo
-        exclude = ("template", "form")
+        exclude = ("template",)
         help_texts = {
             "send_back": _(
                 "Let your new hire now that the answers are going to be shared with the team!"

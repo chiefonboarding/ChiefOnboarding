@@ -100,6 +100,17 @@ class NewHireManager(models.Manager):
     def without_slack(self):
         return self.get_queryset().filter(slack_user_id="")
 
+    def with_slack(self):
+        return self.get_queryset().filter(slack_user_id="")
+
+    def starting_today(self):
+        return self.get_queryset().filter(start_day=datetime.now().date())
+
+    def to_introduce(self):
+        return self.get_queryset().filter(
+            is_introduced_to_colleagues=False, start_day__gt=datetime.now().date()
+        )
+
 
 class AdminManager(models.Manager):
     def get_queryset(self):
@@ -315,6 +326,7 @@ class User(AbstractBaseUser):
                     "last_name": self.last_name,
                     "first_name": self.first_name,
                     "email": self.email,
+                    "start": self.start_day,
                 }
             )
         )
@@ -360,6 +372,18 @@ class User(AbstractBaseUser):
         return "%s" % self.full_name
 
 
+class ToDoUserManager(models.Manager):
+    def overdue(self, user):
+        return super().get_queryset(
+            user=user, completed=False, to_do__due_on_day__lt=user.workday
+        ).exclude(to_do__due_on_day=0)
+
+    def due_today(self, user):
+        return super().get_queryset(
+            user=user, completed=False, to_do__due_on_day=user.workday()
+        )
+
+
 class ToDoUser(models.Model):
     user = models.ForeignKey(
         get_user_model(), related_name="to_do_new_hire", on_delete=models.CASCADE
@@ -368,6 +392,8 @@ class ToDoUser(models.Model):
     completed = models.BooleanField(default=False)
     form = models.JSONField(default=list)
     reminded = models.DateTimeField(null=True)
+
+    objects = ToDoUserManager()
 
     @cached_property
     def completed_form_items(self):

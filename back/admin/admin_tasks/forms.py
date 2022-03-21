@@ -38,6 +38,7 @@ class AdminTaskCreateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["option"].initial = 0
+        self.fields["slack_user"].required = False
 
     class Meta:
         model = AdminTask

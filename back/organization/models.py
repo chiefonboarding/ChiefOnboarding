@@ -1,3 +1,6 @@
+import pytz
+from datetime import datetime
+
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.cache import cache
@@ -134,6 +137,13 @@ class Organization(models.Model):
     def accent_color_rgb(self):
         accent_color = self.accent_color.strip("#")
         return tuple(int(accent_color[i:i+2], 16) for i in (0, 2, 4))
+
+    @property
+    def current_datetime(self):
+        local_tz = pytz.timezone("UTC")
+        us_tz = pytz.timezone(self.org.timezone)
+        local = local_tz.localize(datetime.now())
+        return us_tz.normalize(local.astimezone(us_tz))
 
     def get_logo_url(self):
         if self.logo is None:

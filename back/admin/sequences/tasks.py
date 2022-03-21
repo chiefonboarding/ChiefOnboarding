@@ -1,37 +1,48 @@
 from django.contrib.auth import get_user_model
-from django.utils import translation
 
+from django_q.tasks import async_task
 from slack_bot.slack import Slack
+from admin.sequences.models import Condition
 
 from .emails import send_sequence_update_message
 
 
-def timed_triggers():
-    for user in get_user_model().new_hires.all():
-        # make sure it's 8 AM for the new hire
-        if user.get_local_time().hour == 8:
-            translation.activate(user.language)
-            amount_days = user.workday
-            amount_days_before = user.days_before_starting
-            # check if it's before or after they start
-            conditions = []
-            if amount_days == 0:
-                conditions = user.conditions.filter(
-                    condition_type=2, days=amount_days_before
-                )
-            elif user.get_local_time().weekday() < 5:
-                conditions = user.conditions.filter(condition_type=0, days=amount_days)
-            # process conditions and send it through Slack/email
-            for i in conditions:
-                items = i.process_condition(user)
-                if user.slack_user_id is not None:
-                    s = Slack()
-                    s.set_user(user)
-                    s.send_sequence_triggers(items, None)
-                else:
-                    try:
-                        send_sequence_update_message(user, items)
-                    except:
-                        pass
+def process_condition(condition, user):
+    """
+    Processing triggered condition
 
-    return
+    :param Condition condition: the condition that got triggered
+    :param User user: the user that it got triggered for
+    """
+
+    condition.proces_condition(user)
+
+
+def timed_triggers(current_datetime):
+    """
+    This gets triggered every 5 minutes to trigger conditions within sequences.
+    These conditions are already assigned to new hires.
+
+    :param datetime current_datetime: the datetetime that this function got triggered
+    """
+
+    for user in get_user_model().new_hires.all():
+
+        amount_days = user.workday
+        amount_days_before = user.days_before_starting
+        current_time = user.get_local_time(current_datetime).time()
+
+        # Get conditions before/after they started
+        # Generally, this should be only one, but just in case, we can handle more
+        conditions = Condition.objects.None()
+        if amount_days == 0:
+            conditions = user.conditions.filter(
+                condition_type=2, days=amount_days_before, current_time=current_time
+            )
+        elif user.get_local_time().weekday() < 5:
+            conditions = user.conditions.filter(condition_type=0, days=amount_days)
+
+        # Schedule conditions to be executed with new scheduled task, we do this to
+        # avoid long standing tasks. I.e. sending lots of emails might take more time.
+        for i in conditions:
+            async_task(i.process_condition(user))

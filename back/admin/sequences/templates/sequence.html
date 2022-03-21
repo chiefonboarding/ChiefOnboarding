@@ -43,7 +43,7 @@
                    <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
                  </span>
         </div>
-        <div class="card-body" hx-trigger="reload-sequence from:body" hx-get="{% url 'sequences:timeline' object.id %}">
+        <div class="card-body" id="timeline">
           {% include '_sequence_timeline.html' %}
         </div>
       </div>
@@ -146,6 +146,17 @@ $("#form-add-item").submit(function (event) {
       htmx.ajax('POST', `/sequences/update_item/${type}/${item}/${condition}/`, {'values': getFormData($(this)), 'target': '#form'})
     }
 })
+
+// close modals when we are reloading the sequence part
+$(document).on("reload-sequence", function(evt){
+    $('.modal').modal('hide')
+    document.getElementById("add-condition-form").reset();
+    htmx.ajax('GET', "{% url 'sequences:timeline' object.id %}", '#timeline').then(() => {
+      console.log('Content inserted successfully!');
+      initSelectize()
+    });
+})
+
 $("select#id_condition_type").on('change', function() {
   // Change things to fill in when condition_type changes
   if ($(this).val() == 1){

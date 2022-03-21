@@ -219,7 +219,7 @@
     <script src="{% static 'js/selectize-0.13.3.min.js' %}" type="text/javascript"></script>
 
     <!-- script for htmx -->
-    <script src="{% static 'js/htmx-1.6.1.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/htmx-1.7.0.min.js' %}" type="text/javascript"></script>
 
     <!-- scripts for editor -->
     <script src="{% static 'js/editor-2.22.2.min.js' %}" type="text/javascript"></script>
@@ -232,9 +232,9 @@
     </script>
     <script defer>
       function initSelectize(prefix="") {
-        $(prefix + ' select:not(.multi-with-add):not(.add):not(.selectized)').selectize()
-        $(prefix + ' .multi-with-add:not(.selectized)').selectize({ create: true })
-        $(prefix + ' .add:not(.selectized)').selectize({ create: true })
+        $(prefix + ' select:not(.multi-with-add):not(.add)').selectize()
+        $(prefix + ' .multi-with-add').selectize({ create: true })
+        $(prefix + ' .add').selectize({ create: true })
       }
       $(document).ready(function () {
         // Trigger file input when clicking on upload button
@@ -282,11 +282,6 @@
         })
 
       })
-      // close modals when we are reloading the sequence part
-      document.body.addEventListener("reload-sequence", function(evt){
-          $('.modal').modal('hide')
-          document.getElementById("add-condition-form").reset();
-      })
       function triggerChange(event){
         const url = event.target.dataset.url
         const values = $('#' + event.target.getAttribute('id')).val()
@@ -320,6 +315,9 @@
             let formName = 'content'
             if ('content_json' in form) {
               formName = 'content_json'
+            }
+            if (document.getElementById('content') === null) {
+              return
             }
             let content = JSON.parse(document.getElementById('content').textContent)
             content = JSON.parse(content)
@@ -395,15 +393,6 @@
       }
       window.onload = function(){
         initWYSIWYGEditor()
-      }
-      function changeTemplate(item, condition, type) {
-
-        document.getElementById("form-add-item").setAttribute("hx-post", `/sequences/update_item/${type}/${item}/${condition}/`)
-        htmx.ajax('GET', `/sequences/forms/${type}/${item}/`, `#form`)
-        htmx.process('#form-modal-content');
-        setTimeout(function() {
-          initWYSIWYGEditor()
-        }, 300)
       }
       function editCondition(id) {
           htmx.ajax('GET', `/sequences/{{ object.id }}/condition/${id}/`, `#add-condition-form`)
