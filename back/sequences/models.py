@@ -206,7 +206,7 @@ class Condition(models.Model):
                 continue
             if i.send_via == 0:  # email
                 try:
-                    send_sequence_message(i.get_user(user), i.email_message(), i.subject)
+                    send_sequence_message(user, i.get_user(user), i.email_message(), i.subject)
                 except:
                     pass
             elif i.send_via == 1:  # slack
