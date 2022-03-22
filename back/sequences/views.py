@@ -100,7 +100,7 @@ class SendTestMessage(APIView):
     def post(self, request, id):
         ext_message = ExternalMessage.objects.select_related('send_to').prefetch_related('content_json').get(id=id)
         if ext_message.send_via == 0:  # email
-            send_sequence_message(request.user, ext_message.email_message(), ext_message.subject)
+            send_sequence_message(request.user, request.user, ext_message.email_message(), ext_message.subject)
         elif ext_message.send_via == 1:  # slack
             # User is not connected to slack. Needs -> employees -> 'give access'
             if request.user.slack_channel_id == None:
