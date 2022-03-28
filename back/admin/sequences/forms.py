@@ -8,13 +8,20 @@ from admin.templates.forms import MultiSelectField, WYSIWYGField
 from admin.to_do.models import ToDo
 from users.models import User
 
-from .models import Condition, PendingAdminTask, PendingSlackMessage, PendingEmailMessage, PendingTextMessage
-
+from .models import (
+    Condition,
+    PendingAdminTask,
+    PendingEmailMessage,
+    PendingSlackMessage,
+    PendingTextMessage,
+)
 
 
 class ConditionCreateForm(forms.ModelForm):
     condition_to_do = forms.ModelMultipleChoiceField(
-        queryset=ToDo.templates.all().defer("content"), to_field_name="id", required=False
+        queryset=ToDo.templates.all().defer("content"),
+        to_field_name="id",
+        required=False,
     )
 
     def _get_save_button(self):
@@ -127,8 +134,9 @@ class ConditionToDoUpdateForm(forms.ModelForm):
 class PendingAdminTaskForm(forms.ModelForm):
     assigned_to = forms.ModelChoiceField(queryset=User.admins.all())
     slack_user = forms.ModelChoiceField(
-        queryset=User.objects.exclude(slack_user_id=""), to_field_name="slack_user_id",
-        required=False
+        queryset=User.objects.exclude(slack_user_id=""),
+        to_field_name="slack_user_id",
+        required=False,
     )
     date = forms.DateField(
         label=_("Due date"),
@@ -155,6 +163,7 @@ class PendingAdminTaskForm(forms.ModelForm):
             "email",
         ]
 
+
 class PendingSlackMessageForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -177,7 +186,6 @@ class PendingSlackMessageForm(forms.ModelForm):
                 ),
             ),
         )
-
 
     class Meta:
         model = PendingSlackMessage
@@ -212,7 +220,6 @@ class PendingTextMessageForm(forms.ModelForm):
             ),
         )
 
-
     class Meta:
         model = PendingTextMessage
         fields = [
@@ -224,7 +231,6 @@ class PendingTextMessageForm(forms.ModelForm):
 
 
 class PendingEmailMessageForm(PendingSlackMessageForm):
-
     class Meta:
         model = PendingEmailMessage
         fields = [
@@ -233,6 +239,7 @@ class PendingEmailMessageForm(PendingSlackMessageForm):
             "person_type",
             "send_to",
         ]
+
 
 class AccountProvisionForm(forms.Form):
     pass

@@ -6,13 +6,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sequences', '0025_auto_20220318_0222'),
+        ("sequences", "0025_auto_20220318_0222"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='pendingadmintask',
-            name='option',
-            field=models.IntegerField(choices=[(0, 'No'), (1, 'Email'), (2, 'Slack')], verbose_name='Send email or Slack message to extra user?'),
+            model_name="pendingadmintask",
+            name="option",
+            field=models.IntegerField(
+                choices=[(0, "No"), (1, "Email"), (2, "Slack")],
+                verbose_name="Send email or Slack message to extra user?",
+            ),
         ),
     ]

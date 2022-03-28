@@ -190,7 +190,9 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 AUTH_USER_MODEL = "users.User"
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOWED_ORIGINS = [
+    origin for origin in env.list("CORS_ALLOWED_ORIGINS", default="")
+]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -216,47 +218,43 @@ if env.bool("API_ACCESS", default=False):
 # Email
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-if env.bool("MAILGUN", default=False):
+if env("MAILGUN_API_KEY", default="") != "":
     ANYMAIL = {
         "MAILGUN_API_KEY": env("MAILGUN_KEY", default=""),
         "MAILGUN_SENDER_DOMAIN": env("MAILGUN_DOMAIN", default=""),
     }
     EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
 
-if env.bool("MAILJET", default=False):
+if env("MAILJET_API_KEY", default="") != "":
     ANYMAIL = {
         "MAILJET_API_KEY": env("MAILJET_API_KEY", default=""),
         "MAILJET_SECRET_KEY": env("MAILJET_SECRET_KEY", default=""),
     }
     EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
 
-if env.bool("MANDRILL", default=False):
+if env("MANDRILL_KEY", default="") != "":
     ANYMAIL = {"MANDRILL_API_KEY": env("MANDRILL_KEY", default="")}
     EMAIL_BACKEND = "anymail.backends.mandrill.EmailBackend"
 
-if env.bool("POSTMARK", default=False):
+if env("POSTMARK_KEY", default="") != "":
     ANYMAIL = {"POSTMARK_SERVER_TOKEN": env("POSTMARK_KEY", default="")}
     EMAIL_BACKEND = "anymail.backends.postmark.EmailBackend"
 
-if env.bool("SENDGRID", default=False):
+if env("SENDGRID_KEY", default="") != "":
     ANYMAIL = {"SENDGRID_API_KEY": env("SENDGRID_KEY", default="")}
     EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
 
-if env.bool("SENDINBLUE", default=False):
+if env("SENDINBLUE_KEY", default="") != "":
     ANYMAIL = {"SENDINBLUE_API_KEY": env("SENDINBLUE_KEY", default="")}
     EMAIL_BACKEND = "anymail.backends.sendinblue.EmailBackend"
 
-if env.bool("SPARKPOST", default=False):
-    ANYMAIL = {"SPARKPOST_API_KEY": env("SPARKPOST_KEY", default="")}
-    EMAIL_BACKEND = "anymail.backends.sparkpost.EmailBackend"
-
-if env.bool("SMTP", default=False):
+if env("EMAIL_HOST", default="") != "":
     EMAIL_HOST = env("EMAIL_HOST", default="localhost")
     EMAIL_PORT = env.int("EMAIL_PORT", default=25)
     EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
     EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
-    EMAIL_USE_TLS = env("EMAIL_USE_TLS", default="")
-    EMAIL_USE_SSL = env("EMAIL_USE_SSL", default="")
+    EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=False)
+    EMAIL_USE_SSL = env.bol("EMAIL_USE_SSL", default=False)
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
 
@@ -295,7 +293,8 @@ AWS_REGION = env("AWS_REGION", default="eu-west-1")
 
 if env.str("BASE_URL", "") == "":
     BASE_URL = "https://" + ALLOWED_HOSTS[0]
-BASE_URL = env("BASE_URL")
+else:
+    BASE_URL = env("BASE_URL")
 
 # Twilio
 TWILIO_FROM_NUMBER = env("TWILIO_FROM_NUMBER", default="")
@@ -310,44 +309,6 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]
 AXES_ENABLED = True
-AXES_PROXY_ORDER = []
-AXES_PROXY_TRUSTED_IPS = []
-AXES_PROXY_COUNT = 0
-AXES_META_PRECEDENCE_ORDER = [
-    "HTTP_X_FORWARDED_FOR",
-    "REMOTE_ADDR",
-]
-AXES_HANDLER = "axes.handlers.database.AxesDatabaseHandler"
-AXES_FAILURE_LIMIT = 20
-AXES_LOCK_OUT_AT_FAILURE = True
-AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = False
-AXES_ONLY_USER_FAILURES = False
-AXES_ONLY_ADMIN_SITE = False
-AXES_ENABLE_ADMIN = True
-AXES_USE_USER_AGENT = False
-AXES_USERNAME_FORM_FIELD = "email"
-AXES_PASSWORD_FORM_FIELD = "password"  # noqa
-AXES_USERNAME_CALLABLE = None
-AXES_WHITELIST_CALLABLE = None
-AXES_LOCKOUT_CALLABLE = None
-AXES_RESET_ON_SUCCESS = False
-AXES_DISABLE_ACCESS_LOG = False
-AXES_LOCKOUT_TEMPLATE = None
-AXES_LOCKOUT_URL = None
-AXES_COOLOFF_TIME = None
-AXES_VERBOSE = True
-AXES_NEVER_LOCKOUT_WHITELIST = False
-AXES_NEVER_LOCKOUT_GET = False
-AXES_ONLY_WHITELIST = False
-AXES_IP_WHITELIST = None
-AXES_IP_BLACKLIST = None
-AXES_LOCK_OUT_BY_USER_OR_IP = False
-# message to show when locked out and have cooloff enabled
-AXES_COOLOFF_MESSAGE = "Account locked: too many login attempts. Please try again later"
-AXES_PERMALOCK_MESSAGE = (
-    "Account locked: too many login attempts. Contact an admin to unlock your account."
-)
-PROXY_TRUSTED_IPS = None
 REST_FRAMEWORK_ACTIVE = True
 
 # Error tracking

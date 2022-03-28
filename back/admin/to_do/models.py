@@ -38,81 +38,12 @@ class ToDo(BaseItem):
     def delete_url(self):
         return reverse("todo:delete", args=[self.id])
 
-    def get_slack_form(self):
-        slack_form_items = []
-        for i in self.form:
-            options = []
-            if i["type"] == "select":
-                for j in i["options"]:
-                    options.append(
-                        {
-                            "text": {
-                                "type": "plain_text",
-                                "text": j["name"],
-                                "emoji": True,
-                                # "action_id": j['id']
-                            },
-                            "value": j["name"],
-                        }
-                    )
-                slack_form_items.append(
-                    {
-                        "type": "input",
-                        "block_id": i["id"],
-                        "element": {
-                            "type": "static_select",
-                            "placeholder": {
-                                "type": "plain_text",
-                                "text": _("Select an item"),
-                                "emoji": True,
-                            },
-                            "options": options,
-                            "action_id": i["id"],
-                        },
-                        "label": {
-                            "type": "plain_text",
-                            "text": i["text"],
-                            "emoji": True,
-                        },
-                    }
-                )
-            if i["type"] == "input":
-                slack_form_items.append(
-                    {
-                        "type": "input",
-                        "block_id": i["id"],
-                        "element": {"type": "plain_text_input", "action_id": i["id"]},
-                        "label": {
-                            "type": "plain_text",
-                            "text": i["text"],
-                            "emoji": True,
-                        },
-                    }
-                )
-            if i["type"] == "text":
-                slack_form_items.append(
-                    {
-                        "type": "input",
-                        "block_id": i["id"],
-                        "element": {
-                            "type": "plain_text_input",
-                            "multiline": True,
-                            "action_id": i["id"],
-                        },
-                        "label": {
-                            "type": "plain_text",
-                            "text": i["text"],
-                            "emoji": True,
-                        },
-                    }
-                )
-        return slack_form_items
-
     @property
     def inline_slack_form(self):
         valid = True
-        for i in self.form:
-            if i["type"] == "check" or i["type"] == "upload":
+        blocks = self.content.blocks
+        for i in blocks:
+            if i.type in ["check", "upload"]:
                 valid = False
                 break
         return valid

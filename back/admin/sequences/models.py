@@ -9,8 +9,8 @@ from twilio.rest import Client
 from admin.admin_tasks.models import NOTIFICATION_CHOICES, PRIORITY_CHOICES
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
-from admin.introductions.models import Introduction
 from admin.integrations.models import AccessToken
+from admin.introductions.models import Introduction
 from admin.preboarding.models import Preboarding
 from admin.resources.models import Resource
 from admin.to_do.models import ToDo
@@ -309,7 +309,7 @@ class PendingAdminTask(models.Model):
     )
     option = models.IntegerField(
         verbose_name=_("Send email or Slack message to extra user?"),
-        choices=NOTIFICATION_CHOICES
+        choices=NOTIFICATION_CHOICES,
     )
     slack_user = models.CharField(
         verbose_name=_("Slack option"), max_length=12500, default="", blank=True

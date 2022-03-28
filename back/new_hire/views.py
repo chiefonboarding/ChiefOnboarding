@@ -3,13 +3,6 @@ from datetime import datetime, timedelta
 from axes.decorators import axes_dispatch
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login, signals
-from django.contrib.postgres.search import (
-    SearchHeadline,
-    SearchQuery,
-    SearchRank,
-    SearchVector,
-    TrigramSimilarity,
-)
 from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -218,28 +211,7 @@ class ResourceSearchView(LoginRequiredMixin, View):
     """
 
     def get(self, request, *args, **kwargs):
-        query = SearchQuery(request.GET.get("search"))
-        vector = SearchVector("name", weight="A") + SearchVector(
-            "chapters__content", weight="B"
-        )
-        results = (
-            Resource.objects.annotate(
-                rank=SearchRank(vector, query),
-                headline=SearchHeadline(
-                    "name",
-                    query,
-                    fragment_delimiter="...",
-                ),
-                inner=SearchHeadline(
-                    "chapters__content",
-                    query,
-                    fragment_delimiter="...",
-                ),
-            )
-            .filter(rank__gte=0.3, resource_new_hire__user=request.user)
-            .order_by("rank")
-            .distinct()
-        )
+        results = Resource.objects.search(request.user, request.GET.get("search", ""))
         return render(request, "_new_hire_resources_search.html", {"results": results})
 
 

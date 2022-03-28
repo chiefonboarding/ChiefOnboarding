@@ -373,10 +373,21 @@ class User(AbstractBaseUser):
 
 
 class ToDoUserManager(models.Manager):
+    def all_to_do(self, user):
+        return (
+            super()
+            .get_queryset(user=user, completed=False)
+            .exclude(to_do__due_on_day=0)
+        )
+
     def overdue(self, user):
-        return super().get_queryset(
-            user=user, completed=False, to_do__due_on_day__lt=user.workday
-        ).exclude(to_do__due_on_day=0)
+        return (
+            super()
+            .get_queryset(
+                user=user, completed=False, to_do__due_on_day__lt=user.workday
+            )
+            .exclude(to_do__due_on_day=0)
+        )
 
     def due_today(self, user):
         return super().get_queryset(
@@ -410,23 +421,23 @@ class ToDoUser(models.Model):
     def mark_completed(self):
         self.completed = True
         self.save()
-        items_added = {"to_do": [], "resources": [], "badges": [], "introductions": []}
-        conditions = self.user.conditions.filter(condition_to_do=self.to_do)
-        for i in conditions:
-            # check if all conditions are met
-            valid = True
-            for j in i.condition_to_do.all():
-                to_do_user = ToDoUser.objects.filter(to_do=j, user=self.user)
-                if not to_do_user.exists() or not to_do_user.first().completed:
-                    valid = False
-            if valid:
-                new_items = i.process_condition(self.user)
-                items_added["to_do"].extend(new_items["to_do"])
-                items_added["resources"].extend(new_items["resources"])
-                items_added["badges"].extend(new_items["badges"])
-                items_added["introductions"].extend(new_items["introductions"])
 
-        return items_added
+        # Get conditions with this to do item as (part of the) condition
+        conditions = self.user.conditions.filter(condition_to_do=self.to_do)
+
+        for condition in conditions:
+
+            condition_to_do_ids = condition.condition_to_do.values_list("id", flat=True)
+
+            # Check if all to do items already have been added to new hire and are
+            # completed. If not, then we know it should not be triggered yet
+            to_do_user = ToDoUser.objects.filter(
+                to_do__in=condition_to_do_ids, user=self.user, completed=True
+            )
+
+            # If the amount matches, then we should process it
+            if to_do_user.count() == len(condition_to_do_ids):
+                condition.process_condition(self.user)
 
 
 class PreboardingUser(models.Model):

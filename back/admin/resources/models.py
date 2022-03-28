@@ -1,3 +1,9 @@
+from django.contrib.postgres.search import (
+    SearchHeadline,
+    SearchQuery,
+    SearchRank,
+    SearchVector,
+)
 from django.db import models
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -16,6 +22,34 @@ class Category(models.Model):
         return self.name
 
 
+class ResourceManager(models.Manager):
+    def search(self, u, query):
+        query = SearchQuery(query)
+        vector = SearchVector("name", weight="A") + SearchVector(
+            "chapters__content", weight="B"
+        )
+        return (
+            super()
+            .get_queryset()
+            .objects.annotate(
+                rank=SearchRank(vector, query),
+                headline=SearchHeadline(
+                    "name",
+                    query,
+                    fragment_delimiter="...",
+                ),
+                inner=SearchHeadline(
+                    "chapters__content",
+                    query,
+                    fragment_delimiter="...",
+                ),
+            )
+            .filter(rank__gte=0.3, resource_new_hire__user=u)
+            .order_by("rank")
+            .distinct()
+        )
+
+
 class Resource(BaseItem):
     category = models.ForeignKey(
         "Category", verbose_name=_("Category"), on_delete=models.CASCADE, null=True
@@ -29,6 +63,8 @@ class Resource(BaseItem):
     remove_on_complete = models.BooleanField(
         verbose_name=_("Remove item when new hire walked through"), default=False
     )
+
+    objects = ResourceManager()
 
     @property
     def get_icon_template(self):

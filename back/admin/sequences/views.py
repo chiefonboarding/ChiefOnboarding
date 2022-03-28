@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.db.models import Prefetch, Count
+from django.db.models import Count, Prefetch
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
@@ -10,25 +10,40 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
+from admin.appointments.models import Appointment
+from admin.badges.models import Badge
 from admin.integrations.models import AccessToken
+from admin.introductions.models import Introduction
+from admin.preboarding.models import Preboarding
+from admin.resources.models import Resource
 from admin.sequences.utils import get_sequence_model_form, get_sequence_templates_model
 from admin.templates.utils import get_model_form, get_templates_model
 from admin.to_do.models import ToDo
-from admin.resources.models import Resource
-from admin.preboarding.models import Preboarding
-from admin.badges.models import Badge
-from admin.appointments.models import Appointment
-from admin.introductions.models import Introduction
 from users.mixins import AdminPermMixin, LoginRequiredMixin
 
-from .forms import ConditionCreateForm, ConditionToDoUpdateForm, ConditionUpdateForm, AccountProvisionForm, PendingTextMessageForm, PendingSlackMessageForm, PendingEmailMessageForm
-from .models import Condition, Sequence, ExternalMessage, AccountProvision, PendingAdminTask
+from .forms import (
+    AccountProvisionForm,
+    ConditionCreateForm,
+    ConditionToDoUpdateForm,
+    ConditionUpdateForm,
+    PendingEmailMessageForm,
+    PendingSlackMessageForm,
+    PendingTextMessageForm,
+)
+from .models import (
+    AccountProvision,
+    Condition,
+    ExternalMessage,
+    PendingAdminTask,
+    Sequence,
+)
 
 
 class SequenceListView(LoginRequiredMixin, AdminPermMixin, ListView):
     """
     Lists all sequences in a table.
     """
+
     template_name = "templates.html"
     queryset = Sequence.objects.all().order_by("name")
     paginate_by = 10
@@ -46,6 +61,7 @@ class SequenceCreateView(LoginRequiredMixin, AdminPermMixin, RedirectView):
     Creates a new sequences, also adds a default (empty) sequence for unconditional
     items. Redirects user back to the newly created sequence.
     """
+
     permanent = False
 
     def get_redirect_url(self, *args, **kwargs):
@@ -59,6 +75,7 @@ class SequenceView(LoginRequiredMixin, AdminPermMixin, DetailView):
     Shows one sequence to the user. This includes a list of `ToDo` items for on the
     right side (the others will be loaded on click).
     """
+
     template_name = "sequence.html"
     model = Sequence
 
@@ -70,22 +87,35 @@ class SequenceView(LoginRequiredMixin, AdminPermMixin, DetailView):
         context["condition_form"] = ConditionCreateForm()
         context["todos"] = ToDo.templates.all().defer("content")
         obj = self.get_object()
-        context["conditions"] = (
-            obj.conditions
-            .prefetch_related(
-                Prefetch("introductions", queryset=Introduction.objects.all()),
-                Prefetch("to_do", queryset=ToDo.objects.all().defer("content")),
-                Prefetch("resources", queryset=Resource.objects.all()),
-                Prefetch("appointments", queryset=Appointment.objects.all().defer("content")),
-                Prefetch("badges", queryset=Badge.objects.all().defer("content")),
-                Prefetch("external_messages", queryset=ExternalMessage.objects.for_new_hire().defer("content", "content_json"), to_attr='external_new_hire'),
-                Prefetch("external_messages", queryset=ExternalMessage.objects.for_admins().defer("content", "content_json"), to_attr='external_admin'),
-                Prefetch("condition_to_do", queryset=ToDo.objects.all().defer("content")),
-                Prefetch("admin_tasks", queryset=PendingAdminTask.objects.all()),
-                Prefetch("preboarding", queryset=Preboarding.objects.all().defer("content")),
-                Prefetch("account_provisions", queryset=AccountProvision.objects.all()),
-            ).order_by("id")
-        )
+        context["conditions"] = obj.conditions.prefetch_related(
+            Prefetch("introductions", queryset=Introduction.objects.all()),
+            Prefetch("to_do", queryset=ToDo.objects.all().defer("content")),
+            Prefetch("resources", queryset=Resource.objects.all()),
+            Prefetch(
+                "appointments", queryset=Appointment.objects.all().defer("content")
+            ),
+            Prefetch("badges", queryset=Badge.objects.all().defer("content")),
+            Prefetch(
+                "external_messages",
+                queryset=ExternalMessage.objects.for_new_hire().defer(
+                    "content", "content_json"
+                ),
+                to_attr="external_new_hire",
+            ),
+            Prefetch(
+                "external_messages",
+                queryset=ExternalMessage.objects.for_admins().defer(
+                    "content", "content_json"
+                ),
+                to_attr="external_admin",
+            ),
+            Prefetch("condition_to_do", queryset=ToDo.objects.all().defer("content")),
+            Prefetch("admin_tasks", queryset=PendingAdminTask.objects.all()),
+            Prefetch(
+                "preboarding", queryset=Preboarding.objects.all().defer("content")
+            ),
+            Prefetch("account_provisions", queryset=AccountProvision.objects.all()),
+        ).order_by("id")
         return context
 
 
@@ -95,6 +125,7 @@ class SequenceNameUpdateView(LoginRequiredMixin, AdminPermMixin, UpdateView):
 
     HTMX view.
     """
+
     template_name = "_sequence_templates_list.html"
     model = Sequence
     fields = [
@@ -112,6 +143,7 @@ class SequenceConditionCreateView(LoginRequiredMixin, AdminPermMixin, CreateView
 
     HTMX view
     """
+
     template_name = "_condition_form.html"
     model = Condition
     form_class = ConditionCreateForm
@@ -141,6 +173,7 @@ class SequenceConditionUpdateView(LoginRequiredMixin, AdminPermMixin, UpdateView
 
     HTMX view
     """
+
     template_name = "_condition_form.html"
     model = Condition
     form_class = ConditionUpdateForm
@@ -167,28 +200,42 @@ class SequenceTimelineDetailView(LoginRequiredMixin, AdminPermMixin, DetailView)
     On: added condition block, updated condition block, adding a template to the
     condition
     """
+
     template_name = "_sequence_timeline.html"
     model = Sequence
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         obj = self.get_object()
-        context["conditions"] = (
-            obj.conditions
-            .prefetch_related(
-                Prefetch("introductions", queryset=Introduction.objects.all()),
-                Prefetch("to_do", queryset=ToDo.objects.all().defer("content")),
-                Prefetch("resources", queryset=Resource.objects.all()),
-                Prefetch("appointments", queryset=Appointment.objects.all().defer("content")),
-                Prefetch("badges", queryset=Badge.objects.all().defer("content")),
-                Prefetch("external_messages", queryset=ExternalMessage.objects.for_new_hire().defer("content", "content_json"), to_attr='external_new_hire'),
-                Prefetch("external_messages", queryset=ExternalMessage.objects.for_admins().defer("content", "content_json"), to_attr='external_admin'),
-                Prefetch("condition_to_do", queryset=ToDo.objects.all().defer("content")),
-                Prefetch("admin_tasks", queryset=PendingAdminTask.objects.all()),
-                Prefetch("preboarding", queryset=Preboarding.objects.all().defer("content")),
-                Prefetch("account_provisions", queryset=AccountProvision.objects.all()),
-            ).order_by("id")
-        )
+        context["conditions"] = obj.conditions.prefetch_related(
+            Prefetch("introductions", queryset=Introduction.objects.all()),
+            Prefetch("to_do", queryset=ToDo.objects.all().defer("content")),
+            Prefetch("resources", queryset=Resource.objects.all()),
+            Prefetch(
+                "appointments", queryset=Appointment.objects.all().defer("content")
+            ),
+            Prefetch("badges", queryset=Badge.objects.all().defer("content")),
+            Prefetch(
+                "external_messages",
+                queryset=ExternalMessage.objects.for_new_hire().defer(
+                    "content", "content_json"
+                ),
+                to_attr="external_new_hire",
+            ),
+            Prefetch(
+                "external_messages",
+                queryset=ExternalMessage.objects.for_admins().defer(
+                    "content", "content_json"
+                ),
+                to_attr="external_admin",
+            ),
+            Prefetch("condition_to_do", queryset=ToDo.objects.all().defer("content")),
+            Prefetch("admin_tasks", queryset=PendingAdminTask.objects.all()),
+            Prefetch(
+                "preboarding", queryset=Preboarding.objects.all().defer("content")
+            ),
+            Prefetch("account_provisions", queryset=AccountProvision.objects.all()),
+        ).order_by("id")
         context["todos"] = ToDo.templates.all()
         return context
 
@@ -200,6 +247,7 @@ class SequenceFormView(LoginRequiredMixin, AdminPermMixin, View):
 
     HTMX view, this will only get called when the frontend requests a form.
     """
+
     def get(self, request, template_type, template_pk, *args, **kwargs):
 
         form = get_sequence_model_form(template_type)
@@ -218,7 +266,9 @@ class SequenceFormView(LoginRequiredMixin, AdminPermMixin, View):
         if form == AccountProvisionForm:
             form = template_item.access_token.add_user_form_class()
             return render(
-                request, "_item_form.html", {"form": form(template_item.additional_data)}
+                request,
+                "_item_form.html",
+                {"form": form(template_item.additional_data)},
             )
 
         return render(
@@ -252,7 +302,9 @@ class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
 
         # Push instance and data through form and save it
         # Check if original item was template or doesn't exist (is new), if so, then create new
-        if template_item is None or (hasattr(template_item, "template") and template_item.template):
+        if template_item is None or (
+            hasattr(template_item, "template") and template_item.template
+        ):
             item_form = form(request.POST)
         else:
             item_form = form(instance=template_item, data=request.POST)
@@ -268,7 +320,11 @@ class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
                 condition = get_object_or_404(Condition, id=condition)
 
                 # This can probably be cleaned up, we can't use proxy object. We need the base one
-                if form in [PendingEmailMessageForm, PendingSlackMessageForm, PendingTextMessageForm]:
+                if form in [
+                    PendingEmailMessageForm,
+                    PendingSlackMessageForm,
+                    PendingTextMessageForm,
+                ]:
                     obj = ExternalMessage.objects.get(id=obj.id)
 
                 condition.add_item(obj)
@@ -298,7 +354,9 @@ class SequenceFormUpdateAccountProvisionView(LoginRequiredMixin, AdminPermMixin,
     a account provision item.
     """
 
-    def post(self, request, template_type, template_pk, condition, exists, *args, **kwargs):
+    def post(
+        self, request, template_type, template_pk, condition, exists, *args, **kwargs
+    ):
 
         condition = get_object_or_404(Condition, id=condition)
         if exists == 0:
@@ -319,7 +377,10 @@ class SequenceFormUpdateAccountProvisionView(LoginRequiredMixin, AdminPermMixin,
 
         # Either create a provision item or update it
         if existing_item is None:
-            account_provision = AccountProvision.objects.create(integration_type=access_token.account_provision_name, additional_data=item_form.cleaned_data)
+            account_provision = AccountProvision.objects.create(
+                integration_type=access_token.account_provision_name,
+                additional_data=item_form.cleaned_data,
+            )
             condition.add_item(account_provision)
         else:
             existing_item.additional_data = item_form.cleaned_data
@@ -355,19 +416,39 @@ class SequenceConditionItemView(LoginRequiredMixin, AdminPermMixin, View):
         condition.add_item(template_item)
         todos = ToDo.templates.all()
         condition = (
-            Condition.objects.filter(id=condition.id).prefetch_related(
+            Condition.objects.filter(id=condition.id)
+            .prefetch_related(
                 Prefetch("introductions", queryset=Introduction.objects.all()),
                 Prefetch("to_do", queryset=ToDo.objects.all().defer("content")),
                 Prefetch("resources", queryset=Resource.objects.all()),
-                Prefetch("appointments", queryset=Appointment.objects.all().defer("content")),
+                Prefetch(
+                    "appointments", queryset=Appointment.objects.all().defer("content")
+                ),
                 Prefetch("badges", queryset=Badge.objects.all().defer("content")),
-                Prefetch("external_messages", queryset=ExternalMessage.objects.for_new_hire().defer("content", "content_json"), to_attr='external_new_hire'),
-                Prefetch("external_messages", queryset=ExternalMessage.objects.for_admins().defer("content", "content_json"), to_attr='external_admin'),
-                Prefetch("condition_to_do", queryset=ToDo.objects.all().defer("content")),
+                Prefetch(
+                    "external_messages",
+                    queryset=ExternalMessage.objects.for_new_hire().defer(
+                        "content", "content_json"
+                    ),
+                    to_attr="external_new_hire",
+                ),
+                Prefetch(
+                    "external_messages",
+                    queryset=ExternalMessage.objects.for_admins().defer(
+                        "content", "content_json"
+                    ),
+                    to_attr="external_admin",
+                ),
+                Prefetch(
+                    "condition_to_do", queryset=ToDo.objects.all().defer("content")
+                ),
                 Prefetch("admin_tasks", queryset=PendingAdminTask.objects.all()),
-                Prefetch("preboarding", queryset=Preboarding.objects.all().defer("content")),
+                Prefetch(
+                    "preboarding", queryset=Preboarding.objects.all().defer("content")
+                ),
                 Prefetch("account_provisions", queryset=AccountProvision.objects.all()),
-            ).first()
+            )
+            .first()
         )
         return render(
             request,
@@ -428,6 +509,7 @@ class SequenceDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
 
     :params int pk: Sequence pk
     """
+
     queryset = Condition.objects.all()
     success_url = reverse_lazy("sequences:list")
 
@@ -446,6 +528,7 @@ class SequenceDefaultTemplatesView(LoginRequiredMixin, AdminPermMixin, ListView)
     HTMX view, whenever clicked on any of the template icons on the right side
     of the screen
     """
+
     template_name = "_sequence_templates_list.html"
 
     def get_queryset(self):

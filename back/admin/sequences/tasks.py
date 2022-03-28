@@ -1,10 +1,7 @@
 from django.contrib.auth import get_user_model
-
 from django_q.tasks import async_task
-from slack_bot.slack import Slack
-from admin.sequences.models import Condition
 
-from .emails import send_sequence_update_message
+from admin.sequences.models import Condition
 
 
 def process_condition(condition, user):
@@ -34,7 +31,7 @@ def timed_triggers(current_datetime):
 
         # Get conditions before/after they started
         # Generally, this should be only one, but just in case, we can handle more
-        conditions = Condition.objects.None()
+        conditions = Condition.objects.none()
         if amount_days == 0:
             conditions = user.conditions.filter(
                 condition_type=2, days=amount_days_before, current_time=current_time
