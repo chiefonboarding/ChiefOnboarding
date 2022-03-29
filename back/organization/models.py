@@ -132,8 +132,8 @@ class Organization(models.Model):
     @property
     def base_color_rgb(self):
         base_color = self.base_color.strip("#")
-        base_color_tuple = tuple(int(base_color[i : i + 2], 16) for i in (0, 2, 4))  # noqa
-        return "%s, %s, %s" % base_color_tuple
+        b_c_t = tuple(int(base_color[i : i + 2], 16) for i in (0, 2, 4))  # noqa
+        return "%s, %s, %s" % b_c_t
 
     @property
     def accent_color_rgb(self):
