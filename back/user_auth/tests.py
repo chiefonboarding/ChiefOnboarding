@@ -217,6 +217,7 @@ def test_authed_view(url, client, new_hire_factory):
         ["<int:chapter>", "1"],
         ["<int:integration_id>", "1"],
         ["<int:resource_user>", "1"],
+        ["<int:condition>", "1"],
     ]
     for placeholder, real_value in swaps:
         url = url.replace(placeholder, real_value)
