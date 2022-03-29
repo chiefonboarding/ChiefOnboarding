@@ -9,6 +9,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
+from django.utils import translation
 from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
@@ -741,16 +742,17 @@ class ColleagueSyncSlack(LoginRequiredMixin, AdminPermMixin, View):
         slack_users = Slack().get_all_users()
 
         for user in slack_users:
-            # Skip all bots, fake users, and people with missing profile or missing email
-            # We need to be extra careful here. Slack doesn't always respond back with all info
-            # Sometimes it might be None, an emtpy string or not exist at all!
+            # Skip all bots, fake users, and people with missing profile or missing
+            # email. We need to be extra careful here. Slack doesn't always respond
+            # back with all info. Sometimes it might be None, an emtpy string or not
+            # exist at all!
             if (
                 user["id"] == "USLACKBOT"
                 or user["is_bot"]
                 or "real_name" not in user["profile"]
                 or "email" not in user["profile"]
                 or user["profile"]["email"] == ""
-                or user["profile"]["email"] == None
+                or user["profile"]["email"] is None
             ):
                 continue
 
@@ -769,8 +771,9 @@ class ColleagueSyncSlack(LoginRequiredMixin, AdminPermMixin, View):
                 ):
                     user_info[chief_prop] = user["profile"][slack_prop]
 
-            # If we don't have the first_name, then attempt on splitting the "real_name" property.
-            # This is less accurate, as names like "John van Klaas" will have three words.
+            # If we don't have the first_name, then attempt on splitting the "real_name"
+            # property. This is less accurate, as names like "John van Klaas" will have
+            # three words.
             if "first_name" not in user_info:
                 split_name = user["profile"]["real_name"].split(" ", 1)
                 user_info["first_name"] = split_name[0]
@@ -818,7 +821,8 @@ class ColleagueGiveSlackAccessView(LoginRequiredMixin, AdminPermMixin, View):
                 "text": {
                     "type": "mrkdwn",
                     "text": _(
-                        "Click on the button to see all the categories that are available to you!"
+                        "Click on the button to see all the categories that are "
+                        "available to you!"
                     ),
                 },
             },

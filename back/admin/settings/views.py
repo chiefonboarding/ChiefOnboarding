@@ -355,7 +355,8 @@ class SlackChannelsUpdateView(LoginRequiredMixin, AdminPermMixin, RedirectView):
         messages.success(
             request,
             _(
-                "Newly added channels have been added. Make sure the bot has been added to that channel too if you want it to post/get info there!"
+                "Newly added channels have been added. Make sure the bot has been "
+                "added to that channel too if you want it to post/get info there!"
             ),
         )
         return super().get(request, *args, **kwargs)

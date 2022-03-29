@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.db import models
-from django.db.models import Prefetch
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -68,7 +67,7 @@ class Sequence(models.Model):
                     )
                 )
                 for condition in conditions:
-                    # Quickly check if the amount of items match - if not match, then drop
+                    # Quickly check if the amount of items match - if not match, drop
                     if condition.condition_to_do.all().count() != len(
                         original_condition_to_do_ids
                     ):
@@ -95,14 +94,15 @@ class Sequence(models.Model):
 
                 continue
 
-            # Let's add the condition to the new hire. Either through adding it to the exising one
-            # or creating a new one
+            # Let's add the condition to the new hire. Either through adding it to the
+            # exising one or creating a new one
             if user_condition is not None:
                 # adding items to existing condition
                 user_condition.include_other_condition(sequence_condition)
             else:
                 # duplicating condition and adding to user
-                # Force getting it, as we are about to duplicate it and set the pk to None
+                # Force getting it, as we are about to duplicate it and set the pk to
+                # None
                 old_condition = Condition.objects.get(id=sequence_condition.id)
 
                 sequence_condition.pk = None
@@ -227,7 +227,8 @@ class ExternalMessage(models.Model):
                 send_sequence_message(
                     self.get_user(user), self.email_message(), self.subject
                 )
-            except:
+            # TODO
+            except:  # noqa: E722
                 pass
         elif self.is_slack_message:
             s = Slack()
@@ -516,7 +517,8 @@ class Condition(models.Model):
                     created_for=user,
                 )
 
-        # For the ones that aren't a quick copy/paste, follow back to their model and execute them
+        # For the ones that aren't a quick copy/paste, follow back to their model and
+        # execute them
         for field in ["admin_tasks", "external_messages", "account_provisions"]:
             for item in self.__getattribute__(field).all():
                 item.execute(user)

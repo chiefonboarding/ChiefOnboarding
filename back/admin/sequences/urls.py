@@ -1,4 +1,4 @@
-from django.urls import include, path
+from django.urls import path
 
 from . import views
 
@@ -54,7 +54,7 @@ urlpatterns = [
         name="update-forms",
     ),
     path(
-        "update_account_provision/<slug:template_type>/<int:template_pk>/<int:condition>/<int:exists>/",
+        "update_account_provision/<slug:template_type>/<int:template_pk>/<int:condition>/<int:exists>/",  # noqa: E501
         views.SequenceFormUpdateAccountProvisionView.as_view(),
         name="update-account-provision",
     ),

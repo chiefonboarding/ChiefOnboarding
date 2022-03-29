@@ -1,8 +1,4 @@
-from django.conf import settings
-from django.utils.translation import gettext as _
-
-from .slack_modal import SlackModal
-from .utils import button, paragraph
+from .utils import paragraph
 
 
 class SlackIntro:

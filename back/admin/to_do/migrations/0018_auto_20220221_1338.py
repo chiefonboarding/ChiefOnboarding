@@ -35,7 +35,10 @@ class Migration(migrations.Migration):
             name="send_back",
             field=models.BooleanField(
                 default=False,
-                verbose_name="Post new hire's answers from form (if applicable) back to Slack channel",
+                verbose_name=(
+                    "Post new hire's answers from form (if applicable) back to Slack "
+                    "channel"
+                ),
             ),
         ),
         migrations.AlterField(

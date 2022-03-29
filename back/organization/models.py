@@ -59,7 +59,8 @@ class Organization(models.Model):
     new_hire_email = models.BooleanField(
         verbose_name=_("Send email to new hire with login credentials"),
         help_text=_(
-            "This is essential if you want your new hires to login to the dashboard (disable if using Slack)"
+            "This is essential if you want your new hires to login to the dashboard "
+            "(disable if using Slack)"
         ),
         default=True,
     )
@@ -77,14 +78,16 @@ class Organization(models.Model):
     # Slack specific
     slack_buttons = models.BooleanField(
         verbose_name=_(
-            "Add 'todo' and 'resource' buttons to the first message that's being sent to the new hire."
+            "Add 'todo' and 'resource' buttons to the first message that's being sent "
+            "to the new hire."
         ),
         help_text="Slack only",
         default=True,
     )
     ask_colleague_welcome_message = models.BooleanField(
         verbose_name=_(
-            "Send a Slack message to the team to collect personal welcome messages from colleages."
+            "Send a Slack message to the team to collect personal welcome messages from"
+            " colleages."
         ),
         help_text=_("Slack only"),
         default=True,
@@ -129,13 +132,13 @@ class Organization(models.Model):
     @property
     def base_color_rgb(self):
         base_color = self.base_color.strip("#")
-        base_color_tuple = tuple(int(base_color[i : i + 2], 16) for i in (0, 2, 4))
+        base_color_tuple = tuple(int(base_color[i: i + 2], 16) for i in (0, 2, 4))
         return "%s, %s, %s" % base_color_tuple
 
     @property
     def accent_color_rgb(self):
         accent_color = self.accent_color.strip("#")
-        return tuple(int(accent_color[i : i + 2], 16) for i in (0, 2, 4))
+        return tuple(int(accent_color[i: i + 2], 16) for i in (0, 2, 4))
 
     @property
     def current_datetime(self):

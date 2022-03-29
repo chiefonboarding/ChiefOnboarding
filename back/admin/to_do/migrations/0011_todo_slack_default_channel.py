@@ -10,12 +10,14 @@ class Migration(migrations.Migration):
         ToDo = apps.get_model("to_do", "ToDo")
         Organization = apps.get_model("organization", "Organization")
 
-        # Not necessarily related, but let's fix the default channel for organization as well
+        # Not necessarily related, but let's fix the default channel for organization
+        # as well
         slack_channel, _ = SlackChannel.objects.get_or_create(name="general")
-        # Check if organization exists. If not, then the site has not been set up yet and then just drop everything else
+        # Check if organization exists. If not, then the site has not been set up
+        # yet and then just drop everything else
         try:
             org = Organization.object.get()
-        except:
+        except:  # noqa E722
             # Org does not exist yet
             return
 

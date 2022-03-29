@@ -1,7 +1,7 @@
 import datetime
 
 import factory
-from factory.fuzzy import FuzzyDate, FuzzyText
+from factory.fuzzy import FuzzyText
 from pytest_factoryboy import register
 
 from organization.factories import OrganizationFactory

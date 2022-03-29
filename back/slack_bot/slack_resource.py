@@ -101,7 +101,7 @@ class SlackResourceCategory:
             return [paragraph(_("No resources available"))]
         if self.user.resources.filter(category__isnull=True).exists():
             yield actions(
-                button(_("No category"), "primary", f"category:-1", f"category:-1")
+                button(_("No category"), "primary", "category:-1", "category:-1")
             )
         for i in categories:
             yield actions(

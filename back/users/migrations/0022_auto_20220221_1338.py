@@ -132,7 +132,10 @@ class Migration(migrations.Migration):
                     (3, "Other"),
                 ],
                 default=3,
-                help_text="An administrator has access to everything. A manager has only access to their new hires and their tasks.",
+                help_text=(
+                    "An administrator has access to everything. A manager has only "
+                    "access to their new hires and their tasks."
+                ),
                 verbose_name="Role",
             ),
         ),

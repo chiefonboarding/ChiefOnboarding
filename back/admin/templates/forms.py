@@ -16,7 +16,8 @@ class MultiSelectField(Field):
 
 
 class FieldWithExtraContext(Field):
-    # Copied from SO, this allows us to add extra content to the field (such as the file object)
+    # Copied from SO, this allows us to add extra content to the field (such as the
+    # file object)
     # https://stackoverflow.com/a/41189149
     extra_context = {}
 
@@ -65,7 +66,7 @@ class ModelChoiceFieldWithCreate(forms.ModelChoiceField):
             # then it will pick a category instead. Warning added to help_text
             try:
                 value = self.queryset.get(pk=value).name
-            except:
+            except Exception:
                 pass
 
             value = self.queryset.get(**{key: value})

@@ -1,11 +1,5 @@
-import json
-import os
-
 import requests
-import slack_sdk as slack
-from django.contrib.auth import get_user_model
 
-from .emails import slack_error_email
 from .models import AccessToken
 
 
@@ -60,7 +54,8 @@ class Slack:
 
     def add_user(self, email, channels):
         r = requests.post(
-            f"{self.BASE_URL}/users.admin.invite?token={self.get_token()}&email={email}channel_ids={channels}",
+            (f"{self.BASE_URL}/users.admin.invite?token={self.get_token()}&email="
+             f"{email}channel_ids={channels}"),
             headers=self.get_authentication_header(),
         )
         if r.json()["ok"]:
@@ -69,7 +64,10 @@ class Slack:
 
     def delete_user(self, email):
         response = requests.post(
-            f"{self.BASE_URL}/users.admin.setInactive?token={self.get_token()}&email={email}",
+            (
+                f"{self.BASE_URL}/users.admin.setInactive?token={self.get_token()}"
+                f"&email={email}"
+            ),
             headers=self.get_authentication_header(),
         )
         if response.json()["ok"]:
@@ -78,7 +76,10 @@ class Slack:
 
     def get_channels(self):
         response = requests.post(
-            f"{self.BASE_URL}/conversations.list?token={self.get_token()}&exclude_archived=true&types=public_channel,private_channel",
+            (
+                f"{self.BASE_URL}/conversations.list?token={self.get_token()}&"
+                "exclude_archived=true&types=public_channel,private_channel"
+            ),
             headers=self.get_authentication_header(),
         )
         return [[x["name"], x["is_private"]] for x in response["channels"]]

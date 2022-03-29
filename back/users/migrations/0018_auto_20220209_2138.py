@@ -8,8 +8,9 @@ class Migration(migrations.Migration):
     def move_departments(apps, schema_editor):
         User = apps.get_model("users", "User")
         Department = apps.get_model("users", "Department")
-        # technically, we could have used an update here and make less connections, but since it's just a one-off task,
-        # let's not make it more complex than it needs to be
+        # technically, we could have used an update here and make less connections, but
+        # since it's just a one-off task, let's not make it more complex than it needs
+        # to be
         for user in User.objects.all():
 
             # Skip all items that have no department

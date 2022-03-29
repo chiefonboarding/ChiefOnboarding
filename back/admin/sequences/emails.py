@@ -1,14 +1,12 @@
 from django.conf import settings
 from django.core.mail import send_mail
-from django.template import Context, Template
 from django.template.loader import render_to_string
-from django.utils import translation
 from django.utils.translation import gettext as _
 
 from organization.models import Organization
 
 
-def send_sequence_message(new_hire, message, subject):
+def send_sequence_message(new_hire, admin, message, subject):
     # used to send custom external messages to anyone
     org = Organization.object.get()
     for i in message:
@@ -21,7 +19,7 @@ def send_sequence_message(new_hire, message, subject):
         new_hire.personalize(subject),
         "",
         settings.DEFAULT_FROM_EMAIL,
-        [new_hire.email],
+        [admin.email],
         html_message=html_message,
     )
 

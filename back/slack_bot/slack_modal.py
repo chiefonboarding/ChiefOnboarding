@@ -1,62 +1,62 @@
 import json
 
 from django.contrib.auth import get_user_model
-from django.utils.translation import gettext as _
 
 """
 Example payload:
 
 {
-	"title": {
-		"type": "plain_text",
-		"text": "Modal Title"
-	},
-	"submit": {
-		"type": "plain_text",
-		"text": "Submit"
-	},
-	"blocks": [
-		{
-			"type": "input",
-			"element": {
-				"type": "plain_text_input",
-				"action_id": "sl_input",
-				"placeholder": {
-					"type": "plain_text",
-					"text": "Placeholder text for single-line input"
-				}
-			},
-			"label": {
-				"type": "plain_text",
-				"text": "Label"
-			},
-			"hint": {
-				"type": "plain_text",
-				"text": "Hint text"
-			}
-		},
-		{
-			"type": "input",
-			"element": {
-				"type": "plain_text_input",
-				"action_id": "ml_input",
-				"multiline": true,
-				"placeholder": {
-					"type": "plain_text",
-					"text": "Placeholder text for multi-line input"
-				}
-			},
-			"label": {
-				"type": "plain_text",
-				"text": "Label"
-			},
-			"hint": {
-				"type": "plain_text",
-				"text": "Hint text"
-			}
-		}
-	],
-	"type": "modal"
+   "title": {
+      "type": "plain_text",
+      "text": "Modal Title"
+    },
+    "submit": {
+        "type": "plain_text",
+        "text": "Submit"
+    },
+    "blocks": [
+        {
+            "type": "input",
+            "element": {
+                "type": "plain_text_input",
+                "action_id": "sl_input",
+                "placeholder": {
+                    "type": "plain_text",
+                    "text": "Placeholder text for single-line input"
+                }
+            },
+            "label": {
+                "type": "plain_text",
+                "text": "Label"
+            },
+            "hint": {
+                "type": "plain_text",
+                "text": "Hint text"
+            }
+        },
+        {
+            "type": "input",
+            "element": {
+                "type": "plain_text_input",
+                "action_id": "ml_input",
+                "multiline": true,
+                "placeholder": {
+                    "type": "plain_text",
+                    "text": "Placeholder text for multi-line input"
+                }
+            },
+            "label": {
+                "type": "plain_text",
+                "text": "Label"
+            },
+            "hint": {
+                "type": "plain_text",
+                "text": "Hint text"
+            }
+        }
+    ],
+    "type": "modal"
+}
 
 """
 
@@ -73,7 +73,7 @@ class SlackModal:
             .objects.filter(slack_user_id=self.current_view["user"]["id"])
             .first()
         )
-        return self.user != None
+        return self.user is not None
 
     def get_channel(self):
         return self.current_view["channel"]["id"]

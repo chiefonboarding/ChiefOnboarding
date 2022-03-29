@@ -26,7 +26,11 @@ class ConditionCreateForm(forms.ModelForm):
 
     def _get_save_button(self):
         return (
-            '<button hx-post="{% url "sequences:condition-create" object.id %}" hx-target="#condition_form" hx-swap="#add-condition-form" class="btn btn-primary ms-auto">'
+            (
+                '<button hx-post="{% url "sequences:condition-create" object.id %}" '
+                'hx-target="#condition_form" hx-swap="#add-condition-form" class="btn'
+                'btn-primary ms-auto">'
+            )
             + _("Add block")
             + "</button>"
         )
@@ -35,7 +39,7 @@ class ConditionCreateForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         is_time_condition = (
-            self.instance.condition_type in [0, 2] or self.instance == None
+            self.instance.condition_type in [0, 2] or self.instance is None
         )
         self.helper.layout = Layout(
             Field("condition_type"),
@@ -73,7 +77,8 @@ class ConditionCreateForm(forms.ModelForm):
         if day == 0 and self.cleaned_data["condition_type"] in [0, 2]:
             raise ValidationError(
                 _(
-                    "You cannot use 0. The day before starting is 1 and the first workday is 1"
+                    "You cannot use 0. The day before starting is 1 and the first "
+                    "workday is 1"
                 )
             )
 
@@ -87,7 +92,8 @@ class ConditionCreateForm(forms.ModelForm):
         ]:
             raise ValidationError(
                 _(
-                    "Time must be in an interval of 5 minutes. %(minutes) must end in 0 or 5."
+                    "Time must be in an interval of 5 minutes. %(minutes) must end in "
+                    "0 or 5."
                 )
                 % {"minutes": time.minute}
             )
@@ -110,7 +116,11 @@ class ConditionCreateForm(forms.ModelForm):
 class ConditionUpdateForm(ConditionCreateForm):
     def _get_save_button(self):
         return (
-            '<button hx-post="{% url "sequences:condition-update" object.id condition.id %}" hx-target="#condition_form" hx-swap="#add-condition-form" class="btn btn-primary ms-auto">'
+            (
+                '<button hx-post="{% url "sequences:condition-update" object.id '
+                'condition.id %}" hx-target="#condition_form" '
+                'hx-swap="#add-condition-form" class="btn btn-primary ms-auto">'
+            )
             + _("Edit block")
             + "</button>"
         )

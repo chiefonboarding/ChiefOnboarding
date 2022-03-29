@@ -1,6 +1,5 @@
 import uuid
 
-from django.conf import settings
 from django.db import models
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
@@ -49,7 +48,8 @@ class AccessTokenManager(models.Manager):
         return super().get_queryset()
 
     def account_provision_options(self):
-        # Add items here that are meant for account creation. Making it static, as this won't change.
+        # Add items here that are meant for account creation. Making it static, as
+        # this won't change.
         return self.get_queryset().filter(integration__in=[1, 2, 4])
 
 

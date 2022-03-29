@@ -1,14 +1,10 @@
 import pyotp
 import pytz
-from crispy_forms.bootstrap import Tab, TabHolder
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import (
     HTML,
-    ButtonHolder,
-    Column,
     Div,
     Field,
-    Fieldset,
     Layout,
     Submit,
 )
@@ -147,7 +143,11 @@ class WelcomeMessagesUpdateForm(forms.ModelForm):
         }
         help_texts = {
             "message": _(
-                "You can use &#123;&#123; first_name &#125;&#125;, &#123;&#123; last_name &#125;&#125;, &#123;&#123; position &#125;&#125;, &#123;&#123; manager &#125;&#125;, and &#123;&#123; buddy &#125;&#125; in the editor. It will be replaced by the values corresponding to the new hire."
+                "You can use &#123;&#123; first_name &#125;&#125;, "
+                "&#123;&#123; last_name &#125;&#125;, &#123;&#123; position "
+                "&#125;&#125;, &#123;&#123; manager &#125;&#125;, and &#123;&#123; "
+                "buddy &#125;&#125; in the editor. It will be replaced by the values "
+                "corresponding to the new hire."
             )
         }
 
@@ -171,7 +171,8 @@ class OTPVerificationForm(forms.Form):
         if not valid and cache.get(f"{self.user.email}_totp_passed") is None:
             raise ValidationError(
                 _(
-                    "OTP token was not correct. Please wait 30 seconds and then try again"
+                    "OTP token was not correct. Please wait 30 seconds and then try "
+                    "again"
                 )
             )
 

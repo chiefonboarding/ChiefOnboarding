@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.db.models import Count, Prefetch
+from django.db.models import Prefetch
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
@@ -17,7 +17,7 @@ from admin.introductions.models import Introduction
 from admin.preboarding.models import Preboarding
 from admin.resources.models import Resource
 from admin.sequences.utils import get_sequence_model_form, get_sequence_templates_model
-from admin.templates.utils import get_model_form, get_templates_model
+from admin.templates.utils import get_templates_model
 from admin.to_do.models import ToDo
 from users.mixins import AdminPermMixin, LoginRequiredMixin
 
@@ -278,7 +278,8 @@ class SequenceFormView(LoginRequiredMixin, AdminPermMixin, View):
 
 class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
     """
-    Update or create a specific line item (template or not) in a condition item (excl. Account provision)
+    Update or create a specific line item (template or not) in a condition item (excl.
+    Account provision)
 
     :params str template_type: i.e. todo, resource, introduction
     :params int template_pk: the pk of the used template (0 if none)
@@ -301,7 +302,8 @@ class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
             template_item = get_object_or_404(templates_model, id=template_pk)
 
         # Push instance and data through form and save it
-        # Check if original item was template or doesn't exist (is new), if so, then create new
+        # Check if original item was template or doesn't exist (is new), if so, then
+        # create new
         if template_item is None or (
             hasattr(template_item, "template") and template_item.template
         ):
@@ -314,12 +316,14 @@ class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
             obj.template = False
             obj.save()
 
-            # Check if new item has been created. If it has, then remove the old record and add the new one.
-            # If it hasn't created a new object, then the old one is good enough.
+            # Check if new item has been created. If it has, then remove the old
+            # record and add the new one. If it hasn't created a new object, then
+            # the old one is good enough.
             if obj.id != template_pk:
                 condition = get_object_or_404(Condition, id=condition)
 
-                # This can probably be cleaned up, we can't use proxy object. We need the base one
+                # This can probably be cleaned up, we can't use proxy object. We need
+                # the base one
                 if form in [
                     PendingEmailMessageForm,
                     PendingSlackMessageForm,

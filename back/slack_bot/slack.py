@@ -1,18 +1,9 @@
-import slack_sdk as slack
-from django.conf import settings
-from django.contrib.auth import get_user_model
-from django.template import Context, Template
-from django.utils import translation
 from django.utils.translation import gettext as _
 
-from admin.integrations.models import AccessToken
 from admin.introductions.models import Introduction
-from admin.resources.models import Chapter
-from organization.models import Organization
 
 
 class Slack:
-
     def send_sequence_triggers(self, items, to_do_user):
         from users.models import ToDoUser
 

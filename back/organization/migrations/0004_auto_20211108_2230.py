@@ -34,7 +34,10 @@ class Migration(migrations.Migration):
             field=models.BooleanField(
                 default=True,
                 help_text="Slack only",
-                verbose_name="Send a Slack message to the team to collect personal welcome messages from colleages.",
+                verbose_name=(
+                    "Send a Slack message to the team to collect personal welcome "
+                    "messages from colleages."
+                ),
             ),
         ),
         migrations.AlterField(
@@ -77,7 +80,10 @@ class Migration(migrations.Migration):
             name="new_hire_email",
             field=models.BooleanField(
                 default=True,
-                help_text="This is essential if you want your new hires to login to the dashboard (disable if using Slack)",
+                help_text=(
+                    "This is essential if you want your new hires to login to the "
+                    "dashboard (disable if using Slack)"
+                ),
                 verbose_name="Send email to new hire with login credentials",
             ),
         ),
@@ -86,7 +92,9 @@ class Migration(migrations.Migration):
             name="new_hire_email_overdue_reminders",
             field=models.BooleanField(
                 default=False,
-                help_text="These are daily emails, until all overdue tasks are completed.",
+                help_text=(
+                    "These are daily emails, until all overdue tasks are completed."
+                ),
                 verbose_name="Send email to new hire when tasks are overdue",
             ),
         ),
@@ -95,7 +103,9 @@ class Migration(migrations.Migration):
             name="new_hire_email_reminders",
             field=models.BooleanField(
                 default=True,
-                help_text="Think of new tasks that got assigned, new resources, badges... ",
+                help_text=(
+                    "Think of new tasks that got assigned, new resources, badges... "
+                ),
                 verbose_name="Send email to new hire with updates",
             ),
         ),
@@ -105,7 +115,9 @@ class Migration(migrations.Migration):
             field=models.BooleanField(
                 default=False,
                 help_text="Slack only",
-                verbose_name="Send a Slack message to the team on the day the new hire starts",
+                verbose_name=(
+                    "Send a Slack message to the team on the day the new hire starts"
+                ),
             ),
         ),
         migrations.AlterField(
@@ -114,7 +126,10 @@ class Migration(migrations.Migration):
             field=models.BooleanField(
                 default=True,
                 help_text="Slack only",
-                verbose_name="Add 'todo' and 'resource' buttons to the first message that's being sent to the new hire.",
+                verbose_name=(
+                    "Add 'todo' and 'resource' buttons to the first message that's "
+                    "being sent to the new hire."
+                ),
             ),
         ),
         migrations.AlterField(

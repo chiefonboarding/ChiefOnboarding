@@ -3,8 +3,8 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from .asana import Asana
-from .google import Google
-from .slack import Slack
+# from .google import Google
+# from .slack import Slack
 
 
 class AddGoogleUserForm(forms.Form):

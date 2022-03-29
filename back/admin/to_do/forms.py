@@ -39,6 +39,7 @@ class ToDoForm(TagModelForm):
         exclude = ("template",)
         help_texts = {
             "send_back": _(
-                "Let your new hire now that the answers are going to be shared with the team!"
+                "Let your new hire now that the answers are going to be shared with the"
+                " team!"
             )
         }

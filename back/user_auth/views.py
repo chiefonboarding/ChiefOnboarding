@@ -119,7 +119,7 @@ class GoogleLoginView(View):
                 "https://www.googleapis.com/auth/userinfo.email",
                 headers={"Authorization": user_access_token},
             ).json()
-        except:
+        except Exception:
             messages.error(
                 request,
                 _("Something went wrong with reaching Google. Please try again."),
@@ -136,7 +136,8 @@ class GoogleLoginView(View):
         messages.error(
             request,
             _(
-                "There is no account associated with your email address. Did you try to log in with the correct account?"
+                "There is no account associated with your email address. Did you try to"
+                " log in with the correct account?"
             ),
         )
         return redirect("login")

@@ -104,7 +104,9 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 to="slack_bot.slackchannel",
-                verbose_name="This is the default channel where the bot will post messages in",
+                verbose_name=(
+                    "This is the default channel where the bot will post messages in"
+                ),
             ),
         ),
         migrations.AlterField(

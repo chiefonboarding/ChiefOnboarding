@@ -1,15 +1,13 @@
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext as _
 
 from admin.resources.models import Resource
-from admin.to_do.models import ToDo
 from organization.models import Organization
 from users.models import ToDoUser
 
 from .slack_resource import SlackResource, SlackResourceCategory
 from .slack_to_do import SlackToDo
-from .utils import Slack, has_slack_account, paragraph
+from .utils import paragraph
 
 """
 Example payload:
@@ -78,12 +76,14 @@ class SlackIncomingMessage:
         messages = [
             _("Happy to help! Here are all the things you can say to me: \n\n"),
             _(
-                "*What do I need to do today?*\nThis will show all the tasks you need to do today. "
-                "I will show you these every day as well, but just incase you want to get them again."
+                "*What do I need to do today?*\nThis will show all the tasks you need "
+                "to do today. I will show you these every day as well, but just incase "
+                "you want to get them again."
             ),
             _(
                 "*Do I have any to do items that are overdue?*\nThis will show all "
-                "tasks that should have been completed. Please do those as soon as possible."
+                "tasks that should have been completed. Please do those as soon as "
+                "possible."
             ),
             _("*Show me all to do items*\nThis will show all tasks"),
             _("*Show me all resources*\nThis will show all resources."),

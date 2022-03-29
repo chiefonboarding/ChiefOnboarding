@@ -69,8 +69,9 @@ class Google:
 
     def find_by_email(self, email):
         r = requests.post(
-            "https://www.googleapis.com/admin/directory/v1/users?customer=my_customer&query=email%3D{}".format(
-                email.lower
+            (
+                "https://www.googleapis.com/admin/directory/v1/users?customer="
+                f"my_customer&query=email%3D{email.lower}"
             ),
             headers=self.get_authentication_header(),
         )

@@ -53,7 +53,8 @@ class AdminTask(models.Model):
         return render_to_string("_admin_task_icon.html")
 
     def save(self, *args, **kwargs):
-        # checking if this is new before saving, sending information after we have the ID.
+        # checking if this is new before saving, sending information after we have the
+        # ID.
         is_new = self.pk is None
         super(AdminTask, self).save(*args, **kwargs)
         if is_new and self.option == 1:
@@ -66,7 +67,8 @@ class AdminTask(models.Model):
                     "text": {
                         "type": "mrkdwn",
                         "text": _(
-                            "%(name_assigned_to)s needs your help with this task:\n*%(task_name)s*\n_%(comment)s_"
+                            "%(name_assigned_to)s needs your help with this task:\n*"
+                            "%(task_name)s*\n_%(comment)s_"
                         )
                         % {
                             "name_assigned_to": self.assigned_to.full_name(),
@@ -163,7 +165,8 @@ class AdminTaskComment(models.Model):
                         "text": {
                             "type": "mrkdwn",
                             "text": _(
-                                "%(name)s added a message to your task:\n*%(task_title)s*\n_%(comment)s_"
+                                "%(name)s added a message to your task:\n*"
+                                "%(task_title)s*\n_%(comment)s_"
                             )
                             % {
                                 "name": self.comment_by.full_name,

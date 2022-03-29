@@ -1,11 +1,11 @@
 from unittest.mock import Mock, patch
 
 import pytest
-from django.conf import settings
 from django.contrib import auth
 from django.urls import reverse
 
-from users.factories import *
+from users.factories import *  # noqa
+from organization.models import Organization
 
 from .utils import get_all_urls
 
@@ -190,8 +190,8 @@ def test_MFA_setting_with_invalid_totp(client, new_hire_factory):
 @pytest.mark.django_db
 @pytest.mark.parametrize("url", get_all_urls())
 def test_authed_view(url, client, new_hire_factory):
-    # This test is only here to check that we aren't accidentally exposing any urls to the public
-    # (without authentication)
+    # This test is only here to check that we aren't accidentally exposing any urls to
+    # the public (without authentication)
     new_hire = new_hire_factory(requires_otp=True)
     new_hire.set_password("strong_pass")
     new_hire.save()

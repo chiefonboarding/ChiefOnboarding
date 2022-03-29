@@ -1,7 +1,6 @@
 import json
 
 import requests
-from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.utils.translation import gettext as _
@@ -39,7 +38,8 @@ class SlackOAuthView(LoginRequiredMixin, View):
             messages.success(
                 request,
                 _(
-                    "Slack has successfully been connected. You have a new bot in your workspace."
+                    "Slack has successfully been connected. You have a new bot in your "
+                    "workspace."
                 ),
             )
         else:

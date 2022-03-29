@@ -52,7 +52,8 @@ class ResourceForm(TagModelForm):
                     HTML(
                         "<small style='top: -11px; position: relative;'>"
                         + _(
-                            "Do not use only numbers as a category. Always add some text."
+                            "Do not use only numbers as a category. Always add some "
+                            "text."
                         )
                         + "</small>"
                     ),

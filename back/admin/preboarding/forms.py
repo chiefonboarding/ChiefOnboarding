@@ -1,6 +1,5 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, Layout
-from django.utils.translation import gettext_lazy as _
 
 from admin.templates.forms import MultiSelectField, TagModelForm, WYSIWYGField
 

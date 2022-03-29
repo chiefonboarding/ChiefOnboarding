@@ -51,7 +51,10 @@ class Asana:
 
     def find_by_email(self, email):
         r = requests.get(
-            f"{self.BASE_URL}users/{email}/teams?organization={self.access_obj.account_id}",
+            (
+                f"{self.BASE_URL}users/{email}/teams?organization="
+                f"{self.access_obj.account_id}"
+            ),
             headers=self.get_authentication_header(),
         )
         if r.status_code == 200 and len(r.json()["data"]):
@@ -60,7 +63,10 @@ class Asana:
 
     def find_by_email_and_team(self, email, team_id):
         r = requests.get(
-            f"{self.BASE_URL}users/{email}/teams?organization={self.access_obj.account_id}",
+            (
+                f"{self.BASE_URL}users/{email}/teams?organization="
+                "{self.access_obj.account_id}"
+            ),
             headers=self.get_authentication_header(),
         )
         if r.status_code == 200:
@@ -91,7 +97,8 @@ class Asana:
 
     def add_user(self, email, payload):
         self.add_user_to_organization(email)
-        # This adds a user to a team within asana. It is required that the user already exists in the workspace
+        # This adds a user to a team within asana. It is required that the user
+        # already exists in the workspace
         data = {"data": {"user": email}}
         results = []
         for team_id in payload["teams"]:

@@ -1,13 +1,10 @@
 import json
 import urllib
-from datetime import datetime
 
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext as _
 from django.views.generic import View
-from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from admin.admin_tasks.models import AdminTask
 from admin.integrations.models import AccessToken
@@ -16,7 +13,7 @@ from admin.sequences.models import Sequence
 
 # from fuzzywuzzy import process
 from organization.models import Organization
-from users.models import NewHireWelcomeMessage, ResourceUser, ToDoUser, User
+from users.models import NewHireWelcomeMessage, ResourceUser, ToDoUser
 
 from .slack_block_actions import SlackBlockAction
 from .slack_incoming_message import SlackIncomingMessage
@@ -25,7 +22,7 @@ from .slack_misc import get_new_hire_approve_sequence_options, welcome_new_hire
 from .slack_modal import SlackModal
 from .slack_resource import SlackResource
 from .slack_to_do import SlackToDo, SlackToDoManager
-from .utils import Slack, has_slack_account, paragraph
+from .utils import Slack
 
 
 class BotView(View):
@@ -381,15 +378,16 @@ class CallbackView(View):
                     #     book_user.answers.add(course_answer)
                     print(chapter)
 
-                resource = resource_user.resource.next_chapter(
-                    chapter_id, resource_user.is_course
-                )
-                resource_user.add_step(resource)
-                if resource is None:
-                    return Response()
-                view = s.create_updated_view(
-                    resource.id, response["view"], book_user.completed_course
-                )
+                # resource = resource_user.resource.next_chapter(
+                #     chapter_id, resource_user.is_course
+                # )
+                # resource_user.add_step(resource)
+                # if resource is None:
+                #     return Response()
+                # view = s.create_updated_view(
+                #     resource.id, response["view"], book_user.completed_course
+                # )
+                view = None
                 return Response({"response_action": "update", "view": view})
 
             if slack_modal.is_type("approve:newhire"):

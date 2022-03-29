@@ -1,6 +1,5 @@
 import slack_sdk as slack
 from django.contrib.auth import get_user_model
-from django.utils.translation import gettext as _
 
 from admin.integrations.models import AccessToken
 

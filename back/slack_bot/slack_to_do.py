@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.utils.translation import gettext as _
 
-from admin.to_do.models import ToDo
 from users.models import ToDoUser
 
 from .slack_modal import SlackModal

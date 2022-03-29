@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils import timezone, translation
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
@@ -118,7 +118,7 @@ class PreboardingShortURLRedirectView(LoginRequiredMixin, RedirectView):
                 },
             )
             raise Http404
-        except:
+        except Exception:
             # fail safe
             raise Http404
 
@@ -141,7 +141,8 @@ class PreboardingDetailView(LoginRequiredMixin, DetailView):
         # Make sure user is authenticated to view this object
         if self.request.user.is_authenticated:
             get_object_or_404(PreboardingUser, user=self.request.user, id=kwargs["pk"])
-        # If user is not authenticated, then the default LoginRequiredMixin will catch it
+        # If user is not authenticated, then the default LoginRequiredMixin will catch
+        # it
         return super().dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -220,7 +221,8 @@ class ResourceDetailView(LoginRequiredMixin, DetailView):
     model = Resource
 
     def dispatch(self, *args, **kwargs):
-        # Make sure it's either a course or if it's a course the user is not skipping items
+        # Make sure it's either a course or if it's a course the user is not skipping
+        # items
         if self.request.user.is_authenticated:
             resource_user = get_object_or_404(
                 ResourceUser,

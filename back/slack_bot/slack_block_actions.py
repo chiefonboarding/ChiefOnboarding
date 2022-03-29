@@ -1,12 +1,9 @@
 from django.contrib.auth import get_user_model
-from django.utils.translation import gettext as _
 
-from admin.resources.models import Category
 from users.models import ToDoUser
 
-from .slack_resource import SlackResource, SlackResourceCategory
+from .slack_resource import SlackResourceCategory
 from .slack_to_do import SlackToDoManager
-from .utils import actions, button, paragraph
 
 """
 Example payload:
@@ -77,7 +74,7 @@ class SlackBlockAction:
             .objects.filter(slack_user_id=self.payload["user"]["id"])
             .first()
         )
-        return self.user != None
+        return self.user is not None
 
     def get_channel(self):
         return self.payload["channel"]["id"]

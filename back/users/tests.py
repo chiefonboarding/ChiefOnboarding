@@ -3,10 +3,8 @@ import datetime
 import pytest
 from freezegun import freeze_time
 
-from .factories import *
-from .models import User
-
-## MODEL TESTS
+from .factories import *  # noqa
+from .models import User, OTPRecoveryKey
 
 
 @pytest.mark.django_db
@@ -105,20 +103,22 @@ def test_generating_and_validating_otp_keys(new_hire_factory):
     assert OTPRecoveryKey.objects.count() == 20
 
     # Check wrong keys
-    assert user1.check_otp_recovery_key("12324") == None
-    assert user1.check_otp_recovery_key(user2_new_keys[0]) == None
+    assert user1.check_otp_recovery_key("12324") is None
+    assert user1.check_otp_recovery_key(user2_new_keys[0]) is None
 
     # Check correct key
-    assert recovery_key.is_used == False
-    assert user1.check_otp_recovery_key(user1_new_keys[0]) != None
+    assert not recovery_key.is_used
+    assert user1.check_otp_recovery_key(
+        user1_new_keys[0]
+    ) is not None
 
     recovery_key.refresh_from_db()
 
     # Key has been used and set to used
-    assert recovery_key.is_used == True
+    assert recovery_key.is_used
 
     # Key cannot be reused
-    assert user1.check_otp_recovery_key(user1_new_keys[0]) == None
+    assert user1.check_otp_recovery_key(user1_new_keys[0]) is None
 
 
 @pytest.mark.django_db
@@ -150,8 +150,14 @@ def test_personalize(manager_factory, new_hire_factory):
         first_name="john", last_name="smith", manager=manager, position="developer"
     )
 
-    text = "Hello {{ first_name }} {{ last_name }}, your manager is {{ manager }} and you will be our {{ position }}"
-    text_without_spaces = "Hello {{first_name}} {{last_name}}, your manager is {{manager}} and you will be our {{position}}"
+    text = (
+        "Hello {{ first_name }} {{ last_name }}, your manager is {{ manager }} and "
+        "you will be our {{ position }}"
+    )
+    text_without_spaces = (
+        "Hello {{first_name}} {{last_name}}, your manager is {{manager}} and you will "
+        "be our {{position}}"
+    )
 
     expected_output = (
         "Hello john smith, your manager is jane smith and you will be our developer"
@@ -159,24 +165,3 @@ def test_personalize(manager_factory, new_hire_factory):
 
     assert new_hire.personalize(text) == expected_output
     assert new_hire.personalize(text_without_spaces) == expected_output
-
-
-# @pytest.mark.django_db
-# def test_resource_user(resource):
-#     user = User.objects.create_new_hire('john', 'smith', 'john@example.com', 'johnpassword')
-#     resource_user = ResourceUser.objects.create(user=user, resource=resource)
-
-#     resource_user.add_step(resource.chapters.first())
-
-#     assert resource_user.completed_course == False
-#     assert resource_user.step == 0
-#     assert resource_user.is_course() == True
-
-#     resource_user.add_step(resource.chapters.all()[1])
-
-#     # completed course
-#     assert resource_user.completed_course == True
-#     assert resource_user.step == 1
-#     assert resource_user.is_course() == False
-
-## View TESTS

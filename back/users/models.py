@@ -9,7 +9,6 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 from django.db.models import Q
 from django.template import Context, Template
-from django.utils import formats
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
@@ -23,7 +22,7 @@ from admin.resources.models import CourseAnswer, Resource
 from admin.sequences.models import Condition
 from admin.to_do.models import ToDo
 from misc.models import File
-from organization.models import Changelog, Organization
+from organization.models import Changelog
 
 ROLE_CHOICES = (
     (0, _("New Hire")),
@@ -160,7 +159,8 @@ class User(AbstractBaseUser):
         choices=ROLE_CHOICES,
         default=3,
         help_text=_(
-            "An administrator has access to everything. A manager has only access to their new hires and their tasks."
+            "An administrator has access to everything. A manager has only access to "
+            "their new hires and their tasks."
         ),
     )
     is_active = models.BooleanField(default=True)
@@ -452,7 +452,8 @@ class PreboardingUser(models.Model):
     order = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):
-        # adding order number when record is not created yet (always the last item in the list)
+        # adding order number when record is not created yet (always the last item
+        # in the list)
         if not self.pk:
             self.order = PreboardingUser.objects.filter(
                 user=self.user, preboarding=self.preboarding
@@ -520,7 +521,8 @@ class ResourceUser(models.Model):
                 if question_page.answers[f"item-{idx}"] == answer["answer"]:
                     amount_of_correct_answers += 1
         return _(
-            "%(amount_of_correct_answers)s correct answers out of %(amount_of_questions)s questions"
+            "%(amount_of_correct_answers)s correct answers out of "
+            "%(amount_of_questions)s questions"
         ) % {
             "amount_of_correct_answers": amount_of_correct_answers,
             "amount_of_questions": amount_of_questions,

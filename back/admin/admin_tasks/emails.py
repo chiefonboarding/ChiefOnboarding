@@ -78,7 +78,8 @@ def send_email_new_comment(comment):
         {
             "type": "p",
             "text": _(
-                "One of your todo items has been updated by someone else. Here is the message:"
+                "One of your todo items has been updated by someone else. Here is the "
+                "message:"
             ),
         },
         {

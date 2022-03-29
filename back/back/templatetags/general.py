@@ -9,7 +9,7 @@ register = template.Library()
 def parse_to_json(content):
     try:
         return json.loads(content)
-    except:
+    except Exception:
         return content
 
 
@@ -21,5 +21,5 @@ def next_still_form(content, current_index):
     """
     try:
         return content["blocks"][int(current_index) + 1]["type"] == "form"
-    except:
+    except Exception:
         return False

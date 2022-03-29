@@ -10,7 +10,7 @@ def list_urls(lis, acc=None):
         acc = []
     if not lis:
         return
-    l = lis[0]
+    l = lis[0]  # noqa: E741
     if isinstance(l, URLPattern):
         yield acc + [str(l.pattern)]
     elif isinstance(l, URLResolver):

@@ -19,7 +19,8 @@ def email_new_admin_cred(user):
         {
             "type": "p",
             "text": _(
-                "Someone in your organisation invited you to join ChiefOnboarding. Here are your login details:"
+                "Someone in your organisation invited you to join ChiefOnboarding. Here"
+                " are your login details:"
             ),
         },
         {
@@ -61,7 +62,8 @@ def email_reopen_task(task, message, user):
         {
             "type": "block",
             "text": _(
-                "<strong>%(task_name)s</strong> <br />Go to your dashboard to complete it"
+                "<strong>%(task_name)s</strong> <br />Go to your dashboard to complete "
+                "it"
             )
             % {"task_name": task.to_do.name},
         },
@@ -90,7 +92,8 @@ def send_reminder_email(task):
         {
             "type": "block",
             "text": _(
-                "<strong>%(task_name)s</strong> <br />Go to your dashboard to complete it"
+                "<strong>%(task_name)s</strong> <br />Go to your dashboard to complete "
+                "it"
             )
             % {"task_name": task.to_do.name},
         },
@@ -152,7 +155,8 @@ def send_new_hire_preboarding(new_hire):
         {
             "type": "button",
             "text": _("See pages"),
-            "url": f"{settings.BASE_URL}/#/preboarding/auth?token={new_hire.unique_url}",
+            "url": f"{settings.BASE_URL}/#/preboarding/auth?"
+            "token={new_hire.unique_url}",
         },
     ]
     html_message = render_to_string("email/base.html", {"org": org, "content": content})

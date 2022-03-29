@@ -11,7 +11,9 @@ def send_access_email(user, password, email):
     translation.activate(user.language)
     subject = _("Here are your email login credentials!")
     message = _(
-        "Hi %(name)s!\n\nI have just created a new email account for you. Here are the details: \n\nYour brand new email address: %(email)s\nPassword: %(password)s\n\nAnd you can login here: https://gmail.com \n\nTalk soon!"
+        "Hi %(name)s!\n\nI have just created a new email account for you. Here are the "
+        "details: \n\nYour brand new email address: %(email)s\nPassword: %(password)s"
+        "\n\nAnd you can login here: https://gmail.com \n\nTalk soon!"
     ) % {"name": user.first_name, "email": user.email, "password": password}
     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
 
@@ -23,9 +25,10 @@ def google_error_email(user):
         {
             "type": "p",
             "text": _(
-                "We tried to create a Google account for one of your new hires, but unfortunately, Google denied"
-                "that request. Access we had to your organization in Google has likely been revoked. Please go"
-                "to your website and reconnect your Google account to complete this."
+                "We tried to create a Google account for one of your new hires, but "
+                "unfortunately, Google denied that request. Access we had to your "
+                "organization in Google has likely been revoked. Please go to your "
+                "website and reconnect your Google account to complete this."
             ),
         }
     ]
@@ -46,9 +49,10 @@ def slack_error_email(user):
         {
             "type": "p",
             "text": _(
-                "We tried to create a Slack account for one of your new hires, but unfortunately, Slack denied "
-                "that request. Your key has likely been revoked. Please go to our website and reconnect your "
-                "Slack account to complete this."
+                "We tried to create a Slack account for one of your new hires, but "
+                "unfortunately, Slack denied that request. Your key has likely been "
+                "revoked. Please go to our website and reconnect your Slack account "
+                "to complete this."
             ),
         }
     ]

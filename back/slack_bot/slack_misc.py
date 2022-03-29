@@ -1,12 +1,7 @@
-## misc items
-from django.conf import settings
+# misc items
 from django.utils.translation import gettext as _
 
 from admin.sequences.models import Sequence
-from users.models import ToDoUser
-
-from .slack_modal import SlackModal
-from .utils import button, paragraph
 
 
 class SlackNewHireApprove:
