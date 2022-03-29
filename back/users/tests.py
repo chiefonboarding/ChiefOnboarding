@@ -4,7 +4,7 @@ import pytest
 from freezegun import freeze_time
 
 from .factories import *  # noqa
-from .models import User, OTPRecoveryKey
+from .models import OTPRecoveryKey, User
 
 
 @pytest.mark.django_db
@@ -108,9 +108,7 @@ def test_generating_and_validating_otp_keys(new_hire_factory):
 
     # Check correct key
     assert not recovery_key.is_used
-    assert user1.check_otp_recovery_key(
-        user1_new_keys[0]
-    ) is not None
+    assert user1.check_otp_recovery_key(user1_new_keys[0]) is not None
 
     recovery_key.refresh_from_db()
 

@@ -54,8 +54,10 @@ class Slack:
 
     def add_user(self, email, channels):
         r = requests.post(
-            (f"{self.BASE_URL}/users.admin.invite?token={self.get_token()}&email="
-             f"{email}channel_ids={channels}"),
+            (
+                f"{self.BASE_URL}/users.admin.invite?token={self.get_token()}&email="
+                f"{email}channel_ids={channels}"
+            ),
             headers=self.get_authentication_header(),
         )
         if r.json()["ok"]:
