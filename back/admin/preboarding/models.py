@@ -14,9 +14,11 @@ class Preboarding(BaseItem):
     def __str__(self):
         return self.name
 
+    @property
     def update_url(self):
         return reverse("preboarding:update", args=[self.id])
 
+    @property
     def delete_url(self):
         return reverse("preboarding:delete", args=[self.id])
 

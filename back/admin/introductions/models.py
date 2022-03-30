@@ -17,9 +17,11 @@ class Introduction(BaseItem):
     def __str__(self):
         return self.name
 
+    @property
     def update_url(self):
         return reverse("introductions:update", args=[self.id])
 
+    @property
     def delete_url(self):
         return reverse("introductions:delete", args=[self.id])
 

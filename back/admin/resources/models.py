@@ -103,9 +103,11 @@ class Resource(BaseItem):
 
         return self
 
+    @property
     def update_url(self):
         return reverse("resources:update", args=[self.id])
 
+    @property
     def delete_url(self):
         return reverse("resources:delete", args=[self.id])
 

@@ -27,7 +27,7 @@ class PreboardingListView(LoginRequiredMixin, AdminPermMixin, ListView):
 class PreboardingCreateView(
     LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
 ):
-    template_name = "todo_update.html"
+    template_name = "template_update.html"
     form_class = PreboardingForm
     success_url = reverse_lazy("preboarding:list")
     success_message = _("Preboarding item has been updated")
@@ -42,7 +42,7 @@ class PreboardingCreateView(
 class PreboardingUpdateView(
     LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
 ):
-    template_name = "todo_update.html"
+    template_name = "template_update.html"
     form_class = PreboardingForm
     success_url = reverse_lazy("preboarding:list")
     queryset = Preboarding.templates.all()

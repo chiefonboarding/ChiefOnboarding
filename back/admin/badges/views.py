@@ -27,7 +27,7 @@ class BadgeListView(LoginRequiredMixin, AdminPermMixin, ListView):
 class BadgeCreateView(
     LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
 ):
-    template_name = "todo_update.html"
+    template_name = "template_update.html"
     form_class = BadgeForm
     success_url = reverse_lazy("badges:list")
     success_message = _("badge item has been updated")
@@ -42,7 +42,7 @@ class BadgeCreateView(
 class BadgeUpdateView(
     LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
 ):
-    template_name = "todo_update.html"
+    template_name = "template_update.html"
     form_class = BadgeForm
     success_url = reverse_lazy("badges:list")
     queryset = Badge.templates.all()

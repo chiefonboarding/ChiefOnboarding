@@ -100,7 +100,7 @@ class NewHireManager(models.Manager):
         return self.get_queryset().filter(slack_user_id="")
 
     def with_slack(self):
-        return self.get_queryset().filter(slack_user_id="")
+        return self.get_queryset().exclude(slack_user_id="")
 
     def starting_today(self):
         return self.get_queryset().filter(start_day=datetime.now().date())

@@ -25,8 +25,10 @@ class Appointment(BaseItem):
     def notification_add_type(self):
         return "added_appointment"
 
+    @property
     def update_url(self):
         return reverse("appointments:update", args=[self.id])
 
+    @property
     def delete_url(self):
         return reverse("appointments:delete", args=[self.id])

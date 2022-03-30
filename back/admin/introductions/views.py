@@ -29,7 +29,7 @@ class IntroductionListView(LoginRequiredMixin, AdminPermMixin, ListView):
 class IntroductionCreateView(
     LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
 ):
-    template_name = "todo_update.html"
+    template_name = "intro_update.html"
     form_class = IntroductionForm
     success_url = reverse_lazy("introductions:list")
     success_message = _("Introduction item has been updated")

@@ -10,4 +10,4 @@ class TemplateDuplicateView(LoginRequiredMixin, AdminPermMixin, View):
         templates_model = get_templates_model(template_type)
         template_item = get_object_or_404(templates_model, id=template_pk)
         new_template_item = template_item.duplicate()
-        return redirect(new_template_item.update_url())
+        return redirect(new_template_item.update_url)

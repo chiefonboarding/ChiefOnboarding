@@ -27,7 +27,7 @@ class ToDoListView(LoginRequiredMixin, AdminPermMixin, ListView):
 class ToDoCreateView(
     LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
 ):
-    template_name = "todo_update.html"
+    template_name = "template_update.html"
     form_class = ToDoForm
     success_url = reverse_lazy("todo:list")
     success_message = _("To do item has been created")
@@ -42,7 +42,7 @@ class ToDoCreateView(
 class ToDoUpdateView(
     LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
 ):
-    template_name = "todo_update.html"
+    template_name = "template_update.html"
     form_class = ToDoForm
     success_url = reverse_lazy("todo:list")
     queryset = ToDo.templates.all()

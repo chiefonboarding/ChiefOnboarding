@@ -32,9 +32,11 @@ class ToDo(BaseItem):
     def notification_add_type(self):
         return "added_todo"
 
+    @property
     def update_url(self):
         return reverse("todo:update", args=[self.id])
 
+    @property
     def delete_url(self):
         return reverse("todo:delete", args=[self.id])
 

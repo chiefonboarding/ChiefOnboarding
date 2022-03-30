@@ -4,9 +4,6 @@ import factory
 from factory.fuzzy import FuzzyText
 from pytest_factoryboy import register
 
-from organization.factories import OrganizationFactory
-from organization.models import Organization
-
 from .models import OTPRecoveryKey, User
 
 
@@ -15,20 +12,11 @@ class NewHireFactory(factory.django.DjangoModelFactory):
     first_name = FuzzyText()
     last_name = FuzzyText()
     role = 0
+    start_day = datetime.datetime.now().date()
     email = factory.Sequence(lambda n: "fake_new_hire_{}@example.com".format(n))
 
     class Meta:
         model = User
-
-    @classmethod
-    def _create(cls, model_class, *args, **kwargs):
-        if not Organization.objects.exists():
-            OrganizationFactory()
-
-        user = model_class(*args, **kwargs)
-        user.start_day = datetime.datetime.now().date()
-        user.save()
-        return user
 
 
 @register
@@ -58,6 +46,8 @@ class EmployeeFactory(factory.django.DjangoModelFactory):
     first_name = FuzzyText()
     last_name = FuzzyText()
     role = 3
+    message = "Hi {{ first_name }}, how is it going? Great to have you with us!"
+    position = "CEO"
     email = factory.Sequence(lambda n: "fake_employee_{}@example.com".format(n))
 
     class Meta:

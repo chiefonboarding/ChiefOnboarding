@@ -25,6 +25,10 @@
               </a>
             </td>
           </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3">{% trans "No items available" %}</td>
+          </tr>
           {% endfor %}
         </tbody>
       </table>

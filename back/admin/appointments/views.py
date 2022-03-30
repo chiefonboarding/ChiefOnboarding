@@ -27,7 +27,7 @@ class AppointmentListView(LoginRequiredMixin, AdminPermMixin, ListView):
 class AppointmentCreateView(
     LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
 ):
-    template_name = "todo_update.html"
+    template_name = "template_update.html"
     form_class = AppointmentForm
     success_url = reverse_lazy("appointments:list")
     success_message = _("Appointment item has been updated")
@@ -42,7 +42,7 @@ class AppointmentCreateView(
 class AppointmentUpdateView(
     LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
 ):
-    template_name = "todo_update.html"
+    template_name = "template_update.html"
     form_class = AppointmentForm
     success_url = reverse_lazy("appointments:list")
     queryset = Appointment.templates.all()

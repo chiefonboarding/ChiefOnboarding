@@ -14,9 +14,11 @@ class Badge(BaseItem):
     )
     content = ContentJSONField(verbose_name=_("Content"), default=dict)
 
+    @property
     def update_url(self):
         return reverse("badges:update", args=[self.id])
 
+    @property
     def delete_url(self):
         return reverse("badges:delete", args=[self.id])
 
