@@ -2,9 +2,9 @@ import pytest
 from django.apps import apps
 from django.urls import reverse
 
-from admin.badges.factories import *  # noqa
-from admin.introductions.factories import *  # noqa
-from admin.to_do.factories import *  # noqa
+from admin.introductions.factories import IntroductionFactory  # noqa
+from admin.to_do.factories import ToDoFactory  # noqa
+from admin.badges.factories import BadgeFactory  # noqa
 
 
 @pytest.mark.django_db
@@ -19,9 +19,6 @@ from admin.to_do.factories import *  # noqa
 def test_templates_crud(
     client,
     django_user_model,
-    badge_factory,
-    introduction_factory,
-    to_do_factory,
     url,
     app,
     model,
@@ -37,17 +34,17 @@ def test_templates_crud(
     assert "No items available" in response.content.decode()
 
     # Create template object for every template and 2 non-template
-    to_do_factory()
-    to_do_factory(template=False)
-    to_do_factory(template=False)
+    ToDoFactory()
+    ToDoFactory(template=False)
+    ToDoFactory(template=False)
 
-    introduction_factory()
-    introduction_factory(template=False)
-    introduction_factory(template=False)
+    IntroductionFactory()
+    IntroductionFactory(template=False)
+    IntroductionFactory(template=False)
 
-    badge_factory()
-    badge_factory(template=False)
-    badge_factory(template=False)
+    BadgeFactory()
+    BadgeFactory(template=False)
+    BadgeFactory(template=False)
 
     # Get first object of template
     object_model = apps.get_model(app, model)
