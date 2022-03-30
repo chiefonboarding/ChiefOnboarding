@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 
+from users.models import ToDoUser
+
 from .slack_resource import SlackResourceCategory
 from .slack_to_do import SlackToDoManager
 
