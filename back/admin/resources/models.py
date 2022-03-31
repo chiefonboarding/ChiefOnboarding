@@ -25,13 +25,15 @@ class Category(models.Model):
 class ResourceManager(models.Manager):
     def search(self, u, query):
         query = SearchQuery(query)
-        vector = SearchVector("name", weight="A") + SearchVector(
-            "chapters__content", weight="B"
+        vector = (
+            SearchVector("name", weight="A")
+            + SearchVector("chapters__content", weight="B")
+            + SearchVector("chapters__name", weight="A")
         )
         return (
             super()
             .get_queryset()
-            .objects.annotate(
+            .annotate(
                 rank=SearchRank(vector, query),
                 headline=SearchHeadline(
                     "name",

@@ -8,6 +8,7 @@ from .factories import *  # noqa
 
 @pytest.mark.django_db
 @pytest.mark.skip(reason="Not sure why it doesn't work - fix later")
+# TODO
 def test_create_resource(client, django_user_model):
     client.force_login(django_user_model.objects.create(role=1))
 
@@ -168,7 +169,7 @@ def test_chapter_display(resource_with_level_deep_chapters_factory):
         ("inner_lvl3_2", None),
     ],
 )
-def test_next_chapter_no_course(
+def test_next_chapter_not_course(
     current_chapter, new_chapter_title, resource_with_level_deep_chapters_factory
 ):
     resource = resource_with_level_deep_chapters_factory()
@@ -187,3 +188,83 @@ def test_next_chapter_no_course(
     assert resource.next_chapter(current_chapter, False) == Chapter.objects.get(
         name=new_chapter_title
     )
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "current_chapter, new_chapter_title",
+    [
+        ("inner_lvl3_1", "inner_lvl3_2"),
+        ("inner_lvl3_2", "top_lvl4_q"),
+        ("top_lvl4_q", None),
+    ],
+)
+def test_next_chapter_is_course(
+    current_chapter, new_chapter_title, resource_with_level_deep_chapters_factory
+):
+    resource = resource_with_level_deep_chapters_factory()
+
+    current_chapter = Chapter.objects.get(name=current_chapter).id
+    # Check if it returned None when it's on the last item
+    if new_chapter_title is None:
+        assert resource.next_chapter(current_chapter, True) is None
+        return
+
+    assert resource.next_chapter(current_chapter, True) == Chapter.objects.get(
+        name=new_chapter_title
+    )
+
+
+@pytest.mark.django_db
+def test_duplicate_chapter(resource_with_level_deep_chapters_factory):
+    orig = resource_with_level_deep_chapters_factory()
+    orig_id = orig.id
+    dupe = orig.duplicate()
+
+    amount_chapters = dupe.chapters.all().count()
+
+    # Fetch resource again as id changed
+    original_resource = Resource.objects.get(id=orig_id)
+
+    # Check that all chapter ids are different
+    for chapter in dupe.chapters.all():
+        original_chapter = original_resource.chapters.get(name=chapter.name)
+        assert original_chapter.id != chapter.id
+
+    # Delete first resource
+    original_resource.delete()
+
+    dupe.refresh_from_db()
+
+    # Amount of chapters should also be half now
+    total_amount_chapters = Chapter.objects.all().count()
+
+    assert dupe.chapters.count() == total_amount_chapters
+    assert dupe.chapters.count() == amount_chapters
+
+
+@pytest.mark.django_db
+def test_search_resources(
+    django_user_model, resource_with_level_deep_chapters_factory, resource_factory
+):
+    user = django_user_model.objects.create(role=1)
+
+    # Will find the item in the first one
+    resource1 = resource_with_level_deep_chapters_factory()
+
+    # Won't find it in this one
+    resource_factory()
+
+    # Search for it
+    resources = Resource.objects.search(user, "inner_")
+
+    # Won't find it as it's not assigned to the user
+    assert resources.count() == 0
+
+    # Add resource to user
+    user.resources.add(resource1)
+
+    # Search for it
+    resources = Resource.objects.search(user, "inner_")
+    assert resources.count() == 1
+    assert resources.first() == resource1
