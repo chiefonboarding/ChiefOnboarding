@@ -1,119 +1,119 @@
 from django.urls import path
 
-from . import views
+from . import new_hire_views, views
 
 app_name = "people"
 urlpatterns = [
-    path("", views.NewHireListView.as_view(), name="new_hires"),
-    path("new_hire/add/", views.NewHireAddView.as_view(), name="new_hire_add"),
+    path("", new_hire_views.NewHireListView.as_view(), name="new_hires"),
+    path("new_hire/add/", new_hire_views.NewHireAddView.as_view(), name="new_hire_add"),
     path(
         "new_hire/<int:pk>/overview/",
-        views.NewHireSequenceView.as_view(),
+        new_hire_views.NewHireSequenceView.as_view(),
         name="new_hire",
     ),
     path(
         "new_hire/<int:pk>/profile/",
-        views.NewHireProfileView.as_view(),
+        new_hire_views.NewHireProfileView.as_view(),
         name="new_hire_profile",
     ),
     path(
         "new_hire/<int:pk>/notes/",
-        views.NewHireNotesView.as_view(),
+        new_hire_views.NewHireNotesView.as_view(),
         name="new_hire_notes",
     ),
     path(
         "new_hire/<int:pk>/welcome_messages/",
-        views.NewHireWelcomeMessagesView.as_view(),
+        new_hire_views.NewHireWelcomeMessagesView.as_view(),
         name="new_hire_welcome_messages",
     ),
     path(
         "new_hire/<int:pk>/admin_tasks/",
-        views.NewHireAdminTasksView.as_view(),
+        new_hire_views.NewHireAdminTasksView.as_view(),
         name="new_hire_admin_tasks",
     ),
     path(
         "new_hire/<int:pk>/forms/",
-        views.NewHireFormsView.as_view(),
+        new_hire_views.NewHireFormsView.as_view(),
         name="new_hire_forms",
     ),
     path(
         "new_hire/<int:pk>/progress/",
-        views.NewHireProgressView.as_view(),
+        new_hire_views.NewHireProgressView.as_view(),
         name="new_hire_progress",
     ),
     path(
         "new_hire/remind/<str:template_type>/<int:pk>/",
-        views.NewHireRemindView.as_view(),
+        new_hire_views.NewHireRemindView.as_view(),
         name="new_hire_remind",
     ),
     path(
         "new_hire/reopen/<str:template_type>/<int:pk>/",
-        views.NewHireReopenTaskView.as_view(),
+        new_hire_views.NewHireReopenTaskView.as_view(),
         name="new_hire_reopen",
     ),
     path(
         "new_hire/<int:pk>/course_answers/<int:resource_user>/",
-        views.NewHireCourseAnswersView.as_view(),
+        new_hire_views.NewHireCourseAnswersView.as_view(),
         name="new-hire-rating",
     ),
     path(
         "new_hire/<int:pk>/tasks/",
-        views.NewHireTasksView.as_view(),
+        new_hire_views.NewHireTasksView.as_view(),
         name="new_hire_tasks",
     ),
     path(
         "new_hire/<int:pk>/access/",
-        views.NewHireAccessView.as_view(),
+        new_hire_views.NewHireAccessView.as_view(),
         name="new_hire_access",
     ),
     path(
         "new_hire/<int:pk>/check_access/<int:integration_id>/",
-        views.NewHireCheckAccessView.as_view(),
+        new_hire_views.NewHireCheckAccessView.as_view(),
         name="new_hire_check_integration",
     ),
     path(
         "new_hire/<int:pk>/give_access/<int:integration_id>/",
-        views.NewHireGiveAccessView.as_view(),
+        new_hire_views.NewHireGiveAccessView.as_view(),
         name="new_hire_give_integration",
     ),
     path(
         "new_hire/<int:pk>/task/<slug:type>/",
-        views.NewHireTaskListView.as_view(),
+        new_hire_views.NewHireTaskListView.as_view(),
         name="new_hire_task_list",
     ),
     path(
         "new_hire/<int:pk>/task/<int:template_id>/<slug:type>/",
-        views.NewHireToggleTaskView.as_view(),
+        new_hire_views.NewHireToggleTaskView.as_view(),
         name="toggle_new_hire_task",
     ),
     path(
         "new_hire/<int:pk>/send_login_email/",
-        views.NewHireSendLoginEmailView.as_view(),
+        new_hire_views.NewHireSendLoginEmailView.as_view(),
         name="send_login_email",
     ),
     path(
         "new_hire/<int:pk>/delete/",
-        views.NewHireDeleteView.as_view(),
+        new_hire_views.NewHireDeleteView.as_view(),
         name="delete",
     ),
     path(
         "new_hire/<int:pk>/migrate_to_normal/",
-        views.NewHireMigrateToNormalAccountView.as_view(),
+        new_hire_views.NewHireMigrateToNormalAccountView.as_view(),
         name="migrate-to-normal",
     ),
     path(
         "new_hire/<int:pk>/add_sequence/",
-        views.NewHireAddSequenceView.as_view(),
+        new_hire_views.NewHireAddSequenceView.as_view(),
         name="add_sequence",
     ),
     path(
         "new_hire/<int:pk>/trigger_condition/<int:condition_pk>/",
-        views.NewHireTriggerConditionView.as_view(),
+        new_hire_views.NewHireTriggerConditionView.as_view(),
         name="trigger-condition",
     ),
     path(
         "new_hire/<int:pk>/send_preboarding_notification/",
-        views.NewHireSendPreboardingNotificationView.as_view(),
+        new_hire_views.NewHireSendPreboardingNotificationView.as_view(),
         name="send_preboarding_notification",
     ),
     path("colleagues/", views.ColleagueListView.as_view(), name="colleagues"),
