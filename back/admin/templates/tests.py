@@ -2,9 +2,12 @@ import pytest
 from django.apps import apps
 from django.urls import reverse
 
-from admin.introductions.factories import IntroductionFactory  # noqa
-from admin.to_do.factories import ToDoFactory  # noqa
+from admin.appointments.factories import AppointmentFactory  # noqa
 from admin.badges.factories import BadgeFactory  # noqa
+from admin.introductions.factories import IntroductionFactory  # noqa
+from admin.preboarding.factories import PreboardingFactory  # noqa
+from admin.resources.factories import ResourceFactory  # noqa
+from admin.to_do.factories import ToDoFactory  # noqa
 
 
 @pytest.mark.django_db
@@ -14,6 +17,9 @@ from admin.badges.factories import BadgeFactory  # noqa
         ("todo:list", "to_do", "todo"),
         ("introductions:list", "introductions", "introduction"),
         ("badges:list", "badges", "badge"),
+        ("preboarding:list", "preboarding", "preboarding"),
+        ("appointments:list", "appointments", "appointment"),
+        ("resources:list", "resources", "resource"),
     ],
 )
 def test_templates_crud(
@@ -45,6 +51,18 @@ def test_templates_crud(
     BadgeFactory()
     BadgeFactory(template=False)
     BadgeFactory(template=False)
+
+    PreboardingFactory()
+    PreboardingFactory(template=False)
+    PreboardingFactory(template=False)
+
+    AppointmentFactory()
+    AppointmentFactory(template=False)
+    AppointmentFactory(template=False)
+
+    ResourceFactory()
+    ResourceFactory(template=False)
+    ResourceFactory(template=False)
 
     # Get first object of template
     object_model = apps.get_model(app, model)

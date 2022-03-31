@@ -1,3 +1,52 @@
-# from django.test import TestCase
+import pytest
+from django.urls import reverse
 
-# Create your tests here.
+from admin.preboarding.models import Preboarding
+from users.factories import *  # noqa
+
+from .factories import *  # noqa
+
+
+@pytest.mark.django_db
+def test_create_preboarding(client, django_user_model):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    url = reverse("preboarding:create")
+    response = client.get(url)
+
+    assert "Create preboarding item" in response.content.decode()
+
+    data = {
+        "name": "Badge item 1",
+        "tags": ["hi", "whoop"],
+        "content": '{ "time": 0, "blocks": [] }',
+    }
+
+    response = client.post(url, data, follow=True)
+
+    assert response.status_code == 200
+
+    assert Preboarding.objects.all().count() == 1
+
+
+@pytest.mark.django_db
+def test_update_preboarding(client, django_user_model, preboarding_factory):
+    client.force_login(django_user_model.objects.create(role=1))
+    preboarding = preboarding_factory()
+
+    url = reverse("preboarding:update", args=[preboarding.id])
+    response = client.get(url)
+
+    data = {
+        "id": 1,
+        "name": "Preboarding item 1",
+        "content": '{ "time": 0, "blocks": [] }',
+        "tags": ["hi", "whoop"],
+    }
+
+    response = client.post(url, data, follow=True)
+    assert "Preboarding item 1" in response.content.decode()
+
+    assert response.status_code == 200
+
+    assert Preboarding.objects.all().count() == 1

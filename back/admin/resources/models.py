@@ -58,7 +58,7 @@ class Resource(BaseItem):
     # course part
     course = models.BooleanField(verbose_name=_("Is a course item"), default=False)
     on_day = models.IntegerField(
-        verbose_name=_("Workday that this item is due"), default=0
+        verbose_name=_("Workday that this item is due"), default=1
     )
     remove_on_complete = models.BooleanField(
         verbose_name=_("Remove item when new hire walked through"), default=False

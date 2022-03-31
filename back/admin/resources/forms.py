@@ -31,7 +31,7 @@ class ResourceForm(TagModelForm):
         self.fields["chapters"] = forms.JSONField()
         self.helper = FormHelper()
         none_class = ""
-        if self.instance is None or not self.instance.course:
+        if not self.instance.course or "course" not in self.data:
             none_class = " d-none"
 
         self.helper.layout = Layout(

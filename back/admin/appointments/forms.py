@@ -12,14 +12,16 @@ class AppointmentForm(TagModelForm):
     content = WYSIWYGField()
     date = forms.DateField(
         label=_("Date"),
-        required=True,
+        required=False,
         widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        fixed_date = self.instance.fixed_date
+        fixed_date = self.instance.fixed_date or (
+            "fixed_date" in self.data and self.data["fixed_date"] == "on"
+        )
         self.helper.form_tag = False
         self.helper.layout = Layout(
             Div(
@@ -42,6 +44,23 @@ class AppointmentForm(TagModelForm):
                 css_class="row",
             ),
         )
+
+    def clean(self):
+        cleaned_data = super(AppointmentForm, self).clean()
+        fixed_date = cleaned_data.get("fixed_date")
+        on_day = cleaned_data.get("on_day")
+        date = cleaned_data.get("date")
+        time = cleaned_data.get("time")
+        if not fixed_date and not on_day:
+            self.add_error(
+                "on_day", _("Please select a channel to send the message to")
+            )
+        if fixed_date:
+            if not date:
+                self.add_error("date", _("This field is required"))
+            if not time:
+                self.add_error("time", _("This field is required"))
+        return cleaned_data
 
     class Meta:
         model = Appointment
