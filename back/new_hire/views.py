@@ -130,6 +130,10 @@ class PreboardingShortURLRedirectView(LoginRequiredMixin, RedirectView):
         preboarding_user = PreboardingUser.objects.filter(
             user=self.request.user
         ).order_by("order")
+
+        if not preboarding_user.exists():
+            raise Http404
+
         return reverse("new_hire:preboarding", args=[preboarding_user.first().id])
 
 

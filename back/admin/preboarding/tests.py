@@ -1,10 +1,9 @@
 import pytest
 from django.urls import reverse
 
+from admin.preboarding.factories import *  # noqa
 from admin.preboarding.models import Preboarding
 from users.factories import *  # noqa
-
-from .factories import *  # noqa
 
 
 @pytest.mark.django_db

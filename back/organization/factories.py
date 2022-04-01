@@ -1,8 +1,9 @@
 import factory
-from factory.fuzzy import FuzzyText
+from django.conf import settings
+from factory.fuzzy import FuzzyChoice, FuzzyText
 from pytest_factoryboy import register
 
-from .models import Organization
+from .models import NOTIFICATION_TYPES, Notification, Organization, WelcomeMessage
 
 
 @register
@@ -11,3 +12,22 @@ class OrganizationFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Organization
+
+
+@register
+class NotificationFactory(factory.django.DjangoModelFactory):
+    notification_type = FuzzyChoice([x[0] for x in NOTIFICATION_TYPES])
+    extra_text = FuzzyText()
+
+    class Meta:
+        model = Notification
+
+
+@register
+class WelcomeMessageFactory(factory.django.DjangoModelFactory):
+    message_type = FuzzyChoice([x[0] for x in WelcomeMessage.MESSAGE_TYPE])
+    language = FuzzyChoice([x[0] for x in settings.LANGUAGES])
+    message = FuzzyText()
+
+    class Meta:
+        model = WelcomeMessage

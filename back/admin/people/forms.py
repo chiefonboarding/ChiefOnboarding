@@ -287,10 +287,11 @@ class PreboardingSendForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # if Twillio is not configured, then auto select text and make it disabled
+        # if Twillio is not configured, then auto select email and make it disabled
         if settings.TWILIO_ACCOUNT_SID == "":
             self.fields["send_type"].widget.attrs["disabled"] = "true"
-            self.fields["send_type"].initial = "text"
+            self.fields["send_type"].initial = "email"
+            self.fields["send_type"].choices = [("email", _("Send via email"))]
 
     class Meta:
         labels = {

@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils import translation
 from django.utils.translation import gettext as _
 
@@ -155,8 +156,10 @@ def send_new_hire_preboarding(new_hire):
         {
             "type": "button",
             "text": _("See pages"),
-            "url": f"{settings.BASE_URL}/#/preboarding/auth?"
-            "token={new_hire.unique_url}",
+            "url": settings.BASE_URL
+            + reverse("new_hire:preboarding-url")
+            + "?token="
+            + new_hire.unique_url,
         },
     ]
     html_message = render_to_string("email/base.html", {"org": org, "content": content})

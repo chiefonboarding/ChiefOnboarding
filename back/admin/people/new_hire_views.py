@@ -22,8 +22,8 @@ from admin.notes.models import Note
 from admin.sequences.models import Condition, Sequence
 from admin.templates.utils import get_templates_model, get_user_field
 from organization.models import Notification, Organization, WelcomeMessage
-from slack_bot.tasks import link_slack_users
 from slack_bot.slack import Slack
+from slack_bot.tasks import link_slack_users
 from users.emails import (
     email_reopen_task,
     send_new_hire_credentials,
@@ -250,7 +250,9 @@ class NewHireSequenceView(LoginRequiredMixin, AdminPermMixin, DetailView):
         context["conditions_before_first_day"] = conditions_before_first_day
         context["conditions_after_first_day"] = conditions_after_first_day
 
-        context["notifications"] = Notification.objects.filter(created_for=new_hire)
+        context["notifications"] = Notification.objects.filter(
+            created_for=new_hire, public_to_new_hire=True
+        )
         return context
 
 
