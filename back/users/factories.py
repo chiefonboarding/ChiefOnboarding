@@ -4,7 +4,7 @@ import factory
 from factory.fuzzy import FuzzyText
 from pytest_factoryboy import register
 
-from .models import OTPRecoveryKey, User
+from .models import NewHireWelcomeMessage, OTPRecoveryKey, User
 
 
 @register
@@ -58,3 +58,13 @@ class EmployeeFactory(factory.django.DjangoModelFactory):
 class OTPRecoveryKeyFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = OTPRecoveryKey
+
+
+@register
+class NewHireWelcomeMessageFactory(factory.django.DjangoModelFactory):
+    message = FuzzyText()
+    new_hire = factory.SubFactory(NewHireFactory)
+    colleague = factory.SubFactory(EmployeeFactory)
+
+    class Meta:
+        model = NewHireWelcomeMessage

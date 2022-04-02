@@ -161,13 +161,13 @@ class NewHireAddSequenceView(LoginRequiredMixin, AdminPermMixin, FormView):
             if new_hire.workday == 0:
                 # User has not started yet, so we only need the items before they new
                 # hire started that passed
-                conditions = seq.conditions.filter(
+                conditions |= seq.conditions.filter(
                     condition_type=2, days__lte=new_hire.days_before_starting
                 )
             else:
                 # user has already started, check both before start day and after for
                 # conditions that are not triggered
-                conditions = seq.conditions.filter(
+                conditions |= seq.conditions.filter(
                     condition_type=2
                 ) | seq.conditions.filter(condition_type=0, days__lte=new_hire.workday)
 
@@ -216,7 +216,7 @@ class NewHireTriggerConditionView(LoginRequiredMixin, AdminPermMixin, TemplateVi
 
 
 class NewHireSendLoginEmailView(LoginRequiredMixin, AdminPermMixin, View):
-    def get(self, request, pk, *args, **kwargs):
+    def post(self, request, pk, *args, **kwargs):
         new_hire = get_object_or_404(get_user_model(), id=pk)
         send_new_hire_credentials(new_hire)
         messages.success(request, _("Sent email to new hire"))
@@ -277,11 +277,8 @@ class NewHireProfileView(
 
 
 class NewHireMigrateToNormalAccountView(LoginRequiredMixin, AdminPermMixin, View):
-    queryset = get_user_model().objects.all()
-    success_url = reverse_lazy("people:new_hires")
-
     def post(self, request, pk, *args, **kwargs):
-        user = get_object_or_404(get_user_model(), id=pk)
+        user = get_object_or_404(get_user_model(), id=pk, role=0)
         user.role = 3
         user.save()
         messages.info(request, _("New hire is now a normal account."))
