@@ -1,9 +1,11 @@
 import pytest
 from django.urls import reverse
 
+from admin.admin_tasks.factories import *  # noqa
 from admin.notes.factories import *  # noqa
 from admin.notes.models import Note
 from admin.preboarding.factories import PreboardingFactory
+from misc.models import File
 from organization.factories import NotificationFactory
 from organization.models import Organization, WelcomeMessage
 from users.factories import *  # noqa
@@ -237,7 +239,6 @@ def test_new_hire_profile(client, new_hire_factory, admin_factory, django_user_m
     new_hire1.refresh_from_db()
 
     assert response.status_code == 200
-    print(response.content.decode())
     assert f'<option value="{admin1.id}" selected>' in response.content.decode()
     assert f'<option value="{admin2.id}" selected>' in response.content.decode()
     assert new_hire1.first_name == "Stan"
@@ -341,3 +342,210 @@ def test_new_hire_list_welcome_messages(
     # Second welcome message should not show (not from this user)
     assert wm2.message not in response.content.decode()
     assert wm2.colleague.full_name not in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_new_hire_admin_tasks(
+    client, new_hire_factory, django_user_model, admin_task_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    new_hire1 = new_hire_factory()
+
+    url = reverse("people:new_hire_admin_tasks", args=[new_hire1.id])
+    response = client.get(url)
+
+    assert response.status_code == 200
+    assert "There are no open items" in response.content.decode()
+    assert "There are no closed items" in response.content.decode()
+    assert "Open admin tasks" in response.content.decode()
+    assert "Completed admin tasks" in response.content.decode()
+
+    admin_task1 = admin_task_factory(new_hire=new_hire1)
+
+    response = client.get(url)
+    assert "There are no open items" not in response.content.decode()
+    assert admin_task1.name in response.content.decode()
+    assert "There are no closed items" in response.content.decode()
+
+    admin_task2 = admin_task_factory(new_hire=new_hire1, completed=True)
+
+    response = client.get(url)
+    assert "There are no open items" not in response.content.decode()
+    assert admin_task1.name in response.content.decode()
+    assert admin_task2.name in response.content.decode()
+    assert "There are no closed items" not in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_new_hire_forms(
+    client, new_hire_factory, django_user_model, to_do_user_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    new_hire1 = new_hire_factory()
+
+    url = reverse("people:new_hire_forms", args=[new_hire1.id])
+    response = client.get(url)
+
+    assert "This new hire has not filled in any forms yet" in response.content.decode()
+
+    to_do_user_factory(
+        user=new_hire1,
+        form=[
+            {
+                "id": "DkDqXc6e5q",
+                "data": {"text": "single line", "type": "input"},
+                "type": "form",
+                "answer": "test1",
+            },
+            {
+                "id": "4mjTrlsdAW",
+                "data": {"text": "Multi line", "type": "text"},
+                "type": "form",
+                "answer": "test12",
+            },
+            {
+                "id": "-l-2D9wbK0",
+                "data": {"text": "Checkbox", "type": "check"},
+                "type": "form",
+                "answer": "on",
+            },
+            {
+                "id": "mlaegf2eHM",
+                "data": {"text": "Upload", "type": "upload"},
+                "type": "form",
+                "answer": "1",
+            },
+        ],
+        completed=True,
+    )
+
+    # Create fake file, otherwise templatetag will crash
+    File.objects.create(name="testfile", ext="png", key="testfile.png")
+
+    response = client.get(url)
+
+    assert "To do forms" in response.content.decode()
+    assert "test1" in response.content.decode()
+    assert "test12" in response.content.decode()
+    assert "checkbox" in response.content.decode()
+    assert "Download user uploaded file" in response.content.decode()
+
+    assert "Preboarding forms" not in response.content.decode()
+    assert (
+        "This new hire has not filled in any forms yet" not in response.content.decode()
+    )
+
+
+@pytest.mark.django_db
+def test_new_hire_progress(
+    client, new_hire_factory, django_user_model, to_do_user_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    new_hire1 = new_hire_factory()
+
+    url = reverse("people:new_hire_progress", args=[new_hire1.id])
+
+    response = client.get(url)
+
+    assert (
+        "There are no todo items or resources assigned to this user"
+        in response.content.decode()
+    )
+
+    to_do_user1 = to_do_user_factory(user=new_hire1)
+
+    response = client.get(url)
+
+    assert to_do_user1.to_do.name in response.content.decode()
+    assert "checked" not in response.content.decode()
+    assert "Remind" in response.content.decode()
+
+    to_do_user1.completed = True
+    to_do_user1.save()
+
+    # Get page again
+    response = client.get(url)
+
+    assert to_do_user1.to_do.name in response.content.decode()
+    assert "checked" in response.content.decode()
+    assert "Reopen" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_new_hire_reopen(
+    client, settings, django_user_model, to_do_user_factory, mailoutbox
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    to_do_user1 = to_do_user_factory()
+
+    # not a valid template type
+    url = reverse("people:new_hire_reopen", args=["todouser1", to_do_user1.id])
+    response = client.get(url, follow=True)
+    assert response.status_code == 404
+
+    url = reverse("people:new_hire_reopen", args=["todouser", to_do_user1.id])
+
+    response = client.post(url, data={"message": "You forgot this one!"}, follow=True)
+
+    assert response.status_code == 200
+    assert "Item has been reopened" in response.content.decode()
+    assert len(mailoutbox) == 1
+    assert mailoutbox[0].subject == "Please redo this task"
+    assert len(mailoutbox[0].to) == 1
+    assert mailoutbox[0].to[0] == to_do_user1.user.email
+    assert settings.BASE_URL in mailoutbox[0].alternatives[0][0]
+    assert "You forgot this one!" in mailoutbox[0].alternatives[0][0]
+    assert to_do_user1.user.first_name in mailoutbox[0].alternatives[0][0]
+
+    # TODO: test slack message
+
+
+@pytest.mark.django_db
+def test_new_hire_remind_to_do(
+    client, settings, django_user_model, to_do_user_factory, mailoutbox
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    to_do_user1 = to_do_user_factory()
+
+    # not a valid template type
+    url = reverse("people:new_hire_remind", args=["todouser1", to_do_user1.id])
+    response = client.post(url, follow=True)
+    assert response.status_code == 404
+
+    url = reverse("people:new_hire_remind", args=["todouser", to_do_user1.id])
+
+    response = client.post(url, follow=True)
+
+    assert response.status_code == 200
+    assert "Reminder has been sent!" in response.content.decode()
+    assert len(mailoutbox) == 1
+    assert mailoutbox[0].subject == "Please complete this task"
+    assert len(mailoutbox[0].to) == 1
+    assert mailoutbox[0].to[0] == to_do_user1.user.email
+    assert settings.BASE_URL in mailoutbox[0].alternatives[0][0]
+    assert to_do_user1.to_do.name in mailoutbox[0].alternatives[0][0]
+    assert to_do_user1.user.first_name in mailoutbox[0].alternatives[0][0]
+
+
+@pytest.mark.django_db
+def test_new_hire_remind_resource(
+    client, settings, django_user_model, resource_user_factory, mailoutbox
+):
+    client.force_login(django_user_model.objects.create(role=1))
+    resource_user1 = resource_user_factory()
+
+    url = reverse("people:new_hire_remind", args=["resourceuser", resource_user1.id])
+
+    client.post(url, follow=True)
+
+    assert len(mailoutbox) == 1
+    assert mailoutbox[0].subject == "Please complete this task"
+    assert len(mailoutbox[0].to) == 1
+    assert settings.BASE_URL in mailoutbox[0].alternatives[0][0]
+    assert resource_user1.resource.name in mailoutbox[0].alternatives[0][0]
+    assert resource_user1.user.first_name in mailoutbox[0].alternatives[0][0]

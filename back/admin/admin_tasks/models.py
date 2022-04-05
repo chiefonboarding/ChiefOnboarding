@@ -3,7 +3,7 @@ from django.db import models
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
-from slack_bot.slack import Slack
+from slack_bot.utils import Slack, actions, button, paragraph
 
 from .emails import (
     send_email_new_assigned_admin,
@@ -62,45 +62,31 @@ class AdminTask(models.Model):
             send_email_notification_to_external_person(self)
         elif is_new and self.option == 2:
             blocks = [
-                {
-                    "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": _(
-                            "%(name_assigned_to)s needs your help with this task:\n*"
-                            "%(task_name)s*\n_%(comment)s_"
-                        )
-                        % {
-                            "name_assigned_to": self.assigned_to.full_name(),
-                            "task_name": self.title,
-                            "comment": self.comment.last().content,
-                        },
-                    },
-                },
-                {
-                    {
-                        "type": "actions",
-                        "elements": [
-                            {
-                                "type": "button",
-                                "text": {
-                                    "type": "plain_text",
-                                    "emoji": True,
-                                    "text": _("I have completed this"),
-                                },
-                                "style": "primary",
-                                "value": "admin_task:complete:" + self.pk,
-                            }
-                        ],
+                paragraph(
+                    _(
+                        "%(name_assigned_to)s needs your help with this task:\n*"
+                        "%(task_name)s*\n_%(comment)s_"
+                    )
+                    % {
+                        "name_assigned_to": self.assigned_to.full_name(),
+                        "task_name": self.title,
+                        "comment": self.comment.last().content,
                     }
-                },
+                ),
+                actions(
+                    [
+                        button(
+                            text=_("I have completed this"),
+                            style="primary",
+                            value="admin_task:complete:" + self.pk,
+                        )
+                    ]
+                ),
             ]
-            s = Slack()
-            s.send_message(channel=self.slack_user, blocks=blocks)
+            Slack().send_message(blocks, self.slack_user)
 
     def send_notification_new_assigned(self):
         if self.assigned_to.has_slack_account:
-            s = Slack()
             comment = ""
             if self.comment.all().exists():
                 comment = _("_%(comment)s\n by %(name)s_") % {
@@ -115,29 +101,20 @@ class AdminTask(models.Model):
                 "name": self.new_hire.full_name(),
                 "comment": comment,
             }
-
             blocks = [
-                {"type": "section", "text": {"type": "mrkdwn", "text": text}},
-                {"type": "section", "text": {"type": "mrkdwn", "text": comment}},
-                {
-                    {
-                        "type": "actions",
-                        "elements": [
-                            {
-                                "type": "button",
-                                "text": {
-                                    "type": "plain_text",
-                                    "emoji": True,
-                                    "text": _("I have completed this"),
-                                },
-                                "style": "primary",
-                                "value": "admin_task:complete:" + self.pk,
-                            }
-                        ],
-                    }
-                },
+                paragraph(text),
+                paragraph(comment),
+                actions(
+                    [
+                        button(
+                            text=_("I have completed this"),
+                            style="primary",
+                            value="admin_task:complete:" + self.pk,
+                        )
+                    ]
+                ),
             ]
-            s.send_message(channel=self.slack_user, blocks=blocks)
+            Slack().send_message(blocks, self.slack_user)
         else:
             send_email_new_assigned_admin(self)
 
@@ -160,40 +137,27 @@ class AdminTaskComment(models.Model):
         if self.admin_task.assigned_to != self.comment_by:
             if self.admin_task.assigned_to.has_slack_account and team is not None:
                 blocks = [
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": _(
-                                "%(name)s added a message to your task:\n*"
-                                "%(task_title)s*\n_%(comment)s_"
-                            )
-                            % {
-                                "name": self.comment_by.full_name,
-                                "title": self.admin_task.title,
-                                "comment": self.comment,
-                            },
-                        },
-                    },
-                    {
-                        {
-                            "type": "actions",
-                            "elements": [
-                                {
-                                    "type": "button",
-                                    "text": {
-                                        "type": "plain_text",
-                                        "emoji": True,
-                                        "text": _("I have completed this"),
-                                    },
-                                    "style": "primary",
-                                    "value": "admin_task:complete:" + self.pk,
-                                }
-                            ],
+                    paragraph(
+                        _(
+                            "%(name)s added a message to your task:\n*"
+                            "%(task_title)s*\n_%(comment)s_"
+                        )
+                        % {
+                            "name": self.comment_by.full_name,
+                            "title": self.admin_task.title,
+                            "comment": self.comment,
                         }
-                    },
+                    ),
+                    actions(
+                        [
+                            button(
+                                text=_("I have completed this"),
+                                style="primary",
+                                value="admin_task:complete:" + self.pk,
+                            )
+                        ]
+                    ),
                 ]
-                s = Slack()
-                s.send_message(channel=self.slack_user, blocks=blocks)
+                Slack().send_message(blocks, self.slack_user)
             else:
                 send_email_new_comment(self)

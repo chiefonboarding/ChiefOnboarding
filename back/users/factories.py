@@ -4,7 +4,10 @@ import factory
 from factory.fuzzy import FuzzyText
 from pytest_factoryboy import register
 
-from .models import NewHireWelcomeMessage, OTPRecoveryKey, User
+from admin.resources.factories import ResourceFactory
+from admin.to_do.factories import ToDoFactory
+
+from .models import NewHireWelcomeMessage, OTPRecoveryKey, ResourceUser, ToDoUser, User
 
 
 @register
@@ -68,3 +71,21 @@ class NewHireWelcomeMessageFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = NewHireWelcomeMessage
+
+
+@register
+class ToDoUserFactory(factory.django.DjangoModelFactory):
+    user = factory.SubFactory(NewHireFactory)
+    to_do = factory.SubFactory(ToDoFactory)
+
+    class Meta:
+        model = ToDoUser
+
+
+@register
+class ResourceUserFactory(factory.django.DjangoModelFactory):
+    user = factory.SubFactory(NewHireFactory)
+    resource = factory.SubFactory(ResourceFactory)
+
+    class Meta:
+        model = ResourceUser

@@ -49,7 +49,7 @@ def email_new_admin_cred(user):
     )
 
 
-def email_reopen_task(task, message, user):
+def email_reopen_task(task_name, message, user):
     translation.activate(user.language)
     subject = _("Please redo this task")
     message_email = ""
@@ -66,7 +66,7 @@ def email_reopen_task(task, message, user):
                 "<strong>%(task_name)s</strong> <br />Go to your dashboard to complete "
                 "it"
             )
-            % {"task_name": task.to_do.name},
+            % {"task_name": task_name},
         },
         {"type": "button", "text": _("Dashboard"), "url": settings.BASE_URL},
     ]
@@ -80,7 +80,7 @@ def email_reopen_task(task, message, user):
     )
 
 
-def send_reminder_email(task):
+def send_reminder_email(task_name, user):
     subject = _("Please complete this task")
     message = ""
     org = Organization.object.get()
@@ -88,7 +88,7 @@ def send_reminder_email(task):
         {
             "type": "p",
             "text": _("Hi %(name)s, Here is a quick reminder of the following task:")
-            % {"name": task.user.first_name},
+            % {"name": user.first_name},
         },
         {
             "type": "block",
@@ -96,7 +96,7 @@ def send_reminder_email(task):
                 "<strong>%(task_name)s</strong> <br />Go to your dashboard to complete "
                 "it"
             )
-            % {"task_name": task.to_do.name},
+            % {"task_name": task_name},
         },
         {"type": "button", "text": _("Dashboard"), "url": settings.BASE_URL},
     ]
@@ -105,16 +105,16 @@ def send_reminder_email(task):
         subject,
         message,
         settings.DEFAULT_FROM_EMAIL,
-        [task.user.email],
+        [user.email],
         html_message=html_message,
     )
 
 
-def send_new_hire_credentials(new_hire):
+def send_new_hire_credentials(new_hire_id):
+    new_hire = User.objects.get(id=new_hire_id)
     password = User.objects.make_random_password()
     org = Organization.object.get()
     new_hire.set_password(password)
-    new_hire.send_login_email = True
     new_hire.save()
     subject = f"Welcome to {org.name}!"
     message = WelcomeMessage.objects.get(

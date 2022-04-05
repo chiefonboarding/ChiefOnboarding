@@ -24,7 +24,7 @@
               <input type="checkbox" disabled class="form-check-input m-0 align-middle" aria-label="Select task" {% if todo.completed %}checked=""{% endif %}>
             </td>
             <td class="w-100">
-              {{ todo.todo.name }}
+              {{ todo.to_do.name }}
             </td>
             <td class="text-end">
               {% if todo.completed %}
@@ -86,11 +86,11 @@
             </td>
             <td class="text-end">
               {% if resource.completed_course %}
-                <a href="" class="btn btn-white">
+                <a href="{% url 'people:new_hire_reopen' 'resourceuser' resource.id %}" class="btn btn-white">
                   {% translate "Reopen" %}
                 </a>
               {% else %}
-                <a href="{% url 'people:new_hire_reopen' 'resourceuser' resource.id %}" class="btn btn-primary">
+                <a href="{% url 'people:new_hire_remind' 'resourceuser' todo.id %}" class="btn btn-primary">
                   {% translate "Remind" %}
                 </a>
               {% endif %}
@@ -100,7 +100,6 @@
         </tbody>
       </table>
     </div>
-    <h4>{{ todo.to_do.name }}</h4>
   </div>
 </div>
 {% endif %}

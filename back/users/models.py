@@ -406,16 +406,21 @@ class ToDoUser(models.Model):
 
     objects = ToDoUserManager()
 
+    @property
+    def object_name(self):
+        return self.to_do.name
+
     @cached_property
     def completed_form_items(self):
         completed_blocks = []
+        filled_items = [item["id"] for item in self.form]
+
         for block in self.to_do.content["blocks"]:
-            if block["type"] in ["form"]:
-                item = next(
-                    (x for x in self.to_do.form_items if x["id"] == block["id"]), None
-                )
+            if block["type"] == "form":
+                item = next((x for x in filled_items if x == block["id"]), None)
                 if item is not None:
-                    completed_blocks.append(item["id"])
+                    completed_blocks.append(item)
+
         return completed_blocks
 
     def mark_completed(self):
@@ -492,6 +497,10 @@ class ResourceUser(models.Model):
 
         # Return next chapter
         return chapters.get(order=self.step)
+
+    @property
+    def object_name(self):
+        return self.resource.name
 
     @property
     def amount_chapters_in_course(self):

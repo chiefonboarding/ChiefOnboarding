@@ -2,6 +2,8 @@ import json
 
 from django import template
 
+from organization.models import File
+
 register = template.Library()
 
 
@@ -11,6 +13,11 @@ def parse_to_json(content):
         return json.loads(content)
     except Exception:
         return content
+
+
+@register.filter(name="full_download_url")
+def full_download_url(id):
+    return File.objects.get(id=id).get_url()
 
 
 @register.filter(name="next_still_form")

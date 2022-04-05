@@ -1,9 +1,8 @@
 import pytest
 from django.urls import reverse
 
+from admin.resources.factories import *  # noqa
 from admin.resources.models import Chapter, Resource
-
-from .factories import *  # noqa
 
 
 @pytest.mark.django_db

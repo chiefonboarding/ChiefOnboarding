@@ -52,10 +52,10 @@
     </div>
   </div>
   <div class="card-body">
-    {% for to_do in object.todos.all %}
+    {% for to_do in object.to_do.all %}
     <div class="row">
       <div class="col">
-        {{ to_do.title }}
+        {{ to_do.name }}
       </div>
     </div>
     {% empty %}

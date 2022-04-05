@@ -15,7 +15,8 @@
   </div>
   <div>
     {% for preboard in preboarding_forms %}
-    <h4>{{ preboard.preboarding.name }}</h4>
+      <h4>{{ preboard.preboarding.name }}</h4>
+      {% include "_new_hire_form_answers.html" with blocks=preboard.form %}
     {% endfor %}
   </div>
 </div>
@@ -24,11 +25,12 @@
 {% if todo_forms|length %}
 <div class="card mt-3">
   <div class="card-header">
-    <h3 class="card-title">{% translate "Preboarding forms" %}</h3>
+    <h3 class="card-title">{% translate "To do forms" %}</h3>
   </div>
-  <div>
+  <div class="card-body">
     {% for todo in todo_forms %}
-    <h4>{{ todo.to_do.name }}</h4>
+      <h4>{{ todo.to_do.name }}</h4>
+      {% include "_new_hire_form_answers.html" with blocks=todo.form %}
     {% endfor %}
   </div>
 </div>

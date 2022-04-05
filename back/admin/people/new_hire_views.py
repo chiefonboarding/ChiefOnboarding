@@ -22,8 +22,10 @@ from admin.notes.models import Note
 from admin.sequences.models import Condition, Sequence
 from admin.templates.utils import get_templates_model, get_user_field
 from organization.models import Notification, Organization, WelcomeMessage
-from slack_bot.slack import Slack
+from slack_bot.slack_resource import SlackResource
+from slack_bot.slack_to_do import SlackToDo
 from slack_bot.tasks import link_slack_users
+from slack_bot.utils import Slack, paragraph
 from users.emails import (
     email_reopen_task,
     send_new_hire_credentials,
@@ -218,7 +220,7 @@ class NewHireTriggerConditionView(LoginRequiredMixin, AdminPermMixin, TemplateVi
 class NewHireSendLoginEmailView(LoginRequiredMixin, AdminPermMixin, View):
     def post(self, request, pk, *args, **kwargs):
         new_hire = get_object_or_404(get_user_model(), id=pk)
-        send_new_hire_credentials(new_hire)
+        send_new_hire_credentials(new_hire.id)
         messages.success(request, _("Sent email to new hire"))
         return redirect("people:new_hire", pk=new_hire.id)
 
@@ -396,23 +398,21 @@ class NewHireRemindView(LoginRequiredMixin, AdminPermMixin, View):
         template_user_obj.save()
 
         if template_user_obj.user.has_slack_account:
-            s = Slack()
-            s.set_user(template_user_obj.user)
-
             if template_type == "todouser":
-                blocks = s.format_to_do_block(
-                    pre_message=_("Don't forget this to do item!"),
-                    items=[template_user_obj],
-                )
+                block = SlackToDo(
+                    template_user_obj.to_do, template_user_obj.user
+                ).to_do_block()
             else:
-                blocks = s.format_resource_block(
-                    pre_message=_("Don't forget to complete this course!"),
-                    items=[template_user_obj],
-                )
+                block = SlackResource(
+                    template_user_obj.resource, template_user_obj.user
+                ).get_block()
 
-            s.send_message(blocks=blocks)
+            Slack().send_message(
+                blocks=[paragraph(_("Don't forget this item!")), block],
+                channel=template_user_obj.user.slack_channel_id,
+            )
         else:
-            send_reminder_email(template_user_obj)
+            send_reminder_email(template_user_obj.object_name, template_user_obj.user)
 
         messages.success(self.request, _("Reminder has been sent!"))
 
@@ -443,23 +443,24 @@ class NewHireReopenTaskView(LoginRequiredMixin, AdminPermMixin, FormView):
         template_user_obj.save()
 
         if template_user_obj.user.has_slack_account:
-            s = Slack()
-            s.set_user(template_user_obj.user)
-
             if template_type == "todouser":
-                blocks = s.format_to_do_block(
-                    pre_message=form.cleaned_data["message"], items=[template_user_obj]
-                )
+                block = SlackToDo(
+                    template_user_obj.to_do, template_user_obj.user
+                ).to_do_block()
             else:
-                blocks = s.format_resource_block(
-                    pre_message=form.cleaned_data["message"],
-                    items=[template_user_obj],
-                )
+                block = SlackResource(
+                    template_user_obj.resource, template_user_obj.user
+                ).get_block()
 
-            s.send_message(blocks=blocks)
+            Slack().send_message(
+                blocks=[paragraph(form.cleaned_data["message"]), block],
+                channel=template_user_obj.user.slack_channel_id,
+            )
         else:
             email_reopen_task(
-                template_user_obj, form.cleaned_data["message"], template_user_obj.user
+                template_user_obj.object_name,
+                form.cleaned_data["message"],
+                template_user_obj.user,
             )
 
         messages.success(self.request, _("Item has been reopened"))
