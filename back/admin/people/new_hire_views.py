@@ -17,7 +17,7 @@ from django_q.tasks import async_task
 from twilio.rest import Client
 
 from admin.admin_tasks.models import AdminTask
-from admin.integrations.models import AccessToken
+from admin.integrations.models import Integration
 from admin.notes.models import Note
 from admin.sequences.models import Condition, Sequence
 from admin.templates.utils import get_templates_model, get_user_field
@@ -522,7 +522,7 @@ class NewHireAccessView(LoginRequiredMixin, AdminPermMixin, DetailView):
         context["title"] = new_hire.full_name
         context["subtitle"] = _("new hire")
         context["loading"] = True
-        context["integrations"] = AccessToken.objects.account_provision_options()
+        context["integrations"] = Integration.objects.account_provision_options()
         return context
 
 
@@ -535,9 +535,9 @@ class NewHireCheckAccessView(LoginRequiredMixin, AdminPermMixin, DetailView):
         context = super().get_context_data(**kwargs)
         new_hire = self.object
         integration = get_object_or_404(
-            AccessToken, id=self.kwargs.get("integration_id", -1)
+            Integration, id=self.kwargs.get("integration_id", -1)
         )
-        found_user = integration.api_class().find_by_email(new_hire.email)
+        found_user = integration.user_exists(self.object)
         context["integration"] = integration
         context["active"] = found_user
         return context
@@ -548,14 +548,14 @@ class NewHireGiveAccessView(LoginRequiredMixin, AdminPermMixin, FormView):
 
     def get_form_class(self):
         integration = get_object_or_404(
-            AccessToken, id=self.kwargs.get("integration_id", -1)
+            Integration, id=self.kwargs.get("integration_id", -1)
         )
         return integration.add_user_form_class()
 
     def form_valid(self, form):
         new_hire = get_object_or_404(get_user_model(), id=self.kwargs.get("pk", -1))
         integration = get_object_or_404(
-            AccessToken, id=self.kwargs.get("integration_id", -1)
+            Integration, id=self.kwargs.get("integration_id", -1)
         )
         integration.add_user(new_hire.email, form.cleaned_data)
 
@@ -565,7 +565,7 @@ class NewHireGiveAccessView(LoginRequiredMixin, AdminPermMixin, FormView):
         context = super().get_context_data(**kwargs)
         new_hire = get_object_or_404(get_user_model(), id=self.kwargs.get("pk", -1))
         integration = get_object_or_404(
-            AccessToken, id=self.kwargs.get("integration_id", -1)
+            Integration, id=self.kwargs.get("integration_id", -1)
         )
         context["integration"] = integration
         context["title"] = new_hire.full_name

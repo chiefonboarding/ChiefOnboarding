@@ -12,7 +12,7 @@ from django.views.generic.list import ListView
 
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
-from admin.integrations.models import AccessToken
+from admin.integrations.models import Integration
 from admin.introductions.models import Introduction
 from admin.preboarding.models import Preboarding
 from admin.resources.models import Resource
@@ -20,6 +20,7 @@ from admin.sequences.utils import get_sequence_model_form, get_sequence_template
 from admin.templates.utils import get_templates_model
 from admin.to_do.models import ToDo
 from users.mixins import AdminPermMixin, LoginRequiredMixin
+from admin.integrations.forms import IntegrationConfigForm
 
 from .forms import (
     AccountProvisionForm,
@@ -263,12 +264,12 @@ class SequenceFormView(LoginRequiredMixin, AdminPermMixin, View):
 
         # Get a custom form (depending on what provision) when it's a account provision
         # like Slack, Asana, Google...
-        if form == AccountProvisionForm:
-            form = template_item.access_token.add_user_form_class()
+        if form == IntegrationConfigForm:
+            form = template_item.config_form()
             return render(
                 request,
                 "_item_form.html",
-                {"form": form(template_item.additional_data)},
+                {"form": form},
             )
 
         return render(
@@ -349,7 +350,7 @@ class SequenceFormUpdateAccountProvisionView(LoginRequiredMixin, AdminPermMixin,
     This will update or create an account provision object
 
     :params str template_type: always `accountprovision` and is not used
-    :params int template_pk: either of `AccessToken` or `AccountProvision` depending if
+    :params int template_pk: either of `Integration` or `AccountProvision` depending if
     object exists (see exists param)
     :params int condition: the pk of the condition (can never be 0)
     :params int exists: either 1 or 0 - basically boolean
@@ -365,13 +366,13 @@ class SequenceFormUpdateAccountProvisionView(LoginRequiredMixin, AdminPermMixin,
         condition = get_object_or_404(Condition, id=condition)
         if exists == 0:
             # If this provision item does not exist yet, then create one
-            access_token = get_object_or_404(AccessToken, id=template_pk)
-            form_class = access_token.add_user_form_class()
+            integration = get_object_or_404(Integration, id=template_pk)
+            form_class = integration.config_form
             existing_item = None
         else:
             # If this provision item exist, then get it, so we can update it
             existing_item = get_object_or_404(AccountProvision, id=template_pk)
-            form_class = existing_item.access_token.add_user_form_class()
+            form_class = existing_item.access_token.config_form
 
         item_form = form_class(request.POST)
 
@@ -382,7 +383,7 @@ class SequenceFormUpdateAccountProvisionView(LoginRequiredMixin, AdminPermMixin,
         # Either create a provision item or update it
         if existing_item is None:
             account_provision = AccountProvision.objects.create(
-                integration_type=access_token.account_provision_name,
+                integration=integration,
                 additional_data=item_form.cleaned_data,
             )
             condition.add_item(account_provision)
@@ -537,8 +538,8 @@ class SequenceDefaultTemplatesView(LoginRequiredMixin, AdminPermMixin, ListView)
 
     def get_queryset(self):
         template_type = self.request.GET.get("type", "")
-        if template_type == "accountprovision":
-            return AccessToken.objects.account_provision_options()
+        if template_type == "integration":
+            return Integration.objects.account_provision_options()
 
         if get_templates_model(template_type) is None:
             # if type does not exist, then return empty queryset

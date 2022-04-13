@@ -11,7 +11,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
-from admin.integrations.models import AccessToken
+from admin.integrations.models import Integration
 from admin.resources.models import Resource
 from slack_bot.slack import Slack
 from users.emails import email_new_admin_cred
@@ -32,7 +32,7 @@ class ColleagueListView(LoginRequiredMixin, AdminPermMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["title"] = _("Colleagues")
         context["subtitle"] = _("people")
-        context["slack_active"] = AccessToken.objects.filter(integration=0).exists()
+        context["slack_active"] = Integration.objects.filter(integration=0).exists()
         context["add_action"] = reverse_lazy("people:colleague_create")
         return context
 

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 import requests
 
-from .models import AccessToken
+from .models import Integration
 
 
 class Error(Exception):
@@ -25,17 +25,17 @@ class UnauthorizedError(Error):
 
 
 class Google:
-    access_obj = AccessToken.objects.none()
+    access_obj = Integration.objects.none()
     integration_type = 2
 
     def __init__(self):
-        self.access_obj = AccessToken.objects.filter(
+        self.access_obj = Integration.objects.filter(
             active=True, integration=self.integration_type
         )
         if self.access_obj.count() == 0:
             raise Error("No tokens available")
 
-        self.access_obj = AccessToken.objects.filter(
+        self.access_obj = Integration.objects.filter(
             active=True, integration=self.integration_type
         ).first()
 

@@ -12,6 +12,7 @@ from admin.people import urls as people_urls
 from admin.preboarding import urls as preboarding_urls
 from admin.resources import urls as resource_urls
 from admin.sequences import urls as sequences_urls
+from admin.integrations import urls as integrations_urls
 from admin.settings import urls as settings_urls
 from admin.templates import urls as template_urls
 from admin.to_do import urls as to_do_urls
@@ -43,7 +44,7 @@ urlpatterns = [
     path("templates/appointments/", include(appointment_urls)),
     path("sequences/", include(sequences_urls)),
     path("api/slack/", include(slack_urls)),
-    # path("api/integrations/", include(integrations_urls)),
+    path("api/integrations/", include(integrations_urls)),
 ]
 
 # DJANGO DEBUG BAR

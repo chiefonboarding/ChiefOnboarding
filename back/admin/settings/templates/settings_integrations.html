@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block settings_content %}
-  <div class="table-responsive">
+<div class="table-responsive">
   <table
 		class="table table-vcenter table-nowrap">
     <thead>
@@ -38,4 +38,36 @@
       {% endfor %}
     </tbody>
   </table>
+</div>
+</div>
+<div class="card mt-4">
+<div class="table-responsive">
+  <table
+		class="table table-vcenter table-nowrap">
+    <thead>
+      <tr>
+        <th>{% translate "Custom integrations" %}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for integration in custom_integrations %}
+      <tr>
+        <td>{{ integration.name }}</td>
+        <td style="text-align: right">
+          <a href="{% url 'integrations:update-creds' integration.id %}" class="btn btn-primary">
+            {% translate "Update credentials" %}
+          </a>
+          <a href="{% url 'integrations:update' integration.id %}" class="btn btn-primary">
+            {% translate "Update manifest" %}
+          </a>
+          <a href="{% url 'settings:delete-integration' integration.id %}" class="btn btn-danger">
+            {% translate "Remove" %}
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 {% endblock %}

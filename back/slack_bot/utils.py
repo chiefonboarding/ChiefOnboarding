@@ -1,15 +1,15 @@
 import slack_sdk as slack
 from django.contrib.auth import get_user_model
 
-from admin.integrations.models import AccessToken
+from admin.integrations.models import Integration
 
 
 class Slack:
     def __init__(self):
         try:
-            team = AccessToken.objects.get(integration=0)
+            team = Integration.objects.get(integration=0)
             self.client = slack.WebClient(token=team.bot_token)
-        except AccessToken.DoesNotExist:
+        except Integration.DoesNotExist:
             raise Exception("Access token not available")
 
     def get_channels(self):

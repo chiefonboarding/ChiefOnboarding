@@ -3,7 +3,7 @@ from django.utils import translation
 from django.utils.formats import localize
 from django.utils.translation import gettext as _
 
-from admin.integrations.models import AccessToken
+from admin.integrations.models import Integration
 from organization.models import Organization, WelcomeMessage
 from slack_bot.slack_intro import SlackIntro
 from slack_bot.slack_misc import get_new_hire_first_message_buttons
@@ -14,7 +14,7 @@ from users.models import ToDoUser
 
 def link_slack_users(users=[]):
     # Drop if Slack is not integrated
-    if not AccessToken.objects.filter(integration=0).exists():
+    if not Integration.objects.filter(integration=0).exists():
         return
 
     slack = Slack()
@@ -69,7 +69,7 @@ def link_slack_users(users=[]):
 
 
 def update_new_hire():
-    if not AccessToken.objects.filter(integration=0).exists():
+    if not Integration.objects.filter(integration=0).exists():
         return
 
     for user in get_user_model().new_hires.with_slack():
@@ -113,7 +113,7 @@ def first_day_reminder():
     org = Organization.object.get()
     # If Slack doesn't exist or setting is disabled, then drop
     if (
-        not AccessToken.objects.filter(integration=0).exists()
+        not Integration.objects.filter(integration=0).exists()
         or not org.send_new_hire_start_reminder
     ):
         return
@@ -145,7 +145,7 @@ def introduce_new_people():
     org = Organization.object.get()
     # If Slack doesn't exist or setting is disabled, then drop
     if (
-        not AccessToken.objects.filter(integration=0).exists()
+        not Integration.objects.filter(integration=0).exists()
         or not org.ask_colleague_welcome_message
     ):
         return

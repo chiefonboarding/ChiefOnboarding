@@ -2,18 +2,76 @@ import json
 
 import requests
 from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
+from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
+from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic import View
 
-from users.mixins import LoginRequiredMixin
+from users.mixins import LoginRequiredMixin, AdminPermMixin
 
-from .models import AccessToken
+from .models import Integration
+from .forms import IntegrationForm, IntegrationExtraArgsForm
+
+
+class IntegrationCreateView(
+    LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin
+):
+    template_name = "token_create.html"
+    form_class = IntegrationForm
+    success_message = _("Integration has been created!")
+    success_url = reverse_lazy("settings:integrations")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("Add new integration")
+        context["subtitle"] = _("settings")
+        context["button_text"] = _("Create")
+        return context
+
+    def form_valid(self, form):
+        form.instance.integration = 10
+        return super().form_valid(form)
+
+
+class IntegrationUpdateView(
+    LoginRequiredMixin, AdminPermMixin, UpdateView, SuccessMessageMixin
+):
+    template_name = "token_create.html"
+    form_class = IntegrationForm
+    queryset = Integration.objects.filter(integration=10)
+    success_message = _("Integration has been updated!")
+    success_url = reverse_lazy("settings:integrations")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("Add new integration")
+        context["subtitle"] = _("settings")
+        context["button_text"] = _("Update")
+        return context
+
+
+class IntegrationUpdateExtraArgsView(
+    LoginRequiredMixin, AdminPermMixin, UpdateView, SuccessMessageMixin
+):
+    template_name = "token_create.html"
+    form_class = IntegrationExtraArgsForm
+    queryset = Integration.objects.filter(integration=10)
+    success_message = _("Your config values have been updated!")
+    success_url = reverse_lazy("settings:integrations")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("Add new integration")
+        context["subtitle"] = _("settings")
+        context["button_text"] = _("Update")
+        return context
 
 
 class SlackOAuthView(LoginRequiredMixin, View):
     def get(self, request):
-        access_token = AccessToken.objects.get(integration=0)
+        access_token = Integration.objects.get(integration=0)
         if "code" not in request.GET:
             messages.error(
                 request,

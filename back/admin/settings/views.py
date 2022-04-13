@@ -18,7 +18,7 @@ from django.views.generic.list import ListView
 from admin.integrations.models import (
     INTEGRATION_OPTIONS,
     INTEGRATION_OPTIONS_URLS,
-    AccessToken,
+    Integration,
 )
 from organization.models import Changelog, Notification, Organization, WelcomeMessage
 from slack_bot.models import SlackChannel
@@ -213,12 +213,13 @@ class IntegrationsListView(LoginRequiredMixin, AdminPermMixin, TemplateView):
         context["subtitle"] = _("settings")
         for idx, integration in enumerate(INTEGRATION_OPTIONS_URLS):
             integration["name"] = INTEGRATION_OPTIONS[idx][1]
-            integration["obj"] = AccessToken.objects.filter(
+            integration["obj"] = Integration.objects.filter(
                 integration=INTEGRATION_OPTIONS[idx][0], active=True
             ).first()
 
         context["integrations"] = INTEGRATION_OPTIONS_URLS
-        # context["integrations"].sort(key=lambda x: x["name"].lower())
+        context["custom_integrations"] = Integration.objects.filter(integration=10)
+        context["add_action"] = reverse_lazy("integrations:create")
         return context
 
 
@@ -226,7 +227,7 @@ class GoogleLoginSetupView(
     LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin
 ):
     template_name = "token_create.html"
-    model = AccessToken
+    model = Integration
     fields = ["client_id", "client_secret"]
     success_message = _("You can now login with your Google account")
     success_url = reverse_lazy("settings:integrations")
@@ -239,7 +240,7 @@ class GoogleLoginSetupView(
         return context
 
     def form_valid(self, form):
-        AccessToken.objects.filter(integration=3).delete()
+        Integration.objects.filter(integration=3).delete()
         form.instance.integration = 3
         return super().form_valid(form)
 
@@ -248,7 +249,7 @@ class AsanaSetupView(
     LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin
 ):
     template_name = "token_create.html"
-    model = AccessToken
+    model = Integration
     fields = ["token"]
     success_message = _("Your Asana integration has been set up!")
     success_url = reverse_lazy("settings:integrations")
@@ -261,7 +262,7 @@ class AsanaSetupView(
         return context
 
     def form_valid(self, form):
-        AccessToken.objects.filter(integration=4).delete()
+        Integration.objects.filter(integration=4).delete()
         form.instance.integration = 4
         return super().form_valid(form)
 
@@ -270,7 +271,7 @@ class GoogleAccountCreationSetupView(
     LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin
 ):
     template_name = "token_create.html"
-    model = AccessToken
+    model = Integration
     fields = ["client_id", "client_secret"]
     success_message = _("You can now automatically create accounts for users")
     success_url = reverse_lazy("settings:integrations")
@@ -283,7 +284,7 @@ class GoogleAccountCreationSetupView(
         return context
 
     def form_valid(self, form):
-        AccessToken.objects.filter(integration=2).delete()
+        Integration.objects.filter(integration=2).delete()
         form.instance.integration = 2
         return super().form_valid(form)
 
@@ -292,7 +293,7 @@ class SlackAccountCreationSetupView(
     LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin
 ):
     template_name = "token_create.html"
-    model = AccessToken
+    model = Integration
     fields = [
         "app_id",
         "client_id",
@@ -311,7 +312,7 @@ class SlackAccountCreationSetupView(
         return context
 
     def form_valid(self, form):
-        AccessToken.objects.filter(integration=1).delete()
+        Integration.objects.filter(integration=1).delete()
         form.instance.integration = 1
         return super().form_valid(form)
 
@@ -320,7 +321,7 @@ class SlackBotSetupView(
     LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin
 ):
     template_name = "token_create.html"
-    model = AccessToken
+    model = Integration
     fields = [
         "app_id",
         "client_id",
@@ -341,7 +342,7 @@ class SlackBotSetupView(
         return context
 
     def form_valid(self, form):
-        AccessToken.objects.filter(integration=0).delete()
+        Integration.objects.filter(integration=0).delete()
         form.instance.integration = 0
         return super().form_valid(form)
 
@@ -366,7 +367,7 @@ class IntegrationDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
     """This is a general delete function for all integrations"""
 
     template_name = "integration-delete.html"
-    model = AccessToken
+    model = Integration
     success_url = reverse_lazy("settings:integrations")
 
     def get_context_data(self, **kwargs):

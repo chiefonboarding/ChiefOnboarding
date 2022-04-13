@@ -1,9 +1,15 @@
 import uuid
+import requests
+import json
 
 from django.db import models
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
+from django.template import Context, Template
+from django.template.loader import render_to_string
 from fernet_fields import EncryptedTextField
+
+
 
 INTEGRATION_OPTIONS = (
     (0, _("Slack bot")),
@@ -43,17 +49,16 @@ INTEGRATION_OPTIONS_URLS = [
 ]
 
 
-class AccessTokenManager(models.Manager):
+class IntegrationManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset()
 
     def account_provision_options(self):
-        # Add items here that are meant for account creation. Making it static, as
-        # this won't change.
-        return self.get_queryset().filter(integration__in=[1, 2, 4])
+        return self.get_queryset().filter(integration=10)
 
 
-class AccessToken(models.Model):
+class Integration(models.Model):
+    name = models.CharField(max_length=300, default="", blank=True)
     integration = models.IntegerField(choices=INTEGRATION_OPTIONS)
     token = EncryptedTextField(max_length=10000, default="", blank=True)
     refresh_token = EncryptedTextField(max_length=10000, default="", blank=True)
@@ -67,6 +72,74 @@ class AccessToken(models.Model):
         default=uuid.uuid4, editable=False, unique=True
     )
 
+    manifest = models.JSONField(default=dict)
+    # example
+    # {
+    #     "headers": {
+    #         "Content-Type": "application/json",
+    #         "Accept": "application/json",
+    #         "Authorization": "Bearer {{TOKEN}}"
+    #     },
+    #     "form": [{
+    #         "id": "TEAM_ID",
+    #         "name": "Select team to add user to",
+    #         "url": "https://app.asana.com/api/1.0/organizations/{{ORG}}/teams",
+    #         "type": "multiple_choice",
+    #         "items": "data",
+    #         "choice_id": "data.gid",
+    #         "choice_name": "data.name",
+    #         "multiple": false
+    #     }],
+    #     "exists": {
+    #         "method": "GET",
+    #         "url": "https://app.asana.com/api/1.0/users/{{email}}",
+    #         "data": {
+    #             "data": {
+    #                 "user": "{{email}}"
+    #             }
+    #         },
+    #         "expected": "{{email}}"
+    #     },
+    #     "execute": [{
+    #             "method": "POST",
+    #             "url": "https://app.asana.com/api/1.0/workspaces/{{ORG}}/addUser",
+    #             "data": {
+    #                 "data": {
+    #                     "user": "{{email}}"
+    #                 }
+    #             }
+    #         },
+    #         {
+    #             "method": "POST",
+    #             "url": "https://app.asana.com/api/1.0/teams/{{TEAM_ID}}/addUser",
+    #             "data": {
+    #                 "data": {
+    #                     "user": "{{email}}"
+    #                 }
+    #             }
+    #         }
+    #     ],
+    #     "initial_data_form": [{
+    #             "id": "TOKEN",
+    #             "name": "Please put your token here",
+    #             "description": "You can find your token here: https://...."
+    #         },
+    #         {
+    #             "id": "ORG",
+    #             "name": "Organization id",
+    #             "description": "You can find your organization id here: https://..."
+    #         }
+    #     ]
+    # }
+
+    extra_args = models.JSONField(default=dict)
+    # Real output:
+    # {
+    #      "TOKEN": "xxxxx",
+    #      "ORG": "org-token"
+    # }
+
+
     # Slack
     app_id = models.CharField(max_length=100, default="")
     client_id = models.CharField(max_length=100, default="")
@@ -76,43 +149,45 @@ class AccessToken(models.Model):
     bot_token = EncryptedTextField(max_length=10000, default="", blank=True)
     bot_id = models.CharField(max_length=100, default="")
 
-    @property
-    def name(self):
-        return self.get_integration_display()
+    def _run_request(self, data):
+        url = self._replace_vars(data['url'])
+        if "data" in data:
+            post_data = json.loads(self._replace_vars(json.dumps(data['data'])))
+        else:
+            post_data = {}
+        print(url)
+        return requests.request(data['method'], url, headers=self._headers, data=post_data).json()
+
+    def _replace_vars(self, text):
+        print(text)
+        if hasattr(self, 'new_hire') and self.new_hire is not None:
+            text = self.new_hire.personalize(text, self.extra_args)
+        t = Template(text)
+        context = Context(self.extra_args) # | self.params)
+        text = t.render(context)
+        return text
 
     @property
-    def account_provision_name(self):
-        # Used with sequences
-        if self.integration == 1:
-            return "slack"
-        if self.integration == 3:
-            return "google"
-        if self.integration == 4:
-            return "asana"
+    def _headers(self):
+        new_headers = {}
+        for key, value in self.manifest['headers'].items():
+            new_headers[self._replace_vars(key)] = self._replace_vars(value)
+        return new_headers
 
-    def api_class(self):
-        from .asana import Asana
-        from .google import Google
-        from .slack import Slack
+    def user_exists(self, new_hire):
+        self.new_hire = new_hire
+        print(json.dumps(self._run_request(self.manifest['exists'])))
+        return self._replace_vars(self.manifest['exists']['expected']) in json.dumps(self._run_request(self.manifest['exists']))
 
-        if self.integration == 1:
-            return Slack()
-        if self.integration == 3:
-            return Google()
-        if self.integration == 4:
-            return Asana()
 
-    def add_user_form_class(self):
-        from .forms import AddAsanaUserForm, AddGoogleUserForm, AddSlackUserForm
+    def execute(self, new_hire, params):
+        self.parms = params
+        self.new_hire = new_hire
+        for item in self.manifest.execute:
+            self._run_request(item)
 
-        if self.integration == 1:
-            return AddSlackUserForm
-        if self.integration == 3:
-            return AddGoogleUserForm
-        if self.integration == 4:
-            return AddAsanaUserForm
+    def config_form(self, data=None):
+        from .forms import IntegrationConfigForm
+        return IntegrationConfigForm(instance=self, data=data)
 
-    def add_user(self, user, params):
-        self.api_class().add_user(user, params)
-
-    objects = AccessTokenManager()
+    objects = IntegrationManager()

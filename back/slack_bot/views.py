@@ -7,7 +7,7 @@ from django.views.generic import View
 from rest_framework.response import Response
 
 from admin.admin_tasks.models import AdminTask
-from admin.integrations.models import AccessToken
+from admin.integrations.models import Integration
 from admin.resources.models import Category, Chapter
 from admin.sequences.models import Sequence
 
@@ -39,7 +39,7 @@ class BotView(View):
         # verify Slack request endpoint
         if (
             "token" not in request.data
-            or not AccessToken.objects.filter(
+            or not Integration.objects.filter(
                 verification_token=request.data["token"], integration=0
             ).exists()
         ):
@@ -107,7 +107,7 @@ class CallbackView(View):
         # verify Slack request endpoint
         if (
             "token" not in response
-            or not AccessToken.objects.filter(
+            or not Integration.objects.filter(
                 verification_token=response["token"], integration=0
             ).exists()
         ):
@@ -298,15 +298,12 @@ class CallbackView(View):
                     "value"
                 ]
 
-                welcome_message, created = NewHireWelcomeMessage.objects.get_or_create(
+                NewHireWelcomeMessage.objects.update_or_create(
                     colleague=slack_modal.user,
                     new_hire=new_hire,
                     defaults={"message": message},
                 )
 
-                if not created:
-                    welcome_message.message = message
-                    welcome_message.save()
 
                 return Response()
 

@@ -1,12 +1,12 @@
 from django.apps import apps
 
 from admin.sequences.forms import (
-    AccountProvisionForm,
     PendingAdminTaskForm,
     PendingEmailMessageForm,
     PendingSlackMessageForm,
     PendingTextMessageForm,
 )
+from admin.integrations.forms import IntegrationConfigForm
 from admin.templates.utils import MODELS
 
 # These are models specific to sequences. They don't have templates.
@@ -23,7 +23,7 @@ SEQUENCE_MODELS = [
         "form": PendingSlackMessageForm,
     },
     {"app": "sequences", "model": "PendingAdminTask", "form": PendingAdminTaskForm},
-    {"app": "sequences", "model": "AccountProvision", "form": AccountProvisionForm},
+    {"app": "integrations", "model": "integration", "form": IntegrationConfigForm},
 ]
 
 SEQUENCE_MODELS += MODELS

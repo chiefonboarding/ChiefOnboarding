@@ -140,7 +140,7 @@ function getFormData($form){
 // Nothing is as permanent as a temporary workaround.
 $("#form-add-item").submit(function (event) {
     event.preventDefault();
-    if (type === 'accountprovision') {
+    if (type === 'integration') {
       htmx.ajax('POST', `/sequences/update_account_provision/${type}/${item}/${condition}/${provisionCreated}/`, {'values': getFormData($(this)), 'target': '#form'})
     } else {
       htmx.ajax('POST', `/sequences/update_item/${type}/${item}/${condition}/`, {'values': getFormData($(this)), 'target': '#form'})

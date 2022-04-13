@@ -8,7 +8,7 @@ from twilio.rest import Client
 from admin.admin_tasks.models import NOTIFICATION_CHOICES, PRIORITY_CHOICES
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
-from admin.integrations.models import AccessToken
+from admin.integrations.models import Integration
 from admin.introductions.models import Introduction
 from admin.preboarding.models import Preboarding
 from admin.resources.models import Resource
@@ -362,26 +362,14 @@ class PendingAdminTask(models.Model):
 
 
 class AccountProvision(models.Model):
-    INTEGRATION_OPTIONS = (
-        ("asana", _("Add Asana account to team")),
-        ("google", _("Create Google account")),
-        ("slack", _("Create Slack account")),
-    )
-    integration_type = models.CharField(max_length=10, choices=INTEGRATION_OPTIONS)
+    integration = models.ForeignKey(Integration, on_delete=models.CASCADE, null=True)
     additional_data = models.JSONField(default=dict)
 
     @property
-    def access_token(self):
-        if self.integration_type == "asana":
-            return AccessToken.objects.get(active=True, integration=4)
-        if self.integration_type == "google":
-            return AccessToken.objects.get(active=True, integration=2)
-        if self.integration_type == "slack":
-            return AccessToken.objects.get(active=True, integration=1)
-
-    @property
     def name(self):
-        return self.integration_type.capitalize()
+        if self.integration is None:
+            return "undefined"
+        return self.integration.name
 
     @property
     def get_icon_template(self):

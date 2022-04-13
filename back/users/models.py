@@ -309,7 +309,7 @@ class User(AbstractBaseUser):
         )
         return us_tz.normalize(local.astimezone(us_tz))
 
-    def personalize(self, text):
+    def personalize(self, text, extra_values={}):
         t = Template(text)
         manager = ""
         buddy = ""
@@ -317,17 +317,19 @@ class User(AbstractBaseUser):
             manager = self.manager.full_name
         if self.buddy is not None:
             buddy = self.buddy.full_name
+        new_hire_context = {
+            "manager": manager,
+            "buddy": buddy,
+            "position": self.position,
+            "last_name": self.last_name,
+            "first_name": self.first_name,
+            "email": self.email,
+            "start": self.start_day,
+        }
+        print(new_hire_context | extra_values)
         text = t.render(
             Context(
-                {
-                    "manager": manager,
-                    "buddy": buddy,
-                    "position": self.position,
-                    "last_name": self.last_name,
-                    "first_name": self.first_name,
-                    "email": self.email,
-                    "start": self.start_day,
-                }
+               new_hire_context | extra_values
             )
         )
         return text

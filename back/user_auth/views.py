@@ -12,7 +12,7 @@ from django.utils.translation import gettext as _
 from django.views.generic import View
 from django.views.generic.edit import FormView
 
-from admin.integrations.models import AccessToken
+from admin.integrations.models import Integration
 from admin.settings.forms import OTPVerificationForm
 from organization.models import Organization
 from users.mixins import LoginRequiredMixin as LoginWithMFARequiredMixin
@@ -44,8 +44,8 @@ class AuthenticateView(LoginView):
         context["organization"] = Organization.object.get()
         context["google_client"] = None
         context["base_url"] = settings.BASE_URL
-        if AccessToken.objects.filter(integration=3, active=True).exists():
-            context["google_login"] = AccessToken.objects.get(
+        if Integration.objects.filter(integration=3, active=True).exists():
+            context["google_login"] = Integration.objects.get(
                 integration=3, active=True
             )
 
@@ -95,13 +95,13 @@ class GoogleLoginView(View):
 
         # Make sure access token exists. Technically, it shouldn't be possible
         # to enable `google_login` when this is not set, but just to be safe
-        if not AccessToken.objects.filter(integration=3, active=True):
+        if not Integration.objects.filter(integration=3, active=True):
             return HttpResponse(_("Google login access token has not been set"))
 
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
-        access_code = AccessToken.objects.get(integration=3, active=True)
+        access_code = Integration.objects.get(integration=3, active=True)
         try:
             r = requests.post(
                 "https://oauth2.googleapis.com/token",
