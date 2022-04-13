@@ -3,6 +3,9 @@ import datetime
 import pytest
 from freezegun import freeze_time
 
+from organization.models import Organization
+from users.tasks import hourly_check_for_new_hire_send_credentials
+
 from .factories import *  # noqa
 from .models import OTPRecoveryKey, User
 
@@ -196,3 +199,50 @@ def test_new_hire_has_slack_account(new_hire_factory):
 
     assert new_hire_with_slack.has_slack_account
     assert not new_hire_without_slack.has_slack_account
+
+
+@pytest.mark.django_db
+def test_daily_check_for_new_hire_send_credentials_task(
+    new_hire_factory, mailoutbox, settings
+):
+    org = Organization.object.get()
+    org.timezone = "UTC"  # UTC is the same as on the server
+    org.new_hire_email = False
+    org.save()
+
+    # 8 am when these notifications get send out
+    freezer = freeze_time("2021-01-14 08:00:00", tz_offset=0)  # set UTC
+    freezer.start()
+    new_hire1 = new_hire_factory(start_day=datetime.datetime.today().date())
+
+    # trigger function manually
+    hourly_check_for_new_hire_send_credentials()
+
+    # No emails as new_hire_email is set to false
+    assert len(mailoutbox) == 0
+
+    # Enable sending emails
+    org.new_hire_email = True
+    org.save()
+
+    hourly_check_for_new_hire_send_credentials()
+    freezer.stop()
+
+    assert len(mailoutbox) == 1
+    assert mailoutbox[0].subject == f"Welcome to {org.name}!"
+    assert len(mailoutbox[0].to) == 1
+    assert mailoutbox[0].to[0] == new_hire1.email
+    assert settings.BASE_URL in mailoutbox[0].alternatives[0][0]
+    assert new_hire1.first_name in mailoutbox[0].alternatives[0][0]
+    assert new_hire1.email in mailoutbox[0].alternatives[0][0]
+
+    freezer = freeze_time("2021-01-14 09:00:00", tz_offset=0)
+    freezer.start()
+    new_hire1 = new_hire_factory(start_day=datetime.datetime.today().date())
+
+    # trigger function manually
+    hourly_check_for_new_hire_send_credentials()
+
+    # No new email as it's 9 am and not 8 am
+    assert len(mailoutbox) == 1
+    freezer.stop()

@@ -293,6 +293,29 @@ def test_migrate_new_hire_to_normal_account(
 
 
 @pytest.mark.django_db
+def test_new_hire_delete(client, django_user_model, new_hire_factory):
+    admin = django_user_model.objects.create(role=1)
+    client.force_login(admin)
+
+    # Doesn't work for admins
+    url = reverse("people:delete", args=[admin.id])
+    response = client.post(url, follow=True)
+    admin.refresh_from_db()
+    assert django_user_model.objects.all().count() == 1
+
+    new_hire1 = new_hire_factory()
+    # We have two users now
+    assert django_user_model.objects.all().count() == 2
+
+    # Works for new hires
+    url = reverse("people:delete", args=[new_hire1.id])
+    response = client.post(url, follow=True)
+
+    assert django_user_model.objects.all().count() == 1
+    assert "New hire has been removed" in response.content.decode()
+
+
+@pytest.mark.django_db
 def test_new_hire_notes(client, note_factory, django_user_model):
     admin = django_user_model.objects.create(role=1)
     client.force_login(admin)

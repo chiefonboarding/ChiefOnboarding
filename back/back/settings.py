@@ -198,15 +198,13 @@ CORS_ALLOWED_ORIGINS = [
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication"
+        "rest_framework.authentication.TokenAuthentication"
     ],
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
     ],
-    "DEFAULT_PERMISSION_CLASSES": [
-        "users.permissions.AdminPermission",
-    ],
     "DEFAULT_THROTTLE_RATES": {"anon": "100/day"},
+    # TODO: needs permissions
 }
 
 
@@ -283,6 +281,9 @@ Q_CLUSTER = {
     "catch_up": False,
     "max_attempts": 2,
 }
+
+if DEBUG:
+    Q_CLUSTER["sync"] = True
 
 # AWS
 AWS_S3_ENDPOINT_URL = env(

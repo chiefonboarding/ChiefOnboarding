@@ -422,13 +422,18 @@ class NewHireRemindView(LoginRequiredMixin, AdminPermMixin, View):
 class NewHireReopenTaskView(LoginRequiredMixin, AdminPermMixin, FormView):
     template_name = "new_hire_reopen_task.html"
     form_class = RemindMessageForm
+    context_object_name = "object"
 
-    def form_valid(self, form):
+    def dispatch(self, *args, **kwargs):
         template_type = self.kwargs.get("template_type", "")
-        pk = self.kwargs.get("pk", -1)
-
         if template_type not in ["todouser", "resourceuser"]:
             raise Http404
+
+        return super().dispatch(*args, **kwargs)
+
+    def form_valid(self, form):
+        pk = self.kwargs.get("pk", -1)
+        template_type = self.kwargs.get("template_type", "")
 
         template_user_model = apps.get_model("users", template_type)
 
@@ -469,15 +474,7 @@ class NewHireReopenTaskView(LoginRequiredMixin, AdminPermMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        template_type = self.kwargs.get("template_type", "")
-        pk = self.kwargs.get("pk", -1)
-
-        if template_type not in ["todouser", "resourceuser"]:
-            raise Http404
-
-        template_user_model = apps.get_model("users", template_type)
-        template_user_obj = template_user_model.objects.get(pk=pk)
-        context["title"] = template_user_obj.user.full_name
+        context["title"] = self.object.full_name
         context["subtitle"] = _("new hire")
         return context
 
@@ -505,8 +502,7 @@ class NewHireTasksView(LoginRequiredMixin, AdminPermMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        new_hire = self.object
-        context["title"] = new_hire.full_name
+        context["title"] = self.object.full_name
         context["subtitle"] = _("new hire")
         return context
 
@@ -518,8 +514,7 @@ class NewHireAccessView(LoginRequiredMixin, AdminPermMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        new_hire = self.object
-        context["title"] = new_hire.full_name
+        context["title"] = self.object.full_name
         context["subtitle"] = _("new hire")
         context["loading"] = True
         context["integrations"] = Integration.objects.account_provision_options()
@@ -544,6 +539,7 @@ class NewHireCheckAccessView(LoginRequiredMixin, AdminPermMixin, DetailView):
 
 class NewHireGiveAccessView(LoginRequiredMixin, AdminPermMixin, FormView):
     template_name = "give_new_hire_access.html"
+    context_object_name = "object"
 
     def get_form_class(self):
         integration = get_object_or_404(
@@ -552,24 +548,22 @@ class NewHireGiveAccessView(LoginRequiredMixin, AdminPermMixin, FormView):
         return integration.add_user_form_class()
 
     def form_valid(self, form):
-        new_hire = get_object_or_404(get_user_model(), id=self.kwargs.get("pk", -1))
         integration = get_object_or_404(
             Integration, id=self.kwargs.get("integration_id", -1)
         )
-        integration.add_user(new_hire.email, form.cleaned_data)
+        integration.add_user(self.object.email, form.cleaned_data)
 
-        return redirect("people:new_hire_access", pk=new_hire.id)
+        return redirect("people:new_hire_access", pk=self.object.id)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        new_hire = get_object_or_404(get_user_model(), id=self.kwargs.get("pk", -1))
         integration = get_object_or_404(
             Integration, id=self.kwargs.get("integration_id", -1)
         )
         context["integration"] = integration
-        context["title"] = new_hire.full_name
+        context["title"] = self.object.full_name
         context["subtitle"] = _("new hire")
-        context["new_hire"] = new_hire
+        context["new_hire"] = self.object
         return context
 
 
@@ -597,16 +591,16 @@ class NewHireTaskListView(LoginRequiredMixin, AdminPermMixin, DetailView):
 
 class NewHireToggleTaskView(LoginRequiredMixin, AdminPermMixin, TemplateView):
     template_name = "_toggle_button_new_hire_template.html"
+    context_object_name = "object"
 
     def get_context_data(self, pk, template_id, type, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = get_object_or_404(get_user_model(), id=pk)
         templates_model = get_templates_model(type)
         if templates_model is None:
             raise Http404
 
         template = get_object_or_404(templates_model, id=template_id)
-        user_items = getattr(user, get_user_field(type))
+        user_items = getattr(self.object, get_user_field(type))
         if user_items.filter(id=template.id).exists():
             user_items.remove(template)
         else:
@@ -614,14 +608,13 @@ class NewHireToggleTaskView(LoginRequiredMixin, AdminPermMixin, TemplateView):
         context["id"] = id
         context["template"] = template
         context["user_items"] = user_items
-        context["object"] = user
         context["template_type"] = type
         return context
 
 
 class NewHireDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
     template_name = "new_hire_delete.html"
-    queryset = get_user_model().objects.all()
+    queryset = get_user_model().new_hires.all()
     success_url = reverse_lazy("people:new_hires")
 
     def delete(self, request, *args, **kwargs):
