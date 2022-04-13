@@ -425,9 +425,10 @@ class NewHireReopenTaskView(LoginRequiredMixin, AdminPermMixin, FormView):
     context_object_name = "object"
 
     def dispatch(self, *args, **kwargs):
-        template_type = self.kwargs.get("template_type", "")
-        if template_type not in ["todouser", "resourceuser"]:
-            raise Http404
+        if self.request.user.is_authenticated:
+            template_type = self.kwargs.get("template_type", "")
+            if template_type not in ["todouser", "resourceuser"]:
+                raise Http404
 
         return super().dispatch(*args, **kwargs)
 

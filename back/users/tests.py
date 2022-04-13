@@ -233,7 +233,6 @@ def test_daily_check_for_new_hire_send_credentials_task(
     assert len(mailoutbox[0].to) == 1
     assert mailoutbox[0].to[0] == new_hire1.email
     assert settings.BASE_URL in mailoutbox[0].alternatives[0][0]
-    assert new_hire1.first_name in mailoutbox[0].alternatives[0][0]
     assert new_hire1.email in mailoutbox[0].alternatives[0][0]
 
     freezer = freeze_time("2021-01-14 09:00:00", tz_offset=0)
