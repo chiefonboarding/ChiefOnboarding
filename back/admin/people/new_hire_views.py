@@ -533,7 +533,6 @@ class NewHireCheckAccessView(LoginRequiredMixin, AdminPermMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        new_hire = self.object
         integration = get_object_or_404(
             Integration, id=self.kwargs.get("integration_id", -1)
         )

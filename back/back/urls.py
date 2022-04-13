@@ -7,12 +7,12 @@ from django.views.generic.base import TemplateView
 from admin.admin_tasks import urls as admin_tasks_urls
 from admin.appointments import urls as appointment_urls
 from admin.badges import urls as badge_urls
+from admin.integrations import urls as integrations_urls
 from admin.introductions import urls as intro_urls
 from admin.people import urls as people_urls
 from admin.preboarding import urls as preboarding_urls
 from admin.resources import urls as resource_urls
 from admin.sequences import urls as sequences_urls
-from admin.integrations import urls as integrations_urls
 from admin.settings import urls as settings_urls
 from admin.templates import urls as template_urls
 from admin.to_do import urls as to_do_urls

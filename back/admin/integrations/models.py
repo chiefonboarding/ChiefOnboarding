@@ -1,15 +1,12 @@
-import uuid
-import requests
 import json
+import uuid
 
+import requests
 from django.db import models
+from django.template import Context, Template
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.template import Context, Template
-from django.template.loader import render_to_string
 from fernet_fields import EncryptedTextField
-
-
 
 INTEGRATION_OPTIONS = (
     (0, _("Slack bot")),
@@ -139,7 +136,6 @@ class Integration(models.Model):
     #      "ORG": "org-token"
     # }
 
-
     # Slack
     app_id = models.CharField(max_length=100, default="")
     client_id = models.CharField(max_length=100, default="")
@@ -150,35 +146,35 @@ class Integration(models.Model):
     bot_id = models.CharField(max_length=100, default="")
 
     def _run_request(self, data):
-        url = self._replace_vars(data['url'])
+        url = self._replace_vars(data["url"])
         if "data" in data:
-            post_data = json.loads(self._replace_vars(json.dumps(data['data'])))
+            post_data = json.loads(self._replace_vars(json.dumps(data["data"])))
         else:
             post_data = {}
-        print(url)
-        return requests.request(data['method'], url, headers=self._headers, data=post_data).json()
+        return requests.request(
+            data["method"], url, headers=self._headers, data=post_data
+        ).json()
 
     def _replace_vars(self, text):
-        print(text)
-        if hasattr(self, 'new_hire') and self.new_hire is not None:
+        if hasattr(self, "new_hire") and self.new_hire is not None:
             text = self.new_hire.personalize(text, self.extra_args)
         t = Template(text)
-        context = Context(self.extra_args) # | self.params)
+        context = Context(self.extra_args)  # | self.params)
         text = t.render(context)
         return text
 
     @property
     def _headers(self):
         new_headers = {}
-        for key, value in self.manifest['headers'].items():
+        for key, value in self.manifest["headers"].items():
             new_headers[self._replace_vars(key)] = self._replace_vars(value)
         return new_headers
 
     def user_exists(self, new_hire):
         self.new_hire = new_hire
-        print(json.dumps(self._run_request(self.manifest['exists'])))
-        return self._replace_vars(self.manifest['exists']['expected']) in json.dumps(self._run_request(self.manifest['exists']))
-
+        return self._replace_vars(self.manifest["exists"]["expected"]) in json.dumps(
+            self._run_request(self.manifest["exists"])
+        )
 
     def execute(self, new_hire, params):
         self.parms = params
@@ -188,6 +184,7 @@ class Integration(models.Model):
 
     def config_form(self, data=None):
         from .forms import IntegrationConfigForm
+
         return IntegrationConfigForm(instance=self, data=data)
 
     objects = IntegrationManager()

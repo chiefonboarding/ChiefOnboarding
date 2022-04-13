@@ -326,12 +326,7 @@ class User(AbstractBaseUser):
             "email": self.email,
             "start": self.start_day,
         }
-        print(new_hire_context | extra_values)
-        text = t.render(
-            Context(
-               new_hire_context | extra_values
-            )
-        )
+        text = t.render(Context(new_hire_context | extra_values))
         return text
 
     def reset_otp_recovery_keys(self):

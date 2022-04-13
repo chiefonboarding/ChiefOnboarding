@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('integrations', '0011_accesstoken_name'),
+        ("integrations", "0011_accesstoken_name"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='accesstoken',
-            name='extra_args',
+            model_name="accesstoken",
+            name="extra_args",
             field=models.JSONField(default=list),
         ),
         migrations.AddField(
-            model_name='accesstoken',
-            name='manifest',
+            model_name="accesstoken",
+            name="manifest",
             field=models.JSONField(default=list),
         ),
     ]

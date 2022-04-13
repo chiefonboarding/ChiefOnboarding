@@ -6,13 +6,13 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
-from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic import View
+from django.views.generic.edit import CreateView, UpdateView
 
-from users.mixins import LoginRequiredMixin, AdminPermMixin
+from users.mixins import AdminPermMixin, LoginRequiredMixin
 
+from .forms import IntegrationExtraArgsForm, IntegrationForm
 from .models import Integration
-from .forms import IntegrationForm, IntegrationExtraArgsForm
 
 
 class IntegrationCreateView(

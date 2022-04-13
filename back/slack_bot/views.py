@@ -304,7 +304,6 @@ class CallbackView(View):
                     defaults={"message": message},
                 )
 
-
                 return Response()
 
             # save to do and optionally the form that got submitted with it

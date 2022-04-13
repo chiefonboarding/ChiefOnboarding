@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('integrations', '0014_alter_accesstoken_extra_args'),
+        ("integrations", "0014_alter_accesstoken_extra_args"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='AccessToken',
-            new_name='Integration',
+            old_name="AccessToken",
+            new_name="Integration",
         ),
     ]

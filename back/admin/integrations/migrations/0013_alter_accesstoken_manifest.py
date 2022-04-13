@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('integrations', '0012_auto_20220409_1517'),
+        ("integrations", "0012_auto_20220409_1517"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='accesstoken',
-            name='manifest',
+            model_name="accesstoken",
+            name="manifest",
             field=models.JSONField(default=dict),
         ),
     ]
