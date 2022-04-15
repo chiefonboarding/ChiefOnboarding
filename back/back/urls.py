@@ -44,7 +44,7 @@ urlpatterns = [
     path("templates/appointments/", include(appointment_urls)),
     path("sequences/", include(sequences_urls)),
     path("api/slack/", include(slack_urls)),
-    path("api/integrations/", include(integrations_urls)),
+    path("admin/integrations/", include(integrations_urls)),
 ]
 
 # DJANGO DEBUG BAR

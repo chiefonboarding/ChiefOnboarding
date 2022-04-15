@@ -1,6 +1,29 @@
 import pytest
+from pytest_factoryboy import register
 
-from organization.factories import OrganizationFactory, WelcomeMessageFactory
+from admin.admin_tasks.factories import AdminTaskFactory
+from admin.appointments.factories import AppointmentFactory
+from admin.introductions.factories import IntroductionFactory
+from admin.notes.factories import NoteFactory
+from admin.preboarding.factories import PreboardingFactory
+from admin.resources.factories import ResourceFactory
+from admin.to_do.factories import ToDoFactory
+from organization.factories import (
+    NotificationFactory,
+    OrganizationFactory,
+    WelcomeMessageFactory,
+)
+from users.factories import (
+    AdminFactory,
+    DepartmentFactory,
+    EmployeeFactory,
+    ManagerFactory,
+    NewHireFactory,
+    NewHireWelcomeMessageFactory,
+    OTPRecoveryKeyFactory,
+    ResourceUserFactory,
+    ToDoUserFactory,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -11,3 +34,23 @@ def run_around_tests():
         WelcomeMessageFactory(message_type=i, language="en")
 
     yield
+
+
+register(DepartmentFactory)
+register(NewHireFactory)
+register(AdminFactory)
+register(ManagerFactory)
+register(EmployeeFactory)
+register(OTPRecoveryKeyFactory)
+register(NewHireWelcomeMessageFactory)
+register(ToDoFactory)
+register(ToDoUserFactory)
+register(ResourceFactory)
+register(ResourceUserFactory)
+register(AdminTaskFactory)
+register(ToDoFactory)
+register(AppointmentFactory)
+register(IntroductionFactory)
+register(NoteFactory)
+register(NotificationFactory)
+register(PreboardingFactory)

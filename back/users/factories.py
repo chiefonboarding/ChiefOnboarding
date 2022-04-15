@@ -2,15 +2,27 @@ import datetime
 
 import factory
 from factory.fuzzy import FuzzyText
-from pytest_factoryboy import register
 
 from admin.resources.factories import ResourceFactory
 from admin.to_do.factories import ToDoFactory
 
-from .models import NewHireWelcomeMessage, OTPRecoveryKey, ResourceUser, ToDoUser, User
+from .models import (
+    Department,
+    NewHireWelcomeMessage,
+    OTPRecoveryKey,
+    ResourceUser,
+    ToDoUser,
+    User,
+)
 
 
-@register
+class DepartmentFactory(factory.django.DjangoModelFactory):
+    name = FuzzyText()
+
+    class Meta:
+        model = Department
+
+
 class NewHireFactory(factory.django.DjangoModelFactory):
     first_name = FuzzyText()
     last_name = FuzzyText()
@@ -22,7 +34,6 @@ class NewHireFactory(factory.django.DjangoModelFactory):
         model = User
 
 
-@register
 class AdminFactory(factory.django.DjangoModelFactory):
     role = 1
     first_name = FuzzyText()
@@ -33,7 +44,6 @@ class AdminFactory(factory.django.DjangoModelFactory):
         model = User
 
 
-@register
 class ManagerFactory(factory.django.DjangoModelFactory):
     first_name = FuzzyText()
     last_name = FuzzyText()
@@ -44,7 +54,6 @@ class ManagerFactory(factory.django.DjangoModelFactory):
         model = User
 
 
-@register
 class EmployeeFactory(factory.django.DjangoModelFactory):
     first_name = FuzzyText()
     last_name = FuzzyText()
@@ -57,13 +66,11 @@ class EmployeeFactory(factory.django.DjangoModelFactory):
         model = User
 
 
-@register
 class OTPRecoveryKeyFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = OTPRecoveryKey
 
 
-@register
 class NewHireWelcomeMessageFactory(factory.django.DjangoModelFactory):
     message = FuzzyText()
     new_hire = factory.SubFactory(NewHireFactory)
@@ -73,7 +80,6 @@ class NewHireWelcomeMessageFactory(factory.django.DjangoModelFactory):
         model = NewHireWelcomeMessage
 
 
-@register
 class ToDoUserFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory(NewHireFactory)
     to_do = factory.SubFactory(ToDoFactory)
@@ -82,7 +88,6 @@ class ToDoUserFactory(factory.django.DjangoModelFactory):
         model = ToDoUser
 
 
-@register
 class ResourceUserFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory(NewHireFactory)
     resource = factory.SubFactory(ResourceFactory)

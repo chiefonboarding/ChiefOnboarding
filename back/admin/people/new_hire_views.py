@@ -594,23 +594,30 @@ class NewHireToggleTaskView(LoginRequiredMixin, AdminPermMixin, TemplateView):
     template_name = "_toggle_button_new_hire_template.html"
     context_object_name = "object"
 
-    def get_context_data(self, pk, template_id, type, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def post(self, request, pk, template_id, type):
+        user = get_object_or_404(get_user_model(), id=pk)
         templates_model = get_templates_model(type)
+
         if templates_model is None:
             raise Http404
 
-        template = get_object_or_404(templates_model, id=template_id)
-        user_items = getattr(self.object, get_user_field(type))
+        template = get_object_or_404(templates_model, id=template_id, template=True)
+        user_items = getattr(user, get_user_field(type))
         if user_items.filter(id=template.id).exists():
             user_items.remove(template)
         else:
             user_items.add(template)
-        context["id"] = id
-        context["template"] = template
-        context["user_items"] = user_items
-        context["template_type"] = type
-        return context
+
+        context = self.get_context_data(
+            **{
+                "template": template,
+                "user_items": user_items,
+                "object": user,
+                "id": id,
+                "template_type": type,
+            }
+        )
+        return self.render_to_response(context)
 
 
 class NewHireDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):

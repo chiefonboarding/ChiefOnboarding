@@ -1,14 +1,24 @@
+from unittest.mock import Mock, patch
+
 import pytest
 from django.urls import reverse
 
-from admin.admin_tasks.factories import *  # noqa
-from admin.notes.factories import *  # noqa
+from admin.appointments.factories import AppointmentFactory
+from admin.introductions.factories import IntroductionFactory
 from admin.notes.models import Note
 from admin.preboarding.factories import PreboardingFactory
+from admin.resources.factories import ResourceFactory
+from admin.templates.utils import get_user_field
+from admin.to_do.factories import ToDoFactory
 from misc.models import File
 from organization.factories import NotificationFactory
 from organization.models import Organization, WelcomeMessage
-from users.factories import *  # noqa
+from users.factories import (
+    AdminFactory,
+    EmployeeFactory,
+    ManagerFactory,
+    NewHireFactory,
+)
 
 
 @pytest.mark.django_db
@@ -97,7 +107,7 @@ def test_send_preboarding_message_via_email(
     wm.save()
 
     # Add preboarding item to test link
-    preboarding = PreboardingFactory()
+    preboarding = PreboardingFactory()  # noqa
     new_hire1.preboarding.add(preboarding)
 
     response = client.get(url)
@@ -572,3 +582,427 @@ def test_new_hire_remind_resource(
     assert settings.BASE_URL in mailoutbox[0].alternatives[0][0]
     assert resource_user1.resource.name in mailoutbox[0].alternatives[0][0]
     assert resource_user1.user.first_name in mailoutbox[0].alternatives[0][0]
+
+
+@pytest.mark.django_db
+def test_new_hire_tasks(
+    client,
+    django_user_model,
+    resource_factory,
+    to_do_factory,
+    appointment_factory,
+    introduction_factory,
+    preboarding_factory,
+    new_hire_factory,
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    new_hire1 = new_hire_factory()
+
+    # tasks
+    to_do1 = to_do_factory()
+    resource1 = resource_factory()
+    appointment1 = appointment_factory()
+    introduction1 = introduction_factory()
+    preboarding1 = preboarding_factory()
+
+    # get the page with items (none yet)
+    url = reverse("people:new_hire_tasks", args=[new_hire1.id])
+
+    response = client.get(url)
+
+    # Check if all items are listed
+    assert to_do1.name not in response.content.decode()
+    assert resource1.name not in response.content.decode()
+    assert appointment1.name not in response.content.decode()
+    assert introduction1.name not in response.content.decode()
+    assert preboarding1.name not in response.content.decode()
+
+    # All are empty
+    assert "no preboarding items" in response.content.decode()
+    assert "no to do items" in response.content.decode()
+    assert "no resource items" in response.content.decode()
+    assert "no introduction items" in response.content.decode()
+    assert "no appointment items" in response.content.decode()
+
+    # adding all tasks to new hire. One of each
+    new_hire1.to_do.add(to_do1)
+    new_hire1.resources.add(resource1)
+    new_hire1.appointments.add(appointment1)
+    new_hire1.introductions.add(introduction1)
+    new_hire1.preboarding.add(preboarding1)
+
+    url = reverse("people:new_hire_tasks", args=[new_hire1.id])
+
+    response = client.get(url)
+
+    # All are not empty
+    assert "no preboarding items" not in response.content.decode()
+    assert "no to do items" not in response.content.decode()
+    assert "no resource items" not in response.content.decode()
+    assert "no introduction items" not in response.content.decode()
+    assert "no appointment items" not in response.content.decode()
+
+    # Check if all items are listed
+    assert to_do1.name in response.content.decode()
+    assert resource1.name in response.content.decode()
+    assert appointment1.name in response.content.decode()
+    assert introduction1.name in response.content.decode()
+    assert preboarding1.name in response.content.decode()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "factory, type, status_code",
+    [
+        (ToDoFactory, "todo", 200),
+        (PreboardingFactory, "preboarding", 200),
+        (ResourceFactory, "resource", 200),
+        (IntroductionFactory, "introduction", 200),
+        (AppointmentFactory, "appointment", 200),
+        (AppointmentFactory, "appointment22", 404),
+    ],
+)
+def test_new_hire_tasks_list(
+    client, django_user_model, new_hire_factory, factory, type, status_code
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    new_hire1 = new_hire_factory()
+
+    # tasks
+    item1 = factory()
+    item2 = factory(template=False)
+
+    # get the page with items
+    url = reverse("people:new_hire_task_list", args=[new_hire1.id, type])
+
+    response = client.get(url)
+
+    assert response.status_code == status_code
+
+    if status_code == 200:
+
+        assert item1.name in response.content.decode()
+
+        # only template items are displayed
+        assert item2.name not in response.content.decode()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "factory, type, status_code",
+    [
+        (ToDoFactory, "todo", 200),
+        (PreboardingFactory, "preboarding", 200),
+        (ResourceFactory, "resource", 200),
+        (IntroductionFactory, "introduction", 200),
+        (AppointmentFactory, "appointment", 200),
+        (AppointmentFactory, "appointment22", 404),
+    ],
+)
+def test_new_hire_toggle_tasks(
+    client, django_user_model, new_hire_factory, factory, type, status_code
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    new_hire1 = new_hire_factory()
+
+    # Generate template
+    item = factory()
+
+    # Post to page to add an item
+    url = reverse("people:toggle_new_hire_task", args=[new_hire1.id, item.id, type])
+    response = client.post(url, follow=True)
+
+    assert response.status_code == status_code
+
+    if status_code == 200:
+
+        # Get items in specific field for user
+        user_items = getattr(new_hire1, get_user_field(type))
+
+        # Should be one now as it was added
+        assert user_items.all().count() == 1
+        assert "Added" in response.content.decode()
+
+    # Add
+    response = client.post(url, follow=True)
+
+    if status_code == 200:
+
+        # Should be removed now
+        assert user_items.all().count() == 0
+        assert "Add" in response.content.decode()
+
+
+# COLLEAGUES #
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "factory",
+    [
+        (NewHireFactory),
+        (AdminFactory),
+        (ManagerFactory),
+        (EmployeeFactory),
+    ],
+)
+def test_colleagues_list_all_types_of_users_show(client, django_user_model, factory):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    user = factory()
+
+    url = reverse("people:colleagues")
+    response = client.get(url)
+
+    assert response.status_code == 200
+    assert user.full_name in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_colleague_create(client, django_user_model, department_factory):
+    admin_user = django_user_model.objects.create(role=1)
+    client.force_login(admin_user)
+
+    # Generate departments to select
+    department1 = department_factory()
+    department2 = department_factory()
+
+    # Set org default timezone/language
+    org = Organization.object.get()
+    org.timezone = "Europe/Amsterdam"
+    org.language = "nl"
+    org.save()
+
+    url = reverse("people:colleague_create")
+    response = client.get(url)
+
+    # Check that Amsterdam is selected as default
+    assert (
+        '<option value="Europe/Amsterdam" selected>Europe/Amsterdam</option>'
+        in response.content.decode()
+    )
+    # Check that Dutch is selected as default
+    assert '<option value="nl" selected>Dutch</option>' in response.content.decode()
+    assert "First name" in response.content.decode()
+    assert "Create new colleague" in response.content.decode()
+    assert department1.name in response.content.decode()
+    assert department2.name in response.content.decode()
+
+    # Create a colleague
+    response = client.post(
+        url,
+        data={
+            "first_name": "Stan",
+            "last_name": "Do",
+            "email": "stan@chiefonboarding.com",
+            "timezone": "Europe/Amsterdam",
+            "language": "nl",
+        },
+        follow=True,
+    )
+
+    assert response.status_code == 200
+    assert django_user_model.objects.count() == 2
+    assert "Colleague has been added" in response.content.decode()
+
+    # Shows up on colleagues page
+    url = reverse("people:colleagues")
+    response = client.get(url)
+
+    assert "stan@chiefonboarding.com" in response.content.decode()
+
+    # Try posting again with same email
+    url = reverse("people:colleague_create")
+    response = client.post(
+        url,
+        data={
+            "first_name": "Stan",
+            "last_name": "Do",
+            "email": "stan@chiefonboarding.com",
+            "timezone": "Europe/Amsterdam",
+            "language": "nl",
+        },
+        follow=True,
+    )
+
+    assert "Colleague has been added" not in response.content.decode()
+    assert "already exists" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_colleague_update(client, django_user_model):
+    admin_user = django_user_model.objects.create(
+        first_name="John",
+        last_name="Do",
+        email="john@chiefonboarding.com",
+        language="en",
+        timezone="Europe/Amsterdam",
+        role=1,
+    )
+    client.force_login(admin_user)
+
+    url = reverse("people:colleague", args=[admin_user.id])
+    response = client.get(url)
+
+    # Check that fiels are shown correctly based on user
+    assert admin_user.first_name in response.content.decode()
+    assert admin_user.last_name in response.content.decode()
+    assert admin_user.email in response.content.decode()
+    assert (
+        '<option value="Europe/Amsterdam" selected>Europe/Amsterdam</option>'
+        in response.content.decode()
+    )
+    assert '<option value="en" selected>English</option>' in response.content.decode()
+
+    # Try updating user
+    response = client.post(
+        url,
+        data={
+            "id": admin_user.id,
+            "first_name": "Stan",
+            "last_name": "Do",
+            "email": "stan@chiefonboarding.com",
+            "timezone": "UTC",
+            "language": "en",
+        },
+        follow=True,
+    )
+
+    print(response.content.decode())
+    assert response.status_code == 200
+    assert django_user_model.objects.count() == 1
+    assert "Employee has been updated" in response.content.decode()
+
+    # Try updating user (different language)
+    response = client.post(
+        url,
+        data={
+            "id": admin_user.id,
+            "first_name": "Stan",
+            "last_name": "Do",
+            "email": "stan@chiefonboarding.com",
+            "timezone": "UTC",
+            "language": "nl",
+        },
+        follow=True,
+    )
+
+    # Updated user details are shown
+    assert "Stan" in response.content.decode()
+    assert "Do" in response.content.decode()
+    assert "stan@chiefonboarding.com" in response.content.decode()
+    assert '<option value="UTC" selected>UTC</option>' in response.content.decode()
+    assert (
+        '<option value="nl" selected>Nederlands</option>' in response.content.decode()
+    )
+
+
+@pytest.mark.django_db
+def test_colleague_delete(client, django_user_model, new_hire_factory):
+    admin_user = django_user_model.objects.create(role=1)
+    client.force_login(admin_user)
+
+    new_hire1 = new_hire_factory()
+
+    assert django_user_model.objects.all().count() == 2
+
+    url = reverse("people:colleague_delete", args=[new_hire1.id])
+    response = client.post(url, follow=True)
+
+    assert "Colleague has been removed" in response.content.decode()
+    assert new_hire1.full_name not in response.content.decode()
+    assert django_user_model.objects.all().count() == 1
+
+
+@pytest.mark.django_db
+@patch(
+    "slack_bot.utils.Slack.get_all_users",
+    Mock(
+        return_value=[
+            {
+                "id": "W01234DE",
+                "team_id": "T012344",
+                "name": "John",
+                "deleted": False,
+                "color": "9f6349",
+                "real_name": "Do",
+                "tz": "UTC",
+                "tz_label": "UTC",
+                "tz_offset": -2000,
+                "profile": {
+                    "avatar_hash": "34343",
+                    "status_text": "Ready!",
+                    "status_emoji": ":+1:",
+                    "real_name": "John Do",
+                    "display_name": "johndo",
+                    "real_name_normalized": "John Do",
+                    "display_name_normalized": "johndo",
+                    "email": "john@chiefonboarding.com",
+                    "team": "T012AB4",
+                },
+                "is_admin": True,
+                "is_owner": False,
+                "is_primary_owner": False,
+                "is_restricted": False,
+                "is_ultra_restricted": False,
+                "is_bot": False,
+                "updated": 1502138634,
+                "is_app_user": False,
+                "has_2fa": False,
+            },
+            {
+                "id": "W07Q343A4",
+                "team_id": "T0G334BBK",
+                "name": "Stan",
+                "deleted": False,
+                "color": "9f34e7",
+                "real_name": "Stan Do",
+                "tz": "America/Los_Angeles",
+                "tz_label": "Pacific Daylight Time",
+                "tz_offset": -25200,
+                "profile": {
+                    "avatar_hash": "klsdksdlkf",
+                    "first_name": "Stan",
+                    "last_name": "Do",
+                    "title": "The chief",
+                    "phone": "122433",
+                    "skype": "",
+                    "real_name": "Stan Do",
+                    "real_name_normalized": "Stan Do",
+                    "display_name": "Stan Do",
+                    "display_name_normalized": "Stan Do",
+                    "email": "stan@chiefonboarding.com",
+                },
+                "is_admin": True,
+                "is_owner": False,
+                "is_primary_owner": False,
+                "is_restricted": False,
+                "is_ultra_restricted": False,
+                "is_bot": False,
+                "updated": 2343444,
+                "has_2fa": False,
+            },
+        ],
+    ),
+)
+def test_import_users_from_slack(client, django_user_model):
+    from admin.integrations.models import Integration
+
+    Integration.objects.create(integration=0)
+    admin_user = django_user_model.objects.create(role=1)
+    client.force_login(admin_user)
+
+    url = reverse("people:sync-slack")
+    response = client.get(url)
+
+    # Get colleagues list (triggered through HTMX)
+    url = reverse("people:colleagues")
+    response = client.get(url)
+
+    assert django_user_model.objects.all().count() == 3
+    assert response.status_code == 200
+    assert "Stan" in response.content.decode()
+    assert "John" in response.content.decode()

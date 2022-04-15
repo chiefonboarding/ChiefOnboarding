@@ -13,7 +13,7 @@ from django.views.generic.list import ListView
 
 from admin.integrations.models import Integration
 from admin.resources.models import Resource
-from slack_bot.slack import Slack
+from slack_bot.utils import Slack, actions, button, paragraph
 from users.emails import email_new_admin_cred
 from users.mixins import AdminPermMixin, LoginRequiredMixin
 
@@ -24,7 +24,7 @@ from .forms import ColleagueCreateForm, ColleagueUpdateForm
 
 class ColleagueListView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "colleagues.html"
-    queryset = get_user_model().objects.all().order_by("first_name")
+    queryset = get_user_model().objects.all()
     paginate_by = 20
     ordering = ["first_name", "last_name"]
 
@@ -34,6 +34,23 @@ class ColleagueListView(LoginRequiredMixin, AdminPermMixin, ListView):
         context["subtitle"] = _("people")
         context["slack_active"] = Integration.objects.filter(integration=0).exists()
         context["add_action"] = reverse_lazy("people:colleague_create")
+        return context
+
+
+class ColleagueCreateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
+):
+    template_name = "colleague_create.html"
+    model = get_user_model()
+    form_class = ColleagueCreateForm
+    success_message = _("Colleague has been added")
+    context_object_name = "object"
+    success_url = reverse_lazy("people:colleagues")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("Create new colleague")
+        context["subtitle"] = _("Employee")
         return context
 
 
@@ -57,23 +74,6 @@ class ColleagueUpdateView(
         return context
 
 
-class ColleagueCreateView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
-):
-    template_name = "colleague_create.html"
-    model = get_user_model()
-    form_class = ColleagueCreateForm
-    success_message = _("Colleague has been added")
-    context_object_name = "object"
-    success_url = reverse_lazy("people:colleagues")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("Create new colleague")
-        context["subtitle"] = _("Employee")
-        return context
-
-
 class ColleagueToggleResourceView(LoginRequiredMixin, AdminPermMixin, TemplateView):
     template_name = "_toggle_button_resources.html"
 
@@ -91,6 +91,16 @@ class ColleagueToggleResourceView(LoginRequiredMixin, AdminPermMixin, TemplateVi
         return context
 
 
+class ColleagueDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
+    queryset = get_user_model().objects.all()
+    success_url = reverse_lazy("people:colleagues")
+
+    def delete(self, request, *args, **kwargs):
+        response = super().delete(request, *args, **kwargs)
+        messages.info(request, _("Colleague has been removed"))
+        return response
+
+
 class ColleagueResourceView(LoginRequiredMixin, AdminPermMixin, DetailView):
     template_name = "add_resources.html"
     model = get_user_model()
@@ -105,16 +115,6 @@ class ColleagueResourceView(LoginRequiredMixin, AdminPermMixin, DetailView):
         context["subtitle"] = _("Employee")
         context["object_list"] = Resource.objects.all()
         return context
-
-
-class ColleagueDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
-    queryset = get_user_model().objects.all()
-    success_url = reverse_lazy("people:colleagues")
-
-    def delete(self, request, *args, **kwargs):
-        response = super().delete(request, *args, **kwargs)
-        messages.info(request, _("Colleague has been removed"))
-        return response
 
 
 class ColleagueSyncSlack(LoginRequiredMixin, AdminPermMixin, View):
@@ -179,7 +179,7 @@ class ColleagueGiveSlackAccessView(LoginRequiredMixin, AdminPermMixin, View):
         context["slack"] = True
         context["url_name"] = "people:connect-to-slack"
 
-        if user.slack_user_id != "":
+        if user.has_slack_account:
             user.slack_user.id = ""
             user.slack_channel_id = ""
             user.save()
@@ -196,35 +196,27 @@ class ColleagueGiveSlackAccessView(LoginRequiredMixin, AdminPermMixin, View):
         user.save()
         translation.activate(user.language)
         blocks = [
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": _(
-                        "Click on the button to see all the categories that are "
-                        "available to you!"
-                    ),
-                },
-            },
-            {
-                "type": "actions",
-                "elements": [
-                    {
-                        "type": "button",
-                        "text": {"type": "plain_text", "text": _("resources")},
-                        "style": "primary",
-                        "value": "show:resources",
-                    }
-                ],
-            },
+            paragraph(
+                _(
+                    "Click on the button to see all the categories that are "
+                    "available to you!"
+                )
+            ),
+            actions(
+                button(
+                    text=_("resources"),
+                    value="show:resources",
+                    style="primary",
+                )
+            ),
         ]
-        s.set_user(user)
-        res = s.send_message(blocks=blocks)
+
+        res = Slack().send_message(blocks=blocks, channel=response["user"]["id"])
         user.slack_channel_id = res["channel"]
         user.save()
 
         button_name = _("Revoke Slack access")
-        if user.slack_channel_id == "":
+        if not user.has_slack_account:
             button_name = _("Give access")
 
         context["button_name"] = button_name

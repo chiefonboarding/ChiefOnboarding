@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import sys
 
 import environ
 from django.utils.translation import gettext_lazy as _
@@ -282,7 +283,7 @@ Q_CLUSTER = {
     "max_attempts": 2,
 }
 
-if DEBUG:
+if DEBUG and "pytest" in sys.modules:
     Q_CLUSTER["sync"] = True
 
 # AWS

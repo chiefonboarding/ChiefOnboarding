@@ -13,6 +13,7 @@ from admin.templates.forms import (
     MultiSelectField,
     UploadField,
 )
+from organization.models import Organization
 from users.models import Department
 
 
@@ -157,7 +158,7 @@ class NewHireProfileForm(forms.ModelForm):
 class ColleagueUpdateForm(forms.ModelForm):
     timezone = forms.ChoiceField(choices=[(x, x) for x in pytz.common_timezones])
     department = ModelChoiceFieldWithCreate(
-        queryset=Department.objects.all(), to_field_name="name"
+        queryset=Department.objects.all(), to_field_name="name", required=False
     )
 
     def __init__(self, *args, **kwargs):
@@ -210,13 +211,15 @@ class ColleagueUpdateForm(forms.ModelForm):
 class ColleagueCreateForm(forms.ModelForm):
     timezone = forms.ChoiceField(choices=[(x, x) for x in pytz.common_timezones])
     department = ModelChoiceFieldWithCreate(
-        queryset=Department.objects.all(), to_field_name="name"
+        queryset=Department.objects.all(), to_field_name="name", required=False
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.fields["profile_image"].required = False
+        self.fields["timezone"].initial = Organization.objects.get().timezone
+        self.fields["language"].initial = Organization.objects.get().language
         self.helper.layout = Layout(
             Div(
                 Div(Field("first_name"), css_class="col-6"),
