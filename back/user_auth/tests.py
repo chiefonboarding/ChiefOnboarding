@@ -5,7 +5,6 @@ from django.contrib import auth
 from django.urls import reverse
 
 from organization.models import Organization
-from users.factories import *  # noqa
 
 from .utils import get_all_urls
 

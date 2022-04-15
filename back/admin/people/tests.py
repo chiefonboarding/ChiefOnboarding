@@ -1,6 +1,7 @@
 from unittest.mock import Mock, patch
 
 import pytest
+from django.contrib import auth
 from django.urls import reverse
 
 from admin.appointments.factories import AppointmentFactory
@@ -856,6 +857,9 @@ def test_colleague_update(client, django_user_model):
         in response.content.decode()
     )
     assert '<option value="en" selected>English</option>' in response.content.decode()
+    assert "Resources available" in response.content.decode()
+    assert "No resources are available to this user yet" in response.content.decode()
+    assert "Change" in response.content.decode()
 
     # Try updating user
     response = client.post(
@@ -871,7 +875,6 @@ def test_colleague_update(client, django_user_model):
         follow=True,
     )
 
-    print(response.content.decode())
     assert response.status_code == 200
     assert django_user_model.objects.count() == 1
     assert "Employee has been updated" in response.content.decode()
@@ -954,6 +957,36 @@ def test_colleague_delete(client, django_user_model, new_hire_factory):
                 "has_2fa": False,
             },
             {
+                "id": "USLACKBOT",
+                "team_id": "T012344",
+                "name": "Bot",
+                "deleted": False,
+                "color": "9f6349",
+                "real_name": "Do",
+                "tz": "UTC",
+                "tz_label": "UTC",
+                "tz_offset": -2000,
+                "profile": {
+                    "avatar_hash": "34343",
+                    "status_text": "Ready!",
+                    "status_emoji": ":+1:",
+                    "real_name": "Slack bot",
+                    "display_name": "slack bot",
+                    "real_name_normalized": "Slack bot",
+                    "display_name_normalized": "slack bot",
+                    "team": "T012AB4",
+                },
+                "is_admin": True,
+                "is_owner": False,
+                "is_primary_owner": False,
+                "is_restricted": False,
+                "is_ultra_restricted": False,
+                "is_bot": False,
+                "updated": 1502138634,
+                "is_app_user": False,
+                "has_2fa": False,
+            },
+            {
                 "id": "W07Q343A4",
                 "team_id": "T0G334BBK",
                 "name": "Stan",
@@ -1006,3 +1039,140 @@ def test_import_users_from_slack(client, django_user_model):
     assert response.status_code == 200
     assert "Stan" in response.content.decode()
     assert "John" in response.content.decode()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "user_factory, status_code",
+    [
+        (NewHireFactory, 404),
+        (AdminFactory, 404),
+        (ManagerFactory, 404),
+        (EmployeeFactory, 200),
+    ],
+)
+def test_employee_toggle_portal_access(
+    client, django_user_model, user_factory, status_code
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    employee1 = user_factory()
+
+    url = reverse("people:colleagues")
+    response = client.get(url)
+
+    # User is displayed on colleagues page and also slack button
+    assert employee1.full_name in response.content.decode()
+    # Slack is not enabled
+    assert "slack" not in response.content.decode()
+
+    # Enable portal access
+    url = reverse("people:toggle-portal-access", args=[employee1.id])
+    response = client.post(url)
+
+    # Should only work for employees, not newhires/admins etc
+    assert response.status_code == status_code
+
+    # Skip the 404's
+    if status_code == 200:
+
+        # Get the object again
+        employee1.refresh_from_db()
+
+        # Now employee is active
+        assert employee1.is_active
+        # Button flipped
+        assert "Revoke access" in response.content.decode()
+
+        # Enable portal access
+        url = reverse("people:toggle-portal-access", args=[employee1.id])
+        response = client.post(url)
+
+        # Get the object again
+        employee1.refresh_from_db()
+
+        # Now employee is not active
+        assert not employee1.is_active
+
+        # Button flipped
+        assert "Revoke access" not in response.content.decode()
+        assert "Give access" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_employee_can_only_login_with_access(
+    client, django_user_model, employee_factory
+):
+    employee1 = employee_factory()
+
+    url = reverse("login")
+    data = {"username": employee1.email, "password": "test"}
+    client.post(url, data=data, follow=True)
+
+    user = auth.get_user(client)
+    assert not user.is_authenticated
+
+    # Enable portal access
+    client.force_login(django_user_model.objects.create(role=1))
+    url = reverse("people:toggle-portal-access", args=[employee1.id])
+    client.post(url)
+    client.logout()
+
+    employee1.refresh_from_db()
+    # Force change employee password
+    employee1.set_password("test")
+    employee1.save()
+
+    # Check that admin user is logged out
+    assert not user.is_authenticated
+
+    # Try logging in again with employee account
+    url = reverse("login")
+    client.post(url, data=data, follow=True)
+
+    user = auth.get_user(client)
+    assert user.is_authenticated
+
+
+@pytest.mark.django_db
+def test_employee_resources(
+    client, django_user_model, employee_factory, resource_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    employee1 = employee_factory()
+    resource1 = resource_factory()
+    resource2 = resource_factory(template=False)
+
+    url = reverse("people:add_resource", args=[employee1.id])
+    response = client.get(url, follow=True)
+
+    assert resource1.name in response.content.decode()
+    # Only show templates
+    assert resource2.name not in response.content.decode()
+    assert "Added" not in response.content.decode()
+
+    # Add resource to user
+    employee1.resources.add(resource1)
+
+    response = client.get(url, follow=True)
+
+    # Has been added, so change button name
+    assert resource2.name not in response.content.decode()
+    assert "Added" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_employee_toggle_resources(
+    client, django_user_model, employee_factory, resource_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    resource1 = resource_factory()
+    employee1 = employee_factory()
+
+    url = reverse("people:toggle_resource", args=[employee1.id, resource1.id])
+    response = client.post(url, follow=True)
+
+    assert "Added" in response.content.decode()
+    assert employee1.resources.filter(id=resource1.id).exists()

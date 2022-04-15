@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 from django.utils import translation
 from django.utils.translation import gettext as _
-from django.views.generic.base import TemplateView, View
+from django.views.generic.base import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
@@ -47,6 +47,10 @@ class ColleagueCreateView(
     context_object_name = "object"
     success_url = reverse_lazy("people:colleagues")
 
+    def form_valid(self, form):
+        form.instance.is_active = False
+        return super().form_valid(form)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = _("Create new colleague")
@@ -74,23 +78,6 @@ class ColleagueUpdateView(
         return context
 
 
-class ColleagueToggleResourceView(LoginRequiredMixin, AdminPermMixin, TemplateView):
-    template_name = "_toggle_button_resources.html"
-
-    def get_context_data(self, pk, template_id, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user = get_object_or_404(get_user_model(), id=pk)
-        resource = get_object_or_404(Resource, id=template_id)
-        if user.resources.filter(id=resource.id).exists():
-            user.resources.remove(resource)
-        else:
-            user.resources.add(resource)
-        context["id"] = id
-        context["template"] = resource
-        context["object"] = user
-        return context
-
-
 class ColleagueDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
     queryset = get_user_model().objects.all()
     success_url = reverse_lazy("people:colleagues")
@@ -113,8 +100,25 @@ class ColleagueResourceView(LoginRequiredMixin, AdminPermMixin, DetailView):
             "name": new_hire.full_name
         }
         context["subtitle"] = _("Employee")
-        context["object_list"] = Resource.objects.all()
+        context["object_list"] = Resource.templates.all()
         return context
+
+
+class ColleagueToggleResourceView(LoginRequiredMixin, AdminPermMixin, View):
+    template_name = "_toggle_button_resources.html"
+
+    def post(self, request, pk, template_id, *args, **kwargs):
+        context = {}
+        user = get_object_or_404(get_user_model(), id=pk)
+        resource = get_object_or_404(Resource, id=template_id, template=True)
+        if user.resources.filter(id=resource.id).exists():
+            user.resources.remove(resource)
+        else:
+            user.resources.add(resource)
+        context["id"] = id
+        context["template"] = resource
+        context["object"] = user
+        return render(request, self.template_name, context)
 
 
 class ColleagueSyncSlack(LoginRequiredMixin, AdminPermMixin, View):
@@ -228,7 +232,7 @@ class ColleagueTogglePortalAccessView(LoginRequiredMixin, AdminPermMixin, View):
 
     def post(self, request, pk, *args, **kwargs):
         context = {}
-        user = get_object_or_404(get_user_model(), pk=pk)
+        user = get_object_or_404(get_user_model(), pk=pk, role=3)
         context["colleague"] = user
         context["url_name"] = "people:toggle-portal-access"
 
@@ -237,12 +241,10 @@ class ColleagueTogglePortalAccessView(LoginRequiredMixin, AdminPermMixin, View):
 
         if user.is_active:
             button_name = _("Revoke access")
-            exists = True
             email_new_admin_cred(user)
         else:
-            button_name = _("Give portal access")
-            exists = False
+            button_name = _("Give access")
 
         context["button_name"] = button_name
-        context["exists"] = exists
+        context["exists"] = user.is_active
         return render(request, self.template_name, context)

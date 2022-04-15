@@ -6,7 +6,6 @@ from freezegun import freeze_time
 from organization.models import Organization
 from users.tasks import hourly_check_for_new_hire_send_credentials
 
-from .factories import *  # noqa
 from .models import OTPRecoveryKey, User
 
 

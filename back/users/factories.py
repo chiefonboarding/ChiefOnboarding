@@ -57,6 +57,7 @@ class ManagerFactory(factory.django.DjangoModelFactory):
 class EmployeeFactory(factory.django.DjangoModelFactory):
     first_name = FuzzyText()
     last_name = FuzzyText()
+    is_active = False
     role = 3
     message = "Hi {{ first_name }}, how is it going? Great to have you with us!"
     position = "CEO"
