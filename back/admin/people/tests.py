@@ -1052,7 +1052,7 @@ def test_import_users_from_slack(client, django_user_model):
     ],
 )
 def test_employee_toggle_portal_access(
-    client, django_user_model, user_factory, status_code
+    client, django_user_model, user_factory, status_code, mailoutbox
 ):
     client.force_login(django_user_model.objects.create(role=1))
 
@@ -1083,6 +1083,14 @@ def test_employee_toggle_portal_access(
         assert employee1.is_active
         # Button flipped
         assert "Revoke access" in response.content.decode()
+
+        # Email has been sent to new hire
+        assert response.status_code == 200
+        assert len(mailoutbox) == 1
+        assert mailoutbox[0].subject == "Your login credentials!"
+        assert employee1.email in mailoutbox[0].alternatives[0][0]
+        assert len(mailoutbox[0].to) == 1
+        assert mailoutbox[0].to[0] == employee1.email
 
         # Enable portal access
         url = reverse("people:toggle-portal-access", args=[employee1.id])

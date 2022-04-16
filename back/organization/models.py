@@ -81,7 +81,6 @@ class Organization(models.Model):
             "Add 'todo' and 'resource' buttons to the first message that's being sent "
             "to the new hire."
         ),
-        help_text="Slack only",
         default=True,
     )
     ask_colleague_welcome_message = models.BooleanField(
@@ -89,24 +88,21 @@ class Organization(models.Model):
             "Send a Slack message to the team to collect personal welcome messages from"
             " colleages."
         ),
-        help_text=_("Slack only"),
         default=True,
     )
     send_new_hire_start_reminder = models.BooleanField(
         verbose_name=_(
             "Send a Slack message to the team on the day the new hire starts"
         ),
-        help_text=_("Slack only"),
         default=False,
     )
     auto_create_user = models.BooleanField(
         verbose_name=_("Create a new hire when they join your Slack team"),
-        help_text=_("If the user does not exist yet - Slack only"),
+        help_text=_("If the user does not exist yet"),
         default=False,
     )
     create_new_hire_without_confirm = models.BooleanField(
         verbose_name=_("Create new hires without needing confirm from a user"),
-        help_text=_("Slack only"),
         default=False,
     )
     slack_confirm_person = models.ForeignKey(
@@ -114,7 +110,6 @@ class Organization(models.Model):
         verbose_name=_("User to sent new hire account requests to"),
         null=True,
         on_delete=models.SET_NULL,
-        help_text=_("Slack only"),
     )
     slack_default_channel = models.ForeignKey(
         "slack_bot.SlackChannel",
@@ -123,7 +118,6 @@ class Organization(models.Model):
         ),
         null=True,
         on_delete=models.SET_NULL,
-        help_text=_("Slack only"),
     )
 
     object = ObjectManager()
@@ -248,6 +242,7 @@ NOTIFICATION_TYPES = [
     ("added_preboarding", _("A new preboarding item has been added")),
     ("added_new_hire", _("A new hire has been added")),
     ("added_administrator", _("A new administrator has been added")),
+    ("added_manager", _("A new manager has been added")),
     ("added_admin_task", _("A new admin task has been added")),
     ("sent_email_message", _("A new email has been sent")),
     ("sent_text_message", _("A new text message has been sent")),

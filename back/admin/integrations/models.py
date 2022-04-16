@@ -4,7 +4,6 @@ import uuid
 import requests
 from django.db import models
 from django.template import Context, Template
-from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from fernet_fields import EncryptedTextField
 
@@ -15,35 +14,6 @@ INTEGRATION_OPTIONS = (
     (3, _("Google Login")),
     (4, _("Asana")),
 )
-INTEGRATION_OPTIONS_URLS = [
-    {
-        "create_url": reverse_lazy("settings:slack-bot"),
-        "disabled": False,
-        "disable_url": reverse_lazy("settings:google-login"),
-        "extra_action_url": "settings:slack-account-update-channels",
-        "extra_action_text": _("Update Slack channels list"),
-    },
-    {
-        "disabled": True,
-        "create_url": reverse_lazy("settings:slack-account"),
-        "disable_url": reverse_lazy("settings:google-login"),
-    },
-    {
-        "disabled": False,
-        "create_url": reverse_lazy("settings:google-account"),
-        "disable_url": reverse_lazy("settings:google-account"),
-    },
-    {
-        "disabled": False,
-        "create_url": reverse_lazy("settings:google-login"),
-        "disable_url": reverse_lazy("settings:google-account"),
-    },
-    {
-        "disabled": False,
-        "create_url": reverse_lazy("settings:asana"),
-        "disable_url": reverse_lazy("settings:asana"),
-    },
-]
 
 
 class IntegrationManager(models.Manager):

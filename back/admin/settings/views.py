@@ -15,13 +15,10 @@ from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
 from django.views.generic.list import ListView
 
-from admin.integrations.models import (
-    INTEGRATION_OPTIONS,
-    INTEGRATION_OPTIONS_URLS,
-    Integration,
-)
+from admin.integrations.models import Integration
 from organization.models import Changelog, Notification, Organization, WelcomeMessage
 from slack_bot.models import SlackChannel
+from users.emails import email_new_admin_cred
 from users.mixins import AdminPermMixin, LoginRequiredMixin
 
 from .forms import (
@@ -29,6 +26,7 @@ from .forms import (
     AdministratorsUpdateForm,
     OrganizationGeneralForm,
     OTPVerificationForm,
+    SlackSettingsForm,
     WelcomeMessagesUpdateForm,
 )
 
@@ -51,9 +49,27 @@ class OrganizationGeneralUpdateView(
         return context
 
 
+class SlackSettingsUpdateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+):
+    template_name = "org_general_update.html"
+    form_class = SlackSettingsForm
+    success_url = reverse_lazy("settings:slack")
+    success_message = _("Slackbot settings have been updated")
+
+    def get_object(self):
+        return Organization.object.get()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("Slack")
+        context["subtitle"] = _("settings")
+        return context
+
+
 class AdministratorListView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "settings_admins.html"
-    queryset = get_user_model().admins.all()
+    queryset = get_user_model().managers_and_admins.all()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -67,26 +83,29 @@ class AdministratorCreateView(
     LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
 ):
     template_name = "settings_admins_create.html"
-    queryset = get_user_model().admins.all()
+    queryset = get_user_model().managers_and_admins.all()
     form_class = AdministratorsCreateForm
     success_url = reverse_lazy("settings:administrators")
-    success_message = _("Admin has been created")
 
     def form_valid(self, form):
-        """If the form is valid, save the associated model."""
-        user = get_user_model().objects.filter(email=form.cleaned_data["email"])
+        user = get_user_model().objects.filter(email__iexact=form.cleaned_data["email"])
         if user.exists():
             # Change user if user already exists
+            user = user.first()
             user.role = form.cleaned_data["role"]
             user.save()
         else:
-            form.save()
+            user = form.save()
+            email_new_admin_cred(user)
+        self.object = user
 
+        note_type = "added_administrator" if user.is_admin else "added_manager"
         Notification.objects.create(
-            notification_type="added_administrator",
+            notification_type=note_type,
             extra_text=user.full_name,
             created_by=self.request.user,
         )
+        messages.info(self.request, _("Admin/Manager has been created"))
         return HttpResponseRedirect(self.get_success_url())
 
     def get_context_data(self, **kwargs):
@@ -100,10 +119,10 @@ class AdministratorUpdateView(
     LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
 ):
     template_name = "settings_admins_update.html"
-    queryset = get_user_model().admins.all()
+    queryset = get_user_model().managers_and_admins.all()
     form_class = AdministratorsUpdateForm
     success_url = reverse_lazy("settings:administrators")
-    success_message = _("Admin has been changed")
+    success_message = _("Admin/Manager has been changed")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -113,8 +132,23 @@ class AdministratorUpdateView(
 
 
 class AdministratorDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
-    queryset = get_user_model().admins.all()
+    """
+    Doesn't actually delete the administrator, it just migrates them to a normal user
+    account.
+    """
+
     success_url = reverse_lazy("settings:administrators")
+
+    def get_queryset(self):
+        return get_user_model().managers_and_admins.exclude(id=self.request.user.id)
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        self.object.role = 3
+        self.object.save()
+        messages.info(request, _("Admin is now a normal user"))
+        return HttpResponseRedirect(success_url)
 
 
 class WelcomeMessageUpdateView(
@@ -211,110 +245,13 @@ class IntegrationsListView(LoginRequiredMixin, AdminPermMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context["title"] = _("Integrations")
         context["subtitle"] = _("settings")
-        for idx, integration in enumerate(INTEGRATION_OPTIONS_URLS):
-            integration["name"] = INTEGRATION_OPTIONS[idx][1]
-            integration["obj"] = Integration.objects.filter(
-                integration=INTEGRATION_OPTIONS[idx][0], active=True
-            ).first()
+        context["slack_bot"] = Integration.objects.filter(
+            integration=0, active=True
+        ).first()
 
-        context["integrations"] = INTEGRATION_OPTIONS_URLS
         context["custom_integrations"] = Integration.objects.filter(integration=10)
         context["add_action"] = reverse_lazy("integrations:create")
         return context
-
-
-class GoogleLoginSetupView(
-    LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin
-):
-    template_name = "token_create.html"
-    model = Integration
-    fields = ["client_id", "client_secret"]
-    success_message = _("You can now login with your Google account")
-    success_url = reverse_lazy("settings:integrations")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("Google login button setup")
-        context["subtitle"] = _("settings")
-        context["button_text"] = _("Enable")
-        return context
-
-    def form_valid(self, form):
-        Integration.objects.filter(integration=3).delete()
-        form.instance.integration = 3
-        return super().form_valid(form)
-
-
-class AsanaSetupView(
-    LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin
-):
-    template_name = "token_create.html"
-    model = Integration
-    fields = ["token"]
-    success_message = _("Your Asana integration has been set up!")
-    success_url = reverse_lazy("settings:integrations")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("Asana setup")
-        context["subtitle"] = _("settings")
-        context["button_text"] = _("Enable")
-        return context
-
-    def form_valid(self, form):
-        Integration.objects.filter(integration=4).delete()
-        form.instance.integration = 4
-        return super().form_valid(form)
-
-
-class GoogleAccountCreationSetupView(
-    LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin
-):
-    template_name = "token_create.html"
-    model = Integration
-    fields = ["client_id", "client_secret"]
-    success_message = _("You can now automatically create accounts for users")
-    success_url = reverse_lazy("settings:integrations")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("Google auto account create setup")
-        context["subtitle"] = _("settings")
-        context["button_text"] = _("Enable")
-        return context
-
-    def form_valid(self, form):
-        Integration.objects.filter(integration=2).delete()
-        form.instance.integration = 2
-        return super().form_valid(form)
-
-
-class SlackAccountCreationSetupView(
-    LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin
-):
-    template_name = "token_create.html"
-    model = Integration
-    fields = [
-        "app_id",
-        "client_id",
-        "client_secret",
-        "signing_secret",
-        "verification_token",
-    ]
-    success_message = _("You can now automatically create Slack accounts for new hires")
-    success_url = reverse_lazy("settings:integrations")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("Slack auto account create setup")
-        context["subtitle"] = _("settings")
-        context["button_text"] = _("Enable")
-        return context
-
-    def form_valid(self, form):
-        Integration.objects.filter(integration=1).delete()
-        form.instance.integration = 1
-        return super().form_valid(form)
 
 
 class SlackBotSetupView(

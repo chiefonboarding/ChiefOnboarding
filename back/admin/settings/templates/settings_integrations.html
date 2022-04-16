@@ -7,35 +7,27 @@
 		class="table table-vcenter table-nowrap">
     <thead>
       <tr>
-        <th>{% translate "Name" %}</th>
+        <th>{% translate "Official Integrations" %}</th>
         <th></th>
       </tr>
     </thead>
     <tbody>
-      {% for integration in integrations %}
       <tr>
-        <td>{{ integration.name }}</td>
+        <td>{% trans "Slack bot" %}</td>
         <td style="text-align: right">
-          {% if integration.extra_action_url and integration.obj is not None  %}
-          <a href="{% url integration.extra_action_url %}" class="btn btn-primary">
-            {{ integration.extra_action_text }}
+          {% if slack_bot is not None %}
+          <a href="{% url "settings:slack-account-update-channels" %}" class="btn btn-primary">
+            {% trans "Update Slack channels list" %}
           </a>
-          {% endif %}
-          {% if integration.obj is not None %}
-          <a href="{% url 'settings:delete-integration' integration.obj.id %}" class="btn btn-danger">
+          <a href="{% url 'settings:delete-integration' slack_bot.id %}" class="btn btn-danger">
             {% translate "Remove" %}
           </a>
-          {% elif not integration.disabled %}
-          <a href="{{ integration.create_url }}" class="btn btn-primary">
-            {% translate "Enable" %}
-          </a>
           {% else %}
-          <button class="btn btn-white" disabled>
-            {% translate "Disabled (legacy)" %}
+          <a href="{% url "settings:slack-bot" %}" class="btn btn-primary">
+            {% translate "Enable" %}
           </a>
           {% endif %}
       </tr>
-      {% endfor %}
     </tbody>
   </table>
 </div>

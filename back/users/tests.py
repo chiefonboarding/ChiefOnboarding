@@ -25,8 +25,8 @@ def test_user_create(
 
     assert User.objects.count() == 4
     assert User.new_hires.count() == 1
-    assert User.admins.count() == 2
-    assert User.managers.count() == 1
+    assert User.admins.count() == 1
+    assert User.managers_and_admins.count() == 2
 
     assert admin.is_admin_or_manager
     assert admin.is_admin

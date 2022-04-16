@@ -8,6 +8,7 @@ from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
+from admin.integrations.models import Integration
 from admin.templates.forms import UploadField
 from organization.models import Organization, WelcomeMessage
 
@@ -20,17 +21,9 @@ class OrganizationGeneralForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.fields["slack_confirm_person"].required = False
+        self.fields["logo"].required = False
 
-        auto_create_new_hire_class = ""
-        if not self.instance.auto_create_user:
-            auto_create_new_hire_class = "d-none"
-
-        auto_create_without_confirm_class = ""
-        if self.instance.create_new_hire_without_confirm:
-            auto_create_without_confirm_class = "d-none"
-
-        self.helper.layout = Layout(
+        layout = Layout(
             Div(
                 Div(
                     Field("name"),
@@ -41,34 +34,27 @@ class OrganizationGeneralForm(forms.ModelForm):
                     Field("new_hire_email_overdue_reminders"),
                     HTML("<h3 class='card-title mt-3'>" + _("Login options") + "</h3>"),
                     Field("credentials_login"),
-                    Field("google_login"),
-                    Field("slack_login"),
                     css_class="col-6",
                 ),
                 Div(
                     UploadField("logo", extra_context={"file": self.instance.logo}),
                     Field("base_color"),
                     Field("accent_color"),
-                    Field("bot_color"),
-                    Field("slack_buttons"),
-                    Field("ask_colleague_welcome_message"),
-                    Field("send_new_hire_start_reminder"),
-                    Field("slack_default_channel"),
-                    Field("auto_create_user"),
-                    Div(
-                        Field("create_new_hire_without_confirm"),
-                        Div(
-                            Field("slack_confirm_person"),
-                            css_class=auto_create_without_confirm_class,
-                        ),
-                        css_class=auto_create_new_hire_class,
-                    ),
                     css_class="col-6",
                 ),
                 css_class="row",
             ),
             Submit(name="submit", value="Update"),
         )
+        self.helper.layout = layout
+
+        # Only show if google login has been enabled
+        if Integration.objects.filter(integration=3).exists():
+            layout[0][0].extend(
+                [
+                    Field("google_login"),
+                ]
+            )
 
     class Meta:
         model = Organization
@@ -78,32 +64,72 @@ class OrganizationGeneralForm(forms.ModelForm):
             "timezone",
             "base_color",
             "accent_color",
-            "bot_color",
             "logo",
+            "google_login",
             "new_hire_email",
             "new_hire_email_reminders",
             "new_hire_email_overdue_reminders",
-            "slack_buttons",
-            "ask_colleague_welcome_message",
-            "send_new_hire_start_reminder",
-            "auto_create_user",
-            "create_new_hire_without_confirm",
             "credentials_login",
-            "google_login",
-            "slack_login",
-            "slack_default_channel",
-            "auto_create_user",
-            "slack_confirm_person",
-            "create_new_hire_without_confirm",
         ]
 
     def clean(self):
         credentials_login = self.cleaned_data["credentials_login"]
-        google_login = self.cleaned_data["google_login"]
-        slack_login = self.cleaned_data["slack_login"]
-        if not any([credentials_login, google_login, slack_login]):
+        google_login = False
+        if (
+            "google_login" in self.cleaned_data
+            and Integration.objects.filter(integration=3).exists()
+        ):
+            google_login = self.cleaned_data["google_login"]
+
+        if not any([credentials_login, google_login]):
             raise ValidationError(_("You must enable at least one login option"))
         return self.cleaned_data
+
+
+class SlackSettingsForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["slack_confirm_person"].required = False
+
+        auto_create_new_hire_class = ""
+        if not self.instance.auto_create_user:
+            auto_create_new_hire_class = "d-none"
+
+        auto_create_without_confirm_class = ""
+        if self.instance.create_new_hire_without_confirm:
+            auto_create_without_confirm_class = "d-none"
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field("bot_color"),
+            Field("slack_buttons"),
+            Field("ask_colleague_welcome_message"),
+            Field("send_new_hire_start_reminder"),
+            Field("slack_default_channel"),
+            Field("auto_create_user"),
+            Div(
+                Field("create_new_hire_without_confirm"),
+                Div(
+                    Field("slack_confirm_person"),
+                    css_class=auto_create_without_confirm_class,
+                ),
+                css_class=auto_create_new_hire_class,
+            ),
+            Submit(name="submit", value="Update"),
+        )
+
+    class Meta:
+        model = Organization
+        fields = [
+            "bot_color",
+            "slack_buttons",
+            "ask_colleague_welcome_message",
+            "send_new_hire_start_reminder",
+            "slack_default_channel",
+            "auto_create_user",
+            "create_new_hire_without_confirm",
+            "slack_confirm_person",
+        ]
 
 
 class AdministratorsCreateForm(forms.ModelForm):

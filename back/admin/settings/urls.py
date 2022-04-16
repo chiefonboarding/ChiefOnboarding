@@ -5,6 +5,7 @@ from . import views
 app_name = "settings"
 urlpatterns = [
     path("general/", views.OrganizationGeneralUpdateView.as_view(), name="general"),
+    path("slack/", views.SlackSettingsUpdateView.as_view(), name="slack"),
     path("changelog/", views.ChangelogListView.as_view(), name="changelog"),
     path(
         "personal/language/",
@@ -19,29 +20,9 @@ urlpatterns = [
     ),
     path("integrations/", views.IntegrationsListView.as_view(), name="integrations"),
     path(
-        "integrations/google_login/",
-        views.GoogleLoginSetupView.as_view(),
-        name="google-login",
-    ),
-    path(
-        "integrations/google_account/",
-        views.GoogleAccountCreationSetupView.as_view(),
-        name="google-account",
-    ),
-    path(
-        "integrations/slack_account/",
-        views.SlackAccountCreationSetupView.as_view(),
-        name="slack-account",
-    ),
-    path(
         "integrations/slack_account/update_channels/",
         views.SlackChannelsUpdateView.as_view(),
         name="slack-account-update-channels",
-    ),
-    path(
-        "integrations/asana/",
-        views.AsanaSetupView.as_view(),
-        name="asana",
     ),
     path(
         "integrations/slack_bot/", views.SlackBotSetupView.as_view(), name="slack-bot"
@@ -65,7 +46,7 @@ urlpatterns = [
         name="administrators-create",
     ),
     path(
-        "administrators/delete/<int:pk>/",
+        "administrators/<int:pk>/delete/",
         views.AdministratorDeleteView.as_view(),
         name="administrators-delete",
     ),

@@ -7,7 +7,6 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
-from django.db.models import Q
 from django.template import Context, Template
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
@@ -89,7 +88,7 @@ class CustomUserManager(BaseUserManager):
 
 class ManagerManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(role=2)
+        return super().get_queryset().filter(role__in=[1, 2])
 
 
 class NewHireManager(models.Manager):
@@ -113,7 +112,7 @@ class NewHireManager(models.Manager):
 
 class AdminManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(Q(role=1) | Q(role=2))
+        return super().get_queryset().filter(role=1)
 
 
 class User(AbstractBaseUser):
@@ -214,7 +213,7 @@ class User(AbstractBaseUser):
     REQUIRED_FIELDS = ["first_name", "last_name"]
 
     objects = CustomUserManager()
-    managers = ManagerManager()
+    managers_and_admins = ManagerManager()
     new_hires = NewHireManager()
     admins = AdminManager()
     ordering = ("first_name",)

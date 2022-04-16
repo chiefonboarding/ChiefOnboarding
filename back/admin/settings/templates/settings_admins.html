@@ -18,15 +18,17 @@
         <td>{% include "_table_user.html" with user=admin %}</td>
         <td>{{ admin.get_role_display }}</td>
         <td style="text-align: right">
-          <a href="{% url 'settings:administrators-update' admin.id %}" class="btn btn-primary" style="margin-top: -27px;">
+          <a href="{% url 'settings:administrators-update' admin.id %}" class="btn btn-primary" {% if admin.id != request.user.id %}style="margin-top: -27px;"{% endif %}>
             {% translate "Change" %}
           </a>
+          {% if admin.id != request.user.id %}
           <form method="post" action="{% url 'settings:administrators-delete' admin.id %}" class="mb-0" style="display:inline-block">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">
               {% translate "Delete" %}
             </button>
           </form>
+          {% endif %}
       </tr>
       {% endfor %}
     </tbody>
