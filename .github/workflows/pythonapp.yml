@@ -32,6 +32,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install --upgrade pipenv
+        sudo apt-get install -y gettext
         cd back
         pipenv install --dev --system
     - name: Run migrations
@@ -39,11 +40,6 @@ jobs:
         cd back
         mv back/.env.example back/.env
         python manage.py migrate
-    - name: Check formatting flake8/black/isort
-      run: |
-        cd back
-        flake8 .
-        black --check .
     - name: Test with pytest
       run: |
         cd back
@@ -53,6 +49,11 @@ jobs:
       uses: codecov/codecov-action@v2
       with:
         fail_ci_if_error: true
+    - name: Check formatting flake8/black/isort
+      run: |
+        cd back
+        flake8 .
+        black --check .
     - name: Test fixtures
       run: |
         cd back
