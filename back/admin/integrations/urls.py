@@ -6,6 +6,11 @@ app_name = "integrations"
 urlpatterns = [
     path("slack", views.SlackOAuthView.as_view()),
     path("create", views.IntegrationCreateView.as_view(), name="create"),
+    path(
+        "delete/<int:pk>/",
+        views.IntegrationDeleteView.as_view(),
+        name="delete-integration",
+    ),
     path("update/<int:pk>/", views.IntegrationUpdateView.as_view(), name="update"),
     path(
         "update_creds/<int:pk>/",

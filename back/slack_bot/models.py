@@ -1,6 +1,6 @@
 from django.db import models
 
-from .slack import Slack
+from .utils import Slack
 
 
 class SlackChannelManager(models.Manager):

@@ -222,16 +222,6 @@ class BaseItem(models.Model):
         return blocks
 
 
-class Changelog(models.Model):
-    added = models.DateField(auto_now_add=True)
-    title = models.CharField(max_length=100)
-    description = models.TextField()
-    url = models.URLField(default="")
-
-    class Meta:
-        ordering = ["-id"]
-
-
 NOTIFICATION_TYPES = [
     ("added_todo", _("A new to do item has been added")),
     ("completed_todo", _("To do item has been marked as completed")),

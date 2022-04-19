@@ -7,7 +7,7 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic import View
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from users.mixins import AdminPermMixin, LoginRequiredMixin
 
@@ -49,6 +49,20 @@ class IntegrationUpdateView(
         context["title"] = _("Add new integration")
         context["subtitle"] = _("settings")
         context["button_text"] = _("Update")
+        return context
+
+
+class IntegrationDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
+    """This is a general delete function for all integrations"""
+
+    template_name = "integration-delete.html"
+    model = Integration
+    success_url = reverse_lazy("settings:integrations")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("Delete integration")
+        context["subtitle"] = _("settings")
         return context
 
 

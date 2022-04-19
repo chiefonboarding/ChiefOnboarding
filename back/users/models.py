@@ -1,5 +1,5 @@
 import uuid
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 
 import pyotp
 import pytz
@@ -21,7 +21,6 @@ from admin.resources.models import CourseAnswer, Resource
 from admin.sequences.models import Condition
 from admin.to_do.models import ToDo
 from misc.models import File
-from organization.models import Changelog
 
 ROLE_CHOICES = (
     (0, _("New Hire")),
@@ -352,17 +351,6 @@ class User(AbstractBaseUser):
     @property
     def is_admin(self):
         return self.role == 1
-
-    @property
-    def has_new_changelog_notifications(self):
-        # Notification bell badge on admin pages
-        last_changelog_item = Changelog.objects.last()
-        if last_changelog_item is not None:
-            if isinstance(self.seen_updates, date):
-                return self.seen_updates.date() < last_changelog_item.added
-            else:
-                return self.seen_updates < last_changelog_item.added
-        return False
 
     def __str__(self):
         return "%s" % self.full_name

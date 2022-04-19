@@ -6,7 +6,6 @@ app_name = "settings"
 urlpatterns = [
     path("general/", views.OrganizationGeneralUpdateView.as_view(), name="general"),
     path("slack/", views.SlackSettingsUpdateView.as_view(), name="slack"),
-    path("changelog/", views.ChangelogListView.as_view(), name="changelog"),
     path(
         "personal/language/",
         views.PersonalLanguageUpdateView.as_view(),
@@ -26,11 +25,6 @@ urlpatterns = [
     ),
     path(
         "integrations/slack_bot/", views.SlackBotSetupView.as_view(), name="slack-bot"
-    ),
-    path(
-        "integrations/<int:pk>/",
-        views.IntegrationDeleteView.as_view(),
-        name="delete-integration",
     ),
     path(
         "administrators/", views.AdministratorListView.as_view(), name="administrators"

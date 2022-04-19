@@ -16,16 +16,16 @@
         <td>{% trans "Slack bot" %}</td>
         <td style="text-align: right">
           {% if slack_bot is not None %}
-          <a href="{% url "settings:slack-account-update-channels" %}" class="btn btn-primary">
-            {% trans "Update Slack channels list" %}
-          </a>
-          <a href="{% url 'settings:delete-integration' slack_bot.id %}" class="btn btn-danger">
-            {% translate "Remove" %}
-          </a>
+            <a href="{% url "settings:slack-account-update-channels" %}" class="btn btn-primary">
+              {% trans "Update Slack channels list" %}
+            </a>
+            <a href="{% url 'integrations:delete-integration' slack_bot.id %}" class="btn btn-danger">
+              {% translate "Remove" %}
+            </a>
           {% else %}
-          <a href="{% url "settings:slack-bot" %}" class="btn btn-primary">
-            {% translate "Enable" %}
-          </a>
+            <a href="{% url "settings:slack-bot" %}" class="btn btn-primary">
+              {% translate "Enable" %}
+            </a>
           {% endif %}
       </tr>
     </tbody>
@@ -53,10 +53,14 @@
           <a href="{% url 'integrations:update' integration.id %}" class="btn btn-primary">
             {% translate "Update manifest" %}
           </a>
-          <a href="{% url 'settings:delete-integration' integration.id %}" class="btn btn-danger">
+          <a href="{% url 'integrations:delete-integration' integration.id %}" class="btn btn-danger">
             {% translate "Remove" %}
           </a>
         </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="2">{% trans "No custom integrations yet" %}</td>
       </tr>
       {% endfor %}
     </tbody>

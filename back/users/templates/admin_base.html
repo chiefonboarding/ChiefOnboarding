@@ -36,12 +36,6 @@
                 </div>
               </a>
               <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <a href="{% url 'settings:changelog' %}" class="dropdown-item">
-                  {% translate "Changelog" %}
-                  {% if request.user.has_new_changelog_notifications %}
-                  <span class="badge bg-red"></span>
-                  {% endif %}
-                </a>
                 <a href="{% url 'logout' %}" class="dropdown-item">{% translate "Logout" %}</a>
               </div>
             </div>

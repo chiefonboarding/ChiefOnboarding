@@ -1,5 +1,3 @@
-from datetime import datetime
-
 import pyotp
 from django.conf import settings
 from django.contrib import messages
@@ -16,7 +14,7 @@ from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateVi
 from django.views.generic.list import ListView
 
 from admin.integrations.models import Integration
-from organization.models import Changelog, Notification, Organization, WelcomeMessage
+from organization.models import Notification, Organization, WelcomeMessage
 from slack_bot.models import SlackChannel
 from users.emails import email_new_admin_cred
 from users.mixins import AdminPermMixin, LoginRequiredMixin
@@ -298,31 +296,3 @@ class SlackChannelsUpdateView(LoginRequiredMixin, AdminPermMixin, RedirectView):
             ),
         )
         return super().get(request, *args, **kwargs)
-
-
-class IntegrationDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
-    """This is a general delete function for all integrations"""
-
-    template_name = "integration-delete.html"
-    model = Integration
-    success_url = reverse_lazy("settings:integrations")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("Delete integration")
-        context["subtitle"] = _("settings")
-        return context
-
-
-class ChangelogListView(LoginRequiredMixin, AdminPermMixin, ListView):
-    template_name = "changelog.html"
-    model = Changelog
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user = self.request.user
-        context["date_last_checked"] = user.seen_updates
-        user.seen_updates = datetime.now().date()
-        user.save()
-        context["title"] = _("Changelog")
-        return context
