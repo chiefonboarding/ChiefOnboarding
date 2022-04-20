@@ -34,10 +34,7 @@ def test_new_hire_list_view(client, new_hire_factory, django_user_model):
 
     assert "New hires" in response.content.decode()
 
-    # Number 10 should be listed, number 11 should be on the other page
-    # 0 based email address
-    assert "fake_new_hire_9" in response.content.decode()
-    assert "fake_new_hire_10" not in response.content.decode()
+    assert len(response.context["object_list"]) == 10
 
     # Check if pagination works
     assert "last" in response.content.decode()
