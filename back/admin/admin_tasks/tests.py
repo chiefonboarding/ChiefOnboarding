@@ -64,7 +64,9 @@ def test_create_admin_task(client, admin_factory, new_hire_factory):
 
 
 @pytest.mark.django_db
-def test_create_task_with_extra_email(client, admin_factory, new_hire_factory, mailoutbox):
+def test_create_task_with_extra_email(
+    client, admin_factory, new_hire_factory, mailoutbox
+):
     admin1 = admin_factory()
     new_hire1 = new_hire_factory()
     client.force_login(admin1)

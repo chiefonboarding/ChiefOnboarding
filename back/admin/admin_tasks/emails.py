@@ -18,10 +18,7 @@ def send_email_notification_to_external_person(admin_task):
             )
             % {"name": admin_task.new_hire.full_name},
         },
-        {
-            "type": "h1",
-            "text": admin_task.name
-        }
+        {"type": "h1", "text": admin_task.name},
     ]
     if admin_task.comment.exists():
         content.append({"type": "block", "text": admin_task.comment.last().content})
