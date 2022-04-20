@@ -1,11 +1,11 @@
 from django.contrib.messages.views import SuccessMessageMixin
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
-from django_q.tasks import async_task
 
 from users.mixins import LoginRequiredMixin, ManagerPermMixin
 
@@ -80,7 +80,7 @@ class AdminTasksUpdateView(
         initial_assigned_to = form.instance.assigned_to
         form.save()
         if form.validated_data["assigned_to"] != initial_assigned_to:
-            async_task(form.instance.send_notification_new_assigned())
+            form.instance.send_notification_new_assigned()
         return super().form_valid(form)
 
 
@@ -102,7 +102,7 @@ class AdminTasksCreateView(
         )
         # Send message to person that got assigned to this
         if self.request.user.id != form.cleaned_data["assigned_to"]:
-            async_task(self.object.send_notification_new_assigned())
+            self.object.send_notification_new_assigned()
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -128,6 +128,11 @@ class AdminTasksCommentCreateView(
 
     def form_valid(self, form):
         task = get_object_or_404(AdminTask, pk=self.kwargs.get("pk"))
+        # Can't post comments when item is completed
+        if task.completed:
+            raise Http404
         form.instance.comment_by = self.request.user
         form.instance.admin_task = task
+        item = form.save()
+        item.send_notification_new_message()
         return super().form_valid(form)

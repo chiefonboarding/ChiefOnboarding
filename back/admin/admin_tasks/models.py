@@ -36,8 +36,13 @@ class AdminTask(models.Model):
         verbose_name=_("Send email or text to extra user?"),
         choices=NOTIFICATION_CHOICES,
     )
-    slack_user = models.CharField(
-        verbose_name=_("Slack user"), max_length=12500, default="", blank=True
+    slack_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name=_("Slack user"),
+        on_delete=models.SET_NULL,
+        related_name="slack_user",
+        blank=True,
+        null=True,
     )
     email = models.EmailField(
         verbose_name=_("Email"), max_length=12500, default="", blank=True
@@ -68,7 +73,7 @@ class AdminTask(models.Model):
                         "%(task_name)s*\n_%(comment)s_"
                     )
                     % {
-                        "name_assigned_to": self.assigned_to.full_name(),
+                        "name_assigned_to": self.assigned_to.full_name,
                         "task_name": self.title,
                         "comment": self.comment.last().content,
                     }
@@ -91,14 +96,14 @@ class AdminTask(models.Model):
             if self.comment.all().exists():
                 comment = _("_%(comment)s\n by %(name)s_") % {
                     "comment": self.comment.last(),
-                    "name": self.comment.last().comment_by.full_name(),
+                    "name": self.comment.last().comment_by.full_name,
                 }
 
             text = _(
                 "You have just been assigned to *%(title)s* for *%(name)s\n%(comment)s"
             ) % {
                 "title": self.title,
-                "name": self.new_hire.full_name(),
+                "name": self.new_hire.full_name,
                 "comment": comment,
             }
             blocks = [
@@ -133,9 +138,9 @@ class AdminTaskComment(models.Model):
     class Meta:
         ordering = ["-date"]
 
-    def send_notification_new_message(self, team):
+    def send_notification_new_message(self):
         if self.admin_task.assigned_to != self.comment_by:
-            if self.admin_task.assigned_to.has_slack_account and team is not None:
+            if self.admin_task.assigned_to.has_slack_account:
                 blocks = [
                     paragraph(
                         _(

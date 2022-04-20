@@ -33,6 +33,10 @@ class AdminTaskCreateForm(forms.ModelForm):
     slack_user = forms.ModelChoiceField(
         queryset=User.objects.exclude(slack_user_id=""), to_field_name="slack_user_id"
     )
+    date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

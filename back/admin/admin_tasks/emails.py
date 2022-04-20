@@ -16,7 +16,7 @@ def send_email_notification_to_external_person(admin_task):
             "text": _(
                 "Hi! Could you please help me with this? It's for our new hire %(name)s"
             )
-            % {"name": admin_task.new_hire.full_name()},
+            % {"name": admin_task.new_hire.full_name},
         }
     ]
     if admin_task.comment.exists():
@@ -40,7 +40,7 @@ def send_email_new_assigned_admin(admin_task):
         {
             "type": "p",
             "text": _("This is about task: %(title)s for %(new_hire)s")
-            % {"title": admin_task.name, "new_hire": admin_task.new_hire.full_name()},
+            % {"title": admin_task.name, "new_hire": admin_task.new_hire.full_name},
         }
     ]
     if admin_task.comment.exists():
@@ -50,7 +50,7 @@ def send_email_new_assigned_admin(admin_task):
                 "text": "<strong>"
                 + _("Last message: ")
                 + "</strong><br />"
-                + admin_task.content.last().comment,
+                + admin_task.comment.last().content,
             }
         )
     html_message = render_to_string("email/base.html", {"org": org, "content": content})
