@@ -101,8 +101,11 @@ class AdminTasksCreateView(
             comment_by=self.request.user,
         )
         # Send message to person that got assigned to this
-        if self.request.user.id != form.cleaned_data["assigned_to"]:
+        if self.request.user.id != form.cleaned_data["assigned_to"].id:
             self.object.send_notification_new_assigned()
+
+        # Send notification based on extra notification option
+        self.object.send_notification_third_party()
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):

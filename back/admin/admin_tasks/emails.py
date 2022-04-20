@@ -17,10 +17,14 @@ def send_email_notification_to_external_person(admin_task):
                 "Hi! Could you please help me with this? It's for our new hire %(name)s"
             )
             % {"name": admin_task.new_hire.full_name},
+        },
+        {
+            "type": "h1",
+            "text": admin_task.name
         }
     ]
     if admin_task.comment.exists():
-        content.append({"type": "block", "text": admin_task.content.last().comment})
+        content.append({"type": "block", "text": admin_task.comment.last().content})
     message = ""
     html_message = render_to_string("email/base.html", {"org": org, "content": content})
     send_mail(

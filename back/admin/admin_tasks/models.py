@@ -57,15 +57,11 @@ class AdminTask(models.Model):
     def get_icon_template(self):
         return render_to_string("_admin_task_icon.html")
 
-    def save(self, *args, **kwargs):
-        # checking if this is new before saving, sending information after we have the
-        # ID.
-        is_new = self.pk is None
-        super(AdminTask, self).save(*args, **kwargs)
-        if is_new and self.option == 1:
+    def send_notification_third_party(self):
+        if self.option == 1:
             # through email
             send_email_notification_to_external_person(self)
-        elif is_new and self.option == 2:
+        elif self.option == 2:
             blocks = [
                 paragraph(
                     _(

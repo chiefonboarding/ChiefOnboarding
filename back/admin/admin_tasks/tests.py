@@ -64,6 +64,36 @@ def test_create_admin_task(client, admin_factory, new_hire_factory):
 
 
 @pytest.mark.django_db
+def test_create_task_with_extra_email(client, admin_factory, new_hire_factory, mailoutbox):
+    admin1 = admin_factory()
+    new_hire1 = new_hire_factory()
+    client.force_login(admin1)
+
+    url = reverse("admin_tasks:create")
+    data = {
+        "name": "Set up a tour",
+        "priority": 1,
+        "new_hire": new_hire1.id,
+        "assigned_to": admin1.id,
+        "comment": "please do this",
+        "option": 1,
+        "email": "stan@chiefonboarding.com",
+    }
+    client.post(url, data=data, follow=True)
+
+    assert AdminTask.objects.all().count() == 1
+    admin_task = AdminTask.objects.first()
+
+    assert len(mailoutbox) == 1
+    assert mailoutbox[0].subject == "Can you please do this for me?"
+    assert len(mailoutbox[0].to) == 1
+    assert mailoutbox[0].to[0] == "stan@chiefonboarding.com"
+    assert admin_task.name in mailoutbox[0].alternatives[0][0]
+    assert new_hire1.full_name in mailoutbox[0].alternatives[0][0]
+    assert admin_task.comment.last().content in mailoutbox[0].alternatives[0][0]
+
+
+@pytest.mark.django_db
 def test_create_admin_task_for_different_user(
     client, admin_factory, new_hire_factory, mailoutbox
 ):
