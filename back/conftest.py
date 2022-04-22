@@ -37,8 +37,8 @@ def run_around_tests():
         WelcomeMessageFactory(message_type=i, language="en")
 
     # Fix warning related to whitenoise
-    if not os.path.exists("/app/staticfiles/"):
-        os.makedirs("/app/staticfiles/")
+    if not os.path.exists(os.getcwd() + "/staticfiles/"):
+        os.makedirs(os.getcwd() + "/staticfiles/")
 
     yield
 
