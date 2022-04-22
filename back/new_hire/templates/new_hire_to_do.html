@@ -12,9 +12,12 @@
         <h2>{{ object.to_do.name }}</h2>
         {% include '_content.html' with content=object.to_do.content %}
         {% if not object.completed %}
-        <a href="{% url 'new_hire:to_do_complete' object.id %}" class="btn btn-primary w-100">
-          {% translate "I have completed this item!" %}
-        </a>
+        <form method="post" action="{% url 'new_hire:to_do_complete' object.id %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary w-100">
+            {% translate "I have completed this item!" %}
+          </button>
+        </form>
         {% else %}
         <b> {% translate "You have already completed this item" %}</p>
         {% endif %}

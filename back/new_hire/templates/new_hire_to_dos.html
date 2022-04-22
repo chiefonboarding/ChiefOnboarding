@@ -7,6 +7,13 @@
 {% block content %}
 <div class="row justify-content-md-center">
   <div class="col-8">
+    {% if not overdue_to_do_items|length and not to_do_items|length %}
+    <div class="card">
+      <div class="card-body" style="position: relative;">
+        {% trans "You have completed all to do items" %}
+      </div>
+    </div>
+    {% endif %}
     {% if overdue_to_do_items %}
     <div class="card">
       <div class="card-body" style="position: relative;">

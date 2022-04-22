@@ -22,7 +22,7 @@ class ChapterFactory(factory.django.DjangoModelFactory):
             {"data": {"text": "Please complete this item!"}, "type": "paragraph"}
         ],
     }
-    type = FuzzyChoice([1, 2, 3])
+    type = FuzzyChoice([0, 1, 2])
     order = factory.Sequence(lambda n: n)
 
     class Meta:
@@ -43,8 +43,25 @@ class ResourceFactory(factory.django.DjangoModelFactory):
 
         if not extracted:
             # Create two resources. One with a page and one with a question
-            ChapterFactory(resource=obj)
-            ChapterFactory(resource=obj)
+            ChapterFactory(resource=obj, type=0)
+            ChapterFactory(
+                resource=obj,
+                type=2,
+                content={
+                    "time": 0,
+                    "blocks": [
+                        {
+                            "id": "1",
+                            "type": "question",
+                            "content": "Please answer this question",
+                            "items": [
+                                {"id": "1", "text": "first option"},
+                                {"id": "2", "text": "second option"},
+                            ],
+                        }
+                    ],
+                },
+            )
         else:
             for chapter in extracted:
                 chapter.resource = obj

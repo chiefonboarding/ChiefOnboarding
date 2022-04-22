@@ -278,10 +278,20 @@ class User(AbstractBaseUser):
         amount_of_workdays = 1
         while local_day != start_day:
             start_day += timedelta(days=1)
-            if start_day.weekday() != 5 and start_day.weekday() != 6:
+            if start_day.weekday() not in [5, 6]:
                 amount_of_workdays += 1
 
         return amount_of_workdays
+
+    def workday_to_datetime(self, workdays):
+        start_day = self.start_day
+
+        start = 1
+        while start != workdays:
+            start_day += timedelta(days=1)
+            if start_day.weekday() not in [5, 6]:
+                start += 1
+        return start_day
 
     @cached_property
     def days_before_starting(self):
@@ -360,22 +370,24 @@ class ToDoUserManager(models.Manager):
     def all_to_do(self, user):
         return (
             super()
-            .get_queryset(user=user, completed=False)
+            .get_queryset()
+            .filter(user=user, completed=False)
             .exclude(to_do__due_on_day=0)
         )
 
     def overdue(self, user):
         return (
             super()
-            .get_queryset(
-                user=user, completed=False, to_do__due_on_day__lt=user.workday
-            )
+            .get_queryset()
+            .filter(user=user, completed=False, to_do__due_on_day__lt=user.workday)
             .exclude(to_do__due_on_day=0)
         )
 
     def due_today(self, user):
-        return super().get_queryset(
-            user=user, completed=False, to_do__due_on_day=user.workday()
+        return (
+            super()
+            .get_queryset()
+            .filter(user=user, completed=False, to_do__due_on_day=user.workday())
         )
 
 
@@ -400,7 +412,7 @@ class ToDoUser(models.Model):
         filled_items = [item["id"] for item in self.form]
 
         for block in self.to_do.content["blocks"]:
-            if block["type"] == "form":
+            if block["type"] in ["input", "text", "check", "upload"]:
                 item = next((x for x in filled_items if x == block["id"]), None)
                 if item is not None:
                     completed_blocks.append(item)
@@ -441,7 +453,7 @@ class PreboardingUser(models.Model):
     order = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):
-        # adding order number when record is not created yet (always the last item
+        # Adding order number when record is not created yet (always the last item
         # in the list)
         if not self.pk:
             self.order = PreboardingUser.objects.filter(

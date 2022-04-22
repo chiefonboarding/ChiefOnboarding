@@ -30,3 +30,12 @@ def next_still_form(content, current_index):
         return content["blocks"][int(current_index) + 1]["type"] == "form"
     except Exception:
         return False
+
+
+@register.filter(name="personalize")
+def personalize(text, user):
+    """
+    Personalizes content based on user props
+    """
+
+    return user.personalize(text)

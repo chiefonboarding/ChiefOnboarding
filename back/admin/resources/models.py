@@ -30,7 +30,7 @@ class ResourceManager(models.Manager):
             + SearchVector("chapters__content", weight="B")
             + SearchVector("chapters__name", weight="A")
         )
-        return (
+        results = (
             super()
             .get_queryset()
             .annotate(
@@ -48,8 +48,9 @@ class ResourceManager(models.Manager):
             )
             .filter(rank__gte=0.3, resource_new_hire__user=u)
             .order_by("rank")
-            .distinct()
+            .values_list("pk", flat=True)
         )
+        return super().get_queryset().filter(pk__in=results)
 
 
 class Resource(BaseItem):
@@ -116,6 +117,7 @@ class Resource(BaseItem):
     def chapters_display(self):
         return self.chapters.all().filter(parent_chapter__isnull=True)
 
+    @property
     def first_chapter_id(self):
         return self.chapters.all()[0].id
 

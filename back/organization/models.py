@@ -217,7 +217,7 @@ class BaseItem(models.Model):
     def form_items(self):
         blocks = []
         for block in self.content["blocks"]:
-            if block["type"] in ["form"]:
+            if block["type"] in ["input", "text", "check", "upload"]:
                 blocks.append(block)
         return blocks
 

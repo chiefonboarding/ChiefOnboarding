@@ -1,3 +1,5 @@
+import os
+
 import pytest
 from pytest_factoryboy import register
 
@@ -21,6 +23,7 @@ from users.factories import (
     NewHireFactory,
     NewHireWelcomeMessageFactory,
     OTPRecoveryKeyFactory,
+    PreboardingUserFactory,
     ResourceUserFactory,
     ToDoUserFactory,
 )
@@ -32,6 +35,10 @@ def run_around_tests():
     # Generate some welcome messages for various emails
     for i in range(4):
         WelcomeMessageFactory(message_type=i, language="en")
+
+    # Fix warning related to whitenoise
+    if not os.path.exists("/app/staticfiles/"):
+        os.makedirs("/app/staticfiles/")
 
     yield
 
@@ -54,3 +61,4 @@ register(IntroductionFactory)
 register(NoteFactory)
 register(NotificationFactory)
 register(PreboardingFactory)
+register(PreboardingUserFactory)

@@ -3,6 +3,7 @@ import datetime
 import factory
 from factory.fuzzy import FuzzyText
 
+from admin.preboarding.factories import PreboardingFactory
 from admin.resources.factories import ResourceFactory
 from admin.to_do.factories import ToDoFactory
 
@@ -10,6 +11,7 @@ from .models import (
     Department,
     NewHireWelcomeMessage,
     OTPRecoveryKey,
+    PreboardingUser,
     ResourceUser,
     ToDoUser,
     User,
@@ -95,3 +97,11 @@ class ResourceUserFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = ResourceUser
+
+
+class PreboardingUserFactory(factory.django.DjangoModelFactory):
+    user = factory.SubFactory(NewHireFactory)
+    preboarding = factory.SubFactory(PreboardingFactory)
+
+    class Meta:
+        model = PreboardingUser

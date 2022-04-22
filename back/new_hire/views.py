@@ -1,9 +1,8 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from axes.decorators import axes_dispatch
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login, signals
-from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -32,15 +31,12 @@ from .forms import QuestionsForm
 
 class NewHireDashboard(LoginRequiredMixin, TemplateView):
     template_name = "new_hire_to_dos.html"
-    paginate_by = 10
 
     def get_context_data(self, **kwargs):
         new_hire = self.request.user
         context = super().get_context_data(**kwargs)
 
-        context["overdue_to_do_items"] = ToDoUser.objects.filter(
-            user=new_hire, to_do__due_on_day__lt=new_hire.workday, completed=False
-        )
+        context["overdue_to_do_items"] = ToDoUser.objects.overdue(new_hire)
 
         to_do_items = ToDoUser.objects.filter(
             user=new_hire, to_do__due_on_day__gte=new_hire.workday
@@ -49,7 +45,7 @@ class NewHireDashboard(LoginRequiredMixin, TemplateView):
         # Group items by amount work days
         items_by_date = []
         for to_do_user in to_do_items:
-            # Check if to do is already in any of the new items_by_date
+            # Check if to do day is already in any of the new items_by_date
             to_do = to_do_user.to_do
             if not any(
                 [item for item in items_by_date if item["day"] == to_do.due_on_day]
@@ -57,20 +53,22 @@ class NewHireDashboard(LoginRequiredMixin, TemplateView):
                 new_date = {
                     "day": to_do.due_on_day,
                     "items": [
-                        to_do,
+                        to_do_user,
                     ],
                 }
                 items_by_date.append(new_date)
             else:
-                # Can never be two or more, since it's catching it if it already exists
-                existing_date = [
+                # If it does exist, then add it to the array of that type
+                existing_dates = [
                     item for item in items_by_date if item["day"] == to_do.due_on_day
-                ][0]
-                existing_date["items"].append(to_do_user)
+                ]
+                # Can never be more than one, since it's catching it if it already
+                # exists
+                existing_dates[0]["items"].append(to_do_user)
 
         # Convert days to date object
         for obj in items_by_date:
-            obj["date"] = self.request.user.start_day + timedelta(days=obj["day"] - 1)
+            obj["date"] = self.request.user.workday_to_datetime(obj["day"])
 
         context["to_do_items"] = items_by_date
 
@@ -81,7 +79,49 @@ class NewHireDashboard(LoginRequiredMixin, TemplateView):
 
 class ToDoDetailView(LoginRequiredMixin, DetailView):
     template_name = "new_hire_to_do.html"
-    model = ToDoUser
+
+    def get_queryset(self):
+        return ToDoUser.objects.filter(user=self.request.user)
+
+
+class ToDoCompleteView(LoginRequiredMixin, View):
+    def post(self, request, pk, *args, **kwargs):
+        to_do_user = get_object_or_404(ToDoUser, pk=pk, user=self.request.user)
+        to_do_user.mark_completed()
+
+        Notification.objects.create(
+            notification_type="completed_todo",
+            extra_text=to_do_user.to_do.name,
+            created_by=request.user,
+        )
+        return redirect("new_hire:todos")
+
+
+class ToDoFormSubmitView(LoginRequiredMixin, View):
+    """
+    HTMX: Search for colleagues that fit search criteria.
+    """
+
+    def post(self, request, pk, *args, **kwargs):
+        to_do_user = get_object_or_404(ToDoUser, pk=pk, user=self.request.user)
+        answers = to_do_user.form
+        for key, value in request.POST.items():
+            # check if item is valid
+            item = next(
+                (x for x in to_do_user.to_do.form_items if x["id"] == key), None
+            )
+            if item is not None:
+                item["answer"] = value
+                answers.append(item)
+            else:
+                return HttpResponse(
+                    _("This form could not be processed - invalid items")
+                )
+
+        to_do_user.form = answers
+        to_do_user.save()
+
+        return HttpResponse(_("You have submitted this form successfully"))
 
 
 class SeenUpdatesView(LoginRequiredMixin, View):
@@ -179,6 +219,7 @@ class PreboardingDetailView(LoginRequiredMixin, DetailView):
 
         context["button_text"] = button_text
         context["next_id"] = next_id
+        context["amount_preboarding_pages"] = len(preboarding_user_items)
         return context
 
 
@@ -190,14 +231,21 @@ class ColleagueListView(LoginRequiredMixin, ListView):
 
 
 class ColleagueSearchView(LoginRequiredMixin, ListView):
+    """
+    HTMX: Search for colleagues that fit search criteria.
+    """
+
     template_name = "_new_hire_colleagues_search.html"
-    model = User
+    model = get_user_model()
 
     def get_queryset(self):
         search = self.request.GET.get("search", "")
+        if search == "":
+            return get_user_model().objects.all()
+
         return get_user_model().objects.filter(
-            Q(first_name__icontains=search), Q(last_name__icontains=search)
-        )
+            first_name__icontains=search
+        ) | get_user_model().objects.filter(last_name__icontains=search)
 
 
 class ResourceListView(LoginRequiredMixin, ListView):
@@ -265,45 +313,6 @@ class ResourceDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class ToDoCompleteView(LoginRequiredMixin, RedirectView):
-    pattern_name = "new_hire:to_do"
-
-    def get_redirect_url(self, *args, **kwargs):
-        to_do_user = get_object_or_404(
-            ToDoUser, pk=kwargs["pk"], user=self.request.user
-        )
-        to_do_user.completed = True
-        to_do_user.save()
-
-        Notification.objects.create(
-            notification_type="completed_todo",
-            extra_text=to_do_user.to_do.name,
-            created_by=self.request.user,
-        )
-        return super().get_redirect_url(*args, **kwargs)
-
-
-class ToDoFormSubmitView(LoginRequiredMixin, View):
-    def post(self, request, pk, *args, **kwargs):
-        to_do_user = get_object_or_404(ToDoUser, pk=pk, user=self.request.user)
-        answers = to_do_user.form
-        for key, value in request.POST.items():
-            # check if item is valid
-            item = next(
-                (x for x in to_do_user.to_do.form_items if x["id"] == key), None
-            )
-            if item is not None:
-                item["answer"] = value
-                answers.append(item)
-            else:
-                return HttpResponse("This form could not be processed - invalid items")
-
-        to_do_user.form = answers
-        to_do_user.save()
-
-        return HttpResponse("You have submitted this form successfully")
-
-
 class CourseNextStepView(LoginRequiredMixin, View):
     def post(self, request, pk, *args, **kwargs):
         resource_user = get_object_or_404(ResourceUser, pk=pk, user=request.user)
@@ -330,9 +339,18 @@ class CourseAnswerView(LoginRequiredMixin, FormView):
     def get_form(self, form_class=None):
         """
         Return an instance of the form to be used in this view.
-        Adding chapter form arguments
+        Adding chapter form arguments for creating/validation
         """
+        resource_user = get_object_or_404(
+            ResourceUser,
+            user=self.request.user,
+            resource=get_object_or_404(Resource, id=self.kwargs.get("pk", -1)),
+        )
         chapter = get_object_or_404(Chapter, id=self.kwargs.get("chapter", -1))
+        # return early if user should have access to this
+        if chapter.order >= resource_user.step + 1:
+            raise Http404
+
         if form_class is None:
             form_class = self.get_form_class()
         return form_class(items=chapter.content["blocks"], **self.get_form_kwargs())
@@ -342,6 +360,8 @@ class CourseAnswerView(LoginRequiredMixin, FormView):
             ResourceUser, resource__pk=self.kwargs.get("pk", -1), user=self.request.user
         )
         chapter = get_object_or_404(Chapter, id=self.kwargs.get("chapter", -1))
+        # Create a course answer object from the answers and then add it to the
+        # resource user item
         course_answers = CourseAnswer.objects.create(
             chapter=chapter, answers=form.cleaned_data
         )

@@ -11,9 +11,11 @@
       <div class="card-body" style="position: relative;">
         <h3 class="header-title">{{ object.preboarding.name }}</h3>
         {% include '_content.html' with content=object.preboarding.content_json %}
-        <a href="{% url 'new_hire:preboarding' next_id %}" class="btn btn-primary">
-          {{ button_text }}
-        </a>
+        {% if amount_preboarding_pages > 1 %}
+          <a href="{% url 'new_hire:preboarding' next_id %}" class="btn btn-primary">
+            {{ button_text }}
+          </a>
+        {% endif %}
       </div>
     </div>
   </div>
