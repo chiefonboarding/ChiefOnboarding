@@ -276,14 +276,6 @@
         })
 
       })
-      function triggerChange(event){
-        const url = event.target.dataset.url
-        const values = $('#' + event.target.getAttribute('id')).val()
-        const prepped_values = {
-          'condition_to_do': values
-        }
-        htmx.ajax("POST", url, { 'values': prepped_values, 'target': event.target })
-      }
       function getSignedURL (file) {
         return $.ajax({
           url: "/api/org/file",

@@ -29,11 +29,6 @@ urlpatterns = [
         name="condition-update",
     ),
     path(
-        "condition/<int:pk>/to_do/",
-        views.SequenceConditionToDoUpdateView.as_view(),
-        name="condition-to-do-update",
-    ),
-    path(
         "<int:pk>/condition/<int:condition_pk>/delete/",
         views.SequenceConditionDeleteView.as_view(),
         name="condition-delete",

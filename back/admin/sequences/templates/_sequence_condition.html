@@ -19,11 +19,9 @@
           {% elif condition.condition_type == 1 %}
             {% translate "When these tasks are completed:" %}
             <div id="div_id_condition_to_do">
-              <select id="id_condition_to_do_{{condition.id}}" name="condition_to_do" value="None" multiple="" class="multi-with-add mb-3" onchange="triggerChange(event)" data-url="{% url 'sequences:condition-to-do-update' condition.id %}">
-                {% for todo in todos %}
-                <option value="{{ todo.id }}" {% if todo in condition.condition_to_do.all %}selected{% endif %}>{{ todo.name }}</option>
-                {% endfor %}
-              </select>
+              {% for todo in condition.condition_to_do.all %}
+                <span class="badge bg-blue-lt mt-1">{{ todo.name }}</span>
+              {% endfor %}
             </div>
           {% elif condition.condition_type == 2 %}
             {% blocktranslate with days=condition.days time=condition.time %}{{ days }} days before starting at {{ time }}{% endblocktranslate %}

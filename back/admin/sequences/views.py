@@ -24,7 +24,6 @@ from users.mixins import AdminPermMixin, LoginRequiredMixin
 
 from .forms import (
     ConditionCreateForm,
-    ConditionToDoUpdateForm,
     ConditionUpdateForm,
     PendingEmailMessageForm,
     PendingSlackMessageForm,
@@ -399,7 +398,7 @@ class SequenceConditionItemView(LoginRequiredMixin, AdminPermMixin, View):
     This will delete or add a template item to a condition
 
     :params int pk: Condition pk
-    :params int type: template type, i.e. todo, resource...
+    :params string type: template type, i.e. todo, resource...
     :params int template_pk: the pk of object in the template type
 
     HTMX view, this will only get called when the frontend requests to add or delete
@@ -461,32 +460,6 @@ class SequenceConditionItemView(LoginRequiredMixin, AdminPermMixin, View):
         )
 
 
-class SequenceConditionToDoUpdateView(LoginRequiredMixin, AdminPermMixin, UpdateView):
-    """
-    Update the conditions of a ToDo trigger block.
-
-    :params int pk: Condition pk
-
-    HTMX view, this will only get called when the frontend requests to show or update
-    a conditon based on ToDo in a sequence.
-    """
-
-    template_name = "_sequence_condition.html"
-    model = Condition
-    form_class = ConditionToDoUpdateForm
-
-    def get_success_url(self):
-        return self.request.path
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        obj = self.get_object()
-        context["condition"] = obj
-        context["object"] = obj.sequence
-        context["todos"] = ToDo.templates.all()
-        return context
-
-
 class SequenceConditionDeleteView(LoginRequiredMixin, AdminPermMixin, View):
     """
     Delete an entire condition
@@ -514,7 +487,7 @@ class SequenceDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
     :params int pk: Sequence pk
     """
 
-    queryset = Condition.objects.all()
+    queryset = Sequence.objects.all()
     success_url = reverse_lazy("sequences:list")
 
     def delete(self, request, *args, **kwargs):

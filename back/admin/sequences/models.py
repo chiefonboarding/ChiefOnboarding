@@ -16,9 +16,16 @@ from admin.to_do.models import ToDo
 from misc.fields import ContentJSONField
 from misc.serializers import FileSerializer
 from organization.models import Notification
-from slack_bot.slack import Slack
+from slack_bot.utils import Slack
 
 from .emails import send_sequence_message
+
+PEOPLE_CHOICES = (
+    (0, _("New hire")),
+    (1, _("Manager")),
+    (2, _("Buddy")),
+    (3, _("custom")),
+)
 
 
 class Sequence(models.Model):
@@ -38,6 +45,7 @@ class Sequence(models.Model):
         old_sequence = Sequence.objects.get(pk=self.pk)
         self.pk = None
         self.name = _("%(name)s (duplicate)") % {"name": self.name}
+        self.auto_add = False
         self.save()
         for condition in old_sequence.conditions.all():
             new_condition = condition.duplicate()
@@ -127,12 +135,6 @@ class ExternalMessage(models.Model):
         (0, _("Email")),
         (1, _("Slack")),
         (2, _("Text")),
-    )
-    PEOPLE_CHOICES = (
-        (0, _("New hire")),
-        (1, _("Manager")),
-        (2, _("Buddy")),
-        (3, _("custom")),
     )
     name = models.CharField(verbose_name=_("Name"), max_length=240)
     content_json = ContentJSONField(default=dict, verbose_name=_("Content"))
@@ -231,13 +233,11 @@ class ExternalMessage(models.Model):
             except:  # noqa: E722
                 pass
         elif self.is_slack_message:
-            s = Slack()
-            s.set_user(self.get_user(user))
             blocks = []
             # We don't have the model function on this model, so let's get it from a
             # different model. A bit hacky, but should be okay.
             blocks = ToDo(content=self.content_json).to_slack_block(user)
-            s.send_message(blocks=blocks)
+            Slack().send_message(blocks=blocks, channel=user.slack_channel_id)
         else:  # text message
             phone_number = self.get_user(user).phone
             if phone_number == "":
@@ -302,15 +302,22 @@ class PendingAdminTask(models.Model):
     comment = models.CharField(
         verbose_name=_("Comment"), max_length=12500, default="", blank=True
     )
+    person_type = models.IntegerField(
+        # Filter out new hire. Never assign an admin task to a new hire.
+        verbose_name=_("Assigned to"),
+        choices=[person for person in PEOPLE_CHOICES if person[0] != 0],
+        default=1,
+    )
     assigned_to = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        verbose_name=_("Assigned to"),
+        verbose_name=_("Pick user"),
         on_delete=models.CASCADE,
         related_name="assigned_user",
     )
     option = models.IntegerField(
         verbose_name=_("Send email or Slack message to extra user?"),
         choices=NOTIFICATION_CHOICES,
+        default=0,
     )
     slack_user = models.CharField(
         verbose_name=_("Slack option"), max_length=12500, default="", blank=True

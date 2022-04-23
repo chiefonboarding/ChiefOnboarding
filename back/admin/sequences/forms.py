@@ -74,11 +74,14 @@ class ConditionCreateForm(forms.ModelForm):
 
     def clean_days(self):
         day = self.cleaned_data["days"]
-        if day == 0 and self.cleaned_data["condition_type"] in [0, 2]:
+        if day is None:
+            # Handled in clean() function
+            return day
+        if self.cleaned_data["condition_type"] in [0, 2] and day <= 0:
             raise ValidationError(
                 _(
-                    "You cannot use 0. The day before starting is 1 and the first "
-                    "workday is 1"
+                    "You cannot use 0 or less. The day before starting is 1 and the "
+                    "first workday is 1"
                 )
             )
 
@@ -86,13 +89,16 @@ class ConditionCreateForm(forms.ModelForm):
 
     def clean_time(self):
         time = self.cleaned_data["time"]
+        if time is None:
+            # Handled in clean() function
+            return time
         if time.minute % 10 not in [0, 5] and self.cleaned_data["condition_type"] in [
             0,
             2,
         ]:
             raise ValidationError(
                 _(
-                    "Time must be in an interval of 5 minutes. %(minutes) must end in "
+                    "Time must be in an interval of 5 minutes. %(minutes)s must end in "
                     "0 or 5."
                 )
                 % {"minutes": time.minute}
@@ -106,7 +112,9 @@ class ConditionCreateForm(forms.ModelForm):
         time = cleaned_data.get("time", None)
         days = cleaned_data.get("days", None)
         condition_to_do = cleaned_data.get("condition_to_do", None)
-        if condition_type == 1 and condition_to_do is None:
+        if condition_type == 1 and (
+            condition_to_do is None or len(condition_to_do) == 0
+        ):
             raise ValidationError(_("You must add at least one to do item"))
         if condition_type in [0, 2] and (time is None or days is None):
             raise ValidationError(_("Both the time and days have to be filled in."))
@@ -124,21 +132,6 @@ class ConditionUpdateForm(ConditionCreateForm):
             + _("Edit block")
             + "</button>"
         )
-
-
-class ConditionToDoUpdateForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            MultiSelectField("condition_to_do"),
-        )
-
-    class Meta:
-        model = Condition
-        fields = [
-            "condition_to_do",
-        ]
 
 
 class PendingAdminTaskForm(forms.ModelForm):
@@ -164,6 +157,7 @@ class PendingAdminTaskForm(forms.ModelForm):
         model = PendingAdminTask
         fields = [
             "name",
+            "person_type",
             "assigned_to",
             "date",
             "priority",
