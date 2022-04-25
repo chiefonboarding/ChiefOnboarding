@@ -25,7 +25,8 @@ from admin.sequences.forms import (
     PendingSlackMessageForm,
     PendingTextMessageForm,
 )
-from admin.sequences.models import Condition, Sequence
+from admin.admin_tasks.models import AdminTask, AdminTaskComment
+from admin.sequences.models import Condition, Sequence, ExternalMessage, PendingAdminTask
 from admin.to_do.factories import ToDoFactory
 from admin.to_do.forms import ToDoForm
 from admin.to_do.models import ToDo
@@ -590,8 +591,275 @@ def test_sequence_assign_to_user(
     condition2.to_do.add(to_do3)
 
     new_hire.add_sequences([sequence])
-    new_hire.conditions.all().count() == 2
+    assert new_hire.conditions.all().count() == 2
 
     # Adding it a second time won't change anything
     new_hire.add_sequences([sequence])
-    new_hire.conditions.all().count() == 2
+    assert new_hire.conditions.all().count() == 2
+
+
+@pytest.mark.django_db
+def test_sequence_assign_to_user_merge_to_do_condition(
+    sequence_factory,
+    new_hire_factory,
+    condition_to_do_factory,
+    to_do_factory,
+):
+    new_hire = new_hire_factory()
+    sequence = sequence_factory()
+    condition = condition_to_do_factory(sequence=sequence)
+    condition_to_do1 = to_do_factory()
+    condition_to_do2 = to_do_factory()
+    condition.condition_to_do.add(condition_to_do1)
+    condition.condition_to_do.add(condition_to_do2)
+
+    assert condition.condition_to_do.all().count() == 3
+    # Condition should merge as the condition conditions match with an existing one
+
+    # Condition has one to do item
+    to_do1 = to_do_factory()
+    condition.to_do.add(to_do1)
+
+    # Add to new hire
+    new_hire.add_sequences([sequence])
+
+    # there is now one condition (based on todo item)
+    assert new_hire.conditions.all().count() == 1
+
+    to_do2 = to_do_factory(template=False)
+    to_do3 = to_do_factory()
+
+    condition.to_do.add(to_do2)
+    condition.to_do.add(to_do3)
+
+    # Add again to new hire
+    new_hire.add_sequences([sequence])
+
+    # Condition item was updated and not a new one created
+    assert new_hire.conditions.all().count() == 1
+    assert new_hire.conditions.all().first().to_do.count() == 3
+
+    # Let's try with a sequence that has a condition slightly different
+    sequence = sequence_factory()
+    # The auto generated one will be different
+    condition = condition_to_do_factory(sequence=sequence)
+    condition_to_do1 = to_do_factory()
+    condition.condition_to_do.add(condition_to_do1)
+    condition.condition_to_do.add(condition_to_do2)
+
+    # add a new to_do item to trigger to the condition
+    to_do4 = to_do_factory()
+    condition.to_do.add(to_do4)
+
+    # Add again to new hire
+    new_hire.add_sequences([sequence])
+
+    # new condition has been added (not merged)
+    assert new_hire.conditions.all().count() == 2
+
+
+
+@pytest.mark.django_db
+def test_sequence_assign_to_user_merge_time_condition(
+    sequence_factory,
+    new_hire_factory,
+    condition_timed_factory,
+    to_do_factory,
+):
+    new_hire = new_hire_factory()
+    sequence = sequence_factory()
+    # Let's try the same with a time based condition
+    condition = condition_timed_factory(sequence=sequence)
+
+    # Condition should merge as the condition time/date match with an existing one
+
+    # Condition has one to do item
+    to_do1 = to_do_factory()
+    condition.to_do.add(to_do1)
+
+    # Add to new hire
+    new_hire.add_sequences([sequence])
+
+    # there is now one condition (based on todo item)
+    assert new_hire.conditions.all().count() == 1
+
+    to_do2 = to_do_factory(template=False)
+    to_do3 = to_do_factory()
+
+    condition.to_do.add(to_do2)
+    condition.to_do.add(to_do3)
+
+    # Add again to new hire
+    new_hire.add_sequences([sequence])
+
+    # Condition item was updated and not a new one created
+    assert new_hire.conditions.all().count() == 1
+    assert new_hire.conditions.all().first().to_do.count() == 3
+
+    # Let's try with a sequence that has a condition slightly different
+    sequence = sequence_factory()
+    # The generated one will be at a different hour
+    condition = condition_timed_factory(sequence=sequence, time="09:00")
+
+    # add a new to_do item to trigger to the condition
+    to_do4 = to_do_factory()
+    condition.to_do.add(to_do4)
+
+    # Add again to new hire
+    new_hire.add_sequences([sequence])
+
+    # new condition has been added (not merged)
+    assert new_hire.conditions.all().count() == 2
+
+
+@pytest.mark.django_db
+def test_sequence_add_unconditional_item(
+    sequence_factory,
+    new_hire_factory,
+    to_do_factory,
+    resource_factory,
+    preboarding_factory,
+    introduction_factory
+):
+    new_hire = new_hire_factory()
+    sequence = sequence_factory()
+
+    unconditional_condition = sequence.conditions.all().first()
+
+    to_do1 = to_do_factory(template=False)
+    to_do2 = to_do_factory()
+
+    resource1 = resource_factory(template=False)
+    resource2 = resource_factory()
+
+    preboarding1 = preboarding_factory(template=False)
+    preboarding2 = preboarding_factory()
+
+    intro1 = introduction_factory()
+    intro2 = introduction_factory()
+
+    unconditional_condition.add_item(to_do1)
+    unconditional_condition.add_item(to_do2)
+    unconditional_condition.add_item(resource1)
+    unconditional_condition.add_item(resource2)
+    unconditional_condition.add_item(preboarding1)
+    unconditional_condition.add_item(preboarding2)
+    unconditional_condition.add_item(intro1)
+    unconditional_condition.add_item(intro2)
+
+    # Add to new hire
+    new_hire.add_sequences([sequence])
+
+    assert new_hire.to_do.all().count() == 2
+    assert new_hire.resources.all().count() == 2
+    assert new_hire.introductions.all().count() == 2
+    assert new_hire.preboarding.all().count() == 2
+
+
+@pytest.mark.django_db
+def test_pending_email_message_item(pending_email_message_factory):
+    pending_email_message = pending_email_message_factory()
+    assert pending_email_message.is_email_message
+    assert not pending_email_message.is_slack_message
+    assert not pending_email_message.is_text_message
+
+    assert pending_email_message.notification_add_type == 'sent_email_message'
+    assert "mail" in pending_email_message.get_icon_template
+
+
+@pytest.mark.django_db
+def test_pending_text_message_item(pending_text_message_factory):
+    pending_text_message = pending_text_message_factory()
+    assert not pending_text_message.is_email_message
+    assert not pending_text_message.is_slack_message
+    assert pending_text_message.is_text_message
+
+    assert pending_text_message.notification_add_type == 'sent_text_message'
+    assert "message" in pending_text_message.get_icon_template
+
+
+@pytest.mark.django_db
+def test_pending_slack_message_item(pending_slack_message_factory):
+    pending_slack_message = pending_slack_message_factory()
+    assert not pending_slack_message.is_email_message
+    assert pending_slack_message.is_slack_message
+    assert not pending_slack_message.is_text_message
+
+    assert pending_slack_message.notification_add_type == 'sent_slack_message'
+    assert "slack" in pending_slack_message.get_icon_template
+
+
+@pytest.mark.django_db
+def test_duplicate_pending_text_message_item(pending_text_message_factory):
+    pending_text_message = pending_text_message_factory()
+
+    old_text_id = pending_text_message.id
+
+    new_pending_text_message = pending_text_message.duplicate()
+
+    ext_message = ExternalMessage.objects.get(id=old_text_id)
+
+    assert ext_message.name == new_pending_text_message.name
+    assert ext_message.content == new_pending_text_message.content
+    assert ext_message.content_json == new_pending_text_message.content_json
+    assert ext_message.send_via == new_pending_text_message.send_via
+    assert ext_message.send_to == new_pending_text_message.send_to
+    assert ext_message.subject == new_pending_text_message.subject
+    assert ext_message.person_type == new_pending_text_message.person_type
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "factory",
+    [
+        (PendingEmailMessageFactory),
+        (PendingAdminTaskFactory),
+    ],
+)
+def test_get_user_function(new_hire_factory, employee_factory, factory):
+    item = factory(person_type=0)
+    manager = employee_factory()
+    buddy = employee_factory()
+    new_hire = new_hire_factory(
+        manager=manager,
+        buddy=buddy,
+    )
+    assert item.get_user(new_hire) == new_hire
+
+    item = factory(person_type=1)
+
+    assert item.get_user(new_hire) == manager
+
+    item = factory(person_type=2)
+
+    assert item.get_user(new_hire) == buddy
+
+    item = factory(person_type=3)
+
+    if isinstance(item, ExternalMessage):
+        assert item.get_user(new_hire) == item.send_to
+    else:
+        assert item.get_user(new_hire) == item.assigned_to
+
+
+@pytest.mark.django_db
+def test_execute_pending_admin_task(pending_admin_task_factory, new_hire_factory, employee_factory):
+    manager = employee_factory()
+    new_hire = new_hire_factory(
+        manager=manager
+    )
+    pending_admin_task = pending_admin_task_factory(
+        comment="test",
+        person_type=1,
+    )
+    pending_admin_task.execute(new_hire)
+    admin_task = AdminTask.objects.first()
+
+    assert AdminTask.objects.all().count() == 1
+    assert AdminTaskComment.objects.all().count() == 1
+    assert admin_task.assigned_to == manager
+    assert admin_task.new_hire == new_hire
+
+
+
+

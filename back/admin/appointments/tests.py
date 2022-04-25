@@ -3,8 +3,6 @@ from django.urls import reverse
 
 from admin.appointments.models import Appointment
 
-from .factories import *  # noqa
-
 
 @pytest.mark.django_db
 def test_create_appointment(client, django_user_model):
@@ -57,6 +55,32 @@ def test_create_appointment(client, django_user_model):
 
     # Created new item
     assert Appointment.objects.all().count() == 2
+
+
+@pytest.mark.django_db
+def test_create_appointment_without_fixed_date(client, django_user_model):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    url = reverse("appointments:create")
+    response = client.get(url)
+
+    data = {
+        "name": "Appointment item 1",
+        "tags": ["hi", "whoop"],
+        "content": '{ "time": 0, "blocks": [] }',
+    }
+
+    response = client.post(url, data, follow=True)
+
+    assert "This field is required." == response.context["form"].errors["on_day"][0]
+    assert Appointment.objects.all().count() == 0
+
+    data["on_day"] = 2
+
+    response = client.post(url, data, follow=True)
+    assert Appointment.objects.all().count() == 1
+
+    assert response.status_code == 200
 
 
 @pytest.mark.django_db

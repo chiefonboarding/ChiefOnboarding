@@ -9,7 +9,7 @@ urlpatterns = [
     path(
         "delete/<int:pk>/",
         views.IntegrationDeleteView.as_view(),
-        name="delete-integration",
+        name="delete",
     ),
     path("update/<int:pk>/", views.IntegrationUpdateView.as_view(), name="update"),
     path(

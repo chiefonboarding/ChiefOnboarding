@@ -74,6 +74,7 @@ class Sequence(models.Model):
                         "id", flat=True
                     )
                 )
+
                 for condition in conditions:
                     # Quickly check if the amount of items match - if not match, drop
                     if condition.condition_to_do.all().count() != len(
@@ -84,6 +85,7 @@ class Sequence(models.Model):
                     found_to_do_items = condition.condition_to_do.filter(
                         id__in=original_condition_to_do_ids
                     ).count()
+
                     if found_to_do_items == len(original_condition_to_do_ids):
                         # We found our match. Amount matches AND the todos match
                         user_condition = condition
@@ -116,6 +118,12 @@ class Sequence(models.Model):
                 sequence_condition.pk = None
                 sequence_condition.sequence = None
                 sequence_condition.save()
+
+                # Add conmdition to_dos
+                for condition_to_do in old_condition.condition_to_do.all():
+                    sequence_condition.condition_to_do.add(condition_to_do)
+
+                # Add all the things that get triggered
                 sequence_condition.include_other_condition(old_condition)
 
                 # Add newly created condition back to user
@@ -192,27 +200,6 @@ class ExternalMessage(models.Model):
         self.save()
         return self
 
-    def email_message(self):
-        email_data = []
-        for i in self.content_json.filter(
-            type__in=["p", "quote", "hr", "ul", "ol", "h1", "h2", "h3", "image", "file"]
-        ):
-            if i.type == "quote":
-                email_data.append({"type": "block", "text": i.content})
-            else:
-                files = []
-                if i.files.all().exists():
-                    files = FileSerializer(i.files.all(), many=True).data
-                email_data.append(
-                    {
-                        "type": i.type,
-                        "text": i.content,
-                        "items": i.items,
-                        "files": files,
-                    }
-                )
-        return email_data
-
     def get_user(self, new_hire):
         if self.person_type == 0:
             return new_hire
@@ -227,7 +214,7 @@ class ExternalMessage(models.Model):
         if self.is_email_message:
             try:
                 send_sequence_message(
-                    self.get_user(user), self.email_message(), self.subject
+                    user, self.get_user(user), self.content_json(), self.subject
                 )
             # TODO
             except:  # noqa: E722
@@ -330,12 +317,23 @@ class PendingAdminTask(models.Model):
         verbose_name=_("Priority"), choices=PRIORITY_CHOICES, default=2
     )
 
+    def get_user(self, new_hire):
+        if self.person_type == 0:
+            return new_hire
+        elif self.person_type == 1:
+            return new_hire.manager
+        elif self.person_type == 2:
+            return new_hire.buddy
+        else:
+            return self.assigned_to
+
+
     def execute(self, user):
         from admin.admin_tasks.models import AdminTask, AdminTaskComment
 
         admin_task, created = AdminTask.objects.get_or_create(
             new_hire=user,
-            assigned_to=self.assigned_to,
+            assigned_to=self.get_user(user),
             name=self.name,
             defaults={
                 "option": self.option,
@@ -351,6 +349,8 @@ class PendingAdminTask(models.Model):
                 comment_by=admin_task.assigned_to,
                 admin_task=admin_task,
             )
+        admin_task.send_notification_new_assigned()
+        admin_task.send_notification_third_party()
 
         Notification.objects.create(
             notification_type="added_admin_task",

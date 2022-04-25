@@ -1,3 +1,4 @@
+{% load general %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -468,23 +469,23 @@
                       <div class="f-fallback">
                         {% for i in content %}
                           {% if i.type == 'p' %}
-                            {% include 'email/paragraph.html' with text=i.text %}
+                            {% include 'email/paragraph.html' with text=i.text|personalize:user %}
                           {% endif %}
                           {% if i.type == 'h1' or i.type == 'h2' or i.type == 'h3' %}
-                            <{{ i.type }}>{{ i.text }}</{{ i.type }}>
+                            <{{ i.type }}>{{ i.text|personalize:user }}</{{ i.type }}>
                           {% endif %}
                           {% if i.type == 'ul' or i.type == 'ol' %}
                             <{{ i.type }}>
                               {% for j in i.items %}
-                                <li>{{ j.content }}</li> 
+                                <li>{{ j.content|personalize:user }}</li>
                               {% endfor %}
                             </{{ i.type }}>
                           {% endif %}
                           {% if i.type == 'block' %}
-                            {% include 'email/block.html' with text=i.text %}
+                            {% include 'email/block.html' with text=i.text|personalize:user %}
                           {% endif %}
                           {% if i.type == 'image' %}
-                            <img width="100%" src="{{ i.files.0.file_url }}" />	
+                            <img width="100%" src="{{ i.files.0.file_url }}" />
                           {% endif %}
                           {% if i.type == 'file' %}
                             {% for j in i.files %}

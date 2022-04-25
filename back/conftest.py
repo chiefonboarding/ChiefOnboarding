@@ -25,6 +25,7 @@ from organization.factories import (
     OrganizationFactory,
     WelcomeMessageFactory,
 )
+from admin.integrations.factories import IntegrationFactory, CustomIntegrationFactory
 from users.factories import (
     AdminFactory,
     DepartmentFactory,
@@ -80,3 +81,5 @@ register(PendingEmailMessageFactory)
 register(PendingSlackMessageFactory)
 register(PendingTextMessageFactory)
 register(BadgeFactory)
+register(CustomIntegrationFactory)
+register(IntegrationFactory)

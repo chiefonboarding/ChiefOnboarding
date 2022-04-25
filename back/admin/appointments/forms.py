@@ -53,7 +53,7 @@ class AppointmentForm(TagModelForm):
         time = cleaned_data.get("time")
         if not fixed_date and not on_day:
             self.add_error(
-                "on_day", _("Please select a channel to send the message to")
+                "on_day", _("This field is required")
             )
         if fixed_date:
             if not date:

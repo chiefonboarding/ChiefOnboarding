@@ -247,7 +247,7 @@ class NewHireSequenceView(LoginRequiredMixin, AdminPermMixin, DetailView):
             condition.days = new_hire.start_day - timedelta(days=condition.days)
 
         for condition in conditions_after_first_day:
-            condition.days = new_hire.start_day + timedelta(days=condition.days)
+            condition.days = new_hire.workday_to_datetime(condition.days)
 
         context["conditions_before_first_day"] = conditions_before_first_day
         context["conditions_after_first_day"] = conditions_after_first_day

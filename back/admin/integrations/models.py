@@ -40,71 +40,7 @@ class Integration(models.Model):
     )
 
     manifest = models.JSONField(default=dict)
-    # example
-    # {
-    #     "headers": {
-    #         "Content-Type": "application/json",
-    #         "Accept": "application/json",
-    #         "Authorization": "Bearer {{TOKEN}}"
-    #     },
-    #     "form": [{
-    #         "id": "TEAM_ID",
-    #         "name": "Select team to add user to",
-    #         "url": "https://app.asana.com/api/1.0/organizations/{{ORG}}/teams",
-    #         "type": "multiple_choice",
-    #         "items": "data",
-    #         "choice_id": "data.gid",
-    #         "choice_name": "data.name",
-    #         "multiple": false
-    #     }],
-    #     "exists": {
-    #         "method": "GET",
-    #         "url": "https://app.asana.com/api/1.0/users/{{email}}",
-    #         "data": {
-    #             "data": {
-    #                 "user": "{{email}}"
-    #             }
-    #         },
-    #         "expected": "{{email}}"
-    #     },
-    #     "execute": [{
-    #             "method": "POST",
-    #             "url": "https://app.asana.com/api/1.0/workspaces/{{ORG}}/addUser",
-    #             "data": {
-    #                 "data": {
-    #                     "user": "{{email}}"
-    #                 }
-    #             }
-    #         },
-    #         {
-    #             "method": "POST",
-    #             "url": "https://app.asana.com/api/1.0/teams/{{TEAM_ID}}/addUser",
-    #             "data": {
-    #                 "data": {
-    #                     "user": "{{email}}"
-    #                 }
-    #             }
-    #         }
-    #     ],
-    #     "initial_data_form": [{
-    #             "id": "TOKEN",
-    #             "name": "Please put your token here",
-    #             "description": "You can find your token here: https://...."
-    #         },
-    #         {
-    #             "id": "ORG",
-    #             "name": "Organization id",
-    #             "description": "You can find your organization id here: https://..."
-    #         }
-    #     ]
-    # }
-
     extra_args = models.JSONField(default=dict)
-    # Real output:
-    # {
-    #      "TOKEN": "xxxxx",
-    #      "ORG": "org-token"
-    # }
 
     # Slack
     app_id = models.CharField(max_length=100, default="")

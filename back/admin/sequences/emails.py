@@ -9,12 +9,7 @@ from organization.models import Organization
 def send_sequence_message(new_hire, admin, message, subject):
     # used to send custom external messages to anyone
     org = Organization.object.get()
-    for i in message:
-        i["text"] = new_hire.personalize(i["text"])
-        if "items" in i and len(i["items"]):
-            for j in i["items"]:
-                j["content"] = new_hire.personalize(j["content"])
-    html_message = render_to_string("email/base.html", {"org": org, "content": message})
+    html_message = render_to_string("email/base.html", {"org": org, "content": message, "user": new_hire})
     send_mail(
         new_hire.personalize(subject),
         "",

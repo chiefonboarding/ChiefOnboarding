@@ -224,6 +224,14 @@ def test_complete_to_do_item_with_form_view(
             "content": "Please answer this too",
         },
     ]
+    # send weird response
+    response = client.post(
+        url, data={"334": "I have answered this", "2": "this too"}, follow=True
+    )
+    assert (
+        "This form could not be processed - invalid items"
+        in response.content.decode()
+    )
 
 
 @pytest.mark.django_db
@@ -563,6 +571,12 @@ def test_course_next_step_view(client, new_hire_factory, resource_user_factory):
 
     # Step has been increased
     assert resource_user1.step == 1
+
+    # Go to the next page (does not exist - current is last one)
+    response = client.post(url, follow=True)
+
+    assert "You have completed this course!" in response.content.decode()
+    assert response.redirect_chain[-1][0] == reverse("new_hire:resources")
 
 
 @pytest.mark.django_db

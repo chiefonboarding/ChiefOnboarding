@@ -6,8 +6,6 @@ from admin.resources.models import Chapter, Resource
 
 
 @pytest.mark.django_db
-@pytest.mark.skip(reason="Not sure why it doesn't work - fix later")
-# TODO
 def test_create_resource(client, django_user_model):
     client.force_login(django_user_model.objects.create(role=1))
 
@@ -20,31 +18,7 @@ def test_create_resource(client, django_user_model):
         "name": "Resource item 1",
         "tags": ["hi", "whoop"],
         "on_day": 1,
-        "chapters": [
-            {
-                "name": "Continuing Education",
-                "content": {
-                    "time": 0,
-                    "blocks": [
-                        {
-                            "data": {
-                                "text": (
-                                    "One of our core values is “Be better today than "
-                                    "yesterday,” so it’s important that we support our"
-                                    "employees’ efforts to learn, grow, and improve. "
-                                    "These are some of the key benefits of working at "
-                                    "us, and are central to our company culture."
-                                )
-                            },
-                            "type": "paragraph",
-                        }
-                    ],
-                },
-                "type": 0,
-                "children": [],
-                "order": 0,
-            },
-        ],
+        "chapters": '[{ "id": "tesk243", "name": "Continuing Education", "content": { "time": 0, "blocks": [{ "data": { "text": "One of our core values is “Be better today" }, "type": "paragraph" }]}, "type": 0, "children": [], "order": 0 }]',
     }
 
     response = client.post(url, data, follow=True)
@@ -63,27 +37,23 @@ def test_update_resource(client, django_user_model, resource_factory):
 
     assert "Update resource item" in response.content.decode()
     assert resource.name in response.content.decode()
+    assert Chapter.objects.all().count() == 2
+
+    first_chapter_id = resource.chapters.all().first().id
+    second_chapter_id = resource.chapters.all()[1].id
 
     data = {
         "name": "Resource item 2",
         "tags": ["hi", "whoop"],
-        "chapters": [
-            {
-                "name": "new chapter",
-                "content": '{ "time": 0, "blocks": [] }',
-                "type": 0,
-            },
-            {
-                "name": "Some Questions",
-                "content": '{ "time": 0, "blocks": [] }',
-                "type": 2,
-            },
-        ],
+        "chapters": '[{ "id": ' + str(first_chapter_id) +', "name": "new chapter", "content": { "time": 0, "blocks": [] }, "type": 0, "children": [] }, { "id": ' + str(second_chapter_id) + ', "name": "Some Questions", "content": { "time": 0, "blocks": [] }, "type": 2, "children": [] }]',
+        "on_day": 1,
     }
 
     response = client.post(url, data, follow=True)
 
     assert response.status_code == 200
+
+    assert reverse("resources:list") == response.redirect_chain[-1][0]
 
     assert Resource.objects.all().count() == 1
     # Check that it didn't duplicate chapters, but reused them

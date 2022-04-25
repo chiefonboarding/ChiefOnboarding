@@ -2,7 +2,7 @@ import factory
 from factory.fuzzy import FuzzyInteger, FuzzyText
 
 from admin.to_do.factories import ToDoFactory
-from users.factories import AdminFactory
+from users.factories import AdminFactory, EmployeeFactory
 
 from .models import (
     Condition,
@@ -16,6 +16,7 @@ from .models import (
 
 class PendingAdminTaskFactory(factory.django.DjangoModelFactory):
     assigned_to = factory.SubFactory(AdminFactory)
+    slack_user = factory.SubFactory(EmployeeFactory)
 
     class Meta:
         model = PendingAdminTask

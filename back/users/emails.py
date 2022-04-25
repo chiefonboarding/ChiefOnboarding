@@ -38,7 +38,7 @@ def email_new_admin_cred(user):
     message = ""
     html_message = render_to_string(
         "email/base.html",
-        {"first_name": user.first_name, "content": content, "org": org},
+        {"first_name": user.first_name, "content": content, "org": org, "user": user},
     )
     send_mail(
         subject,
@@ -70,7 +70,7 @@ def email_reopen_task(task_name, message, user):
         },
         {"type": "button", "text": _("Dashboard"), "url": settings.BASE_URL},
     ]
-    html_message = render_to_string("email/base.html", {"org": org, "content": content})
+    html_message = render_to_string("email/base.html", {"org": org, "content": content, "user": user})
     send_mail(
         subject,
         message_email,
@@ -100,7 +100,7 @@ def send_reminder_email(task_name, user):
         },
         {"type": "button", "text": _("Dashboard"), "url": settings.BASE_URL},
     ]
-    html_message = render_to_string("email/base.html", {"org": org, "content": content})
+    html_message = render_to_string("email/base.html", {"org": org, "content": content, "user": user})
     send_mail(
         subject,
         message,
@@ -133,7 +133,7 @@ def send_new_hire_credentials(new_hire_id):
         },
         {"type": "button", "text": _("Dashboard"), "url": settings.BASE_URL},
     ]
-    html_message = render_to_string("email/base.html", {"org": org, "content": content})
+    html_message = render_to_string("email/base.html", {"org": org, "content": content, "user": new_hire})
     message = ""
     send_mail(
         subject,
@@ -162,7 +162,7 @@ def send_new_hire_preboarding(new_hire):
             + new_hire.unique_url,
         },
     ]
-    html_message = render_to_string("email/base.html", {"org": org, "content": content})
+    html_message = render_to_string("email/base.html", {"org": org, "content": content, "user": new_hire})
     message = ""
     send_mail(
         subject,

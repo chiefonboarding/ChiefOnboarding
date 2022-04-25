@@ -55,35 +55,6 @@ class AdminTaskToggleDoneView(LoginRequiredMixin, ManagerPermMixin, RedirectView
         return super().get(request, *args, **kwargs)
 
 
-class AdminTasksUpdateView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, UpdateView
-):
-    template_name = "admin_tasks_detail.html"
-    form_class = AdminTaskUpdateForm
-    model = AdminTask
-    success_message = _("Task has been updated")
-
-    def get_success_url(self):
-        return self.request.path
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        task = get_object_or_404(AdminTask, pk=self.kwargs.get("pk"))
-        context["object"] = task
-        context["title"] = _("Task: %(name)s") % {"name": task.name}
-        context["subtitle"] = _("Tasks")
-        context["comment_form"] = AdminTaskCommentForm
-        return context
-
-    def form_valid(self, form):
-        # send email/bot message to newly assigned person
-        initial_assigned_to = form.instance.assigned_to
-        form.save()
-        if form.validated_data["assigned_to"] != initial_assigned_to:
-            form.instance.send_notification_new_assigned()
-        return super().form_valid(form)
-
-
 class AdminTasksCreateView(
     LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, CreateView
 ):
@@ -113,6 +84,35 @@ class AdminTasksCreateView(
         context["title"] = _("New task")
         context["subtitle"] = _("Tasks")
         return context
+
+
+class AdminTasksUpdateView(
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, UpdateView
+):
+    template_name = "admin_tasks_detail.html"
+    form_class = AdminTaskUpdateForm
+    model = AdminTask
+    success_message = _("Task has been updated")
+
+    def get_success_url(self):
+        return self.request.path
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        task = get_object_or_404(AdminTask, pk=self.kwargs.get("pk"))
+        context["object"] = task
+        context["title"] = _("Task: %(name)s") % {"name": task.name}
+        context["subtitle"] = _("Tasks")
+        context["comment_form"] = AdminTaskCommentForm
+        return context
+
+    def form_valid(self, form):
+        # send email/bot message to newly assigned person
+        initial_assigned_to = AdminTask.objects.get(id=form.instance.id).assigned_to
+        form.save()
+        if form.cleaned_data["assigned_to"] != initial_assigned_to and form.cleaned_data["assigned_to"] != self.request.user:
+            form.instance.send_notification_new_assigned()
+        return super().form_valid(form)
 
 
 class AdminTasksCommentCreateView(

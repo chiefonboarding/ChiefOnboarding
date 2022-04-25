@@ -109,6 +109,23 @@ def test_update_org_slack_settings(client, django_user_model):
 
 
 @pytest.mark.django_db
+def test_update_welcome_message(client, django_user_model):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    url = reverse("settings:welcome-message", args=["en", 1])
+    response = client.get(url)
+
+    response = client.post(url, data={"message": "Updated item"}, follow=True)
+
+    assert "Message has been updated" in response.content.decode()
+    assert "Updated item" in response.content.decode()
+
+    # Check that all languages are listed
+    for language in settings.LANGUAGES:
+        assert str(language[1]) in response.content.decode()
+
+
+@pytest.mark.django_db
 def test_administrator_settings_view(client, admin_factory):
     admin_user = admin_factory()
     client.force_login(admin_user)
@@ -265,7 +282,6 @@ def test_language_view(client, admin_factory):
 
     # Check that all languages are listed
     for language in settings.LANGUAGES:
-        print(language[1])
         assert str(language[1]) in response.content.decode()
 
 
@@ -290,7 +306,6 @@ def test_language_update(client, admin_factory):
     # Try updating with language that does not exist
     url = reverse("settings:personal-language")
     response = client.post(url, {"language": "nli34"}, follow=True)
-    print(response.content.decode())
 
     admin_user1.refresh_from_db()
 

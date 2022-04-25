@@ -23,7 +23,7 @@ def send_email_notification_to_external_person(admin_task):
     if admin_task.comment.exists():
         content.append({"type": "block", "text": admin_task.comment.last().content})
     message = ""
-    html_message = render_to_string("email/base.html", {"org": org, "content": content})
+    html_message = render_to_string("email/base.html", {"org": org, "content": content, "user": admin_task.new_hire})
     send_mail(
         subject,
         message,
@@ -54,7 +54,7 @@ def send_email_new_assigned_admin(admin_task):
                 + admin_task.comment.last().content,
             }
         )
-    html_message = render_to_string("email/base.html", {"org": org, "content": content})
+    html_message = render_to_string("email/base.html", {"org": org, "content": content, "user": admin_task.new_hire})
     send_mail(
         subject,
         "",
@@ -88,7 +88,7 @@ def send_email_new_comment(comment):
             "text": comment.content + "<br />" + "- " + comment.comment_by.full_name,
         },
     ]
-    html_message = render_to_string("email/base.html", {"org": org, "content": content})
+    html_message = render_to_string("email/base.html", {"org": org, "content": content, "user": comment.admin_task.new_hire})
     send_mail(
         subject,
         "",

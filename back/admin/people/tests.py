@@ -1181,3 +1181,10 @@ def test_employee_toggle_resources(
 
     assert "Added" in response.content.decode()
     assert employee1.resources.filter(id=resource1.id).exists()
+
+    # Now remove the item
+    response = client.post(url, follow=True)
+
+    assert "Add" in response.content.decode()
+    assert not employee1.resources.filter(id=resource1.id).exists()
+

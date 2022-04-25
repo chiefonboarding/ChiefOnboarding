@@ -19,7 +19,7 @@
             <a href="{% url "settings:slack-account-update-channels" %}" class="btn btn-primary">
               {% trans "Update Slack channels list" %}
             </a>
-            <a href="{% url 'integrations:delete-integration' slack_bot.id %}" class="btn btn-danger">
+            <a href="{% url 'integrations:delete' slack_bot.id %}" class="btn btn-danger">
               {% translate "Remove" %}
             </a>
           {% else %}
@@ -53,7 +53,7 @@
           <a href="{% url 'integrations:update' integration.id %}" class="btn btn-primary">
             {% translate "Update manifest" %}
           </a>
-          <a href="{% url 'integrations:delete-integration' integration.id %}" class="btn btn-danger">
+          <a href="{% url 'integrations:delete' integration.id %}" class="btn btn-danger">
             {% translate "Remove" %}
           </a>
         </td>

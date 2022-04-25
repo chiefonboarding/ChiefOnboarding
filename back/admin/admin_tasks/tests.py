@@ -126,6 +126,48 @@ def test_create_admin_task_for_different_user(
 
 
 @pytest.mark.django_db
+def test_update_admin_task(client, admin_factory, admin_task_factory, mailoutbox):
+    admin1 = admin_factory()
+    admin2 = admin_factory()
+    client.force_login(admin1)
+
+    task1 = admin_task_factory(assigned_to=admin1)
+
+    url = reverse("admin_tasks:detail", args=[task1.id])
+    data = {
+        "name": "Set up a tour",
+        "priority": 1,
+        "new_hire": task1.new_hire.id,
+        "assigned_to": admin1.id,
+        "comment": "please do this",
+        "option": 0,
+    }
+    response = client.post(url, data=data, follow=True)
+
+    # No mail was sent. Only sent mail when assigned_to changes
+    assert len(mailoutbox) == 0
+    assert "Task has been updated" in response.content.decode()
+
+    # Assign it to a different user and then sent notification
+    data["assigned_to"] = admin2.id
+    response = client.post(url, data=data, follow=True)
+
+    task1.refresh_from_db()
+    assert len(mailoutbox) == 1
+    assert "Task has been updated" in response.content.decode()
+    assert mailoutbox[0].subject == "A task has been assigned to you!"
+    assert len(mailoutbox[0].to) == 1
+    assert mailoutbox[0].to[0] == admin2.email
+    assert task1.name in mailoutbox[0].alternatives[0][0]
+
+    # Assign it back to logged in user, no notification should be sent
+    data["assigned_to"] = admin1.id
+    response = client.post(url, data=data, follow=True)
+
+    assert len(mailoutbox) == 1
+
+
+@pytest.mark.django_db
 def test_complete_admin_task(client, admin_factory, admin_task_factory):
     admin = admin_factory()
     client.force_login(admin)
