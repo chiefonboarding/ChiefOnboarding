@@ -48,10 +48,11 @@ def is_valid_slack_request(request):
 
         slack_signature = request.headers.get('X-Slack-Signature', '')
 
-        if not hmac.compare_digest(our_signature, slack_signature):
+        if hmac.compare_digest(our_signature, slack_signature):
             return True
     except:
         return False
+    return False
 
 
 @method_decorator(csrf_exempt, name='dispatch')
