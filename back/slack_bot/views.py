@@ -1,5 +1,6 @@
 import json
 import hmac
+import hashlib
 import urllib
 
 from django.contrib.auth import get_user_model
@@ -47,9 +48,10 @@ class BotView(View):
 
         timestamp = request.headers.get('X-Slack-Request-Timestamp', '')
         sig_basestring = 'v0:' + timestamp + ':' + request.body.decode('utf-8')
-        our_signature = 'v0=' + hmac.compute_hash_sha256(
+        our_signature = 'v0=' + hmac.new(
             slack_integration.signing_secret,
-            sig_basestring
+            msg=sig_basestring,
+            digestmod=hashlib.sha256
         ).hexdigest()
 
         print(sig_basestring)
@@ -57,7 +59,7 @@ class BotView(View):
 
         slack_signature = request.headers['X-Slack-Signature']
 
-        if not hmac.compare(our_signature, slack_signature):
+        if not hmac.compare_digest(our_signature, slack_signature):
             return HttpResponse()
 
         logger.error(request.body)
