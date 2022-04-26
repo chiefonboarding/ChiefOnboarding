@@ -15,7 +15,7 @@ class SlackResource:
 
     def get_block(self):
         first_chapter_id = self.resource.first_chapter_id
-        if self.resource_user.course and not self.resource_user.completed_course:
+        if self.resource_user.is_course and not self.resource_user.completed_course:
             value = f"dialog:course:{self.resource_user.id}:{first_chapter_id}"
             action_text = _("View course")
         else:
@@ -100,13 +100,17 @@ class SlackResourceCategory:
         if len(categories) == 0:
             return [paragraph(_("No resources available"))]
         if self.user.resources.filter(category__isnull=True).exists():
-            yield actions(
-                button(_("No category"), "primary", "category:-1", "category:-1")
+            blocks.append(
+                actions(
+                    button(_("No category"), "primary", "category:-1", "category:-1")
+                )
             )
         for i in categories:
-            yield actions(
-                button(
-                    i["name"], "primary", f"category:{i['id']}", f"category:{i['id']}"
+            blocks.append(
+                actions(
+                    button(
+                        i["name"], "primary", f"category:{i['id']}", f"category:{i['id']}"
+                    )
                 )
             )
         return blocks

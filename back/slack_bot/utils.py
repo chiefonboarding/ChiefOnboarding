@@ -89,15 +89,14 @@ def actions(elements=[]):
 
 
 def button(text, style, value, action_id=""):
-    return (
-        {
-            "type": "button",
-            "text": {"type": "plain_text", "text": text},
-            "style": style,
-            "value": value,
-            "action_id": action_id,
-        },
-    )
+    return {
+        "type": "button",
+        "text": {"type": "plain_text", "text": text},
+        "style": style,
+        "value": value,
+        "action_id": action_id,
+    }
+
 
 
 def has_slack_account(user_id):
