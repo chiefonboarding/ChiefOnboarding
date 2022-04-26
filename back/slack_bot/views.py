@@ -46,7 +46,7 @@ class BotView(View):
             return HttpResponse()
 
         timestamp = request.headers.get('X-Slack-Request-Timestamp', '')
-        sig_basestring = 'v0:' + timestamp + ':' + request.body()
+        sig_basestring = 'v0:' + timestamp + ':' + request.body.decode('utf-8')
         our_signature = 'v0=' + hmac.compute_hash_sha256(
             slack_integration.signing_secret,
             sig_basestring
