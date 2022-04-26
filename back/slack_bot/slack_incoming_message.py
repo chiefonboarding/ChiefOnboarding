@@ -59,14 +59,14 @@ class SlackIncomingMessage:
 
     def reply_with_search_results(self):
         items = Resource.objects.search(self.user, self.message)
-        results = [SlackResource(task, self.user).resource_block() for task in items]
+        results = [SlackResource(task, self.user).get_block() for task in items]
 
         text = (
             _("Here is what I found: ")
             if items.count() > 0
             else _("Unfortunately, I couldn't find anything.")
         )
-        return [paragraph(text), results]
+        return [paragraph(text), *results]
 
     def reply_with_resource_categories(self):
         # show categories (buttons)
@@ -106,7 +106,7 @@ class SlackIncomingMessage:
             else _("I couldn't find any tasks.")
         )
 
-        return [paragraph(text), tasks]
+        return [paragraph(text), *tasks]
 
     def reply_request_access_supervisor(self):
         return [

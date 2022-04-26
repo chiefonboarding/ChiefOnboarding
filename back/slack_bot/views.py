@@ -32,6 +32,27 @@ from .utils import Slack
 import logging
 logger = logging.getLogger(__name__)
 
+def is_valid_slack_request(request):
+    slack_integration = Integration.objects.filter(integration=0).first()
+    if slack_integration is None:
+        return False
+
+    try:
+        timestamp = request.headers.get('X-Slack-Request-Timestamp', '')
+        sig_basestring = 'v0:' + timestamp + ':' + request.body.decode('utf-8')
+        our_signature = 'v0=' + hmac.new(
+            slack_integration.signing_secret.encode(),
+            msg=sig_basestring.encode(),
+            digestmod=hashlib.sha256
+        ).hexdigest()
+
+        slack_signature = request.headers.get('X-Slack-Signature', '')
+
+        if not hmac.compare_digest(our_signature, slack_signature):
+            return True
+    except:
+        return False
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class BotView(View):
@@ -42,24 +63,7 @@ class BotView(View):
 
     def post(self, request):
         # verify Slack request endpoint
-        slack_integration = Integration.objects.filter(integration=0).first()
-        if slack_integration is None:
-            return HttpResponse()
-
-        timestamp = request.headers.get('X-Slack-Request-Timestamp', '')
-        sig_basestring = 'v0:' + timestamp + ':' + request.body.decode('utf-8')
-        our_signature = 'v0=' + hmac.new(
-            slack_integration.signing_secret.encode(),
-            msg=sig_basestring.encode(),
-            digestmod=hashlib.sha256
-        ).hexdigest()
-
-        print(sig_basestring)
-        print(our_signature)
-
-        slack_signature = request.headers['X-Slack-Signature']
-
-        if not hmac.compare_digest(our_signature, slack_signature):
+        if not is_valid_slack_request(request):
             return HttpResponse()
 
         logger.error(request.body)
@@ -103,7 +107,6 @@ class BotView(View):
 
             # check if user actually has a new hire/admin/colleague account
             if not slack_im.user_exists():
-                print("USER DOES NOT EXIST")
                 blocks = slack_im.reply_request_access_supervisor()
 
             elif slack_im.is_request_for_help():
@@ -131,17 +134,11 @@ class CallbackView(View):
 
     def post(self, request):
         # very hacky, but this is a Django/DRF issue
-        response = "{" + urllib.parse.unquote(request.body.decode("utf-8")[11:-3]) + "}"
-        response = json.loads(response.replace("+", " "))
-
-        # verify Slack request endpoint
-        if (
-            "token" not in response
-            or not Integration.objects.filter(
-                verification_token=response["token"], integration=0
-            ).exists()
-        ):
+        if not is_valid_slack_request(request):
             return HttpResponse()
+
+        body_unicode = request.body.decode('utf-8')
+        response = json.loads(body_unicode)
 
         # respond to click on any of the blocks
         if response["type"] == "block_actions":
