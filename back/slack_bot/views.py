@@ -320,6 +320,7 @@ class CallbackView(View):
                 return HttpResponse()
 
         # respond to a dialog completion
+        print(response["type"])
         if response["type"] == "view_submission":
             slack_modal = SlackModal(response["view"])
 
@@ -341,8 +342,9 @@ class CallbackView(View):
                 return HttpResponse()
 
             # save to do and optionally the form that got submitted with it
-            if slack_modal.is_type("to_do"):
+            if slack_modal.is_type("complete:to_do"):
 
+                print("finish TODO")
                 to_do_ids_from_or_message = slack_modal.get_private_metadata()[
                     "to_do_ids_from_original_message"
                 ]
