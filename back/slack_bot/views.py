@@ -50,7 +50,7 @@ class BotView(View):
         sig_basestring = 'v0:' + timestamp + ':' + request.body.decode('utf-8')
         our_signature = 'v0=' + hmac.new(
             slack_integration.signing_secret.encode(),
-            msg=sig_basestring,
+            msg=sig_basestring.encode(),
             digestmod=hashlib.sha256
         ).hexdigest()
 
