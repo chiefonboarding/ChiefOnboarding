@@ -40,8 +40,9 @@ class BotView(View):
 
     def post(self, request):
         # verify Slack request endpoint
-        data = request.POST
-        logger.error(request.POST)
+        body_unicode = request.body.decode('utf-8')
+        data = json.loads(body_unicode)
+        logger.error(data)
 
         # try:
         #     data = json.loads(request.data)
