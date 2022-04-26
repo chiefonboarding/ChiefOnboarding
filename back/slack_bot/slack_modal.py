@@ -88,6 +88,8 @@ class SlackModal:
         return self.current_view["state"]["values"]
 
     def get_private_metadata(self):
+        print(self.current_view["private_metadata"])
+        print(json.loads(self.current_view["private_metadata"]))
         try:
             return json.loads(self.current_view["private_metadata"])
         except ValueError:
