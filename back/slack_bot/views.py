@@ -182,10 +182,12 @@ class CallbackView(View):
             if slack_block_action.is_type("to_do"):
                 print("HIT TODO BUTTON")
                 blocks = slack_block_action.reply_to_do_items()
+                Slack().send_message(blocks, slack_block_action.get_channel())
 
             # New hire clicked on "resource" button on first message
             if slack_block_action.is_type("resources"):
                 blocks = slack_block_action.reply_with_resource_categories()
+                Slack().send_message(blocks, slack_block_action.get_channel())
 
             # Admin clicked on the deny/approve "approve new hire" button
             if slack_block_action.is_type("create:newhire"):
@@ -366,7 +368,7 @@ class CallbackView(View):
                 to_do_user.mark_completed()
 
                 # Remove the completed block and show old ones
-                blocks = SlackToDoManager.get_blocks(
+                blocks = SlackToDoManager(to_do_user.user).get_blocks(
                     to_do_ids_from_or_message, to_do_id, text
                 )
                 Slack().update_message(
@@ -380,7 +382,7 @@ class CallbackView(View):
             if slack_modal.is_type("dialog:resource"):
 
                 resource_user_id = slack_modal.get_private_metadata()["resource_user"]
-                chapter_id = slack_modal.get_private_metadata()["chapter"]
+                chapter_id = slack_modal.get_private_metadata()["current_chapter"]
 
                 resource_user = ResourceUser.objects.get(
                     user=slack_modal.user, id=resource_user_id

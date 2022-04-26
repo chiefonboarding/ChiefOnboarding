@@ -82,8 +82,7 @@ class SlackToDo:
 
 
 class SlackToDoManager:
-    def __init__(self, user, to_dos=None):
-        self.to_dos = to_dos
+    def __init__(self, user):
         self.user = user
 
     def get_blocks(self, ids, remove_id=None, text=""):
