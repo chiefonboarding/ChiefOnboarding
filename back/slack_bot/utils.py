@@ -8,7 +8,7 @@ class Slack:
     def __init__(self):
         try:
             team = Integration.objects.get(integration=0)
-            self.client = slack_sdk.WebClient(token=team.bot_token)
+            self.client = slack_sdk.WebClient(token=team.token)
         except Integration.DoesNotExist:
             raise Exception("Access token not available")
 
