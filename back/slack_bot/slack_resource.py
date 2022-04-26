@@ -89,7 +89,7 @@ class SlackResourceCategory:
     def category_button(self):
 
         categories = (
-            Category.objects.annotate(resource_amount=Count("resource_set"))
+            Category.objects.annotate(resource_amount=Count("resource"))
             .exclude(resource_amount=0)
             .filter(
                 resource_set__id__in=self.user.resources.values_list("id", flat=True)

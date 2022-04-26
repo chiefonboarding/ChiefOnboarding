@@ -178,6 +178,7 @@ class CallbackView(View):
 
             # New hire clicked on "to do" button on first message
             if slack_block_action.is_type("to_do"):
+                print("HIT TODO BUTTON")
                 blocks = slack_block_action.reply_to_do_items()
 
             # New hire clicked on "resource" button on first message

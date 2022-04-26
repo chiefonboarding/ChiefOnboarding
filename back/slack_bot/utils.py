@@ -89,6 +89,8 @@ def actions(elements=[]):
 
 
 def button(text, style, value, action_id=""):
+    if action_id == "":
+        action_id = value
     return {
         "type": "button",
         "text": {"type": "plain_text", "text": text},
