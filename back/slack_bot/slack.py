@@ -25,7 +25,7 @@ class Slack:
                     },
                 }
             ]
-            blocks.append(badge.content.to_slack_block(self.user_obj))
+            blocks.append(badge.to_slack_block(self.user_obj))
             self.send_message(blocks=blocks)
         if len(items["to_do"]):
             to_do = [
