@@ -92,7 +92,7 @@ class SlackResourceCategory:
             Category.objects.annotate(resource_amount=Count("resource"))
             .exclude(resource_amount=0)
             .filter(
-                resource_set__id__in=self.user.resources.values_list("id", flat=True)
+                resource__id__in=self.user.resources.values_list("id", flat=True)
             )
         )
 

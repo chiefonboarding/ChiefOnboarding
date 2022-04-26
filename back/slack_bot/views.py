@@ -145,6 +145,7 @@ class CallbackView(View):
         print(response)
         # respond to click on any of the blocks
         if response["type"] == "block_actions":
+            print("IS BLOCK ACTION")
 
             slack_block_action = SlackBlockAction(response)
 
@@ -154,6 +155,7 @@ class CallbackView(View):
                 return HttpResponse()
 
             if slack_block_action.is_change_resource_page():
+                print("IS CHANGE PAGE")
                 slack_modal = SlackModal(response["view"])
                 resource_user_id = slack_modal.get_private_metadata()["resource_user"]
                 chapter = int(
@@ -230,7 +232,7 @@ class CallbackView(View):
                         to_do_user.to_do, slack_block_action.user
                     ).create_modal_view(
                         ids=slack_block_action.get_block_ids(),
-                        text=slack_block_action.get_blocks[0]["text"],
+                        text=slack_block_action.get_blocks()[0]["text"],
                         ts=slack_block_action.get_timestamp_message(),
                     )
                     Slack().open_modal(
