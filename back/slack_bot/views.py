@@ -1,7 +1,7 @@
 import json
 import hmac
 import hashlib
-import urllib
+import urllib.parse
 
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse, JsonResponse
@@ -31,6 +31,7 @@ from .utils import Slack
 
 import logging
 logger = logging.getLogger(__name__)
+
 
 def is_valid_slack_request(request):
     slack_integration = Integration.objects.filter(integration=0).first()
@@ -138,8 +139,8 @@ class CallbackView(View):
         if not is_valid_slack_request(request):
             return HttpResponse()
 
-        body_unicode = request.body.decode('utf-8')
-        response = json.loads(body_unicode)
+        body_json = urllib.parse.parse_qs(request.body.decode('utf-8'))
+        response = json.loads(body_json["payload"][0])
 
         # respond to click on any of the blocks
         if response["type"] == "block_actions":
