@@ -2,6 +2,7 @@ import json
 import urllib
 
 from django.contrib.auth import get_user_model
+from django.http import HttpResponse, JsonResponse
 from django.utils.translation import gettext as _
 from django.views.generic import View
 from rest_framework.response import Response
@@ -24,6 +25,9 @@ from .slack_resource import SlackResource
 from .slack_to_do import SlackToDo, SlackToDoManager
 from .utils import Slack
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class BotView(View):
     """
@@ -33,45 +37,56 @@ class BotView(View):
 
     def post(self, request):
         # verify Slack request endpoint
-        if "type" in request.data and request.data["type"] == "url_verification":
-            return Response(request.data["challenge"])
+        data = request.POST
+        logger.error(request.POST)
+
+        # try:
+        #     data = json.loads(request.data)
+        # except:
+        #     print("INVALID JSON")
+        #     # Always return, even if json is invalid
+        #     return HttpResponse()
+
+        print(data)
+        if "type" in data and data["type"] == "url_verification":
+            return HttpResponse(data["challenge"])
 
         # verify Slack request endpoint
         if (
-            "token" not in request.data
+            "token" not in data
             or not Integration.objects.filter(
-                verification_token=request.data["token"], integration=0
+                verification_token=data["token"], integration=0
             ).exists()
         ):
-            return Response()
+            return HttpResponse()
 
         # strictly allow only messages or team_join requests
         if (
-            "bot_id" in request.data["event"]
-            or "event" not in request.data
-            or "subtype" in request.data["event"]
+            "bot_id" in data["event"]
+            or "event" not in data
+            or "subtype" in data["event"]
             or (
-                request.data["event"]["type"] != "message"
-                and request.data["event"]["type"] != "team_join"
+                data["event"]["type"] != "message"
+                and data["event"]["type"] != "team_join"
             )
         ):
-            return Response("ok")
+            return HttpResponse("ok")
 
         # avoid second requests
         if "X-Slack-Retry-Num" in request.META:
-            return Response("ok")
+            return HttpResponse("ok")
 
         org = Organization.object.get()
 
         # whenever a person joins Slack
-        if request.data["event"]["type"] == "team_join":
+        if data["event"]["type"] == "team_join":
             # check if setting has been enabled to auto create accounts from slack
             if org.auto_create_user:
-                SlackJoin(request.data["event"]).create_new_hire_or_ask_permission()
+                SlackJoin(data["event"]).create_new_hire_or_ask_permission()
 
         # when someone sends a message to the bot in a DM
-        if request.data["event"]["type"] == "message":
-            slack_im = SlackIncomingMessage(request.data)
+        if data["event"]["type"] == "message":
+            slack_im = SlackIncomingMessage(data)
 
             # check if user actually has a new hire/admin/colleague account
             if not slack_im.user_exists():
@@ -89,9 +104,9 @@ class BotView(View):
             else:
                 blocks = slack_im.reply_with_search_results()
 
-            Slack().send_message(blocks, self.payload["event"]["user"])
+            Slack().send_message(blocks, data["event"]["user"])
 
-        return Response()
+        return HttpResponse()
 
 
 class CallbackView(View):
@@ -111,7 +126,7 @@ class CallbackView(View):
                 verification_token=response["token"], integration=0
             ).exists()
         ):
-            return Response()
+            return HttpResponse()
 
         # respond to click on any of the blocks
         if response["type"] == "block_actions":
@@ -120,7 +135,7 @@ class CallbackView(View):
 
             # drop if user does not exist
             if not slack_block_action.get_user():
-                return Response()
+                return HttpResponse()
 
             if slack_block_action.is_change_resource_page():
                 slack_modal = SlackModal(response["view"])
@@ -134,7 +149,7 @@ class CallbackView(View):
                     user=slack_block_action.user,
                 ).modal_view(chapter)
                 Slack().update_modal(view_id=response["view"]["id"], view=view)
-                return Response()
+                return HttpResponse()
 
             # Someone completed an admin task (hit the "done" button)
             if slack_block_action.is_type("admin_task"):
@@ -143,7 +158,7 @@ class CallbackView(View):
                 )
                 admin_task.completed = True
                 admin_task.save()
-                return Response()
+                return HttpResponse()
 
             # New hire clicked on "to do" button on first message
             if slack_block_action.is_type("to_do"):
@@ -181,7 +196,7 @@ class CallbackView(View):
                         trigger_id=slack_block_action.get_trigger_id(), view=view
                     )
 
-                return Response()
+                return HttpResponse()
 
             # User clicked button to open a modal
             if slack_block_action.is_type("dialog"):
@@ -204,7 +219,7 @@ class CallbackView(View):
                     Slack().open_modal(
                         trigger_id=slack_block_action.get_trigger_id(), view=view
                     )
-                    return Response()
+                    return HttpResponse()
 
                 # open modal to type personal welcome message for new hire
                 if slack_block_action.is_type("welcome"):
@@ -218,7 +233,7 @@ class CallbackView(View):
                     Slack().open_modal(
                         trigger_id=slack_block_action.get_trigger_id(), view=view
                     )
-                    return Response()
+                    return HttpResponse()
 
                 # resource/course was clicked: show first chapter
                 if slack_block_action.is_type("resource"):
@@ -232,7 +247,7 @@ class CallbackView(View):
                     Slack().open_modal(
                         trigger_id=slack_block_action.get_trigger_id(), view=view
                     )
-                    return Response()
+                    return HttpResponse()
 
             # User clicked complete button with external form
             if slack_block_action.is_type("to_do:external"):
@@ -247,7 +262,7 @@ class CallbackView(View):
                     Slack().send_message(
                         blocks=blocks, channel=slack_block_action.get_channel()
                     )
-                    return Response()
+                    return HttpResponse()
 
                 # Mark item completed and check conditions for triggers
                 to_do_user.mark_completed()
@@ -261,7 +276,7 @@ class CallbackView(View):
                     channel=slack_block_action.get_channel(),
                     timestamp=slack_block_action.get_timestamp_message(),
                 )
-                return Response()
+                return HttpResponse()
 
             # show resources based on category
             if slack_block_action.is_type("category"):
@@ -283,7 +298,7 @@ class CallbackView(View):
                 ).get_block()
 
                 Slack().send_message(blocks, slack_block_action.get_channel())
-                return Response()
+                return HttpResponse()
 
         # respond to a dialog completion
         if response["type"] == "view_submission":
@@ -304,7 +319,7 @@ class CallbackView(View):
                     defaults={"message": message},
                 )
 
-                return Response()
+                return HttpResponse()
 
             # save to do and optionally the form that got submitted with it
             if slack_modal.is_type("to_do"):
@@ -339,7 +354,7 @@ class CallbackView(View):
                     timestamp=message_ts,
                 )
 
-                return Response()
+                return HttpResponse()
 
             if slack_modal.is_type("resource"):
 
@@ -379,12 +394,12 @@ class CallbackView(View):
                 # )
                 # resource_user.add_step(resource)
                 # if resource is None:
-                #     return Response()
+                #     return HttpResponse()
                 # view = s.create_updated_view(
                 #     resource.id, response["view"], book_user.completed_course
                 # )
                 view = None
-                return Response({"response_action": "update", "view": view})
+                return JsonResponse({"response_action": "update", "view": view})
 
             if slack_modal.is_type("approve:newhire"):
 
@@ -407,4 +422,4 @@ class CallbackView(View):
                 # delete message when it's approved to not clutter things up
                 Slack().delete_message(channel=slack_modal.get_channel(), ts=timestamp)
 
-        return Response()
+        return HttpResponse()

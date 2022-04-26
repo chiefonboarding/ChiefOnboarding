@@ -318,7 +318,7 @@ AXES_ENABLED = True
 REST_FRAMEWORK_ACTIVE = True
 
 # Error tracking
-if env.bool("SENTRY", default=False):
+if env("SENTRY_URL", default="") != "":
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
 
