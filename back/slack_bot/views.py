@@ -150,6 +150,7 @@ class CallbackView(View):
 
             # drop if user does not exist
             if not slack_block_action.get_user():
+                print("USER DOES NOT EXIST")
                 return HttpResponse()
 
             if slack_block_action.is_change_resource_page():
