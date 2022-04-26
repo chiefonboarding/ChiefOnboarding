@@ -142,6 +142,7 @@ class CallbackView(View):
         body_json = urllib.parse.parse_qs(request.body.decode('utf-8'))
         response = json.loads(body_json["payload"][0])
 
+        print(response)
         # respond to click on any of the blocks
         if response["type"] == "block_actions":
 
