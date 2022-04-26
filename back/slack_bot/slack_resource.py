@@ -67,7 +67,7 @@ class SlackResource:
         blocks.append(paragraph(f"*{chapter.name}*"))
 
         # Add content
-        blocks.append(chapter.to_slack_block(self.user))
+        blocks.append(*chapter.to_slack_block(self.user))
 
         private_metadata = {
             "current_chapter": chapter.id,

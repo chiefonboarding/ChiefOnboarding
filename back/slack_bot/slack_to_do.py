@@ -53,7 +53,7 @@ class SlackToDo:
         }
 
     def create_modal_view(self, ids, text, ts):
-        blocks = self.to_do.to_slack_block()
+        blocks = self.to_do.to_slack_block(self.user)
         private_metadata = {
             # We are removing the first block as that's the message
             # "These are the to do items you have to complete....".
