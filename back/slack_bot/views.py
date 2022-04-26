@@ -3,7 +3,9 @@ import urllib
 
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse, JsonResponse
+from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from rest_framework.response import Response
 
@@ -29,6 +31,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class BotView(View):
     """
     Slack events endpoint. All messages and events come in here. (except for
@@ -109,6 +112,7 @@ class BotView(View):
         return HttpResponse()
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class CallbackView(View):
     """
     Button interactions come back here
