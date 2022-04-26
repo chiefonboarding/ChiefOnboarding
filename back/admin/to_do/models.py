@@ -43,9 +43,9 @@ class ToDo(BaseItem):
     @property
     def inline_slack_form(self):
         valid = True
-        blocks = self.content.blocks
+        blocks = self.content["blocks"]
         for i in blocks:
-            if i.type in ["check", "upload"]:
+            if i["type"] in ["check", "upload"]:
                 valid = False
                 break
         return valid

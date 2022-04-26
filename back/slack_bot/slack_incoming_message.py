@@ -59,7 +59,7 @@ class SlackIncomingMessage:
 
     def reply_with_search_results(self):
         items = Resource.objects.search(self.user, self.message)
-        results = [SlackResource(task, self.user).get_block() for task in items]
+        results = [SlackResource(task.resource_new_hire.all()[0], self.user).get_block() for task in items]
 
         text = (
             _("Here is what I found: ")
