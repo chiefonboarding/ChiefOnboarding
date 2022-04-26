@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from misc.fields import ContentJSONField
+from misc.mixins import ContentMixin
 from organization.models import BaseItem
 
 CHAPTER_TYPE = ((0, _("page")), (1, _("folder")), (2, _("questions")))
@@ -142,7 +143,7 @@ class Resource(BaseItem):
         return chapter
 
 
-class Chapter(models.Model):
+class Chapter(ContentMixin, models.Model):
     parent_chapter = models.ForeignKey("self", on_delete=models.CASCADE, null=True)
     resource = models.ForeignKey(
         Resource, on_delete=models.CASCADE, related_name="chapters", null=True

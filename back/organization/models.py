@@ -10,6 +10,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from misc.models import File
+from misc.mixins import ContentMixin
 
 
 class ObjectManager(models.Manager):
@@ -180,7 +181,7 @@ class TemplateManager(models.Manager):
         return super().get_queryset().filter(template=True)
 
 
-class BaseItem(models.Model):
+class BaseItem(ContentMixin, models.Model):
     name = models.CharField(verbose_name=_("Name"), max_length=240)
     tags = ArrayField(
         models.CharField(max_length=10200), verbose_name=_("Tags"), blank=True

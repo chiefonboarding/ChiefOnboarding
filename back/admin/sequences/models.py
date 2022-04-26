@@ -15,6 +15,7 @@ from admin.resources.models import Resource
 from admin.to_do.models import ToDo
 from misc.fields import ContentJSONField
 from misc.serializers import FileSerializer
+from misc.mixins import ContentMixin
 from organization.models import Notification
 from slack_bot.utils import Slack
 
@@ -138,7 +139,7 @@ class ExternalMessageManager(models.Manager):
         return self.get_queryset().exclude(person_type=0)
 
 
-class ExternalMessage(models.Model):
+class ExternalMessage(ContentMixin, models.Model):
     EXTERNAL_TYPE = (
         (0, _("Email")),
         (1, _("Slack")),
