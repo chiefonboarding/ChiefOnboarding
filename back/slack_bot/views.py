@@ -1,4 +1,5 @@
 import json
+import hmac
 import urllib
 
 from django.contrib.auth import get_user_model
@@ -40,34 +41,38 @@ class BotView(View):
 
     def post(self, request):
         # verify Slack request endpoint
+        slack_integration = Integration.objects.filter(integration=0).first()
+        if slack_integration is None:
+            return HttpResponse()
+
+        timestamp = request.headers.get('X-Slack-Request-Timestamp', '')
+        sig_basestring = 'v0:' + timestamp + ':' + request.body
+        our_signature = 'v0=' + hmac.compute_hash_sha256(
+            slack_integration.signing_secret,
+            sig_basestring
+        ).hexdigest()
+
+        print(sig_basestring)
+        print(our_signature)
+
+        slack_signature = request.headers['X-Slack-Signature']
+
+        if not hmac.compare(our_signature, slack_signature):
+            return HttpResponse()
+
+        logger.error(request.body)
         body_unicode = request.body.decode('utf-8')
         data = json.loads(body_unicode)
         logger.error(data)
-
-        # try:
-        #     data = json.loads(request.data)
-        # except:
-        #     print("INVALID JSON")
-        #     # Always return, even if json is invalid
-        #     return HttpResponse()
 
         print(data)
         if "type" in data and data["type"] == "url_verification":
             return HttpResponse(data["challenge"])
 
-        # verify Slack request endpoint
-        if (
-            "token" not in data
-            or not Integration.objects.filter(
-                verification_token=data["token"], integration=0
-            ).exists()
-        ):
-            return HttpResponse()
-
         # strictly allow only messages or team_join requests
         if (
-            "bot_id" in data["event"]
-            or "event" not in data
+            "event" not in data
+            or "bot_id" in data["event"]
             or "subtype" in data["event"]
             or (
                 data["event"]["type"] != "message"
@@ -90,10 +95,13 @@ class BotView(View):
 
         # when someone sends a message to the bot in a DM
         if data["event"]["type"] == "message":
+            print("message event")
             slack_im = SlackIncomingMessage(data)
+            print(slack_im)
 
             # check if user actually has a new hire/admin/colleague account
             if not slack_im.user_exists():
+                print("USER DOES NOT EXIST")
                 blocks = slack_im.reply_request_access_supervisor()
 
             elif slack_im.is_request_for_help():
