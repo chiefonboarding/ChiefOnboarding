@@ -99,4 +99,4 @@ class SlackToDoManager:
                 else _("I couldn't find any tasks.")
             )
 
-        return [paragraph(text), tasks]
+        return [paragraph(text), *tasks]
