@@ -1,3 +1,5 @@
+import json
+
 from django.db.models import Count
 from django.utils.translation import gettext as _
 
@@ -77,7 +79,7 @@ class SlackResource:
             title=_("Resource"),
             blocks=blocks,
             callback="dialog:resource",
-            private_metadata=str(private_metadata),
+            private_metadata=json.dumps(private_metadata),
             submit_name=_("Next"),
         )
 

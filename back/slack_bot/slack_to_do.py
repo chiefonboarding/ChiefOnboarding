@@ -1,3 +1,5 @@
+import json
+
 from django.conf import settings
 from django.utils.translation import gettext as _
 
@@ -67,7 +69,7 @@ class SlackToDo:
             title=self.to_do.name,
             blocks=blocks,
             callback="complete:to_do",
-            private_metadata=str(private_metadata),
+            private_metadata=json.dumps(private_metadata),
         )
 
     def not_completed_message(self):

@@ -184,7 +184,7 @@ class CallbackView(View):
                 blocks = slack_block_action.reply_to_do_items()
 
             # New hire clicked on "resource" button on first message
-            if slack_block_action.is_type("resource"):
+            if slack_block_action.is_type("resources"):
                 blocks = slack_block_action.reply_with_resource_categories()
 
             # Admin clicked on the deny/approve "approve new hire" button
@@ -203,7 +203,7 @@ class CallbackView(View):
                         title=_("New hire options"),
                         blocks=[get_new_hire_approve_sequence_options()],
                         callback="approve:newhire",
-                        private_metadata=str(
+                        private_metadata=json.dumps(
                             {
                                 "user_id": slack_block_action.action_array()[3],
                                 "ts": slack_block_action.get_action()["action_ts"],
@@ -377,7 +377,7 @@ class CallbackView(View):
 
                 return HttpResponse()
 
-            if slack_modal.is_type("resource"):
+            if slack_modal.is_type("dialog:resource"):
 
                 resource_user_id = slack_modal.get_private_metadata()["resource_user"]
                 chapter_id = slack_modal.get_private_metadata()["chapter"]
@@ -410,17 +410,13 @@ class CallbackView(View):
                     #     book_user.answers.add(course_answer)
                     print(chapter)
 
-                # resource = resource_user.resource.next_chapter(
-                #     chapter_id, resource_user.is_course
-                # )
-                # resource_user.add_step(resource)
-                # if resource is None:
-                #     return HttpResponse()
-                # view = s.create_updated_view(
-                #     resource.id, response["view"], book_user.completed_course
-                # )
-                view = None
-                return JsonResponse({"response_action": "update", "view": view})
+                view = SlackResource(
+                    resource_user=resource_user, user=slack_modal.user
+                ).modal_view(chapter.id)
+                Slack().open_modal(
+                    trigger_id=response["trigger_id"], view=view
+                )
+                return HttpResponse()
 
             if slack_modal.is_type("approve:newhire"):
 
