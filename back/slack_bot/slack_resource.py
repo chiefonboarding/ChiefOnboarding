@@ -110,9 +110,9 @@ class SlackResourceCategory:
         for i in categories:
             blocks.append(
                 actions(
-                    button(
+                    [button(
                         i["name"], "primary", f"category:{i['id']}", f"category:{i['id']}"
-                    )
+                    )]
                 )
             )
         return blocks

@@ -156,7 +156,7 @@ class CallbackView(View):
 
             if slack_block_action.is_change_resource_page():
                 print("IS CHANGE PAGE")
-                slack_modal = SlackModal(response["view"])
+                slack_modal = SlackModal(response)
                 resource_user_id = slack_modal.get_private_metadata()["resource_user"]
                 chapter = int(
                     slack_block_action.get_action()["selected_option"]["value"]
@@ -324,7 +324,7 @@ class CallbackView(View):
         # respond to a dialog completion
         print(response["type"])
         if response["type"] == "view_submission":
-            slack_modal = SlackModal(response["view"])
+            slack_modal = SlackModal(response)
 
             # save welcome message from colleague to new hire
             if slack_modal.is_type("welcome"):
