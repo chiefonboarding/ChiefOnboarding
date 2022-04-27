@@ -104,7 +104,7 @@ class SlackResourceCategory:
         if self.user.resources.filter(category__isnull=True).exists():
             blocks.append(
                 actions(
-                    button(_("No category"), "primary", "category:-1", "category:-1")
+                    [button(_("No category"), "primary", "category:-1", "category:-1")]
                 )
             )
         for i in categories:
