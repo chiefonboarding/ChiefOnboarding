@@ -66,6 +66,7 @@ class SlackModal:
         if payload is not None:
             self.current_view = payload["view"]
             self.user_payload = payload["user"]
+            self.get_user()
         self.user = None
 
     def get_user(self):
