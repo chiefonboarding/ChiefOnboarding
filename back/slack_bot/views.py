@@ -303,20 +303,20 @@ class CallbackView(View):
             if slack_block_action.is_type("category"):
                 # Show resources that don't have a category
                 if slack_block_action.action_array()[1] == "-1":
-                    resource_user = ResourceUser.objects.filter(
+                    resources = ResourceUser.objects.filter(
                         user=slack_block_action.user, resource__category__isnull=True
                     )
                 else:
                     category = Category.objects.get(
                         id=int(slack_block_action.action_array()[1])
                     )
-                    resource_user = ResourceUser.objects.filter(
+                    resources = ResourceUser.objects.filter(
                         user=slack_block_action.user, resource__category=category
                     )
 
-                blocks = SlackResource(
+                blocks = [SlackResource(
                     resource_user, slack_block_action.user
-                ).get_block()
+                ).get_block() for resource_user in resources]
 
                 Slack().send_message(blocks, slack_block_action.get_channel())
                 return HttpResponse()
