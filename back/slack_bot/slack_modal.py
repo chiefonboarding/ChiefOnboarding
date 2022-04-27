@@ -64,7 +64,7 @@ Example payload:
 class SlackModal:
     def __init__(self, payload=None):
         if payload is not None:
-            self.current_view = payload["current_view"]
+            self.current_view = payload["view"]
             self.user_payload = payload["user"]
         self.user = None
 
