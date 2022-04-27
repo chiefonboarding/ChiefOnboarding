@@ -85,7 +85,7 @@ class SlackBlockAction:
     def get_block_ids(self):
         if "blocks" not in self.payload["message"]:
             return []
-        return [int(x["block_id"]) for x in self.payload["message"]["blocks"]]
+        return [x["block_id"] for x in self.payload["message"]["blocks"]]
 
     def get_blocks(self):
         if "blocks" not in self.payload["message"]:

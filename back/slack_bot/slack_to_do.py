@@ -88,7 +88,7 @@ class SlackToDoManager:
     def get_blocks(self, ids, remove_id=None, text=""):
 
         if remove_id is not None:
-            ids = ids.remove(remove_id)
+            ids = ids.remove(str(remove_id))
 
         items = ToDoUser.objects.filter(id__in=ids)
         tasks = [SlackToDo(task.to_do, self.user).to_do_block() for task in items]
