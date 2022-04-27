@@ -63,7 +63,7 @@ class SlackResource:
                 SlackResource(self.resource_user, self.user).get_chapters_menu()
             )
 
-        chapter = self.resource.next_chapter(chapter_id, self.resource_user.is_course)
+        chapter = self.resource_user.resource.chapters.filter(id=chapter_id).first()
 
         # Add chapter title
         blocks.append(paragraph(f"*{chapter.name}*"))

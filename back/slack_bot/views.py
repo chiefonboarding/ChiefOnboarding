@@ -264,7 +264,7 @@ class CallbackView(View):
                     )
                     view = SlackResource(
                         resource_user=resource_user, user=slack_block_action.user
-                    ).modal_view(-1)
+                    ).modal_view(resource_user.resource.first_chapter_id)
                     Slack().open_modal(
                         trigger_id=slack_block_action.get_trigger_id(), view=view
                     )
@@ -373,7 +373,7 @@ class CallbackView(View):
                 )
                 Slack().update_message(
                     blocks=blocks,
-                    channel=slack_modal.get_channel(),
+                    channel=to_do_user.user.slack_channel_id,
                     timestamp=message_ts,
                 )
 
