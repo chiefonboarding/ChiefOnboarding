@@ -62,15 +62,16 @@ Example payload:
 
 
 class SlackModal:
-    def __init__(self, current_view=None):
-        self.current_view = current_view
+    def __init__(self, payload=None):
+        self.current_view = payload["current_view"]
+        self.user_payload = payload["user"]
         self.user = None
 
     def get_user(self):
         # if user does not exist, it will return None
         self.user = (
             get_user_model()
-            .objects.filter(slack_user_id=self.current_view["user"]["id"])
+            .objects.filter(slack_user_id=self.user_payload["id"])
             .first()
         )
         return self.user is not None

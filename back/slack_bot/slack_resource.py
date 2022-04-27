@@ -99,7 +99,7 @@ class SlackResourceCategory:
         )
 
         blocks = []
-        if len(categories) == 0:
+        if len(categories) == 0 and not self.user.resources.filter(category__isnull=True).exists():
             return [paragraph(_("No resources available"))]
         if self.user.resources.filter(category__isnull=True).exists():
             blocks.append(

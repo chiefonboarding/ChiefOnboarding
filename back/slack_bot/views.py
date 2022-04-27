@@ -179,7 +179,7 @@ class CallbackView(View):
                 return HttpResponse()
 
             # New hire clicked on "to do" button on first message
-            if slack_block_action.is_type("to_do"):
+            if slack_block_action.is_type("to_do") and not slack_block_action.is_type("dialog:to_do"):
                 print("HIT TODO BUTTON")
                 blocks = slack_block_action.reply_to_do_items()
                 Slack().send_message(blocks, slack_block_action.get_channel())
@@ -410,7 +410,7 @@ class CallbackView(View):
                     #     course_answer.answers = answers
                     # else:
                     #     book_user.answers.add(course_answer)
-                    print(chapter)
+                    print(response["view"]["state"]["values"])
 
                 view = SlackResource(
                     resource_user=resource_user, user=slack_modal.user
