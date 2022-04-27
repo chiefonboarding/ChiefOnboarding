@@ -385,7 +385,7 @@ class CallbackView(View):
                 chapter_id = slack_modal.get_private_metadata()["current_chapter"]
 
                 resource_user = ResourceUser.objects.get(
-                    user=slack_modal.user, id=resource_user_id
+                    user=slack_modal.get_user(), id=resource_user_id
                 )
                 chapter = Chapter.objects.get(id=chapter_id)
 

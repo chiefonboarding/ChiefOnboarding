@@ -473,12 +473,6 @@ class NewHireReopenTaskView(LoginRequiredMixin, AdminPermMixin, FormView):
 
         return redirect("people:new_hire_progress", pk=template_user_obj.user.id)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = self.object.full_name
-        context["subtitle"] = _("new hire")
-        return context
-
 
 class NewHireCourseAnswersView(LoginRequiredMixin, AdminPermMixin, DetailView):
     template_name = "new_hire_course_answers.html"
