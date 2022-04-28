@@ -57,7 +57,7 @@ class SlackResource:
 
     def modal_view(self, chapter_id):
         blocks = []
-        if not self.resource_user.is_course:
+        if not self.resource_user.is_course and self.resource_user.resource.chapters.count() > 1:
             # Create menu with chapters
             blocks.append(
                 SlackResource(self.resource_user, self.user).get_chapters_menu()

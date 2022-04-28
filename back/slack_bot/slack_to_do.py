@@ -93,7 +93,7 @@ class SlackToDoManager:
         items = ToDoUser.objects.filter(id__in=ids)
         tasks = [SlackToDo(task.to_do, self.user).to_do_block() for task in items]
 
-        if text == "":
+        if text == "" or len(tasks) == 0:
             text = (
                 _("These are the tasks you need to complete:")
                 if len(tasks)

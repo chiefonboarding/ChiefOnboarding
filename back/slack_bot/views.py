@@ -234,7 +234,7 @@ class CallbackView(View):
                         to_do_user.to_do, slack_block_action.user
                     ).create_modal_view(
                         ids=slack_block_action.get_block_ids(),
-                        text=slack_block_action.get_blocks()[0]["text"],
+                        text=slack_block_action.get_blocks()[0]["text"]["text"],
                         ts=slack_block_action.get_timestamp_message(),
                     )
                     Slack().open_modal(
@@ -351,7 +351,7 @@ class CallbackView(View):
                     "to_do_ids_from_original_message"
                 ]
                 to_do_id = slack_modal.get_private_metadata()["to_do_id"]
-                text = slack_modal.get_private_metadata()["text"]
+                text = slack_modal.get_private_metadata()["text"]["text"]
                 message_ts = slack_modal.get_private_metadata()["message_ts"]
 
                 to_do_user = ToDoUser.objects.get(id=to_do_id)
