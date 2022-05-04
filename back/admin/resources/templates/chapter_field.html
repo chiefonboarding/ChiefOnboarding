@@ -32,12 +32,26 @@
         <div v-show="chapter.type === 0" id="element"></div>
         <div v-show="chapter.type === 1"><p class="mb-0">{% translate "Folders can't have content" %}</p></div>
         <div v-show="chapter.type === 2">
-          <div class="mb-3" v-for="item in chapter.content.blocks" :key="item.id">
-            <label class="form-label">{% translate "The question you want to ask:" %}</label>
-            <input type="text" class="form-control" name="example-text-input" v-model="item.content" placeholder="What's...">
-            <div class="form-check" v-for="option in item.items" :key="option.id">
-              <input class="form-check-input" type="radio" placeholder="option..." :name="'name' + option.id" v-model="item.answer" :value="option.id" @click="item.answer = option.id" style="margin-top: 10px;">
-              <input type="text" class="form-control mt-1" v-model="option.text" name="example-text-input" placeholder="option...">
+          <div class="mb-3" v-for="(item, idx) in chapter.content.blocks" :key="item.id">
+            <div class="row g-2">
+              <div class="col">
+                <label class="form-label">{% translate "The question you want to ask:" %}</label>
+                <input type="text" class="form-control" name="example-text-input" v-model="item.content" placeholder="What's...">
+              </div>
+              <div class="col-auto">
+                <button class="btn btn-danger" style="margin-top: 28px;" @click="removeQuestion(idx)">X</button>
+              </div>
+            </div>
+            <div class="form-check" v-for="(option, optionIdx) in item.items" :key="option.id">
+              <div class="row g-2">
+                <div class="col">
+                  <input class="form-check-input" type="radio" placeholder="option..." :name="'name' + option.id" v-model="item.answer" :value="option.id" @click="item.answer = option.id" style="margin-top: 10px;">
+                  <input type="text" class="form-control mt-1" v-model="option.text" name="example-text-input" placeholder="option...">
+                </div>
+                <div class="col-auto">
+                  <button class="btn btn-danger" style="margin-top: 4px;" @click="removeOption(idx, optionIdx)">X</button>
+                </div>
+              </div>
             </div>
             <a class="btn btn-primary" style="float:unset" role="button" @click="addOption(item.items)">{% translate "Add option" %}</a>
           </div>

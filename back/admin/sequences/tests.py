@@ -1,6 +1,8 @@
 import datetime
+from datetime import timedelta
 
 import pytest
+from django.utils import timezone
 from django.urls import reverse
 
 from admin.appointments.factories import AppointmentFactory
@@ -25,11 +27,13 @@ from admin.sequences.forms import (
     PendingSlackMessageForm,
     PendingTextMessageForm,
 )
+from admin.sequences.tasks import timed_triggers
 from admin.admin_tasks.models import AdminTask, AdminTaskComment
 from admin.sequences.models import Condition, Sequence, ExternalMessage, PendingAdminTask
 from admin.to_do.factories import ToDoFactory
 from admin.to_do.forms import ToDoForm
 from admin.to_do.models import ToDo
+from organization.models import Organization
 
 
 @pytest.mark.django_db
@@ -539,6 +543,62 @@ def test_sequence_default_templates_not_valid(client, admin_factory):
     assert len(response.context["object_list"]) == 0
 
 
+@pytest.mark.django_db
+def test_sequence_trigger_task(sequence_factory, new_hire_factory, condition_timed_factory, to_do_factory, resource_factory, introduction_factory, appointment_factory, preboarding_factory, badge_factory, pending_admin_task_factory, pending_text_message_factory):
+    org = Organization.object.get()
+    # Set it back 5 minutes, so it will actually run through the triggers
+    org.timed_triggers_last_check -= timedelta(minutes=5)
+    org.save()
+
+    new_hire1 = new_hire_factory()
+
+    to_do1 = to_do_factory()
+    to_do2 = to_do_factory()
+    resource1 = resource_factory()
+    appointment1 = appointment_factory()
+    introduction1 = introduction_factory()
+    preboarding1 = preboarding_factory()
+    badge1 = badge_factory()
+    pending_admin_task1 = pending_admin_task_factory()
+    pending_text_message1 = pending_text_message_factory()
+
+    seq = sequence_factory()
+    unconditioned_condition = seq.conditions.all().first()
+    unconditioned_condition.add_item(to_do1)
+
+    # Round current time to 0 or 5 to make it valid entry
+    current_time = timezone.now()
+    current_time = current_time.replace(minute=current_time.minute - (current_time.minute % 5), second=0, microsecond=0)
+
+    condition = condition_timed_factory(days=1, time=current_time)
+    condition.add_item(to_do2)
+    condition.add_item(resource1)
+    condition.add_item(appointment1)
+    condition.add_item(introduction1)
+    condition.add_item(preboarding1)
+    condition.add_item(badge1)
+    condition.add_item(pending_admin_task1)
+    condition.add_item(pending_text_message1)
+
+    seq.conditions.add(condition)
+
+    # Add sequence to user
+    new_hire1.add_sequences([seq])
+
+    assert new_hire1.to_do.all().count() == 1
+
+    # Trigger sequence conditions
+    timed_triggers()
+
+    org.refresh_from_db()
+    assert org.timed_triggers_last_check == current_time
+
+    assert new_hire1.to_do.all().count() == 2
+    assert new_hire1.resources.all().count() == 1
+    assert new_hire1.appointments.all().count() == 1
+    assert new_hire1.introductions.all().count() == 1
+    assert new_hire1.badges.all().count() == 1
+
 # MODEL TESTS
 
 
@@ -565,9 +625,6 @@ def test_sequence_duplicate(sequence_factory, condition_to_do_factory, to_do_fac
     # assert Condition.objects.last().to_do.all().count() == 2
 
     assert "duplicate" in Sequence.objects.last().name
-
-
-# TODO: assign sequence to user
 
 
 @pytest.mark.django_db

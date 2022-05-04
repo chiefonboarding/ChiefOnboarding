@@ -90,6 +90,11 @@ LOGIN_REDIRECT_URL = "logged_in_user_redirect"
 LOGOUT_REDIRECT_URL = "login"
 LOGIN_URL = "login"
 
+RUNNING_TESTS = "pytest" in sys.modules
+FAKE_SLACK_API = False
+SLACK_USE_SOCKET = env.bool("SLACK_USER_SOCKET", default=True)
+SLACK_APP_TOKEN = env("SLACK_APP_TOKEN", default="")
+SLACK_BOT_TOKEN = env("SLACK_BOT_TOKEN", default="")
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -199,6 +204,7 @@ CORS_ALLOWED_ORIGINS = [
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.TokenAuthentication"
     ],
     "DEFAULT_RENDERER_CLASSES": [
@@ -275,7 +281,7 @@ CACHES = {
 
 Q_CLUSTER = {
     "name": "DjangORM",
-    "workers": 2,
+    "workers": 1,
     "timeout": 90,
     "retry": 1800,
     "queue_limit": 50,
@@ -285,7 +291,7 @@ Q_CLUSTER = {
     "max_attempts": 2,
 }
 
-if DEBUG and "pytest" in sys.modules:
+if DEBUG and RUNNING_TESTS:
     Q_CLUSTER["sync"] = True
 
 # AWS
@@ -321,11 +327,19 @@ REST_FRAMEWORK_ACTIVE = True
 if env("SENTRY_URL", default="") != "":
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
+    from sentry_sdk.integrations.logging import LoggingIntegration
+    import logging
+
+    sentry_logging = LoggingIntegration(
+        level=logging.INFO,        # Capture info and above as breadcrumbs
+        event_level=logging.ERROR  # Send errors as events
+    )
 
     sentry_sdk.init(
         dsn=env("SENTRY_URL", default=""),
         integrations=[
             DjangoIntegration(),
+            sentry_logging
         ],
         # If you wish to associate users to errors (assuming you are using
         # django.contrib.auth) you may enable sending PII data.

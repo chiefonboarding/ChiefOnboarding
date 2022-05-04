@@ -58,6 +58,10 @@ class AdminTask(models.Model):
         return render_to_string("_admin_task_icon.html")
 
     def send_notification_third_party(self):
+        if self.assigned_to is None:
+            # Only happens when a sequence adds this with "manager" or "buddy" is
+            # choosen option
+            return
         if self.option == 1:
             # through email
             send_email_notification_to_external_person(self)
@@ -79,7 +83,8 @@ class AdminTask(models.Model):
                         button(
                             text=_("I have completed this"),
                             style="primary",
-                            value="admin_task:complete:" + self.pk,
+                            value=str(self.pk),
+                            action_id="admin_task:complete",
                         )
                     ]
                 ),
@@ -87,6 +92,10 @@ class AdminTask(models.Model):
             Slack().send_message(blocks, self.slack_user)
 
     def send_notification_new_assigned(self):
+        if self.assigned_to is None:
+            # Only happens when a sequence adds this with "manager" or "buddy" is
+            # choosen option
+            return
         if self.assigned_to.has_slack_account:
             comment = ""
             if self.comment.all().exists():

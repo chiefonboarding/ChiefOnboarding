@@ -13,6 +13,7 @@ from misc.models import File
 from misc.mixins import ContentMixin
 
 
+
 class ObjectManager(models.Manager):
     def get(self):
         return self.get_queryset().first()
@@ -120,6 +121,8 @@ class Organization(models.Model):
         null=True,
         on_delete=models.SET_NULL,
     )
+    # Field to determine if there has been an outage and tasks need to be caught up
+    timed_triggers_last_check = models.DateTimeField(auto_now_add=True)
 
     object = ObjectManager()
     objects = models.Manager()
@@ -218,7 +221,7 @@ class BaseItem(ContentMixin, models.Model):
     def form_items(self):
         blocks = []
         for block in self.content["blocks"]:
-            if block["type"] in ["input", "text", "check", "upload"]:
+            if "data" in block and "type" in block["data"] and block["data"]["type"] in ["input", "text", "check", "upload"]:
                 blocks.append(block)
         return blocks
 

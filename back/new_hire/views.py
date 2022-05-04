@@ -25,6 +25,7 @@ from users.models import (
     ToDoUser,
     User,
 )
+from admin.to_do.models import ToDo
 
 from .forms import QuestionsForm
 
@@ -135,6 +136,46 @@ class SeenUpdatesView(LoginRequiredMixin, View):
         request.user.seen_updates = datetime.now()
         request.user.save()
         return HttpResponse()
+
+
+@method_decorator(axes_dispatch, name="dispatch")
+class SlackToDoFormView(LoginRequiredMixin, TemplateView):
+    template_name = "slack_form.html"
+
+    def dispatch(self, *args, **kwargs):
+        try:
+            user = User.objects.get(
+                unique_url=self.request.GET.get("token", ""),
+                role=0,
+            )
+        except User.DoesNotExist:
+            # Log wrong keys by ip to prevent guessing/bruteforcing
+            signals.user_login_failed.send(
+                sender=User,
+                request=self.request,
+                credentials={
+                    "token": self.request.GET.get("token", ""),
+                },
+            )
+            raise Http404
+        except Exception:
+            # fail safe
+            raise Http404
+
+        user.backend = "django.contrib.auth.backends.ModelBackend"
+        login(self.request, user)
+        return super().dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        to_do = get_object_or_404(ToDo, pk=self.kwargs['pk'])
+        to_do_user = get_object_or_404(ToDoUser, to_do=to_do, user=self.request.user)
+        if len(to_do_user.form) > 0:
+            context["form_already_filled"] = True
+
+        context["object"] = to_do_user
+        return context
 
 
 @method_decorator(axes_dispatch, name="dispatch")

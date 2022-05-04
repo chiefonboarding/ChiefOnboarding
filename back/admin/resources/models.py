@@ -173,7 +173,7 @@ class Chapter(ContentMixin, models.Model):
 
         return {
             "text": {"type": "plain_text", "text": name, "emoji": True},
-            "value": str(self.id),
+            "value": str(self.id)
         }
 
     class Meta:

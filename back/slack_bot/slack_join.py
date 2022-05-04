@@ -84,7 +84,7 @@ class SlackJoin:
                 password=get_user_model().set_unusable_password(),
                 is_active=False,
                 timezone=self.get_timezone(),
-                start_day=datetime.now(),
+                start_day=datetime.now().today(),
             )
 
     def create_new_hire_or_ask_permission(self):
@@ -114,8 +114,8 @@ class SlackJoin:
             ),
             actions(
                 [
-                    button(_("Yeah!"), "primary", f"create:newhire:approve:{user.id}"),
-                    button(_("Nope"), "danger", f"create:newhire:deny:{user.id}"),
+                    button(_("Yeah!"), "primary", str(user.id), "create:newhire:approve"),
+                    button(_("Nope"), "danger", "-1", "create:newhire:deny"),
                 ]
             ),
         ]

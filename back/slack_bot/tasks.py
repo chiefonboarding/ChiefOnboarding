@@ -48,12 +48,14 @@ def link_slack_users(users=[]):
             # Adding introduction items
             blocks.extend(
                 [
-                    SlackIntro.format_block(intro, user)
+                    SlackIntro(intro, user).format_block()
                     for intro in user.introductions.all()
                 ]
             )
 
             res = Slack().send_message(blocks=blocks, channel=user.slack_user_id)
+            print(user.email)
+            print(res)
             user.slack_channel_id = res["channel"]
             user.save()
 
@@ -210,7 +212,8 @@ def introduce_new_people():
                             "type": "plain_text",
                             "text": _("Welcome this new hire!"),
                         },
-                        "value": "dialog:welcome:" + str(new_hire.id),
+                        "action_id": "dialog:welcome",
+                        "value": str(new_hire.id),
                     }
                 ],
             }

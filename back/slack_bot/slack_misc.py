@@ -4,12 +4,6 @@ from django.utils.translation import gettext as _
 from admin.sequences.models import Sequence
 
 
-class SlackNewHireApprove:
-    def __init__(self, to_do, user):
-        self.to_do = to_do
-        self.user = user
-
-
 def get_new_hire_approve_sequence_options():
     return {
         "type": "input",
@@ -71,7 +65,7 @@ def get_new_hire_first_message_buttons():
                         "type": "plain_text",
                         "text": _("To do items"),
                     },
-                    "value": "to_do",
+                    "action_id": "show_to_do_items",
                 },
                 {
                     "type": "button",
@@ -79,7 +73,7 @@ def get_new_hire_first_message_buttons():
                         "type": "plain_text",
                         "text": _("Resources"),
                     },
-                    "value": "resources",
+                    "action_id": "show_resource_items",
                 },
             ],
         },

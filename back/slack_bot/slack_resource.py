@@ -5,7 +5,6 @@ from django.utils.translation import gettext as _
 
 from admin.resources.models import Category
 
-from .slack_modal import SlackModal
 from .utils import actions, button, paragraph
 
 
@@ -16,13 +15,13 @@ class SlackResource:
         self.user = user
 
     def get_block(self):
-        first_chapter_id = self.resource.first_chapter_id
         if self.resource_user.is_course and not self.resource_user.completed_course:
-            value = f"dialog:course:{self.resource_user.id}:{first_chapter_id}"
             action_text = _("View course")
         else:
             action_text = _("View resource")
-            value = f"dialog:resource:{self.resource_user.id}:{first_chapter_id}"
+        action_id = f"dialog:resource:{self.resource_user.id}"
+
+        value = str(self.resource_user.id)
         return {
             "type": "section",
             "block_id": str(self.resource_user.id),
@@ -30,13 +29,13 @@ class SlackResource:
                 "type": "mrkdwn",
                 "text": f"*{self.user.personalize(self.resource.name)}*",
             },
-            "accessory": button(action_text, "primary", value),
+            "accessory": button(action_text, "primary", value, action_id),
         }
 
     def get_chapters_menu(self):
         return {
             "type": "actions",
-            "block_id": "change_page",
+            "block_id": "change_resource_page",
             "elements": [
                 {
                     "type": "static_select",
@@ -51,6 +50,7 @@ class SlackResource:
                             type=2
                         )
                     ],
+                    "action_id": "change_resource_page",
                 }
             ],
         }
@@ -75,20 +75,28 @@ class SlackResource:
             "current_chapter": chapter.id,
             "resource_user": self.resource_user.id,
         }
-        return SlackModal().create_view(
-            title=_("Resource"),
-            blocks=blocks,
-            callback="dialog:resource",
-            private_metadata=json.dumps(private_metadata),
-            submit_name=_("Next"),
-        )
+        modal = {
+            "type": "modal",
+            "callback_id": "dialog:resource",
+            "title": {
+                "type": "plain_text",
+                "text": _("Course") if self.resource_user.is_course else _("Resource")
+            },
+            "blocks": blocks,
+            "private_metadata": json.dumps(private_metadata),
+        }
+
+        if self.resource_user.resource.chapters.count() > 1:
+            modal["submit"] = {"type": "plain_text", "text": _("Next") }
+
+        return modal
 
 
 class SlackResourceCategory:
     def __init__(self, user):
         self.user = user
 
-    def category_button(self):
+    def category_buttons(self):
 
         categories = (
             Category.objects.annotate(resource_amount=Count("resource"))
@@ -98,21 +106,17 @@ class SlackResourceCategory:
             )
         )
 
-        blocks = []
         if len(categories) == 0 and not self.user.resources.filter(category__isnull=True).exists():
             return [paragraph(_("No resources available"))]
+
+        buttons = []
         if self.user.resources.filter(category__isnull=True).exists():
-            blocks.append(
-                actions(
-                    [button(_("No category"), "primary", "category:-1", "category:-1")]
-                )
-            )
+            buttons = [button(_("No category"), "primary", "-1", "category:-1")]
         for i in categories:
-            blocks.append(
-                actions(
-                    [button(
-                        i["name"], "primary", f"category:{i['id']}", f"category:{i['id']}"
-                    )]
+            buttons.append(
+                button(
+                    i.name, "primary", f"{i.id}", f"category:{i.id}"
                 )
             )
+        blocks = [actions(buttons)]
         return blocks

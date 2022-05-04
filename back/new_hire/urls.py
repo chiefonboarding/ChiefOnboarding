@@ -25,6 +25,7 @@ urlpatterns = [
         "course/<int:pk>/", views.CourseNextStepView.as_view(), name="course-next-step"
     ),
     path("todos/<int:pk>/", views.ToDoDetailView.as_view(), name="to_do"),
+    path("slackform/<int:pk>/", views.SlackToDoFormView.as_view(), name="slack_to_do"),
     path(
         "todos/<int:pk>/complete/",
         views.ToDoCompleteView.as_view(),

@@ -93,7 +93,7 @@ function initResource() {
         const newItem = {
           id: app.getRandomString(),
           type: contentType,
-          name: newItem,
+          name: newItemText,
           content: { blocks: [] },
           parent_chapter: null,
           children: []
@@ -102,7 +102,7 @@ function initResource() {
           newItem.children = [{
             id: app.getRandomString(),
             type: 0,
-            name: newItem,
+            name: newItemText,
             content: {},
             children: [],
             parent_chapter: -1
@@ -141,7 +141,7 @@ function initResource() {
         this.chapters = [{
           id: this.getRandomString(),
           type: 0,
-          name: newItem,
+          name: newItemText,
           content: { blocks: [] },
           parent_chapter: null,
           children: []
@@ -188,6 +188,12 @@ function initResource() {
       },
       addOption (items) {
         items.push({ 'text': '', 'id': this.getRandomString() })
+      },
+      removeQuestion (index) {
+        this.chapter.content.blocks.splice(index, 1)
+      },
+      removeOption (indexQuestion, indexOption) {
+        this.chapter.content.blocks[indexQuestion].items.splice(indexOption, 1)
       },
       getRandomString () {
         // from https://stackoverflow.com/a/6860916

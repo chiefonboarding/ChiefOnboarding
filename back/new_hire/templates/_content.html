@@ -115,7 +115,7 @@
       {% endif %}
     {% endif %}
 
-    {% if not content|next_still_form:forloop.counter0 and block.id not in object.completed_form_items %}
+    {% if not content|next_still_form:forloop.counter0 and block.id not in object.completed_form_items or forloop.last %}
       <button class="btn btn-primary mb-2" type="submit">{% translate "Submit" %}</button>
       </form>
     {% endif %}

@@ -303,6 +303,9 @@ class User(AbstractBaseUser):
     def get_local_time(self, date=None):
         from organization.models import Organization
 
+        if date is not None:
+            date = date.replace(tzinfo=None)
+
         local_tz = pytz.timezone("UTC")
         org = Organization.object.get()
         us_tz = (
@@ -372,7 +375,6 @@ class ToDoUserManager(models.Manager):
             super()
             .get_queryset()
             .filter(user=user, completed=False)
-            .exclude(to_do__due_on_day=0)
         )
 
     def overdue(self, user):
@@ -387,7 +389,7 @@ class ToDoUserManager(models.Manager):
         return (
             super()
             .get_queryset()
-            .filter(user=user, completed=False, to_do__due_on_day=user.workday())
+            .filter(user=user, completed=False, to_do__due_on_day=user.workday)
         )
 
 
@@ -412,7 +414,7 @@ class ToDoUser(models.Model):
         filled_items = [item["id"] for item in self.form]
 
         for block in self.to_do.content["blocks"]:
-            if block["type"] in ["input", "text", "check", "upload"]:
+            if "data" in block and "type" in block["data"] and block["data"]["type"] in ["input", "check", "upload"]:
                 item = next((x for x in filled_items if x == block["id"]), None)
                 if item is not None:
                     completed_blocks.append(item)
@@ -487,7 +489,7 @@ class ResourceUser(models.Model):
 
         # Skip over any folders
         # This is safe, as a folder can never be the last type
-        while chapters.get(order=self.step).type == 1:
+        while chapters.filter(order=self.step).exists() and chapters.get(order=self.step).type == 1:
             self.step += 1
             self.save()
 

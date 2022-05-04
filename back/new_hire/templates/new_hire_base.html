@@ -38,6 +38,7 @@
   </head>
   <body class="">
     <div class="wrapper">
+      {% block header %}
       <header class="navbar navbar-expand-md navbar-dark navbar-overlap d-print-none" style="background-color: {{ org.base_color }}">
         <div class="container-xl">
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
@@ -155,6 +156,7 @@
           </div>
         </div>
       </header>
+      {% endblock %}
       <div class="page-wrapper">
         <div class="container-xl">
           <!-- Page title -->

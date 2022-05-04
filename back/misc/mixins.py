@@ -42,6 +42,42 @@ class ContentMixin:
             raise Exception("Field does not exist")
 
         blocks = getattr(self, json_field)["blocks"]
+
+        # Is a course item with questions
+        if "data" not in blocks[0]:
+            slack_blocks = []
+            for idx, question in enumerate(blocks):
+                slack_options = []
+                for option in question["items"]:
+                    slack_options.append(
+                        {
+                            "text": {
+                                "type": "plain_text",
+                                "text": option["text"],
+                                "emoji": True
+                            },
+                            "value": option["id"]
+                        }
+                    )
+
+
+                slack_blocks.append({
+                    "type": "input",
+                    "block_id": f"item-{idx}",
+                    "element": {
+                        "type": "radio_buttons",
+                        "options": slack_options,
+                        "action_id": f"item-{idx}"
+                    },
+                    "label": {
+                        "type": "plain_text",
+                        "text": question["content"],
+                        "emoji": True
+                    }
+                })
+
+            return slack_blocks
+
         slack_blocks = []
         for item in blocks:
             if "text" in item["data"]:
@@ -87,7 +123,7 @@ class ContentMixin:
                     ol_list += "* " + user.personalize(list_item) + "\n"
                 slack_block["text"]["text"] = ol_list
             elif item["type"] == "delimiter":
-                return {"type": "divider"}
+                slack_block = {"type": "divider"}
             elif item["type"] == "file":
                 files_text = "<" + File.objects.get(id=item["data"]["file"]["id"]).get_url() + "|Watch video>"
                 slack_block["text"]["text"] = files_text
@@ -138,31 +174,32 @@ class ContentMixin:
                         "emoji": True,
                     },
                 }
-            if item["type"] == "input":
-                slack_block = {
-                    "type": "input",
-                    "block_id": str(item["id"]),
-                    "element": {"type": "plain_text_input", "action_id": str(item["id"])},
-                    "label": {
-                        "type": "plain_text",
-                        "text": item["data"]["text"],
-                        "emoji": True,
-                    },
-                }
-            if item["type"] == "text":
-                slack_block = {
-                    "type": "input",
-                    "block_id": str(item["id"]),
-                    "element": {
-                        "type": "plain_text_input",
-                        "multiline": True,
-                        "action_id": str(item["id"]),
-                    },
-                    "label": {
-                        "type": "plain_text",
-                        "text": item["data"]["text"],
-                        "emoji": True,
-                    },
-                }
+            if item["type"] == "form":
+                if item["data"]["type"] == "input":
+                    slack_block = {
+                        "type": "input",
+                        "block_id": str(item["id"]),
+                        "element": {"type": "plain_text_input", "action_id": str(item["id"])},
+                        "label": {
+                            "type": "plain_text",
+                            "text": item["data"]["text"],
+                            "emoji": True,
+                        },
+                    }
+                if item["data"]["type"] == "text":
+                    slack_block = {
+                        "type": "input",
+                        "block_id": str(item["id"]),
+                        "element": {
+                            "type": "plain_text_input",
+                            "multiline": True,
+                            "action_id": str(item["id"]),
+                        },
+                        "label": {
+                            "type": "plain_text",
+                            "text": item["data"]["text"],
+                            "emoji": True,
+                        },
+                    }
             slack_blocks.append(slack_block)
         return slack_blocks

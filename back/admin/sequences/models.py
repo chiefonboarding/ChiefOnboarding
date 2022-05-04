@@ -307,8 +307,13 @@ class PendingAdminTask(models.Model):
         choices=NOTIFICATION_CHOICES,
         default=0,
     )
-    slack_user = models.CharField(
-        verbose_name=_("Slack option"), max_length=12500, default="", blank=True
+    slack_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name=_("Slack user"),
+        on_delete=models.SET_NULL,
+        related_name="pending_admin_task_slack_user",
+        blank=True,
+        null=True,
     )
     email = models.EmailField(
         verbose_name=_("Email"), max_length=12500, default="", blank=True

@@ -17,6 +17,8 @@ def parse_to_json(content):
 
 @register.filter(name="full_download_url")
 def full_download_url(id):
+    if id == '':
+        return ""
     return File.objects.get(id=id).get_url()
 
 

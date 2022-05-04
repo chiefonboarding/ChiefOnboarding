@@ -5,7 +5,6 @@ from django.utils.translation import gettext as _
 
 from users.models import ToDoUser
 
-from .slack_modal import SlackModal
 from .utils import button, paragraph
 
 
@@ -28,13 +27,15 @@ class SlackToDo:
 
     def get_complete_button(self):
         if self.to_do.inline_slack_form:
-            value = "dialog:to_do:" + str(self.to_do.id)
+            value = str(self.to_do.id)
             action_text = _("View details")
         else:
-            value = "to_do:external:" + str(self.to_do.id)
+            value = str(self.to_do.id)
             action_text = _("Mark completed")
 
-        return button(action_text, "primary", value)
+        action_id = "dialog:to_do:" + str(self.to_do.id)
+
+        return button(action_text, "primary", value, action_id)
 
     def to_do_block(self):
         if self.to_do.inline_slack_form:
@@ -42,9 +43,8 @@ class SlackToDo:
         else:
             text = (
                 f"*{self.user.personalize(self.to_do.name)}* "
-                + f"<{settings.BASE_URL}/#/slackform?"
-                + f"token={self.user.unique_url}&id={str(self.to_do.id)}|"
-                + _("View details")
+                + f"<{settings.BASE_URL}/new_hire/slackform/{str(self.to_do.id)}/?"
+                + f"token={self.user.unique_url}|" + _("View details")
                 + f">\n{self.footer_text()}"
             )
         return {
@@ -54,7 +54,7 @@ class SlackToDo:
             "accessory": self.get_complete_button(),
         }
 
-    def create_modal_view(self, ids, text, ts):
+    def modal_view(self, ids, text, ts):
         blocks = self.to_do.to_slack_block(self.user)
         private_metadata = {
             # We are removing the first block as that's the message
@@ -65,20 +65,18 @@ class SlackToDo:
             "to_do_id": self.to_do.id,
             "message_ts": ts,
         }
-        return SlackModal().create_view(
-            title=self.to_do.name,
-            blocks=blocks,
-            callback="complete:to_do",
-            private_metadata=json.dumps(private_metadata),
-        )
-
-    def not_completed_message(self):
-        return paragraph(
-            _(
-                "Please complete the form first. Click on 'View details' to "
-                "complete it."
-            )
-        )
+        title = self.to_do.name
+        return {
+            "type": "modal",
+            "callback_id": "complete:to_do",
+            "title": {
+                "type": "plain_text",
+                "text": title if len(title) < 24 else title[:20] + "...",
+            },
+            "submit": {"type": "plain_text", "text": _("done")},
+            "blocks": blocks,
+            "private_metadata": json.dumps(private_metadata),
+        }
 
 
 class SlackToDoManager:

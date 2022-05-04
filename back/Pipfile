@@ -24,7 +24,7 @@ twilio = "*" # Sending text messages -- might remove (only used for one or two c
 whitenoise = "*" # Serving static files by Django
 django-q-sentry = "*" # Needed for django-q error logging
 croniter = "*" # Needed for django-q scheduled tasks
-slack-sdk = "*" # Slack calls
+slack-bolt = "*"
 
 [dev-packages]
 coverage = "*"

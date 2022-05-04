@@ -20,6 +20,7 @@ WHITELISTED_URLS = [
     "api/slack/bot",
     "api/slack/callback",
     "new_hire/preboarding/",
+    "new_hire/slackform/<int:pk>/"
 ]
 
 POST_URLS = [
