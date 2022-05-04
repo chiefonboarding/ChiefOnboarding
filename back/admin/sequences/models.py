@@ -374,7 +374,7 @@ class PendingAdminTask(models.Model):
         return self
 
 
-class AccountProvision(models.Model):
+class IntegrationConfig(models.Model):
     integration = models.ForeignKey(Integration, on_delete=models.CASCADE, null=True)
     additional_data = models.JSONField(default=dict)
 
@@ -386,7 +386,7 @@ class AccountProvision(models.Model):
 
     @property
     def get_icon_template(self):
-        return render_to_string("_account_provision.html")
+        return render_to_string("_integration_config.html")
 
     def duplicate(self):
         self.pk = None
@@ -424,7 +424,7 @@ class Condition(models.Model):
     introductions = models.ManyToManyField(Introduction)
     preboarding = models.ManyToManyField(Preboarding)
     appointments = models.ManyToManyField(Appointment)
-    account_provisions = models.ManyToManyField(AccountProvision)
+    integration_configs = models.ManyToManyField(IntegrationConfig)
 
     def remove_item(self, model_item):
         # model_item is a template item. I.e. a ToDo object.
@@ -472,7 +472,7 @@ class Condition(models.Model):
             if field.name not in [
                 "admin_tasks",
                 "external_messages",
-                "account_provisions",
+                "integration_configs",
             ]:
                 # Duplicate old ones
                 old_custom_templates = old_condition.__getattribute__(
@@ -520,6 +520,6 @@ class Condition(models.Model):
 
         # For the ones that aren't a quick copy/paste, follow back to their model and
         # execute them
-        for field in ["admin_tasks", "external_messages", "account_provisions"]:
+        for field in ["admin_tasks", "external_messages", "integration_configs"]:
             for item in self.__getattribute__(field).all():
                 item.execute(user)

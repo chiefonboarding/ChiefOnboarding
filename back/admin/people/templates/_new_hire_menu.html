@@ -39,7 +39,7 @@
           <li class="nav-item {% if 'access' in request.path %}active{% endif %}">
             <a class="nav-link" href="{% url 'people:new_hire_access' object.id %}" role="button" aria-expanded="false">
               <span class="nav-link-icon d-md-none d-lg-inline-block">
-                {% include '_account_provision.html' %}
+                {% include '_integration_config.html' %}
               </span>
               <span class="nav-link-title">
                 {% translate "Access" %}

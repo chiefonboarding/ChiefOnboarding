@@ -20,7 +20,7 @@ class IntegrationManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset()
 
-    def account_provision_options(self):
+    def sequence_integration_options(self):
         return self.get_queryset().filter(integration=10)
 
 

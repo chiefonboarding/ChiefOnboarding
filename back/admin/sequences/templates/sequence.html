@@ -141,7 +141,7 @@ function getFormData($form){
 $("#form-add-item").submit(function (event) {
     event.preventDefault();
     if (type === 'integration') {
-      htmx.ajax('POST', `/sequences/update_account_provision/${type}/${item}/${condition}/${provisionCreated}/`, {'values': getFormData($(this)), 'target': '#form'})
+      htmx.ajax('POST', `/sequences/update_integration_config/${type}/${item}/${condition}/${provisionCreated}/`, {'values': getFormData($(this)), 'target': '#form'})
     } else {
       htmx.ajax('POST', `/sequences/update_item/${type}/${item}/${condition}/`, {'values': getFormData($(this)), 'target': '#form'})
     }

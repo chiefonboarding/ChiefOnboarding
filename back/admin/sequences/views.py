@@ -30,7 +30,7 @@ from .forms import (
     PendingTextMessageForm,
 )
 from .models import (
-    AccountProvision,
+    IntegrationConfig,
     Condition,
     ExternalMessage,
     PendingAdminTask,
@@ -113,7 +113,7 @@ class SequenceView(LoginRequiredMixin, AdminPermMixin, DetailView):
             Prefetch(
                 "preboarding", queryset=Preboarding.objects.all().defer("content")
             ),
-            Prefetch("account_provisions", queryset=AccountProvision.objects.all()),
+            Prefetch("integration_configs", queryset=IntegrationConfig.objects.all()),
         ).order_by("id")
         return context
 
@@ -233,7 +233,7 @@ class SequenceTimelineDetailView(LoginRequiredMixin, AdminPermMixin, DetailView)
             Prefetch(
                 "preboarding", queryset=Preboarding.objects.all().defer("content")
             ),
-            Prefetch("account_provisions", queryset=AccountProvision.objects.all()),
+            Prefetch("integration_configs", queryset=IntegrationConfig.objects.all()),
         ).order_by("id")
         context["todos"] = ToDo.templates.all()
         return context
@@ -260,8 +260,8 @@ class SequenceFormView(LoginRequiredMixin, AdminPermMixin, View):
             templates_model = get_sequence_templates_model(template_type)
             template_item = get_object_or_404(templates_model, id=template_pk)
 
-        # Get a custom form (depending on what provision) when it's a account provision
-        # like Slack, Asana, Google...
+        # Get a custom form (depending on what provision) when it's an integration
+        # config like Slack, Asana, Google...
         if form == IntegrationConfigForm:
             form = template_item.config_form()
             return render(
@@ -278,7 +278,7 @@ class SequenceFormView(LoginRequiredMixin, AdminPermMixin, View):
 class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
     """
     Update or create a specific line item (template or not) in a condition item (excl.
-    Account provision)
+    Integration config)
 
     :params str template_type: i.e. todo, resource, introduction
     :params int template_pk: the pk of the used template (0 if none)
@@ -343,18 +343,18 @@ class SequenceFormUpdateView(LoginRequiredMixin, AdminPermMixin, View):
         return HttpResponse(headers={"HX-Trigger": "reload-sequence"})
 
 
-class SequenceFormUpdateAccountProvisionView(LoginRequiredMixin, AdminPermMixin, View):
+class SequenceFormUpdateIntegrationConfigView(LoginRequiredMixin, AdminPermMixin, View):
     """
-    This will update or create an account provision object
+    This will update or create an integration config object
 
-    :params str template_type: always `accountprovision` and is not used
-    :params int template_pk: either of `Integration` or `AccountProvision` depending if
+    :params str template_type: always `integrationconfig` and is not used
+    :params int template_pk: either of `Integration` or `IntegrationConfig` depending if
     object exists (see exists param)
     :params int condition: the pk of the condition (can never be 0)
     :params int exists: either 1 or 0 - basically boolean
 
     HTMX view, this will only get called when the frontend requests to update or create
-    a account provision item.
+    a integration config item.
     """
 
     def post(
@@ -369,7 +369,7 @@ class SequenceFormUpdateAccountProvisionView(LoginRequiredMixin, AdminPermMixin,
             existing_item = None
         else:
             # If this provision item exist, then get it, so we can update it
-            existing_item = get_object_or_404(AccountProvision, id=template_pk)
+            existing_item = get_object_or_404(IntegrationConfig, id=template_pk)
             form_class = existing_item.access_token.config_form
 
         item_form = form_class(request.POST)
@@ -380,11 +380,11 @@ class SequenceFormUpdateAccountProvisionView(LoginRequiredMixin, AdminPermMixin,
 
         # Either create a provision item or update it
         if existing_item is None:
-            account_provision = AccountProvision.objects.create(
+            integration_config = IntegrationConfig.objects.create(
                 integration=integration,
                 additional_data=item_form.cleaned_data,
             )
-            condition.add_item(account_provision)
+            condition.add_item(integration_config)
         else:
             existing_item.additional_data = item_form.cleaned_data
             existing_item.save()
@@ -449,7 +449,7 @@ class SequenceConditionItemView(LoginRequiredMixin, AdminPermMixin, View):
                 Prefetch(
                     "preboarding", queryset=Preboarding.objects.all().defer("content")
                 ),
-                Prefetch("account_provisions", queryset=AccountProvision.objects.all()),
+                Prefetch("integration_configs", queryset=IntegrationConfig.objects.all()),
             )
             .first()
         )
@@ -511,7 +511,7 @@ class SequenceDefaultTemplatesView(LoginRequiredMixin, AdminPermMixin, ListView)
     def get_queryset(self):
         template_type = self.request.GET.get("type", "")
         if template_type == "integration":
-            return Integration.objects.account_provision_options()
+            return Integration.objects.sequence_integration_options()
 
         if get_templates_model(template_type) is None:
             # if type does not exist, then return empty queryset

@@ -512,7 +512,7 @@ class NewHireAccessView(LoginRequiredMixin, AdminPermMixin, DetailView):
         context["title"] = self.object.full_name
         context["subtitle"] = _("new hire")
         context["loading"] = True
-        context["integrations"] = Integration.objects.account_provision_options()
+        context["integrations"] = Integration.objects.integration_config_options()
         return context
 
 

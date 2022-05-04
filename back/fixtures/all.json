@@ -910,7 +910,7 @@
         "introductions": [],
         "preboarding": [],
         "appointments": [],
-        "account_provisions": []
+        "integration_configs": []
     }
 },
 {
@@ -933,7 +933,7 @@
         "introductions": [],
         "preboarding": [],
         "appointments": [],
-        "account_provisions": []
+        "integration_configs": []
     }
 },
 {
@@ -957,7 +957,7 @@
         "introductions": [],
         "preboarding": [],
         "appointments": [],
-        "account_provisions": []
+        "integration_configs": []
     }
 },
 {
@@ -983,7 +983,7 @@
         "introductions": [],
         "preboarding": [],
         "appointments": [],
-        "account_provisions": []
+        "integration_configs": []
     }
 },
 {
@@ -1005,7 +1005,7 @@
         "introductions": [],
         "preboarding": [],
         "appointments": [],
-        "account_provisions": []
+        "integration_configs": []
     }
 },
 {
@@ -1029,7 +1029,7 @@
         "introductions": [],
         "preboarding": [],
         "appointments": [],
-        "account_provisions": []
+        "integration_configs": []
     }
 },
 {
@@ -1054,7 +1054,7 @@
         "introductions": [],
         "preboarding": [],
         "appointments": [],
-        "account_provisions": []
+        "integration_configs": []
     }
 },
 {
@@ -1077,7 +1077,7 @@
         "introductions": [],
         "preboarding": [],
         "appointments": [],
-        "account_provisions": []
+        "integration_configs": []
     }
 },
 {
@@ -1101,7 +1101,7 @@
         "introductions": [],
         "preboarding": [],
         "appointments": [],
-        "account_provisions": []
+        "integration_configs": []
     }
 },
 {
@@ -1127,7 +1127,7 @@
         "introductions": [],
         "preboarding": [],
         "appointments": [],
-        "account_provisions": []
+        "integration_configs": []
     }
 },
 {
@@ -1149,7 +1149,7 @@
         "introductions": [],
         "preboarding": [],
         "appointments": [],
-        "account_provisions": []
+        "integration_configs": []
     }
 },
 {
@@ -1173,7 +1173,7 @@
         "introductions": [],
         "preboarding": [],
         "appointments": [],
-        "account_provisions": []
+        "integration_configs": []
     }
 },
 {
@@ -1198,7 +1198,7 @@
             4
         ],
         "appointments": [],
-        "account_provisions": []
+        "integration_configs": []
     }
 }
 ]

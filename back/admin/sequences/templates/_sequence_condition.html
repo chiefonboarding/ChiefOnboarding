@@ -79,8 +79,8 @@
     {% for item in condition.badges.all %}
       {% include '_condition_line_item.html' with type='badge' %}
     {% endfor %}
-    {% for item in condition.account_provisions.all %}
-      {% include '_condition_line_item.html' with type='accountprovision' provision_created=1 %}
+    {% for item in condition.integration_configs.all %}
+      {% include '_condition_line_item.html' with type='integrationconfig' provision_created=1 %}
     {% endfor %}
 
     {# FOR ADMINS #}

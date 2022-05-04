@@ -49,9 +49,9 @@ urlpatterns = [
         name="update-forms",
     ),
     path(
-        "update_account_provision/<slug:template_type>/<int:template_pk>/<int:condition>/<int:exists>/",  # noqa: E501
-        views.SequenceFormUpdateAccountProvisionView.as_view(),
-        name="update-account-provision",
+        "update_integration_config/<slug:template_type>/<int:template_pk>/<int:condition>/<int:exists>/",  # noqa: E501
+        views.SequenceFormUpdateIntegrationConfigView.as_view(),
+        name="update-integration-config",
     ),
     path(
         "templates/", views.SequenceDefaultTemplatesView.as_view(), name="template_list"

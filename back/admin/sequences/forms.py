@@ -244,6 +244,3 @@ class PendingEmailMessageForm(PendingSlackMessageForm):
             "send_to",
         ]
 
-
-class AccountProvisionForm(forms.Form):
-    pass

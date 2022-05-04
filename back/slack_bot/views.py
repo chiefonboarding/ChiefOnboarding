@@ -4,10 +4,7 @@ import urllib.parse
 
 from django.contrib.auth import get_user_model
 from django.conf import settings
-from django.http import HttpResponse, JsonResponse
-from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
-from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from rest_framework.response import Response
 
@@ -16,7 +13,6 @@ from admin.integrations.models import Integration
 from admin.resources.models import Category, Chapter, CourseAnswer
 from admin.sequences.models import Sequence
 
-from organization.models import Organization
 from users.models import NewHireWelcomeMessage, ResourceUser, ToDoUser
 from admin.resources.models import Resource
 from admin.to_do.models import ToDo
