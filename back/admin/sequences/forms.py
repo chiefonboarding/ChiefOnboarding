@@ -135,10 +135,9 @@ class ConditionUpdateForm(ConditionCreateForm):
 
 
 class PendingAdminTaskForm(forms.ModelForm):
-    assigned_to = forms.ModelChoiceField(queryset=User.admins.all())
+    assigned_to = forms.ModelChoiceField(queryset=User.managers_and_admins.all())
     slack_user = forms.ModelChoiceField(
         queryset=User.objects.exclude(slack_user_id=""),
-        to_field_name="slack_user_id",
         required=False,
     )
     date = forms.DateField(

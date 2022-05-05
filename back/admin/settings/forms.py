@@ -40,6 +40,7 @@ class OrganizationGeneralForm(forms.ModelForm):
                     UploadField("logo", extra_context={"file": self.instance.logo}),
                     Field("base_color"),
                     Field("accent_color"),
+                    Field("custom_email_template"),
                     css_class="col-6",
                 ),
                 css_class="row",
@@ -70,6 +71,7 @@ class OrganizationGeneralForm(forms.ModelForm):
             "new_hire_email_reminders",
             "new_hire_email_overdue_reminders",
             "credentials_login",
+            "custom_email_template"
         ]
 
     def clean(self):

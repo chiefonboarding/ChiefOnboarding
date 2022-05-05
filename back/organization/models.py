@@ -127,8 +127,8 @@ class Organization(models.Model):
     timed_triggers_last_check = models.DateTimeField(auto_now_add=True)
     custom_email_template = models.TextField(
         default="",
-        verbose_name=_("This is the default email template"),
-        help_text=_("Leave blank to use the default one. See documentation if you prefer your own."),
+        verbose_name=_("Base email template"),
+        help_text=_("Leave blank to use the default one. See documentation if you want to use your own."),
     )
 
     object = ObjectManager()
