@@ -18,6 +18,7 @@ from admin.sequences.factories import (
     PendingSlackMessageFactory,
     PendingTextMessageFactory,
     SequenceFactory,
+    IntegrationConfigFactory
 )
 from admin.to_do.factories import ToDoFactory
 from organization.factories import (
@@ -83,3 +84,4 @@ register(PendingTextMessageFactory)
 register(BadgeFactory)
 register(CustomIntegrationFactory)
 register(IntegrationFactory)
+register(IntegrationConfigFactory)

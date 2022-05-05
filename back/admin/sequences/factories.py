@@ -3,6 +3,7 @@ from factory.fuzzy import FuzzyInteger, FuzzyText
 
 from admin.to_do.factories import ToDoFactory
 from users.factories import AdminFactory, EmployeeFactory
+from admin.integrations.factories import CustomIntegrationFactory
 
 from .models import (
     Condition,
@@ -11,6 +12,7 @@ from .models import (
     PendingSlackMessage,
     PendingTextMessage,
     Sequence,
+    IntegrationConfig
 )
 
 
@@ -81,3 +83,10 @@ class SequenceFactory(factory.django.DjangoModelFactory):
         if not extracted:
             # Always create the non-condition condition
             ConditionFactory(condition_type=3, sequence=obj)
+
+
+class IntegrationConfigFactory(factory.django.DjangoModelFactory):
+    integration = factory.SubFactory(CustomIntegrationFactory)
+
+    class Meta:
+        model = IntegrationConfig
