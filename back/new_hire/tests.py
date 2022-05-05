@@ -183,7 +183,7 @@ def test_complete_to_do_item_with_form_view(
                     "data": {
                         "content": "Please answer this",
                         "type": "input",
-                    }
+                    },
                 },
                 {
                     "id": "2",
@@ -191,7 +191,7 @@ def test_complete_to_do_item_with_form_view(
                     "data": {
                         "content": "Please answer this too",
                         "type": "input",
-                    }
+                    },
                 },
             ],
         },
