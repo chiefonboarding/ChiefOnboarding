@@ -45,7 +45,11 @@ class ToDo(BaseItem):
         valid = True
         blocks = self.content["blocks"]
         for i in blocks:
-            if "data" in i and "type" in i["data"] and i["data"]["type"] in ["check", "upload"]:
+            if (
+                "data" in i
+                and "type" in i["data"]
+                and i["data"]["type"] in ["check", "upload"]
+            ):
                 valid = False
                 break
         return valid

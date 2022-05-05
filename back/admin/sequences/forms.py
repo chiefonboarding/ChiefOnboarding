@@ -242,4 +242,3 @@ class PendingEmailMessageForm(PendingSlackMessageForm):
             "person_type",
             "send_to",
         ]
-

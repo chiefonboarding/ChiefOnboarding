@@ -52,9 +52,7 @@ class AppointmentForm(TagModelForm):
         date = cleaned_data.get("date")
         time = cleaned_data.get("time")
         if not fixed_date and not on_day:
-            self.add_error(
-                "on_day", _("This field is required")
-            )
+            self.add_error("on_day", _("This field is required"))
         if fixed_date:
             if not date:
                 self.add_error("date", _("This field is required"))

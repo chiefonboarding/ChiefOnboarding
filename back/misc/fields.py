@@ -1,6 +1,5 @@
 from django.db.models import JSONField
 
-
 from .models import File
 
 
@@ -22,4 +21,3 @@ class ContentJSONField(JSONField):
                     id=block["data"]["file"]["id"]
                 ).get_url()
         return value
-

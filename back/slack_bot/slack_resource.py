@@ -57,7 +57,10 @@ class SlackResource:
 
     def modal_view(self, chapter_id):
         blocks = []
-        if not self.resource_user.is_course and self.resource_user.resource.chapters.count() > 1:
+        if (
+            not self.resource_user.is_course
+            and self.resource_user.resource.chapters.count() > 1
+        ):
             # Create menu with chapters
             blocks.append(
                 SlackResource(self.resource_user, self.user).get_chapters_menu()
@@ -80,14 +83,14 @@ class SlackResource:
             "callback_id": "dialog:resource",
             "title": {
                 "type": "plain_text",
-                "text": _("Course") if self.resource_user.is_course else _("Resource")
+                "text": _("Course") if self.resource_user.is_course else _("Resource"),
             },
             "blocks": blocks,
             "private_metadata": json.dumps(private_metadata),
         }
 
         if self.resource_user.resource.chapters.count() > 1:
-            modal["submit"] = {"type": "plain_text", "text": _("Next") }
+            modal["submit"] = {"type": "plain_text", "text": _("Next")}
 
         return modal
 
@@ -101,22 +104,19 @@ class SlackResourceCategory:
         categories = (
             Category.objects.annotate(resource_amount=Count("resource"))
             .exclude(resource_amount=0)
-            .filter(
-                resource__id__in=self.user.resources.values_list("id", flat=True)
-            )
+            .filter(resource__id__in=self.user.resources.values_list("id", flat=True))
         )
 
-        if len(categories) == 0 and not self.user.resources.filter(category__isnull=True).exists():
+        if (
+            len(categories) == 0
+            and not self.user.resources.filter(category__isnull=True).exists()
+        ):
             return [paragraph(_("No resources available"))]
 
         buttons = []
         if self.user.resources.filter(category__isnull=True).exists():
             buttons = [button(_("No category"), "primary", "-1", "category:-1")]
         for i in categories:
-            buttons.append(
-                button(
-                    i.name, "primary", f"{i.id}", f"category:{i.id}"
-                )
-            )
+            buttons.append(button(i.name, "primary", f"{i.id}", f"category:{i.id}"))
         blocks = [actions(buttons)]
         return blocks

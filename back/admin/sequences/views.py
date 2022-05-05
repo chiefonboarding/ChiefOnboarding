@@ -30,9 +30,9 @@ from .forms import (
     PendingTextMessageForm,
 )
 from .models import (
-    IntegrationConfig,
     Condition,
     ExternalMessage,
+    IntegrationConfig,
     PendingAdminTask,
     Sequence,
 )
@@ -449,7 +449,9 @@ class SequenceConditionItemView(LoginRequiredMixin, AdminPermMixin, View):
                 Prefetch(
                     "preboarding", queryset=Preboarding.objects.all().defer("content")
                 ),
-                Prefetch("integration_configs", queryset=IntegrationConfig.objects.all()),
+                Prefetch(
+                    "integration_configs", queryset=IntegrationConfig.objects.all()
+                ),
             )
             .first()
         )

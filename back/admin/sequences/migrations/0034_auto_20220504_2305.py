@@ -6,22 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('integrations', '0015_rename_accesstoken_integration'),
-        ('sequences', '0033_remove_pendingadmintask_slack_user_old'),
+        ("integrations", "0015_rename_accesstoken_integration"),
+        ("sequences", "0033_remove_pendingadmintask_slack_user_old"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='AccountProvision',
-            new_name='IntegrationConfig',
+            old_name="AccountProvision",
+            new_name="IntegrationConfig",
         ),
         migrations.RemoveField(
-            model_name='condition',
-            name='account_provisions',
+            model_name="condition",
+            name="account_provisions",
         ),
         migrations.AddField(
-            model_name='condition',
-            name='integration_configs',
-            field=models.ManyToManyField(to='sequences.IntegrationConfig'),
+            model_name="condition",
+            name="integration_configs",
+            field=models.ManyToManyField(to="sequences.IntegrationConfig"),
         ),
     ]

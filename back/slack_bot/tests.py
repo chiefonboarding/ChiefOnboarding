@@ -1,7 +1,4 @@
-from unittest.mock import Mock, patch
 import pytest
-
-from django.urls import reverse
 
 
 @pytest.fixture
@@ -17,13 +14,10 @@ def incomming_message_payload():
             "text": "show me to do items",
             "ts": "1355514523.000005",
             "event_ts": "133417523.000005",
-            "channel_type": "im"
+            "channel_type": "im",
         },
         "type": "event_callback",
-        "authed_teams": [
-            "T061349R6"
-        ],
+        "authed_teams": ["T061349R6"],
         "event_id": "Ev0P342K21",
-        "event_time": 13553437523
+        "event_time": 13553437523,
     }
-

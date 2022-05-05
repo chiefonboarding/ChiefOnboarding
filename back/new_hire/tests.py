@@ -179,13 +179,19 @@ def test_complete_to_do_item_with_form_view(
             "blocks": [
                 {
                     "id": "1",
-                    "type": "input",
-                    "content": "Please answer this",
+                    "type": "form",
+                    "data": {
+                        "content": "Please answer this",
+                        "type": "input",
+                    }
                 },
                 {
                     "id": "2",
-                    "type": "input",
-                    "content": "Please answer this too",
+                    "type": "form",
+                    "data": {
+                        "content": "Please answer this too",
+                        "type": "input",
+                    }
                 },
             ],
         },
@@ -213,15 +219,21 @@ def test_complete_to_do_item_with_form_view(
     assert to_do_user.form == [
         {
             "id": "1",
-            "type": "input",
+            "data": {
+                "type": "input",
+                "content": "Please answer this",
+            },
+            "type": "form",
             "answer": "I have answered this",
-            "content": "Please answer this",
         },
         {
             "id": "2",
-            "type": "input",
+            "data": {
+                "type": "input",
+                "content": "Please answer this too",
+            },
+            "type": "form",
             "answer": "this too",
-            "content": "Please answer this too",
         },
     ]
     # send weird response
@@ -229,8 +241,7 @@ def test_complete_to_do_item_with_form_view(
         url, data={"334": "I have answered this", "2": "this too"}, follow=True
     )
     assert (
-        "This form could not be processed - invalid items"
-        in response.content.decode()
+        "This form could not be processed - invalid items" in response.content.decode()
     )
 
 

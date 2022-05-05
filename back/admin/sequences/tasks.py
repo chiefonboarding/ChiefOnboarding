@@ -1,6 +1,7 @@
 from datetime import timedelta
-from django.utils import timezone
+
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from django_q.tasks import async_task
 
 from admin.sequences.models import Condition
@@ -33,12 +34,15 @@ def timed_triggers():
     # Round downwards (based on 5 minutes) - check if we might not be on 5/0 anymore.
     # A time of 16 minutes becomes 15
     off_by_minutes = current_datetime.minute % 5
-    current_datetime = current_datetime.replace(minute=current_datetime.minute - off_by_minutes, second=0, microsecond=0)
+    current_datetime = current_datetime.replace(
+        minute=current_datetime.minute - off_by_minutes, second=0, microsecond=0
+    )
 
     # Same for last_updated (though, this should always be rounded on 5 or 0 already)
     off_by_minutes = last_updated.minute % 5
-    last_updated = last_updated.replace(minute=last_updated.minute - off_by_minutes, second=0, microsecond=0)
-
+    last_updated = last_updated.replace(
+        minute=last_updated.minute - off_by_minutes, second=0, microsecond=0
+    )
 
     # Generally this loop will only go through once. In the case of an outage, it will
     # walk through all the 5 minutes that it needs to catch up on based on the last
@@ -69,4 +73,3 @@ def timed_triggers():
             # time.
             for i in conditions:
                 async_task(process_condition, i.id, user.id)
-

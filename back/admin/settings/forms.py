@@ -71,7 +71,7 @@ class OrganizationGeneralForm(forms.ModelForm):
             "new_hire_email_reminders",
             "new_hire_email_overdue_reminders",
             "credentials_login",
-            "custom_email_template"
+            "custom_email_template",
         ]
 
     def clean(self):

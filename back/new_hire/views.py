@@ -16,6 +16,7 @@ from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
 
 from admin.resources.models import Chapter, CourseAnswer, Resource
+from admin.to_do.models import ToDo
 from organization.models import Notification
 from users.mixins import LoginRequiredMixin
 from users.models import (
@@ -25,7 +26,6 @@ from users.models import (
     ToDoUser,
     User,
 )
-from admin.to_do.models import ToDo
 
 from .forms import QuestionsForm
 
@@ -100,7 +100,7 @@ class ToDoCompleteView(LoginRequiredMixin, View):
 
 class ToDoFormSubmitView(LoginRequiredMixin, View):
     """
-    HTMX: Search for colleagues that fit search criteria.
+    HTMX: Submit form that user filled in
     """
 
     def post(self, request, pk, *args, **kwargs):
@@ -169,7 +169,7 @@ class SlackToDoFormView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        to_do = get_object_or_404(ToDo, pk=self.kwargs['pk'])
+        to_do = get_object_or_404(ToDo, pk=self.kwargs["pk"])
         to_do_user = get_object_or_404(ToDoUser, to_do=to_do, user=self.request.user)
         if len(to_do_user.form) > 0:
             context["form_already_filled"] = True

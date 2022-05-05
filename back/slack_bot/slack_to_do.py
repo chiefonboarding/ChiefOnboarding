@@ -44,7 +44,8 @@ class SlackToDo:
             text = (
                 f"*{self.user.personalize(self.to_do.name)}* "
                 + f"<{settings.BASE_URL}/new_hire/slackform/{str(self.to_do.id)}/?"
-                + f"token={self.user.unique_url}|" + _("View details")
+                + f"token={self.user.unique_url}|"
+                + _("View details")
                 + f">\n{self.footer_text()}"
             )
         return {

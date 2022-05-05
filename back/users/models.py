@@ -371,11 +371,7 @@ class User(AbstractBaseUser):
 
 class ToDoUserManager(models.Manager):
     def all_to_do(self, user):
-        return (
-            super()
-            .get_queryset()
-            .filter(user=user, completed=False)
-        )
+        return super().get_queryset().filter(user=user, completed=False)
 
     def overdue(self, user):
         return (
@@ -414,7 +410,11 @@ class ToDoUser(models.Model):
         filled_items = [item["id"] for item in self.form]
 
         for block in self.to_do.content["blocks"]:
-            if "data" in block and "type" in block["data"] and block["data"]["type"] in ["input", "check", "upload"]:
+            if (
+                "data" in block
+                and "type" in block["data"]
+                and block["data"]["type"] in ["input", "check", "upload"]
+            ):
                 item = next((x for x in filled_items if x == block["id"]), None)
                 if item is not None:
                     completed_blocks.append(item)
@@ -489,7 +489,10 @@ class ResourceUser(models.Model):
 
         # Skip over any folders
         # This is safe, as a folder can never be the last type
-        while chapters.filter(order=self.step).exists() and chapters.get(order=self.step).type == 1:
+        while (
+            chapters.filter(order=self.step).exists()
+            and chapters.get(order=self.step).type == 1
+        ):
             self.step += 1
             self.save()
 

@@ -18,7 +18,7 @@ def test_create_resource(client, django_user_model):
         "name": "Resource item 1",
         "tags": ["hi", "whoop"],
         "on_day": 1,
-        "chapters": '[{ "id": "tesk243", "name": "Continuing Education", "content": { "time": 0, "blocks": [{ "data": { "text": "One of our core values is “Be better today" }, "type": "paragraph" }]}, "type": 0, "children": [], "order": 0 }]',
+        "chapters": '[{ "id": "tesk243", "name": "Continuing Education", "content": { "time": 0, "blocks": [{ "data": { "text": "One of our core values is “Be better today" }, "type": "paragraph" }]}, "type": 0, "children": [], "order": 0 }]',  # noqa: E501
     }
 
     response = client.post(url, data, follow=True)
@@ -45,7 +45,11 @@ def test_update_resource(client, django_user_model, resource_factory):
     data = {
         "name": "Resource item 2",
         "tags": ["hi", "whoop"],
-        "chapters": '[{ "id": ' + str(first_chapter_id) +', "name": "new chapter", "content": { "time": 0, "blocks": [] }, "type": 0, "children": [] }, { "id": ' + str(second_chapter_id) + ', "name": "Some Questions", "content": { "time": 0, "blocks": [] }, "type": 2, "children": [] }]',
+        "chapters": '[{ "id": '
+        + str(first_chapter_id)
+        + ', "name": "new chapter", "content": { "time": 0, "blocks": [] }, "type": 0, "children": [] }, { "id": '  # noqa: E501
+        + str(second_chapter_id)
+        + ', "name": "Some Questions", "content": { "time": 0, "blocks": [] }, "type": 2, "children": [] }]',  # noqa: E501
         "on_day": 1,
     }
 

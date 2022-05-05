@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.core.mail import send_mail
-from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
 
 from organization.models import Organization
@@ -52,9 +51,7 @@ def send_sequence_update_message(new_hire, message):
             text += "- " + new_hire.personalize(i.name) + "<br />"
         blocks.append({"type": "block", "text": text})
     if len(blocks) > 0:
-        html_message = org.create_email(
-            {"org": org, "content": blocks}
-        )
+        html_message = org.create_email({"org": org, "content": blocks})
         message = ""
         send_mail(
             subject,

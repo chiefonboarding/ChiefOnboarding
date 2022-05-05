@@ -2,7 +2,17 @@ import pytest
 
 
 @pytest.mark.django_db
-def test_icon(introduction_factory, appointment_factory, badge_factory, to_do_factory, integration_config_factory, pending_admin_task_factory, resource_factory, preboarding_factory, admin_task_factory):
+def test_icon(
+    introduction_factory,
+    appointment_factory,
+    badge_factory,
+    to_do_factory,
+    integration_config_factory,
+    pending_admin_task_factory,
+    resource_factory,
+    preboarding_factory,
+    admin_task_factory,
+):
     intro = introduction_factory()
 
     appointment = appointment_factory()

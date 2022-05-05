@@ -6,13 +6,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sequences', '0030_auto_20220422_2244'),
+        ("sequences", "0030_auto_20220422_2244"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='pendingadmintask',
-            old_name='slack_user',
-            new_name='slack_user_old',
+            model_name="pendingadmintask",
+            old_name="slack_user",
+            new_name="slack_user_old",
         ),
     ]

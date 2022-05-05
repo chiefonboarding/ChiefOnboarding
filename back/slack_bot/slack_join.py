@@ -114,7 +114,9 @@ class SlackJoin:
             ),
             actions(
                 [
-                    button(_("Yeah!"), "primary", str(user.id), "create:newhire:approve"),
+                    button(
+                        _("Yeah!"), "primary", str(user.id), "create:newhire:approve"
+                    ),
                     button(_("Nope"), "danger", "-1", "create:newhire:deny"),
                 ]
             ),

@@ -1,46 +1,45 @@
-import re
 import json
-import urllib.parse
+import logging
+import re
+from sentry_sdk import capture_exception
 
-from django.contrib.auth import get_user_model
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.utils.translation import gettext as _
-from django.views.generic import View
-from rest_framework.response import Response
+from slack_bolt import App as SlackBoltApp
 
 from admin.admin_tasks.models import AdminTask
 from admin.integrations.models import Integration
-from admin.resources.models import Category, Chapter, CourseAnswer
+from admin.resources.models import Category, Chapter, CourseAnswer, Resource
 from admin.sequences.models import Sequence
-
-from users.models import NewHireWelcomeMessage, ResourceUser, ToDoUser
-from admin.resources.models import Resource
 from admin.to_do.models import ToDo
+from users.models import NewHireWelcomeMessage, ResourceUser, ToDoUser
 
 from .slack_join import SlackJoin
 from .slack_misc import get_new_hire_approve_sequence_options, welcome_new_hire
-from .slack_resource import SlackResource
-from .slack_to_do import SlackToDo, SlackToDoManager
-from .utils import Slack, paragraph
-
-from slack_bolt import App as SlackBoltApp
-import logging
-logger = logging.getLogger(__name__)
-from sentry_sdk import capture_exception
-
-
 from .slack_resource import SlackResource, SlackResourceCategory
+from .slack_to_do import SlackToDo, SlackToDoManager
+from .utils import paragraph
+
+logger = logging.getLogger(__name__)
+
 
 if settings.SLACK_USE_SOCKET:
     from slack_bolt.adapter.socket_mode import SocketModeHandler
 
-    app = SlackBoltApp(token=settings.SLACK_BOT_TOKEN, raise_error_for_unhandled_request=False, logger=logger)
+    app = SlackBoltApp(
+        token=settings.SLACK_BOT_TOKEN,
+        raise_error_for_unhandled_request=False,
+        logger=logger,
+    )
 
     slack_handler = SocketModeHandler(app, settings.SLACK_APP_TOKEN)
     slack_handler.connect()
 else:
     integration = Integration.objects.filter(integration=0).first()
-    app = SlackBoltApp(token=integration.token, signing_secret=integration.signing_secret)
+    app = SlackBoltApp(
+        token=integration.token, signing_secret=integration.signing_secret
+    )
 
 
 def exception_handler(func):
@@ -49,11 +48,14 @@ def exception_handler(func):
             func(*args, **kwargs)
         except Exception as e:
             capture_exception(e)
+
     return inner_function
 
 
 def no_bot_messages(message) -> bool:
-    return message.get("subtype") != "bot_message" and ("message" not in message or "bot_id" not in message.get("message"))
+    return message.get("subtype") != "bot_message" and (
+        "message" not in message or "bot_id" not in message.get("message")
+    )
 
 
 @exception_handler
@@ -91,11 +93,11 @@ def get_user(slack_user_id, say):
         return users.first()
     else:
         say(
-                _(
-                    "You don't seem to be setup yet. Please ask your supervisor for"
-                    " access."
-                )
+            _(
+                "You don't seem to be setup yet. Please ask your supervisor for"
+                " access."
             )
+        )
 
 
 @exception_handler
@@ -104,7 +106,10 @@ def show_all_resources_categories(message, say):
     user = get_user(message["user"], say)
     if user is None:
         return
-    blocks = [paragraph(_("Select a category:")), *SlackResourceCategory(user=user).category_buttons()]
+    blocks = [
+        paragraph(_("Select a category:")),
+        *SlackResourceCategory(user=user).category_buttons(),
+    ]
     say(blocks=blocks, text=_("Select a category:"))
 
 
@@ -148,9 +153,9 @@ def open_todo_dialog(ack, payload, body, say, client):
         # Item must be completed on website instead of slack
         if not len(to_do_user.form):
             say(
-                    _(
-                        "Please complete the form first. Click on 'View details' to "
-                        "complete it."
+                _(
+                    "Please complete the form first. Click on 'View details' to "
+                    "complete it."
                 )
             )
         else:
@@ -158,7 +163,9 @@ def open_todo_dialog(ack, payload, body, say, client):
 
             # Get updated blocks (without completed one, but with text)
             blocks = SlackToDoManager(to_do_user.user).get_blocks(
-                [block["block_id"] for block in body["message"]["blocks"]][1:], to_do_user.to_do.id, body["message"]["blocks"]["text"]["text"]
+                [block["block_id"] for block in body["message"]["blocks"]][1:],
+                to_do_user.to_do.id,
+                body["message"]["blocks"]["text"]["text"],
             )
 
             # Remove completed item from message
@@ -169,17 +176,12 @@ def open_todo_dialog(ack, payload, body, say, client):
             )
 
     else:
-        view = SlackToDo(
-            to_do_user.to_do, user
-        ).modal_view(
+        view = SlackToDo(to_do_user.to_do, user).modal_view(
             ids=[block["block_id"] for block in body["message"]["blocks"]],
             text=body["message"]["text"],
             ts=body["container"]["message_ts"],
         )
-        client.views_open(
-            trigger_id=body["trigger_id"],
-            view=view
-        )
+        client.views_open(trigger_id=body["trigger_id"], view=view)
 
 
 @exception_handler
@@ -190,7 +192,10 @@ def catch_all_message_search_resources(message, say):
         return
 
     items = Resource.objects.search(user, message["text"])
-    results = [SlackResource(task.resource_new_hire.all()[0], user).get_block() for task in items]
+    results = [
+        SlackResource(task.resource_new_hire.all()[0], user).get_block()
+        for task in items
+    ]
 
     text = (
         _("Here is what I found: ")
@@ -220,16 +225,13 @@ def open_modal_for_selecting_seq_item(ack, body, payload, say, client):
         "submit": {"type": "plain_text", "text": _("Create new hire")},
         "blocks": [get_new_hire_approve_sequence_options()],
         "private_metadata": json.dumps(
-             {
-                 "user_id": payload["value"],
-                 "ts": body["container"]["message_ts"],
-             }
-         ),
+            {
+                "user_id": payload["value"],
+                "ts": body["container"]["message_ts"],
+            }
+        ),
     }
-    client.views_open(
-        trigger_id=body["trigger_id"],
-        view=view
-    )
+    client.views_open(trigger_id=body["trigger_id"], view=view)
 
 
 @exception_handler
@@ -246,7 +248,12 @@ def add_sequences_to_new_hire(ack, say, body, client, view):
     new_hire.role = 0
     new_hire.save()
 
-    seq_ids = [item["value"] for item in body["view"]["state"]["values"]["seq"]["answers"]["selected_option"]["value"]]
+    seq_ids = [
+        item["value"]
+        for item in body["view"]["state"]["values"]["seq"]["answers"][
+            "selected_option"
+        ]["value"]
+    ]
     seqs = Sequence.objects.filter(id__in=seq_ids)
     new_hire.add_sequences(seqs)
 
@@ -254,10 +261,9 @@ def add_sequences_to_new_hire(ack, say, body, client, view):
         channel=body["container"]["channel_id"],
         ts=private_metadata["ts"],
         text="<@{admin_id}> approved the request for onboarding <@{new_hire_id}>",
-        blocks=[]
+        blocks=[],
     )
     ack()
-
 
 
 @exception_handler
@@ -267,10 +273,11 @@ def deny_new_hire(ack, body, client):
         channel=body["container"]["channel_id"],
         ts=body["container"]["message_ts"],
         text="<@{admin_id}> denied the request for onboarding <@{new_hire_id}>",
-        blocks=[]
+        blocks=[],
     )
 
     ack()
+
 
 @exception_handler
 @app.action("show_resource_items")
@@ -280,7 +287,10 @@ def show_resource_items(ack, body, say):
     if user is None:
         return
 
-    blocks = [paragraph(_("Select a category:")), *SlackResourceCategory(user=user).category_buttons()]
+    blocks = [
+        paragraph(_("Select a category:")),
+        *SlackResourceCategory(user=user).category_buttons(),
+    ]
     say(blocks=blocks, text=_("Select a category:"))
 
 
@@ -298,14 +308,16 @@ def show_resources_items_in_category(ack, payload, body, say):
             user=user, resource__category__isnull=True
         )
     else:
-        category = Category.objects.get(
-            id=int(payload["value"])
-        )
-        resources = ResourceUser.objects.filter(
-            user=user, resource__category=category
-        )
+        category = Category.objects.get(id=int(payload["value"]))
+        resources = ResourceUser.objects.filter(user=user, resource__category=category)
 
-    blocks = [paragraph(_("Here are your options:")), *[SlackResource(resource_user, user).get_block() for resource_user in resources]]
+    blocks = [
+        paragraph(_("Here are your options:")),
+        *[
+            SlackResource(resource_user, user).get_block()
+            for resource_user in resources
+        ],
+    ]
 
     say(blocks=blocks, text=_("Here are your options:"))
 
@@ -325,14 +337,12 @@ def open_resource_dialog(ack, payload, body, say, client):
     resource_user.step = 0
     resource_user.save()
 
-    view = SlackResource(
-        resource_user=resource_user, user=user
-    ).modal_view(resource_user.resource.first_chapter_id)
-
-    client.views_open(
-        trigger_id=body["trigger_id"],
-        view=view
+    view = SlackResource(resource_user=resource_user, user=user).modal_view(
+        resource_user.resource.first_chapter_id
     )
+
+    client.views_open(trigger_id=body["trigger_id"], view=view)
+
 
 @exception_handler
 @app.action("change_resource_page")
@@ -348,14 +358,18 @@ def change_resource_page(ack, payload, body, say, client):
     chapter = Chapter.objects.get(id=payload["selected_option"]["value"])
 
     client.views_update(
-        view_id = body["view"]["id"],
-        hash = body["view"]["hash"],
-        view = {
+        view_id=body["view"]["id"],
+        hash=body["view"]["hash"],
+        view={
             "type": "modal",
             "callback_id": body["view"]["callback_id"],
             "title": body["view"]["title"],
-            "blocks": [menu, paragraph(f"*{chapter.name}*"), *chapter.to_slack_block(user)]
-        }
+            "blocks": [
+                menu,
+                paragraph(f"*{chapter.name}*"),
+                *chapter.to_slack_block(user),
+            ],
+        },
     )
 
 
@@ -450,12 +464,12 @@ def next_page_resource(ack, say, body, client, view):
         chapter = resource_user.resource.chapters.get(order=resource_user.step)
         data = {}
         for idx, item in enumerate(chapter.content["blocks"]):
-            selected_value = body["view"]["state"]["values"][f"item-{idx}"][f"item-{idx}"]["selected_option"]["value"]
+            selected_value = body["view"]["state"]["values"][f"item-{idx}"][
+                f"item-{idx}"
+            ]["selected_option"]["value"]
             data[f"item-{idx}"] = selected_value
 
-        course_answers = CourseAnswer.objects.create(
-            chapter=chapter, answers=data
-        )
+        course_answers = CourseAnswer.objects.create(chapter=chapter, answers=data)
         resource_user.answers.add(course_answers)
 
     next_chapter = resource_user.add_step()
@@ -469,17 +483,19 @@ def next_page_resource(ack, say, body, client, view):
         "callback_id": body["view"]["callback_id"],
         "title": body["view"]["title"],
         "private_metadata": view["private_metadata"],
-        "blocks": [paragraph(f"*{next_chapter.name}*"), *next_chapter.to_slack_block(user)]
+        "blocks": [
+            paragraph(f"*{next_chapter.name}*"),
+            *next_chapter.to_slack_block(user),
+        ],
     }
 
     if resource_user.is_course:
         if resource_user.step + 1 == resource_user.amount_chapters_in_course:
-            view["submit"] = {"type": "plain_text", "text": _("Complete") }
+            view["submit"] = {"type": "plain_text", "text": _("Complete")}
         else:
-            view["submit"] = {"type": "plain_text", "text": _("Next") }
+            view["submit"] = {"type": "plain_text", "text": _("Next")}
 
-
-    ack({"response_action": "update", "view": view })
+    ack({"response_action": "update", "view": view})
 
 
 @exception_handler
@@ -489,9 +505,7 @@ def complete_admin_task(ack, say, body, payload):
     if user is None:
         return
 
-    admin_task = AdminTask.objects.get(
-        id=payload["action_id"]
-    )
+    admin_task = AdminTask.objects.get(id=payload["action_id"])
     admin_task.completed = True
     admin_task.save()
 
@@ -514,16 +528,9 @@ def show_welcome_dialog(ack, say, body, payload, client):
         },
         "submit": {"type": "plain_text", "text": _("Submit")},
         "blocks": [welcome_new_hire],
-        "private_metadata": json.dumps(
-             {
-                 "user_id": payload["value"]
-             }
-         ),
+        "private_metadata": json.dumps({"user_id": payload["value"]}),
     }
-    client.views_open(
-        trigger_id=body["trigger_id"],
-        view=view
-    )
+    client.views_open(trigger_id=body["trigger_id"], view=view)
 
     ack()
 
@@ -549,7 +556,7 @@ def save_welcome_message(ack, say, body, payload, client, view):
     client.chat_postEphemeral(
         channel=payload["channel"],
         user=user,
-        text=_('Message has been saved! Your message: "') + message_to_new_hire + '"'
+        text=_('Message has been saved! Your message: "') + message_to_new_hire + '"',
     )
 
     ack()

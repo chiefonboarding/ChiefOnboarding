@@ -205,15 +205,15 @@ CORS_ALLOWED_ORIGINS = [
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
-        "rest_framework.authentication.TokenAuthentication"
+        "rest_framework.authentication.TokenAuthentication",
     ],
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
     ],
     "DEFAULT_THROTTLE_RATES": {"anon": "100/day"},
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ]
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
 }
 
 
@@ -325,22 +325,20 @@ REST_FRAMEWORK_ACTIVE = True
 
 # Error tracking
 if env("SENTRY_URL", default="") != "":
+    import logging
+
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.integrations.logging import LoggingIntegration
-    import logging
 
     sentry_logging = LoggingIntegration(
-        level=logging.INFO,        # Capture info and above as breadcrumbs
-        event_level=logging.ERROR  # Send errors as events
+        level=logging.INFO,  # Capture info and above as breadcrumbs
+        event_level=logging.ERROR,  # Send errors as events
     )
 
     sentry_sdk.init(
         dsn=env("SENTRY_URL", default=""),
-        integrations=[
-            DjangoIntegration(),
-            sentry_logging
-        ],
+        integrations=[DjangoIntegration(), sentry_logging],
         # If you wish to associate users to errors (assuming you are using
         # django.contrib.auth) you may enable sending PII data.
         send_default_pii=False,

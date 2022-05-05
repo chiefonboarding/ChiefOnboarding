@@ -48,7 +48,9 @@ def test_delete_integration(client, django_user_model, custom_integration_factor
     url = reverse("integrations:delete", args=[integration.id])
     response = client.get(url, follow=True)
 
-    assert "Are you sure you want to remove this integration?" in response.content.decode()
+    assert (
+        "Are you sure you want to remove this integration?" in response.content.decode()
+    )
 
     response = client.delete(url, follow=True)
 
@@ -57,7 +59,9 @@ def test_delete_integration(client, django_user_model, custom_integration_factor
 
 
 @pytest.mark.django_db
-def test_integration_extra_args_form(client, django_user_model, custom_integration_factory):
+def test_integration_extra_args_form(
+    client, django_user_model, custom_integration_factory
+):
     client.force_login(django_user_model.objects.create(role=1))
     integration = custom_integration_factory()
 
@@ -69,8 +73,9 @@ def test_integration_extra_args_form(client, django_user_model, custom_integrati
     assert 'name="ORG"' in response.content.decode()
     assert 'name="TOKEN"' in response.content.decode()
 
-    response = client.post(url, {"ORG": "123", "TOKEN": "SECRET_TOKEN", "NOTWORKING": "False"}, follow=True)
+    response = client.post(
+        url, {"ORG": "123", "TOKEN": "SECRET_TOKEN", "NOTWORKING": "False"}, follow=True
+    )
 
     integration = Integration.objects.first()
     assert integration.extra_args == {"ORG": "123", "TOKEN": "SECRET_TOKEN"}
-

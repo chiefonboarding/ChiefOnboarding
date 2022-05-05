@@ -110,7 +110,10 @@ class AdminTasksUpdateView(
         # send email/bot message to newly assigned person
         initial_assigned_to = AdminTask.objects.get(id=form.instance.id).assigned_to
         form.save()
-        if form.cleaned_data["assigned_to"] != initial_assigned_to and form.cleaned_data["assigned_to"] != self.request.user:
+        if (
+            form.cleaned_data["assigned_to"] != initial_assigned_to
+            and form.cleaned_data["assigned_to"] != self.request.user
+        ):
             form.instance.send_notification_new_assigned()
         return super().form_valid(form)
 

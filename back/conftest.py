@@ -6,6 +6,7 @@ from pytest_factoryboy import register
 from admin.admin_tasks.factories import AdminTaskFactory
 from admin.appointments.factories import AppointmentFactory
 from admin.badges.factories import BadgeFactory
+from admin.integrations.factories import CustomIntegrationFactory, IntegrationFactory
 from admin.introductions.factories import IntroductionFactory
 from admin.notes.factories import NoteFactory
 from admin.preboarding.factories import PreboardingFactory
@@ -13,12 +14,12 @@ from admin.resources.factories import ResourceFactory
 from admin.sequences.factories import (
     ConditionTimedFactory,
     ConditionToDoFactory,
+    IntegrationConfigFactory,
     PendingAdminTaskFactory,
     PendingEmailMessageFactory,
     PendingSlackMessageFactory,
     PendingTextMessageFactory,
     SequenceFactory,
-    IntegrationConfigFactory
 )
 from admin.to_do.factories import ToDoFactory
 from organization.factories import (
@@ -26,7 +27,6 @@ from organization.factories import (
     OrganizationFactory,
     WelcomeMessageFactory,
 )
-from admin.integrations.factories import IntegrationFactory, CustomIntegrationFactory
 from users.factories import (
     AdminFactory,
     DepartmentFactory,

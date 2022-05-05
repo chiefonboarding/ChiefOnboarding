@@ -23,6 +23,11 @@ from users.factories import (
 
 
 @pytest.mark.django_db
+def test_create_new_hire(client, new_hire_factory, django_user_model):
+    client.force_login(django_user_model.objects.create(role=1))
+
+
+@pytest.mark.django_db
 def test_new_hire_list_view(client, new_hire_factory, django_user_model):
     client.force_login(django_user_model.objects.create(role=1))
 
@@ -1187,4 +1192,3 @@ def test_employee_toggle_resources(
 
     assert "Add" in response.content.decode()
     assert not employee1.resources.filter(id=resource1.id).exists()
-

@@ -2,9 +2,10 @@ import datetime
 from datetime import timedelta
 
 import pytest
-from django.utils import timezone
 from django.urls import reverse
+from django.utils import timezone
 
+from admin.admin_tasks.models import AdminTask, AdminTaskComment
 from admin.appointments.factories import AppointmentFactory
 from admin.appointments.forms import AppointmentForm
 from admin.badges.factories import BadgeFactory
@@ -27,9 +28,12 @@ from admin.sequences.forms import (
     PendingSlackMessageForm,
     PendingTextMessageForm,
 )
+from admin.sequences.models import (
+    Condition,
+    ExternalMessage,
+    Sequence,
+)
 from admin.sequences.tasks import timed_triggers
-from admin.admin_tasks.models import AdminTask, AdminTaskComment
-from admin.sequences.models import Condition, Sequence, ExternalMessage, PendingAdminTask
 from admin.to_do.factories import ToDoFactory
 from admin.to_do.forms import ToDoForm
 from admin.to_do.models import ToDo
@@ -544,7 +548,19 @@ def test_sequence_default_templates_not_valid(client, admin_factory):
 
 
 @pytest.mark.django_db
-def test_sequence_trigger_task(sequence_factory, new_hire_factory, condition_timed_factory, to_do_factory, resource_factory, introduction_factory, appointment_factory, preboarding_factory, badge_factory, pending_admin_task_factory, pending_text_message_factory):
+def test_sequence_trigger_task(
+    sequence_factory,
+    new_hire_factory,
+    condition_timed_factory,
+    to_do_factory,
+    resource_factory,
+    introduction_factory,
+    appointment_factory,
+    preboarding_factory,
+    badge_factory,
+    pending_admin_task_factory,
+    pending_text_message_factory,
+):
     org = Organization.object.get()
     # Set it back 5 minutes, so it will actually run through the triggers
     org.timed_triggers_last_check -= timedelta(minutes=5)
@@ -568,7 +584,9 @@ def test_sequence_trigger_task(sequence_factory, new_hire_factory, condition_tim
 
     # Round current time to 0 or 5 to make it valid entry
     current_time = timezone.now()
-    current_time = current_time.replace(minute=current_time.minute - (current_time.minute % 5), second=0, microsecond=0)
+    current_time = current_time.replace(
+        minute=current_time.minute - (current_time.minute % 5), second=0, microsecond=0
+    )
 
     condition = condition_timed_factory(days=1, time=current_time)
     condition.add_item(to_do2)
@@ -598,6 +616,7 @@ def test_sequence_trigger_task(sequence_factory, new_hire_factory, condition_tim
     assert new_hire1.appointments.all().count() == 1
     assert new_hire1.introductions.all().count() == 1
     assert new_hire1.badges.all().count() == 1
+
 
 # MODEL TESTS
 
@@ -715,7 +734,6 @@ def test_sequence_assign_to_user_merge_to_do_condition(
     assert new_hire.conditions.all().count() == 2
 
 
-
 @pytest.mark.django_db
 def test_sequence_assign_to_user_merge_time_condition(
     sequence_factory,
@@ -776,7 +794,7 @@ def test_sequence_add_unconditional_item(
     to_do_factory,
     resource_factory,
     preboarding_factory,
-    introduction_factory
+    introduction_factory,
 ):
     new_hire = new_hire_factory()
     sequence = sequence_factory()
@@ -820,7 +838,7 @@ def test_pending_email_message_item(pending_email_message_factory):
     assert not pending_email_message.is_slack_message
     assert not pending_email_message.is_text_message
 
-    assert pending_email_message.notification_add_type == 'sent_email_message'
+    assert pending_email_message.notification_add_type == "sent_email_message"
     assert "mail" in pending_email_message.get_icon_template
 
 
@@ -831,7 +849,7 @@ def test_pending_text_message_item(pending_text_message_factory):
     assert not pending_text_message.is_slack_message
     assert pending_text_message.is_text_message
 
-    assert pending_text_message.notification_add_type == 'sent_text_message'
+    assert pending_text_message.notification_add_type == "sent_text_message"
     assert "message" in pending_text_message.get_icon_template
 
 
@@ -842,7 +860,7 @@ def test_pending_slack_message_item(pending_slack_message_factory):
     assert pending_slack_message.is_slack_message
     assert not pending_slack_message.is_text_message
 
-    assert pending_slack_message.notification_add_type == 'sent_slack_message'
+    assert pending_slack_message.notification_add_type == "sent_slack_message"
     assert "slack" in pending_slack_message.get_icon_template
 
 
@@ -900,11 +918,11 @@ def test_get_user_function(new_hire_factory, employee_factory, factory):
 
 
 @pytest.mark.django_db
-def test_execute_pending_admin_task(pending_admin_task_factory, new_hire_factory, employee_factory):
+def test_execute_pending_admin_task(
+    pending_admin_task_factory, new_hire_factory, employee_factory
+):
     manager = employee_factory()
-    new_hire = new_hire_factory(
-        manager=manager
-    )
+    new_hire = new_hire_factory(manager=manager)
     pending_admin_task = pending_admin_task_factory(
         comment="test",
         person_type=1,
@@ -916,7 +934,3 @@ def test_execute_pending_admin_task(pending_admin_task_factory, new_hire_factory
     assert AdminTaskComment.objects.all().count() == 1
     assert admin_task.assigned_to == manager
     assert admin_task.new_hire == new_hire
-
-
-
-

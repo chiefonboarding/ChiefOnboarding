@@ -1,19 +1,18 @@
 from datetime import datetime
 
 import pytz
-from django.template.loader import render_to_string
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
-from django.template import Context, Template
 from django.core.cache import cache
 from django.db import models
+from django.template import Context, Template
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
-from misc.models import File
 from misc.mixins import ContentMixin
-
+from misc.models import File
 
 
 class ObjectManager(models.Manager):
@@ -128,7 +127,10 @@ class Organization(models.Model):
     custom_email_template = models.TextField(
         default="",
         verbose_name=_("Base email template"),
-        help_text=_("Leave blank to use the default one. See documentation if you want to use your own."),
+        help_text=_(
+            "Leave blank to use the default one. "
+            "See documentation if you want to use your own."
+        ),
     )
 
     object = ObjectManager()
@@ -235,7 +237,11 @@ class BaseItem(ContentMixin, models.Model):
     def form_items(self):
         blocks = []
         for block in self.content["blocks"]:
-            if "data" in block and "type" in block["data"] and block["data"]["type"] in ["input", "text", "check", "upload"]:
+            if (
+                "data" in block
+                and "type" in block["data"]
+                and block["data"]["type"] in ["input", "text", "check", "upload"]
+            ):
                 blocks.append(block)
         return blocks
 

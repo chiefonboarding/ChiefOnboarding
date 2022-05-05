@@ -1,10 +1,8 @@
-from misc.urlparser import URLParser
-
 from misc.models import File
+from misc.urlparser import URLParser
 
 
 class ContentMixin:
-
     def _prep_inner_text_for_slack(self, text):
         replacements = (
             ("<p>", ""),
@@ -37,7 +35,7 @@ class ContentMixin:
                 )
         return text
 
-    def to_slack_block(self, user, json_field='content', **kwargs):
+    def to_slack_block(self, user, json_field="content", **kwargs):
         if not hasattr(self, json_field):
             raise Exception("Field does not exist")
 
@@ -54,27 +52,28 @@ class ContentMixin:
                             "text": {
                                 "type": "plain_text",
                                 "text": option["text"],
-                                "emoji": True
+                                "emoji": True,
                             },
-                            "value": option["id"]
+                            "value": option["id"],
                         }
                     )
 
-
-                slack_blocks.append({
-                    "type": "input",
-                    "block_id": f"item-{idx}",
-                    "element": {
-                        "type": "radio_buttons",
-                        "options": slack_options,
-                        "action_id": f"item-{idx}"
-                    },
-                    "label": {
-                        "type": "plain_text",
-                        "text": question["content"],
-                        "emoji": True
+                slack_blocks.append(
+                    {
+                        "type": "input",
+                        "block_id": f"item-{idx}",
+                        "element": {
+                            "type": "radio_buttons",
+                            "options": slack_options,
+                            "action_id": f"item-{idx}",
+                        },
+                        "label": {
+                            "type": "plain_text",
+                            "text": question["content"],
+                            "emoji": True,
+                        },
                     }
-                })
+                )
 
             return slack_blocks
 
@@ -108,7 +107,9 @@ class ContentMixin:
                     "elements": {
                         "text": {
                             "type": "mrkdwn",
-                            "text": item["data"]["text"] + "\n" + item["data"]["caption"],
+                            "text": item["data"]["text"]
+                            + "\n"
+                            + item["data"]["caption"],
                         }
                     },
                 }
@@ -125,7 +126,11 @@ class ContentMixin:
             elif item["type"] == "delimiter":
                 slack_block = {"type": "divider"}
             elif item["type"] == "file":
-                files_text = "<" + File.objects.get(id=item["data"]["file"]["id"]).get_url() + "|Watch video>"
+                files_text = (
+                    "<"
+                    + File.objects.get(id=item["data"]["file"]["id"]).get_url()
+                    + "|Watch video>"
+                )
                 slack_block["text"]["text"] = files_text
             elif item["type"] == "video":
                 files_text = (
@@ -139,7 +144,9 @@ class ContentMixin:
             elif item["type"] == "image":
                 slack_block = {
                     "type": "image",
-                    "image_url": File.objects.get(id=item["data"]["file"]["id"]).get_url(),
+                    "image_url": File.objects.get(
+                        id=item["data"]["file"]["id"]
+                    ).get_url(),
                     "alt_text": "image",
                 }
             elif item["type"] == "question":
@@ -179,7 +186,10 @@ class ContentMixin:
                     slack_block = {
                         "type": "input",
                         "block_id": str(item["id"]),
-                        "element": {"type": "plain_text_input", "action_id": str(item["id"])},
+                        "element": {
+                            "type": "plain_text_input",
+                            "action_id": str(item["id"]),
+                        },
                         "label": {
                             "type": "plain_text",
                             "text": item["data"]["text"],

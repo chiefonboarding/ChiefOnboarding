@@ -1,18 +1,18 @@
 import factory
 from factory.fuzzy import FuzzyInteger, FuzzyText
 
+from admin.integrations.factories import CustomIntegrationFactory
 from admin.to_do.factories import ToDoFactory
 from users.factories import AdminFactory, EmployeeFactory
-from admin.integrations.factories import CustomIntegrationFactory
 
 from .models import (
     Condition,
+    IntegrationConfig,
     PendingAdminTask,
     PendingEmailMessage,
     PendingSlackMessage,
     PendingTextMessage,
     Sequence,
-    IntegrationConfig
 )
 
 

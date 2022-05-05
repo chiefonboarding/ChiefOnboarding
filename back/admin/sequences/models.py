@@ -14,7 +14,6 @@ from admin.preboarding.models import Preboarding
 from admin.resources.models import Resource
 from admin.to_do.models import ToDo
 from misc.fields import ContentJSONField
-from misc.serializers import FileSerializer
 from misc.mixins import ContentMixin
 from organization.models import Notification
 from slack_bot.utils import Slack
@@ -332,7 +331,6 @@ class PendingAdminTask(models.Model):
             return new_hire.buddy
         else:
             return self.assigned_to
-
 
     def execute(self, user):
         from admin.admin_tasks.models import AdminTask, AdminTaskComment
