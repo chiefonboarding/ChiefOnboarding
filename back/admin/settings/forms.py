@@ -22,6 +22,7 @@ class OrganizationGeneralForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.fields["logo"].required = False
+        self.fields["custom_email_template"].required = False
 
         layout = Layout(
             Div(
