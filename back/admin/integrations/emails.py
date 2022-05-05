@@ -32,7 +32,7 @@ def google_error_email(user):
             ),
         }
     ]
-    html_message = render_to_string("email/base.html", {"org": org, "content": content})
+    html_message = org.create_email({"org": org, "content": content})
     send_mail(
         _("Oh no, we couldn't create a Google account for you new hire!"),
         "",
@@ -56,7 +56,7 @@ def slack_error_email(user):
             ),
         }
     ]
-    html_message = render_to_string("email/base.html", {"org": org, "content": content})
+    html_message = org.create_email({"org": org, "content": content})
     send_mail(
         _("Oh no, we couldn't create a Slack account for you new hire!"),
         "",

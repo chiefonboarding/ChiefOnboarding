@@ -1,8 +1,10 @@
 from datetime import datetime
 
 import pytz
+from django.template.loader import render_to_string
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
+from django.template import Context, Template
 from django.core.cache import cache
 from django.db import models
 from django.urls import reverse
@@ -123,6 +125,11 @@ class Organization(models.Model):
     )
     # Field to determine if there has been an outage and tasks need to be caught up
     timed_triggers_last_check = models.DateTimeField(auto_now_add=True)
+    custom_email_template = models.TextField(
+        default="",
+        verbose_name=_("This is the default email template"),
+        help_text=_("Leave blank to use the default one. See documentation if you prefer your own."),
+    )
 
     object = ObjectManager()
     objects = models.Manager()
@@ -144,6 +151,13 @@ class Organization(models.Model):
         us_tz = pytz.timezone(self.org.timezone)
         local = local_tz.localize(datetime.now())
         return us_tz.normalize(local.astimezone(us_tz))
+
+    def create_email(self, context):
+        if self.custom_email_template == "":
+            return render_to_string("email/base.html", context)
+        else:
+            t = Template(self.custom_email_template)
+            return t.render(Context(context))
 
     def get_logo_url(self):
         if self.logo is None:
