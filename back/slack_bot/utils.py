@@ -100,6 +100,5 @@ def button(text, style, value, action_id=""):
     }
 
 
-
 def has_slack_account(user_id):
     return get_user_model().objects.filter(slack_user_id=user_id).exists()
