@@ -54,8 +54,6 @@ def link_slack_users(users=[]):
             )
 
             res = Slack().send_message(blocks=blocks, channel=user.slack_user_id)
-            print(user.email)
-            print(res)
             user.slack_channel_id = res["channel"]
             user.save()
 

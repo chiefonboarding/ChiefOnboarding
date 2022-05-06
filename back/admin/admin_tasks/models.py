@@ -74,7 +74,7 @@ class AdminTask(models.Model):
                     )
                     % {
                         "name_assigned_to": self.assigned_to.full_name,
-                        "task_name": self.title,
+                        "task_name": self.name,
                         "comment": self.comment.last().content,
                     }
                 ),
@@ -89,7 +89,7 @@ class AdminTask(models.Model):
                     ]
                 ),
             ]
-            Slack().send_message(blocks, self.slack_user)
+            Slack().send_message(blocks, self.slack_user.slack_user_id)
 
     def send_notification_new_assigned(self):
         if self.assigned_to is None:
@@ -100,31 +100,31 @@ class AdminTask(models.Model):
             comment = ""
             if self.comment.all().exists():
                 comment = _("_%(comment)s\n by %(name)s_") % {
-                    "comment": self.comment.last(),
+                    "comment": self.comment.last().content,
                     "name": self.comment.last().comment_by.full_name,
                 }
 
             text = _(
                 "You have just been assigned to *%(title)s* for *%(name)s\n%(comment)s"
             ) % {
-                "title": self.title,
+                "title": self.name,
                 "name": self.new_hire.full_name,
                 "comment": comment,
             }
             blocks = [
                 paragraph(text),
-                paragraph(comment),
                 actions(
                     [
                         button(
                             text=_("I have completed this"),
                             style="primary",
-                            value="admin_task:complete:" + self.pk,
+                            value=str(self.pk),
+                            action_id="admin_task:complete",
                         )
                     ]
                 ),
             ]
-            Slack().send_message(blocks, self.slack_user)
+            Slack().send_message(blocks, self.assigned_to.slack_user_id)
         else:
             send_email_new_assigned_admin(self)
 
@@ -154,8 +154,8 @@ class AdminTaskComment(models.Model):
                         )
                         % {
                             "name": self.comment_by.full_name,
-                            "title": self.admin_task.title,
-                            "comment": self.comment,
+                            "task_title": self.admin_task.name,
+                            "comment": self.content,
                         }
                     ),
                     actions(
@@ -163,11 +163,12 @@ class AdminTaskComment(models.Model):
                             button(
                                 text=_("I have completed this"),
                                 style="primary",
-                                value="admin_task:complete:" + self.pk,
+                                value=str(self.pk),
+                                action_id="admin_task:complete"
                             )
                         ]
                     ),
                 ]
-                Slack().send_message(blocks, self.slack_user)
+                Slack().send_message(blocks, self.admin_task.assigned_to.slack_user_id)
             else:
                 send_email_new_comment(self)

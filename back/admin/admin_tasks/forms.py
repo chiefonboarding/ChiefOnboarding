@@ -30,9 +30,7 @@ class AdminTaskCreateForm(forms.ModelForm):
     comment = forms.CharField(max_length=12500)
     new_hire = forms.ModelChoiceField(queryset=User.new_hires.all())
     assigned_to = forms.ModelChoiceField(queryset=User.admins.all())
-    slack_user = forms.ModelChoiceField(
-        queryset=User.objects.exclude(slack_user_id=""), to_field_name="slack_user_id"
-    )
+    slack_user = forms.ModelChoiceField(queryset=User.managers_and_admins.with_slack())
     date = forms.DateField(
         required=False,
         widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),

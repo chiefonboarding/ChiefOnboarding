@@ -89,6 +89,9 @@ class ManagerManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(role__in=[1, 2])
 
+    def with_slack(self):
+        return self.get_queryset().exclude(slack_user_id="")
+
 
 class NewHireManager(models.Manager):
     def get_queryset(self):

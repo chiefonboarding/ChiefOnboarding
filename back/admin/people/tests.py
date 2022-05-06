@@ -1,8 +1,12 @@
 from unittest.mock import Mock, patch
+from datetime import timedelta
 
 import pytest
+from django.core.cache import cache
 from django.contrib import auth
+from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.utils import timezone
 
 from admin.appointments.factories import AppointmentFactory
 from admin.introductions.factories import IntroductionFactory
@@ -23,8 +27,180 @@ from users.factories import (
 
 
 @pytest.mark.django_db
-def test_create_new_hire(client, new_hire_factory, django_user_model):
+def test_create_new_hire(client, django_user_model):
     client.force_login(django_user_model.objects.create(role=1))
+
+    url = reverse("people:new_hire_add")
+    response = client.get(url)
+
+    assert "Add new hire" in response.content.decode()
+
+    # Test required fields, try to create new hire without any data
+    response = client.post(url, follow=True)
+
+    assert response.context["form"].errors["first_name"] == ["This field is required."]
+    assert response.context["form"].errors["last_name"] == ["This field is required."]
+    assert response.context["form"].errors["email"] == ["This field is required."]
+    assert response.context["form"].errors["timezone"] == ["This field is required."]
+    assert response.context["form"].errors["language"] == ["This field is required."]
+
+    # Create a normal new hire
+    response = client.post(url, {"first_name": "Stan", "last_name": "Do", "email": "stan@chiefonboarding.com", "language": "en", "timezone": "UTC", "start_day": "2022-05-06"}, follow=True)
+
+    assert "New hire has been created" in response.content.decode()
+
+    assert get_user_model().objects.all().count() == 2
+    assert get_user_model().objects.first().role == 1
+    assert get_user_model().objects.last().role == 0
+
+    url = reverse("people:new_hire", args=[get_user_model().objects.last().id])
+    response = client.get(url)
+
+    assert "A new hire has been added" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_create_new_hire_with_sequences(client, django_user_model, sequence_factory, condition_timed_factory, condition_to_do_factory, to_do_factory):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    to_do1 = to_do_factory()
+    to_do2 = to_do_factory()
+    sequence = sequence_factory()
+    condition1 = condition_timed_factory(sequence=sequence, days=1)
+    condition2 = condition_to_do_factory(sequence=sequence)
+    condition1.to_do.add(to_do1)
+    condition2.to_do.add(to_do2)
+
+    url = reverse("people:new_hire_add")
+    response = client.post(url, {"first_name": "Stan", "last_name": "Do", "email": "stan@chiefonboarding.com", "language": "en", "timezone": "UTC", "start_day": timezone.now().date() - timedelta(days=2), 'sequences': [sequence.id]}, follow=True)
+
+    # To do item in condition is passed time, so we should notify user of that
+
+    assert "Items that will never be triggered" in response.content.decode()
+    assert to_do1.name in response.content.decode()
+    # Second to do will not show up as triggers based on to do items are not shown there
+    assert to_do2.name not in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_create_new_hire_with_sequences_before_starting(client, django_user_model, sequence_factory, condition_timed_factory, condition_to_do_factory, to_do_factory):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    to_do1 = to_do_factory()
+    to_do2 = to_do_factory()
+    to_do3 = to_do_factory()
+    sequence = sequence_factory()
+    # before starting
+    condition1 = condition_timed_factory(sequence=sequence, days=1, condition_type=2)
+    condition2 = condition_to_do_factory(sequence=sequence)
+    # after starting
+    condition3 = condition_timed_factory(sequence=sequence, days=1)
+    condition1.to_do.add(to_do1)
+    condition2.to_do.add(to_do2)
+    condition3.to_do.add(to_do3)
+
+    url = reverse("people:new_hire_add")
+    response = client.post(url, {"first_name": "Stan", "last_name": "Do", "email": "stan@chiefonboarding.com", "language": "en", "timezone": "UTC", "start_day": timezone.now().date() + timedelta(days=7), 'sequences': [sequence.id]}, follow=True)
+
+    # To do item in condition is passed time, so we should notify user of that
+    new_hire = get_user_model().objects.last()
+    print(new_hire.start_day)
+
+    assert "Items that will never be triggered" in response.content.decode()
+    assert to_do1.name in response.content.decode()
+    assert to_do3.name not in response.content.decode()
+    # Second to do will not show up as triggers based on to do items are not shown there
+    assert to_do2.name not in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_create_new_hire_add_sequence_with_manual_trigger_condition(client, django_user_model, new_hire_factory, sequence_factory, condition_timed_factory, condition_to_do_factory, to_do_factory):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    to_do1 = to_do_factory()
+    to_do2 = to_do_factory()
+    new_hire1 = new_hire_factory()
+    sequence = sequence_factory()
+    condition1 = condition_timed_factory(sequence=sequence, days=1)
+    condition2 = condition_to_do_factory(sequence=sequence)
+    condition1.to_do.add(to_do1)
+    condition2.to_do.add(to_do2)
+
+    url = reverse("people:add_sequence", args=[new_hire1.id])
+    response = client.get(url)
+
+    assert sequence.name in response.content.decode()
+
+    response = client.post(url, data={"sequences": [sequence.id]}, follow=True)
+
+    assert "Items that will never be triggered" in response.content.decode()
+    assert to_do1.name in response.content.decode()
+    assert "Trigger all these items now" in response.content.decode()
+
+    assert new_hire1.to_do.count() == 0
+
+    url = reverse("people:trigger-condition", args=[new_hire1.id, condition1.id])
+    response = client.post(url, follow=True)
+
+    new_hire1.refresh_from_db()
+    # to do item got added from condition
+    assert new_hire1.to_do.count() == 1
+    assert "Done!" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_create_new_hire_add_sequence_with_manual_trigger_condition_before_starting(client, django_user_model, new_hire_factory, sequence_factory, condition_timed_factory, condition_to_do_factory, to_do_factory):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    to_do1 = to_do_factory()
+    to_do2 = to_do_factory()
+    to_do3 = to_do_factory()
+    new_hire1 = new_hire_factory(start_day=timezone.now() - timedelta(days=1))
+    sequence = sequence_factory()
+    condition1 = condition_timed_factory(sequence=sequence, days=2)
+    condition2 = condition_to_do_factory(sequence=sequence)
+    condition3 = condition_to_do_factory(sequence=sequence, days=1, condition_type=2)
+    condition1.to_do.add(to_do1)
+    condition2.to_do.add(to_do2)
+    condition3.to_do.add(to_do3)
+
+    url = reverse("people:add_sequence", args=[new_hire1.id])
+    response = client.get(url)
+
+    assert sequence.name in response.content.decode()
+
+    response = client.post(url, data={"sequences": [sequence.id]}, follow=True)
+
+    assert "Items that will never be triggered" in response.content.decode()
+    assert to_do1.name in response.content.decode()
+    assert to_do3.name in response.content.decode()
+    assert "Trigger all these items now" in response.content.decode()
+
+    assert new_hire1.to_do.count() == 0
+
+    url = reverse("people:trigger-condition", args=[new_hire1.id, condition1.id])
+    response = client.post(url, follow=True)
+
+    new_hire1.refresh_from_db()
+    # to do item got added from condition
+    assert new_hire1.to_do.count() == 1
+    assert "Done!" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_create_new_hire_add_sequence_without_manual_trigger_condition_redirect_back(client, django_user_model, new_hire_factory, sequence_factory, condition_timed_factory, condition_to_do_factory, to_do_factory):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    to_do1 = to_do_factory()
+    new_hire1 = new_hire_factory()
+    sequence = sequence_factory()
+    condition1 = condition_timed_factory(sequence=sequence, days=3)
+    condition1.to_do.add(to_do1)
+
+    url = reverse("people:add_sequence", args=[new_hire1.id])
+    response = client.post(url, data={"sequences": [sequence.id]}, follow=True)
+
+    assert reverse("admin:new_hire", args=[new_hire1.id]) == response.redirect_chain[-1][0]
 
 
 @pytest.mark.django_db
@@ -82,11 +258,10 @@ def test_new_hire_latest_activity(client, new_hire_factory, django_user_model):
     assert not1.extra_text in response.content.decode()
     assert not1.get_notification_type_display() in response.content.decode()
 
-    # Should not appear as it's not public for new hire
-    assert not2.extra_text not in response.content.decode()
-    assert not2.get_notification_type_display() not in response.content.decode()
+    assert not2.extra_text in response.content.decode()
+    assert not2.get_notification_type_display() in response.content.decode()
 
-    # Should not appear as it's not for this new hire
+    # For different user
     assert not3.extra_text not in response.content.decode()
     assert not3.get_notification_type_display() not in response.content.decode()
 
@@ -171,21 +346,6 @@ def test_send_preboarding_message_via_text(
     # Twillio is set up, so both email and text option
     assert "Send via text" in response.content.decode()
     assert "Send via email" in response.content.decode()
-
-
-# @pytest.mark.django_db
-# def test_add_sequence_to_new_hire(
-#     client, new_hire_factory, django_user_model
-# ):
-#     # TODO
-#     pass
-
-# @pytest.mark.django_db
-# def test_trigger_condition_new_hire(
-#     client, new_hire_factory, django_user_model
-# ):
-#     # TODO
-#     pass
 
 
 @pytest.mark.django_db
@@ -569,6 +729,33 @@ def test_new_hire_remind_to_do(
 
 
 @pytest.mark.django_db
+def test_new_hire_remind_to_do_slack_message(
+    client, settings, django_user_model, to_do_user_factory, mailoutbox
+):
+    settings.FAKE_SLACK_API = True
+
+    client.force_login(django_user_model.objects.create(role=1))
+
+    to_do_user1 = to_do_user_factory(user__slack_user_id="slackx")
+
+    # not a valid template type
+    url = reverse("people:new_hire_remind", args=["todouser1", to_do_user1.id])
+    response = client.post(url, follow=True)
+    assert response.status_code == 404
+
+    url = reverse("people:new_hire_remind", args=["todouser", to_do_user1.id])
+
+    response = client.post(url, follow=True)
+
+    assert response.status_code == 200
+    assert "Reminder has been sent!" in response.content.decode()
+    assert len(mailoutbox) == 0
+
+    assert cache.get("slack_channel") == to_do_user1.user.slack_user_id
+    assert cache.get("slack_blocks") == [{'type': 'section', 'text': {'type': 'mrkdwn', 'text': "Don't forget this item!"}}, {'type': 'section', 'block_id': '21', 'text': {'type': 'mrkdwn', 'text': '*' + to_do_user1.to_do.name + '*\nThis task has no deadline.'}, 'accessory': {'type': 'button', 'text': {'type': 'plain_text', 'text': 'View details'}, 'style': 'primary', 'value': '21', 'action_id': 'dialog:to_do:21'}}]
+
+
+@pytest.mark.django_db
 def test_new_hire_remind_resource(
     client, settings, django_user_model, resource_user_factory, mailoutbox
 ):
@@ -585,6 +772,25 @@ def test_new_hire_remind_resource(
     assert settings.BASE_URL in mailoutbox[0].alternatives[0][0]
     assert resource_user1.resource.name in mailoutbox[0].alternatives[0][0]
     assert resource_user1.user.first_name in mailoutbox[0].alternatives[0][0]
+
+
+@pytest.mark.django_db
+def test_new_hire_remind_resource_slack_message(
+    client, settings, django_user_model, resource_user_factory, mailoutbox
+):
+    settings.FAKE_SLACK_API = True
+
+    client.force_login(django_user_model.objects.create(role=1))
+    resource_user1 = resource_user_factory(user__slack_user_id="slackx")
+
+    url = reverse("people:new_hire_remind", args=["resourceuser", resource_user1.id])
+
+    client.post(url, follow=True)
+
+    assert len(mailoutbox) == 0
+
+    assert cache.get("slack_channel") == resource_user1.user.slack_user_id
+    assert cache.get("slack_blocks") == [{'type': 'section', 'text': {'type': 'mrkdwn', 'text': "Don't forget this item!"}}, {'type': 'section', 'block_id': str(resource_user1.id), 'text': {'type': 'mrkdwn', 'text': '*' + resource_user1.resource.name + '*'}, 'accessory': {'type': 'button', 'text': {'type': 'plain_text', 'text': 'View resource'}, 'style': 'primary', 'value': str(resource_user1.id), 'action_id': f"dialog:resource:{resource_user1.id}"}}]
 
 
 @pytest.mark.django_db

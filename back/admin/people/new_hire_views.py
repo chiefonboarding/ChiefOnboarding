@@ -107,7 +107,36 @@ class NewHireAddView(
             notification_type="added_new_hire",
             extra_text=new_hire.full_name,
             created_by=self.request.user,
+            created_for=new_hire
         )
+
+        # Check if there are items that will not be triggered since date passed
+        conditions = Condition.objects.none()
+        for seq in sequences:
+            if new_hire.workday == 0:
+                # User has not started yet, so we only need the items before they new
+                # hire started that passed
+                conditions |= seq.conditions.filter(
+                    condition_type=2, days__lte=new_hire.days_before_starting
+                )
+            else:
+                # user has already started, check both before start day and after for
+                # conditions that are not triggered
+                conditions |= seq.conditions.filter(
+                    condition_type=2
+                ) | seq.conditions.filter(condition_type=0, days__lte=new_hire.workday)
+
+        if conditions.count():
+            return render(
+                self.request,
+                "not_triggered_conditions.html",
+                {
+                    "conditions": conditions,
+                    "title": new_hire.full_name,
+                    "subtitle": "new hire",
+                    "new_hire_id": new_hire.id,
+                },
+            )
 
         return super().form_valid(form)
 
@@ -198,7 +227,7 @@ class NewHireAddSequenceView(LoginRequiredMixin, AdminPermMixin, FormView):
 class NewHireTriggerConditionView(LoginRequiredMixin, AdminPermMixin, TemplateView):
     template_name = "_trigger_sequence_items.html"
 
-    def get(self, request, pk, condition_pk, *args, **kwargs):
+    def post(self, request, pk, condition_pk, *args, **kwargs):
         condition = get_object_or_404(Condition, id=condition_pk)
         new_hire = get_object_or_404(get_user_model(), id=pk)
         condition.process_condition(new_hire)
@@ -253,7 +282,7 @@ class NewHireSequenceView(LoginRequiredMixin, AdminPermMixin, DetailView):
         context["conditions_after_first_day"] = conditions_after_first_day
 
         context["notifications"] = Notification.objects.filter(
-            created_for=new_hire, public_to_new_hire=True
+            created_for=new_hire
         )
         return context
 
@@ -404,12 +433,12 @@ class NewHireRemindView(LoginRequiredMixin, AdminPermMixin, View):
                 ).to_do_block()
             else:
                 block = SlackResource(
-                    template_user_obj.resource, template_user_obj.user
+                    template_user_obj, template_user_obj.user
                 ).get_block()
 
             Slack().send_message(
                 blocks=[paragraph(_("Don't forget this item!")), block],
-                channel=template_user_obj.user.slack_channel_id,
+                channel=template_user_obj.user.slack_user_id,
             )
         else:
             send_reminder_email(template_user_obj.object_name, template_user_obj.user)

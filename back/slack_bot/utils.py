@@ -1,16 +1,21 @@
+import json
+
 import slack_sdk
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 
 from admin.integrations.models import Integration
 
 
 class Slack:
     def __init__(self):
-        try:
-            team = Integration.objects.get(integration=0)
-            self.client = slack_sdk.WebClient(token=team.token)
-        except Integration.DoesNotExist:
-            raise Exception("Access token not available")
+        if not settings.FAKE_SLACK_API:
+            try:
+                team = Integration.objects.get(integration=0)
+                self.client = slack_sdk.WebClient(token=team.token)
+            except Integration.DoesNotExist:
+                raise Exception("Access token not available")
 
     def get_channels(self):
         try:
@@ -53,6 +58,12 @@ class Slack:
         if channel == "" or timestamp == 0:
             return False
 
+        if settings.FAKE_SLACK_API:
+            cache.set("slack_channel", channel)
+            cache.set("slack_ts", timestamp)
+            cache.set("slack_blocks", json.dumps(blocks))
+            return
+
         return self.client.chat_update(
             channel=channel,
             ts=timestamp,
@@ -64,19 +75,36 @@ class Slack:
         if channel == "":
             return False
 
+        print(blocks)
+        if settings.FAKE_SLACK_API:
+            cache.set("slack_channel", channel)
+            cache.set("slack_blocks", blocks)
+            return
+
         return self.client.chat_postMessage(channel=channel, blocks=blocks)
 
     def delete_message(self, ts=0, channel=""):
-        # if there is no channel, then drop
-        if channel == "" or ts == 0:
-            return False
+        if settings.FAKE_SLACK_API:
+            cache.set("slack_channel", channel)
+            cache.set("slack_ts", json.dumps(ts))
+            return
 
         return self.client.chat_delete(channel=channel, ts=ts)
 
     def open_modal(self, trigger_id, view):
+        if settings.FAKE_SLACK_API:
+            cache.set("slack_trigger_id", trigger_id)
+            cache.set("slack_view", json.dumps(view))
+            return
+
         return self.client.views_open(trigger_id=trigger_id, view=view)
 
     def update_modal(self, view_id, view):
+        if settings.FAKE_SLACK_API:
+            cache.set("slack_view_id", view_id)
+            cache.set("slack_view", json.dumps(view))
+            return
+
         return self.client.views_update(view_id=view_id, view=view)
 
 

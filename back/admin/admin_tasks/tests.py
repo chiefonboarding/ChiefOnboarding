@@ -1,5 +1,6 @@
 import pytest
 from django.urls import reverse
+from django.core.cache import cache
 
 from admin.admin_tasks.models import AdminTask
 
@@ -96,6 +97,37 @@ def test_create_task_with_extra_email(
 
 
 @pytest.mark.django_db
+def test_create_task_with_extra_slack_message(
+    settings, client, admin_factory, new_hire_factory, mailoutbox
+):
+    settings.FAKE_SLACK_API = True
+
+    admin1 = admin_factory()
+    admin2 = admin_factory(slack_user_id="slackxx")
+    new_hire1 = new_hire_factory()
+    client.force_login(admin1)
+
+    url = reverse("admin_tasks:create")
+    data = {
+        "name": "Set up a tour",
+        "priority": 1,
+        "new_hire": new_hire1.id,
+        "assigned_to": admin1.id,
+        "comment": "please do this",
+        "option": 2,
+        "slack_user": admin2.id
+    }
+    client.post(url, data=data, follow=True)
+
+    assert AdminTask.objects.all().count() == 1
+
+    assert len(mailoutbox) == 0
+    assert cache.get("slack_channel") == admin2.slack_user_id
+    assert cache.get("slack_blocks") == [{'type': 'section', 'text': {'type': 'mrkdwn', 'text': admin1.full_name + ' needs your help with this task:\n*Set up a tour*\n_please do this_'}}, {'type': 'actions', 'elements': [{'type': 'button', 'text': {'type': 'plain_text', 'text': 'I have completed this'}, 'style': 'primary', 'value': '7', 'action_id': 'admin_task:complete'}]}]
+
+
+
+@pytest.mark.django_db
 def test_create_admin_task_for_different_user(
     client, admin_factory, new_hire_factory, mailoutbox
 ):
@@ -123,6 +155,33 @@ def test_create_admin_task_for_different_user(
     assert mailoutbox[0].to[0] == admin2.email
     assert admin_task.name in mailoutbox[0].alternatives[0][0]
     assert admin_task.comment.last().content in mailoutbox[0].alternatives[0][0]
+
+
+@pytest.mark.django_db
+def test_create_admin_task_for_different_user_slack_message(
+    settings, client, admin_factory, new_hire_factory, mailoutbox
+):
+    settings.FAKE_SLACK_API = True
+
+    new_hire1 = new_hire_factory()
+    admin1 = admin_factory()
+    admin2 = admin_factory(slack_user_id="slackx")
+    client.force_login(admin1)
+
+    url = reverse("admin_tasks:create")
+    data = {
+        "name": "Set up a tour",
+        "priority": 1,
+        "new_hire": new_hire1.id,
+        "assigned_to": admin2.id,
+        "comment": "please do this",
+        "option": 0,
+    }
+    client.post(url, data=data, follow=True)
+
+    assert len(mailoutbox) == 0
+    assert cache.get("slack_channel") == admin2.slack_user_id
+    assert cache.get("slack_blocks") == [{'type': 'section', 'text': {'type': 'mrkdwn', 'text': 'You have just been assigned to *Set up a tour* for *' + new_hire1.full_name + '\n_please do this\n by ' + admin1.full_name + '_'}}, {'type': 'actions', 'elements': [{'type': 'button', 'text': {'type': 'plain_text', 'text': 'I have completed this'}, 'style': 'primary', 'value': '9', 'action_id': 'admin_task:complete'}]}]
 
 
 @pytest.mark.django_db
@@ -269,3 +328,24 @@ def test_admin_task_comment_on_not_owned_task(
     assert admin2.first_name in mailoutbox[0].alternatives[0][0]
     assert admin1.full_name in mailoutbox[0].alternatives[0][0]
     assert "Hi, this is a new comment" in mailoutbox[0].alternatives[0][0]
+
+
+@pytest.mark.django_db
+def test_admin_task_comment_on_not_owned_task_slack_message(
+    settings, client, admin_factory, admin_task_factory, mailoutbox
+):
+    settings.FAKE_SLACK_API = True
+
+    admin1 = admin_factory()
+    admin2 = admin_factory(slack_user_id="slackx")
+    client.force_login(admin1)
+
+    task1 = admin_task_factory(assigned_to=admin2)
+
+    url = reverse("admin_tasks:comment", args=[task1.id])
+    client.post(url, {"content": "Hi, this is a new comment"}, follow=True)
+
+    assert len(mailoutbox) == 0
+
+    assert cache.get("slack_channel") == admin2.slack_user_id
+    assert cache.get("slack_blocks") == [{'type': 'section', 'text': {'type': 'mrkdwn', 'text': admin1.full_name + ' added a message to your task:\n*' + task1.name + '*\n_Hi, this is a new comment_'}}, {'type': 'actions', 'elements': [{'type': 'button', 'text': {'type': 'plain_text', 'text': 'I have completed this'}, 'style': 'primary', 'value': '9', 'action_id': 'admin_task:complete'}]}]

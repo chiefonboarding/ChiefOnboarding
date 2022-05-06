@@ -1,5 +1,5 @@
 {% load i18n %}
-<button {% if completed %}disabled{% endif %} hx-get="{% url 'people:trigger-condition' user.id new_hire_id %}" hx-swap="outerHTML" class="btn {% if not completed %}btn-primary{% else %}btn-green{% endif %}" hx-indicator="#spinner-{{condition.id}}">
+<button {% if completed %}disabled{% endif %} hx-post="{% url 'people:trigger-condition' user.id new_hire_id %}" hx-swap="outerHTML" class="btn {% if not completed %}btn-primary{% else %}btn-green{% endif %}" hx-indicator="#spinner-{{condition.id}}">
   {% if completed %}
     {% translate "Done!" %}
   {% else %}
