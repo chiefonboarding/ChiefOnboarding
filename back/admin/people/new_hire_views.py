@@ -107,7 +107,7 @@ class NewHireAddView(
             notification_type="added_new_hire",
             extra_text=new_hire.full_name,
             created_by=self.request.user,
-            created_for=new_hire
+            created_for=new_hire,
         )
 
         # Check if there are items that will not be triggered since date passed
@@ -281,9 +281,7 @@ class NewHireSequenceView(LoginRequiredMixin, AdminPermMixin, DetailView):
         context["conditions_before_first_day"] = conditions_before_first_day
         context["conditions_after_first_day"] = conditions_after_first_day
 
-        context["notifications"] = Notification.objects.filter(
-            created_for=new_hire
-        )
+        context["notifications"] = Notification.objects.filter(created_for=new_hire)
         return context
 
 

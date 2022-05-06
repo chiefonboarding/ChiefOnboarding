@@ -1,11 +1,11 @@
 import json
 import logging
 import re
-from sentry_sdk import capture_exception
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext as _
+from sentry_sdk import capture_exception
 from slack_bolt import App as SlackBoltApp
 
 from admin.admin_tasks.models import AdminTask

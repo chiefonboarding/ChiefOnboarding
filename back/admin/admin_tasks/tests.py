@@ -1,6 +1,6 @@
 import pytest
-from django.urls import reverse
 from django.core.cache import cache
+from django.urls import reverse
 
 from admin.admin_tasks.models import AdminTask
 
@@ -115,7 +115,7 @@ def test_create_task_with_extra_slack_message(
         "assigned_to": admin1.id,
         "comment": "please do this",
         "option": 2,
-        "slack_user": admin2.id
+        "slack_user": admin2.id,
     }
     client.post(url, data=data, follow=True)
 
@@ -123,8 +123,28 @@ def test_create_task_with_extra_slack_message(
 
     assert len(mailoutbox) == 0
     assert cache.get("slack_channel") == admin2.slack_user_id
-    assert cache.get("slack_blocks") == [{'type': 'section', 'text': {'type': 'mrkdwn', 'text': admin1.full_name + ' needs your help with this task:\n*Set up a tour*\n_please do this_'}}, {'type': 'actions', 'elements': [{'type': 'button', 'text': {'type': 'plain_text', 'text': 'I have completed this'}, 'style': 'primary', 'value': '7', 'action_id': 'admin_task:complete'}]}]
-
+    assert cache.get("slack_blocks") == [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": admin1.full_name
+                + " needs your help with this task:\n*Set up a tour*\n_please do this_",
+            },
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "I have completed this"},
+                    "style": "primary",
+                    "value": "7",
+                    "action_id": "admin_task:complete",
+                }
+            ],
+        },
+    ]
 
 
 @pytest.mark.django_db
@@ -181,7 +201,31 @@ def test_create_admin_task_for_different_user_slack_message(
 
     assert len(mailoutbox) == 0
     assert cache.get("slack_channel") == admin2.slack_user_id
-    assert cache.get("slack_blocks") == [{'type': 'section', 'text': {'type': 'mrkdwn', 'text': 'You have just been assigned to *Set up a tour* for *' + new_hire1.full_name + '\n_please do this\n by ' + admin1.full_name + '_'}}, {'type': 'actions', 'elements': [{'type': 'button', 'text': {'type': 'plain_text', 'text': 'I have completed this'}, 'style': 'primary', 'value': '9', 'action_id': 'admin_task:complete'}]}]
+    assert cache.get("slack_blocks") == [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "You have just been assigned to *Set up a tour* for *"
+                + new_hire1.full_name
+                + "\n_please do this\n by "
+                + admin1.full_name
+                + "_",
+            },
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "I have completed this"},
+                    "style": "primary",
+                    "value": "9",
+                    "action_id": "admin_task:complete",
+                }
+            ],
+        },
+    ]
 
 
 @pytest.mark.django_db
@@ -348,4 +392,27 @@ def test_admin_task_comment_on_not_owned_task_slack_message(
     assert len(mailoutbox) == 0
 
     assert cache.get("slack_channel") == admin2.slack_user_id
-    assert cache.get("slack_blocks") == [{'type': 'section', 'text': {'type': 'mrkdwn', 'text': admin1.full_name + ' added a message to your task:\n*' + task1.name + '*\n_Hi, this is a new comment_'}}, {'type': 'actions', 'elements': [{'type': 'button', 'text': {'type': 'plain_text', 'text': 'I have completed this'}, 'style': 'primary', 'value': '9', 'action_id': 'admin_task:complete'}]}]
+    assert cache.get("slack_blocks") == [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": admin1.full_name
+                + " added a message to your task:\n*"
+                + task1.name
+                + "*\n_Hi, this is a new comment_",
+            },
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "I have completed this"},
+                    "style": "primary",
+                    "value": "9",
+                    "action_id": "admin_task:complete",
+                }
+            ],
+        },
+    ]

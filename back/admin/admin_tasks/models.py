@@ -164,7 +164,7 @@ class AdminTaskComment(models.Model):
                                 text=_("I have completed this"),
                                 style="primary",
                                 value=str(self.pk),
-                                action_id="admin_task:complete"
+                                action_id="admin_task:complete",
                             )
                         ]
                     ),

@@ -28,11 +28,7 @@ from admin.sequences.forms import (
     PendingSlackMessageForm,
     PendingTextMessageForm,
 )
-from admin.sequences.models import (
-    Condition,
-    ExternalMessage,
-    Sequence,
-)
+from admin.sequences.models import Condition, ExternalMessage, Sequence
 from admin.sequences.tasks import timed_triggers
 from admin.to_do.factories import ToDoFactory
 from admin.to_do.forms import ToDoForm
