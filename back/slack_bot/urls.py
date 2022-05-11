@@ -21,5 +21,7 @@ if not settings.SLACK_USE_SOCKET:
 elif settings.SLACK_APP_TOKEN != "":
     # Start websocket app
     from .views import app
+
+    urlpatterns = []
 else:
     urlpatterns = []

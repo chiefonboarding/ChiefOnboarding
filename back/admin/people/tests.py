@@ -1401,10 +1401,8 @@ def test_give_user_slack_access(settings, client, employee_factory, django_user_
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": (
-                    "Click on the button to see all the categories that "
-                    "are available to you!",
-                ),
+                "text": "Click on the button to see all the categories that "
+                "are available to you!",
             },
         },
         {

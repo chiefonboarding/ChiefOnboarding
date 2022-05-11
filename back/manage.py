@@ -45,10 +45,7 @@ def main():
                 % (username, password)
             )
         User.objects.create(
-            first_name="Demo",
-            last_name="User",
-            email=username,
-            password=password
+            first_name="Demo", last_name="User", email=username, password=password
         )
         Organization.objects.create(
             name="Demo organization",
