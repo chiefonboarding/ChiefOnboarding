@@ -18,7 +18,7 @@ if not settings.SLACK_USE_SOCKET:
     urlpatterns = [
         path("slack/events", slack_events_handler, name="slack_events"),
     ]
-elif settings.SLACK_API_KEY != "":
+elif settings.SLACK_APP_TOKEN != "":
     # Start websocket app
     from .views import app
 else:
