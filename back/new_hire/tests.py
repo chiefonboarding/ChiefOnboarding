@@ -5,9 +5,9 @@ from django.contrib import auth
 from django.urls import reverse
 from freezegun import freeze_time
 
-from users.models import ToDoUser
-from organization.models import Notification
 from admin.admin_tasks.models import AdminTask
+from organization.models import Notification
+from users.models import ToDoUser
 
 
 @pytest.mark.django_db
@@ -149,7 +149,11 @@ def test_to_do_item_completed_view(client, new_hire_factory, to_do_user_factory)
 
 
 @pytest.mark.django_db
-def test_complete_to_do_item_view(client, new_hire_factory, to_do_user_factory, sequence_factory, condition_to_do_factory):
+def test_complete_to_do_item_view(
+    client,
+    new_hire_factory,
+    to_do_user_factory,
+):
     new_hire = new_hire_factory()
     to_do_user = to_do_user_factory(user=new_hire)
     client.force_login(new_hire)
@@ -169,7 +173,9 @@ def test_complete_to_do_item_view(client, new_hire_factory, to_do_user_factory, 
 
 
 @pytest.mark.django_db
-def test_complete_to_do_item_view(client, new_hire_factory, sequence_factory, condition_with_items_factory):
+def test_complete_to_do_item_view_with_trigger(
+    client, new_hire_factory, sequence_factory, condition_with_items_factory
+):
     new_hire = new_hire_factory()
     client.force_login(new_hire)
 
@@ -680,7 +686,7 @@ def test_course_form_view(client, new_hire_factory, resource_user_factory):
 @pytest.mark.django_db
 def test_seen_notifications(client, new_hire_factory):
     new_hire = new_hire_factory()
-    new_hire.seen_updates=datetime.datetime.now() - datetime.timedelta(days=2)
+    new_hire.seen_updates = datetime.datetime.now() - datetime.timedelta(days=2)
     new_hire.save()
     client.force_login(new_hire)
 
@@ -759,4 +765,3 @@ def test_slack_to_do_webpage(client, new_hire_factory, to_do_user_factory):
     response = client.get(url + "?token=" + new_hire.unique_url)
 
     assert response.status_code == 200
-

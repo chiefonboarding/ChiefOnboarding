@@ -1,7 +1,12 @@
 import factory
 from factory.fuzzy import FuzzyInteger, FuzzyText
 
+from admin.appointments.factories import AppointmentFactory
+from admin.badges.factories import BadgeFactory
 from admin.integrations.factories import CustomIntegrationFactory
+from admin.introductions.factories import IntroductionFactory
+from admin.preboarding.factories import PreboardingFactory
+from admin.resources.factories import ResourceFactory
 from admin.to_do.factories import ToDoFactory
 from users.factories import AdminFactory, EmployeeFactory
 
@@ -14,12 +19,6 @@ from .models import (
     PendingTextMessage,
     Sequence,
 )
-
-from admin.badges.factories import BadgeFactory
-from admin.introductions.factories import IntroductionFactory
-from admin.preboarding.factories import PreboardingFactory
-from admin.resources.factories import ResourceFactory
-from admin.appointments.factories import AppointmentFactory
 
 
 class PendingAdminTaskFactory(factory.django.DjangoModelFactory):
@@ -146,6 +145,7 @@ class ConditionWithItemsFactory(factory.django.DjangoModelFactory):
             # Add one to do item for the condition
             obj.integration_configs.add(IntegrationConfigFactory())
 
+
 class ConditionToDoFactory(factory.django.DjangoModelFactory):
     condition_type = 1
 
@@ -192,5 +192,3 @@ class IntegrationConfigFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = IntegrationConfig
-
-

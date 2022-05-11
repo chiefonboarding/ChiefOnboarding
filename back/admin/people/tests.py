@@ -1,6 +1,5 @@
 from datetime import timedelta
 from unittest.mock import Mock, patch
-from freezegun import freeze_time
 
 import pytest
 from django.contrib import auth
@@ -1368,10 +1367,7 @@ def test_import_users_from_slack(client, django_user_model):
 
 @pytest.mark.django_db
 @patch(
-    "slack_bot.utils.Slack.find_by_email",
-    Mock(
-        return_value={ "user": { "id": "slackx" }}
-    )
+    "slack_bot.utils.Slack.find_by_email", Mock(return_value={"user": {"id": "slackx"}})
 )
 def test_give_user_slack_access(settings, client, employee_factory, django_user_model):
     settings.FAKE_SLACK_API = True
@@ -1400,17 +1396,35 @@ def test_give_user_slack_access(settings, client, employee_factory, django_user_
     assert "Revoke Slack access" in response.content.decode()
 
     assert cache.get("slack_channel") == employee_without_slack.slack_user_id
-    assert cache.get("slack_blocks") == [{'type': 'section', 'text': {'type': 'mrkdwn', 'text': 'Click on the button to see all the categories that are available to you!'}}, {'type': 'actions', 'elements': {'type': 'button', 'text': {'type': 'plain_text', 'text': 'resources'}, 'style': 'primary', 'value': 'show:resources', 'action_id': 'show:resources'}}]
+    assert cache.get("slack_blocks") == [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": (
+                    "Click on the button to see all the categories that "
+                    "are available to you!",
+                ),
+            },
+        },
+        {
+            "type": "actions",
+            "elements": {
+                "type": "button",
+                "text": {"type": "plain_text", "text": "resources"},
+                "style": "primary",
+                "value": "show:resources",
+                "action_id": "show:resources",
+            },
+        },
+    ]
 
 
 @pytest.mark.django_db
-@patch(
-    "slack_bot.utils.Slack.find_by_email",
-    Mock(
-        return_value=False
-    )
-)
-def test_give_user_slack_access_does_not_exist(settings, client, employee_factory, django_user_model):
+@patch("slack_bot.utils.Slack.find_by_email", Mock(return_value=False))
+def test_give_user_slack_access_does_not_exist(
+    settings, client, employee_factory, django_user_model
+):
     settings.FAKE_SLACK_API = True
 
     employee_without_slack = employee_factory()

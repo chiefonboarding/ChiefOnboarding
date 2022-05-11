@@ -6,6 +6,7 @@ from django.db import models
 from django.template import Context, Template
 from django.utils.translation import gettext_lazy as _
 from fernet_fields import EncryptedTextField
+
 from organization.models import Notification
 
 INTEGRATION_OPTIONS = (
@@ -95,7 +96,6 @@ class Integration(models.Model):
             extra_text=self.name,
             created_for=new_hire,
         )
-
 
     def config_form(self, data=None):
         from .forms import IntegrationConfigForm

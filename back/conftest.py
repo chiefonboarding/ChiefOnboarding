@@ -14,13 +14,13 @@ from admin.resources.factories import ResourceFactory
 from admin.sequences.factories import (
     ConditionTimedFactory,
     ConditionToDoFactory,
+    ConditionWithItemsFactory,
     IntegrationConfigFactory,
     PendingAdminTaskFactory,
     PendingEmailMessageFactory,
     PendingSlackMessageFactory,
     PendingTextMessageFactory,
     SequenceFactory,
-    ConditionWithItemsFactory,
 )
 from admin.to_do.factories import ToDoFactory
 from organization.factories import (

@@ -473,16 +473,16 @@ class Condition(models.Model):
                 "integration_configs",
             ]:
                 # Duplicate old ones
-                old_custom_templates = getattr(old_condition, field.name).filter(template=False)
+                old_custom_templates = getattr(old_condition, field.name).filter(
+                    template=False
+                )
                 for old in old_custom_templates:
                     dup = old.duplicate()
                     getattr(self, field.name).add(dup)
 
                 # Only using set() for template items. The other ones need to be
                 # duplicated as they are unique to the condition
-                old_templates = getattr(old_condition, field.name).filter(
-                    template=True
-                )
+                old_templates = getattr(old_condition, field.name).filter(template=True)
                 getattr(self, field.name).set(old_templates)
 
             else:
@@ -519,7 +519,7 @@ class Condition(models.Model):
         for field in ["admin_tasks", "external_messages", "integration_configs"]:
             for item in getattr(self, field).all():
                 # Only for integration configs
-                if getattr(item, 'integration', None) is not None:
+                if getattr(item, "integration", None) is not None:
                     item.integration.execute(user, item.additional_data)
                 else:
                     item.execute(user)

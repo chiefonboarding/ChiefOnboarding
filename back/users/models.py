@@ -43,7 +43,6 @@ class Department(models.Model):
 
 
 class CustomUserManager(BaseUserManager):
-
     def get_by_natural_key(self, email):
         # Make validation case sensitive
         return self.get(**{self.model.USERNAME_FIELD + "__iexact": email})

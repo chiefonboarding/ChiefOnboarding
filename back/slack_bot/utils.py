@@ -2,7 +2,6 @@ import json
 
 import slack_sdk
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.core.cache import cache
 
 from admin.integrations.models import Integration
@@ -92,7 +91,7 @@ class Slack:
             cache.set("slack_channel", channel)
             cache.set("slack_blocks", blocks)
             cache.set("slack_text", text)
-            return { "channel": "slacky" }
+            return {"channel": "slacky"}
 
         return self.client.chat_postMessage(channel=channel, text=text, blocks=blocks)
 

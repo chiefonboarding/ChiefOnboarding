@@ -20,7 +20,7 @@ from .slack_join import SlackJoin
 from .slack_misc import get_new_hire_approve_sequence_options, welcome_new_hire
 from .slack_resource import SlackResource, SlackResourceCategory
 from .slack_to_do import SlackToDo, SlackToDoManager
-from .utils import paragraph, Slack
+from .utils import Slack, paragraph
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ else:
         app = SlackBoltApp(
             token=settings.SLACK_BOT_TOKEN,
             logger=logger,
-            raise_error_for_unhandled_request=True
+            raise_error_for_unhandled_request=True,
         )
 
         slack_handler = SocketModeHandler(app, settings.SLACK_APP_TOKEN)
@@ -45,6 +45,7 @@ else:
         app = SlackBoltApp(
             token=integration.token, signing_secret=integration.signing_secret
         )
+
 
 def exception_handler(func):
     def inner_function(*args, **kwargs):
@@ -75,6 +76,7 @@ def custom_error_handler(error, body, logger):
 def show_help(message):
     slack_show_help(message)
 
+
 def slack_show_help(message):
     messages = [
         _("Happy to help! Here are all the things you can say to me: \n\n"),
@@ -100,7 +102,12 @@ def get_user(slack_user_id):
     if users.exists():
         return users.first()
     else:
-        Slack().send_message(text=_("You don't seem to be setup yet. Please ask your supervisor for access."), channel=slack_user_id)
+        Slack().send_message(
+            text=_(
+                "You don't seem to be setup yet. Please ask your supervisor for access."
+            ),
+            channel=slack_user_id,
+        )
 
 
 @exception_handler
@@ -108,18 +115,22 @@ def get_user(slack_user_id):
 def show_all_resources_categories(message):
     slack_show_all_resources_categories(message)
 
+
 def slack_show_all_resources_categories(message):
     user = get_user(message["user"])
     if user is None:
         return
     blocks = SlackResourceCategory(user=user).category_buttons()
-    Slack().send_message(text=_("Select a category:"), blocks=blocks, channel=message["user"])
+    Slack().send_message(
+        text=_("Select a category:"), blocks=blocks, channel=message["user"]
+    )
 
 
 @exception_handler
 @app.message(re.compile("(to do|todo|todos)"), matchers=[no_bot_messages])
 def show_to_do_items_based_on_message(message):
     slack_show_to_do_items_based_on_message(message)
+
 
 def slack_show_to_do_items_based_on_message(message):
     user = get_user(message["user"])
@@ -140,7 +151,9 @@ def slack_show_to_do_items_based_on_message(message):
         else _("I couldn't find any tasks.")
     )
 
-    Slack().send_message(text=text, blocks=[paragraph(text), *tasks], channel=message["user"])
+    Slack().send_message(
+        text=text, blocks=[paragraph(text), *tasks], channel=message["user"]
+    )
 
 
 @exception_handler
@@ -168,7 +181,7 @@ def slack_open_todo_dialog(payload, body):
                     "Please complete the form first. Click on 'View details' to "
                     "complete it."
                 ),
-                channel=body["user"]["id"]
+                channel=body["user"]["id"],
             )
         else:
             # Form is filled in, mark complete
@@ -203,6 +216,7 @@ def slack_open_todo_dialog(payload, body):
 def catch_all_message_search_resources(message):
     slack_catch_all_message_search_resources(message)
 
+
 def slack_catch_all_message_search_resources(message):
     user = get_user(message["user"])
     if user is None:
@@ -219,7 +233,9 @@ def slack_catch_all_message_search_resources(message):
         if items.count() > 0
         else _("Unfortunately, I couldn't find anything.")
     )
-    Slack().send_message(blocks=[paragraph(text), *results], text=text, channel=message["user"])
+    Slack().send_message(
+        blocks=[paragraph(text), *results], text=text, channel=message["user"]
+    )
 
 
 @exception_handler
@@ -336,7 +352,9 @@ def slack_show_resources_items_in_category(payload, body):
         ],
     ]
 
-    Slack().send_message(blocks=blocks, text=_("Here are your options:"), channel=body["user"]["id"])
+    Slack().send_message(
+        blocks=blocks, text=_("Here are your options:"), channel=body["user"]["id"]
+    )
 
 
 @exception_handler
@@ -411,7 +429,9 @@ def slack_show_to_do_items(body):
         else _("I couldn't find any tasks.")
     )
 
-    Slack().send_message(blocks=[paragraph(text), *tasks], text=text, channel=body["user"]["id"])
+    Slack().send_message(
+        blocks=[paragraph(text), *tasks], text=text, channel=body["user"]["id"]
+    )
 
 
 @exception_handler

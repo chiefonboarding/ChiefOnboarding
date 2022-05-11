@@ -57,6 +57,7 @@ def test_create_resource_with_inner_chapters(client, django_user_model):
     assert not top_chapter.parent_chapter
     assert inner_chapter.parent_chapter
 
+
 @pytest.mark.django_db
 def test_update_resource(client, django_user_model, resource_factory):
     client.force_login(django_user_model.objects.create(role=1))
