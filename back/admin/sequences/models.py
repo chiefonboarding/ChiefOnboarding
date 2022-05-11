@@ -434,7 +434,7 @@ class Condition(models.Model):
                 field.related_model._meta.model_name
                 == type(model_item)._meta.model_name
             ):
-                self.__getattribute__(field.name).remove(model_item)
+                getattr(self, field.name).remove(model_item)
 
     def add_item(self, model_item):
         # model_item is a template item. I.e. a ToDo object.
@@ -446,7 +446,7 @@ class Condition(models.Model):
                 field.related_model._meta.model_name
                 == type(model_item)._meta.model_name
             ):
-                self.__getattribute__(field.name).add(model_item)
+                getattr(self, field.name).add(model_item)
 
     def include_other_condition(self, condition):
         # this will put another condition into this one
@@ -455,9 +455,9 @@ class Condition(models.Model):
             if field.name == "condition_to_do":
                 continue
 
-            condition_field = condition.__getattribute__(field.name)
+            condition_field = getattr(condition, field.name)
             for item in condition_field.all():
-                self.__getattribute__(field.name).add(item)
+                getattr(self, field.name).add(item)
 
     def duplicate(self):
         old_condition = Condition.objects.get(id=self.id)
@@ -473,26 +473,24 @@ class Condition(models.Model):
                 "integration_configs",
             ]:
                 # Duplicate old ones
-                old_custom_templates = old_condition.__getattribute__(
-                    field.name
-                ).filter(template=False)
+                old_custom_templates = getattr(old_condition, field.name).filter(template=False)
                 for old in old_custom_templates:
                     dup = old.duplicate()
-                    self.__getattribute__(field.name).add(dup)
+                    getattr(self, field.name).add(dup)
 
                 # Only using set() for template items. The other ones need to be
                 # duplicated as they are unique to the condition
-                old_templates = old_condition.__getattribute__(field.name).filter(
+                old_templates = getattr(old_condition, field.name).filter(
                     template=True
                 )
-                self.__getattribute__(field.name).set(old_templates)
+                getattr(self, field.name).set(old_templates)
 
             else:
                 # For items that do not have templates, just duplicate them
-                old_custom_templates = old_condition.__getattribute__(field.name).all()
+                old_custom_templates = getattr(old_condition, field.name).all()
                 for old in old_custom_templates:
                     dup = old.duplicate()
-                    self.__getattribute__(field.name).add(dup)
+                    getattr(self, field.name).add(dup)
 
         # returning the new item
         return self
@@ -507,8 +505,8 @@ class Condition(models.Model):
             "introductions",
             "preboarding",
         ]:
-            for item in self.__getattribute__(field).all():
-                user.__getattribute__(field).add(item)
+            for item in getattr(self, field).all():
+                getattr(user, field).add(item)
 
                 Notification.objects.create(
                     notification_type=item.notification_add_type,
@@ -519,5 +517,9 @@ class Condition(models.Model):
         # For the ones that aren't a quick copy/paste, follow back to their model and
         # execute them
         for field in ["admin_tasks", "external_messages", "integration_configs"]:
-            for item in self.__getattribute__(field).all():
-                item.execute(user)
+            for item in getattr(self, field).all():
+                # Only for integration configs
+                if getattr(item, 'integration', None) is not None:
+                    item.integration.execute(user, item.additional_data)
+                else:
+                    item.execute(user)

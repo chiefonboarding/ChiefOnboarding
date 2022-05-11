@@ -20,6 +20,7 @@ from admin.sequences.factories import (
     PendingSlackMessageFactory,
     PendingTextMessageFactory,
     SequenceFactory,
+    ConditionWithItemsFactory,
 )
 from admin.to_do.factories import ToDoFactory
 from organization.factories import (
@@ -42,8 +43,10 @@ from users.factories import (
 
 
 @pytest.fixture(autouse=True)
-def run_around_tests():
+def run_around_tests(settings):
+    settings.FAKE_SLACK_API = True
     OrganizationFactory()
+
     # Generate some welcome messages for various emails
     for i in range(4):
         WelcomeMessageFactory(message_type=i, language="en")
@@ -85,3 +88,4 @@ register(BadgeFactory)
 register(CustomIntegrationFactory)
 register(IntegrationFactory)
 register(IntegrationConfigFactory)
+register(ConditionWithItemsFactory)

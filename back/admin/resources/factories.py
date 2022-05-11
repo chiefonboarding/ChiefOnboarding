@@ -32,6 +32,7 @@ class ChapterFactory(factory.django.DjangoModelFactory):
 @register
 class ResourceFactory(factory.django.DjangoModelFactory):
     name = FuzzyText()
+    category = factory.SubFactory(CategoryFactory)
 
     class Meta:
         model = Resource
@@ -66,18 +67,6 @@ class ResourceFactory(factory.django.DjangoModelFactory):
             for chapter in extracted:
                 chapter.resource = obj
                 chapter.save()
-
-    @factory.post_generation
-    def category(obj, create, extracted, **kwargs):
-        if not create:
-            return
-
-        if not extracted:
-            obj.category = CategoryFactory()
-        else:
-            obj.category = extracted
-
-        obj.save()
 
 
 @register

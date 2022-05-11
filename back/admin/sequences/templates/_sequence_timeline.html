@@ -13,7 +13,7 @@
     {% endfor %}
   </li>
 
-  {# only show if user has not started yet #}
+  {# before start day #}
   {% for condition in conditions %}
     {% if condition.condition_type == 2 %}
       <li>
@@ -71,6 +71,10 @@ document.addEventListener("drop", function( event ) {
     const type = event.dataTransfer.getData('type');
     const conditionID = droppedPlace.dataset.id
 
+    if (!(($(droppedPlace).hasClass("before") && ["pendingadmintask", "pendingemailmessage", "pendingslackmessage", "pendingtextmessage", "integration"].includes(type)) || ($(droppedPlace).hasClass("unconditioned") || $(droppedPlace).hasClass("after")))) {
+      return
+    }
+
     $(".card").css("background-color", "white")
     if (templateId !== '0' && type !== 'integration') {
       htmx.ajax('POST', `/sequences/condition/${conditionID}/${type}/${templateId}/`, `#condition-${conditionID}`).then(() => {
@@ -89,8 +93,12 @@ document.addEventListener("dragover", function( event ) {
   event.stopPropagation();
   const droppedPlace = event.target.closest(".drop")
   if (Boolean(droppedPlace)) {
+    const type = event.dataTransfer.getData('type');
     const droppedPlace = event.target.closest(".drop")
-    droppedPlace.style.backgroundColor='rgb(239, 242, 246)';
+    console.log(type)
+    if (($(droppedPlace).hasClass("before") && ["pendingadmintask", "pendingemailmessage", "pendingslackmessage", "pendingtextmessage", "integration"].includes(type)) || ($(droppedPlace).hasClass("unconditioned") || $(droppedPlace).hasClass("after"))) {
+      droppedPlace.style.backgroundColor='rgb(239, 242, 246)';
+    }
   }
 }, false);
 

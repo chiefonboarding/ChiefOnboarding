@@ -1,6 +1,7 @@
 import json
 import logging
 import re
+from unittest.mock import Mock
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -19,34 +20,38 @@ from .slack_join import SlackJoin
 from .slack_misc import get_new_hire_approve_sequence_options, welcome_new_hire
 from .slack_resource import SlackResource, SlackResourceCategory
 from .slack_to_do import SlackToDo, SlackToDoManager
-from .utils import paragraph
+from .utils import paragraph, Slack
 
 logger = logging.getLogger(__name__)
 
-
-if settings.SLACK_USE_SOCKET:
-    from slack_bolt.adapter.socket_mode import SocketModeHandler
-
-    app = SlackBoltApp(
-        token=settings.SLACK_BOT_TOKEN,
-        raise_error_for_unhandled_request=False,
-        logger=logger,
-    )
-
-    slack_handler = SocketModeHandler(app, settings.SLACK_APP_TOKEN)
-    slack_handler.connect()
+# print(settings.RUNNING_TESTS)
+# print(settings.SLACK_USE_SOCKET)
+if settings.RUNNING_TESTS:
+    app = Mock()
 else:
-    integration = Integration.objects.filter(integration=0).first()
-    app = SlackBoltApp(
-        token=integration.token, signing_secret=integration.signing_secret
-    )
+    if settings.SLACK_USE_SOCKET:
+        from slack_bolt.adapter.socket_mode import SocketModeHandler
 
+        app = SlackBoltApp(
+            token=settings.SLACK_BOT_TOKEN,
+            logger=logger,
+            raise_error_for_unhandled_request=True
+        )
+
+        slack_handler = SocketModeHandler(app, settings.SLACK_APP_TOKEN)
+        slack_handler.connect()
+    else:
+        integration = Integration.objects.filter(integration=0).first()
+        app = SlackBoltApp(
+            token=integration.token, signing_secret=integration.signing_secret
+        )
 
 def exception_handler(func):
     def inner_function(*args, **kwargs):
         try:
             func(*args, **kwargs)
         except Exception as e:
+            print(e)
             capture_exception(e)
 
     return inner_function
@@ -67,7 +72,10 @@ def custom_error_handler(error, body, logger):
 
 @exception_handler
 @app.message(re.compile("(help)"), matchers=[no_bot_messages])
-def show_help(message, say):
+def show_help(message):
+    slack_show_help(message)
+
+def slack_show_help(message):
     messages = [
         _("Happy to help! Here are all the things you can say to me: \n\n"),
         _(
@@ -84,39 +92,37 @@ def show_help(message, say):
         _("*Show me all resources*\nThis will show all resources."),
     ]
 
-    say("".join(messages))
+    Slack().send_message(text="".join(messages), channel=message["user"])
 
 
-def get_user(slack_user_id, say):
+def get_user(slack_user_id):
     users = get_user_model().objects.filter(slack_user_id=slack_user_id)
     if users.exists():
         return users.first()
     else:
-        say(
-            _(
-                "You don't seem to be setup yet. Please ask your supervisor for"
-                " access."
-            )
-        )
+        Slack().send_message(text=_("You don't seem to be setup yet. Please ask your supervisor for access."), channel=slack_user_id)
 
 
 @exception_handler
 @app.message(re.compile("(resource)"), matchers=[no_bot_messages])
-def show_all_resources_categories(message, say):
-    user = get_user(message["user"], say)
+def show_all_resources_categories(message):
+    slack_show_all_resources_categories(message)
+
+def slack_show_all_resources_categories(message):
+    user = get_user(message["user"])
     if user is None:
         return
-    blocks = [
-        paragraph(_("Select a category:")),
-        *SlackResourceCategory(user=user).category_buttons(),
-    ]
-    say(blocks=blocks, text=_("Select a category:"))
+    blocks = SlackResourceCategory(user=user).category_buttons()
+    Slack().send_message(text=_("Select a category:"), blocks=blocks, channel=message["user"])
 
 
 @exception_handler
 @app.message(re.compile("(to do|todo|todos)"), matchers=[no_bot_messages])
-def show_to_do_items_based_on_message(message, say):
-    user = get_user(message["user"], say)
+def show_to_do_items_based_on_message(message):
+    slack_show_to_do_items_based_on_message(message)
+
+def slack_show_to_do_items_based_on_message(message):
+    user = get_user(message["user"])
     if user is None:
         return
 
@@ -134,14 +140,18 @@ def show_to_do_items_based_on_message(message, say):
         else _("I couldn't find any tasks.")
     )
 
-    say(blocks=[paragraph(text), *tasks], text=text)
+    Slack().send_message(text=text, blocks=[paragraph(text), *tasks], channel=message["user"])
 
 
 @exception_handler
 @app.action(re.compile("(dialog:to_do:)"))
-def open_todo_dialog(ack, payload, body, say, client):
+def open_todo_dialog(ack, payload, body):
     ack()
-    user = get_user(body["user"]["id"], say)
+    slack_open_todo_dialog(payload, body)
+
+
+def slack_open_todo_dialog(payload, body):
+    user = get_user(body["user"]["id"])
     if user is None:
         return
 
@@ -152,42 +162,49 @@ def open_todo_dialog(ack, payload, body, say, client):
     if not to_do_user.to_do.inline_slack_form:
         # Item must be completed on website instead of slack
         if not len(to_do_user.form):
-            say(
-                _(
+            # User has not filled in form, send warning - cannot complete
+            Slack().send_message(
+                text=_(
                     "Please complete the form first. Click on 'View details' to "
                     "complete it."
-                )
+                ),
+                channel=body["user"]["id"]
             )
         else:
+            # Form is filled in, mark complete
             to_do_user.mark_completed()
 
             # Get updated blocks (without completed one, but with text)
             blocks = SlackToDoManager(to_do_user.user).get_blocks(
                 [block["block_id"] for block in body["message"]["blocks"]][1:],
                 to_do_user.to_do.id,
-                body["message"]["blocks"]["text"]["text"],
+                body["message"]["text"],
             )
 
             # Remove completed item from message
-            client.chat_update(
-                channel=to_do_user.user.slack_channel_id,
+            Slack().update_message(
+                channel=to_do_user.user.slack_user_id,
                 ts=body["containers"]["message_ts"],
                 blocks=blocks,
             )
 
     else:
+        # Show modal to user with to do item
         view = SlackToDo(to_do_user.to_do, user).modal_view(
             ids=[block["block_id"] for block in body["message"]["blocks"]],
             text=body["message"]["text"],
             ts=body["container"]["message_ts"],
         )
-        client.views_open(trigger_id=body["trigger_id"], view=view)
+        Slack().open_modal(trigger_id=body["trigger_id"], view=view)
 
 
 @exception_handler
 @app.event("message", matchers=[no_bot_messages])
-def catch_all_message_search_resources(message, say):
-    user = get_user(message["user"], say)
+def catch_all_message_search_resources(message):
+    slack_catch_all_message_search_resources(message)
+
+def slack_catch_all_message_search_resources(message):
+    user = get_user(message["user"])
     if user is None:
         return
 
@@ -202,19 +219,24 @@ def catch_all_message_search_resources(message, say):
         if items.count() > 0
         else _("Unfortunately, I couldn't find anything.")
     )
-    say(blocks=[paragraph(text), *results], text=text)
+    Slack().send_message(blocks=[paragraph(text), *results], text=text, channel=message["user"])
 
 
 @exception_handler
 @app.event("team_join")
-def create_new_hire_or_ask_perm(event, say):
+def create_new_hire_or_ask_perm(event):
     print("JOINED TEAM")
     SlackJoin(event).create_new_hire_or_ask_permission()
 
 
 @exception_handler
 @app.action("create:newhire:approve")
-def open_modal_for_selecting_seq_item(ack, body, payload, say, client):
+def open_modal_for_selecting_seq_item(ack, body, payload):
+    ack()
+    slack_open_modal_for_selecting_seq_item(body, payload)
+
+
+def slack_open_modal_for_selecting_seq_item(body, payload):
     view = {
         "type": "modal",
         "callback_id": "approve:newhire",
@@ -231,14 +253,14 @@ def open_modal_for_selecting_seq_item(ack, body, payload, say, client):
             }
         ),
     }
-    client.views_open(trigger_id=body["trigger_id"], view=view)
+    Slack().open_modal(trigger_id=body["trigger_id"], view=view)
 
 
 @exception_handler
 @app.view("approve:newhire")
-def add_sequences_to_new_hire(ack, say, body, client, view):
+def add_sequences_to_new_hire(ack, body, client, view):
 
-    user = get_user(body["user"]["id"], say)
+    user = get_user(body["user"]["id"])
     if user is None:
         return
 
@@ -281,25 +303,20 @@ def deny_new_hire(ack, body, client):
 
 @exception_handler
 @app.action("show_resource_items")
-def show_resource_items(ack, body, say):
+def show_resource_items(ack, body):
     ack()
-    user = get_user(body["user"]["id"], say)
-    if user is None:
-        return
-
-    blocks = [
-        paragraph(_("Select a category:")),
-        *SlackResourceCategory(user=user).category_buttons(),
-    ]
-    say(blocks=blocks, text=_("Select a category:"))
+    slack_show_all_resources_categories({"user": body["user"]["id"]})
 
 
 @exception_handler
 @app.action(re.compile("(category:)"))
-def show_resources_items_in_category(ack, payload, body, say):
+def show_resources_items_in_category(ack, payload, body):
     ack()
+    slack_show_resources_items_in_category(payload, body)
 
-    user = get_user(body["user"]["id"], say)
+
+def slack_show_resources_items_in_category(payload, body):
+    user = get_user(body["user"]["id"])
     if user is None:
         return
 
@@ -319,7 +336,7 @@ def show_resources_items_in_category(ack, payload, body, say):
         ],
     ]
 
-    say(blocks=blocks, text=_("Here are your options:"))
+    Slack().send_message(blocks=blocks, text=_("Here are your options:"), channel=body["user"]["id"])
 
 
 @exception_handler
@@ -346,9 +363,9 @@ def open_resource_dialog(ack, payload, body, say, client):
 
 @exception_handler
 @app.action("change_resource_page")
-def change_resource_page(ack, payload, body, say, client):
+def change_resource_page(ack, payload, body, client):
     ack()
-    user = get_user(body["user"]["id"], say)
+    user = get_user(body["user"]["id"])
     if user is None:
         return
 
@@ -375,10 +392,13 @@ def change_resource_page(ack, payload, body, say, client):
 
 @exception_handler
 @app.action("show_to_do_items")
-def show_to_do_items(ack, body, say):
+def show_to_do_items(ack, body):
     ack()
+    slack_show_to_do_items(body)
 
-    user = get_user(body["user"]["id"], say)
+
+def slack_show_to_do_items(body):
+    user = get_user(body["user"]["id"])
     if user is None:
         return
 
@@ -391,7 +411,7 @@ def show_to_do_items(ack, body, say):
         else _("I couldn't find any tasks.")
     )
 
-    say(blocks=[paragraph(text), *tasks], text=text)
+    Slack().send_message(blocks=[paragraph(text), *tasks], text=text, channel=body["user"]["id"])
 
 
 @exception_handler
@@ -414,7 +434,6 @@ def complete_to_do(ack, say, body, client, view):
     to_do_user = ToDoUser.objects.get(to_do=to_do, user=user)
 
     # Check if there are form items
-    print(to_do_user.to_do.form_items)
     for i in to_do_user.to_do.form_items:
         user_data = view["state"]["values"][i["id"]][i["id"]]
 
@@ -500,8 +519,8 @@ def next_page_resource(ack, say, body, client, view):
 
 @exception_handler
 @app.action("admin_task:complete")
-def complete_admin_task(ack, say, body, payload):
-    user = get_user(body["user"]["id"], say)
+def complete_admin_task(ack, body, payload):
+    user = get_user(body["user"]["id"])
     if user is None:
         return
 
@@ -514,8 +533,8 @@ def complete_admin_task(ack, say, body, payload):
 
 @exception_handler
 @app.action("dialog:welcome")
-def show_welcome_dialog(ack, say, body, payload, client):
-    user = get_user(body["user"]["id"], say)
+def show_welcome_dialog(ack, body, payload, client):
+    user = get_user(body["user"]["id"])
     if user is None:
         return
 
@@ -537,8 +556,8 @@ def show_welcome_dialog(ack, say, body, payload, client):
 
 @exception_handler
 @app.view("welcome")
-def save_welcome_message(ack, say, body, payload, client, view):
-    user = get_user(body["user"]["id"], say)
+def save_welcome_message(ack, body, payload, client, view):
+    user = get_user(body["user"]["id"])
     if user is None:
         return
 

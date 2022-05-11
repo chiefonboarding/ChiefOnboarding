@@ -6,6 +6,7 @@ from django.db import models
 from django.template import Context, Template
 from django.utils.translation import gettext_lazy as _
 from fernet_fields import EncryptedTextField
+from organization.models import Notification
 
 INTEGRATION_OPTIONS = (
     (0, _("Slack bot")),
@@ -85,8 +86,16 @@ class Integration(models.Model):
     def execute(self, new_hire, params):
         self.parms = params
         self.new_hire = new_hire
-        for item in self.manifest.execute:
+
+        for item in self.manifest["execute"]:
             self._run_request(item)
+
+        Notification.objects.create(
+            notification_type="ran_integration",
+            extra_text=self.name,
+            created_for=new_hire,
+        )
+
 
     def config_form(self, data=None):
         from .forms import IntegrationConfigForm

@@ -53,35 +53,48 @@ class Slack:
             return False
         return response
 
-    def update_message(self, blocks=[], channel="", timestamp=0):
+    def update_message(self, blocks=[], channel="", ts=0):
         # if there is no channel, then drop
-        if channel == "" or timestamp == 0:
+        print("blocks")
+        print(blocks)
+        print("channel")
+        print(channel)
+        print("ts")
+        print(ts)
+
+        if channel == "" or ts == 0:
             return False
 
         if settings.FAKE_SLACK_API:
             cache.set("slack_channel", channel)
-            cache.set("slack_ts", timestamp)
-            cache.set("slack_blocks", json.dumps(blocks))
+            cache.set("slack_ts", ts)
+            cache.set("slack_blocks", blocks)
             return
 
         return self.client.chat_update(
             channel=channel,
-            ts=timestamp,
+            ts=ts,
             blocks=blocks,
         )
 
-    def send_message(self, blocks=[], channel=""):
+    def send_message(self, blocks=[], channel="", text=""):
         # if there is no channel, then drop
         if channel == "":
             return False
 
+        print("blocks")
         print(blocks)
+        print("text")
+        print(text)
+        print("channel")
+        print(channel)
         if settings.FAKE_SLACK_API:
             cache.set("slack_channel", channel)
             cache.set("slack_blocks", blocks)
-            return
+            cache.set("slack_text", text)
+            return { "channel": "slacky" }
 
-        return self.client.chat_postMessage(channel=channel, blocks=blocks)
+        return self.client.chat_postMessage(channel=channel, text=text, blocks=blocks)
 
     def delete_message(self, ts=0, channel=""):
         if settings.FAKE_SLACK_API:
@@ -93,8 +106,10 @@ class Slack:
 
     def open_modal(self, trigger_id, view):
         if settings.FAKE_SLACK_API:
+            print(trigger_id)
+            print(view)
             cache.set("slack_trigger_id", trigger_id)
-            cache.set("slack_view", json.dumps(view))
+            cache.set("slack_view", view)
             return
 
         return self.client.views_open(trigger_id=trigger_id, view=view)
@@ -126,7 +141,3 @@ def button(text, style, value, action_id=""):
         "value": value,
         "action_id": action_id,
     }
-
-
-def has_slack_account(user_id):
-    return get_user_model().objects.filter(slack_user_id=user_id).exists()

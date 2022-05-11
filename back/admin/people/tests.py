@@ -1,5 +1,6 @@
 from datetime import timedelta
 from unittest.mock import Mock, patch
+from freezegun import freeze_time
 
 import pytest
 from django.contrib import auth
@@ -1358,10 +1359,71 @@ def test_import_users_from_slack(client, django_user_model):
     url = reverse("people:colleagues")
     response = client.get(url)
 
+    # 1 admin + two imported users
     assert django_user_model.objects.all().count() == 3
     assert response.status_code == 200
     assert "Stan" in response.content.decode()
     assert "John" in response.content.decode()
+
+
+@pytest.mark.django_db
+@patch(
+    "slack_bot.utils.Slack.find_by_email",
+    Mock(
+        return_value={ "user": { "id": "slackx" }}
+    )
+)
+def test_give_user_slack_access(settings, client, employee_factory, django_user_model):
+    settings.FAKE_SLACK_API = True
+
+    employee_with_slack = employee_factory(slack_user_id="slackx")
+    employee_without_slack = employee_factory()
+    admin_user = django_user_model.objects.create(role=1)
+    client.force_login(admin_user)
+
+    assert employee_with_slack.has_slack_account
+    url = reverse("people:connect-to-slack", args=[employee_with_slack.id])
+    response = client.post(url)
+
+    employee_with_slack.refresh_from_db()
+    assert "Give access" in response.content.decode()
+    assert not employee_with_slack.has_slack_account
+
+    assert not employee_without_slack.has_slack_account
+    url = reverse("people:connect-to-slack", args=[employee_without_slack.id])
+    response = client.post(url)
+
+    # New hire has now Slack access and message has been sent
+    employee_without_slack.refresh_from_db()
+    assert employee_without_slack.has_slack_account
+    assert employee_without_slack.slack_user_id == "slackx"
+    assert "Revoke Slack access" in response.content.decode()
+
+    assert cache.get("slack_channel") == employee_without_slack.slack_user_id
+    assert cache.get("slack_blocks") == [{'type': 'section', 'text': {'type': 'mrkdwn', 'text': 'Click on the button to see all the categories that are available to you!'}}, {'type': 'actions', 'elements': {'type': 'button', 'text': {'type': 'plain_text', 'text': 'resources'}, 'style': 'primary', 'value': 'show:resources', 'action_id': 'show:resources'}}]
+
+
+@pytest.mark.django_db
+@patch(
+    "slack_bot.utils.Slack.find_by_email",
+    Mock(
+        return_value=False
+    )
+)
+def test_give_user_slack_access_does_not_exist(settings, client, employee_factory, django_user_model):
+    settings.FAKE_SLACK_API = True
+
+    employee_without_slack = employee_factory()
+    admin_user = django_user_model.objects.create(role=1)
+    client.force_login(admin_user)
+
+    assert not employee_without_slack.has_slack_account
+    url = reverse("people:connect-to-slack", args=[employee_without_slack.id])
+    response = client.post(url)
+
+    employee_without_slack.refresh_from_db()
+    assert "Could not find user" in response.content.decode()
+    assert not employee_without_slack.has_slack_account
 
 
 @pytest.mark.django_db

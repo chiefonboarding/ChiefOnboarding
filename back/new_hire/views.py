@@ -171,7 +171,7 @@ class SlackToDoFormView(LoginRequiredMixin, TemplateView):
 
         to_do = get_object_or_404(ToDo, pk=self.kwargs["pk"])
         to_do_user = get_object_or_404(ToDoUser, to_do=to_do, user=self.request.user)
-        if len(to_do_user.form) > 0:
+        if len(to_do_user.completed_form_items) == len(to_do_user.form):
             context["form_already_filled"] = True
 
         context["object"] = to_do_user

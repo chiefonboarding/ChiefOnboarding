@@ -5,6 +5,10 @@ from django.contrib import auth
 from django.urls import reverse
 from freezegun import freeze_time
 
+from users.models import ToDoUser
+from organization.models import Notification
+from admin.admin_tasks.models import AdminTask
+
 
 @pytest.mark.django_db
 @freeze_time("2021-01-12")
@@ -145,7 +149,7 @@ def test_to_do_item_completed_view(client, new_hire_factory, to_do_user_factory)
 
 
 @pytest.mark.django_db
-def test_complete_to_do_item_view(client, new_hire_factory, to_do_user_factory):
+def test_complete_to_do_item_view(client, new_hire_factory, to_do_user_factory, sequence_factory, condition_to_do_factory):
     new_hire = new_hire_factory()
     to_do_user = to_do_user_factory(user=new_hire)
     client.force_login(new_hire)
@@ -163,7 +167,38 @@ def test_complete_to_do_item_view(client, new_hire_factory, to_do_user_factory):
     assert response.status_code == 200
     assert to_do_user.completed
 
-    # TODO: Sequences triggers
+
+@pytest.mark.django_db
+def test_complete_to_do_item_view(client, new_hire_factory, sequence_factory, condition_with_items_factory):
+    new_hire = new_hire_factory()
+    client.force_login(new_hire)
+
+    sequence = sequence_factory()
+    con = condition_with_items_factory(condition_type=1, sequence=sequence)
+
+    new_hire.add_sequences([sequence])
+    # Add to do item from sequence to new hire. Once we have triggered this, all
+    # other items should be added/triggered too.
+    new_hire.to_do.add(con.condition_to_do.all().first())
+
+    url = reverse(
+        "new_hire:to_do_complete",
+        args=[
+            ToDoUser.objects.filter(user=new_hire).first().id,
+        ],
+    )
+    client.post(url, follow=True)
+
+    # completed todo + 9 from condition
+    assert Notification.objects.all().count() == 10
+    assert new_hire.to_do.all().count() == 2
+    assert new_hire.resources.all().count() == 1
+    assert new_hire.appointments.all().count() == 1
+    assert new_hire.introductions.all().count() == 1
+    assert new_hire.badges.all().count() == 1
+    assert new_hire.preboarding.all().count() == 1
+
+    assert AdminTask.objects.count() == 1
 
 
 @pytest.mark.django_db
@@ -640,3 +675,88 @@ def test_course_form_view(client, new_hire_factory, resource_user_factory):
     # We got an answer
     assert resource_user1.answers.all().count() == 1
     assert resource_user1.answers.all().first().answers == {"item-0": "2"}
+
+
+@pytest.mark.django_db
+def test_seen_notifications(client, new_hire_factory):
+    new_hire = new_hire_factory()
+    new_hire.seen_updates=datetime.datetime.now() - datetime.timedelta(days=2)
+    new_hire.save()
+    client.force_login(new_hire)
+
+    current_date_time = datetime.datetime.now()
+    assert new_hire.seen_updates.day != current_date_time.day
+
+    url = reverse("new_hire:seen-updates")
+    response = client.get(url)
+
+    new_hire.refresh_from_db()
+    assert response.status_code == 200
+
+    assert new_hire.seen_updates.day == current_date_time.day
+
+
+@pytest.mark.django_db
+def test_slack_to_do_webpage_block(client, settings, new_hire_factory, to_do_factory):
+    # Set amount of tries to 3
+    settings.AXES_FAILURE_LIMIT = 3
+
+    new_hire_factory()
+    to_do = to_do_factory()
+
+    url = reverse("new_hire:slack_to_do", args=[to_do.id])
+
+    response = client.get(url + "?token=test")
+    assert response.status_code == 404
+
+    response = client.get(url + "?token=test12")
+    assert response.status_code == 404
+
+    response = client.get(url + "?token=test123")
+    assert response.status_code == 403
+    assert "Account locked: too many login attempts." in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_slack_to_do_webpage(client, new_hire_factory, to_do_user_factory):
+    new_hire = new_hire_factory()
+    client.force_login(new_hire)
+    to_do_user = to_do_user_factory(
+        user=new_hire,
+        to_do__content={
+            "time": 0,
+            "blocks": [
+                {
+                    "id": "1",
+                    "type": "form",
+                    "data": {
+                        "content": "Please answer this",
+                        "type": "text",
+                    },
+                },
+                {
+                    "id": "2",
+                    "type": "header",
+                    "data": {
+                        "content": "Random header",
+                        "level": "2",
+                    },
+                },
+                {
+                    "id": "3",
+                    "type": "form",
+                    "data": {
+                        "content": "Please answer this too",
+                        "type": "input",
+                    },
+                },
+            ],
+        },
+    )
+
+    url = reverse("new_hire:slack_to_do", args=[to_do_user.to_do.id])
+
+    response = client.get(url + "?token=" + new_hire.unique_url)
+
+    assert response.status_code == 200
+

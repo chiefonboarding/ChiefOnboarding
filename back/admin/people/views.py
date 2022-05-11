@@ -183,19 +183,21 @@ class ColleagueGiveSlackAccessView(LoginRequiredMixin, AdminPermMixin, View):
         context["slack"] = True
         context["url_name"] = "people:connect-to-slack"
 
+        # If Slack user already exists, then clear fields (getting disconnected)
         if user.has_slack_account:
-            user.slack_user.id = ""
+            user.slack_user_id = ""
             user.slack_channel_id = ""
             user.save()
             context["button_name"] = _("Give access")
             return render(request, self.template_name, context)
 
-        s = Slack()
-        response = s.find_by_email(user.email)
+        # If we can't find the person, then drop the request and let user know
+        response = Slack().find_by_email(user.email)
         if not response:
             context["button_name"] = _("Could not find user")
             return render(request, self.template_name, context)
 
+        # Connect slack user and send initial message
         user.slack_user_id = response["user"]["id"]
         user.save()
         translation.activate(user.language)
@@ -211,6 +213,7 @@ class ColleagueGiveSlackAccessView(LoginRequiredMixin, AdminPermMixin, View):
                     text=_("resources"),
                     value="show:resources",
                     style="primary",
+                    action_id="show:resources",
                 )
             ),
         ]
@@ -219,11 +222,7 @@ class ColleagueGiveSlackAccessView(LoginRequiredMixin, AdminPermMixin, View):
         user.slack_channel_id = res["channel"]
         user.save()
 
-        button_name = _("Revoke Slack access")
-        if not user.has_slack_account:
-            button_name = _("Give access")
-
-        context["button_name"] = button_name
+        context["button_name"] = _("Revoke Slack access")
         return render(request, self.template_name, context)
 
 

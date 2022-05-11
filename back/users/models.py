@@ -43,45 +43,9 @@ class Department(models.Model):
 
 
 class CustomUserManager(BaseUserManager):
-    def _create_user(
-        self, first_name, last_name, email, password, role, **extra_fields
-    ):
-        now = datetime.now()
-        if not email:
-            raise ValueError(_("The given email must be set"))
-        email = self.normalize_email(email)
-        user = self.model(
-            first_name=first_name,
-            last_name=last_name,
-            email=email,
-            role=role,
-            date_joined=now,
-            **extra_fields,
-        )
-        if password is not None:
-            user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_new_hire(
-        self, first_name, last_name, email, password=None, **extra_fields
-    ):
-        user = self._create_user(
-            first_name, last_name, email, password, 0, **extra_fields
-        )
-        return user
-
-    def create_admin(self, first_name, last_name, email, password, **extra_fields):
-        return self._create_user(
-            first_name, last_name, email, password, 1, **extra_fields
-        )
-
-    def create_manager(self, first_name, last_name, email, password, **extra_fields):
-        return self._create_user(
-            first_name, last_name, email, password, 2, **extra_fields
-        )
 
     def get_by_natural_key(self, email):
+        # Make validation case sensitive
         return self.get(**{self.model.USERNAME_FIELD + "__iexact": email})
 
 
@@ -233,7 +197,7 @@ class User(AbstractBaseUser):
             initial_characters += self.last_name[0]
         return initial_characters
 
-    @cached_property
+    @property
     def has_slack_account(self):
         return self.slack_user_id != ""
 
@@ -403,11 +367,11 @@ class ToDoUser(models.Model):
 
     objects = ToDoUserManager()
 
-    @property
+    @cached_property
     def object_name(self):
         return self.to_do.name
 
-    @cached_property
+    @property
     def completed_form_items(self):
         completed_blocks = []
         filled_items = [item["id"] for item in self.form]
@@ -416,7 +380,7 @@ class ToDoUser(models.Model):
             if (
                 "data" in block
                 and "type" in block["data"]
-                and block["data"]["type"] in ["input", "check", "upload"]
+                and block["data"]["type"] in ["input", "text", "check", "upload"]
             ):
                 item = next((x for x in filled_items if x == block["id"]), None)
                 if item is not None:

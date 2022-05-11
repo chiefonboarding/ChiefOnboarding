@@ -42,18 +42,6 @@ def get_sequence_templates_model(template_slug):
         return apps.get_model(model_item["app"], model_item["model"])
 
 
-def get_user_field(template_slug):
-    if template_model_exists(template_slug):
-        return next(
-            (
-                x["user_field"]
-                for x in SEQUENCE_MODELS
-                if x["model"].lower() == template_slug.lower()
-            ),
-            None,
-        )
-
-
 def get_model_item(template_slug):
     model_item = None
     if template_model_exists(template_slug):

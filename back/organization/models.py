@@ -262,6 +262,7 @@ NOTIFICATION_TYPES = [
     ("sent_text_message", _("A new text message has been sent")),
     ("sent_slack_message", _("A new slack message has been sent")),
     ("failed_no_phone", _("Couldn't sent text message: number is missing")),
+    ("ran_integration", _("Integration has been triggered")),
 ]
 
 

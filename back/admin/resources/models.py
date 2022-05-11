@@ -165,7 +165,7 @@ class Chapter(ContentMixin, models.Model):
         # Small top menu in the dialog
 
         # Slack's max length for the name is 75 chars
-        name = self.name if len(self.name) < 75 else self.name[:70] + "..."
+        name = self.name if len(self.name) < 75 else self.name[:69] + "..."
 
         # If it's within another item, then add a - to indicate that
         if self.parent_chapter is not None:

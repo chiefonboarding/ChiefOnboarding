@@ -29,6 +29,35 @@ def test_create_resource(client, django_user_model):
 
 
 @pytest.mark.django_db
+def test_create_resource_with_inner_chapters(client, django_user_model):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    url = reverse("resources:create")
+    response = client.get(url)
+
+    assert "Create resource item" in response.content.decode()
+
+    data = {
+        "name": "Resource item 1",
+        "tags": ["hi", "whoop"],
+        "on_day": 1,
+        "chapters": '[{ "id": "tesk243", "name": "Continuing Education", "content": { "time": 0, "blocks": [{ "data": { "text": "One of our core values is “Be better today" }, "type": "paragraph" }]}, "type": 0, "children": [{ "id": "23434", "name": "Inner test", "content": { "time": 0, "blocks": [{ "data": { "text": "This is an inner one" }, "type": "paragraph" }]}, "type": 0, "children": [], "order": 1 }], "order": 0 }]',  # noqa: E501
+    }
+
+    response = client.post(url, data, follow=True)
+
+    assert response.status_code == 200
+
+    assert Resource.objects.all().count() == 1
+    assert Chapter.objects.all().count() == 2
+
+    top_chapter = Chapter.objects.get(name="Continuing Education")
+    inner_chapter = Chapter.objects.get(name="Inner test")
+
+    assert not top_chapter.parent_chapter
+    assert inner_chapter.parent_chapter
+
+@pytest.mark.django_db
 def test_update_resource(client, django_user_model, resource_factory):
     client.force_login(django_user_model.objects.create(role=1))
     resource = resource_factory()
@@ -67,6 +96,7 @@ def test_update_resource(client, django_user_model, resource_factory):
 @pytest.mark.django_db
 def test_chapter_slack_title(chapter_factory):
     chapter = chapter_factory(name="Test chapter")
+    parent_chapter = chapter_factory(name="parent chapter")
     expected_menu_item = {
         "text": {"type": "plain_text", "text": "Test chapter", "emoji": True},
         "value": str(chapter.id),
@@ -105,12 +135,30 @@ def test_chapter_slack_title(chapter_factory):
             "type": "plain_text",
             "text": (
                 "Hello, this is a new title, just trying to hit 75 chars here. Test "
-                "tes..."
+                "te..."
             ),
             "emoji": True,
         },
         "value": str(chapter.id),
     }
+    assert chapter.slack_menu_item() == expected_menu_item
+
+    # Check with parent chapter
+    chapter.parent_chapter = parent_chapter
+    chapter.save()
+
+    expected_menu_item = {
+        "text": {
+            "type": "plain_text",
+            "text": (
+                "- Hello, this is a new title, just trying to hit 75 chars here. Test "
+                "te..."
+            ),
+            "emoji": True,
+        },
+        "value": str(chapter.id),
+    }
+
     assert chapter.slack_menu_item() == expected_menu_item
 
 

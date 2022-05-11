@@ -15,6 +15,12 @@ from .models import (
     Sequence,
 )
 
+from admin.badges.factories import BadgeFactory
+from admin.introductions.factories import IntroductionFactory
+from admin.preboarding.factories import PreboardingFactory
+from admin.resources.factories import ResourceFactory
+from admin.appointments.factories import AppointmentFactory
+
 
 class PendingAdminTaskFactory(factory.django.DjangoModelFactory):
     assigned_to = factory.SubFactory(AdminFactory)
@@ -43,6 +49,102 @@ class ConditionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Condition
 
+
+class ConditionWithItemsFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Condition
+
+    @factory.post_generation
+    def condition_to_do(obj, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if not extracted:
+            # Add one to do item for the condition
+            obj.condition_to_do.add(ToDoFactory())
+
+    @factory.post_generation
+    def to_do(obj, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if not extracted:
+            # Add one to do item for the condition
+            obj.to_do.add(ToDoFactory())
+
+    @factory.post_generation
+    def resources(obj, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if not extracted:
+            # Add one to do item for the condition
+            obj.resources.add(ResourceFactory())
+
+    @factory.post_generation
+    def appointments(obj, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if not extracted:
+            # Add one to do item for the condition
+            obj.appointments.add(AppointmentFactory())
+
+    @factory.post_generation
+    def introductions(obj, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if not extracted:
+            # Add one to do item for the condition
+            obj.introductions.add(IntroductionFactory())
+
+    @factory.post_generation
+    def preboarding(obj, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if not extracted:
+            # Add one to do item for the condition
+            obj.preboarding.add(PreboardingFactory())
+
+    @factory.post_generation
+    def badges(obj, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if not extracted:
+            # Add one to do item for the condition
+            obj.badges.add(BadgeFactory())
+
+    @factory.post_generation
+    def admin_tasks(obj, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if not extracted:
+            # Add one to do item for the condition
+            obj.admin_tasks.add(PendingAdminTaskFactory())
+
+    @factory.post_generation
+    def external_messages(obj, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if not extracted:
+            # Add one to do item for the condition
+            pending_message = PendingEmailMessage()
+            pending_message.save()
+            obj.external_messages.add(pending_message)
+
+    @factory.post_generation
+    def integration_configs(obj, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if not extracted:
+            # Add one to do item for the condition
+            obj.integration_configs.add(IntegrationConfigFactory())
 
 class ConditionToDoFactory(factory.django.DjangoModelFactory):
     condition_type = 1
@@ -90,3 +192,5 @@ class IntegrationConfigFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = IntegrationConfig
+
+

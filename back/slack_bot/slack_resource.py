@@ -118,5 +118,5 @@ class SlackResourceCategory:
             buttons = [button(_("No category"), "primary", "-1", "category:-1")]
         for i in categories:
             buttons.append(button(i.name, "primary", f"{i.id}", f"category:{i.id}"))
-        blocks = [actions(buttons)]
+        blocks = [paragraph(_("Select a category:")), actions(buttons)]
         return blocks
