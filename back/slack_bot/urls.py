@@ -3,8 +3,6 @@ from django.http import HttpRequest
 from django.urls import path
 from django.views.decorators.csrf import csrf_exempt
 
-from .views import app
-
 
 @csrf_exempt
 def slack_events_handler(request: HttpRequest):
@@ -14,10 +12,14 @@ def slack_events_handler(request: HttpRequest):
 app_name = "slack"
 if not settings.SLACK_USE_SOCKET:
     from slack_bolt.adapter.django import SlackRequestHandler
+    from .views import app
 
     handler = SlackRequestHandler(app=app)
     urlpatterns = [
         path("slack/events", slack_events_handler, name="slack_events"),
     ]
+elif settings.SLACK_API_KEY != "":
+    # Start websocket app
+    from .views import app
 else:
     urlpatterns = []
