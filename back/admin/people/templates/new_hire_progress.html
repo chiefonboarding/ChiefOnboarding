@@ -90,7 +90,7 @@
                   {% translate "Reopen" %}
                 </a>
               {% else %}
-                <a href="{% url 'people:new_hire_remind' 'resourceuser' todo.id %}" class="btn btn-primary">
+                <a href="{% url 'people:new_hire_remind' 'resourceuser' resource.id %}" class="btn btn-primary">
                   {% translate "Remind" %}
                 </a>
               {% endif %}

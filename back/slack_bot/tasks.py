@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import translation
 from django.utils.formats import localize
@@ -8,13 +9,16 @@ from organization.models import Organization, WelcomeMessage
 from slack_bot.slack_intro import SlackIntro
 from slack_bot.slack_misc import get_new_hire_first_message_buttons
 from slack_bot.slack_to_do import SlackToDoManager
-from slack_bot.utils import Slack, paragraph
+from slack_bot.utils import Slack, actions, button, paragraph
 from users.models import ToDoUser
 
 
 def link_slack_users(users=[]):
-    # Drop if Slack is not integrated
-    if not Integration.objects.filter(integration=0).exists():
+    # Drop if Slack is not enabled
+    if (
+        not Integration.objects.filter(integration=0).exists()
+        and settings.SLACK_APP_TOKEN == ""
+    ):
         return
 
     slack = Slack()
@@ -53,11 +57,13 @@ def link_slack_users(users=[]):
                 ]
             )
 
-            res = Slack().send_message(blocks=blocks, channel=user.slack_user_id)
+            res = Slack().send_message(
+                blocks=blocks, text=_("Welcome!"), channel=user.slack_user_id
+            )
             user.slack_channel_id = res["channel"]
             user.save()
 
-            # Send user to do items for that day (and perhaps over due ones)
+            # Send user to do items for that day (and perhaps overdue ones)
             tasks = ToDoUser.objects.overdue(user) | ToDoUser.objects.due_today(user)
 
             if tasks.exists():
@@ -65,11 +71,18 @@ def link_slack_users(users=[]):
                     tasks.values_list("id", flat=True),
                     text=_("These are the tasks you need to complete:"),
                 )
-                Slack().send_message(blocks=blocks, channel=user.slack_channel_id)
+                Slack().send_message(
+                    blocks=blocks,
+                    text=_("These are the tasks you need to complete:"),
+                    channel=user.slack_user_id,
+                )
 
 
 def update_new_hire():
-    if not Integration.objects.filter(integration=0).exists():
+    if (
+        not Integration.objects.filter(integration=0).exists()
+        and settings.SLACK_APP_TOKEN == ""
+    ):
         return
 
     for user in get_user_model().new_hires.with_slack():
@@ -84,29 +97,26 @@ def update_new_hire():
 
         translation.activate(user.language)
 
-        tasks = ToDoUser.objects.overdue(user)
+        overdue_items = ToDoUser.objects.overdue(user)
+        tasks = ToDoUser.objects.due_today(user) | overdue_items
 
         # If any overdue tasks exist, then notify the user
         if tasks.exists():
+            if overdue_items.exists():
+                text = _(
+                    "Good morning! These are the tasks you need to complete. Some to "
+                    "do items are overdue. Please complete those as soon as possible!"
+                )
+            else:
+                text = _(
+                    "Good morning! These are the tasks you need to complete today:"
+                )
+
             blocks = SlackToDoManager(user).get_blocks(
                 tasks.values_list("id", flat=True),
-                text=_(
-                    "Some to do items are overdue. Please complete those as "
-                    "soon as possible!"
-                ),
+                text=text,
             )
-            Slack().send_message(blocks=blocks, channel=user.slack_channel_id)
-
-        # to do items for today
-        tasks = ToDoUser.objects.due_today(user)
-
-        # If any tasks exist that are due today, then notify the user
-        if tasks.exists():
-            blocks = SlackToDoManager(user).get_blocks(
-                tasks.values_list("id", flat=True),
-                text=_("Good morning! These are the tasks you need to complete today:"),
-            )
-            Slack().send_message(blocks=blocks, channel=user.slack_channel_id)
+            Slack().send_message(blocks=blocks, text=text, channel=user.slack_user_id)
 
 
 def first_day_reminder():
@@ -134,11 +144,12 @@ def first_day_reminder():
             text = _(
                 "We got some new hires coming in! %(names)s are starting today!"
             ) % {"names": names}
-        Slack().send_message(
-            blocks=[paragraph(text)], channel="#" + org.slack_default_channel
+        send_to = (
+            org.slack_default_channel
+            if org.slack_default_channel is not None
+            else "general"
         )
-
-    return True
+        Slack().send_message(text=text, channel="#" + send_to)
 
 
 def introduce_new_people():
@@ -156,7 +167,6 @@ def introduce_new_people():
     if not new_hires.exists():
         return
 
-    s = Slack()
     translation.activate(org.language)
 
     blocks = []
@@ -170,52 +180,64 @@ def introduce_new_people():
             "We have a new hire coming in soon! Make sure to leave a message for "
             "%(first_name)s!"
         ) % {"first_name": new_hires.first().first_name}
-    blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": text}})
+
+    blocks.append(paragraph(text))
 
     for new_hire in new_hires:
         message = f"*{new_hire.full_name}*"
+
+        # Add new hire introduction message
         if new_hire.message != "":
             message += f"\n_{new_hire.message}_"
-        block = {"type": "section", "text": {"type": "mrkdwn", "text": message}}
+
+        block = paragraph(message)
+
+        # Add profile image
         if new_hire.profile_image:
             block["accessory"] = {
                 "type": "image",
                 "image_url": new_hire.profile_image.get_url(),
                 "alt_text": "profile image",
             }
+
         blocks.append(block)
+
+        # If position is filled, then add that
         footer_extra = ""
         if new_hire.position != "":
-            footer_extra = _(" and is our new %(postition)s") % {
+            footer_extra = _(" and is our new %(position)s") % {
                 "position": new_hire.position
             }
-        context = _("%(first_name)s starts on %(start_day)s %(footer_extra)s.") % {
+
+        # Add when the new hire starts
+        start_text = _("%(first_name)s starts on %(start_day)s%(footer_extra)s.") % {
             "first_name": new_hire.first_name,
             "start_day": localize(new_hire.start_day),
             "footer_extra": footer_extra,
         }
+
+        blocks.append(paragraph(start_text))
+
+        # Add block to send personal message
         blocks.append(
-            {
-                "type": "context",
-                "elements": [{"type": "plain_text", "text": context}],
-            }
+            actions(
+                [
+                    button(
+                        text=_("Welcome this new hire!"),
+                        action_id="dialog:welcome",
+                        style="primary",
+                        value=str(new_hire.id),
+                    )
+                ]
+            )
         )
-        blocks.append(
-            {
-                "type": "actions",
-                "elements": [
-                    {
-                        "type": "button",
-                        "text": {
-                            "type": "plain_text",
-                            "text": _("Welcome this new hire!"),
-                        },
-                        "action_id": "dialog:welcome",
-                        "value": str(new_hire.id),
-                    }
-                ],
-            }
-        )
-        new_hire.is_introduced_to_colleagues = True
-        new_hire.save()
-    s.send_message(channel="#" + org.slack_default_channel, blocks=blocks)
+
+    send_to = (
+        org.slack_default_channel
+        if org.slack_default_channel is not None
+        else "general"
+    )
+    Slack().send_message(channel="#" + send_to, text=text, blocks=blocks)
+
+    # Make sure they aren't introduced again
+    new_hires.update(is_introduced_to_colleagues=True)

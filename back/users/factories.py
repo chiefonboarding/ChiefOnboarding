@@ -29,7 +29,7 @@ class NewHireFactory(factory.django.DjangoModelFactory):
     first_name = FuzzyText()
     last_name = FuzzyText()
     role = 0
-    start_day = datetime.datetime.now().date()
+    start_day = factory.LazyFunction(lambda: datetime.datetime.now().date())
     email = factory.Sequence(lambda n: "fake_new_hire_{}@example.com".format(n))
 
     class Meta:

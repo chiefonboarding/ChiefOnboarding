@@ -1,7 +1,11 @@
+import json
+
 import requests
 from django import forms
+from django.core.exceptions import ValidationError
 
 from .models import Integration
+from .serializers import ManifestSerializer
 
 
 class IntegrationConfigForm(forms.ModelForm):
@@ -42,6 +46,13 @@ class IntegrationForm(forms.ModelForm):
     class Meta:
         model = Integration
         fields = ("name", "manifest")
+
+    def clean_manifest(self):
+        manifest = self.cleaned_data["manifest"]
+        manifest_serializer = ManifestSerializer(data=manifest)
+        if not manifest_serializer.is_valid():
+            raise ValidationError(json.dumps(manifest_serializer.errors))
+        return manifest
 
 
 class IntegrationExtraArgsForm(forms.ModelForm):

@@ -13,7 +13,7 @@ from admin.introductions.models import Introduction
 from admin.preboarding.models import Preboarding
 from admin.resources.models import Resource
 from admin.to_do.models import ToDo
-from misc.fields import ContentJSONField
+from misc.fields import ContentJSONField, EncryptedJSONField
 from misc.mixins import ContentMixin
 from organization.models import Notification
 from slack_bot.utils import Slack
@@ -374,7 +374,7 @@ class PendingAdminTask(models.Model):
 
 class IntegrationConfig(models.Model):
     integration = models.ForeignKey(Integration, on_delete=models.CASCADE, null=True)
-    additional_data = models.JSONField(default=dict)
+    additional_data = EncryptedJSONField(default=dict)
 
     @property
     def name(self):
@@ -512,10 +512,11 @@ class Condition(models.Model):
                     notification_type=item.notification_add_type,
                     extra_text=item.name,
                     created_for=user,
+                    item_id=item.id,
                 )
 
         # For the ones that aren't a quick copy/paste, follow back to their model and
-        # execute them
+        # execute them. It will also add an item to the notification model there.
         for field in ["admin_tasks", "external_messages", "integration_configs"]:
             for item in getattr(self, field).all():
                 # Only for integration configs

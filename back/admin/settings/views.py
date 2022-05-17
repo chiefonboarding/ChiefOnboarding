@@ -40,6 +40,14 @@ class OrganizationGeneralUpdateView(
     def get_object(self):
         return Organization.object.get()
 
+    def form_valid(self, form):
+        from admin.sequences.models import Sequence
+
+        selected_sequences = form.cleaned_data["default_sequences"]
+        Sequence.objects.all().update(auto_add=False)
+        Sequence.objects.filter(id__in=selected_sequences).update(auto_add=True)
+        return super().form_valid(form)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = _("General Updates")

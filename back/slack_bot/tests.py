@@ -1,9 +1,19 @@
 import json
 from datetime import datetime, timedelta
+from unittest.mock import Mock, patch
 
 import pytest
 from django.core.cache import cache
+from django.utils.formats import localize
+from freezegun import freeze_time
 
+from organization.models import Organization, WelcomeMessage
+from slack_bot.tasks import (
+    first_day_reminder,
+    introduce_new_people,
+    link_slack_users,
+    update_new_hire,
+)
 from slack_bot.views import (
     slack_catch_all_message_search_resources,
     slack_open_modal_for_selecting_seq_item,
@@ -210,6 +220,7 @@ def test_slack_show_resources_items_in_category(
 
 
 @pytest.mark.django_db
+@freeze_time("2022-05-13")
 def test_slack_show_to_do_items_based_on_message(new_hire_factory, to_do_user_factory):
     new_hire = new_hire_factory(
         slack_user_id="slackx", start_day=datetime.now().today() - timedelta(days=2)
@@ -587,4 +598,553 @@ def test_slack_to_do_complete_external_form(new_hire_factory, to_do_user_factory
             "type": "section",
             "text": {"type": "mrkdwn", "text": "I couldn't find any tasks."},
         }
+    ]
+
+
+# TEST TASKS
+@pytest.mark.django_db
+@patch(
+    "slack_bot.utils.Slack.find_by_email", Mock(return_value={"user": {"id": "slackx"}})
+)
+def test_link_slack_users_slack_not_enabled(new_hire_factory, integration_factory):
+    new_hire = new_hire_factory()
+
+    # Gets blocked imidiately for not having Slack enabled
+    link_slack_users()
+
+    new_hire.refresh_from_db()
+    assert new_hire.slack_user_id == ""
+
+    # Add integration
+    integration_factory(integration=0)
+
+    link_slack_users()
+
+    new_hire.refresh_from_db()
+    assert new_hire.slack_user_id == "slackx"
+
+
+@pytest.mark.django_db
+@patch("slack_bot.utils.Slack.find_by_email", Mock(return_value=False))
+def test_link_slack_users_not_found(new_hire_factory, integration_factory):
+    # Enable Slack
+    integration_factory(integration=0)
+
+    new_hire = new_hire_factory()
+
+    link_slack_users()
+
+    new_hire.refresh_from_db()
+    assert new_hire.slack_user_id == ""
+
+
+@pytest.mark.django_db
+@patch(
+    "slack_bot.utils.Slack.find_by_email", Mock(return_value={"user": {"id": "slackx"}})
+)
+def test_link_slack_users_send_welcome_message_without_to_dos(
+    new_hire_factory, integration_factory, introduction_factory
+):
+    # Enable Slack
+    integration_factory(integration=0)
+
+    new_hire = new_hire_factory()
+    # Test personalizing message
+    wm = WelcomeMessage.objects.get(language=new_hire.language, message_type=3)
+    wm.message += " {{first_name}}"
+    wm.save()
+
+    # Add an introduction message to show
+    intro = introduction_factory()
+    new_hire.introductions.add(intro)
+
+    # Add a todo message to show
+    # to_do_user = to_do_user_factory(user=new_hire, to_do__due_on_day=1)
+
+    link_slack_users()
+
+    assert cache.get("slack_channel", "") == "slackx"
+    assert cache.get("slack_blocks") == [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": wm.message.split(" ")[0] + " " + new_hire.first_name,
+            },
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Click a button to see more information :)",
+            },
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "To do items"},
+                    "action_id": "show_to_do_items",
+                },
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "Resources"},
+                    "action_id": "show_resource_items",
+                },
+            ],
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"*{intro.name}:*{intro.intro_person.full_name}\n{intro.intro_person.position}\n_Hi {new_hire.first_name}, how is it going? Great to have you with us!_\n{intro.intro_person.email} ",  # noqa
+            },
+        },
+    ]
+
+
+@pytest.mark.django_db
+@patch(
+    "slack_bot.utils.Slack.find_by_email", Mock(return_value={"user": {"id": "slackx"}})
+)
+def test_link_slack_users_send_welcome_message_with_to_dos(
+    new_hire_factory, integration_factory, introduction_factory, to_do_user_factory
+):
+    # Enable Slack
+    integration_factory(integration=0)
+
+    new_hire = new_hire_factory()
+    # Test personalizing message
+    wm = WelcomeMessage.objects.get(language=new_hire.language, message_type=3)
+    wm.message += " {{first_name}}"
+    wm.save()
+
+    # Add an introduction message to show
+    intro = introduction_factory()
+    new_hire.introductions.add(intro)
+
+    # Add a todo message to show
+    to_do_user = to_do_user_factory(user=new_hire, to_do__due_on_day=1)
+
+    link_slack_users()
+
+    assert cache.get("slack_channel", "") == "slackx"
+    assert cache.get("slack_blocks", "") == [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "These are the tasks you need to complete:",
+            },
+        },
+        {
+            "type": "section",
+            "block_id": str(to_do_user.to_do.id),
+            "text": {
+                "type": "mrkdwn",
+                "text": f"*{to_do_user.to_do.name}*\nThis task is due today",
+            },
+            "accessory": {
+                "type": "button",
+                "text": {"type": "plain_text", "text": "View details"},
+                "style": "primary",
+                "value": str(to_do_user.to_do.id),
+                "action_id": f"dialog:to_do:{to_do_user.to_do.id}",
+            },
+        },
+    ]
+
+
+@pytest.mark.django_db
+@patch(
+    "slack_bot.utils.Slack.find_by_email", Mock(return_value={"user": {"id": "slackx"}})
+)
+def test_link_slack_users_only_send_once(new_hire_factory, integration_factory):
+    # Enable Slack
+    integration_factory(integration=0)
+
+    new_hire_factory(slack_user_id="slackx")
+    link_slack_users()
+
+    # Shouldn't triggered the "send message" function
+    assert cache.get("slack_channel", "") == ""
+
+
+@pytest.mark.django_db
+@freeze_time("2022-05-13 08:00:00")
+def test_update_new_hire_without_valid_slack(
+    new_hire_factory, integration_factory, to_do_user_factory
+):
+    new_hire = new_hire_factory(
+        start_day=datetime.now().date() - timedelta(days=2), slack_user_id="slackx"
+    )
+
+    # One to do item that is over due and one that's not due yet
+    to_do_user_factory(user=new_hire, to_do__due_on_day=3)
+
+    update_new_hire()
+
+    # Don't send anything, no valid integration found
+    assert cache.get("slack_channel", "") == ""
+
+
+@pytest.mark.django_db
+@freeze_time("2022-05-13 09:00:00")
+def test_update_new_hire_not_valid_time(
+    new_hire_factory, integration_factory, to_do_user_factory
+):
+    # Enable Slack
+    integration_factory(integration=0)
+
+    new_hire = new_hire_factory(
+        start_day=datetime.now().date() - timedelta(days=2), slack_user_id="slackx"
+    )
+
+    # One to do item that is over due and one that's not due yet
+    to_do_user_factory(user=new_hire, to_do__due_on_day=3)
+
+    update_new_hire()
+
+    assert cache.get("slack_channel", "") == ""
+
+
+@pytest.mark.django_db
+@freeze_time("2022-05-13 08:00:00")
+def test_update_new_hire_with_to_do_updates(
+    new_hire_factory, integration_factory, to_do_user_factory
+):
+    # Enable Slack
+    integration_factory(integration=0)
+
+    new_hire = new_hire_factory(
+        start_day=datetime.now().date() - timedelta(days=2), slack_user_id="slackx"
+    )
+
+    # One to do item that is over due and one that's not due yet
+    # to_do_user1 = to_do_user_factory(user=new_hire, to_do__due_on_day=1)
+    to_do_user1 = to_do_user_factory(user=new_hire, to_do__due_on_day=3)
+
+    # Also create one that is already completed
+    to_do_user_factory(user=new_hire, to_do__due_on_day=1, completed=True)
+
+    update_new_hire()
+
+    assert cache.get("slack_channel") == "slackx"
+    assert (
+        cache.get("slack_text")
+        == "Good morning! These are the tasks you need to complete today:"
+    )
+    assert cache.get("slack_blocks") == [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Good morning! These are the tasks you need to complete today:",
+            },
+        },
+        {
+            "type": "section",
+            "block_id": str(to_do_user1.to_do.id),
+            "text": {
+                "type": "mrkdwn",
+                "text": f"*{to_do_user1.to_do.name}*\nThis task is due today",
+            },
+            "accessory": {
+                "type": "button",
+                "text": {"type": "plain_text", "text": "View details"},
+                "style": "primary",
+                "value": str(to_do_user1.to_do.id),
+                "action_id": f"dialog:to_do:{to_do_user1.to_do.id}",
+            },
+        },
+    ]
+
+
+@pytest.mark.django_db
+@freeze_time("2022-05-13 09:00:00")
+def test_update_new_hire_with_to_do_updates_outside_8am(
+    new_hire_factory, integration_factory, to_do_user_factory
+):
+    # Enable Slack
+    integration_factory(integration=0)
+
+    new_hire = new_hire_factory(
+        start_day=datetime.now().date() - timedelta(days=2), slack_user_id="slackx"
+    )
+
+    # One to do item that is over due and one that's not due yet
+    to_do_user_factory(user=new_hire, to_do__due_on_day=1)
+    to_do_user_factory(user=new_hire, to_do__due_on_day=3)
+
+    # Also create one that is already completed
+    to_do_user_factory(user=new_hire, to_do__due_on_day=1, completed=True)
+
+    update_new_hire()
+
+    assert cache.get("slack_channel", "") == ""
+
+
+@pytest.mark.django_db
+@freeze_time("2022-05-13 08:00:00")
+def test_update_new_hire_with_to_do_updates_overdue(
+    new_hire_factory, integration_factory, to_do_user_factory
+):
+    # Enable Slack
+    integration_factory(integration=0)
+
+    new_hire = new_hire_factory(
+        start_day=datetime.now().date() - timedelta(days=2), slack_user_id="slackx"
+    )
+
+    # One to do item that is over due and one that's not due yet
+    to_do_user1 = to_do_user_factory(user=new_hire, to_do__due_on_day=1)
+    to_do_user2 = to_do_user_factory(user=new_hire, to_do__due_on_day=3)
+
+    # Also create one that is already completed
+    to_do_user_factory(user=new_hire, to_do__due_on_day=1, completed=True)
+
+    update_new_hire()
+
+    assert cache.get("slack_channel") == "slackx"
+    assert (
+        cache.get("slack_text")
+        == "Good morning! These are the tasks you need to complete. Some to do items are overdue. Please complete those as soon as possible!"  # noqa
+    )
+    assert cache.get("slack_blocks") == [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Good morning! These are the tasks you need to complete. Some to do items are overdue. Please complete those as soon as possible!",  # noqa
+            },
+        },
+        {
+            "type": "section",
+            "block_id": str(to_do_user1.to_do.id),
+            "text": {
+                "type": "mrkdwn",
+                "text": f"*{to_do_user1.to_do.name}*\nThis task is overdue",
+            },
+            "accessory": {
+                "type": "button",
+                "text": {"type": "plain_text", "text": "View details"},
+                "style": "primary",
+                "value": str(to_do_user1.to_do.id),
+                "action_id": f"dialog:to_do:{to_do_user1.to_do.id}",
+            },
+        },
+        {
+            "type": "section",
+            "block_id": str(to_do_user2.to_do.id),
+            "text": {
+                "type": "mrkdwn",
+                "text": f"*{to_do_user2.to_do.name}*\nThis task is due today",
+            },
+            "accessory": {
+                "type": "button",
+                "text": {"type": "plain_text", "text": "View details"},
+                "style": "primary",
+                "value": str(to_do_user2.to_do.id),
+                "action_id": f"dialog:to_do:{to_do_user2.to_do.id}",
+            },
+        },
+    ]
+
+
+@pytest.mark.django_db
+@freeze_time("2022-05-13 08:00:00")
+def test_first_day_reminder(new_hire_factory, integration_factory):
+    org = Organization.object.get()
+    org.send_new_hire_start_reminder = False
+    org.save()
+
+    # Enable Slack
+    integration_factory(integration=0)
+
+    new_hire1 = new_hire_factory(
+        start_day=datetime.now().date(), slack_user_id="slackx"
+    )
+    new_hire2 = new_hire_factory(start_day=datetime.now().date())
+
+    new_hire_factory(
+        start_day=datetime.now().date() - timedelta(days=2), slack_user_id="slackx"
+    )
+
+    first_day_reminder()
+
+    # Will not send since `send_new_hire_start_reminder` is disabled
+    assert cache.get("slack_channel", "") == ""
+
+    org.send_new_hire_start_reminder = True
+    org.save()
+
+    first_day_reminder()
+
+    assert cache.get("slack_channel") == "#general"
+    assert (
+        cache.get("slack_text")
+        == f"We got some new hires coming in! {new_hire1.full_name}, {new_hire2.full_name} are starting today!"  # noqa
+    )
+
+    # Set one new hire back to check text if one new hire is starting
+    new_hire1.start_day = datetime.now().date() - timedelta(days=2)
+    new_hire1.save()
+
+    first_day_reminder()
+
+    assert cache.get("slack_channel") == "#general"
+    assert (
+        cache.get("slack_text")
+        == f"Just a quick reminder: It's {new_hire2.full_name}'s first day today!"
+    )
+
+
+@pytest.mark.django_db
+@freeze_time("2022-05-13 08:00:00")
+def test_introduce_new_hire(new_hire_factory, integration_factory):
+    org = Organization.object.get()
+    org.ask_colleague_welcome_message = False
+    org.save()
+
+    # Enable Slack
+    integration_factory(integration=0)
+
+    # Will not send since `ask_colleague_welcome_message` is disabled
+    introduce_new_people()
+    assert cache.get("slack_channel", "") == ""
+
+    org.ask_colleague_welcome_message = True
+    org.save()
+
+    # Will not send since there are no new hires to introduce
+    introduce_new_people()
+    assert cache.get("slack_channel", "") == ""
+
+    # Create a new hire
+    new_hire1 = new_hire_factory(
+        slack_user_id="slackx",
+        start_day=datetime.now().date(),
+        message="This is our new hire Stan. He loves coding.",
+    )
+    # Create a new hire with a start day in the past - not shown
+    new_hire_factory(
+        slack_user_id="slackx", start_day=datetime.now().date() - timedelta(days=2)
+    )
+
+    # This one is already introduced, should not introduced again
+    new_hire_factory(
+        start_day=datetime.now().date() - timedelta(days=2),
+        slack_user_id="slackx",
+        is_introduced_to_colleagues=True,
+    )
+
+    introduce_new_people()
+
+    assert cache.get("slack_channel") == "#general"
+
+    assert cache.get("slack_blocks") == [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"We have a new hire coming in soon! Make sure to leave a message for {new_hire1.first_name}!",  # noqa: E501
+            },
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"*{new_hire1.full_name}*\n_{new_hire1.message}_",
+            },
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"{new_hire1.first_name} starts on {localize(new_hire1.start_day)}.",  # noqa: E501
+            },
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "Welcome this new hire!"},
+                    "style": "primary",
+                    "value": str(new_hire1.id),
+                    "action_id": "dialog:welcome",
+                }
+            ],
+        },
+    ]
+
+    # Introduce two new hires
+    new_hire3 = new_hire_factory(
+        message="This is our new hire Paul. He is vegan.", position="Developer"
+    )
+    new_hire4 = new_hire_factory(start_day=datetime.now().date())
+
+    introduce_new_people()
+
+    # Should not show the already introduced ones, but only the new ones
+    assert cache.get("slack_channel") == "#general"
+
+    assert cache.get("slack_blocks") == [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "We got some new hires coming in soon! Make sure to leave a welcome message for them!",  # noqa
+            },
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"*{new_hire3.full_name}*\n_This is our new hire Paul. He is vegan._",  # noqa
+            },
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"{new_hire3.first_name} starts on {localize(new_hire3.start_day)} and is our new {new_hire3.position}.",  # noqa
+            },
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "Welcome this new hire!"},
+                    "style": "primary",
+                    "value": str(new_hire3.id),
+                    "action_id": "dialog:welcome",
+                }
+            ],
+        },
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": f"*{new_hire4.full_name}*"},
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"{new_hire4.first_name} starts on May 13, 2022.",
+            },
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "Welcome this new hire!"},
+                    "style": "primary",
+                    "value": str(new_hire4.id),
+                    "action_id": "dialog:welcome",
+                }
+            ],
+        },
     ]

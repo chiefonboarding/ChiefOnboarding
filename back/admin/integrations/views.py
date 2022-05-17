@@ -13,6 +13,7 @@ from users.mixins import AdminPermMixin, LoginRequiredMixin
 
 from .forms import IntegrationExtraArgsForm, IntegrationForm
 from .models import Integration
+from .serializers import ManifestSerializer
 
 
 class IntegrationCreateView(
@@ -32,6 +33,10 @@ class IntegrationCreateView(
 
     def form_valid(self, form):
         form.instance.integration = 10
+        manifest_serializer = ManifestSerializer(data=form.cleaned_data["manifest"])
+        if not manifest_serializer.is_valid():
+            print(manifest_serializer.errors)
+
         return super().form_valid(form)
 
 
@@ -85,7 +90,7 @@ class IntegrationUpdateExtraArgsView(
 
 class SlackOAuthView(LoginRequiredMixin, View):
     def get(self, request):
-        access_token = Integration.objects.get(integration=0)
+        access_token, _dummy = Integration.objects.get_or_create(integration=0)
         if "code" not in request.GET:
             messages.error(
                 request,

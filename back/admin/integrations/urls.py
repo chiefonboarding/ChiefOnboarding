@@ -4,7 +4,7 @@ from . import views
 
 app_name = "integrations"
 urlpatterns = [
-    path("slack", views.SlackOAuthView.as_view()),
+    path("slack", views.SlackOAuthView.as_view(), name="slack"),
     path("create", views.IntegrationCreateView.as_view(), name="create"),
     path(
         "delete/<int:pk>/",

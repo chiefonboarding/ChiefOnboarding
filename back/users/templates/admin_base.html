@@ -259,7 +259,7 @@
                 const fileMetaData = data
                 $.ajax({
                   type: 'PUT',
-                  url: data.file.url,
+                  url: fileMetaData.file.url,
                   contentType: 'binary/octet-stream',
                   processData: false,
                   data: fileField.get()[0].files[0],
@@ -287,7 +287,7 @@
       function uploadFile (file, response) {
         return $.ajax({
           type: 'PUT',
-          url: response.url,
+          url: response.file.url,
           contentType: 'binary/octet-stream',
           processData: false,
           data: file
@@ -338,13 +338,8 @@
                         // your own uploading logic here
                         let response = await getSignedURL(file)
                         let completed = await uploadFile(file, response)
-                        return {
-                          success: 1,
-                          file: {
-                            url: response.get_url,
-                            id: response.id
-                          }
-                        }
+                        response["file"]["url"] = response["file"]["get_url"]
+                        return response
                       },
                     }
                   }

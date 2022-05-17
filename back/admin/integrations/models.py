@@ -2,11 +2,15 @@ import json
 import uuid
 
 import requests
+from django.conf import settings
+from django.core.mail import send_mail
 from django.db import models
 from django.template import Context, Template
 from django.utils.translation import gettext_lazy as _
 from fernet_fields import EncryptedTextField
+from twilio.rest import Client
 
+from misc.fields import EncryptedJSONField
 from organization.models import Notification
 
 INTEGRATION_OPTIONS = (
@@ -25,6 +29,11 @@ class IntegrationManager(models.Manager):
     def sequence_integration_options(self):
         return self.get_queryset().filter(integration=10)
 
+    def account_provision_options(self):
+        return self.get_queryset().filter(
+            integration=10, manifest__exists__isnull=False
+        )
+
 
 class Integration(models.Model):
     name = models.CharField(max_length=300, default="", blank=True)
@@ -42,7 +51,7 @@ class Integration(models.Model):
     )
 
     manifest = models.JSONField(default=dict)
-    extra_args = models.JSONField(default=dict)
+    extra_args = EncryptedJSONField(default=dict)
 
     # Slack
     app_id = models.CharField(max_length=100, default="")
@@ -90,6 +99,22 @@ class Integration(models.Model):
 
         for item in self.manifest["execute"]:
             self._run_request(item)
+
+        for item in self.manifest["post_execute_notification"]:
+            if item["notification_type"] == "email":
+                send_mail(
+                    self._replace_vars(item["subject"]),
+                    self._replace_vars(item["message"]),
+                    settings.DEFAULT_FROM_EMAIL,
+                    [self._replace_vars(item["to"])],
+                )
+            else:
+                client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+                client.messages.create(
+                    to=new_hire.phone,
+                    from_=settings.TWILIO_FROM_NUMBER,
+                    body=self._replace_vars(item["message"]),
+                )
 
         Notification.objects.create(
             notification_type="ran_integration",

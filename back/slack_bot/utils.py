@@ -95,14 +95,6 @@ class Slack:
 
         return self.client.chat_postMessage(channel=channel, text=text, blocks=blocks)
 
-    def delete_message(self, ts=0, channel=""):
-        if settings.FAKE_SLACK_API:
-            cache.set("slack_channel", channel)
-            cache.set("slack_ts", json.dumps(ts))
-            return
-
-        return self.client.chat_delete(channel=channel, ts=ts)
-
     def open_modal(self, trigger_id, view):
         if settings.FAKE_SLACK_API:
             print(trigger_id)
@@ -130,9 +122,7 @@ def actions(elements=[]):
     return {"type": "actions", "elements": elements}
 
 
-def button(text, style, value, action_id=""):
-    if action_id == "":
-        action_id = value
+def button(text, style, value, action_id):
     return {
         "type": "button",
         "text": {"type": "plain_text", "text": text},

@@ -12,6 +12,7 @@ def slack_events_handler(request: HttpRequest):
 app_name = "slack"
 if not settings.SLACK_USE_SOCKET:
     from slack_bolt.adapter.django import SlackRequestHandler
+
     from .views import app
 
     handler = SlackRequestHandler(app=app)

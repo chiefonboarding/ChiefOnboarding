@@ -23,7 +23,7 @@
   {% if org.credentials_login and org.google_login %}
   <div class="hr-text">{% translate "or" %}</div>
   {% endif %}
-  {% if org.google_login %}
+  {% if org.google_login and google_login %}
   <div class="card-body">
     <div class="row">
       <div class="col"><a href="https://accounts.google.com/o/oauth2/auth?protocol=oauth2&response_type=code&client_id={{ google_login.client_id }}&redirect_uri={{ base_url }}/api/auth/google_login&scope=email" class="btn btn-white w-100">

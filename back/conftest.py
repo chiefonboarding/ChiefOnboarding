@@ -45,6 +45,7 @@ from users.factories import (
 @pytest.fixture(autouse=True)
 def run_around_tests(settings):
     settings.FAKE_SLACK_API = True
+    settings.SLACK_APP_TOKEN = ""
     OrganizationFactory()
 
     # Generate some welcome messages for various emails

@@ -468,32 +468,66 @@
                     <td class="content-cell" style="word-break: break-word; font-family: &quot;Nunito Sans&quot;, Helvetica, Arial, sans-serif; font-size: 16px; padding: 35px;">
                       <div class="f-fallback">
                         {% for i in content %}
-                          {% if i.type == 'p' %}
-                            {% include 'email/paragraph.html' with text=i.text|personalize:user %}
+                          {% if i.type == 'paragraph' %}
+                            <p style="font-size: 16px; line-height: 1.625; color: #51545E; margin: .4em 0 1.1875em;">{{i.data.text|safe|personalize:user}}</p>
                           {% endif %}
-                          {% if i.type == 'h1' or i.type == 'h2' or i.type == 'h3' %}
-                            <{{ i.type }}>{{ i.text|personalize:user }}</{{ i.type }}>
+                          {% if i.type == 'header' %}
+                            <h{{ i.data.level }}>{{ i.data.text|safe|personalize:user }}</h{{ i.data.level }}>
                           {% endif %}
-                          {% if i.type == 'ul' or i.type == 'ol' %}
-                            <{{ i.type }}>
+                          {% if i.type == 'list' %}
+                            {% if i.data.style == "ordered" %}
+                              <ol>
+                            {% else %}
+                              <ul>
+                            {% endif %}
                               {% for j in i.items %}
-                                <li>{{ j.content|personalize:user }}</li>
+                                <li>{{ j.content|safe|personalize:user }}</li>
                               {% endfor %}
-                            </{{ i.type }}>
+                            {% if i.data.style == "ordered" %}
+                              </ol>
+                            {% else %}
+                              </ul>
+                            {% endif %}
                           {% endif %}
-                          {% if i.type == 'block' %}
-                            {% include 'email/block.html' with text=i.text|personalize:user %}
+                          {% if i.type == 'quote' %}
+                            <table class="attributes" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin: 0 0 21px;">
+                              <tr>
+                                <td class="attributes_content" style="word-break: break-word; font-family: &quot;Nunito Sans&quot;, Helvetica, Arial, sans-serif; font-size: 16px; background-color: #F4F4F7; padding: 16px;" bgcolor="#F4F4F7">
+                                  <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+                                    <tr>
+                                      <td class="attributes_item" style="word-break: break-word; font-family: &quot;Nunito Sans&quot;, Helvetica, Arial, sans-serif; font-size: 16px; padding: 0;">
+                                        <span class="f-fallback">
+                                         {{i.data.text|personalize:user}}
+                                        </span>
+                                      </td>
+                                    </tr>
+                                  </table>
+                                </td>
+                              </tr>
+                            </table>
                           {% endif %}
                           {% if i.type == 'image' %}
-                            <img width="100%" src="{{ i.files.0.file_url }}" />
+                            <img width="100%" src="{{ i.data.file.url }}" />
                           {% endif %}
                           {% if i.type == 'file' %}
-                            {% for j in i.files %}
-                              <a href="{{ j.file_url }}">{{ j.name }}</a><br />
-                            {% endfor %}
+                              <a href="{{ j.data.file.url }}">{{ j.data.file.name }}</a><br />
                           {% endif %}
                           {% if i.type == 'button' %}
-                            {% include 'email/button.html' with text=i.text url=i.url %}
+                            <!-- Action -->
+                            <table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="width: 100%; -premailer-width: 100%; -premailer-cellpadding: 0; -premailer-cellspacing: 0; text-align: center; margin: 30px auto; padding: 0;">
+                              <tr>
+                                <td align="center" style="word-break: break-word; font-family: &quot;Nunito Sans&quot;, Helvetica, Arial, sans-serif; font-size: 16px;">
+                                  <!-- Border based button https://litmus.com/blog/a-guide-to-bulletproof-buttons-in-email-design -->
+                                  <table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation">
+                                    <tr>
+                                      <td align="center" style="word-break: break-word; font-family: &quot;Nunito Sans&quot;, Helvetica, Arial, sans-serif; font-size: 16px;">
+                                        <a href="{{ i.data.url }}" class="f-fallback button" target="_blank" style="color: #FFF; border-color: #3869d4; border-style: solid; border-width: 10px 18px; background-color: #3869D4; display: inline-block; text-decoration: none; border-radius: 3px; box-shadow: 0 2px 3px rgba(0, 0, 0, 0.16); -webkit-text-size-adjust: none; box-sizing: border-box;">{{i.data.text|safe|personalize:user}}</a>
+                                      </td>
+                                    </tr>
+                                  </table>
+                                </td>
+                              </tr>
+                            </table>
                           {% endif %}
                           {% if i.type == 'hr' %}
                             <hr />

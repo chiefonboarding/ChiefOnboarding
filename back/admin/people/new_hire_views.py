@@ -110,6 +110,9 @@ class NewHireAddView(
             created_for=new_hire,
         )
 
+        # Update user amount completed
+        new_hire.update_progress()
+
         # Check if there are items that will not be triggered since date passed
         conditions = Condition.objects.none()
         for seq in sequences:
@@ -231,6 +234,9 @@ class NewHireTriggerConditionView(LoginRequiredMixin, AdminPermMixin, TemplateVi
         condition = get_object_or_404(Condition, id=condition_pk)
         new_hire = get_object_or_404(get_user_model(), id=pk)
         condition.process_condition(new_hire)
+
+        # Update user amount completed
+        new_hire.update_progress()
 
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
@@ -471,7 +477,7 @@ class NewHireReopenTaskView(LoginRequiredMixin, AdminPermMixin, FormView):
             template_user_obj.form = []
         else:
             template_user_obj.completed_course = False
-            template_user_obj.answers.clean()
+            template_user_obj.answers.clear()
 
         template_user_obj.save()
 
@@ -482,12 +488,13 @@ class NewHireReopenTaskView(LoginRequiredMixin, AdminPermMixin, FormView):
                 ).to_do_block()
             else:
                 block = SlackResource(
-                    template_user_obj.resource, template_user_obj.user
+                    template_user_obj, template_user_obj.user
                 ).get_block()
 
             Slack().send_message(
                 blocks=[paragraph(form.cleaned_data["message"]), block],
-                channel=template_user_obj.user.slack_channel_id,
+                text=form.cleaned_data["message"],
+                channel=template_user_obj.user.slack_user_id,
             )
         else:
             email_reopen_task(
@@ -497,6 +504,9 @@ class NewHireReopenTaskView(LoginRequiredMixin, AdminPermMixin, FormView):
             )
 
         messages.success(self.request, _("Item has been reopened"))
+
+        # Update user amount completed
+        template_user_obj.user.update_progress()
 
         return redirect("people:new_hire_progress", pk=template_user_obj.user.id)
 
@@ -539,7 +549,7 @@ class NewHireAccessView(LoginRequiredMixin, AdminPermMixin, DetailView):
         context["title"] = self.object.full_name
         context["subtitle"] = _("new hire")
         context["loading"] = True
-        context["integrations"] = Integration.objects.integration_config_options()
+        context["integrations"] = Integration.objects.account_provision_options()
         return context
 
 
@@ -563,11 +573,11 @@ class NewHireGiveAccessView(LoginRequiredMixin, AdminPermMixin, FormView):
     template_name = "give_new_hire_access.html"
     context_object_name = "object"
 
-    def get_form_class(self):
+    def get_form(self):
         integration = get_object_or_404(
             Integration, id=self.kwargs.get("integration_id", -1)
         )
-        return integration.add_user_form_class()
+        return integration.config_form()
 
     def form_valid(self, form):
         integration = get_object_or_404(
@@ -582,10 +592,11 @@ class NewHireGiveAccessView(LoginRequiredMixin, AdminPermMixin, FormView):
         integration = get_object_or_404(
             Integration, id=self.kwargs.get("integration_id", -1)
         )
+        new_hire = get_object_or_404(get_user_model(), id=self.kwargs.get("pk", -1))
         context["integration"] = integration
-        context["title"] = self.object.full_name
+        context["title"] = new_hire.full_name
         context["subtitle"] = _("new hire")
-        context["new_hire"] = self.object
+        context["new_hire"] = new_hire
         return context
 
 
@@ -628,6 +639,9 @@ class NewHireToggleTaskView(LoginRequiredMixin, AdminPermMixin, TemplateView):
             user_items.remove(template)
         else:
             user_items.add(template)
+
+        # Update user amount completed
+        user.update_progress()
 
         context = self.get_context_data(
             **{

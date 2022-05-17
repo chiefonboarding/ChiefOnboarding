@@ -17,12 +17,25 @@ class OrganizationGeneralForm(forms.ModelForm):
     timezone = forms.ChoiceField(
         label=_("Timezone"), choices=[(x, x) for x in pytz.common_timezones]
     )
+    default_sequences = forms.ModelMultipleChoiceField(
+        label=_("Sequences that are preselected for all new hires:"),
+        queryset=None,
+        to_field_name="id",
+        required=False,
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Avoid circular import
+        from admin.sequences.models import Sequence
+
         self.helper = FormHelper()
         self.fields["logo"].required = False
         self.fields["custom_email_template"].required = False
+        self.fields["default_sequences"].queryset = Sequence.objects.all()
+        self.fields["default_sequences"].initial = Sequence.objects.filter(
+            auto_add=True
+        )
 
         layout = Layout(
             Div(
@@ -33,6 +46,7 @@ class OrganizationGeneralForm(forms.ModelForm):
                     Field("new_hire_email"),
                     Field("new_hire_email_reminders"),
                     Field("new_hire_email_overdue_reminders"),
+                    Field("default_sequences"),
                     HTML("<h3 class='card-title mt-3'>" + _("Login options") + "</h3>"),
                     Field("credentials_login"),
                     css_class="col-6",

@@ -89,7 +89,7 @@ class SlackToDoManager:
         if remove_id is not None:
             ids.remove(str(remove_id))
 
-        items = ToDoUser.objects.filter(id__in=ids)
+        items = ToDoUser.objects.filter(id__in=ids).order_by("id")
         tasks = [SlackToDo(task.to_do, self.user).to_do_block() for task in items]
 
         if text == "" or len(tasks) == 0:

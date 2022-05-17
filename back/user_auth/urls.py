@@ -20,6 +20,11 @@ urlpatterns = [
         views.MFAView.as_view(),
         name="mfa",
     ),
+    path(
+        "google/",
+        views.GoogleLoginView.as_view(),
+        name="google_login",
+    ),
     path("logout/", LogoutView.as_view(), name="logout"),
     path(
         "password/reset_request/",

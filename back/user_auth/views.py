@@ -42,7 +42,6 @@ class AuthenticateView(LoginView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["organization"] = Organization.object.get()
-        context["google_client"] = None
         context["base_url"] = settings.BASE_URL
         if Integration.objects.filter(integration=3, active=True).exists():
             context["google_login"] = Integration.objects.get(
@@ -95,7 +94,7 @@ class GoogleLoginView(View):
 
         # Make sure access token exists. Technically, it shouldn't be possible
         # to enable `google_login` when this is not set, but just to be safe
-        if not Integration.objects.filter(integration=3, active=True):
+        if not Integration.objects.filter(integration=3, active=True).exists():
             return HttpResponse(_("Google login access token has not been set"))
 
         return super().dispatch(request, *args, **kwargs)
@@ -113,7 +112,7 @@ class GoogleLoginView(View):
                     "grant_type": "authorization_code",
                 },
             )
-            user_access_token = r.json().access_token
+            user_access_token = r.json()["access_token"]
 
             user_info = requests.get(
                 "https://www.googleapis.com/auth/userinfo.email",
@@ -131,6 +130,9 @@ class GoogleLoginView(View):
                 user = users.first()
                 user.backend = "django.contrib.auth.backends.ModelBackend"
                 login(request, user)
+                # Also pass MFA, since Google handles that (otherwise they would get
+                # stuck in our app having to pass MFA)
+                self.request.session["passed_mfa"] = True
                 return redirect("logged_in_user_redirect")
 
         messages.error(

@@ -21,6 +21,7 @@ from admin.resources.models import CourseAnswer, Resource
 from admin.sequences.models import Condition
 from admin.to_do.models import ToDo
 from misc.models import File
+from slack_bot.utils import Slack, paragraph
 
 ROLE_CHOICES = (
     (0, _("New Hire")),
@@ -71,7 +72,7 @@ class NewHireManager(models.Manager):
 
     def to_introduce(self):
         return self.get_queryset().filter(
-            is_introduced_to_colleagues=False, start_day__gt=datetime.now().date()
+            is_introduced_to_colleagues=False, start_day__gte=datetime.now().date()
         )
 
 
@@ -208,9 +209,28 @@ class User(AbstractBaseUser):
             return last_notification.created > self.seen_updates
         return False
 
-    @cached_property
-    def progress(self):
-        return self.total_tasks - self.completed_tasks
+    def update_progress(self):
+        all_to_do_ids = list(
+            self.conditions.values_list("to_do__id", flat=True)
+        ) + list(self.to_do.values_list("id", flat=True))
+        all_course_ids = list(
+            self.conditions.filter(resources__course=True).values_list(
+                "resources__id", flat=True
+            )
+        ) + list(self.resources.filter(course=True).values_list("id", flat=True))
+
+        # remove duplicates
+        all_to_do_ids = list(dict.fromkeys(all_to_do_ids))
+        all_course_ids = list(dict.fromkeys(all_course_ids))
+
+        completed_to_dos = ToDoUser.objects.filter(user=self, completed=True).count()
+        completed_courses = ResourceUser.objects.filter(
+            resource__course=True, user=self, completed_course=True
+        ).count()
+
+        self.total_tasks = len(all_to_do_ids + all_course_ids)
+        self.completed_tasks = completed_to_dos + completed_courses
+        self.save()
 
     def has_perm(self, perm, obj=None):
         return self.is_staff
@@ -394,6 +414,23 @@ class ToDoUser(models.Model):
         # Get conditions with this to do item as (part of the) condition
         conditions = self.user.conditions.filter(condition_to_do=self.to_do)
 
+        # Send answers back to slack channel?
+        if self.to_do.send_back:
+            blocks = [
+                paragraph(
+                    _("*Our new hire %(name)s just answered some questions:*")
+                    % {"name": self.user.full_name}
+                )
+            ]
+            for question in self.form:
+                blocks.append(paragraph(f"*{question['text']}*\n{question['value']}"))
+
+            Slack().send_message(
+                blocks=blocks,
+                text="Our new hire %(name)s just answered some questions:",
+                channel=self.to_do.channel,
+            )
+
         for condition in conditions:
 
             condition_to_do_ids = condition.condition_to_do.values_list("id", flat=True)
@@ -451,6 +488,10 @@ class ResourceUser(models.Model):
         if self.step == chapters.count():
             self.completed_course = True
             self.save()
+
+            # Up one for completed stat in user
+            self.user.completed_tasks += 1
+            self.user.save()
             return None
 
         # Skip over any folders

@@ -150,7 +150,7 @@ class Organization(models.Model):
     @property
     def current_datetime(self):
         local_tz = pytz.timezone("UTC")
-        us_tz = pytz.timezone(self.org.timezone)
+        us_tz = pytz.timezone(self.timezone)
         local = local_tz.localize(datetime.now())
         return us_tz.normalize(local.astimezone(us_tz))
 
@@ -287,6 +287,8 @@ class Notification(models.Model):
     public_to_new_hire = models.BooleanField(default=False)
     reverse_link = models.CharField(max_length=200, default="")
     reverse_link_params = models.JSONField(default=dict)
+    item_id = models.IntegerField(null=True)
+    notified_user = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-created"]

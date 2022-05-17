@@ -1,4 +1,6 @@
+from django.db import models
 from django.db.models import JSONField
+from fernet_fields.fields import EncryptedField
 
 from .models import File
 
@@ -21,3 +23,7 @@ class ContentJSONField(JSONField):
                     id=block["data"]["file"]["id"]
                 ).get_url()
         return value
+
+
+class EncryptedJSONField(EncryptedField, models.JSONField):
+    pass

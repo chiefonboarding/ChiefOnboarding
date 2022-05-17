@@ -2,6 +2,9 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.utils.translation import gettext as _
 
+from admin.badges.models import Badge
+from admin.resources.models import Resource
+from admin.to_do.models import ToDo
 from organization.models import Organization
 
 
@@ -18,45 +21,73 @@ def send_sequence_message(new_hire, admin, message, subject):
     )
 
 
-def send_sequence_update_message(new_hire, message):
+def send_sequence_update_message(all_notifications, new_hire):
     # used to send updates to new hires based on things that got assigned to them
     org = Organization.object.get()
     subject = _("Here is an update!")
     blocks = []
-    if len(message["to_do"]) > 0:
-        text = _("Todo item")
-        if len(message["to_do"]) > 1:
-            text = _("Todo items")
-        blocks.append({"type": "p", "text": text})
-        text = ""
-        for i in message["to_do"]:
-            text += "- " + new_hire.personalize(i.name) + "<br />"
-        blocks.append({"type": "block", "text": text})
-    if len(message["resources"]) > 0:
-        text = _("Resource")
-        if len(message["resources"]) > 1:
-            text = _("Resources")
-        blocks.append({"type": "p", "text": text})
-        text = ""
-        for i in message["resources"]:
-            text += "- " + new_hire.personalize(i.name) + "<br />"
-        blocks.append({"type": "block", "text": text})
-    if len(message["badges"]) > 0:
-        text = _("Badge")
-        if len(message["badges"]) > 1:
-            text = _("Badges")
-        blocks.append({"type": "p", "text": text})
-        text = ""
-        for i in message["badges"]:
-            text += "- " + new_hire.personalize(i.name) + "<br />"
-        blocks.append({"type": "block", "text": text})
-    if len(blocks) > 0:
-        html_message = org.create_email({"org": org, "content": blocks})
-        message = ""
-        send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [new_hire.email],
-            html_message=html_message,
+
+    notifications = all_notifications.filter(notification_type="added_todo")
+    if notifications.exists():
+        blocks.append(
+            {
+                "type": "paragraph",
+                "data": {
+                    "text": _("Todo item")
+                    if notifications.count() == 1
+                    else _("Todo items")
+                },
+            }
         )
+        text = ""
+        for to_do in ToDo.objects.filter(
+            id__in=notifications.values_list("item_id", flat=True)
+        ):
+            text += f"- {to_do.name} <br />"
+        blocks.append({"type": "quote", "data": {"text": text}})
+
+    notifications = all_notifications.filter(notification_type="added_resource")
+    if notifications.exists():
+        blocks.append(
+            {
+                "type": "paragraph",
+                "data": {
+                    "text": _("Resource")
+                    if notifications.count() == 1
+                    else _("Resources")
+                },
+            }
+        )
+        text = ""
+        for i in Resource.objects.filter(
+            id__in=notifications.values_list("item_id", flat=True)
+        ):
+            text += f"- {i.name} <br />"
+        blocks.append({"type": "quote", "data": {"text": text}})
+
+    notifications = all_notifications.filter(notification_type="added_badge")
+    if notifications.exists():
+        blocks.append(
+            {
+                "type": "paragraph",
+                "data": {
+                    "text": _("Badge") if notifications.count() == 1 else _("Badges")
+                },
+            }
+        )
+        text = ""
+        for i in Badge.objects.filter(
+            id__in=notifications.values_list("item_id", flat=True)
+        ):
+            text += f"- {i.name} <br />"
+        blocks.append({"type": "quote", "data": {"text": text}})
+
+    html_message = org.create_email({"org": org, "content": blocks, "user": new_hire})
+    message = ""
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [new_hire.email],
+        html_message=html_message,
+    )

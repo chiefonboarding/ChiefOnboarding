@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.urls import reverse
 from django.utils import timezone
+from freezegun import freeze_time
 
 from admin.appointments.factories import AppointmentFactory
 from admin.introductions.factories import IntroductionFactory
@@ -195,6 +196,8 @@ def test_create_new_hire_add_sequence_with_manual_trigger_condition(
     assert "Trigger all these items now" in response.content.decode()
 
     assert new_hire1.to_do.count() == 0
+    assert new_hire1.total_tasks == 0
+    assert new_hire1.completed_tasks == 0
 
     url = reverse("people:trigger-condition", args=[new_hire1.id, condition1.id])
     response = client.post(url, follow=True)
@@ -202,10 +205,15 @@ def test_create_new_hire_add_sequence_with_manual_trigger_condition(
     new_hire1.refresh_from_db()
     # to do item got added from condition
     assert new_hire1.to_do.count() == 1
+    # two to do items in total scheduled/added to new hire
+    assert new_hire1.total_tasks == 2
+    assert new_hire1.completed_tasks == 0
+
     assert "Done!" in response.content.decode()
 
 
 @pytest.mark.django_db
+@freeze_time("2022-05-13 08:00:00")
 def test_create_new_hire_add_sequence_with_manual_trigger_condition_before_starting(
     client,
     django_user_model,
@@ -376,7 +384,7 @@ def test_send_preboarding_message_via_email(
     assert response.status_code == 200
     assert len(mailoutbox) == 1
     assert mailoutbox[0].subject == f"Welcome to {org.name}!"
-    assert new_hire1.first_name in mailoutbox[0].body
+    assert new_hire1.first_name in mailoutbox[0].alternatives[0][0]
     assert len(mailoutbox[0].to) == 1
     assert mailoutbox[0].to[0] == new_hire1.email
     assert (
@@ -746,7 +754,7 @@ def test_new_hire_progress(
 
 
 @pytest.mark.django_db
-def test_new_hire_reopen(
+def test_new_hire_reopen_todo(
     client, settings, django_user_model, to_do_user_factory, mailoutbox
 ):
     client.force_login(django_user_model.objects.create(role=1))
@@ -768,11 +776,82 @@ def test_new_hire_reopen(
     assert mailoutbox[0].subject == "Please redo this task"
     assert len(mailoutbox[0].to) == 1
     assert mailoutbox[0].to[0] == to_do_user1.user.email
+    print(mailoutbox[0].alternatives[0][0])
     assert settings.BASE_URL in mailoutbox[0].alternatives[0][0]
     assert "You forgot this one!" in mailoutbox[0].alternatives[0][0]
     assert to_do_user1.user.first_name in mailoutbox[0].alternatives[0][0]
 
-    # TODO: test slack message
+    new_hire = to_do_user1.user
+    new_hire.slack_user_id = "slackx"
+    new_hire.save()
+
+    response = client.post(url, data={"message": "You forgot this one!"}, follow=True)
+
+    assert cache.get("slack_channel") == to_do_user1.user.slack_user_id
+    assert cache.get("slack_blocks") == [
+        {"type": "section", "text": {"type": "mrkdwn", "text": "You forgot this one!"}},
+        {
+            "type": "section",
+            "block_id": str(to_do_user1.to_do.id),
+            "text": {
+                "type": "mrkdwn",
+                "text": f"*{to_do_user1.to_do.name}*\nThis task has no deadline.",
+            },
+            "accessory": {
+                "type": "button",
+                "text": {"type": "plain_text", "text": "View details"},
+                "style": "primary",
+                "value": str(to_do_user1.to_do.id),
+                "action_id": f"dialog:to_do:{to_do_user1.to_do.id}",
+            },
+        },
+    ]
+
+
+@pytest.mark.django_db
+def test_new_hire_reopen_course(
+    client, settings, django_user_model, resource_user_factory, mailoutbox
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    resource_user1 = resource_user_factory(resource__course=True)
+
+    url = reverse("people:new_hire_reopen", args=["resourceuser", resource_user1.id])
+
+    response = client.post(url, data={"message": "You forgot this one!"}, follow=True)
+
+    assert response.status_code == 200
+    assert "Item has been reopened" in response.content.decode()
+    assert len(mailoutbox) == 1
+    assert mailoutbox[0].subject == "Please redo this task"
+    assert len(mailoutbox[0].to) == 1
+    assert mailoutbox[0].to[0] == resource_user1.user.email
+    assert settings.BASE_URL in mailoutbox[0].alternatives[0][0]
+    assert "You forgot this one!" in mailoutbox[0].alternatives[0][0]
+    assert resource_user1.user.first_name in mailoutbox[0].alternatives[0][0]
+
+    new_hire = resource_user1.user
+    new_hire.slack_user_id = "slackx"
+    new_hire.save()
+
+    response = client.post(url, data={"message": "You forgot this one!"}, follow=True)
+
+    assert cache.get("slack_channel") == resource_user1.user.slack_user_id
+    assert cache.get("slack_blocks") == [
+        {"type": "section", "text": {"type": "mrkdwn", "text": "You forgot this one!"}},
+        {
+            "type": "section",
+            "block_id": str(resource_user1.id),
+            "text": {"type": "mrkdwn", "text": f"*{resource_user1.resource.name}*"},
+            "accessory": {
+                "type": "button",
+                "text": {"type": "plain_text", "text": "View course"},
+                "style": "primary",
+                "value": str(resource_user1.id),
+                "action_id": f"dialog:resource:{resource_user1.id}",
+            },
+        },
+    ]
 
 
 @pytest.mark.django_db
@@ -973,6 +1052,107 @@ def test_new_hire_tasks(
     assert appointment1.name in response.content.decode()
     assert introduction1.name in response.content.decode()
     assert preboarding1.name in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_new_hire_access_list(
+    client,
+    django_user_model,
+    new_hire_factory,
+    integration_factory,
+    custom_integration_factory,
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    new_hire1 = new_hire_factory()
+    # Slack integration - should not show up
+    integration1 = integration_factory(integration=0)
+    # Should show up
+    integration2 = custom_integration_factory(name="Asana", integration=10)
+
+    integration3 = custom_integration_factory(name="Google", integration=10)
+    # Remove exists, so should not show up
+    integration3.manifest = {}
+    integration3.save()
+
+    # Get the page with integrations
+    url = reverse("people:new_hire_access", args=[new_hire1.id])
+
+    response = client.get(url)
+
+    assert integration1.name not in response.content.decode()
+    assert integration2.name in response.content.decode()
+    assert integration3.name not in response.content.decode()
+
+
+@pytest.mark.django_db
+@patch(
+    "requests.request",
+    Mock(
+        return_value=Mock(status_code=201, json=lambda: {"email": "stan@example.com"})
+    ),
+)
+def test_new_hire_access_per_integration(
+    client, django_user_model, new_hire_factory, custom_integration_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    new_hire1 = new_hire_factory(email="stan@example.com")
+    new_hire2 = new_hire_factory()
+    integration1 = custom_integration_factory(name="Asana", integration=10)
+
+    # New hire already has an account (email matches with return)
+    url = reverse(
+        "people:new_hire_check_integration", args=[new_hire1.id, integration1.id]
+    )
+
+    response = client.get(url)
+
+    assert integration1.name in response.content.decode()
+    assert "Activated" in response.content.decode()
+
+    # New hire has no account
+    url = reverse(
+        "people:new_hire_check_integration", args=[new_hire2.id, integration1.id]
+    )
+
+    response = client.get(url)
+
+    assert integration1.name in response.content.decode()
+    assert "Give access" in response.content.decode()
+
+
+@pytest.mark.django_db
+@patch(
+    "requests.get",
+    Mock(
+        return_value=Mock(
+            status_code=201,
+            json=lambda: {"data": [{"gid": "test_team", "name": "test team"}]},
+        )
+    ),
+)
+def test_new_hire_access_per_integration_config_form(
+    client, django_user_model, new_hire_factory, custom_integration_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    new_hire1 = new_hire_factory(email="stan@example.com")
+    integration1 = custom_integration_factory(name="Asana", integration=10)
+
+    # New hire already has an account (email matches with return)
+    url = reverse(
+        "people:new_hire_give_integration", args=[new_hire1.id, integration1.id]
+    )
+    # Show form to admin
+    response = client.get(url)
+
+    # Check that form is present
+    assert "Select team to add user to" in response.content.decode()
+    assert (
+        '<input type="checkbox" class="form-check-input"  name="TEAM_ID" value="test_team"  id="id_TEAM_ID_0">'  # noqa
+        in response.content.decode()
+    )
 
 
 @pytest.mark.django_db

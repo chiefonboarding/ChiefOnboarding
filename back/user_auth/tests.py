@@ -13,6 +13,7 @@ from .utils import get_all_urls
 WHITELISTED_URLS = [
     "robots.txt",
     "logout/",
+    "google/",
     "password/reset_request/",
     "password/reset_request/done/",
     "password/reset_change/<uidb64>/<token>/",
@@ -112,9 +113,11 @@ def test_credentials_setting(client, new_hire_factory):
 
 
 @pytest.mark.django_db
-def test_google_login_setting(client, new_hire_factory):
+def test_google_login_setting(client, new_hire_factory, integration_factory):
     # Start with credentials enabled
     new_hire_factory(email="user@example.com")
+    integration_factory(integration=3)
+
     org = Organization.object.get()
     org.google_login = True
     org.save()
@@ -161,6 +164,36 @@ def test_MFA_setting_with_valid_totp(client, new_hire_factory):
     response = client.post(reverse("mfa"), {"otp": 223456})
     assert "OTP token was not correct." in response.content.decode()
     assert "Colleagues" not in response.content.decode()
+
+
+@pytest.mark.django_db
+@patch("pyotp.TOTP.verify", Mock(return_value=False))
+def test_MFA_setting_with_recovery_key(client, new_hire_factory):
+    new_hire = new_hire_factory(requires_otp=True)
+    new_hire.set_password("strong_pass")
+    new_hire.save()
+
+    # Reset OTP keys so we have fresh ones
+    otp_keys = new_hire.reset_otp_recovery_keys()
+
+    response = client.post(
+        reverse("login"),
+        data={"username": new_hire.email, "password": "strong_pass"},
+        follow=True,
+    )
+
+    # Enter invalid MFA token and redirect back
+    response = client.post(reverse("mfa"), {"otp": 223456}, follow=True)
+    assert "OTP token was not correct." in response.content.decode()
+
+    # Test with recovery key instead
+    response = client.post(reverse("mfa"), {"otp": otp_keys[0]}, follow=True)
+    assert "OTP token was not correct." not in response.content.decode()
+    assert "Colleagues" in response.content.decode()
+
+    new_hire.refresh_from_db()
+
+    assert not new_hire.requires_otp
 
 
 @pytest.mark.django_db
@@ -239,3 +272,118 @@ def test_authed_view(url, client, new_hire_factory):
     data = {"username": new_hire.email, "password": "strong_pass"}
     response = client.post(url, data, follow=True)
     assert "/mfa/" in response.redirect_chain[-1][0]
+
+
+@pytest.mark.django_db
+@patch(
+    "requests.post",
+    Mock(return_value=Mock(status_code=200, json=lambda: {"access_token": "test"})),
+)
+@patch(
+    "requests.get",
+    Mock(
+        return_value=Mock(
+            status_code=200, json=lambda: {"email": "hello@chiefonboarding.com"}
+        )
+    ),
+)
+def test_google_login(client, new_hire_factory, integration_factory):
+    # Start with credentials enabled
+    org = Organization.object.get()
+    org.google_login = False
+    org.save()
+
+    new_hire1 = new_hire_factory(email="hello@chiefonboarding.com")
+    new_hire_factory(email="stan@chiefonboarding.com")
+
+    # Google login is disabled, so url doesn't work
+    url = reverse("google_login")
+    response = client.get(url)
+
+    assert response.status_code == 404
+
+    # Enable Google login
+    org.google_login = True
+    org.save()
+
+    response = client.get(url)
+
+    assert response.status_code == 200
+    assert "Google login access token has not been set" in response.content.decode()
+
+    integration_factory(integration=3)
+
+    # Logging in with account
+    response = client.get(url, follow=True)
+
+    user = auth.get_user(client)
+    # User is logged in
+    assert user.is_authenticated
+    assert user.email == new_hire1.email
+
+
+@pytest.mark.django_db
+@patch("requests.post", Mock(return_value=Mock(status_code=200, json=lambda: {})))
+def test_google_login_error(client, new_hire_factory, integration_factory):
+    # Start with credentials enabled
+    org = Organization.object.get()
+    org.google_login = True
+    org.save()
+
+    integration_factory(integration=3)
+    url = reverse("google_login")
+
+    new_hire_factory(email="hello@chiefonboarding.com")
+    new_hire_factory(email="stan@chiefonboarding.com")
+
+    response = client.get(url)
+
+    # Try logging in with account, getting back an empty json from Google
+    response = client.get(url, follow=True)
+
+    user = auth.get_user(client)
+    # User is not logged in
+    assert not user.is_authenticated
+    assert (
+        "Something went wrong with reaching Google. Please try again."
+        in response.content.decode()
+    )
+
+
+@pytest.mark.django_db
+@patch(
+    "requests.post",
+    Mock(return_value=Mock(status_code=200, json=lambda: {"access_token": "test"})),
+)
+@patch(
+    "requests.get",
+    Mock(
+        return_value=Mock(
+            status_code=200, json=lambda: {"email": "hello123@chiefonboarding.com"}
+        )
+    ),
+)
+def test_google_login_user_not_exists(client, new_hire_factory, integration_factory):
+    # Start with credentials enabled
+    org = Organization.object.get()
+    org.google_login = True
+    org.save()
+
+    integration_factory(integration=3)
+    url = reverse("google_login")
+
+    new_hire_factory(email="hello@chiefonboarding.com")
+    new_hire_factory(email="stan@chiefonboarding.com")
+
+    response = client.get(url)
+
+    # Try logging in with account, getting back an empty json from Google
+    response = client.get(url, follow=True)
+
+    user = auth.get_user(client)
+    # User is not logged in - does not exist
+    assert not user.is_authenticated
+    assert (
+        "There is no account associated with your email address."
+        in response.content.decode()
+    )

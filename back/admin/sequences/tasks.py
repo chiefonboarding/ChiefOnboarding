@@ -2,10 +2,19 @@ from datetime import timedelta
 
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from django_q.tasks import async_task
 
+from admin.badges.models import Badge
+from admin.introductions.models import Introduction
+from admin.sequences.emails import send_sequence_update_message
 from admin.sequences.models import Condition
-from organization.models import Organization
+from organization.models import Notification, Organization
+from slack_bot.slack_intro import SlackIntro
+from slack_bot.slack_resource import SlackResource
+from slack_bot.slack_to_do import SlackToDo
+from slack_bot.utils import Slack, paragraph
+from users.models import ResourceUser, ToDoUser
 
 
 def process_condition(condition_id, user_id):
@@ -19,6 +28,74 @@ def process_condition(condition_id, user_id):
     condition = Condition.objects.get(id=condition_id)
     user = get_user_model().objects.get(id=user_id)
     condition.process_condition(user)
+
+    # Send notifications to user
+    notifications = Notification.objects.filter(
+        notification_type__in=[
+            "added_todo",
+            "added_resource",
+            "added_badge",
+            "added_introduction",
+        ],
+        created_for=user,
+        notified_user=False,
+    )
+
+    if not notifications.exists():
+        return
+
+    if user.has_slack_account:
+        to_do_blocks = [
+            SlackToDo(
+                ToDoUser.objects.get(to_do__id=notif.item.id, user=user), user
+            ).to_do_block()
+            for notif in notifications.filter(notification_type="added_todo")
+        ]
+
+        resource_blocks = [
+            SlackResource(
+                ResourceUser.objects.get(user=user, resource__id=notif.id), user
+            ).get_block()
+            for notif in notifications.filter(notification_type="added_resource")
+        ]
+
+        badge_blocks = [
+            paragraph(
+                _("*Congrats, you unlocked: %(item_name)s *\n %(message)s")
+                % {
+                    "item_name": user.personalize(
+                        Badge.objects.get(id=notif.item_id).name
+                    ),
+                    "message": Badge.objects.get(id=notif.item_id).to_slack_block(user),
+                }
+            )
+            for notif in notifications.filter(notification_type="added_badge")
+        ]
+
+        intro_blocks = [
+            SlackIntro(Introduction.objects.get(id=notif.item_id), user).format_block()
+            for notif in notifications.filter(notification_type="added_introduction")
+        ]
+
+        Slack().send_message(
+            text=_("Here are some new items for you!"),
+            blocks=[
+                paragraph(_("Here are some new items for you!")),
+                *intro_blocks,
+                *badge_blocks,
+                *resource_blocks,
+                *to_do_blocks,
+            ],
+            channel=user.slack_user_id,
+        )
+    else:
+        send_sequence_update_message(notifications, user)
+
+    # Update notifications to not notify user again
+    notifications.update(notified_user=True)
+
+    # Update user amount completed
+    user.update_progress()
 
 
 def timed_triggers():

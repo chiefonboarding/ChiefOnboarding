@@ -11,16 +11,21 @@ def send_email_notification_to_external_person(admin_task):
     org = Organization.object.get()
     content = [
         {
-            "type": "p",
-            "text": _(
-                "Hi! Could you please help me with this? It's for our new hire %(name)s"
-            )
-            % {"name": admin_task.new_hire.full_name},
+            "type": "paragraph",
+            "data": {
+                "text": _(
+                    "Hi! Could you please help me with this? It's for our new "
+                    "hire %(name)s"
+                )
+                % {"name": admin_task.new_hire.full_name},
+            },
         },
-        {"type": "h1", "text": admin_task.name},
+        {"type": "header", "data": {"level": 2, "text": admin_task.name}},
     ]
     if admin_task.comment.exists():
-        content.append({"type": "block", "text": admin_task.comment.last().content})
+        content.append(
+            {"type": "quote", "data": {"text": admin_task.comment.last().content}}
+        )
     message = ""
     html_message = org.create_email(
         {"org": org, "content": content, "user": admin_task.new_hire}
@@ -40,19 +45,23 @@ def send_email_new_assigned_admin(admin_task):
     org = Organization.object.get()
     content = [
         {
-            "type": "p",
-            "text": _("This is about task: %(title)s for %(new_hire)s")
-            % {"title": admin_task.name, "new_hire": admin_task.new_hire.full_name},
+            "type": "paragraph",
+            "data": {
+                "text": _("This is about task: %(title)s for %(new_hire)s")
+                % {"title": admin_task.name, "new_hire": admin_task.new_hire.full_name},
+            },
         }
     ]
     if admin_task.comment.exists():
         content.append(
             {
-                "type": "block",
-                "text": "<strong>"
-                + _("Last message: ")
-                + "</strong><br />"
-                + admin_task.comment.last().content,
+                "type": "quote",
+                "data": {
+                    "text": "<strong>"
+                    + _("Last message: ")
+                    + "</strong><br />"
+                    + admin_task.comment.last().content,
+                },
             }
         )
     html_message = org.create_email(
@@ -75,20 +84,26 @@ def send_email_new_comment(comment):
     org = Organization.object.get()
     content = [
         {
-            "type": "p",
-            "text": _("Hi %(name)s")
-            % {"name": comment.admin_task.assigned_to.first_name},
+            "type": "paragraph",
+            "data": {
+                "text": _("Hi %(name)s")
+                % {"name": comment.admin_task.assigned_to.first_name},
+            },
         },
         {
-            "type": "p",
-            "text": _(
-                "One of your todo items has been updated by someone else. Here is the "
-                "message:"
-            ),
+            "type": "paragraph",
+            "data": {
+                "text": _(
+                    "One of your todo items has been updated by someone else. Here "
+                    "is the message:"
+                ),
+            },
         },
         {
-            "type": "block",
-            "text": comment.content + "<br />" + "- " + comment.comment_by.full_name,
+            "type": "quote",
+            "data": {
+                "text": comment.content + "<br />- " + comment.comment_by.full_name,
+            },
         },
     ]
     html_message = org.create_email(

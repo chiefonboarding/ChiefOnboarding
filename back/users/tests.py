@@ -176,19 +176,20 @@ def test_new_hire_manager(new_hire_factory):
     earlier_nh.start_day = datetime.datetime.now().date() - datetime.timedelta(days=2)
     earlier_nh.save()
     should_intro = new_hire_factory(
-        is_introduced_to_colleagues=False, start_day=datetime.datetime.now().date()
+        is_introduced_to_colleagues=False,
+        start_day=datetime.datetime.now().date() - datetime.timedelta(days=1),
     )
 
     assert User.new_hires.without_slack().count() == 1
     assert User.new_hires.with_slack().count() == 2
-    assert User.new_hires.starting_today().count() == 2
-    assert User.new_hires.to_introduce().count() == 0
+    assert User.new_hires.starting_today().count() == 1
+    assert User.new_hires.to_introduce().count() == 1
 
     # new hire starts in the future
     should_intro.start_day = datetime.datetime.now().date() + datetime.timedelta(days=2)
     should_intro.save()
 
-    assert User.new_hires.to_introduce().count() == 1
+    assert User.new_hires.to_introduce().count() == 2
 
 
 @pytest.mark.django_db

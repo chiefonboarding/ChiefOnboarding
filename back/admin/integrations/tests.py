@@ -1,3 +1,5 @@
+from unittest.mock import Mock, patch
+
 import pytest
 from django.urls import reverse
 
@@ -79,3 +81,31 @@ def test_integration_extra_args_form(
 
     integration = Integration.objects.first()
     assert integration.extra_args == {"ORG": "123", "TOKEN": "SECRET_TOKEN"}
+
+
+@pytest.mark.django_db
+@patch(
+    "requests.get",
+    Mock(
+        return_value=Mock(
+            status_code=200,
+            text='{"access_token":"vgn", "ok": true, "bot_user_id":"bot"}',
+        )
+    ),
+)
+def test_slack_connect(client, django_user_model):
+    client.force_login(django_user_model.objects.create(role=1))
+    # Google login is disabled, so url doesn't work
+    url = reverse("integrations:slack")
+    response = client.get(url, follow=True)
+
+    # No code available
+    assert response.status_code == 200
+    assert "Could not optain slack authentication code." in response.content.decode()
+
+    response = client.get(url + "?code=test", follow=True)
+
+    assert response.status_code == 200
+
+    assert Integration.objects.filter(integration=0).exists()
+    assert "Slack has successfully been connected." in response.content.decode()

@@ -21,6 +21,7 @@ class NewHireAddForm(forms.ModelForm):
     sequences = forms.ModelMultipleChoiceField(
         queryset=Sequence.objects.all(),
         to_field_name="id",
+        initial=Sequence.objects.filter(auto_add=True),
         required=False,
         label=_("Sequences"),
     )

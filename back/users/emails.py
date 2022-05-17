@@ -17,21 +17,25 @@ def email_new_admin_cred(user):
     subject = _("Your login credentials!")
     content = [
         {
-            "type": "p",
-            "text": _(
-                "Someone in your organisation invited you to join ChiefOnboarding. Here"
-                " are your login details:"
-            ),
+            "type": "paragraph",
+            "data": {
+                "text": _(
+                    "Someone in your organisation invited you to join ChiefOnboarding."
+                    "Here are your login details:"
+                ),
+            },
         },
         {
-            "type": "block",
-            "text": "<strong>"
-            + _("Username:")
-            + f"</strong>&nbsp;{user.email}<br /><strong>"
-            + _("Password:")
-            + f"</strong>&nbsp;{password}<strong><br />"
-            + _("Login URL:")
-            + f"</strong>&nbsp;{settings.BASE_URL}",
+            "type": "quote",
+            "data": {
+                "text": "<strong>"
+                + _("Username:")
+                + f"</strong>&nbsp;{user.email}<br /><strong>"
+                + _("Password:")
+                + f"</strong>&nbsp;{password}<strong><br />"
+                + _("Login URL:")
+                + f"</strong>&nbsp;{settings.BASE_URL}",
+            },
         },
     ]
     message = ""
@@ -55,19 +59,23 @@ def email_reopen_task(task_name, message, user):
     org = Organization.object.get()
     content = [
         {
-            "type": "p",
-            "text": _("Hi %(name)s, we have just reopened this task. %(message)s")
-            % {"name": user.first_name, "message": message},
+            "type": "paragraph",
+            "data": {
+                "text": _("Hi %(name)s, we have just reopened this task. %(message)s")
+                % {"name": user.first_name, "message": message},
+            },
         },
         {
-            "type": "block",
-            "text": _(
-                "<strong>%(task_name)s</strong> <br />Go to your dashboard to complete "
-                "it"
-            )
-            % {"task_name": task_name},
+            "type": "quote",
+            "data": {
+                "text": _(
+                    "<strong>%(task_name)s</strong> <br />Go to your dashboard to "
+                    "complete it"
+                )
+                % {"task_name": task_name},
+            },
         },
-        {"type": "button", "text": _("Dashboard"), "url": settings.BASE_URL},
+        {"type": "button", "data": {"text": _("Dashboard"), "url": settings.BASE_URL}},
     ]
     html_message = org.create_email({"org": org, "content": content, "user": user})
     send_mail(
@@ -85,19 +93,25 @@ def send_reminder_email(task_name, user):
     org = Organization.object.get()
     content = [
         {
-            "type": "p",
-            "text": _("Hi %(name)s, Here is a quick reminder of the following task:")
-            % {"name": user.first_name},
+            "type": "paragraph",
+            "data": {
+                "text": (
+                    _("Hi %(name)s, Here is a quick reminder of the following task:")
+                )
+                % {"name": user.first_name},
+            },
         },
         {
-            "type": "block",
-            "text": _(
-                "<strong>%(task_name)s</strong> <br />Go to your dashboard to complete "
-                "it"
-            )
-            % {"task_name": task_name},
+            "type": "quote",
+            "data": {
+                "text": _(
+                    "<strong>%(task_name)s</strong> <br />Go to your dashboard to "
+                    "complete it"
+                )
+                % {"task_name": task_name},
+            },
         },
-        {"type": "button", "text": _("Dashboard"), "url": settings.BASE_URL},
+        {"type": "button", "data": {"text": _("Dashboard"), "url": settings.BASE_URL}},
     ]
     html_message = org.create_email({"org": org, "content": content, "user": user})
     send_mail(
@@ -119,18 +133,19 @@ def send_new_hire_credentials(new_hire_id):
     message = WelcomeMessage.objects.get(
         language=new_hire.language, message_type=1
     ).message
-    personalized_message = new_hire.personalize(message)
     content = [
-        {"type": "p", "text": personalized_message},
+        {"type": "paragraph", "data": {"text": message}},
         {
-            "type": "block",
-            "text": "<strong>"
-            + _("Username: ")
-            + f"</strong>{new_hire.email}<br /><strong>"
-            + _("Password: ")
-            + f"</strong>{password}",
+            "type": "quote",
+            "data": {
+                "text": "<strong>"
+                + _("Username: ")
+                + f"</strong>{new_hire.email}<br /><strong>"
+                + _("Password: ")
+                + f"</strong>{password}",
+            },
         },
-        {"type": "button", "text": _("Dashboard"), "url": settings.BASE_URL},
+        {"type": "button", "data": {"text": _("Dashboard"), "url": settings.BASE_URL}},
     ]
     html_message = org.create_email({"org": org, "content": content, "user": new_hire})
     message = ""
@@ -148,24 +163,25 @@ def send_new_hire_preboarding(new_hire):
     message = WelcomeMessage.objects.get(
         language=new_hire.language, message_type=0
     ).message
-    personalized_message = new_hire.personalize(message)
     subject = _("Welcome to %(name)s!") % {"name": org.name}
     content = [
-        {"type": "p", "text": personalized_message},
+        {"type": "paragraph", "data": {"text": message}},
         {
             "type": "button",
-            "text": _("See pages"),
-            "url": settings.BASE_URL
-            + reverse("new_hire:preboarding-url")
-            + "?token="
-            + new_hire.unique_url,
+            "data": {
+                "text": _("See pages"),
+                "url": settings.BASE_URL
+                + reverse("new_hire:preboarding-url")
+                + "?token="
+                + new_hire.unique_url,
+            },
         },
     ]
     html_message = org.create_email({"org": org, "content": content, "user": new_hire})
     message = ""
     send_mail(
         subject,
-        personalized_message,
+        "",
         settings.DEFAULT_FROM_EMAIL,
         [new_hire.email],
         html_message=html_message,

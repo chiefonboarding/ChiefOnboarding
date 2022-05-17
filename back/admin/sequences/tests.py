@@ -4,6 +4,7 @@ from datetime import timedelta
 import pytest
 from django.urls import reverse
 from django.utils import timezone
+from freezegun import freeze_time
 
 from admin.admin_tasks.models import AdminTask, AdminTaskComment
 from admin.appointments.factories import AppointmentFactory
@@ -544,6 +545,7 @@ def test_sequence_default_templates_not_valid(client, admin_factory):
 
 
 @pytest.mark.django_db
+@freeze_time("2022-05-13")
 def test_sequence_trigger_task(
     sequence_factory,
     new_hire_factory,
@@ -559,10 +561,11 @@ def test_sequence_trigger_task(
 ):
     org = Organization.object.get()
     # Set it back 5 minutes, so it will actually run through the triggers
-    org.timed_triggers_last_check -= timedelta(minutes=5)
+    org.timed_triggers_last_check = timezone.now() - timedelta(minutes=5)
     org.save()
 
     new_hire1 = new_hire_factory()
+    print(new_hire1.start_day)
 
     to_do1 = to_do_factory()
     to_do2 = to_do_factory()

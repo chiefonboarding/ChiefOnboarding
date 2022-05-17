@@ -43,6 +43,14 @@ class CustomIntegrationFactory(IntegrationFactory):
                 "method": "POST",
             },
         ],
+        "post_execute_notification": [
+            {
+                "type": "email",
+                "to": "{{ email }}",
+                "subject": "Created an account for ya",
+                "message": "We have just created this account for you {{ first_name}}",
+            }
+        ],
         "headers": {
             "Accept": "application/json",
             "Content-Type": "application/json",

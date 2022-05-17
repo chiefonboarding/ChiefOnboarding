@@ -1,5 +1,6 @@
 import factory
 from django.conf import settings
+from django.utils import timezone
 from factory.fuzzy import FuzzyChoice, FuzzyText
 from pytest_factoryboy import register
 
@@ -9,6 +10,7 @@ from .models import NOTIFICATION_TYPES, Notification, Organization, WelcomeMessa
 @register
 class OrganizationFactory(factory.django.DjangoModelFactory):
     name = FuzzyText()
+    timed_triggers_last_check = factory.LazyFunction(lambda: timezone.now().date())
 
     class Meta:
         model = Organization
