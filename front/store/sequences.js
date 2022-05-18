@@ -60,7 +60,7 @@ export const mutations = {
     } else {
       type = item.type
     }
-    state.sequence[item.block][item.type] = state.sequence[item.block][type].filter(a => a.id !== item.id)
+    state.sequence[item.block][type] = state.sequence[item.block][type].filter(a => a.id !== item.id)
   },
   addItem (state, item) {
     state.sequence[item.block][item.type].push(item.item)
