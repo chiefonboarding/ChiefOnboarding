@@ -21,7 +21,7 @@ def test_create_integration(client, django_user_model):
     assert "Enter a valid JSON." in response.content.decode()
 
     # Post with valid JSON
-    response = client.post(url, {"name": "test", "manifest": '{"test": "Test"}'})
+    response = client.post(url, {"name": "test", "manifest": '{"execute": []}'})
 
     assert "Enter a valid JSON." not in response.content.decode()
     assert Integration.objects.filter(integration=10).count() == 1
@@ -80,7 +80,9 @@ def test_integration_extra_args_form(
     )
 
     integration = Integration.objects.first()
-    assert integration.extra_args == {"ORG": "123", "TOKEN": "SECRET_TOKEN"}
+    assert integration.extra_args["ORG"] == "123"
+    assert integration.extra_args["TOKEN"] == "SECRET_TOKEN"
+    assert "NOTWORKING" not in integration.extra_args
 
 
 @pytest.mark.django_db

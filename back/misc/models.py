@@ -10,7 +10,7 @@ from .s3 import S3
 class File(models.Model):
     name = models.CharField(max_length=100)
     key = models.CharField(max_length=100, blank=True)
-    ext = models.CharField(max_length=10)
+    ext = models.CharField(max_length=10, blank=True)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
 
     def get_url(self):

@@ -1,3 +1,5 @@
+import json
+
 from django.db import models
 from django.db.models import JSONField
 from fernet_fields.fields import EncryptedField
@@ -26,4 +28,7 @@ class ContentJSONField(JSONField):
 
 
 class EncryptedJSONField(EncryptedField, models.JSONField):
-    pass
+    def from_db_value(self, value, expression, connection, *args):
+        if value is not None:
+            value = bytes(value)
+            return self.to_python(json.loads(self.fernet.decrypt(value)))

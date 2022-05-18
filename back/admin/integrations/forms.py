@@ -63,8 +63,12 @@ class IntegrationExtraArgsForm(forms.ModelForm):
             self.fields[item["id"]] = forms.CharField(
                 label=item["name"], help_text=item["description"]
             )
+            # Check if item was already saved - load data back in form
             if item["id"] in initial_data:
                 self.fields[item["id"]].initial = initial_data[item["id"]]
+            # If field is secret field, then hide it - values are generated on the fly
+            if "type" in item and item["type"] == "generated":
+                self.fields[item["id"]].widget = forms.HiddenInput()
 
     def save(self):
         integration = self.instance

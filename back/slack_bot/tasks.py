@@ -8,9 +8,10 @@ from admin.integrations.models import Integration
 from organization.models import Organization, WelcomeMessage
 from slack_bot.slack_intro import SlackIntro
 from slack_bot.slack_misc import get_new_hire_first_message_buttons
+from slack_bot.slack_resource import SlackResource
 from slack_bot.slack_to_do import SlackToDoManager
 from slack_bot.utils import Slack, actions, button, paragraph
-from users.models import ToDoUser
+from users.models import ResourceUser, ToDoUser
 
 
 def link_slack_users(users=[]):
@@ -100,6 +101,14 @@ def update_new_hire():
         overdue_items = ToDoUser.objects.overdue(user)
         tasks = ToDoUser.objects.due_today(user) | overdue_items
 
+        courses_due = ResourceUser.objects.filter(resource__on_day__lte=user.workday)
+        # Filter out completed courses
+        course_blocks = [
+            SlackResource(course, user).get_block()
+            for course in courses_due
+            if course.is_course
+        ]
+
         # If any overdue tasks exist, then notify the user
         if tasks.exists():
             if overdue_items.exists():
@@ -115,6 +124,11 @@ def update_new_hire():
             blocks = SlackToDoManager(user).get_blocks(
                 tasks.values_list("id", flat=True),
                 text=text,
+            )
+            Slack().send_message(
+                blocks=course_blocks,
+                text=_("Here are some courses that you need to complete"),
+                channel=user.slack_user_id,
             )
             Slack().send_message(blocks=blocks, text=text, channel=user.slack_user_id)
 

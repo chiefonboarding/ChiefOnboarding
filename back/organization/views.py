@@ -23,10 +23,14 @@ class FileView(APIView):
         return Response(url)
 
     def post(self, request):
+        ext = ""
+        if len(request.data["name"].split(".")) > 1:
+            ext = request.data["name"].split(".")[-1]
+
         serializer = FileSerializer(
             data={
                 "name": request.data["name"],
-                "ext": request.data["name"].split(".")[1],
+                "ext": ext,
             }
         )
         serializer.is_valid(raise_exception=True)

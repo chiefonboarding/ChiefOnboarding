@@ -66,6 +66,12 @@ class ManifestPostExecuteNotificationSerializer(ValidateMixin, serializers.Seria
 class ManifestInitialDataFormSerializer(ValidateMixin, serializers.Serializer):
     id = serializers.CharField()
     name = serializers.CharField()
+    type = serializers.ChoiceField(
+        [
+            ("generate", "Generate secret"),
+        ],
+        required=False,
+    )
     description = serializers.CharField()
 
 

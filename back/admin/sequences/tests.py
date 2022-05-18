@@ -2,6 +2,7 @@ import datetime
 from datetime import timedelta
 
 import pytest
+from django.core.cache import cache
 from django.urls import reverse
 from django.utils import timezone
 from freezegun import freeze_time
@@ -34,7 +35,7 @@ from admin.sequences.tasks import timed_triggers
 from admin.to_do.factories import ToDoFactory
 from admin.to_do.forms import ToDoForm
 from admin.to_do.models import ToDo
-from organization.models import Organization
+from organization.models import Notification, Organization
 
 
 @pytest.mark.django_db
@@ -565,7 +566,6 @@ def test_sequence_trigger_task(
     org.save()
 
     new_hire1 = new_hire_factory()
-    print(new_hire1.start_day)
 
     to_do1 = to_do_factory()
     to_do2 = to_do_factory()
@@ -880,6 +880,56 @@ def test_duplicate_pending_text_message_item(pending_text_message_factory):
     assert ext_message.send_to == new_pending_text_message.send_to
     assert ext_message.subject == new_pending_text_message.subject
     assert ext_message.person_type == new_pending_text_message.person_type
+
+
+@pytest.mark.django_db
+def test_execute_external_message_phone_no_number(
+    pending_text_message_factory, new_hire_factory
+):
+    new_hire = new_hire_factory()
+    # Send text message to new hire
+    pending_text_message = pending_text_message_factory(person_type=0)
+    pending_text_message.execute(new_hire)
+    # New hire does not have a phone number
+    assert Notification.objects.filter(notification_type="failed_no_phone").count() == 1
+
+
+@pytest.mark.django_db
+def test_execute_external_message_slack(
+    pending_slack_message_factory, new_hire_factory
+):
+    new_hire = new_hire_factory(slack_user_id="slackx")
+    # Send text message to new hire
+    pending_slack_message = pending_slack_message_factory(
+        content_json={
+            "time": 0,
+            "blocks": [
+                {
+                    "data": {
+                        "text": "Please complete the previous item, {{first_name}}!"
+                    },
+                    "type": "paragraph",
+                }
+            ],
+        },
+        person_type=0,
+    )
+    pending_slack_message.execute(new_hire)
+
+    assert cache.get("slack_channel", "slackx")
+    assert cache.get(
+        "slack_blocks",
+        [
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": "Please complete the previous item!, "
+                    + new_hire.first_name,
+                },
+            }
+        ],
+    )
 
 
 @pytest.mark.django_db

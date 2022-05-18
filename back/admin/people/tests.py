@@ -25,6 +25,7 @@ from users.factories import (
     ManagerFactory,
     NewHireFactory,
 )
+from users.models import CourseAnswer
 
 
 @pytest.mark.django_db
@@ -754,11 +755,182 @@ def test_new_hire_progress(
 
 
 @pytest.mark.django_db
+def test_new_hire_course_rating(
+    resource_user_factory, resource_with_level_deep_chapters_factory, chapter_factory
+):
+    resource = resource_with_level_deep_chapters_factory(course=True)
+
+    # In total 3 questions
+    question_chapter = resource.chapters.get(type=2)
+    question_chapter.content = {
+        "time": 0,
+        "blocks": [
+            {
+                "id": "1",
+                "type": "question",
+                "content": "Please answer this question",
+                "items": [
+                    {"id": "1", "text": "first option"},
+                    {"id": "2", "text": "second option"},
+                ],
+                "answer": "2",
+            }
+        ],
+    }
+    question_chapter.save()
+
+    new_chapter = chapter_factory(
+        name="top_lvl4_q", resource=resource, type=2, order=11
+    )
+    new_chapter.content = {
+        "time": 0,
+        "blocks": [
+            {
+                "id": "2",
+                "type": "question",
+                "content": "Please answer this question",
+                "items": [
+                    {"id": "3", "text": "first option"},
+                    {"id": "4", "text": "second option"},
+                ],
+                "answer": "4",
+            },
+            {
+                "id": "3",
+                "type": "question",
+                "content": "Please answer this question",
+                "items": [
+                    {"id": "5", "text": "first option"},
+                    {"id": "6", "text": "second option"},
+                ],
+                "answer": "5",
+            },
+        ],
+    }
+    new_chapter.save()
+    resource_user1 = resource_user_factory(resource=resource)
+
+    # No questions have been answered yet, so n/a
+    assert resource_user1.get_rating == "n/a"
+
+    # Correct answer
+    answer_obj = CourseAnswer.objects.create(
+        chapter=question_chapter, answers={"item-0": "2"}
+    )
+    resource_user1.answers.add(answer_obj)
+
+    assert resource_user1.get_rating == "1 correct answers out of 1 questions"
+
+    # First one is wrong, second one is right
+    answer_obj = CourseAnswer.objects.create(
+        chapter=new_chapter, answers={"item-0": "3", "item-1": "5"}
+    )
+    resource_user1.answers.add(answer_obj)
+
+    assert resource_user1.get_rating == "2 correct answers out of 3 questions"
+
+
+@pytest.mark.django_db
+def test_new_hire_course_answers_list(
+    client,
+    django_user_model,
+    resource_user_factory,
+    resource_with_level_deep_chapters_factory,
+    chapter_factory,
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    resource = resource_with_level_deep_chapters_factory(course=True)
+
+    # In total 3 questions
+    question_chapter = resource.chapters.get(type=2)
+    question_chapter.content = {
+        "time": 0,
+        "blocks": [
+            {
+                "id": "1",
+                "type": "question",
+                "content": "Please answer this question",
+                "items": [
+                    {"id": "1", "text": "first option"},
+                    {"id": "2", "text": "second option"},
+                ],
+                "answer": "2",
+            }
+        ],
+    }
+    question_chapter.save()
+
+    new_chapter = chapter_factory(
+        name="top_lvl4_q", resource=resource, type=2, order=11
+    )
+    new_chapter.content = {
+        "time": 0,
+        "blocks": [
+            {
+                "id": "2",
+                "type": "question",
+                "content": "Please answer this question",
+                "items": [
+                    {"id": "3", "text": "third option"},
+                    {"id": "4", "text": "fourth option"},
+                ],
+                "answer": "4",
+            },
+            {
+                "id": "3",
+                "type": "question",
+                "content": "Please answer this question",
+                "items": [
+                    {"id": "5", "text": "fifth option"},
+                    {"id": "6", "text": "sixth option"},
+                ],
+                "answer": "5",
+            },
+        ],
+    }
+    new_chapter.save()
+    resource_user1 = resource_user_factory(resource=resource)
+
+    # No questions have been answered yet, so n/a
+    assert resource_user1.get_rating == "n/a"
+
+    url = reverse(
+        "admin:new-hire-course-answers",
+        args=[resource_user1.user.id, resource_user1.id],
+    )
+
+    response = client.get(url)
+
+    assert "No answers were given in yet." in response.content.decode()
+
+    # Correct answer
+    answer_obj = CourseAnswer.objects.create(
+        chapter=question_chapter, answers={"item-0": "2"}
+    )
+    resource_user1.answers.add(answer_obj)
+
+    response = client.get(url)
+
+    assert "Answer given by new hire: second option" in response.content.decode()
+
+    # First one is wrong, second one is right
+    answer_obj = CourseAnswer.objects.create(
+        chapter=new_chapter, answers={"item-0": "3", "item-1": "5"}
+    )
+    resource_user1.answers.add(answer_obj)
+
+    response = client.get(url)
+
+    assert "Answer given by new hire: third option" in response.content.decode()
+    assert "Answer given by new hire: fifth option" in response.content.decode()
+
+
+@pytest.mark.django_db
 def test_new_hire_reopen_todo(
     client, settings, django_user_model, to_do_user_factory, mailoutbox
 ):
     client.force_login(django_user_model.objects.create(role=1))
-
     to_do_user1 = to_do_user_factory()
 
     # not a valid template type

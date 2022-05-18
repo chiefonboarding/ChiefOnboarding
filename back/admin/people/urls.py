@@ -54,7 +54,7 @@ urlpatterns = [
     path(
         "new_hire/<int:pk>/course_answers/<int:resource_user>/",
         new_hire_views.NewHireCourseAnswersView.as_view(),
-        name="new-hire-rating",
+        name="new-hire-course-answers",
     ),
     path(
         "new_hire/<int:pk>/tasks/",

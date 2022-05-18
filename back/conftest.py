@@ -10,7 +10,11 @@ from admin.integrations.factories import CustomIntegrationFactory, IntegrationFa
 from admin.introductions.factories import IntroductionFactory
 from admin.notes.factories import NoteFactory
 from admin.preboarding.factories import PreboardingFactory
-from admin.resources.factories import ResourceFactory
+from admin.resources.factories import (
+    ChapterFactory,
+    ResourceFactory,
+    ResourceWithLevelDeepChaptersFactory,
+)
 from admin.sequences.factories import (
     ConditionTimedFactory,
     ConditionToDoFactory,
@@ -23,6 +27,7 @@ from admin.sequences.factories import (
     SequenceFactory,
 )
 from admin.to_do.factories import ToDoFactory
+from misc.factories import FileFactory
 from organization.factories import (
     NotificationFactory,
     OrganizationFactory,
@@ -90,3 +95,6 @@ register(CustomIntegrationFactory)
 register(IntegrationFactory)
 register(IntegrationConfigFactory)
 register(ConditionWithItemsFactory)
+register(FileFactory)
+register(ResourceWithLevelDeepChaptersFactory)
+register(ChapterFactory)

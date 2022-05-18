@@ -82,7 +82,7 @@
               {% endif %}
             </td>
             <td class="">
-              <a href="{% url 'admin:new-hire-rating' object.id resource.id %}">Rating: {{ resource.get_rating }}</a>
+              <a href="{% url 'admin:new-hire-course-answers' object.id resource.id %}">Rating: {{ resource.get_rating }}</a>
             </td>
             <td class="text-end">
               {% if resource.completed_course %}

@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.db import models
 from django.template import Context, Template
+from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
 from fernet_fields import EncryptedTextField
 from twilio.rest import Client
@@ -73,10 +74,11 @@ class Integration(models.Model):
         ).json()
 
     def _replace_vars(self, text):
+        params = {} if not hasattr(self, "params") else self.params
         if hasattr(self, "new_hire") and self.new_hire is not None:
             text = self.new_hire.personalize(text, self.extra_args)
         t = Template(text)
-        context = Context(self.extra_args)  # | self.params)
+        context = Context(self.extra_args | params)
         text = t.render(context)
         return text
 
@@ -97,11 +99,18 @@ class Integration(models.Model):
         self.parms = params
         self.new_hire = new_hire
 
+        # Add generated secrets
+        for item in self.manifest["initial_data_form"]:
+            if "type" in item and item["type"] == "generate":
+                self.extra_args[item["id"]] = get_random_string(length=10)
+
+        # Run all requests
         for item in self.manifest["execute"]:
             self._run_request(item)
 
+        # Run all post requests (notifications)
         for item in self.manifest["post_execute_notification"]:
-            if item["notification_type"] == "email":
+            if item["type"] == "email":
                 send_mail(
                     self._replace_vars(item["subject"]),
                     self._replace_vars(item["message"]),
@@ -116,6 +125,7 @@ class Integration(models.Model):
                     body=self._replace_vars(item["message"]),
                 )
 
+        # Succesfully ran integration, add notification
         Notification.objects.create(
             notification_type="ran_integration",
             extra_text=self.name,

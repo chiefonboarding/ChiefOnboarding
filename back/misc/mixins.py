@@ -35,11 +35,8 @@ class ContentMixin:
                 )
         return text
 
-    def to_slack_block(self, user, json_field="content", **kwargs):
-        if not hasattr(self, json_field):
-            raise Exception("Field does not exist")
-
-        blocks = getattr(self, json_field)["blocks"]
+    def to_slack_block(self, user, **kwargs):
+        blocks = getattr(self, "content")["blocks"]
 
         # Is a course item with questions
         if "data" not in blocks[0]:
