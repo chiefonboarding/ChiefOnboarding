@@ -1,5 +1,6 @@
 from rest_auth.serializers import PasswordResetSerializer as OldPasswordResetSerializer
 from rest_framework import serializers
+from django.conf import settings
 
 class PasswordResetSerializer(OldPasswordResetSerializer):
     def save(self):
@@ -7,7 +8,7 @@ class PasswordResetSerializer(OldPasswordResetSerializer):
         # Set some values to trigger the send_email method.
         opts = {
             'use_https': request.is_secure(),
-            'from_email': 'Onboarding <hello@chiefonboarding.com>',
+            'from_email': settings.DEFAULT_FROM_EMAIL,
             'request': request,
             'extra_email_context': {'url': request.META['HTTP_HOST']},
             'email_template_name': 'email/reset.html',
