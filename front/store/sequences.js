@@ -55,7 +55,11 @@ export const mutations = {
     }
   },
   removeItem (state, item) {
-    state.sequence[item.block][item.type] = state.sequence[item.block][item.type].filter(a => a.id !== item.id)
+    let type = item.type
+    if (item.type == "slack_messages" || item.type == "text_messages" || item.type == "emails") {
+      type = "external_messages"
+    }
+    state.sequence[item.block][type] = state.sequence[item.block][type].filter(a => a.id !== item.id)
   },
   addItem (state, item) {
     state.sequence[item.block][item.type].push(item.item)
