@@ -1,0 +1,1 @@
+(window.webpackJsonp=window.webpackJsonp||[]).push([[14],{880:function(n,e,t){"use strict";t.r(e);var o={layout:"admin",mounted:function(){this.$router.push({name:"admin-newhire"})}},r=t(23),component=Object(r.a)(o,(function(){var n=this.$createElement;return(this._self._c||n)("div")}),[],!1,null,null,null);e.default=component.exports}}]);
