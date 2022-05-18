@@ -90,6 +90,7 @@ def test_use_custom_email_template(new_hire_factory):
 @pytest.mark.django_db
 def test_cache_logo_url(settings, file_factory):
     settings.AWS_ACCESS_KEY_ID = "xxx"
+    settings.AWS_STORAGE_BUCKET_NAME = "xxx"
 
     file1 = file_factory()
     file2 = file_factory()
@@ -121,6 +122,7 @@ def test_cache_logo_url(settings, file_factory):
 @pytest.mark.django_db
 def test_file_url(settings, client, new_hire_factory, file_factory):
     settings.AWS_ACCESS_KEY_ID = "xxx"
+    settings.AWS_STORAGE_BUCKET_NAME = "xxx"
 
     new_hire = new_hire_factory()
     file1 = file_factory()
