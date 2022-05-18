@@ -55,10 +55,9 @@ export const mutations = {
     }
   },
   removeItem (state, item) {
+    let type = item.type
     if (item.type == "slack_messages" || item.type == "text_messages" || item.type == "emails") {
       type = "external_messages"
-    } else {
-      type = item.type
     }
     state.sequence[item.block][type] = state.sequence[item.block][type].filter(a => a.id !== item.id)
   },
