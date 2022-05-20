@@ -59,7 +59,7 @@ class SlackResource:
         blocks = []
         if (
             not self.resource_user.is_course
-            and self.resource_user.resource.chapters.count() > 1
+            and self.resource_user.resource.chapters.exclude(type=1).count() > 1
         ):
             # Create menu with chapters
             blocks.append(

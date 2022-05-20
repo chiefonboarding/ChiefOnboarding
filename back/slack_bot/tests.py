@@ -22,30 +22,10 @@ from slack_bot.views import (
     slack_show_help,
     slack_show_resources_items_in_category,
     slack_show_to_do_items_based_on_message,
+    slack_open_resource_dialog,
+    slack_change_resource_page
 )
 from users.factories import ResourceUserFactory
-
-
-@pytest.fixture
-def incomming_message_payload():
-    return {
-        "token": "xxxxxx",
-        "team_id": "T061EG3I6",
-        "api_app_id": "A0P343K2",
-        "event": {
-            "type": "message",
-            "channel": "D0243491L",
-            "user": "U2147483497",
-            "text": "show me to do items",
-            "ts": "1355514523.000005",
-            "event_ts": "133417523.000005",
-            "channel_type": "im",
-        },
-        "type": "event_callback",
-        "authed_teams": ["T061349R6"],
-        "event_id": "Ev0P342K21",
-        "event_time": 13553437523,
-    }
 
 
 @pytest.mark.django_db
@@ -601,6 +581,63 @@ def test_slack_to_do_complete_external_form(new_hire_factory, to_do_user_factory
     ]
 
 
+@pytest.mark.django_db
+def test_open_resource_dialog(new_hire_factory, resource_user_factory):
+    new_hire = new_hire_factory(slack_user_id="slackx")
+
+    # Should reset steps back to one
+    # Resource has questions and a page. Questions should be ignored. So not showing menu.
+    resource_user1 = resource_user_factory(user=new_hire, step=5)
+
+    payload = {'action_id': f"dialog:resource:{resource_user1.id}", 'block_id': str(resource_user1.id), 'text': {'type': 'plain_text', 'text': 'View resource', 'emoji': True}, 'value': str(resource_user1.id), 'style': 'primary', 'type': 'button', 'action_ts': '1653056766.929696'}
+
+    body = {'type': 'block_actions', 'user': {'id': 'slackx', 'username': 'hello', 'name': 'hello', 'team_id': 'xx'}, 'api_app_id': 'xxx', 'token': 'xxx', 'container': {'type': 'message', 'message_ts': '1653056755.376889', 'channel_id': 'xxx', 'is_ephemeral': False}, 'trigger_id': '37055ba4a888a9526a37', 'team': {'id': 'xxx', 'domain': 'chiefonboarding'}, 'enterprise': None, 'is_enterprise_install': False, 'channel': {'id': 'xxx', 'name': 'directmessage'}, 'message': {'bot_id': 'xx', 'type': 'message', 'text': 'Here are your options:', 'user': 'slackx', 'ts': '1653056755.376889', 'app_id': 'xx', 'team': 'xxx', 'blocks': [{'type': 'section', 'block_id': 'ZcGZ', 'text': {'type': 'mrkdwn', 'text': 'Here are your options:', 'verbatim': False}}, {'type': 'section', 'block_id': str(resource_user1.id), 'text': {'type': 'mrkdwn', 'text': '*New course*', 'verbatim': False}, 'accessory': {'type': 'button', 'action_id': f"dialog:resource:{resource_user1.id}", 'style': 'primary', 'text': {'type': 'plain_text', 'text': 'View resource', 'emoji': True}, 'value': str(resource_user1.id)}}]}, 'state': {'values': {}}, 'response_url': '', 'actions': [{'action_id': f"dialog:resource:{resource_user1.id}", 'block_id': str(resource_user1.id), 'text': {'type': 'plain_text', 'text': 'View resource', 'emoji': True}, 'value': str(resource_user1.id), 'style': 'primary', 'type': 'button', 'action_ts': '1653056766.929696'}]}
+
+    slack_open_resource_dialog(payload, body)
+
+    # Trigger id should be the same as in the body
+    assert cache.get("slack_trigger_id") == "37055ba4a888a9526a37"
+    assert cache.get("slack_view") == {'type': 'modal', 'callback_id': 'dialog:resource', 'title': {'type': 'plain_text', 'text': 'Resource'}, 'blocks': [{'type': 'section', 'text': {'type': 'mrkdwn', 'text': f"*{resource_user1.resource.chapters.all()[0].name}*"}}, {'type': 'section', 'text': {'type': 'mrkdwn', 'text': 'Please complete this item!'}}], 'private_metadata': '{"current_chapter": ' + str(resource_user1.resource.chapters.all()[0].id) + ', "resource_user": ' + str(resource_user1.id) + '}', 'submit': {'type': 'plain_text', 'text': 'Next'}}
+
+    resource_user1.refresh_from_db()
+
+    assert resource_user1.step == 0
+
+
+@pytest.mark.django_db
+def test_change_resource_page(new_hire_factory, resource_user_factory):
+    new_hire = new_hire_factory(slack_user_id="slackx")
+
+    resource_user1 = resource_user_factory(user=new_hire, step=5)
+    # Make second chapter another page, so it shows up as a menu item
+    last_chapter = resource_user1.resource.chapters.last()
+    last_chapter.type = 0
+    last_chapter.content = {
+        "time": 0,
+        "blocks": [
+            {"data": {"text": "This is the second page"}, "type": "paragraph"}
+        ],
+    }
+
+    last_chapter.save()
+
+    payload = {'type': 'static_select', 'action_id': 'change_resource_page', 'block_id': 'change_resource_page', 'selected_option': {'text': {'type': 'plain_text', 'text': 'New item', 'emoji': True}, 'value': str(last_chapter)}, 'placeholder': {'type': 'plain_text', 'text': 'Select chapter', 'emoji': True}, 'action_ts': '1653061762.164536'}
+
+    body = {'type': 'block_actions', 'user': {'id': 'slackx', 'username': 'hello', 'name': 'hello', 'team_id': 'xx'}, 'api_app_id': 'xxx', 'token': 'xxx', 'container': {'type': 'message', 'message_ts': '1653056755.376889', 'channel_id': 'xxx', 'is_ephemeral': False}, 'trigger_id': '37055ba4a888a9526a37', 'team': {'id': 'xxx', 'domain': 'chiefonboarding'}, 'enterprise': None, 'is_enterprise_install': False, 'channel': {'id': 'xxx', 'name': 'directmessage'}, 'message': {'bot_id': 'xx', 'type': 'message', 'text': 'Here are your options:', 'user': 'slackx', 'ts': '1653056755.376889', 'app_id': 'xx', 'team': 'xxx', 'blocks': [{'type': 'section', 'block_id': 'ZcGZ', 'text': {'type': 'mrkdwn', 'text': 'Here are your options:', 'verbatim': False}}, {'type': 'section', 'block_id': str(resource_user1.id), 'text': {'type': 'mrkdwn', 'text': '*New course*', 'verbatim': False}, 'accessory': {'type': 'button', 'action_id': f"dialog:resource:{resource_user1.id}", 'style': 'primary', 'text': {'type': 'plain_text', 'text': 'View resource', 'emoji': True}, 'value': str(resource_user1.id)}}]}, 'state': {'values': {}}, 'response_url': '', 'actions': [{'action_id': f"dialog:resource:{resource_user1.id}", 'block_id': str(resource_user1.id), 'text': {'type': 'plain_text', 'text': 'View resource', 'emoji': True}, 'value': str(resource_user1.id), 'style': 'primary', 'type': 'button', 'action_ts': '1653056766.929696'}]}
+
+    slack_change_resource_page(payload, body)
+
+    # Trigger id should be the same as in the body
+    assert cache.get("slack_trigger_id") == "37055ba4a888a9526a37"
+    assert cache.get("slack_view") == {'type': 'modal', 'callback_id': 'dialog:resource', 'title': {'type': 'plain_text', 'text': 'Resource'}, 'blocks': [{'type': 'actions', 'block_id': 'change_resource_page', 'elements': [{'type': 'static_select', 'placeholder': {'type': 'plain_text', 'text': 'Select chapter', 'emoji': True}, 'options': [{'text': {'type': 'plain_text', 'text': str(resource_user1.resource.chapters.all()[0].name), 'emoji': True}, 'value': str(resource_user1.resource.chapters.all()[0].id)}], 'action_id': 'change_resource_page'}]}, {'type': 'section', 'text': {'type': 'mrkdwn', 'text': f"*{resource_user1.resource.chapters.all()[0].name}*"}}, {'type': 'section', 'text': {'type': 'mrkdwn', 'text': 'Please complete this item!'}}], 'private_metadata': '{"current_chapter": ' + str(resource_user1.resource.chapters.all()[0].id) + ', "resource_user": ' + str(resource_user1.id) + '}', 'submit': {'type': 'plain_text', 'text': 'Next'}}
+
+    resource_user1.refresh_from_db()
+
+    assert resource_user1.step == 0
+
+
+
+
 # TEST TASKS
 @pytest.mark.django_db
 @patch(
@@ -774,7 +811,7 @@ def test_link_slack_users_only_send_once(new_hire_factory, integration_factory):
 @pytest.mark.django_db
 @freeze_time("2022-05-13 08:00:00")
 def test_update_new_hire_without_valid_slack(
-    new_hire_factory, integration_factory, to_do_user_factory
+    new_hire_factory, to_do_user_factory
 ):
     new_hire = new_hire_factory(
         start_day=datetime.now().date() - timedelta(days=2), slack_user_id="slackx"
@@ -1148,3 +1185,5 @@ def test_introduce_new_hire(new_hire_factory, integration_factory):
             ],
         },
     ]
+
+

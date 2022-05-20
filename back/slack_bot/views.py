@@ -359,9 +359,12 @@ def slack_show_resources_items_in_category(payload, body):
 
 @exception_handler
 @app.action(re.compile("(dialog:resource:)"))
-def open_resource_dialog(ack, payload, body, say, client):
+def open_resource_dialog(ack, payload, body):
     ack()
-    user = get_user(body["user"]["id"], say)
+    slack_open_resource_dialog(payload, body)
+
+def slack_open_resource_dialog(payload, body):
+    user = get_user(body["user"]["id"])
     if user is None:
         return
 
@@ -376,13 +379,19 @@ def open_resource_dialog(ack, payload, body, say, client):
         resource_user.resource.first_chapter_id
     )
 
-    client.views_open(trigger_id=body["trigger_id"], view=view)
+    Slack().open_modal(trigger_id=body["trigger_id"], view=view)
 
 
 @exception_handler
 @app.action("change_resource_page")
-def change_resource_page(ack, payload, body, client):
+def change_resource_page(ack, payload, body):
     ack()
+    slack_change_resource_page(payload, body)
+
+def slack_change_resource_page(payload, body):
+    print(payload)
+    print(body)
+
     user = get_user(body["user"]["id"])
     if user is None:
         return
@@ -392,7 +401,7 @@ def change_resource_page(ack, payload, body, client):
     # Get selected chapter from payload
     chapter = Chapter.objects.get(id=payload["selected_option"]["value"])
 
-    client.views_update(
+    Slack().update_modal(
         view_id=body["view"]["id"],
         hash=body["view"]["hash"],
         view={
