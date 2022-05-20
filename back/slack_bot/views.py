@@ -143,7 +143,7 @@ def slack_show_to_do_items_based_on_message(message):
     if _("overdue") in message["text"]:
         items = ToDoUser.objects.overdue(user)
 
-    tasks = [SlackToDo(task.to_do, user).to_do_block() for task in items]
+    tasks = [SlackToDo(task, user).get_block() for task in items]
 
     text = (
         _("These are the tasks you need to complete:")
@@ -203,7 +203,7 @@ def slack_open_todo_dialog(payload, body):
 
     else:
         # Show modal to user with to do item
-        view = SlackToDo(to_do_user.to_do, user).modal_view(
+        view = SlackToDo(to_do_user, user).modal_view(
             ids=[block["block_id"] for block in body["message"]["blocks"]],
             text=body["message"]["text"],
             ts=body["container"]["message_ts"],
@@ -430,7 +430,7 @@ def slack_show_to_do_items(body):
         return
 
     items = ToDoUser.objects.all_to_do(user)
-    tasks = [SlackToDo(task.to_do, user).to_do_block() for task in items]
+    tasks = [SlackToDo(task, user).get_block() for task in items]
 
     text = (
         _("These are the tasks you need to complete:")

@@ -48,7 +48,7 @@ def process_condition(condition_id, user_id):
         to_do_blocks = [
             SlackToDo(
                 ToDoUser.objects.get(to_do__id=notif.item.id, user=user), user
-            ).to_do_block()
+            ).get_block()
             for notif in notifications.filter(notification_type="added_todo")
         ]
 

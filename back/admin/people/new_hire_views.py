@@ -433,8 +433,8 @@ class NewHireRemindView(LoginRequiredMixin, AdminPermMixin, View):
         if template_user_obj.user.has_slack_account:
             if template_type == "todouser":
                 block = SlackToDo(
-                    template_user_obj.to_do, template_user_obj.user
-                ).to_do_block()
+                    template_user_obj, template_user_obj.user
+                ).get_block()
             else:
                 block = SlackResource(
                     template_user_obj, template_user_obj.user
@@ -484,8 +484,8 @@ class NewHireReopenTaskView(LoginRequiredMixin, AdminPermMixin, FormView):
         if template_user_obj.user.has_slack_account:
             if template_type == "todouser":
                 block = SlackToDo(
-                    template_user_obj.to_do, template_user_obj.user
-                ).to_do_block()
+                    template_user_obj, template_user_obj.user
+                ).get_block()
             else:
                 block = SlackResource(
                     template_user_obj, template_user_obj.user
