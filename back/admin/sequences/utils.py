@@ -24,6 +24,7 @@ SEQUENCE_MODELS = [
     },
     {"app": "sequences", "model": "PendingAdminTask", "form": PendingAdminTaskForm},
     {"app": "integrations", "model": "integration", "form": IntegrationConfigForm},
+    {"app": "sequences", "model": "integrationconfig", "form": IntegrationConfigForm},
 ]
 
 SEQUENCE_MODELS += MODELS
