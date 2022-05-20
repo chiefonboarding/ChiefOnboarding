@@ -249,6 +249,15 @@ class SequenceFormView(LoginRequiredMixin, AdminPermMixin, View):
 
     def get(self, request, template_type, template_pk, *args, **kwargs):
 
+        if template_type == "integrationconfig":
+            template_item = get_object_or_404(IntegrationConfig, id=template_pk)
+            form = template_item.integration.config_form(template_item.additional_data)
+            return (
+                request,
+                "_item_form.html",
+                {"form": form},
+            )
+
         form = get_sequence_model_form(template_type)
 
         if form is None:
@@ -370,7 +379,7 @@ class SequenceFormUpdateIntegrationConfigView(LoginRequiredMixin, AdminPermMixin
         else:
             # If this provision item exist, then get it, so we can update it
             existing_item = get_object_or_404(IntegrationConfig, id=template_pk)
-            form_class = existing_item.access_token.config_form
+            form_class = existing_item.integration.config_form
 
         item_form = form_class(request.POST)
 

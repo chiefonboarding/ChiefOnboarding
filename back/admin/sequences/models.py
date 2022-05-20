@@ -24,7 +24,7 @@ PEOPLE_CHOICES = (
     (0, _("New hire")),
     (1, _("Manager")),
     (2, _("Buddy")),
-    (3, _("custom")),
+    (3, _("Custom")),
 )
 
 
@@ -212,13 +212,9 @@ class ExternalMessage(ContentMixin, models.Model):
 
     def execute(self, user):
         if self.is_email_message:
-            try:
-                send_sequence_message(
-                    user, self.get_user(user), self.content_json(), self.subject
-                )
-            # TODO
-            except:  # noqa: E722
-                pass
+            send_sequence_message(
+                user, self.get_user(user), self.content_json(), self.subject
+            )
         elif self.is_slack_message:
             blocks = []
             # We don't have the model function on this model, so let's get it from a

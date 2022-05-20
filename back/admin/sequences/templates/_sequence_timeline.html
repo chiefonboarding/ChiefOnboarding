@@ -71,7 +71,7 @@ document.addEventListener("drop", function( event ) {
     const type = event.dataTransfer.getData('type');
     const conditionID = droppedPlace.dataset.id
 
-    if (!(($(droppedPlace).hasClass("before") && ["pendingadmintask", "pendingemailmessage", "pendingslackmessage", "pendingtextmessage", "integration"].includes(type)) || ($(droppedPlace).hasClass("unconditioned") || $(droppedPlace).hasClass("after")))) {
+    if (!(($(droppedPlace).hasClass("before") && ["pendingadmintask", "pendingemailmessage", "pendingslackmessage", "pendingtextmessage", "integration"].includes(type)) || ($(droppedPlace).hasClass("unconditioned") || $(droppedPlace).hasClass("after") || $(droppedPlace).hasClass("to_do")))) {
       return
     }
 
@@ -96,7 +96,7 @@ document.addEventListener("dragover", function( event ) {
     const type = event.dataTransfer.getData('type');
     const droppedPlace = event.target.closest(".drop")
     console.log(type)
-    if (($(droppedPlace).hasClass("before") && ["pendingadmintask", "pendingemailmessage", "pendingslackmessage", "pendingtextmessage", "integration"].includes(type)) || ($(droppedPlace).hasClass("unconditioned") || $(droppedPlace).hasClass("after"))) {
+    if (($(droppedPlace).hasClass("before") && ["pendingadmintask", "pendingemailmessage", "pendingslackmessage", "pendingtextmessage", "integration"].includes(type)) || ($(droppedPlace).hasClass("unconditioned") || $(droppedPlace).hasClass("after")  || $(droppedPlace).hasClass("to_do"))) {
       droppedPlace.style.backgroundColor='rgb(239, 242, 246)';
     }
   }

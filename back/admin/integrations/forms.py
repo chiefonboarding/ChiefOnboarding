@@ -1,4 +1,5 @@
 import json
+from crispy_forms.helper import FormHelper
 
 import requests
 from django import forms
@@ -19,14 +20,22 @@ class IntegrationConfigForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         integration = Integration.objects.get(id=self.instance.id)
         form = self.instance.manifest["form"]
+        self.helper = FormHelper()
+        self.helper.form_tag = False
         for item in form:
             if item["type"] == "multiple_choice":
+
+                if item["multiple"]:
+                    form_field = forms.MultipleChoiceField
+                else:
+                    form_field = forms.ChoiceField
                 option_data = requests.get(
                     integration._replace_vars(item["url"]), headers=integration._headers
                 ).json()
-                self.fields[item["id"]] = forms.MultipleChoiceField(
+
+                self.fields[item["id"]] = form_field(
                     label=item["name"],
-                    widget=forms.CheckboxSelectMultiple,
+                    widget=forms.CheckboxSelectMultiple if item["multiple"] else forms.Select,
                     choices=[
                         (
                             self._get_result(item["choice_id"], x),

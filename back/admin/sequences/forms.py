@@ -152,6 +152,28 @@ class PendingAdminTaskForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_tag = False
 
+        # Check if assigned_to field should be hidden
+        hide_assigned_to = "d-none"
+        if self.instance is not None and self.instance.person_type == 3:
+            hide_assigned_to = ""
+
+        self.helper.layout = Layout(
+            Div(
+                Field("name"),
+                Field("person_type"),
+                Div(
+                    Field("assigned_to"),
+                    css_class=hide_assigned_to,
+                ),
+                Field("date"),
+                Field("priority"),
+                Field("comment"),
+                Field("option"),
+                Field("slack_user"),
+                Field("email"),
+            ),
+        )
+
     class Meta:
         model = PendingAdminTask
         fields = [

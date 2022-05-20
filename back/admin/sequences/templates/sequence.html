@@ -140,7 +140,7 @@ function getFormData($form){
 // Nothing is as permanent as a temporary workaround.
 $("#form-add-item").submit(function (event) {
     event.preventDefault();
-    if (type === 'integration') {
+    if (type === 'integration' || type === 'integrationconfig') {
       htmx.ajax('POST', `/sequences/update_integration_config/${type}/${item}/${condition}/${provisionCreated}/`, {'values': getFormData($(this)), 'target': '#form'})
     } else {
       htmx.ajax('POST', `/sequences/update_item/${type}/${item}/${condition}/`, {'values': getFormData($(this)), 'target': '#form'})
@@ -200,7 +200,7 @@ $(document).on('change', "#id_send_back", function() {
 
 // FOR PENDING ADMIN TASKS
 $(document).on('change', "select#id_option", function() {
-  // Change things to fill in when condition_type changes
+  // Change things to fill in when notification option changes
   if ($(this).val() == 0){
     $("#div_id_slack_user").addClass("d-none")
     $("#div_id_email").addClass("d-none")
@@ -212,7 +212,15 @@ $(document).on('change', "select#id_option", function() {
     $("#div_id_email").removeClass("d-none")
   }
 })
-
+$(document).on('change', "select#id_person_type", function() {
+  // Change things to fill in when condition_type changes
+  console.log($(this).val())
+  if ($(this).val() == 3){
+    $("#div_id_assigned_to").parent().removeClass("d-none")
+  } else {
+    $("#div_id_assigned_to").parent().addClass("d-none")
+  }
+})
 // FOR PENDING MESSAGES
 $(document).on('change', "select#id_person_type", function() {
   if ($(this).val() == 3){

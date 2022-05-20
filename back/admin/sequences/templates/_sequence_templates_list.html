@@ -32,7 +32,7 @@
   <button hx-get="{% url 'sequences:template_list' %}?type=pendingemailmessage" class="btn btn-{% if active == 'pendingemailmessage' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_email_icon.html' %}
   </button>
-  <button hx-get="{% url 'sequences:template_list' %}?type=integration" class="btn btn-{% if active == 'integrationconfig' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+  <button hx-get="{% url 'sequences:template_list' %}?type=integration" class="btn btn-{% if active == 'integration' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_integration_config.html' %}
   </button>
   <div style="display: inline-flex;">
