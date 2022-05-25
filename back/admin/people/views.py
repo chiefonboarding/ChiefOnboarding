@@ -15,14 +15,18 @@ from admin.integrations.models import Integration
 from admin.resources.models import Resource
 from slack_bot.utils import Slack, actions, button, paragraph
 from users.emails import email_new_admin_cred
-from users.mixins import AdminPermMixin, LoginRequiredMixin
+from users.mixins import (
+    LoginRequiredMixin,
+    ManagerPermMixin,
+    IsAdminOrNewHireManagerMixin,
+)
 
 from .forms import ColleagueCreateForm, ColleagueUpdateForm
 
 # See new_hire_views.py for new hire functions!
 
 
-class ColleagueListView(LoginRequiredMixin, AdminPermMixin, ListView):
+class ColleagueListView(LoginRequiredMixin, ManagerPermMixin, ListView):
     template_name = "colleagues.html"
     queryset = get_user_model().objects.all()
     paginate_by = 20
@@ -38,7 +42,7 @@ class ColleagueListView(LoginRequiredMixin, AdminPermMixin, ListView):
 
 
 class ColleagueCreateView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, CreateView
 ):
     template_name = "colleague_create.html"
     model = get_user_model()
@@ -59,7 +63,7 @@ class ColleagueCreateView(
 
 
 class ColleagueUpdateView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, UpdateView
 ):
     template_name = "colleague_update.html"
     model = get_user_model()
@@ -78,7 +82,7 @@ class ColleagueUpdateView(
         return context
 
 
-class ColleagueDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
+class ColleagueDeleteView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DeleteView):
     queryset = get_user_model().objects.all()
     success_url = reverse_lazy("people:colleagues")
 
@@ -88,7 +92,7 @@ class ColleagueDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
         return response
 
 
-class ColleagueResourceView(LoginRequiredMixin, AdminPermMixin, DetailView):
+class ColleagueResourceView(LoginRequiredMixin, ManagerPermMixin, DetailView):
     template_name = "add_resources.html"
     model = get_user_model()
     context_object_name = "object"
@@ -104,7 +108,7 @@ class ColleagueResourceView(LoginRequiredMixin, AdminPermMixin, DetailView):
         return context
 
 
-class ColleagueToggleResourceView(LoginRequiredMixin, AdminPermMixin, View):
+class ColleagueToggleResourceView(LoginRequiredMixin, ManagerPermMixin, View):
     template_name = "_toggle_button_resources.html"
 
     def post(self, request, pk, template_id, *args, **kwargs):
@@ -121,7 +125,7 @@ class ColleagueToggleResourceView(LoginRequiredMixin, AdminPermMixin, View):
         return render(request, self.template_name, context)
 
 
-class ColleagueSyncSlack(LoginRequiredMixin, AdminPermMixin, View):
+class ColleagueSyncSlack(LoginRequiredMixin, ManagerPermMixin, View):
     def get(self, request, *args, **kwargs):
         slack_users = Slack().get_all_users()
 
@@ -173,7 +177,7 @@ class ColleagueSyncSlack(LoginRequiredMixin, AdminPermMixin, View):
         return HttpResponse(headers={"HX-Refresh": "true"})
 
 
-class ColleagueGiveSlackAccessView(LoginRequiredMixin, AdminPermMixin, View):
+class ColleagueGiveSlackAccessView(LoginRequiredMixin, ManagerPermMixin, View):
     template_name = "_toggle_colleague_access.html"
 
     def post(self, request, pk, *args, **kwargs):
@@ -226,7 +230,7 @@ class ColleagueGiveSlackAccessView(LoginRequiredMixin, AdminPermMixin, View):
         return render(request, self.template_name, context)
 
 
-class ColleagueTogglePortalAccessView(LoginRequiredMixin, AdminPermMixin, View):
+class ColleagueTogglePortalAccessView(LoginRequiredMixin, ManagerPermMixin, View):
     template_name = "_toggle_colleague_access.html"
 
     def post(self, request, pk, *args, **kwargs):

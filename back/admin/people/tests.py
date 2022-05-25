@@ -964,7 +964,7 @@ def test_new_hire_reopen_todo(
         {"type": "section", "text": {"type": "mrkdwn", "text": "You forgot this one!"}},
         {
             "type": "section",
-            "block_id": str(to_do_user1.to_do.id),
+            "block_id": str(to_do_user1.id),
             "text": {
                 "type": "mrkdwn",
                 "text": f"*{to_do_user1.to_do.name}*\nThis task has no deadline.",
@@ -973,8 +973,8 @@ def test_new_hire_reopen_todo(
                 "type": "button",
                 "text": {"type": "plain_text", "text": "View details"},
                 "style": "primary",
-                "value": str(to_do_user1.to_do.id),
-                "action_id": f"dialog:to_do:{to_do_user1.to_do.id}",
+                "value": str(to_do_user1.id),
+                "action_id": f"dialog:to_do:{to_do_user1.id}",
             },
         },
     ]
@@ -1085,7 +1085,7 @@ def test_new_hire_remind_to_do_slack_message(
         },
         {
             "type": "section",
-            "block_id": "21",
+            "block_id": str(to_do_user1.id),
             "text": {
                 "type": "mrkdwn",
                 "text": "*" + to_do_user1.to_do.name + "*\nThis task has no deadline.",
@@ -1094,8 +1094,8 @@ def test_new_hire_remind_to_do_slack_message(
                 "type": "button",
                 "text": {"type": "plain_text", "text": "View details"},
                 "style": "primary",
-                "value": "21",
-                "action_id": "dialog:to_do:21",
+                "value": str(to_do_user1.id),
+                "action_id": f"dialog:to_do:{to_do_user1.id}",
             },
         },
     ]
@@ -1322,7 +1322,7 @@ def test_new_hire_access_per_integration_config_form(
     # Check that form is present
     assert "Select team to add user to" in response.content.decode()
     assert (
-        '<input type="checkbox" class="form-check-input"  name="TEAM_ID" value="test_team"  id="id_TEAM_ID_0">'  # noqa
+        '<select name="TEAM_ID" class="select form-select" id="id_TEAM_ID"> <option value="test_team">test team</option>'  # noqa
         in response.content.decode()
     )
 

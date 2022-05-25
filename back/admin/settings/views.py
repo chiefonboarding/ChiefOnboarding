@@ -17,7 +17,7 @@ from admin.integrations.models import Integration
 from organization.models import Notification, Organization, WelcomeMessage
 from slack_bot.models import SlackChannel
 from users.emails import email_new_admin_cred
-from users.mixins import AdminPermMixin, LoginRequiredMixin
+from users.mixins import AdminPermMixin, LoginRequiredMixin, ManagerPermMixin
 
 from .forms import (
     AdministratorsCreateForm,
@@ -182,7 +182,7 @@ class WelcomeMessageUpdateView(
 
 
 class PersonalLanguageUpdateView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, UpdateView
 ):
     template_name = "personal_language_update.html"
     model = get_user_model()
@@ -210,7 +210,7 @@ class PersonalLanguageUpdateView(
         return context
 
 
-class OTPView(LoginRequiredMixin, AdminPermMixin, FormView):
+class OTPView(LoginRequiredMixin, ManagerPermMixin, FormView):
     template_name = "personal_otp.html"
     form_class = OTPVerificationForm
 

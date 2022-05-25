@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('misc', '0006_content'),
+        ("misc", "0006_content"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='file',
-            name='ext',
+            model_name="file",
+            name="ext",
             field=models.CharField(blank=True, max_length=10),
         ),
     ]

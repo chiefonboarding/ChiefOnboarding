@@ -14,6 +14,8 @@ class Slack:
                 team = Integration.objects.get(integration=0)
                 self.client = slack_sdk.WebClient(token=team.token)
             except Integration.DoesNotExist:
+                if settings.SLACK_BOT_TOKEN != "":
+                    self.client = slack_sdk.WebClient(token=settings.SLACK_BOT_TOKEN)
                 raise Exception("Access token not available")
 
     def get_channels(self):
@@ -76,6 +78,27 @@ class Slack:
             blocks=blocks,
         )
 
+    def send_ephemeral_message(self, user, blocks=[], channel="", text=""):
+        # if there is no channel, then drop
+        if channel == "":
+            return False
+
+        print("blocks")
+        print(blocks)
+        print("text")
+        print(text)
+        print("channel")
+        print(channel)
+        if settings.FAKE_SLACK_API:
+            cache.set("slack_channel", channel)
+            cache.set("slack_blocks", blocks)
+            cache.set("slack_text", text)
+            return {"channel": "slacky"}
+
+        return self.client.chat_postEphemeral(
+            channel=channel, user=user, text=text, blocks=blocks
+        )
+
     def send_message(self, blocks=[], channel="", text=""):
         # if there is no channel, then drop
         if channel == "":
@@ -105,13 +128,15 @@ class Slack:
 
         return self.client.views_open(trigger_id=trigger_id, view=view)
 
-    def update_modal(self, view_id, view):
+    def update_modal(self, view_id, hash, view):
         if settings.FAKE_SLACK_API:
+            print(view_id)
+            print(view)
             cache.set("slack_view_id", view_id)
-            cache.set("slack_view", json.dumps(view))
+            cache.set("slack_view", view)
             return
 
-        return self.client.views_update(view_id=view_id, view=view)
+        return self.client.views_update(view_id=view_id, hash=hash, view=view)
 
 
 def paragraph(text):

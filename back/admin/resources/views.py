@@ -6,14 +6,14 @@ from django.utils.translation import gettext as _
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
-from users.mixins import AdminPermMixin, LoginRequiredMixin
+from users.mixins import ManagerPermMixin, LoginRequiredMixin
 
 from .forms import ResourceForm
 from .mixins import ResourceMixin
 from .models import Chapter, Resource
 
 
-class ResourceListView(LoginRequiredMixin, AdminPermMixin, ListView):
+class ResourceListView(LoginRequiredMixin, ManagerPermMixin, ListView):
     template_name = "templates.html"
     queryset = Resource.templates.all().order_by("name")
     paginate_by = 10
@@ -27,7 +27,7 @@ class ResourceListView(LoginRequiredMixin, AdminPermMixin, ListView):
 
 
 class ResourceCreateView(
-    LoginRequiredMixin, AdminPermMixin, ResourceMixin, SuccessMessageMixin, CreateView
+    LoginRequiredMixin, ManagerPermMixin, ResourceMixin, SuccessMessageMixin, CreateView
 ):
     template_name = "resource_update.html"
     form_class = ResourceForm
@@ -54,7 +54,7 @@ class ResourceCreateView(
 
 
 class ResourceUpdateView(
-    LoginRequiredMixin, AdminPermMixin, ResourceMixin, SuccessMessageMixin, UpdateView
+    LoginRequiredMixin, ManagerPermMixin, ResourceMixin, SuccessMessageMixin, UpdateView
 ):
     template_name = "resource_update.html"
     form_class = ResourceForm
@@ -83,7 +83,7 @@ class ResourceUpdateView(
         return context
 
 
-class ResourceDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
+class ResourceDeleteView(LoginRequiredMixin, ManagerPermMixin, DeleteView):
     queryset = Resource.objects.all()
     success_url = reverse_lazy("resources:list")
 

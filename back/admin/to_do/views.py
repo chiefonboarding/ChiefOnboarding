@@ -5,13 +5,13 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
-from users.mixins import AdminPermMixin, LoginRequiredMixin
+from users.mixins import ManagerPermMixin, LoginRequiredMixin
 
 from .forms import ToDoForm
 from .models import ToDo
 
 
-class ToDoListView(LoginRequiredMixin, AdminPermMixin, ListView):
+class ToDoListView(LoginRequiredMixin, ManagerPermMixin, ListView):
     template_name = "templates.html"
     queryset = ToDo.templates.all().order_by("name")
     paginate_by = 10
@@ -25,7 +25,7 @@ class ToDoListView(LoginRequiredMixin, AdminPermMixin, ListView):
 
 
 class ToDoCreateView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, CreateView
 ):
     template_name = "template_update.html"
     form_class = ToDoForm
@@ -40,7 +40,7 @@ class ToDoCreateView(
 
 
 class ToDoUpdateView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, UpdateView
 ):
     template_name = "template_update.html"
     form_class = ToDoForm
@@ -55,7 +55,7 @@ class ToDoUpdateView(
         return context
 
 
-class ToDoDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
+class ToDoDeleteView(LoginRequiredMixin, ManagerPermMixin, DeleteView):
     queryset = ToDo.objects.all()
     success_url = reverse_lazy("todo:list")
 

@@ -19,9 +19,8 @@ class CustomIntegrationFactory(IntegrationFactory):
                 "id": "TEAM_ID",
                 "url": "https://app.asana.com/api/1.0/organizations/{{ORG}}/teams",
                 "name": "Select team to add user to",
-                "type": "multiple_choice",
-                "items": "data",
-                "multiple": False,
+                "type": "choice",
+                "data_from": "data",
                 "choice_id": "gid",
                 "choice_name": "name",
             }

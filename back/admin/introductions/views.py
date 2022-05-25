@@ -6,14 +6,14 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
-from users.mixins import AdminPermMixin, LoginRequiredMixin
+from users.mixins import ManagerPermMixin, LoginRequiredMixin
 from users.models import User
 
 from .forms import IntroductionForm
 from .models import Introduction
 
 
-class IntroductionListView(LoginRequiredMixin, AdminPermMixin, ListView):
+class IntroductionListView(LoginRequiredMixin, ManagerPermMixin, ListView):
     template_name = "templates.html"
     queryset = Introduction.templates.all().order_by("name")
     paginate_by = 10
@@ -27,7 +27,7 @@ class IntroductionListView(LoginRequiredMixin, AdminPermMixin, ListView):
 
 
 class IntroductionCreateView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, CreateView
 ):
     template_name = "intro_update.html"
     form_class = IntroductionForm
@@ -41,7 +41,9 @@ class IntroductionCreateView(
         return context
 
 
-class IntroductionColleaguePreviewView(LoginRequiredMixin, AdminPermMixin, DetailView):
+class IntroductionColleaguePreviewView(
+    LoginRequiredMixin, ManagerPermMixin, DetailView
+):
     template_name = "_colleague_intro.html"
     model = User
 
@@ -52,7 +54,7 @@ class IntroductionColleaguePreviewView(LoginRequiredMixin, AdminPermMixin, Detai
 
 
 class IntroductionUpdateView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, UpdateView
 ):
     template_name = "intro_update.html"
     form_class = IntroductionForm
@@ -67,7 +69,7 @@ class IntroductionUpdateView(
         return context
 
 
-class IntroductionDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
+class IntroductionDeleteView(LoginRequiredMixin, ManagerPermMixin, DeleteView):
     queryset = Introduction.objects.all()
     success_url = reverse_lazy("introductions:list")
 

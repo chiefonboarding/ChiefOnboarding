@@ -212,8 +212,17 @@ class ExternalMessage(ContentMixin, models.Model):
 
     def execute(self, user):
         if self.is_email_message:
+            # Make sure there is actually an email
+            if self.get_user(user) is None:
+                Notification.objects.create(
+                    notification_type="failed_no_email",
+                    extra_text=self.subject,
+                    created_for=user,
+                )
+                return
+
             send_sequence_message(
-                user, self.get_user(user), self.content_json(), self.subject
+                user, self.get_user(user), self.content_json, self.subject
             )
         elif self.is_slack_message:
             blocks = []

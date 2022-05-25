@@ -1,4 +1,5 @@
 import datetime
+from unittest.mock import Mock, patch
 from datetime import timedelta
 
 import pytest
@@ -30,7 +31,12 @@ from admin.sequences.forms import (
     PendingSlackMessageForm,
     PendingTextMessageForm,
 )
-from admin.sequences.models import Condition, ExternalMessage, Sequence
+from admin.sequences.models import (
+    Condition,
+    ExternalMessage,
+    Sequence,
+    IntegrationConfig,
+)
 from admin.sequences.tasks import timed_triggers
 from admin.to_do.factories import ToDoFactory
 from admin.to_do.forms import ToDoForm
@@ -324,7 +330,29 @@ def test_sequence_unknown_form_view(client, admin_factory):
     assert response.status_code == 404
 
 
-# TODO: sequence form integrations
+@pytest.mark.django_db
+@patch(
+    "requests.get",
+    Mock(
+        return_value=Mock(
+            status_code=200,
+            json=lambda: {"data": [{"gid": 12, "name": "first team"}]},
+        )
+    ),
+)
+def test_sequence_integration_form_view(
+    client, admin_factory, custom_integration_factory
+):
+
+    admin = admin_factory()
+    client.force_login(admin)
+    integration = custom_integration_factory()
+
+    url = reverse("sequences:forms", args=["integration", integration.id])
+    response = client.get(url)
+
+    assert response.status_code == 200
+    assert "TEAM_ID" in response.content.decode()
 
 
 @pytest.mark.django_db
@@ -429,7 +457,103 @@ def test_sequence_update_form_with_invalid_info(
     assert ToDo.objects.all().count() == 1
 
 
-# TODO: provision item in sequence
+@pytest.mark.django_db
+@pytest.mark.django_db
+@patch(
+    "requests.get",
+    Mock(
+        return_value=Mock(
+            status_code=200,
+            json=lambda: {"data": [{"gid": 12, "name": "first team"}]},
+        )
+    ),
+)
+def test_sequence_update_custom_integration_form(
+    client,
+    admin_factory,
+    sequence_factory,
+    custom_integration_factory,
+    integration_config_factory,
+):
+    integration = custom_integration_factory()
+    integration_config = integration_config_factory(integration=integration)
+    admin = admin_factory()
+    sequence = sequence_factory()
+    condition = sequence.conditions.all().first()
+    client.force_login(admin)
+
+    url = reverse(
+        "sequences:update-integration-config",
+        args=["integrationconfig", integration_config.id, condition.id, 1],
+    )
+    # Create a new to do item
+    client.post(url, data={"TEAM_ID": "12"})
+
+    integration_config.refresh_from_db()
+    assert integration_config.additional_data == {"TEAM_ID": "12"}
+
+
+@pytest.mark.django_db
+@pytest.mark.django_db
+@patch(
+    "requests.get",
+    Mock(
+        return_value=Mock(
+            status_code=200,
+            json=lambda: {"data": [{"gid": 12, "name": "first team"}]},
+        )
+    ),
+)
+def test_sequence_create_custom_integration_form(
+    client,
+    admin_factory,
+    sequence_factory,
+    custom_integration_factory,
+):
+    integration = custom_integration_factory()
+    admin = admin_factory()
+    sequence = sequence_factory()
+    condition = sequence.conditions.all().first()
+    client.force_login(admin)
+
+    url = reverse(
+        "sequences:update-integration-config",
+        args=["integrationconfig", integration.id, condition.id, 0],
+    )
+    # Create a new to do item
+    client.post(url, data={"TEAM_ID": "12"})
+
+    assert IntegrationConfig.objects.all().count() == 1
+    integration_config = IntegrationConfig.objects.first()
+    assert integration_config.additional_data == {"TEAM_ID": "12"}
+
+
+@pytest.mark.django_db
+def test_sequence_open_filled_custom_integration_form(
+    client, admin_factory, custom_integration_factory, integration_config_factory
+):
+    integration = custom_integration_factory()
+    integration_config = integration_config_factory(
+        integration=integration, additional_data={"TEAM_ID": "12"}
+    )
+    manifest = integration_config.integration.manifest
+    del manifest["form"][0]["url"]
+    manifest["form"][0]["items"] = [{"id": "12", "name": "test team"}]
+    del manifest["form"][0]["data_from"]
+    del manifest["form"][0]["choice_id"]
+    del manifest["form"][0]["choice_name"]
+    integration_config.integration.manifest = manifest
+    integration_config.integration.save()
+
+    admin = admin_factory()
+    client.force_login(admin)
+
+    url = reverse("sequences:forms", args=["integrationconfig", integration_config.id])
+    # Create a new to do item
+    response = client.get(url)
+
+    assert "selected" in response.content.decode()
+    assert "test team" in response.content.decode()
 
 
 @pytest.mark.django_db
@@ -543,6 +667,24 @@ def test_sequence_default_templates_not_valid(client, admin_factory):
 
     assert response.status_code == 200
     assert len(response.context["object_list"]) == 0
+
+
+@pytest.mark.django_db
+def test_sequence_default_templates_integrations(
+    client, admin_factory, integration_factory
+):
+    admin = admin_factory()
+    client.force_login(admin)
+    url = reverse("sequences:template_list")
+    integration_factory(integration=10)
+    integration_factory(integration=10)
+    integration_factory(integration=1)
+    integration_factory(integration=3)
+
+    response = client.get(url + "?type=integration")
+
+    assert response.status_code == 200
+    assert len(response.context["object_list"]) == 2
 
 
 @pytest.mark.django_db

@@ -140,7 +140,7 @@ def timed_triggers():
             conditions = Condition.objects.none()
             if amount_days == 0:
                 conditions = user.conditions.filter(
-                    condition_type=2, days=amount_days_before, current_time=current_time
+                    condition_type=2, days=amount_days_before, time=current_time
                 )
             elif user.get_local_time(last_updated).weekday() < 5:
                 conditions = user.conditions.filter(condition_type=0, days=amount_days)

@@ -39,6 +39,13 @@ class ContentMixin:
         blocks = getattr(self, "content")["blocks"]
 
         # Is a course item with questions
+        if len(blocks) == 0:
+            return [
+                {
+                    "type": "section",
+                    "text": {"type": "mrkdwn", "text": "-"},
+                }
+            ]
         if "data" not in blocks[0]:
             slack_blocks = []
             for idx, question in enumerate(blocks):

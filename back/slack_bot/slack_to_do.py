@@ -50,7 +50,7 @@ class SlackToDo:
             )
         return {
             "type": "section",
-            "block_id": str(self.to_do_user.to_do.id),
+            "block_id": str(self.to_do_user.id),
             "text": {"type": "mrkdwn", "text": text},
             "accessory": self.get_complete_button(),
         }

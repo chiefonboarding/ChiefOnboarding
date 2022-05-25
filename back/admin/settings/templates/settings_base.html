@@ -4,6 +4,7 @@
 {% block actions %}{% endblock %}
 {% block content %}
 <div class="row">
+  {% if user.is_admin %}
   <div class="col-2">
     <div class="card">
       <ul class="list-group">
@@ -16,7 +17,8 @@
       </ul>
     </div>
   </div>
-  <div class="col-10">
+  {% endif %}
+  <div class="col-{% if user.is_admin %}10{% else %}12{% endif %}">
     <div class="card">
       {% block settings_content %}
       {% endblock %}

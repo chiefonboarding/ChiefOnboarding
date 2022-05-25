@@ -321,6 +321,7 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]
 AXES_ENABLED = True
+AXES_FAILURE_LIMIT = 10
 REST_FRAMEWORK_ACTIVE = True
 
 # Error tracking

@@ -77,7 +77,7 @@ document.addEventListener("drop", function( event ) {
 
     $(".card").css("background-color", "white")
     if (templateId !== '0' && type !== 'integration') {
-      htmx.ajax('POST', `/sequences/condition/${conditionID}/${type}/${templateId}/`, `#condition-${conditionID}`).then(() => {
+      htmx.ajax('POST', `/admin/sequences/condition/${conditionID}/${type}/${templateId}/`, `#condition-${conditionID}`).then(() => {
         initSelectize(`#condition-${conditionID}`)
       });
     } else {

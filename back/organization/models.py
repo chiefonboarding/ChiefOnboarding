@@ -261,8 +261,40 @@ NOTIFICATION_TYPES = [
     ("sent_email_message", _("A new email has been sent")),
     ("sent_text_message", _("A new text message has been sent")),
     ("sent_slack_message", _("A new slack message has been sent")),
-    ("failed_no_phone", _("Couldn't sent text message: number is missing")),
+    ("sent_email_login_credentials", _("Login credentials have been sent")),
+    ("sent_email_task_reopened", _("Reopened task email has been sent")),
+    ("sent_email_task_reminder", _("Task reminder email has been sent")),
+    ("sent_email_new_hire_credentials", _("Sent new hire credentials email")),
+    ("sent_email_preboarding_access", _("Sent new hire preboarding email")),
+    ("sent_email_custom_sequence", _("Sent email from sequence")),
+    ("sent_email_new_hire_with_updates", _("Sent email with updates to new hire")),
+    ("sent_email_admin_task_extra", _("Sent email to extra person in admin task")),
+    (
+        "sent_email_admin_task_new_assigned",
+        _("Sent email about new person assigned to admin task"),
+    ),
+    (
+        "sent_email_admin_task_new_comment",
+        _("Sent email about new comment on admin task"),
+    ),
+    (
+        "sent_email_integration_notification",
+        _("Sent email about completing integration call"),
+    ),
+    ("failed_no_phone", _("Couldn't send text message: number is missing")),
+    ("failed_no_email", _("Couldn't send email message: email is missing")),
+    (
+        "failed_email_recipients_refused",
+        _("Couldn't deliver email message: recipient refused"),
+    ),
+    ("failed_email_delivery", _("Couldn't deliver email message: provider error")),
+    ("failed_email_address", _("Couldn't deliver email message: provider error")),
     ("ran_integration", _("Integration has been triggered")),
+    ("failed_integration", _("Couldn't complete integration")),
+    (
+        "failed_text_integration_notification",
+        _("Couldn't send integration notification"),
+    ),
 ]
 
 
@@ -271,6 +303,7 @@ class Notification(models.Model):
         choices=NOTIFICATION_TYPES, max_length=100, default="added_todo"
     )
     extra_text = models.TextField(default="")
+    description = models.TextField(default="")
     created = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,

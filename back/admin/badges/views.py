@@ -5,13 +5,13 @@ from django.utils.translation import gettext as _
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
-from users.mixins import AdminPermMixin, LoginRequiredMixin
+from users.mixins import ManagerPermMixin, LoginRequiredMixin
 
 from .forms import BadgeForm
 from .models import Badge
 
 
-class BadgeListView(LoginRequiredMixin, AdminPermMixin, ListView):
+class BadgeListView(LoginRequiredMixin, ManagerPermMixin, ListView):
     template_name = "templates.html"
     queryset = Badge.templates.all().order_by("name")
     paginate_by = 10
@@ -25,7 +25,7 @@ class BadgeListView(LoginRequiredMixin, AdminPermMixin, ListView):
 
 
 class BadgeCreateView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, CreateView
 ):
     template_name = "template_update.html"
     form_class = BadgeForm
@@ -40,7 +40,7 @@ class BadgeCreateView(
 
 
 class BadgeUpdateView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, UpdateView
 ):
     template_name = "template_update.html"
     form_class = BadgeForm
@@ -55,7 +55,7 @@ class BadgeUpdateView(
         return context
 
 
-class BadgeDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
+class BadgeDeleteView(LoginRequiredMixin, ManagerPermMixin, DeleteView):
     queryset = Badge.objects.all()
     success_url = reverse_lazy("badges:list")
 

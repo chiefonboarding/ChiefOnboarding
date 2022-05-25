@@ -5,6 +5,7 @@ from django.utils import translation
 from django.utils.translation import gettext as _
 
 from organization.models import Organization, WelcomeMessage
+from organization.utils import send_email_with_notification
 from users.models import User
 
 
@@ -43,12 +44,13 @@ def email_new_admin_cred(user):
     html_message = org.create_email(
         {"first_name": user.first_name, "content": content, "org": org, "user": user},
     )
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        [user.email],
+    send_email_with_notification(
+        subject=subject,
+        message=message,
+        to=user.email,
+        created_for=user,
         html_message=html_message,
+        notification_type="sent_email_login_credentials",
     )
 
 
@@ -78,12 +80,13 @@ def email_reopen_task(task_name, message, user):
         {"type": "button", "data": {"text": _("Dashboard"), "url": settings.BASE_URL}},
     ]
     html_message = org.create_email({"org": org, "content": content, "user": user})
-    send_mail(
-        subject,
-        message_email,
-        settings.DEFAULT_FROM_EMAIL,
-        [user.email],
+    send_email_with_notification(
+        subject=subject,
+        message=message,
+        to=user.email,
+        created_for=user,
         html_message=html_message,
+        notification_type="sent_email_task_reopened",
     )
 
 
@@ -114,12 +117,13 @@ def send_reminder_email(task_name, user):
         {"type": "button", "data": {"text": _("Dashboard"), "url": settings.BASE_URL}},
     ]
     html_message = org.create_email({"org": org, "content": content, "user": user})
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        [user.email],
+    send_email_with_notification(
+        subject=subject,
+        message=message,
+        created_for=user,
+        to=user.email,
         html_message=html_message,
+        notification_type="sent_email_task_reminder",
     )
 
 
@@ -149,12 +153,13 @@ def send_new_hire_credentials(new_hire_id):
     ]
     html_message = org.create_email({"org": org, "content": content, "user": new_hire})
     message = ""
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        [new_hire.email],
+    send_email_with_notification(
+        subject=subject,
+        created_for=new_hire,
+        message=message,
+        to=new_hire.email,
         html_message=html_message,
+        notification_type="sent_email_new_hire_credentials",
     )
 
 
@@ -179,10 +184,11 @@ def send_new_hire_preboarding(new_hire):
     ]
     html_message = org.create_email({"org": org, "content": content, "user": new_hire})
     message = ""
-    send_mail(
-        subject,
-        "",
-        settings.DEFAULT_FROM_EMAIL,
-        [new_hire.email],
+    send_email_with_notification(
+        subject=subject,
+        created_for=new_hire,
+        message=message,
+        to=new_hire.email,
         html_message=html_message,
+        notification_type="sent_email_preboarding_access",
     )

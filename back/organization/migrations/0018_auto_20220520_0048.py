@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
         schedule = Schedule.objects.get(
             func="admin.sequences.tasks.timed_triggers",
         )
-        schedule.cron="*/5 * * * *",
+        schedule.cron = ("*/5 * * * *",)
         schedule.save()
 
         Schedule.objects.filter(
@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
         ).delete()
 
     dependencies = [
-        ('organization', '0017_notification_notified_user'),
+        ("organization", "0017_notification_notified_user"),
     ]
 
     operations = [

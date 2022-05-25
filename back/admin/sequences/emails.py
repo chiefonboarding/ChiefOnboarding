@@ -6,18 +6,20 @@ from admin.badges.models import Badge
 from admin.resources.models import Resource
 from admin.to_do.models import ToDo
 from organization.models import Organization
+from organization.utils import send_email_with_notification
 
 
 def send_sequence_message(new_hire, admin, message, subject):
     # used to send custom external messages to anyone
     org = Organization.object.get()
     html_message = org.create_email({"org": org, "content": message, "user": new_hire})
-    send_mail(
-        new_hire.personalize(subject),
-        "",
-        settings.DEFAULT_FROM_EMAIL,
-        [admin.email],
+    send_email_with_notification(
+        subject=subject,
+        message="",
+        to=admin.email,
+        created_for=admin,
         html_message=html_message,
+        notification_type="sent_email_custom_sequence",
     )
 
 
@@ -83,11 +85,11 @@ def send_sequence_update_message(all_notifications, new_hire):
         blocks.append({"type": "quote", "data": {"text": text}})
 
     html_message = org.create_email({"org": org, "content": blocks, "user": new_hire})
-    message = ""
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        [new_hire.email],
+    send_email_with_notification(
+        subject=subject,
+        message="",
+        to=new_hire.email,
+        created_for=new_hire,
         html_message=html_message,
+        notification_type="sent_email_new_hire_with_updates",
     )

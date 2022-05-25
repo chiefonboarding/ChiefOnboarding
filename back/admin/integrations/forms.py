@@ -11,6 +11,10 @@ from .serializers import ManifestSerializer
 
 class IntegrationConfigForm(forms.ModelForm):
     def _get_result(self, notation, value):
+        # if we don't need to go into props, then just return the value
+        if notation == "":
+            return value
+
         notations = notation.split(".")
         for notation in notations:
             value = value[notation]
@@ -23,25 +27,36 @@ class IntegrationConfigForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_tag = False
         for item in form:
-            if item["type"] == "multiple_choice":
+            if item["type"] in ["multiple_choice", "choice"]:
 
-                if item["multiple"]:
+                if item["type"] == "multiple_choice":
                     form_field = forms.MultipleChoiceField
                 else:
                     form_field = forms.ChoiceField
-                option_data = requests.get(
-                    integration._replace_vars(item["url"]), headers=integration._headers
-                ).json()
+
+                # If there is a url to fetch the items from then do so
+                if "url" in item:
+                    option_data = requests.get(
+                        integration._replace_vars(item["url"]),
+                        headers=integration._headers,
+                    ).json()
+                else:
+                    # No url, so get the static items
+                    option_data = item["items"]
 
                 self.fields[item["id"]] = form_field(
                     label=item["name"],
-                    widget=forms.CheckboxSelectMultiple if item["multiple"] else forms.Select,
+                    widget=forms.CheckboxSelectMultiple
+                    if item["type"] == "multiple_choice"
+                    else forms.Select,
                     choices=[
                         (
-                            self._get_result(item["choice_id"], x),
-                            self._get_result(item["choice_name"], x),
+                            self._get_result(item.get("choice_id", "id"), x),
+                            self._get_result(item.get("choice_name", "name"), x),
                         )
-                        for x in self._get_result(item["items"], option_data)
+                        for x in self._get_result(
+                            item.get("data_from", ""), option_data
+                        )
                     ],
                     required=False,
                 )

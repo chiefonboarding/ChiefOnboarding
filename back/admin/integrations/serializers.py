@@ -17,10 +17,14 @@ class ManifestFormSerializer(ValidateMixin, serializers.Serializer):
     url = serializers.CharField()
     name = serializers.CharField()
     type = serializers.ChoiceField(
-        [("multiple_choice", "Multiple choice"), ("input", "Input field")]
+        [
+            ("multiple_choice", "Multiple choice"),
+            ("choice", "Choice"),
+            ("input", "Input field"),
+        ]
     )
-    items = serializers.CharField()
-    multiple = serializers.BooleanField(default=False)
+    items = serializers.CharField(required=False)
+    data_from = serializers.CharField(required=False)
     choice_id = serializers.CharField()
     choice_name = serializers.CharField()
 
@@ -76,7 +80,7 @@ class ManifestInitialDataFormSerializer(ValidateMixin, serializers.Serializer):
 
 
 class ManifestSerializer(ValidateMixin, serializers.Serializer):
-    form = ManifestFormSerializer(required=False)
+    form = ManifestFormSerializer(required=False, many=True)
     exists = ManifestExistSerializer(required=False)
     execute = ManifestExecuteSerializer(many=True)
     post_execute_notification = ManifestPostExecuteNotificationSerializer(

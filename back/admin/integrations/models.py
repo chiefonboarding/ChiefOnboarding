@@ -1,4 +1,6 @@
 import json
+from django.utils import timezone
+from datetime import timedelta
 import uuid
 
 import requests
@@ -8,11 +10,14 @@ from django.db import models
 from django.template import Context, Template
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
+from django_q.tasks import async_task
 from fernet_fields import EncryptedTextField
 from twilio.rest import Client
 
 from misc.fields import EncryptedJSONField
 from organization.models import Notification
+from organization.utils import send_email_with_notification
+
 
 INTEGRATION_OPTIONS = (
     (0, _("Slack bot")),
@@ -70,7 +75,7 @@ class Integration(models.Model):
         else:
             post_data = {}
         return requests.request(
-            data["method"], url, headers=self._headers, data=post_data
+            data["method"], url, headers=self._headers, data=post_data, timeout=120
         ).json()
 
     def _replace_vars(self, text):
@@ -106,24 +111,51 @@ class Integration(models.Model):
 
         # Run all requests
         for item in self.manifest["execute"]:
-            self._run_request(item)
+            try:
+                self._run_request(item)
+            except requests.RequestException as e:
+                Notification.objects.create(
+                    notification_type="failed_integration",
+                    extra_text=self.name,
+                    created_for=new_hire,
+                    description=str(e),
+                )
+                # Retry url in one hour
+                async_task(
+                    "admin.integrations.tasks.retry_integration",
+                    new_hire.id,
+                    self.id,
+                    params,
+                    next_run=timezone.now() + timedelta(hours=1),
+                )
+                return
 
         # Run all post requests (notifications)
         for item in self.manifest["post_execute_notification"]:
             if item["type"] == "email":
-                send_mail(
-                    self._replace_vars(item["subject"]),
-                    self._replace_vars(item["message"]),
-                    settings.DEFAULT_FROM_EMAIL,
-                    [self._replace_vars(item["to"])],
+                send_email_with_notification(
+                    subject=self._replace_vars(item["subject"]),
+                    message=self._replace_vars(item["message"]),
+                    to=self._replace_vars(item["to"]),
+                    notification_type="sent_email_integration_notification",
                 )
             else:
-                client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-                client.messages.create(
-                    to=new_hire.phone,
-                    from_=settings.TWILIO_FROM_NUMBER,
-                    body=self._replace_vars(item["message"]),
-                )
+                try:
+                    client = Client(
+                        settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN
+                    )
+                    client.messages.create(
+                        to=new_hire.phone,
+                        from_=settings.TWILIO_FROM_NUMBER,
+                        body=self._replace_vars(item["message"]),
+                    )
+                except Exception as e:
+                    Notification.objects.create(
+                        notification_type="failed_text_integration_notification",
+                        extra_text=self.name,
+                        created_for=new_hire,
+                        description=str(e),
+                    )
 
         # Succesfully ran integration, add notification
         Notification.objects.create(

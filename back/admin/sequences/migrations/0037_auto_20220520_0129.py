@@ -6,18 +6,26 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sequences', '0036_integrationconfig_additional_data'),
+        ("sequences", "0036_integrationconfig_additional_data"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='externalmessage',
-            name='person_type',
-            field=models.IntegerField(choices=[(0, 'New hire'), (1, 'Manager'), (2, 'Buddy'), (3, 'Custom')], default=1, verbose_name='For'),
+            model_name="externalmessage",
+            name="person_type",
+            field=models.IntegerField(
+                choices=[(0, "New hire"), (1, "Manager"), (2, "Buddy"), (3, "Custom")],
+                default=1,
+                verbose_name="For",
+            ),
         ),
         migrations.AlterField(
-            model_name='pendingadmintask',
-            name='person_type',
-            field=models.IntegerField(choices=[(1, 'Manager'), (2, 'Buddy'), (3, 'Custom')], default=1, verbose_name='Assigned to'),
+            model_name="pendingadmintask",
+            name="person_type",
+            field=models.IntegerField(
+                choices=[(1, "Manager"), (2, "Buddy"), (3, "Custom")],
+                default=1,
+                verbose_name="Assigned to",
+            ),
         ),
     ]

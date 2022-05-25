@@ -195,8 +195,12 @@ def test_complete_to_do_item_view_with_trigger(
     )
     client.post(url, follow=True)
 
-    # completed todo + 9 from condition
-    assert Notification.objects.all().count() == 10
+    # Completed todo + 9 from condition
+    assert Notification.objects.all().count() == 11
+    # One failed because of no email
+    assert Notification.objects.filter(notification_type="failed_no_email").count() == 1
+
+    # Check if we got all items
     assert new_hire.to_do.all().count() == 2
     assert new_hire.resources.all().count() == 1
     assert new_hire.appointments.all().count() == 1

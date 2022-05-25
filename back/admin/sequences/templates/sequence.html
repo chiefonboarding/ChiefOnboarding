@@ -111,7 +111,7 @@ function changeTemplate(itemId, conditionId, typeId, provCreated=0) {
   item = itemId
   condition = conditionId
   provisionCreated = provCreated
-  htmx.ajax('GET', `/sequences/forms/${typeId}/${itemId}/`, `#form`).then(() => {
+  htmx.ajax('GET', `/admin/sequences/forms/${typeId}/${itemId}/`, `#form`).then(() => {
     if (type === 'resource') {
       initResource()
     } else {
@@ -141,9 +141,9 @@ function getFormData($form){
 $("#form-add-item").submit(function (event) {
     event.preventDefault();
     if (type === 'integration' || type === 'integrationconfig') {
-      htmx.ajax('POST', `/sequences/update_integration_config/${type}/${item}/${condition}/${provisionCreated}/`, {'values': getFormData($(this)), 'target': '#form'})
+      htmx.ajax('POST', `/admin/sequences/update_integration_config/${type}/${item}/${condition}/${provisionCreated}/`, {'values': getFormData($(this)), 'target': '#form'})
     } else {
-      htmx.ajax('POST', `/sequences/update_item/${type}/${item}/${condition}/`, {'values': getFormData($(this)), 'target': '#form'})
+      htmx.ajax('POST', `/admin/sequences/update_item/${type}/${item}/${condition}/`, {'values': getFormData($(this)), 'target': '#form'})
     }
 })
 

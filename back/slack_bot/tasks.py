@@ -159,7 +159,7 @@ def first_day_reminder():
                 "We got some new hires coming in! %(names)s are starting today!"
             ) % {"names": names}
         send_to = (
-            org.slack_default_channel
+            org.slack_default_channel.name
             if org.slack_default_channel is not None
             else "general"
         )
@@ -202,7 +202,7 @@ def introduce_new_people():
 
         # Add new hire introduction message
         if new_hire.message != "":
-            message += f"\n_{new_hire.message}_"
+            message += f"\n_{new_hire.personalize(new_hire.message)}_"
 
         block = paragraph(message)
 
@@ -247,7 +247,7 @@ def introduce_new_people():
         )
 
     send_to = (
-        org.slack_default_channel
+        org.slack_default_channel.name
         if org.slack_default_channel is not None
         else "general"
     )

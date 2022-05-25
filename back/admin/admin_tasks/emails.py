@@ -1,9 +1,8 @@
-from django.conf import settings
-from django.core.mail import send_mail
 from django.utils import translation
 from django.utils.translation import gettext as _
 
 from organization.models import Organization
+from organization.utils import send_email_with_notification
 
 
 def send_email_notification_to_external_person(admin_task):
@@ -26,16 +25,15 @@ def send_email_notification_to_external_person(admin_task):
         content.append(
             {"type": "quote", "data": {"text": admin_task.comment.last().content}}
         )
-    message = ""
     html_message = org.create_email(
         {"org": org, "content": content, "user": admin_task.new_hire}
     )
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        [admin_task.email],
+    send_email_with_notification(
+        subject=subject,
+        message="",
+        to=admin_task.email,
         html_message=html_message,
+        notification_type="sent_email_admin_task_extra",
     )
 
 
@@ -67,12 +65,13 @@ def send_email_new_assigned_admin(admin_task):
     html_message = org.create_email(
         {"org": org, "content": content, "user": admin_task.new_hire}
     )
-    send_mail(
-        subject,
-        "",
-        settings.DEFAULT_FROM_EMAIL,
-        [admin_task.assigned_to.email],
+    send_email_with_notification(
+        created_for=admin_task.assigned_to,
+        subject=subject,
+        message="",
+        to=admin_task.assigned_to.email,
         html_message=html_message,
+        notification_type="sent_email_admin_task_new_assigned",
     )
 
 
@@ -109,10 +108,11 @@ def send_email_new_comment(comment):
     html_message = org.create_email(
         {"org": org, "content": content, "user": comment.admin_task.new_hire}
     )
-    send_mail(
-        subject,
-        "",
-        settings.DEFAULT_FROM_EMAIL,
-        [comment.admin_task.assigned_to.email],
+    send_email_with_notification(
+        created_for=comment.admin_task.assigned_to,
+        subject=subject,
+        message="",
+        to=comment.admin_task.assigned_to.email,
         html_message=html_message,
+        notification_type="sent_email_admin_task_new_comment",
     )

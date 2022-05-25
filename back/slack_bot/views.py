@@ -2,7 +2,9 @@ import json
 import logging
 import re
 from unittest.mock import Mock
+from django.utils import timezone
 
+from django.utils import translation
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext as _
@@ -14,18 +16,16 @@ from admin.integrations.models import Integration
 from admin.resources.models import Category, Chapter, CourseAnswer, Resource
 from admin.sequences.models import Sequence
 from admin.to_do.models import ToDo
+from organization.models import Organization
 from users.models import NewHireWelcomeMessage, ResourceUser, ToDoUser
 
-from .slack_join import SlackJoin
-from .slack_misc import get_new_hire_approve_sequence_options, welcome_new_hire
+from .slack_misc import get_new_hire_approve_sequence_options
 from .slack_resource import SlackResource, SlackResourceCategory
 from .slack_to_do import SlackToDo, SlackToDoManager
-from .utils import Slack, paragraph
+from .utils import Slack, paragraph, button, actions
 
 logger = logging.getLogger(__name__)
 
-# print(settings.RUNNING_TESTS)
-# print(settings.SLACK_USE_SOCKET)
 if settings.RUNNING_TESTS:
     app = Mock()
 else:
@@ -169,8 +169,7 @@ def slack_open_todo_dialog(payload, body):
         return
 
     to_do_user = ToDoUser.objects.get(
-        user=user,
-        to_do=ToDo.objects.get(id=int(payload["action_id"].split(":")[2])),
+        id=int(payload["action_id"].split(":")[2]), user=user
     )
     if not to_do_user.to_do.inline_slack_form:
         # Item must be completed on website instead of slack
@@ -190,7 +189,7 @@ def slack_open_todo_dialog(payload, body):
             # Get updated blocks (without completed one, but with text)
             blocks = SlackToDoManager(to_do_user.user).get_blocks(
                 [block["block_id"] for block in body["message"]["blocks"]][1:],
-                to_do_user.to_do.id,
+                to_do_user.id,
                 body["message"]["text"],
             )
 
@@ -242,7 +241,83 @@ def slack_catch_all_message_search_resources(message):
 @app.event("team_join")
 def create_new_hire_or_ask_perm(event):
     print("JOINED TEAM")
-    SlackJoin(event).create_new_hire_or_ask_permission()
+    print(event)
+    slack_create_new_hire_or_ask_perm(event)
+
+
+def slack_create_new_hire_or_ask_perm(event):
+    org = Organization.object.get()
+    if not org.auto_create_user:
+        return
+
+    joined_user = (
+        get_user_model()
+        .objects.filter(email__iexact=event["user"]["profile"]["email"])
+        .first()
+    )
+
+    if joined_user is None:
+
+        profile = event["user"]["profile"]
+        if "real_name" in profile:
+            # This is the fallback option. Not recommended due to names with more than
+            # 2 words.
+            first_name = profile["real_name"].split(" ")[0]
+            if len(profile["real_name"].split(" ")) > 1:
+                last_name = profile["real_name"].split(" ")[1]
+            else:
+                last_name = ""
+
+        if "first_name" in profile:
+            first_name = event["user"]["profile"]["first_name"]
+        if "last_name" in profile:
+            last_name = event["user"]["profile"]["last_name"]
+
+        # First make a generic user (convert to new hire later)
+        joined_user = get_user_model().objects.create(
+            role=3,
+            first_name=first_name,
+            last_name=last_name,
+            email=event["user"]["profile"]["email"],
+            is_active=False,
+            timezone=event["user"]["tz"],
+            start_day=timezone.now().today(),
+        )
+        joined_user.set_unusable_password()
+
+    if org.create_new_hire_without_confirm:
+        joined_user.role = 0
+        joined_user.is_active = True
+        joined_user.save()
+
+        # Add default sequences
+        joined_user.add_sequences(Sequence.objects.filter(auto_add=True))
+
+    else:
+        # needs approval for new hire account
+        blocks = [
+            paragraph(
+                _(
+                    "Would you like to put this new hire "
+                    "through onboarding?\n*Name:* %(name)s "
+                )
+                % {"name": joined_user.full_name}
+            ),
+            actions(
+                [
+                    button(
+                        _("Yeah!"),
+                        "primary",
+                        str(joined_user.id),
+                        "create:newhire:approve",
+                    ),
+                    button(_("Nope"), "danger", "-1", "create:newhire:deny"),
+                ]
+            ),
+        ]
+        Slack().send_message(
+            blocks=blocks, channel=org.slack_confirm_person.slack_user_id
+        )
 
 
 @exception_handler
@@ -363,6 +438,7 @@ def open_resource_dialog(ack, payload, body):
     ack()
     slack_open_resource_dialog(payload, body)
 
+
 def slack_open_resource_dialog(payload, body):
     user = get_user(body["user"]["id"])
     if user is None:
@@ -388,10 +464,8 @@ def change_resource_page(ack, payload, body):
     ack()
     slack_change_resource_page(payload, body)
 
-def slack_change_resource_page(payload, body):
-    print(payload)
-    print(body)
 
+def slack_change_resource_page(payload, body):
     user = get_user(body["user"]["id"])
     if user is None:
         return
@@ -445,8 +519,13 @@ def slack_show_to_do_items(body):
 
 @exception_handler
 @app.view("complete:to_do")
-def complete_to_do(ack, say, body, client, view):
-    user = get_user(body["user"]["id"], say)
+def complete_to_do(ack, body, view):
+    ack()
+    slack_complete_to_do(body, view)
+
+
+def slack_complete_to_do(body, view):
+    user = get_user(body["user"]["id"])
     if user is None:
         return
 
@@ -459,8 +538,7 @@ def complete_to_do(ack, say, body, client, view):
     message_ts = private_meta_data["message_ts"]
 
     # Get todo item
-    to_do = ToDo.objects.get(id=to_do_id)
-    to_do_user = ToDoUser.objects.get(to_do=to_do, user=user)
+    to_do_user = ToDoUser.objects.get(id=to_do_id, user=user)
 
     # Check if there are form items
     for i in to_do_user.to_do.form_items:
@@ -480,57 +558,64 @@ def complete_to_do(ack, say, body, client, view):
     )
 
     # Remove completed item from message
-    client.chat_update(
-        channel=to_do_user.user.slack_channel_id,
+    Slack().update_message(
+        channel=to_do_user.user.slack_user_id,
         ts=message_ts,
         blocks=blocks,
     )
 
-    ack()
-
 
 @exception_handler
 @app.view("dialog:resource")
-def next_page_resource(ack, say, body, client, view):
+def next_page_resource(ack, body, view):
     # Course has same meganism
-    print("next page")
-    user = get_user(body["user"]["id"], say)
+    slack_next_page_resource(ack, body, view)
+    ack()
+
+
+def slack_next_page_resource(ack, body, view):
+    user = get_user(body["user"]["id"])
     if user is None:
         return
 
     private_meta_data = json.loads(view["private_metadata"])
 
     # Meta data items
-    # current_chapter = private_meta_data["current_chapter"]
     resource_user = private_meta_data["resource_user"]
 
     # Get todo item
     resource_user = ResourceUser.objects.get(id=resource_user)
 
     # Check if there are items
-    if bool(body["view"]["state"]["values"]):
+    if (
+        bool(view["state"]["values"])
+        and "change_resource_page" not in view["state"]["values"]
+    ):
         chapter = resource_user.resource.chapters.get(order=resource_user.step)
         data = {}
         for idx, item in enumerate(chapter.content["blocks"]):
-            selected_value = body["view"]["state"]["values"][f"item-{idx}"][
-                f"item-{idx}"
-            ]["selected_option"]["value"]
+            selected_value = view["state"]["values"][f"item-{idx}"][f"item-{idx}"][
+                "selected_option"
+            ]["value"]
             data[f"item-{idx}"] = selected_value
 
         course_answers = CourseAnswer.objects.create(chapter=chapter, answers=data)
         resource_user.answers.add(course_answers)
 
     next_chapter = resource_user.add_step()
-    print(next_chapter)
+    private_meta_data["current_chapter"] = next_chapter.id
     if next_chapter is None:
         ack({"response_action": "clear"})
         return
+
     # Get updated blocks (without completed one, but with text)
     view = {
+        "id": view["id"],
+        "hash": view["hash"],
         "type": "modal",
-        "callback_id": body["view"]["callback_id"],
-        "title": body["view"]["title"],
-        "private_metadata": view["private_metadata"],
+        "callback_id": view["callback_id"],
+        "title": view["title"],
+        "private_metadata": json.dumps(private_meta_data),
         "blocks": [
             paragraph(f"*{next_chapter.name}*"),
             *next_chapter.to_slack_block(user),
@@ -543,7 +628,7 @@ def next_page_resource(ack, say, body, client, view):
         else:
             view["submit"] = {"type": "plain_text", "text": _("Next")}
 
-    ack({"response_action": "update", "view": view})
+    Slack().update_modal(view_id=view["id"], hash=view["hash"], view=view)
 
 
 @exception_handler
@@ -562,7 +647,15 @@ def complete_admin_task(ack, body, payload):
 
 @exception_handler
 @app.action("dialog:welcome")
-def show_welcome_dialog(ack, body, payload, client):
+def show_welcome_dialog(ack, body, payload):
+    ack()
+    slack_show_welcome_dialog(body, payload)
+
+
+def slack_show_welcome_dialog(body, payload):
+    org = Organization.object.get()
+    translation.activate(org.language)
+
     user = get_user(body["user"]["id"])
     if user is None:
         return
@@ -575,17 +668,37 @@ def show_welcome_dialog(ack, body, payload, client):
             "text": _("Welcome this new hire!"),
         },
         "submit": {"type": "plain_text", "text": _("Submit")},
-        "blocks": [welcome_new_hire],
+        "blocks": [
+            {
+                "block_id": "input",
+                "type": "input",
+                "element": {
+                    "type": "plain_text_input",
+                    "multiline": True,
+                    "action_id": "message",
+                },
+                "label": {
+                    "type": "plain_text",
+                    "text": _("What would you like to say to our new hire?"),
+                },
+            }
+        ],
         "private_metadata": json.dumps({"user_id": payload["value"]}),
     }
-    client.views_open(trigger_id=body["trigger_id"], view=view)
-
-    ack()
+    Slack().open_modal(trigger_id=body["trigger_id"], view=view)
 
 
 @exception_handler
-@app.view("welcome")
-def save_welcome_message(ack, body, payload, client, view):
+@app.view("save:welcome")
+def save_welcome_message(ack, body, view):
+    ack()
+    slack_save_welcome_message(body, view)
+
+
+def slack_save_welcome_message(body, view):
+    org = Organization.object.get()
+    translation.activate(org.language)
+
     user = get_user(body["user"]["id"])
     if user is None:
         return
@@ -594,17 +707,20 @@ def save_welcome_message(ack, body, payload, client, view):
 
     new_hire = get_user_model().objects.get(id=private_metadata["user_id"])
 
-    message_to_new_hire = body["view"]["state"]["values"]["input"]["message"]["value"]
+    message_to_new_hire = view["state"]["values"]["input"]["message"]["value"]
     NewHireWelcomeMessage.objects.update_or_create(
         colleague=user,
         new_hire=new_hire,
         defaults={"message": message_to_new_hire},
     )
 
-    client.chat_postEphemeral(
-        channel=payload["channel"],
-        user=user,
+    send_to = (
+        org.slack_default_channel.name
+        if org.slack_default_channel is not None
+        else "general"
+    )
+    Slack().send_ephemeral_message(
+        channel="#" + send_to,
+        user=user.slack_user_id,
         text=_('Message has been saved! Your message: "') + message_to_new_hire + '"',
     )
-
-    ack()

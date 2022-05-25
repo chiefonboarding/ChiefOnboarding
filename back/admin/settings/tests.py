@@ -215,7 +215,7 @@ def test_create_administrator(client, admin_factory, mailoutbox):
 
     assert "Admin/Manager has been created" in response.content.decode()
     assert get_user_model().admins.all().count() == 2
-    assert Notification.objects.all().count() == 1
+    assert Notification.objects.all().count() == 2
     assert Notification.objects.first().notification_type == "added_administrator"
 
     # Try to create the same user now, but as a manager
@@ -228,7 +228,7 @@ def test_create_administrator(client, admin_factory, mailoutbox):
     response = client.post(url, data=data, follow=True)
 
     assert "Admin/Manager has been created" in response.content.decode()
-    assert Notification.objects.all().count() == 2
+    assert Notification.objects.all().count() == 3
     assert Notification.objects.first().notification_type == "added_manager"
     # Amount of admins stays 2 as it will overwrite the previous one
     assert get_user_model().managers_and_admins.all().count() == 2

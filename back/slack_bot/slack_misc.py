@@ -31,22 +31,6 @@ def get_new_hire_approve_sequence_options():
     }
 
 
-def welcome_new_hire():
-    return {
-        "block_id": "input",
-        "type": "input",
-        "element": {
-            "type": "plain_text_input",
-            "multiline": True,
-            "action_id": "message",
-        },
-        "label": {
-            "type": "plain_text",
-            "text": _("What would you like to say to our new hire?"),
-        },
-    }
-
-
 def get_new_hire_first_message_buttons():
     return [
         {
