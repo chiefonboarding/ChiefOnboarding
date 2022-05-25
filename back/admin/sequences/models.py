@@ -383,8 +383,6 @@ class IntegrationConfig(models.Model):
 
     @property
     def name(self):
-        if self.integration is None:
-            return "undefined"
         return self.integration.name
 
     @property

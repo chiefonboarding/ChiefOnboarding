@@ -33,7 +33,12 @@ from users.emails import (
     send_new_hire_preboarding,
     send_reminder_email,
 )
-from users.mixins import AdminPermMixin, LoginRequiredMixin, ManagerPermMixin
+from users.mixins import (
+    AdminPermMixin,
+    LoginRequiredMixin,
+    ManagerPermMixin,
+    IsAdminOrNewHireManagerMixin,
+)
 from users.models import NewHireWelcomeMessage, PreboardingUser, ResourceUser, ToDoUser
 
 from .forms import (
@@ -43,12 +48,6 @@ from .forms import (
     RemindMessageForm,
     SequenceChoiceForm,
 )
-
-
-class IsAdminOrNewHireManagerMixin(UserPassesTestMixin):
-    def test_func(self):
-        new_hire = get_object_or_404(get_user_model(), id=self.kwargs.get("pk", -1))
-        return self.request.user.is_admin or new_hire.manager == self.request.user
 
 
 class NewHireListView(LoginRequiredMixin, ManagerPermMixin, ListView):

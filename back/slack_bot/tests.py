@@ -30,7 +30,10 @@ from slack_bot.views import (
     slack_next_page_resource,
     slack_show_welcome_dialog,
     slack_save_welcome_message,
-    slack_create_new_hire_or_ask_perm
+    slack_create_new_hire_or_ask_perm,
+    slack_add_sequences_to_new_hire,
+    slack_deny_new_hire,
+    slack_complete_admin_task
 )
 from users.factories import ResourceUserFactory
 
@@ -1434,7 +1437,359 @@ def test_join_user_auto_create_with_request_for_approval(admin_factory):
     assert not new_hire.is_active
 
     assert cache.get("slack_channel") == "slackx"
-    assert cache.get("slack_blocks") == [{'type': 'section', 'text': {'type': 'mrkdwn', 'text': 'Would you like to put this new hire through onboarding?\n*Name:* Peter Boom '}}, {'type': 'actions', 'elements': [{'type': 'button', 'text': {'type': 'plain_text', 'text': 'Yeah!'}, 'style': 'primary', 'value': str(new_hire.id), 'action_id': 'create:newhire:approve'}, {'type': 'button', 'text': {'type': 'plain_text', 'text': 'Nope'}, 'style': 'danger', 'value': '-1', 'action_id': 'create:newhire:deny'}]}]
+    assert cache.get("slack_blocks") == [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Would you like to put this new hire through onboarding?\n*Name:* Peter Boom ",
+            },
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "Yeah!"},
+                    "style": "primary",
+                    "value": str(new_hire.id),
+                    "action_id": "create:newhire:approve",
+                },
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "Nope"},
+                    "style": "danger",
+                    "value": "-1",
+                    "action_id": "create:newhire:deny",
+                },
+            ],
+        },
+    ]
+
+
+@pytest.mark.django_db
+def test_open_modal_for_selecting_sequences_approved_new_hire(
+    new_hire_factory, admin_factory
+):
+    admin_factory(slack_user_id="slackx")
+    new_hire = new_hire_factory()
+    body = {
+        "type": "block_actions",
+        "user": {
+            "id": "slackx",
+            "username": "hello",
+            "name": "hello",
+            "team_id": "xx",
+        },
+        "api_app_id": "xx",
+        "token": "xxx",
+        "container": {
+            "type": "message",
+            "message_ts": "3492363.887579",
+            "channel_id": "xxx",
+            "is_ephemeral": False,
+        },
+        "trigger_id": "dkfd0eec0a0d3877827bb50bf2fae281",
+        "state": {"values": {}},
+    }
+    payload = {
+        "action_id": "create:newhire:approve",
+        "block_id": "ZZ1Mf",
+        "text": {"type": "plain_text", "text": "Yeah!", "emoji": True},
+        "value": str(new_hire.id),
+        "style": "primary",
+        "type": "button",
+        "action_ts": "1653493687.010067",
+    }
+
+    slack_open_modal_for_selecting_seq_item(body, payload)
+
+    assert cache.get("slack_trigger_id") == body["trigger_id"]
+    assert cache.get("slack_view") == {
+        "type": "modal",
+        "callback_id": "approve:newhire",
+        "title": {"type": "plain_text", "text": "New hire options"},
+        "submit": {"type": "plain_text", "text": "Create new hire"},
+        "blocks": [
+            {
+                "type": "input",
+                "block_id": "seq",
+                "label": {"type": "plain_text", "text": "Select sequences"},
+                "element": {
+                    "type": "multi_static_select",
+                    "placeholder": {"type": "plain_text", "text": "Select sequences"},
+                    "options": [],
+                    "action_id": "answers",
+                },
+            }
+        ],
+        "private_metadata": '{"user_id": "'
+        + str(new_hire.id)
+        + '", "ts": "3492363.887579"}',
+    }
+
+
+@pytest.mark.django_db
+def test_adding_selecting_sequences_approved_new_hire(
+    new_hire_factory, sequence_factory, admin_factory
+):
+    seq = sequence_factory()
+    new_hire = new_hire_factory(slack_user_id="slackx")
+
+    admin = admin_factory(slack_channel_id="slacky")
+    org = Organization.object.get()
+    org.slack_confirm_person = admin
+    org.save()
+
+    body = {
+        "type": "view_submission",
+        "team": {"id": "xx", "domain": "chiefonboarding"},
+        "user": {
+            "id": "slackx",
+            "username": "hello",
+            "name": "hello",
+            "team_id": "xx",
+        },
+        "api_app_id": "xx",
+        "token": "xxx",
+        "trigger_id": "xxxxxxx",
+        "view": {
+            "id": "xx",
+            "team_id": "xx",
+            "type": "modal",
+            "private_metadata": '{"user_id": "'
+            + str(new_hire.id)
+            + '", "ts": "1653492363.887579"}',
+            "callback_id": "approve:newhire",
+            "state": {
+                "values": {
+                    "seq": {
+                        "answers": {
+                            "type": "multi_static_select",
+                            "selected_options": [
+                                {
+                                    "text": {
+                                        "type": "plain_text",
+                                        "text": "New sequence1",
+                                        "emoji": True,
+                                    },
+                                    "value": str(seq.id),
+                                }
+                            ],
+                        }
+                    }
+                }
+            },
+            "hash": "1653495403.s",
+            "title": {"type": "plain_text", "text": "New hire options", "emoji": True},
+            "clear_on_close": False,
+            "notify_on_close": False,
+            "close": None,
+            "submit": {"type": "plain_text", "text": "Create new hire", "emoji": True},
+            "previous_view_id": None,
+            "root_view_id": "xx",
+            "app_id": "xx",
+            "external_id": "",
+            "app_installed_team_id": "xx",
+            "bot_id": "xx",
+        },
+        "response_urls": [],
+        "is_enterprise_install": False,
+        "enterprise": None,
+    }
+
+    view = {
+        "id": "xx",
+        "team_id": "xx",
+        "type": "modal",
+        "blocks": [
+            {
+                "type": "input",
+                "block_id": "seq",
+                "label": {
+                    "type": "plain_text",
+                    "text": "Select sequences",
+                    "emoji": True,
+                },
+                "optional": False,
+                "dispatch_action": False,
+                "element": {
+                    "type": "multi_static_select",
+                    "action_id": "answers",
+                    "placeholder": {
+                        "type": "plain_text",
+                        "text": "Select sequences",
+                        "emoji": True,
+                    },
+                    "options": [
+                        {
+                            "text": {
+                                "type": "plain_text",
+                                "text": "sss",
+                                "emoji": True,
+                            },
+                            "value": str(seq.id),
+                        },
+                    ],
+                },
+            }
+        ],
+        "private_metadata": '{"user_id": "'
+        + str(new_hire.id)
+        + '", "ts": "1653492363.887579"}',
+        "callback_id": "approve:newhire",
+        "state": {
+            "values": {
+                "seq": {
+                    "answers": {
+                        "type": "multi_static_select",
+                        "selected_options": [
+                            {
+                                "text": {
+                                    "type": "plain_text",
+                                    "text": "New sequence1",
+                                    "emoji": True,
+                                },
+                                "value": str(seq.id),
+                            }
+                        ],
+                    }
+                }
+            }
+        },
+        "hash": "1653495403.zjdTDzCH",
+        "title": {"type": "plain_text", "text": "New hire options", "emoji": True},
+        "clear_on_close": False,
+        "notify_on_close": False,
+        "close": None,
+        "submit": {"type": "plain_text", "text": "Create new hire", "emoji": True},
+        "previous_view_id": None,
+        "root_view_id": "V03HNUKADT2",
+        "app_id": "A03CWAH7L91",
+        "external_id": "",
+        "app_installed_team_id": "T7R4ZPZ1C",
+        "bot_id": "B03CWBH49NW",
+    }
+
+    slack_add_sequences_to_new_hire(body, view)
+
+    assert cache.get("slack_channel") == "slacky"
+    assert cache.get("slack_ts") == "1653492363.887579"
+    assert cache.get("slack_blocks") == []
+    assert (
+        cache.get("slack_text")
+        == "You approved the request to onboard " + new_hire.full_name
+    )
+
+
+@pytest.mark.django_db
+def test_deny_new_hire(admin_factory):
+    admin = admin_factory(slack_channel_id="slacky")
+    org = Organization.object.get()
+    org.slack_confirm_person = admin
+    org.save()
+
+    body = {
+        "type": "block_actions",
+        "user": {
+            "id": "xx",
+            "username": "hello",
+            "name": "hello",
+            "team_id": "xx",
+        },
+        "api_app_id": "xx",
+        "token": "xxx",
+        "container": {
+            "type": "message",
+            "message_ts": "1653515878.620089",
+            "channel_id": "xx",
+            "is_ephemeral": False,
+        },
+        "trigger_id": "343e8837f808e9fed5ded71bd8f4",
+        "team": {"id": "xx", "domain": "chiefonboarding"},
+        "enterprise": None,
+        "is_enterprise_install": False,
+        "channel": {"id": "x", "name": "directmessage"},
+        "state": {"values": {}},
+        "actions": [
+            {
+                "action_id": "create:newhire:deny",
+                "block_id": "FOQJd",
+                "text": {"type": "plain_text", "text": "Nope", "emoji": True},
+                "value": "-1",
+                "style": "danger",
+                "type": "button",
+                "action_ts": "1653516036.098177",
+            }
+        ],
+    }
+    slack_deny_new_hire(body)
+
+    assert cache.get("slack_channel") == "slacky"
+    assert cache.get("slack_ts") == "1653515878.620089"
+    assert cache.get("slack_blocks") == []
+    assert cache.get("slack_text") == "You denied the request to onboard this person."
+
+
+@pytest.mark.django_db
+def test_complete_admin_task(admin_factory, admin_task_factory):
+    admin_task = admin_task_factory()
+    admin_factory(slack_user_id="slacky", slack_channel_id="xx")
+
+    body = {
+        "type": "block_actions",
+        "user": {
+            "id": "slacky",
+            "username": "hello",
+            "name": "hello",
+            "team_id": "xx",
+        },
+        "api_app_id": "xx",
+        "token": "xxx",
+        "container": {
+            "type": "message",
+            "message_ts": "1653519601.452689",
+            "channel_id": "xx",
+            "is_ephemeral": False,
+        },
+        "trigger_id": "df5b9460bddc17e2398d12098b41b7a",
+        "team": {"id": "xx", "domain": "chiefonboarding"},
+        "enterprise": None,
+        "is_enterprise_install": False,
+        "state": {"values": {}},
+        "actions": [
+            {
+                "action_id": "admin_task:complete",
+                "block_id": "XUmz",
+                "text": {
+                    "type": "plain_text",
+                    "text": "I have completed this",
+                    "emoji": True,
+                },
+                "value": str(admin_task.id),
+                "style": "primary",
+                "type": "button",
+                "action_ts": "1653520440.451239",
+            }
+        ],
+    }
+    payload = {
+        "action_id": "admin_task:complete",
+        "block_id": "XUmz",
+        "text": {"type": "plain_text", "text": "I have completed this", "emoji": True},
+        "value": str(admin_task.id),
+        "style": "primary",
+        "type": "button",
+        "action_ts": "1653520440.451239",
+    }
+    slack_complete_admin_task(body, payload)
+
+    assert cache.get("slack_channel") == "xx"
+    assert cache.get("slack_ts") == "1653519601.452689"
+    assert cache.get("slack_blocks") == []
+    assert cache.get("slack_text") == "Thanks! This has been marked as completed."
+    admin_task.refresh_from_db()
+    assert admin_task.completed
 
 
 # TEST TASKS

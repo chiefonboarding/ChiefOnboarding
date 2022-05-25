@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.template.loader import render_to_string
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 from slack_bot.utils import Slack, actions, button, paragraph
 
@@ -104,13 +104,11 @@ class AdminTask(models.Model):
                     "name": self.comment.last().comment_by.full_name,
                 }
 
-            text = _(
-                "You have just been assigned to *%(title)s* for *%(name)s\n%(comment)s"
-            ) % {
+            text = _("You have just been assigned to *%(title)s* for *%(name)s*\n") % {
                 "title": self.name,
                 "name": self.new_hire.full_name,
-                "comment": comment,
             }
+            text += comment
             blocks = [
                 paragraph(text),
                 actions(
@@ -124,7 +122,11 @@ class AdminTask(models.Model):
                     ]
                 ),
             ]
-            Slack().send_message(blocks, self.assigned_to.slack_user_id)
+            Slack().send_message(
+                blocks=blocks,
+                channel=self.assigned_to.slack_user_id,
+                text=_("New assigned task!"),
+            )
         else:
             send_email_new_assigned_admin(self)
 

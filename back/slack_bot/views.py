@@ -240,8 +240,6 @@ def slack_catch_all_message_search_resources(message):
 @exception_handler
 @app.event("team_join")
 def create_new_hire_or_ask_perm(event):
-    print("JOINED TEAM")
-    print(event)
     slack_create_new_hire_or_ask_perm(event)
 
 
@@ -349,8 +347,12 @@ def slack_open_modal_for_selecting_seq_item(body, payload):
 
 @exception_handler
 @app.view("approve:newhire")
-def add_sequences_to_new_hire(ack, body, client, view):
+def add_sequences_to_new_hire(ack, body, view):
+    ack()
+    slack_add_sequences_to_new_hire(body, view)
 
+
+def slack_add_sequences_to_new_hire(body, view):
     user = get_user(body["user"]["id"])
     if user is None:
         return
@@ -363,33 +365,36 @@ def add_sequences_to_new_hire(ack, body, client, view):
 
     seq_ids = [
         item["value"]
-        for item in body["view"]["state"]["values"]["seq"]["answers"][
-            "selected_option"
-        ]["value"]
+        for item in view["state"]["values"]["seq"]["answers"]["selected_options"]
     ]
     seqs = Sequence.objects.filter(id__in=seq_ids)
     new_hire.add_sequences(seqs)
 
-    client.chat_update(
-        channel=body["container"]["channel_id"],
+    org = Organization.object.get()
+    Slack().update_message(
+        channel=org.slack_confirm_person.slack_channel_id,
         ts=private_metadata["ts"],
-        text="<@{admin_id}> approved the request for onboarding <@{new_hire_id}>",
+        text=_("You approved the request to onboard %(name)s")
+        % {"name": new_hire.full_name},
         blocks=[],
     )
-    ack()
 
 
 @exception_handler
 @app.action("create:newhire:deny")
-def deny_new_hire(ack, body, client):
-    client.chat_update(
-        channel=body["container"]["channel_id"],
+def deny_new_hire(ack, body):
+    ack()
+    slack_deny_new_hire(body)
+
+
+def slack_deny_new_hire(body):
+    org = Organization.object.get()
+    Slack().update_message(
+        channel=org.slack_confirm_person.slack_channel_id,
         ts=body["container"]["message_ts"],
-        text="<@{admin_id}> denied the request for onboarding <@{new_hire_id}>",
+        text=_("You denied the request to onboard this person."),
         blocks=[],
     )
-
-    ack()
 
 
 @exception_handler
@@ -634,15 +639,24 @@ def slack_next_page_resource(ack, body, view):
 @exception_handler
 @app.action("admin_task:complete")
 def complete_admin_task(ack, body, payload):
+    ack()
+    slack_complete_admin_task(body, payload)
+
+
+def slack_complete_admin_task(body, payload):
     user = get_user(body["user"]["id"])
     if user is None:
         return
 
-    admin_task = AdminTask.objects.get(id=payload["action_id"])
+    admin_task = AdminTask.objects.get(id=payload["value"])
     admin_task.completed = True
     admin_task.save()
-
-    ack()
+    Slack().update_message(
+        channel=body["container"]["channel_id"],
+        ts=body["container"]["message_ts"],
+        text=_("Thanks! This has been marked as completed."),
+        blocks=[],
+    )
 
 
 @exception_handler

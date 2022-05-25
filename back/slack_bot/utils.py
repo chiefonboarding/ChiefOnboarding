@@ -54,15 +54,8 @@ class Slack:
             return False
         return response
 
-    def update_message(self, blocks=[], channel="", ts=0):
+    def update_message(self, text="", blocks=[], channel="", ts=0):
         # if there is no channel, then drop
-        print("blocks")
-        print(blocks)
-        print("channel")
-        print(channel)
-        print("ts")
-        print(ts)
-
         if channel == "" or ts == 0:
             return False
 
@@ -70,11 +63,13 @@ class Slack:
             cache.set("slack_channel", channel)
             cache.set("slack_ts", ts)
             cache.set("slack_blocks", blocks)
+            cache.set("slack_text", text)
             return
 
         return self.client.chat_update(
             channel=channel,
             ts=ts,
+            text=text,
             blocks=blocks,
         )
 
@@ -83,12 +78,6 @@ class Slack:
         if channel == "":
             return False
 
-        print("blocks")
-        print(blocks)
-        print("text")
-        print(text)
-        print("channel")
-        print(channel)
         if settings.FAKE_SLACK_API:
             cache.set("slack_channel", channel)
             cache.set("slack_blocks", blocks)
@@ -104,12 +93,6 @@ class Slack:
         if channel == "":
             return False
 
-        print("blocks")
-        print(blocks)
-        print("text")
-        print(text)
-        print("channel")
-        print(channel)
         if settings.FAKE_SLACK_API:
             cache.set("slack_channel", channel)
             cache.set("slack_blocks", blocks)
@@ -120,8 +103,6 @@ class Slack:
 
     def open_modal(self, trigger_id, view):
         if settings.FAKE_SLACK_API:
-            print(trigger_id)
-            print(view)
             cache.set("slack_trigger_id", trigger_id)
             cache.set("slack_view", view)
             return
@@ -130,8 +111,6 @@ class Slack:
 
     def update_modal(self, view_id, hash, view):
         if settings.FAKE_SLACK_API:
-            print(view_id)
-            print(view)
             cache.set("slack_view_id", view_id)
             cache.set("slack_view", view)
             return

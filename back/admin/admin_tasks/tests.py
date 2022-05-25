@@ -208,7 +208,7 @@ def test_create_admin_task_for_different_user_slack_message(
                 "type": "mrkdwn",
                 "text": "You have just been assigned to *Set up a tour* for *"
                 + new_hire1.full_name
-                + "\n_please do this\n by "
+                + "*\n_please do this\n by "
                 + admin1.full_name
                 + "_",
             },
