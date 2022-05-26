@@ -890,7 +890,7 @@ def test_change_resource_page(new_hire_factory, resource_user_factory):
                             {
                                 "text": {
                                     "type": "plain_text",
-                                    "text": resource_user1.resource.chapters.first().name,   # noqa
+                                    "text": resource_user1.resource.chapters.first().name,  # noqa
                                     "emoji": True,
                                 },
                                 "value": str(
@@ -1443,7 +1443,7 @@ def test_join_user_auto_create_with_request_for_approval(admin_factory):
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": "Would you like to put this new hire through onboarding?\n*Name:* Peter Boom ",   # noqa
+                "text": "Would you like to put this new hire through onboarding?\n*Name:* Peter Boom ",  # noqa
             },
         },
         {
