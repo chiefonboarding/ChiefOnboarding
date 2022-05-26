@@ -39,11 +39,15 @@ class SlackToDo:
 
     def get_block(self):
         if self.to_do_user.to_do.inline_slack_form:
-            text = f"*{self.user.personalize(self.to_do_user.to_do.name)}*\n{self.footer_text()}"
+            text = (
+                f"*{self.user.personalize(self.to_do_user.to_do.name)}*\n"
+                f"{self.footer_text()}"
+            )
         else:
             text = (
                 f"*{self.user.personalize(self.to_do_user.to_do.name)}* "
-                + f"<{settings.BASE_URL}/new_hire/slackform/{str(self.to_do_user.to_do.id)}/?"
+                + f"<{settings.BASE_URL}/new_hire/slackform/"
+                + f"{str(self.to_do_user.to_do.id)}/?"
                 + f"token={self.user.unique_url}|"
                 + _("View details")
                 + f">\n{self.footer_text()}"

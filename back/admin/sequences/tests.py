@@ -1,6 +1,6 @@
 import datetime
-from unittest.mock import Mock, patch
 from datetime import timedelta
+from unittest.mock import Mock, patch
 
 import pytest
 from django.core.cache import cache
@@ -34,8 +34,8 @@ from admin.sequences.forms import (
 from admin.sequences.models import (
     Condition,
     ExternalMessage,
-    Sequence,
     IntegrationConfig,
+    Sequence,
 )
 from admin.sequences.tasks import timed_triggers
 from admin.to_do.factories import ToDoFactory

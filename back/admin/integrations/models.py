@@ -1,13 +1,12 @@
 import json
-from django.utils import timezone
-from datetime import timedelta
 import uuid
+from datetime import timedelta
 
 import requests
 from django.conf import settings
-from django.core.mail import send_mail
 from django.db import models
 from django.template import Context, Template
+from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
 from django_q.tasks import async_task
@@ -17,7 +16,6 @@ from twilio.rest import Client
 from misc.fields import EncryptedJSONField
 from organization.models import Notification
 from organization.utils import send_email_with_notification
-
 
 INTEGRATION_OPTIONS = (
     (0, _("Slack bot")),

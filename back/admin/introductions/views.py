@@ -6,7 +6,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
-from users.mixins import ManagerPermMixin, LoginRequiredMixin
+from users.mixins import LoginRequiredMixin, ManagerPermMixin
 from users.models import User
 
 from .forms import IntroductionForm

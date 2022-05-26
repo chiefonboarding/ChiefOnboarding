@@ -1,11 +1,12 @@
 import smtplib
-from django.core.mail import send_mail
-from django.conf import settings
+
 from anymail.exceptions import (
-    AnymailRecipientsRefused,
     AnymailAPIError,
     AnymailInvalidAddress,
+    AnymailRecipientsRefused,
 )
+from django.conf import settings
+from django.core.mail import send_mail
 
 from organization.models import Notification
 

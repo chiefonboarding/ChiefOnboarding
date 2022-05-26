@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
-from users.mixins import ManagerPermMixin, LoginRequiredMixin
+from users.mixins import LoginRequiredMixin, ManagerPermMixin
 
 from .forms import ToDoForm
 from .models import ToDo

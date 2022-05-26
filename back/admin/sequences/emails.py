@@ -1,5 +1,3 @@
-from django.conf import settings
-from django.core.mail import send_mail
 from django.utils.translation import gettext as _
 
 from admin.badges.models import Badge

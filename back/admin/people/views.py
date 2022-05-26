@@ -16,9 +16,9 @@ from admin.resources.models import Resource
 from slack_bot.utils import Slack, actions, button, paragraph
 from users.emails import email_new_admin_cred
 from users.mixins import (
+    IsAdminOrNewHireManagerMixin,
     LoginRequiredMixin,
     ManagerPermMixin,
-    IsAdminOrNewHireManagerMixin,
 )
 
 from .forms import ColleagueCreateForm, ColleagueUpdateForm

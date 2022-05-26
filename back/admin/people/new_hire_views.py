@@ -4,7 +4,6 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
@@ -34,10 +33,9 @@ from users.emails import (
     send_reminder_email,
 )
 from users.mixins import (
-    AdminPermMixin,
+    IsAdminOrNewHireManagerMixin,
     LoginRequiredMixin,
     ManagerPermMixin,
-    IsAdminOrNewHireManagerMixin,
 )
 from users.models import NewHireWelcomeMessage, PreboardingUser, ResourceUser, ToDoUser
 

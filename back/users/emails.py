@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.core.mail import send_mail
 from django.urls import reverse
 from django.utils import translation
 from django.utils.translation import gettext as _
@@ -57,7 +56,6 @@ def email_new_admin_cred(user):
 def email_reopen_task(task_name, message, user):
     translation.activate(user.language)
     subject = _("Please redo this task")
-    message_email = ""
     org = Organization.object.get()
     content = [
         {

@@ -1,9 +1,9 @@
 import json
 from datetime import datetime, timedelta
 from unittest.mock import Mock, patch
-from django.contrib.auth import get_user_model
 
 import pytest
+from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.utils.formats import localize
 from freezegun import freeze_time
@@ -16,24 +16,24 @@ from slack_bot.tasks import (
     update_new_hire,
 )
 from slack_bot.views import (
+    slack_add_sequences_to_new_hire,
     slack_catch_all_message_search_resources,
+    slack_change_resource_page,
+    slack_complete_admin_task,
+    slack_complete_to_do,
+    slack_create_new_hire_or_ask_perm,
+    slack_deny_new_hire,
+    slack_next_page_resource,
     slack_open_modal_for_selecting_seq_item,
+    slack_open_resource_dialog,
     slack_open_todo_dialog,
+    slack_save_welcome_message,
     slack_show_all_resources_categories,
     slack_show_help,
     slack_show_resources_items_in_category,
-    slack_show_to_do_items_based_on_message,
-    slack_open_resource_dialog,
-    slack_change_resource_page,
     slack_show_to_do_items,
-    slack_complete_to_do,
-    slack_next_page_resource,
+    slack_show_to_do_items_based_on_message,
     slack_show_welcome_dialog,
-    slack_save_welcome_message,
-    slack_create_new_hire_or_ask_perm,
-    slack_add_sequences_to_new_hire,
-    slack_deny_new_hire,
-    slack_complete_admin_task
 )
 from users.factories import ResourceUserFactory
 
@@ -596,7 +596,8 @@ def test_open_resource_dialog(new_hire_factory, resource_user_factory):
     new_hire = new_hire_factory(slack_user_id="slackx")
 
     # Should reset steps back to one
-    # Resource has questions and a page. Questions should be ignored. So not showing menu.
+    # Resource has questions and a page. Questions should be ignored. So not showing
+    # menu.
     resource_user1 = resource_user_factory(user=new_hire, step=5)
 
     payload = {
@@ -772,7 +773,7 @@ def test_change_resource_page(new_hire_factory, resource_user_factory):
                                 {
                                     "text": {
                                         "type": "plain_text",
-                                        "text": resource_user1.resource.chapters.first().name,
+                                        "text": resource_user1.resource.chapters.first().name,  # noqa
                                         "emoji": True,
                                     },
                                     "value": str(
@@ -782,7 +783,7 @@ def test_change_resource_page(new_hire_factory, resource_user_factory):
                                 {
                                     "text": {
                                         "type": "plain_text",
-                                        "text": resource_user1.resource.chapters.last().name,
+                                        "text": resource_user1.resource.chapters.last().name,  # noqa
                                         "emoji": True,
                                     },
                                     "value": str(
@@ -817,7 +818,7 @@ def test_change_resource_page(new_hire_factory, resource_user_factory):
                             "selected_option": {
                                 "text": {
                                     "type": "plain_text",
-                                    "text": resource_user1.resource.chapters.last().name,
+                                    "text": resource_user1.resource.chapters.last().name,  # noqa
                                     "emoji": True,
                                 },
                                 "value": str(
@@ -889,7 +890,7 @@ def test_change_resource_page(new_hire_factory, resource_user_factory):
                             {
                                 "text": {
                                     "type": "plain_text",
-                                    "text": resource_user1.resource.chapters.first().name,
+                                    "text": resource_user1.resource.chapters.first().name,   # noqa
                                     "emoji": True,
                                 },
                                 "value": str(
@@ -899,7 +900,7 @@ def test_change_resource_page(new_hire_factory, resource_user_factory):
                             {
                                 "text": {
                                     "type": "plain_text",
-                                    "text": resource_user1.resource.chapters.last().name,
+                                    "text": resource_user1.resource.chapters.last().name,  # noqa
                                     "emoji": True,
                                 },
                                 "value": str(
@@ -1442,7 +1443,7 @@ def test_join_user_auto_create_with_request_for_approval(admin_factory):
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": "Would you like to put this new hire through onboarding?\n*Name:* Peter Boom ",
+                "text": "Would you like to put this new hire through onboarding?\n*Name:* Peter Boom ",   # noqa
             },
         },
         {

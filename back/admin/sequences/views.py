@@ -20,7 +20,7 @@ from admin.resources.models import Resource
 from admin.sequences.utils import get_sequence_model_form, get_sequence_templates_model
 from admin.templates.utils import get_templates_model
 from admin.to_do.models import ToDo
-from users.mixins import ManagerPermMixin, LoginRequiredMixin
+from users.mixins import LoginRequiredMixin, ManagerPermMixin
 
 from .forms import (
     ConditionCreateForm,
