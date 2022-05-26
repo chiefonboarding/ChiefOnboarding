@@ -35,17 +35,14 @@ See details here: [ChiefOnboarding on Docker Hub](https://hub.docker.com/r/chief
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/chiefonboarding/chiefonboarding/tree/v2.0)
 
-**Scalingo** 
-
-[![Deploy on Scalingo](https://cdn.scalingo.com/deploy/button.svg)](https://my.scalingo.com/deploy?source=https://github.com/chiefonboarding/chiefonboarding#v2.0)
 
 ## Support
-This software is provided under an open source license and comes as is. If you have any questions, then you will have to open an issue on Github for that. If you want guaranteed, quick support, then we offer a paid support package for that (best effort - generally under 3 hours response time). Please see our [pricing page](https://chiefonboarding.com/pricing) for more details. 
+This software is provided under an open source license and comes as is. If you have any questions, then you will have to open an issue on Github for that. If you want guaranteed, quick support, then we offer a paid support package for that (best effort - generally under 1 hours response time). Please see our [pricing page](https://chiefonboarding.com/pricing) for more details. 
 
 If you don't want to deal with hosting, maintaining and backing up your ChiefOnboarding instance, then we can do that for you as well. Please see our [pricing page](https://chiefonboarding.com/pricing) for more details.
 
 ## Security issues
-Please do not create an issue if you found a potential security issue. Email me directly at security@chiefonboarding.com and I will get it resolved ASAP.
+Please do not create an issue if you found a potential security issue. Email me directly at security@chiefonboarding.com and we will get it resolved ASAP.
 
 ## License
 This project is licensed under the AGPLv3 License - see the [LICENSE.md](LICENSE.md) file for details.

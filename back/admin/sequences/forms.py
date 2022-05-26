@@ -28,7 +28,7 @@ class ConditionCreateForm(forms.ModelForm):
         return (
             (
                 '<button hx-post="{% url "sequences:condition-create" object.id %}" '
-                'hx-target="#condition_form" hx-swap="#add-condition-form" class="btn'
+                'hx-target="#condition_form" hx-swap="#add-condition-form" class="btn '
                 'btn-primary ms-auto">'
             )
             + _("Add block")
@@ -255,11 +255,36 @@ class PendingTextMessageForm(forms.ModelForm):
         ]
 
 
-class PendingEmailMessageForm(PendingSlackMessageForm):
+class PendingEmailMessageForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+
+        # Check if send_to field should be hidden
+        hide_send_to = "d-none"
+        if self.instance is not None and self.instance.send_to == 3:
+            hide_send_to = ""
+
+        self.helper.layout = Layout(
+            Div(
+                Field("name"),
+                Field("subject"),
+                WYSIWYGField("content_json"),
+                Field("person_type"),
+                Div(
+                    Field("send_to"),
+                    css_class=hide_send_to,
+                ),
+            ),
+        )
+
     class Meta:
         model = PendingEmailMessage
         fields = [
             "name",
+            "subject",
             "content_json",
             "person_type",
             "send_to",

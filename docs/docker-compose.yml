@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  retype:
+    image: node:16
+    environment:
+      - HOST=0.0.0.0
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    command: bash -c "cd /app && npm install retypeapp --global && retype watch --host 0.0.0.0"
