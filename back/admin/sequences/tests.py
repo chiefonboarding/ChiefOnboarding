@@ -540,7 +540,7 @@ def test_sequence_open_filled_custom_integration_form(
     del manifest["form"][0]["url"]
     manifest["form"][0]["items"] = [{"id": "12", "name": "test team"}]
     del manifest["form"][0]["data_from"]
-    del manifest["form"][0]["choice_id"]
+    del manifest["form"][0]["choice_value"]
     del manifest["form"][0]["choice_name"]
     integration_config.integration.manifest = manifest
     integration_config.integration.save()

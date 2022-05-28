@@ -51,7 +51,7 @@ class IntegrationConfigForm(forms.ModelForm):
                     else forms.Select,
                     choices=[
                         (
-                            self._get_result(item.get("choice_id", "id"), x),
+                            self._get_result(item.get("choice_value", "id"), x),
                             self._get_result(item.get("choice_name", "name"), x),
                         )
                         for x in self._get_result(

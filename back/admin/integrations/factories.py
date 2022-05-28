@@ -21,7 +21,7 @@ class CustomIntegrationFactory(IntegrationFactory):
                 "name": "Select team to add user to",
                 "type": "choice",
                 "data_from": "data",
-                "choice_id": "gid",
+                "choice_value": "gid",
                 "choice_name": "name",
             }
         ],

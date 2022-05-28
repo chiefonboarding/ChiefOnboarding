@@ -4,6 +4,57 @@ order: 30
 
 # Changelog
 
+## v2.0.0
+* Completely new look
+* Dropped most dependency for VueJS
+* Support for custom integrations created by you!
+* Time triggers can now be triggered at a custom time (used to be always 8 am)
+* Slack doesn't depend on webhooks anymore - websocket is now supported as well
+* Notifications on both the new hire and admin side
+* Change channel where bot sends messages to
+* Change admin to manager and vise versa
+* Change email template
+* Assign admin tasks in sequence to admin/manager instead of person
+* Webhook support
+
+BREAKING CHANGES:
+* Scheduled access items will not be executed anymore - table is dropped and functionality has been replaced
+* Slack account creation integration will be dropped due to dropped support from Slack. It can be put back, but requires some changes.
+* API is currently dropped, but will be back later.
+
+## v1.2.23
+* Fix email default from field for password reset
+* Fix not being able to remove external messages (slack/email/text)
+
+## v1.2.22
+* Fix related to v.1.2.20
+
+## v1.2.21
+* Bump Django version
+
+## v1.2.20
+* Fix bug with sending custom email (replacing variables)
+
+## v1.2.19
+* Fix render database not in same region as app
+
+## v1.2.18
+* Remove DO as DO won't work with Django Q (no support for multiprocessors). For reference: https://www.digitalocean.com/community/questions/app-platform-multiprocessing-python?answer=69003
+* Fixed Render to work with supervisor setup (no need to create an extra worker).
+* Fixed Docker hub link.
+
+## v1.2.17
+* Forcing Python 3.7 to avoid SemLock error on DO/Render
+
+## v1.2.16
+* Django version update
+* Fix resources in Slack
+
+## v1.2.15
+* Limit auth with url only to new hires
+* Fix missing import
+* Fix Slack authentication bug
+
 ## v1.2.14
 * Remove google delete user
 

@@ -25,7 +25,7 @@ class ManifestFormSerializer(ValidateMixin, serializers.Serializer):
     )
     items = serializers.CharField(required=False)
     data_from = serializers.CharField(required=False)
-    choice_id = serializers.CharField()
+    choice_value = serializers.CharField()
     choice_name = serializers.CharField()
 
 

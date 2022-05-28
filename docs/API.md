@@ -4,6 +4,10 @@ order: 50
 
 # API
 
+!!!
+The API does not work in v2.0 yet! It will still work for versions starting with v1
+!!!
+
 This API will give you full control over ChiefOnboarding. ChiefOnboarding is built with Django and VueJS. Django is used as an API and VueJS is for the front end. With the steps below, you will be able to call the whole API yourself. Currently, ChiefOnboarding uses sessions/cookies for authentication. We can't use those for the API, as those expire. Therefore, you will have to explicitly enable token authentication in the settings. 
 
 Please note that tokens do not expire and endpoints are subjected to change with updates!
