@@ -21,3 +21,19 @@ The login credentials are:
 Email: admin@example.com
 Password: admin
 ```
+
+## Adding a new language
+
+If you want to add a new language, then you will have to follow these steps:
+
+Replace `lang` with the shortname of your language (e.g. `nl`, `en`, or `es`) in the command below
+
+```
+docker-compose run --rm web django-admin makemessages -l lang
+```
+
+It will generate a new file for you to fill in. It's a `.po` that you can edit (with a text editor or through one of the many tools).
+
+Up next, you will need to add the language to the list of languages. Go to `back/back/settings.py` and add your language to this array `https://github.com/chiefonboarding/ChiefOnboarding/blob/v2.0/back/back/settings.py#L371`. That way, it will show up in the lists to choose the language.
+
+
