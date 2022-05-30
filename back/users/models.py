@@ -309,11 +309,15 @@ class User(AbstractBaseUser):
     def personalize(self, text, extra_values={}):
         t = Template(text)
         manager = ""
+        manager_email = ""
         buddy = ""
+        buddy_email = ""
         if self.manager is not None:
             manager = self.manager.full_name
+            manager_email = self.manager.email
         if self.buddy is not None:
             buddy = self.buddy.full_name
+            buddy_email = self.buddy.email
         new_hire_context = {
             "manager": manager,
             "buddy": buddy,
@@ -322,6 +326,8 @@ class User(AbstractBaseUser):
             "first_name": self.first_name,
             "email": self.email,
             "start": self.start_day,
+            "buddy_email": buddy_email,
+            "manager_email": manager_email,
         }
         text = t.render(Context(new_hire_context | extra_values))
         return text

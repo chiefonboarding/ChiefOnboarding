@@ -86,9 +86,13 @@ Throughout the manifest you can use the variables that you have defined in the `
 
 `email`: New hire's email address
 
-`manager`: The manager full name
+`manager`: The manager's full name
+
+`manager_email`: The manager's email address
 
 `buddy`: The buddy's full name
+
+`buddy_email`: The buddy's email address
 
 `position`: New hire's position
 

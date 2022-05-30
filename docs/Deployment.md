@@ -3,11 +3,13 @@ order: 80
 ---
 
 # Deployment
-Currently, two ways of deploying are supported out of the box. Docker and Heroku.
+Currently, three ways of deploying are supported out of the box. Docker, Render and Heroku.
 
 1. [Deploy with Docker](#deploy-with-docker)
 2. [Deploy with Render](#deploy-with-render)
 3. [Deploy with Heroku](#deploy-with-heroku)
+
+Once you have set one of them up, you will need to follow the [next steps](#next-steps) to set up storage, email, text messagea and more!
 
 ## Deploy with Docker
 You can easily deploy ChiefOnboarding with Docker (Docker-compose). Make sure that both Docker and Docker-compose are installed and your server. Please note that some of the data below contain example values and should be replaced.
@@ -305,6 +307,7 @@ You will have to provide a URL to send the requests to. This URL may be from the
 4. Copy the value of the DSN url. Example: `https://xxxxxx.ingest.sentry.io/xxxxxx`.
 
 Example variable:
+
 ```
 SENTRY_URL=https://xxxxxx.ingest.sentry.io/xxxxxx
 ```
@@ -334,18 +337,53 @@ You will only be able to let people log in who already have an account in ChiefO
 ### Slack bot
 This is the bot that will ping your new hires and colleagues with things they have to do. This is needed if you want to use ChiefOnboarding in Slack.
 Since there is no centralized app, you will have to create an app in Slack yourself. The benefit of this is that you can use your own profile picture and name for the bot. 
-There are two ways of create the Slack bot. We built a manifest with everything that you need to get up and running quickly. 
+There are two ways to create the Slack bot. You can use the websocket or webhooks. We generally recommend the websocket as you wouldn't need to expose the server to the internet then. You can keep it locally as the websocket works pretty much anywhere. We built two manifests with everything that you need to get up and running quickly. 
 
-Use the manifest (recommended):
+Manifest (websocket):
+
+```
+display_information:
+   name: Onboardingbot
+features:
+  bot_user:
+    display_name: Onboardingbot
+    always_online: true
+oauth_config:
+  scopes:
+    bot:
+      - im:history
+      - users:read
+      - chat:write
+      - users:read.email
+      - im:write
+      - im:read
+settings:
+  event_subscriptions:
+    bot_events:
+      - message.im
+      - team_join
+  interactivity:
+    is_enabled: true
+  org_deploy_enabled: false
+  socket_mode_enabled: true
+  token_rotation_enabled: false
+```
 
 1. Go to [https://api.slack.com/apps](https://api.slack.com/apps) and click on 'Create New App' (big green button, can't be missed). Click on "From an app manifest".
 2. Select the workspace where you want to install ChiefOnboarding.
-3. Copy and paste the manifest below in the little text box that you get to see (change `XXXXXXXXXXXXXXX` with your domain name. Example: `demo.chiefonboarding.com`):
+3. Copy and paste the manifest in the little text box.
+4. Review the permissions and then click on 'Create'.
+5. Click on "Install to Workspace" and install it in your team.
+6. You will be redirected back to the bot settings, then scroll down till you see "App-Level Tokens" and click on "Generate Token and Scopes".
+7. Give it a name (doesn't really matter what)
+8. Under "Add scope" add "connections:write". 
+9. Click on "Generate" and copy the token into your environment variables as `SLACK_APP_TOKEN`.
+10. In the left sidebar, go to "Install app" and there you will see the `SLACK_BOT_TOKEN`. Add that to your environment variables as well. 
+
+
+Manifest (webhook) - replace XXX with your domain name:
 
 ```
-_metadata:
-  major_version: 1
-  minor_version: 1
 display_information:
   name: Onboardingbot
 features:
@@ -377,7 +415,10 @@ settings:
   token_rotation_enabled: false
 ```
 
+1. Go to [https://api.slack.com/apps](https://api.slack.com/apps) and click on 'Create New App' (big green button, can't be missed). Click on "From an app manifest".
+2. Select the workspace where you want to install ChiefOnboarding.
+3. Copy and paste the manifest in the little text box.
 4. Review the permissions and then click on 'Create'.
 5. Scroll a bit on the new page and notice the `App credentials` part. You need the information there to fill in on the settings/integrations page in your ChiefOnboarding instance.
-6. Fill in the details accordingly. The only thing you can't fill in is the 'Redirect URL'. This URL depends on your instances domain name. You will need to fill this in there: `https://YOURDOMAIN/api/integrations/slack` (again, change this url to match with your domain name!)
-8. Submit the form. You will get back a Slack button. Click it and verify that you want to install your bot in your Slack team. (Try to say 'hello' to it)
+6. Fill in the details accordingly.
+8. Submit the form. You will get back a Slack button. Click it and verify that you want to install your bot in your Slack team.
