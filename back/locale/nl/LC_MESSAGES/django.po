@@ -1228,7 +1228,7 @@ msgstr ""
 msgid ""
 "Time must be in an interval of 5 minutes. %(minutes)s must end in 0 or 5."
 msgstr ""
-"Tijd moet in een 5 minuten interval zijn. %(minutes) moet eindigen op 0 of 5."
+"Tijd moet in een 5 minuten interval zijn. %(minutes)s moet eindigen op 0 of 5."
 
 #: admin/sequences/forms.py:118
 msgid "You must add at least one to do item"
@@ -2252,7 +2252,7 @@ msgid ""
 msgstr ""
 "*Wat moet ik vandaag doen?*\n"
 "Dit zal alle taken laten zien die je vandaag moet doen. Ik zal deze sowieso "
-"iedere dag laten zien, maar als je ze nu al wil zien, dan kan dat."
+"iedere dag laten zien, maar als je ze nu al wil zien, dan kan dat.\n"
 
 #: slack_bot/views.py:87
 msgid ""
@@ -2262,7 +2262,7 @@ msgid ""
 msgstr ""
 "*Zijn er te doen items waarvan de datum al is verstreken?*\n"
 "Dit zal alle taken laten zien die al te laat zijn met afronden. Zorg dat "
-"deze zo snel mogelijk worden afgerond."
+"deze zo snel mogelijk worden afgerond.\n"
 
 #: slack_bot/views.py:91
 msgid ""
@@ -2270,7 +2270,7 @@ msgid ""
 "This will show all tasks\n"
 msgstr ""
 "*Laat me alle te doen taken zien*\n"
-"Dit zal alle taken laten zien."
+"Dit zal alle taken laten zien.\n"
 
 #: slack_bot/views.py:92
 msgid ""
