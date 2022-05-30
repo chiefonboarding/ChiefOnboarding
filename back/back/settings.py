@@ -375,6 +375,7 @@ LANGUAGES = [
     ("de", _("German")),
     ("tr", _("Turkish")),
     ("pt", _("Portuguese")),
+    ("jp", _("Japanese")),
     ("es", _("Spanish")),
 ]
 LANGUAGE_SESSION_KEY = "chief-language"
