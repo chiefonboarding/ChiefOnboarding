@@ -19,56 +19,56 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: admin/admin_tasks/emails.py:9
-msgid "Can you please do this for me?"
+msgid "Pouvez-vous faire ça pour moi SVP ?"
 msgstr ""
 
 #: admin/admin_tasks/emails.py:16
 #, python-format
-msgid "Hi! Could you please help me with this? It's for our new hire %(name)s"
+msgid "Salut! Peux-tu m'aider avec cela ? C'est pour notre nouvelle recrue %(name)s"
 msgstr ""
 
 #: admin/admin_tasks/emails.py:42
-msgid "A task has been assigned to you!"
+msgid "Une tâche vous a été assignée!"
 msgstr ""
 
 #: admin/admin_tasks/emails.py:48
 #, python-format
-msgid "This is about task: %(title)s for %(new_hire)s"
+msgid "C'est à propos de: %(title)s pour %(new_hire)s"
 msgstr ""
 
 #: admin/admin_tasks/emails.py:59
-msgid "Last message: "
+msgid "Dernier message: "
 msgstr ""
 
 #: admin/admin_tasks/emails.py:80
 #, python-format
-msgid "Someone added something to task: %(task_name)s"
+msgid "Quelqu'un a ajouté quelque chose à la tâche: %(task_name)s"
 msgstr ""
 
 #: admin/admin_tasks/emails.py:88
 #, python-format
-msgid "Hi %(name)s"
+msgid "Salut %(name)s"
 msgstr ""
 
 #: admin/admin_tasks/emails.py:96
 msgid ""
-"One of your todo items has been updated by someone else. Here is the message:"
+"Un élément de votre liste à faire a été mise à jour par quelqu'un d'autre. Voici le message:"
 msgstr ""
 
 #: admin/admin_tasks/models.py:14
-msgid "Low"
+msgid "Bas"
 msgstr ""
 
 #: admin/admin_tasks/models.py:14
-msgid "Medium"
+msgid "Moyen"
 msgstr ""
 
 #: admin/admin_tasks/models.py:14
-msgid "High"
+msgid "Haut"
 msgstr ""
 
 #: admin/admin_tasks/models.py:16
-msgid "No"
+msgid "Non"
 msgstr ""
 
 #: admin/admin_tasks/models.py:16 admin/admin_tasks/models.py:48
@@ -76,7 +76,7 @@ msgstr ""
 #: new_hire/templates/_colleague_intro.html:17
 #: new_hire/templates/_new_hire_colleagues_search.html:20
 #: new_hire/templates/_new_hire_colleagues_search.html:51 users/models.py:87
-msgid "Email"
+msgid "E-mail"
 msgstr ""
 
 #: admin/admin_tasks/models.py:16 admin/sequences/models.py:144
@@ -85,14 +85,14 @@ msgid "Slack"
 msgstr ""
 
 #: admin/admin_tasks/models.py:22 admin/sequences/models.py:24
-msgid "New hire"
+msgid "Nouvelle recrue"
 msgstr ""
 
 #: admin/admin_tasks/models.py:28
 #: admin/people/templates/new_hire_admin_tasks.html:21
 #: admin/people/templates/new_hire_admin_tasks.html:61
 #: admin/sequences/models.py:299
-msgid "Assigned to"
+msgid "Assignée à"
 msgstr ""
 
 #: admin/admin_tasks/models.py:34 admin/people/templates/add_resources.html:12
@@ -104,19 +104,19 @@ msgstr ""
 #: admin/settings/templates/settings_admins.html:10
 #: admin/to_do/templates/templates.html:12 organization/models.py:24
 #: organization/models.py:204
-msgid "Name"
+msgid "Nom"
 msgstr ""
 
 #: admin/admin_tasks/models.py:36
-msgid "Send email or text to extra user?"
+msgid "Envoyer un e-mail ou un SMS à un utilisateur supplémentaire?"
 msgstr ""
 
 #: admin/admin_tasks/models.py:41 admin/sequences/models.py:316
-msgid "Slack user"
+msgid "Utilisateur Slack"
 msgstr ""
 
 #: admin/admin_tasks/models.py:50
-msgid "Completed"
+msgid "Completée"
 msgstr ""
 
 #: admin/admin_tasks/models.py:51 admin/appointments/forms.py:14
@@ -125,20 +125,20 @@ msgid "Date"
 msgstr ""
 
 #: admin/admin_tasks/models.py:53 admin/sequences/models.py:327
-msgid "Priority"
+msgid "Priorité"
 msgstr ""
 
 #: admin/admin_tasks/models.py:72
 #, python-format
 msgid ""
-"%(name_assigned_to)s needs your help with this task:\n"
+"%(name_assigned_to)s a besoin de votre aide avec cette tâche:\n"
 "*%(task_name)s*\n"
 "_%(comment)s_"
 msgstr ""
 
 #: admin/admin_tasks/models.py:84 admin/admin_tasks/models.py:117
 #: admin/admin_tasks/models.py:166
-msgid "I have completed this"
+msgid "J'ai terminé ceci"
 msgstr ""
 
 #: admin/admin_tasks/models.py:102
@@ -150,53 +150,53 @@ msgstr ""
 
 #: admin/admin_tasks/models.py:107
 #, python-format
-msgid "You have just been assigned to *%(title)s* for *%(name)s*\n"
+msgid "Vous avez tout juste été assigné à *%(title)s* pour *%(name)s*\n"
 msgstr ""
 
 #: admin/admin_tasks/models.py:128
-msgid "New assigned task!"
+msgid "Nouvelle tâche assignée!"
 msgstr ""
 
 #: admin/admin_tasks/models.py:154
 #, python-format
 msgid ""
-"%(name)s added a message to your task:\n"
+"%(name)s a ajouté un message à votre tâche:\n"
 "*%(task_title)s*\n"
 "_%(comment)s_"
 msgstr ""
 
 #: admin/admin_tasks/templates/admin_tasks_all.html:8
 #: users/templates/admin_base.html:118
-msgid "All tasks"
+msgid "Toutes les tâches"
 msgstr ""
 
 #: admin/admin_tasks/templates/admin_tasks_all.html:13
 #: admin/admin_tasks/templates/admin_tasks_yours.html:13
-msgid "For new hire"
+msgid "Pour la nouvelle recrue"
 msgstr ""
 
 #: admin/admin_tasks/templates/admin_tasks_all.html:14
 #: admin/admin_tasks/templates/admin_tasks_yours.html:14
 #: admin/people/templates/new_hire_admin_tasks.html:22
 #: admin/people/templates/new_hire_admin_tasks.html:62
-msgid "Task"
+msgid "Tâche"
 msgstr ""
 
 #: admin/admin_tasks/templates/admin_tasks_all.html:15
 #: admin/admin_tasks/templates/admin_tasks_yours.html:15
 #: admin/people/templates/new_hire_admin_tasks.html:23
-msgid "Due in"
+msgid "Dûe dans"
 msgstr ""
 
 #: admin/admin_tasks/templates/admin_tasks_all.html:30
 #: admin/admin_tasks/templates/admin_tasks_yours.html:30
 #: admin/people/templates/new_hire_admin_tasks.html:37
-msgid "No deadline set"
+msgid "Aucun délai fixé"
 msgstr ""
 
 #: admin/admin_tasks/templates/admin_tasks_all.html:46
 #: admin/people/templates/new_hire_admin_tasks.html:42
-msgid "There are no open items"
+msgid "Il n'y a pas d'éléments ouverts"
 msgstr ""
 
 #: admin/admin_tasks/templates/admin_tasks_create.html:13
@@ -204,19 +204,19 @@ msgstr ""
 #: admin/introductions/templates/intro_update.html:31
 #: admin/resources/templates/resource_update.html:30
 #: admin/templates/templates/template_update.html:29
-msgid "Create"
+msgid "Créer"
 msgstr ""
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:7
 #: admin/people/templates/new_hire_progress.html:32
 #: admin/people/templates/new_hire_progress.html:90
-msgid "Reopen"
+msgid "Réouvrir"
 msgstr ""
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:9
 #: admin/people/templates/new_hire_progress.html:73
 #: new_hire/templates/new_hire_resource_detail.html:21 slack_bot/views.py:630
-msgid "Complete"
+msgid "Completer"
 msgstr ""
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:25
@@ -228,11 +228,11 @@ msgstr ""
 #: admin/settings/templates/personal_language_update.html:13
 #: admin/settings/templates/settings_google_login_setup.html:12
 #: admin/templates/templates/template_update.html:29
-msgid "Update"
+msgid "Mettre à jour"
 msgstr ""
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:36
-msgid "Add comment"
+msgid "Ajouter un commentaire"
 msgstr ""
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:43
@@ -241,78 +241,78 @@ msgstr ""
 #: admin/settings/templates/token_create.html:11
 #: new_hire/templates/_content.html:119
 #: new_hire/templates/_question_form.html:6 slack_bot/views.py:682
-msgid "Submit"
+msgid "Soumettre"
 msgstr ""
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:51
-msgid "Comments"
+msgid "Commentaires"
 msgstr ""
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:67
-msgid "There are no comments yet"
+msgid "Il n'y a pas de commentaires pour l'instant"
 msgstr ""
 
 #: admin/admin_tasks/templates/admin_tasks_yours.html:8
 #: users/templates/admin_base.html:115
-msgid "Your tasks"
+msgid "Vos tâches"
 msgstr ""
 
 #: admin/admin_tasks/templates/admin_tasks_yours.html:46
-msgid " There are no open items"
+msgid " Il n'y a pas d'éléments ouverts"
 msgstr ""
 
 #: admin/admin_tasks/views.py:64
-msgid "Task has been created"
+msgid "La tâche a été créée"
 msgstr ""
 
 #: admin/admin_tasks/views.py:84
-msgid "New task"
+msgid "Nouvelle tâche"
 msgstr ""
 
 #: admin/admin_tasks/views.py:85 admin/admin_tasks/views.py:105
 #: admin/people/templates/_new_hire_menu.html:65 new_hire/views.py:77
 #: users/templates/admin_base.html:110
-msgid "Tasks"
+msgid "Tâches"
 msgstr ""
 
 #: admin/admin_tasks/views.py:95
-msgid "Task has been updated"
+msgid "La tâche a été mise à jour"
 msgstr ""
 
 #: admin/admin_tasks/views.py:104
 #, python-format
-msgid "Task: %(name)s"
+msgid "Tâche: %(name)s"
 msgstr ""
 
 #: admin/admin_tasks/views.py:129
-msgid "Comment has been posted"
+msgid "Le commentaire a été posté"
 msgstr ""
 
 #: admin/appointments/forms.py:55 admin/appointments/forms.py:58
 #: admin/appointments/forms.py:60
-msgid "This field is required"
+msgid "Ce champ est requis"
 msgstr ""
 
 #: admin/appointments/models.py:11 admin/badges/models.py:15
 #: admin/preboarding/models.py:11 admin/sequences/models.py:148
 #: admin/sequences/models.py:149 admin/to_do/models.py:11
-msgid "Content"
+msgid "Contenu"
 msgstr ""
 
 #: admin/appointments/models.py:12
-msgid "Time"
+msgid "Temps"
 msgstr ""
 
 #: admin/appointments/models.py:14
-msgid "Fixed date"
+msgid "Date fixe"
 msgstr ""
 
 #: admin/appointments/models.py:15
-msgid "On day"
+msgid "Le jour"
 msgstr ""
 
 #: admin/appointments/views.py:21
-msgid "Appointment items"
+msgid "Éléments de rendez-vous"
 msgstr ""
 
 #: admin/appointments/views.py:22 admin/appointments/views.py:38
@@ -323,23 +323,23 @@ msgstr ""
 #: admin/preboarding/views.py:54 admin/resources/views.py:24
 #: admin/resources/views.py:52 admin/resources/views.py:82
 #: admin/to_do/views.py:22 admin/to_do/views.py:38 admin/to_do/views.py:54
-msgid "templates"
+msgid "modèles"
 msgstr ""
 
 #: admin/appointments/views.py:33 admin/appointments/views.py:49
-msgid "Appointment item has been updated"
+msgid "L'élément de rendez-vous a été mis à jour"
 msgstr ""
 
 #: admin/appointments/views.py:37
-msgid "Create appointment item"
+msgid "Créer l'élément de rendez-vous"
 msgstr ""
 
 #: admin/appointments/views.py:53
-msgid "Update appointment item"
+msgid "Mettre à jour l'élément de rendez-vous"
 msgstr ""
 
 #: admin/appointments/views.py:64
-msgid "Appointment item has been removed"
+msgid "L'élément de rendez-vous a été supprimé"
 msgstr ""
 
 #: admin/badges/models.py:13
@@ -347,41 +347,41 @@ msgid "Image"
 msgstr ""
 
 #: admin/badges/views.py:33
-msgid "badge item has been updated"
+msgid "l'élément de badge a été mis à jour"
 msgstr ""
 
 #: admin/badges/views.py:37
-msgid "Create badge item"
+msgid "Créer l'élément de badge"
 msgstr ""
 
 #: admin/badges/views.py:49
-msgid "Badge item has been updated"
+msgid "L'élément de badge a été mis à jour"
 msgstr ""
 
 #: admin/badges/views.py:53
-msgid "Update badge item"
+msgid "Mettre à jour l'élément de badge"
 msgstr ""
 
 #: admin/badges/views.py:64
-msgid "badge item has been removed"
+msgid "l'élément de badge a été supprimé"
 msgstr ""
 
 #: admin/integrations/models.py:21
 #: admin/settings/templates/settings_base.html:12
 #: admin/settings/templates/settings_integrations.html:16
-msgid "Slack bot"
+msgid "Robot Slack"
 msgstr ""
 
 #: admin/integrations/models.py:22
-msgid "Slack account creation"
+msgid "Création de compte Slack"
 msgstr ""
 
 #: admin/integrations/models.py:23
-msgid "Google account creation"
+msgid "Création de compte Google"
 msgstr ""
 
 #: admin/integrations/models.py:24
-msgid "Google Login"
+msgid "Connexion Google"
 msgstr ""
 
 #: admin/integrations/models.py:25
@@ -389,12 +389,12 @@ msgid "Asana"
 msgstr ""
 
 #: admin/integrations/views.py:23
-msgid "Integration has been created!"
+msgid "L'intégration a été créée!"
 msgstr ""
 
 #: admin/integrations/views.py:28 admin/integrations/views.py:49
 #: admin/integrations/views.py:80
-msgid "Add new integration"
+msgid "Ajouter une nouvelle intégration"
 msgstr ""
 
 #: admin/integrations/views.py:29 admin/integrations/views.py:50
@@ -405,43 +405,43 @@ msgstr ""
 #: admin/settings/views.py:209 admin/settings/views.py:230
 #: admin/settings/views.py:243 admin/settings/views.py:253
 #: admin/settings/views.py:284
-msgid "settings"
+msgid "paramètres"
 msgstr ""
 
 #: admin/integrations/views.py:44
-msgid "Integration has been updated!"
+msgid "L'intégration a été mise à jour!"
 msgstr ""
 
 #: admin/integrations/views.py:64
-msgid "Delete integration"
+msgid "Supprimer l'intégration"
 msgstr ""
 
 #: admin/integrations/views.py:75
-msgid "Your config values have been updated!"
+msgid "Vos valeurs de configuration ont été mises à jour !"
 msgstr ""
 
 #: admin/integrations/views.py:92
-msgid "Could not optain slack authentication code."
+msgid "Impossible d'obtenir le code d'authentification Slack."
 msgstr ""
 
 #: admin/integrations/views.py:113
 msgid ""
-"Slack has successfully been connected. You have a new bot in your workspace."
+"Slack a été connecté avec succès. Vous avez un nouveau robot dans votre espace de travail."
 msgstr ""
 
 #: admin/integrations/views.py:118
-msgid "Could not get tokens from Slack"
+msgid "Impossible d'obtenir les jetons de Slack"
 msgstr ""
 
 #: admin/introductions/models.py:13
-msgid "Person to introduce"
+msgid "Personne à présenter"
 msgstr ""
 
 #: admin/introductions/templates/intro_update.html:10
 #: admin/resources/templates/resource_update.html:11
 #: admin/sequences/templates/sequence.html:10
 #: admin/templates/templates/template_update.html:10
-msgid "Duplicate"
+msgid "Dupliquer"
 msgstr ""
 
 #: admin/introductions/templates/intro_update.html:16
@@ -451,98 +451,98 @@ msgstr ""
 #: admin/sequences/templates/sequence.html:16
 #: admin/settings/templates/settings_admins.html:28
 #: admin/templates/templates/template_update.html:16
-msgid "Delete"
+msgid "Supprimer"
 msgstr ""
 
 #: admin/introductions/templates/intro_update.html:35
-msgid "Preview"
+msgid "Aperçu"
 msgstr ""
 
 #: admin/introductions/views.py:23
-msgid "Introduction items"
+msgid "Eléments d'introduction"
 msgstr ""
 
 #: admin/introductions/views.py:35 admin/introductions/views.py:63
-msgid "Introduction item has been updated"
+msgid "L'élément d'introduction a été mis à jour"
 msgstr ""
 
 #: admin/introductions/views.py:39
-msgid "Create introduction item"
+msgid "Créer un élément d'introduction"
 msgstr ""
 
 #: admin/introductions/views.py:67
-msgid "Update introduction item"
+msgid "Mettre à jour l'élément d'introduction"
 msgstr ""
 
 #: admin/introductions/views.py:78
-msgid "Introduction item has been removed"
+msgid "L'élément d'introduction a été supprimé"
 msgstr ""
 
 #: admin/people/forms.py:26 users/templates/admin_base.html:100
-msgid "Sequences"
+msgid "Séquences"
 msgstr ""
 
 #: admin/people/forms.py:29 admin/people/forms.py:99 admin/settings/forms.py:18
 #: organization/models.py:32 users/models.py:112
-msgid "Timezone"
+msgid "Fuseau horaire"
 msgstr ""
 
 #: admin/people/forms.py:32 admin/people/forms.py:102
 #: admin/people/templates/new_hires.html:12 users/models.py:155
-msgid "Start date"
+msgid "Date de début"
 msgstr ""
 
 #: admin/people/forms.py:77 slack_bot/views.py:334
-msgid "Create new hire"
+msgid "Créer une nouvelle recrue"
 msgstr ""
 
 #: admin/people/forms.py:271
-msgid "Select sequences you want to add "
+msgid "Sélectionner les séquences que vous voulez ajouter "
 msgstr ""
 
 #: admin/people/forms.py:280
-msgid "This task has just been reopened! "
+msgid "Cette tâche a tout juste été réouverte! "
 msgstr ""
 
 #: admin/people/forms.py:283
-msgid "Message that you want to leave for your new hire:"
+msgid "Message que vous voulez laisser à votre nouvelle recrue:"
 msgstr ""
 
 #: admin/people/forms.py:291
-msgid "Send via text"
+msgid "Envoyer par SMS"
 msgstr ""
 
 #: admin/people/forms.py:291 admin/people/forms.py:300
-msgid "Send via email"
+msgid "Envoyer par e-mail"
 msgstr ""
 
 #: admin/people/forms.py:304
-msgid "Send type"
+msgid "Type d'envoi"
 msgstr ""
 
 #: admin/people/new_hire_views.py:63 users/templates/admin_base.html:57
-msgid "New hires"
+msgid "Nouvelle recrue"
 msgstr ""
 
 #: admin/people/new_hire_views.py:64 admin/people/new_hire_views.py:82
 #: admin/people/views.py:38
-msgid "people"
+msgid "personnes"
 msgstr ""
 
 #: admin/people/new_hire_views.py:76
-msgid "New hire has been created"
+msgid "La nouvelle recrue a été créée"
 msgstr ""
 
 #: admin/people/new_hire_views.py:81
-msgid "Add new hire"
+msgid "Ajouter la nouvelle recrue"
 msgstr ""
 
 #: admin/people/new_hire_views.py:195
-msgid "Sequence(s) have been added to this new hire"
+msgid "La ou les séquences ont été ajoutées à cette nouvelle recrue"
 msgstr ""
 
 #: admin/people/new_hire_views.py:269
-msgid "Sent email to new hire"
+msgid "E-mail envoyé à la nouvelle recrue"
 msgstr ""
 
 #: admin/people/new_hire_views.py:284 admin/people/new_hire_views.py:322
@@ -555,80 +555,80 @@ msgstr ""
 #: admin/people/templates/new_hire_detail.html:127
 #: admin/people/templates/not_triggered_conditions.html:16
 #: admin/sequences/templates/_sequence_condition.html:53
-msgid "new hire"
+msgid "nouvelle recrue"
 msgstr ""
 
 #: admin/people/new_hire_views.py:312
-msgid "New hire has been updated"
+msgid "La nouvelle recrue a été mise à jour"
 msgstr ""
 
 #: admin/people/new_hire_views.py:331
-msgid "New hire is now a normal account."
+msgid "La nouvelle recrue est maintenant un compte normal."
 msgstr ""
 
 #: admin/people/new_hire_views.py:343
-msgid "Note has been added"
+msgid "La note a été ajoutée"
 msgstr ""
 
 #: admin/people/new_hire_views.py:454
-msgid "Don't forget this item!"
+msgid "N'oubliez pas cet élément!"
 msgstr ""
 
 #: admin/people/new_hire_views.py:460
-msgid "Reminder has been sent!"
+msgid "Le rappel a été envoyé!"
 msgstr ""
 
 #: admin/people/new_hire_views.py:514
-msgid "Item has been reopened"
+msgid "L'élément a été réouvert"
 msgstr ""
 
 #: admin/people/new_hire_views.py:622
 #, python-format
-msgid "Add/Remove templates for %(name)s"
+msgid "Ajouter/Supprimer les modèles pour %(name)s"
 msgstr ""
 
 #: admin/people/new_hire_views.py:673
-msgid "New hire has been removed"
+msgid "La nouvelle recrue a été supprimée"
 msgstr ""
 
 #: admin/people/templates/_new_hire_access_card.html:21
-msgid "Checking status"
+msgid "Vérification de l'état"
 msgstr ""
 
 #: admin/people/templates/_new_hire_access_card.html:27
-msgid "Activated"
+msgid "Activé"
 msgstr ""
 
 #: admin/people/templates/_new_hire_access_card.html:31
 #: admin/people/templates/_toggle_colleague_access.html:20
 #: admin/people/views.py:195 admin/people/views.py:249
-msgid "Give access"
+msgid "Donner l'accès"
 msgstr ""
 
 #: admin/people/templates/_new_hire_form_answers.html:28
-msgid "Download user uploaded file"
+msgid "Télécharger le document importé par l'utilisateur"
 msgstr ""
 
 #: admin/people/templates/_new_hire_menu.html:21
-msgid "Overview"
+msgid "Vue d'ensemble"
 msgstr ""
 
 #: admin/people/templates/_new_hire_menu.html:35
 #: admin/people/templates/new_hire_profile.html:12
-msgid "Profile"
+msgid "Profil"
 msgstr ""
 
 #: admin/people/templates/_new_hire_menu.html:45
-msgid "Access"
+msgid "Accès"
 msgstr ""
 
 #: admin/people/templates/_new_hire_menu.html:81
 #: admin/people/templates/new_hires.html:14
-msgid "Progress"
+msgid "Progrès"
 msgstr ""
 
 #: admin/people/templates/_new_hire_menu.html:99
-msgid "Forms"
+msgid "Formulaires"
 msgstr ""
 
 #: admin/people/templates/_new_hire_menu.html:115
@@ -637,76 +637,76 @@ msgid "Notes"
 msgstr ""
 
 #: admin/people/templates/_new_hire_menu.html:133
-msgid "Admin Tasks"
+msgid "Tâches d'administration"
 msgstr ""
 
 #: admin/people/templates/_new_hire_menu.html:149
-msgid "Welcome Messages"
+msgid "Messages de bienvenue"
 msgstr ""
 
 #: admin/people/templates/_new_hire_settings_menu.html:4
 #: users/templates/admin_base.html:128
-msgid "Settings"
+msgid "Paramètres"
 msgstr ""
 
 #: admin/people/templates/_new_hire_settings_menu.html:7
-msgid "Send Preboarding email"
+msgid "Envoyer un e-mail de pré-embarquement"
 msgstr ""
 
 #: admin/people/templates/_new_hire_settings_menu.html:9
-msgid "Send login email (day 1 and onwards)"
+msgid "Envoyer l'e-mail de connexion (jour 1 et suivants)"
 msgstr ""
 
 #: admin/people/templates/_new_hire_settings_menu.html:11
-msgid "Add Sequence"
+msgid "Ajouter la Séquence"
 msgstr ""
 
 #: admin/people/templates/_new_hire_settings_menu.html:13
-msgid "Delete user"
+msgid "Supprimer l'utilisateur"
 msgstr ""
 
 #: admin/people/templates/_toggle_button_new_hire_template.html:5
 #: admin/people/templates/_toggle_button_resources.html:5
-msgid "Added"
+msgid "Ajouté"
 msgstr ""
 
 #: admin/people/templates/_toggle_button_new_hire_template.html:7
 #: admin/people/templates/_toggle_button_resources.html:7
 #: users/templates/admin_base.html:159
-msgid "Add"
+msgid "Ajouter"
 msgstr ""
 
 #: admin/people/templates/_toggle_colleague_access.html:22
 #: admin/people/views.py:246
-msgid "Revoke access"
+msgid "Revoquer l'accès"
 msgstr ""
 
 #: admin/people/templates/_trigger_sequence_items.html:4
-msgid "Done!"
+msgid "Fait!"
 msgstr ""
 
 #: admin/people/templates/_trigger_sequence_items.html:6
-msgid "Trigger all these items now"
+msgid "Déclenchez tous ces éléments maintenant"
 msgstr ""
 
 #: admin/people/templates/add_resources.html:13
 #: admin/people/templates/new_hire_add_task.html:13
 #: admin/templates/forms.py:123 admin/to_do/templates/templates.html:13
 #: organization/models.py:206
-msgid "Tags"
+msgid "Mots clés"
 msgstr ""
 
 #: admin/people/templates/colleague_create.html:10
 #: admin/people/templates/colleague_update.html:19
-msgid "Colleague"
+msgid "Collègue"
 msgstr ""
 
 #: admin/people/templates/colleague_update.html:29
-msgid "Resources available"
+msgid "Resources disponibles"
 msgstr ""
 
 #: admin/people/templates/colleague_update.html:44
-msgid "No resources are available to this user yet"
+msgid "Aucune ressource n'est disponible pour cet utilisateur pour l'instant"
 msgstr ""
 
 #: admin/people/templates/colleague_update.html:52
@@ -716,191 +716,191 @@ msgstr ""
 #: admin/people/templates/new_hire_tasks.html:109
 #: admin/people/templates/new_hire_tasks.html:139
 #: admin/settings/templates/settings_admins.html:22
-msgid "Change"
+msgid "Changer"
 msgstr ""
 
 #: admin/people/templates/colleagues.html:14
-msgid "Sync with Slack"
+msgid "Synchroniser avec Slack"
 msgstr ""
 
 #: admin/people/templates/colleagues.html:28
 #: admin/people/templates/new_hires.html:13 users/models.py:92
-msgid "Position"
+msgid "Poste"
 msgstr ""
 
 #: admin/people/templates/colleagues.html:49
 #: admin/people/templates/new_hires.html:38
 #: admin/to_do/templates/templates.html:24
 #: new_hire/templates/_new_hire_to_do_item.html:13
-msgid "View"
+msgid "Voir"
 msgstr ""
 
 #: admin/people/templates/give_new_hire_access.html:13
-msgid "Create user"
+msgid "Créer l'utilisateur"
 msgstr ""
 
 #: admin/people/templates/new_hire_access.html:19
-msgid "You have not enabled any integrations for account provisitioning."
+msgid "Vous n'avez activé aucune intégration pour le provisionnement de compte."
 msgstr ""
 
 #: admin/people/templates/new_hire_admin_tasks.html:14
-msgid "Open admin tasks"
+msgid "Ouvrir les tâches d'administration"
 msgstr ""
 
 #: admin/people/templates/new_hire_admin_tasks.html:54
-msgid "Completed admin tasks"
+msgid "Compléter les tâches d'administration"
 msgstr ""
 
 #: admin/people/templates/new_hire_admin_tasks.html:80
-msgid "There are no closed items"
+msgid "Il n'y a pas d'éléments fermés"
 msgstr ""
 
 #: admin/people/templates/new_hire_course_answers.html:11
-msgid "Answers"
+msgid "Réponses"
 msgstr ""
 
 #: admin/people/templates/new_hire_course_answers.html:30
-msgid "Answer given by new hire: "
+msgid "Réponse donnée par la nouvelle recrue: "
 msgstr ""
 
 #: admin/people/templates/new_hire_course_answers.html:40
-msgid "No answers were given in yet."
+msgid "Aucune réponse n'a encore été donnée."
 msgstr ""
 
 #: admin/people/templates/new_hire_delete.html:9
 #, python-format
-msgid "Are you sure you want to delete %(full_name)s?"
+msgid "Etes-vous sûr que vous voulez supprimer %(full_name)s?"
 msgstr ""
 
 #: admin/people/templates/new_hire_delete.html:12
 msgid ""
-"Are you sure you want to delete this new hire? You have two options here:"
+"Voulez-vous vraiment supprimer cette nouvelle recrue ? Vous avez deux options ici:"
 msgstr ""
 
 #: admin/people/templates/new_hire_delete.html:14
 msgid ""
-"Move them to a normal account, so they keep having access to things like the "
-"colleagues page and resources."
+"Déplacez-les vers un compte normal, afin qu'ils continuent d'avoir accès aux choses comme les "
+"pages des collègues et les ressources."
 msgstr ""
 
 #: admin/people/templates/new_hire_delete.html:15
 msgid ""
-"Completely remove them. Access to ChiefOnboarding will be revoke entirely. "
-"Third party accounts remain."
+"Supprimer les complètement. L'accès à ChiefOnboarding sera révoqué entièrement. "
+"Les comptes tiers restent."
 msgstr ""
 
 #: admin/people/templates/new_hire_delete.html:21
-msgid "Delete account"
+msgid "Supprimer le compte"
 msgstr ""
 
 #: admin/people/templates/new_hire_delete.html:25
-msgid "Migrate account to normal account"
+msgid "Migrer le compte vers un compte normal"
 msgstr ""
 
 #: admin/people/templates/new_hire_detail.html:14
-msgid "What's up next..."
+msgid "Quoi de neuf ensuite..."
 msgstr ""
 
 #: admin/people/templates/new_hire_detail.html:26
-msgid "Before first day"
+msgid "Avant le premier jour"
 msgstr ""
 
 #: admin/people/templates/new_hire_detail.html:89
 #: admin/people/templates/new_hire_detail.html:156
 #: admin/people/templates/not_triggered_conditions.html:42
 #: admin/sequences/templates/_sequence_condition.html:88
-msgid "admins"
+msgid "administrateurs"
 msgstr ""
 
 #: admin/people/templates/new_hire_detail.html:108
 #, python-format
-msgid "%(start_day)s - New hire's first day!"
+msgid "%(start_day)s - Le premier jour de la nouvelle recrue!"
 msgstr ""
 
 #: admin/people/templates/new_hire_detail.html:182
-msgid "Latest activity..."
+msgid "Dernière activité..."
 msgstr ""
 
 #: admin/people/templates/new_hire_detail.html:192
 #, python-format
-msgid "For %(full_name)s"
+msgid "Pour %(full_name)s"
 msgstr ""
 
 #: admin/people/templates/new_hire_detail.html:192
-msgid "By"
+msgid "Par"
 msgstr ""
 
 #: admin/people/templates/new_hire_detail.html:198
-msgid "No items yet"
+msgid "Pas d'éléments pour l'instant"
 msgstr ""
 
 #: admin/people/templates/new_hire_forms.html:14
-msgid "Preboarding forms"
+msgid "Formulaires de préembarquement"
 msgstr ""
 
 #: admin/people/templates/new_hire_forms.html:28
-msgid "To do forms"
+msgid "Formulaires de tâches"
 msgstr ""
 
 #: admin/people/templates/new_hire_forms.html:42
-msgid "This new hire has not filled in any forms yet"
+msgid "Cette nouvelle recrue n'a pas encore rempli de formulaire"
 msgstr ""
 
 #: admin/people/templates/new_hire_notes.html:12
-msgid "Add note"
+msgid "Ajouter une note"
 msgstr ""
 
 #: admin/people/templates/new_hire_notes.html:45
-msgid "There are no notes yet"
+msgid "Il n'y a pas de notes pour l'instant"
 msgstr ""
 
 #: admin/people/templates/new_hire_progress.html:15 admin/to_do/views.py:21
 #: new_hire/templates/new_hire_base.html:119 slack_bot/slack_misc.py:50
-msgid "To do items"
+msgid "Eléments à faire"
 msgstr ""
 
 #: admin/people/templates/new_hire_progress.html:38
 #: admin/people/templates/new_hire_progress.html:94
-msgid "Remind"
+msgid "Rappeler"
 msgstr ""
 
 #: admin/people/templates/new_hire_progress.html:56
-msgid "Courses"
+msgid "Cours"
 msgstr ""
 
 #: admin/people/templates/new_hire_progress.html:79
 #, python-format
-msgid " At step %(step)s of %(amount_chapters_in_course)s "
+msgid " A l'étape %(step)s sur %(amount_chapters_in_course)s "
 msgstr ""
 
 #: admin/people/templates/new_hire_progress.html:81
-msgid "New hire has completed the course!"
+msgid "La nouvelle recrue a terminé le cours!"
 msgstr ""
 
 #: admin/people/templates/new_hire_progress.html:110
-msgid "There are no todo items or resources assigned to this user"
+msgid "Il n'y a pas de tâches ou de ressources attribuées à cet utilisateurr"
 msgstr ""
 
 #: admin/people/templates/new_hire_reopen_task.html:12
-msgid "Reopen this task for new hire"
+msgid "Réouvrir cette tâche pour la nouvelle recrue"
 msgstr ""
 
 #: admin/people/templates/new_hire_tasks.html:15
 #: users/templates/admin_base.html:87
-msgid "Preboarding"
+msgid "Préembarquement"
 msgstr ""
 
 #: admin/people/templates/new_hire_tasks.html:34
-msgid "There are no preboarding items yet"
+msgid "Il n'y a pas encore d'éléments de préembarquement"
 msgstr ""
 
 #: admin/people/templates/new_hire_tasks.html:45
 #: users/templates/admin_base.html:75
-msgid "To do"
+msgid "Faire"
 msgstr ""
 
 #: admin/people/templates/new_hire_tasks.html:64
-msgid "There are no to do items yet"
+msgid "Il n'y a pas encore d'éléments à faire"
 msgstr ""
 
 #: admin/people/templates/new_hire_tasks.html:75 admin/sequences/emails.py:57
@@ -911,38 +911,38 @@ msgid "Resources"
 msgstr ""
 
 #: admin/people/templates/new_hire_tasks.html:94
-msgid "There are no resource items yet"
+msgid "Il n'y a pas encore d'éléments de ressources"
 msgstr ""
 
 #: admin/people/templates/new_hire_tasks.html:105
 #: users/templates/admin_base.html:81
-msgid "Introductions"
+msgid "Présentations"
 msgstr ""
 
 #: admin/people/templates/new_hire_tasks.html:124
-msgid "There are no introduction items yet"
+msgid "Il n'y a pas encore d'éléments de présentation"
 msgstr ""
 
 #: admin/people/templates/new_hire_tasks.html:135
 #: users/templates/admin_base.html:84
-msgid "Appointments"
+msgid "Rendez-vous"
 msgstr ""
 
 #: admin/people/templates/new_hire_tasks.html:154
-msgid "There are no appointment items yet"
+msgid "Il n'y a pas encore de tâche de rendez-vous"
 msgstr ""
 
 #: admin/people/templates/new_hire_welcome_messages.html:13
-msgid "Welcome messages from colleagues"
+msgid "Messages de bienvenue des collègues"
 msgstr ""
 
 #: admin/people/templates/new_hire_welcome_messages.html:32
 msgid ""
-"No one has created any messages yet. This needs to be done through Slack."
+"Personne n'a encore créé de messages. Cela doit être fait via Slack."
 msgstr ""
 
 #: admin/people/templates/not_triggered_conditions.html:9
-msgid "Items that will never be triggered"
+msgid "Éléments qui ne seront jamais déclenchés"
 msgstr ""
 
 #: admin/people/templates/not_triggered_conditions.html:54
@@ -950,54 +950,54 @@ msgid "Condition"
 msgstr ""
 
 #: admin/people/templates/not_triggered_conditions.html:59
-msgid "Go back to new hires"
+msgid "Retour aux nouvelles recrues"
 msgstr ""
 
 #: admin/people/templates/trigger_preboarding_notification.html:11
 msgid ""
-"This will send an email or text message to your new hire providing them the "
-"link to use see their pre-boarding page. You can send a text message (if "
-"mobile number is provided) or an email. Make sure that you are sending the "
-"email to an email address that is accessible to them right now!"
+"Cela enverra un e-mail ou un SMS à votre nouvel employé en lui fournissant le "
+"lien à utiliser pour voir leur page de préembarquement. Vous pouvez envoyer un SMS (si "
+"le numéro de téléphone est indiqué) ou un e-mail. Assurez-vous que vous envoyez "
+"l'e-mail à une adresse e-mail qui leur est accessible en ce moment!"
 msgstr ""
 
 #: admin/people/templates/trigger_preboarding_notification.html:13
-msgid "Send preboarding notification"
+msgid "Envoyer une notification de préembarquement"
 msgstr ""
 
 #: admin/people/views.py:37 new_hire/templates/new_hire_base.html:149
 #: new_hire/templates/new_hire_colleagues.html:20
 #: users/templates/admin_base.html:60
-msgid "Colleagues"
+msgid "Collègues"
 msgstr ""
 
 #: admin/people/views.py:50
-msgid "Colleague has been added"
+msgid "Le collègue a été ajouté"
 msgstr ""
 
 #: admin/people/views.py:60
-msgid "Create new colleague"
+msgid "Créer un nouveau collègue"
 msgstr ""
 
 #: admin/people/views.py:61 admin/people/views.py:81 admin/people/views.py:106
-msgid "Employee"
+msgid "Employé"
 msgstr ""
 
 #: admin/people/views.py:71
-msgid "Employee has been updated"
+msgid "L'employé a été mis à jour"
 msgstr ""
 
 #: admin/people/views.py:91
-msgid "Colleague has been removed"
+msgid "Le collègue a été supprimé"
 msgstr ""
 
 #: admin/people/views.py:103
 #, python-format
-msgid "Add new resource for %(name)s"
+msgid "Ajouter une nouvelle ressource pour %(name)s"
 msgstr ""
 
 #: admin/people/views.py:201
-msgid "Could not find user"
+msgid "Impossible de trouver l'utilisateur"
 msgstr ""
 
 #: admin/people/views.py:211
@@ -2473,25 +2473,25 @@ msgid "Go back to the login page"
 msgstr ""
 
 #: users/templates/password_reset.html:8
-msgid "Forgot password"
+msgid "Mot de passe oublié"
 msgstr ""
 
 #: users/templates/password_reset.html:16
-msgid "Send me a reset link"
+msgid "Envoyez moi un lien de réinitialisation"
 msgstr ""
 
 #: users/templates/password_reset_done.html:7
-msgid "Please check your email"
+msgid "Merci de consulter vos emails"
 msgstr ""
 
 #: users/templates/password_reset_done.html:9
 msgid ""
-"We've emailed you instructions for setting your password, if an account "
-"exists with the email you entered. You should receive that shortly."
+"Nous vous avons envoyé des instructions pour choisir votre mot de passe par e-mail, si un compte "
+"existe avec l'adresse e-mail saisie. Vous devriez les recevoir sous peu."
 msgstr ""
 
 #: users/templates/password_reset_done.html:10
 msgid ""
-"If you don’t receive an email, please make sure you’ve entered the address "
-"you registered with, and check your spam folder."
+"Si vous ne recevez pas d'e-mail, assurez-vous d'avoir entré l'adresse "
+"avec laquelle vous vous êtes inscrit et vérifiez vos spam."
 msgstr ""
