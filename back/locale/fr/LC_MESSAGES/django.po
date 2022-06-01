@@ -1002,7 +1002,7 @@ msgstr ""
 
 #: admin/people/views.py:211
 msgid ""
-"Click on the button to see all the categories that are available to you!"
+"Cliquez sur le bouton pour voir toutes les catégories qui s'offrent à vous !"
 msgstr ""
 
 #: admin/people/views.py:217
@@ -1010,43 +1010,43 @@ msgid "resources"
 msgstr ""
 
 #: admin/people/views.py:229
-msgid "Revoke Slack access"
+msgid "Révoquer l'accès à Slack"
 msgstr ""
 
 #: admin/preboarding/views.py:21
-msgid "Preboarding items"
+msgid "Eléments de préembarquement"
 msgstr ""
 
 #: admin/preboarding/views.py:33 admin/preboarding/views.py:49
-msgid "Preboarding item has been updated"
+msgid "L'élément de préembarquement a été mis à jour"
 msgstr ""
 
 #: admin/preboarding/views.py:37
-msgid "Create preboarding item"
+msgid "Créer l'élément de préembarquement"
 msgstr ""
 
 #: admin/preboarding/views.py:53
-msgid "Update preboarding item"
+msgid "Mettre à jour l'élément de préembarquement"
 msgstr ""
 
 #: admin/preboarding/views.py:64
-msgid "Preboarding item has been removed"
+msgid "L'élément de préembarquement a été supprimé"
 msgstr ""
 
 #: admin/resources/forms.py:23 admin/resources/models.py:59
-msgid "Category"
+msgid "Catégorie"
 msgstr ""
 
 #: admin/resources/forms.py:55
-msgid "Do not use only numbers as a category. Always add some text."
+msgid "N'utilisez pas uniquement des nombres comme catégorie. Ajoutez toujours du texte."
 msgstr ""
 
 #: admin/resources/forms.py:98
-msgid "When enabled, new hires will have to walk through this"
+msgid "Si activé, les nouvelles recrues devront parcourir ceci"
 msgstr ""
 
 #: admin/resources/forms.py:100
-msgid "If disabled, it will turn into a normal resource after completing"
+msgid "Si désactivé, cela deviendra une ressource normale après être terminé"
 msgstr ""
 
 #: admin/resources/models.py:16
@@ -1054,7 +1054,7 @@ msgid "page"
 msgstr ""
 
 #: admin/resources/models.py:16
-msgid "folder"
+msgid "dossier"
 msgstr ""
 
 #: admin/resources/models.py:16
@@ -1062,15 +1062,15 @@ msgid "questions"
 msgstr ""
 
 #: admin/resources/models.py:63
-msgid "Is a course item"
+msgid "Est un élément de cours"
 msgstr ""
 
 #: admin/resources/models.py:65
-msgid "Workday that this item is due"
+msgid "Jour ouvré pour lequel cet élément est dû"
 msgstr ""
 
 #: admin/resources/models.py:68
-msgid "Remove item when new hire walked through"
+msgid "Supprimer l'élément quand la nouvelle recrue l'a parcouru"
 msgstr ""
 
 #: admin/resources/models.py:84 admin/sequences/models.py:47
@@ -1080,86 +1080,86 @@ msgid "%(name)s (duplicate)"
 msgstr ""
 
 #: admin/resources/templates/_chapter_options.html:29
-msgid "Add page"
+msgid "Ajouter une page"
 msgstr ""
 
 #: admin/resources/templates/_chapter_options.html:30
-msgid "Add folder"
+msgid "Ajouter un dossier"
 msgstr ""
 
 #: admin/resources/templates/_chapter_options.html:31
-msgid "Add questions"
+msgid "Ajouter des questions"
 msgstr ""
 
 #: admin/resources/templates/_chapter_options.html:33
-msgid "Move up"
+msgid "Déplacer vers le haut"
 msgstr ""
 
 #: admin/resources/templates/_chapter_options.html:34
-msgid "Move down"
+msgid "Déplacer vers le bas"
 msgstr ""
 
 #: admin/resources/templates/chapter_field.html:15
 #: new_hire/templates/new_hire_resource_detail.html:15
-msgid "Chapters"
+msgid "Chapitres"
 msgstr ""
 
 #: admin/resources/templates/chapter_field.html:33
-msgid "Folders can't have content"
+msgid "Les dossiers ne peuvent pas avoir de contenu"
 msgstr ""
 
 #: admin/resources/templates/chapter_field.html:38
-msgid "The question you want to ask:"
+msgid "La question que vous voulez poser:"
 msgstr ""
 
 #: admin/resources/templates/chapter_field.html:56
-msgid "Add option"
+msgid "Ajouter une option"
 msgstr ""
 
 #: admin/resources/templates/chapter_field.html:58
-msgid "Add question"
+msgid "Ajouter une question"
 msgstr ""
 
 #: admin/resources/templates/resource_update.html:41
 #: admin/sequences/templates/sequence.html:235
-msgid "Start typing here..."
+msgid "Ecrivez ici..."
 msgstr ""
 
 #: admin/resources/templates/resource_update.html:42
 #: admin/sequences/templates/sequence.html:236
-msgid "New item"
+msgid "Nouvelle élément"
 msgstr ""
 
 #: admin/resources/views.py:23
-msgid "Resource items"
+msgid "Eléments de ressource"
 msgstr ""
 
 #: admin/resources/views.py:35 admin/resources/views.py:63
-msgid "Resource item has been updated"
+msgid "L'élément de ressource a été mis à jour"
 msgstr ""
 
 #: admin/resources/views.py:51
-msgid "Create resource item"
+msgid "Créer l'élément de ressource"
 msgstr ""
 
 #: admin/resources/views.py:81
-msgid "Update resource item"
+msgid "Mettre à jour l'élément de ressource"
 msgstr ""
 
 #: admin/resources/views.py:92
-msgid "Resource item has been removed"
+msgid "L'élément de ressource a été supprimé"
 msgstr ""
 
 #: admin/sequences/emails.py:27 admin/sequences/models.py:161
-msgid "Here is an update!"
+msgid "Voici une mise à jour!"
 msgstr ""
 
 #: admin/sequences/emails.py:36
-msgid "Todo item"
+msgid "Élément à faire"
 msgstr ""
 
 #: admin/sequences/emails.py:38
-msgid "Todo items"
+msgid "Éléments à faire"
 msgstr ""
 
 #: admin/sequences/emails.py:55 slack_bot/slack_resource.py:86
@@ -1175,221 +1175,221 @@ msgid "Badges"
 msgstr ""
 
 #: admin/sequences/forms.py:34 admin/sequences/templates/sequence.html:52
-msgid "Add block"
+msgid "Ajouter un bloc"
 msgstr ""
 
 #: admin/sequences/forms.py:72
-msgid "Must be in a 5 minute interval."
+msgid "Doit être dans un intervalle de 5 minutes."
 msgstr ""
 
 #: admin/sequences/forms.py:83
 msgid ""
-"You cannot use 0 or less. The day before starting is 1 and the first workday "
-"is 1"
+"Vous ne pouvez pas utiliser 0 ou moins. La veille du démarrage est 1 et le premier jour ouvrable "
+"est 1"
 msgstr ""
 
 #: admin/sequences/forms.py:101
 #, python-format
 msgid ""
-"Time must be in an interval of 5 minutes. %(minutes)s must end in 0 or 5."
+"Le temps doit être dans un intervalle de 5 minutes. %(minutes)s doit terminer par 0 ou 5."
 msgstr ""
 
 #: admin/sequences/forms.py:118
-msgid "You must add at least one to do item"
+msgid "Vous devez ajouter au moins une tâche à faire"
 msgstr ""
 
 #: admin/sequences/forms.py:120
-msgid "Both the time and days have to be filled in."
+msgid "L'heure et les jours doivent être renseignés."
 msgstr ""
 
 #: admin/sequences/forms.py:132
-msgid "Edit block"
+msgid "Editer le bloc"
 msgstr ""
 
 #: admin/sequences/forms.py:144 admin/sequences/models.py:325
-msgid "Due date"
+msgid "Date d'échéance"
 msgstr ""
 
 #: admin/sequences/models.py:25 admin/settings/forms.py:155
 #: admin/settings/forms.py:165 users/models.py:29 users/models.py:149
-msgid "Manager"
+msgid "Gestionnaire"
 msgstr ""
 
 #: admin/sequences/models.py:26 users/models.py:142
-msgid "Buddy"
+msgid "Camarade"
 msgstr ""
 
 #: admin/sequences/models.py:27
-msgid "Custom"
+msgid "Personnalisé"
 msgstr ""
 
 #: admin/sequences/models.py:145
-msgid "Text"
+msgid "Texte"
 msgstr ""
 
 #: admin/sequences/models.py:150
-msgid "Send via"
+msgid "Envoyer via"
 msgstr ""
 
 #: admin/sequences/models.py:153
-msgid "Send to"
+msgid "Envoyer à"
 msgstr ""
 
 #: admin/sequences/models.py:159
-msgid "Subject"
+msgid "Sujet"
 msgstr ""
 
 #: admin/sequences/models.py:165
-msgid "For"
+msgid "Pour"
 msgstr ""
 
 #: admin/sequences/models.py:295
-msgid "Comment"
+msgid "Commenter"
 msgstr ""
 
 #: admin/sequences/models.py:305
-msgid "Pick user"
+msgid "Choisir l'utilisateur"
 msgstr ""
 
 #: admin/sequences/models.py:310
-msgid "Send email or Slack message to extra user?"
+msgid "Envoyer un e-mail ou un message Slack à un utilisateur supplémentaire?"
 msgstr ""
 
 #: admin/sequences/models.py:400
-msgid "After new hire has started"
+msgid "Après le début de la nouvelle embauche"
 msgstr ""
 
 #: admin/sequences/models.py:401
-msgid "Based on one or more to do item(s)"
+msgid "Basé sur une ou plusieurs choses à faire"
 msgstr ""
 
 #: admin/sequences/models.py:402
-msgid "Before the new hire has started"
+msgid "Avant le début de la nouvelle embauche"
 msgstr ""
 
 #: admin/sequences/models.py:403
-msgid "Without trigger"
+msgid "Sans déclenchement"
 msgstr ""
 
 #: admin/sequences/models.py:409
-msgid "Block type"
+msgid "Type de bloc"
 msgstr ""
 
 #: admin/sequences/models.py:412
-msgid "Amount of days before/after new hire has started"
+msgid "Nombre de jours avant/après le début d'une nouvelle embauche"
 msgstr ""
 
 #: admin/sequences/models.py:414
-msgid "At"
+msgid "À"
 msgstr ""
 
 #: admin/sequences/models.py:417
-msgid "Trigger after these to do items have been completed:"
+msgid "Déclencher une fois ces tâches terminées:"
 msgstr ""
 
 #: admin/sequences/tasks.py:64
 #, python-format
 msgid ""
-"*Congrats, you unlocked: %(item_name)s *\n"
+"*Félicitations, vous avez débloqué: %(item_name)s *\n"
 " %(message)s"
 msgstr ""
 
 #: admin/sequences/tasks.py:81 admin/sequences/tasks.py:83
-msgid "Here are some new items for you!"
+msgid "Voici quelques nouveautés pour vous!"
 msgstr ""
 
 #: admin/sequences/templates/_sequence_condition.html:18
 #, python-format
-msgid "On day %(days)s at %(time)s"
+msgid "Le %(days)s jour à %(time)s"
 msgstr ""
 
 #: admin/sequences/templates/_sequence_condition.html:20
-msgid "When these tasks are completed:"
+msgid "Lorsque ces tâches sont terminées:"
 msgstr ""
 
 #: admin/sequences/templates/_sequence_condition.html:27
 #, python-format
-msgid "%(days)s days before starting at %(time)s"
+msgid "%(days)s jours avant de commencer à %(time)s"
 msgstr ""
 
 #: admin/sequences/templates/_sequence_condition.html:29
-msgid "Without any trigger - assign directly"
+msgid "Sans aucun déclencheur - attribuer directement"
 msgstr ""
 
 #: admin/sequences/templates/_sequence_templates_list.html:3
 #: users/templates/admin_base.html:70
-msgid "Templates"
+msgid "Modèles"
 msgstr ""
 
 #: admin/sequences/templates/_sequence_templates_list.html:72
-msgid "Create new one"
+msgid "Créer un nouveau"
 msgstr ""
 
 #: admin/sequences/templates/sequence.html:25
 msgid ""
-"All changes will be automatically saved. This doesn't impact current new "
-"hires."
+"Toutes les modifications seront automatiquement enregistrées. "
+"Cela n'a pas d'incidence sur les nouvelles embauches actuelles."
 msgstr ""
 
 #: admin/sequences/templates/sequence.html:69
-msgid "Block"
+msgid "Bloc"
 msgstr ""
 
 #: admin/sequences/templates/sequence.html:84
-msgid "Item"
+msgid "Elément"
 msgstr ""
 
 #: admin/sequences/views.py:52
-msgid "Sequence items"
+msgid "Éléments de séquence"
 msgstr ""
 
 #: admin/sequences/views.py:83
-msgid "Sequence"
+msgid "Séquence"
 msgstr ""
 
 #: admin/sequences/views.py:509
-msgid "Sequence item has been removed"
+msgid "L'élément de séquence a été supprimé"
 msgstr ""
 
 #: admin/settings/forms.py:21
-msgid "Sequences that are preselected for all new hires:"
+msgid "Séquences présélectionnées pour toutes les nouvelles embauches:"
 msgstr ""
 
 #: admin/settings/forms.py:50
-msgid "Login options"
+msgid "Options de connexion"
 msgstr ""
 
 #: admin/settings/forms.py:102
-msgid "You must enable at least one login option"
+msgid "Vous devez activer au moins une option de connexion"
 msgstr ""
 
 #: admin/settings/forms.py:155 admin/settings/forms.py:165 users/models.py:28
-msgid "Administrator"
+msgid "Administrateur"
 msgstr ""
 
 #: admin/settings/forms.py:183 admin/to_do/templates/wysiwyg_field.html:11
 msgid ""
-"You can use &#123;&#123; first_name &#125;&#125;, &#123;&#123; last_name "
+"Vous pouvez utiliser &#123;&#123; first_name &#125;&#125;, &#123;&#123; last_name "
 "&#125;&#125;, &#123;&#123; position &#125;&#125;, &#123;&#123; manager &#125;"
-"&#125;, and &#123;&#123; buddy &#125;&#125; in the editor. It will be "
-"replaced by the values corresponding to the new hire."
+"&#125;, and &#123;&#123; buddy &#125;&#125; dans l'éditeur. Ce sera "
+"remplacé par les valeurs correspondant à la nouvelle embauche."
 msgstr ""
 
 #: admin/settings/forms.py:194
-msgid "6 digit OTP code"
+msgid "Code OTP à 6 chiffres"
 msgstr ""
 
 #: admin/settings/forms.py:195
-msgid "This is the code that your 2FA application shows you."
+msgid "C'est le code que votre application 2FA vous montre."
 msgstr ""
 
 #: admin/settings/forms.py:211
-msgid "OTP token was not correct. Please wait 30 seconds and then try again"
+msgid "Le code OTP n'était pas correct. Veuillez patienter 30 secondes, puis réessayer"
 msgstr ""
 
 #: admin/settings/templates/_personal_tabs.html:4 organization/models.py:26
 #: users/models.py:117
-msgid "Language"
+msgid "Langues"
 msgstr ""
 
 #: admin/settings/templates/_personal_tabs.html:7
@@ -1397,145 +1397,145 @@ msgid "OTP"
 msgstr ""
 
 #: admin/settings/templates/integration-delete.html:11
-msgid "Are you sure you want to remove this integration?"
+msgid "Voulez-vous vraiment supprimer cette intégration ?"
 msgstr ""
 
 #: admin/settings/templates/integration-delete.html:13
-msgid "Disconnect integration"
+msgid "Déconnecter l'intégration"
 msgstr ""
 
 #: admin/settings/templates/personal_otp.html:11
-msgid "OTP has been enabled for your account"
+msgid "OTP a été activé pour votre compte"
 msgstr ""
 
 #: admin/settings/templates/personal_otp.html:13
 msgid ""
-"Please copy and save the keys below. These will only show once - you won't "
-"be able to see them again."
+"Veuillez copier et enregistrer les clés ci-dessous. Ceux-ci ne s'afficheront "
+"qu'une seule fois - vous ne pourrez plus les revoir."
 msgstr ""
 
 #: admin/settings/templates/personal_otp.html:14
-msgid "You will need these if you ever lose access to your 2FA app."
+msgid "Vous en aurez besoin si jamais vous perdez l'accès à votre application 2FA."
 msgstr ""
 
 #: admin/settings/templates/personal_otp.html:24
 msgid ""
-"Please scan the code below with your 2FA app of your choice. We recommend "
-"andOTP or Aegis (but you can use Google Authenticator or Authy)."
+"Veuillez scanner le code ci-dessous avec votre application 2FA de votre choix. "
+"Nous recommandons OTP ou Aegis (mais vous pouvez utiliser Google Authenticator ou Authy)."
 msgstr ""
 
 #: admin/settings/templates/settings_admins.html:11 users/models.py:123
-msgid "Role"
+msgid "Rôle"
 msgstr ""
 
 #: admin/settings/templates/settings_admins_create.html:12
-msgid "Add administrator"
+msgid "Ajouter un administrateur"
 msgstr ""
 
 #: admin/settings/templates/settings_admins_update.html:12
-msgid "Update administrator"
+msgid "Mettre à jour l'administrateur"
 msgstr ""
 
 #: admin/settings/templates/settings_base.html:11
-msgid "General"
+msgid "Général"
 msgstr ""
 
 #: admin/settings/templates/settings_base.html:13
-msgid "Welcome messages"
+msgid "Messages de bienvenue"
 msgstr ""
 
 #: admin/settings/templates/settings_base.html:14
-msgid "Personal"
+msgid "Personnel"
 msgstr ""
 
 #: admin/settings/templates/settings_base.html:15 admin/settings/views.py:252
-msgid "Integrations"
+msgid "Intégrations"
 msgstr ""
 
 #: admin/settings/templates/settings_base.html:16 admin/settings/views.py:82
-msgid "Administrators"
+msgid "Administrateurs"
 msgstr ""
 
 #: admin/settings/templates/settings_integrations.html:10
-msgid "Official Integrations"
+msgid "Intégrations officielles"
 msgstr ""
 
 #: admin/settings/templates/settings_integrations.html:20
-msgid "Update Slack channels list"
+msgid "Mettre à jour la liste des chaînes Slack"
 msgstr ""
 
 #: admin/settings/templates/settings_integrations.html:23
 #: admin/settings/templates/settings_integrations.html:57
-msgid "Remove"
+msgid "Retirer"
 msgstr ""
 
 #: admin/settings/templates/settings_integrations.html:27
 #: admin/settings/views.py:285
-msgid "Enable"
+msgid "Activer"
 msgstr ""
 
 #: admin/settings/templates/settings_integrations.html:41
-msgid "Custom integrations"
+msgid "Intégrations personnalisées"
 msgstr ""
 
 #: admin/settings/templates/settings_integrations.html:51
-msgid "Update credentials"
+msgid "Mettre à jour les identifiants"
 msgstr ""
 
 #: admin/settings/templates/settings_integrations.html:54
-msgid "Update manifest"
+msgid "Mettre à jour le manifeste"
 msgstr ""
 
 #: admin/settings/templates/settings_integrations.html:63
-msgid "No custom integrations yet"
+msgid "Aucune intégration personnalisée pour le moment"
 msgstr ""
 
 #: admin/settings/views.py:38
-msgid "Organization info has been updated"
+msgid "Les informations sur l'organisation ont été mises à jour"
 msgstr ""
 
 #: admin/settings/views.py:53
-msgid "General Updates"
+msgid "Mises à jour générales"
 msgstr ""
 
 #: admin/settings/views.py:64
-msgid "Slackbot settings have been updated"
+msgid "Les paramètres de Slackbot ont été mis à jour"
 msgstr ""
 
 #: admin/settings/views.py:114
-msgid "Admin/Manager has been created"
+msgid "L'administrateur/gestionnaire a été créé"
 msgstr ""
 
 #: admin/settings/views.py:119
-msgid "Add Administrator"
+msgid "Ajouter un Administrateur"
 msgstr ""
 
 #: admin/settings/views.py:131
-msgid "Admin/Manager has been changed"
+msgid "L'administrateur/gestionnaire a été changé"
 msgstr ""
 
 #: admin/settings/views.py:135
-msgid "Change Administrator"
+msgid "Changer d'administrateur"
 msgstr ""
 
 #: admin/settings/views.py:156
-msgid "Admin is now a normal user"
+msgid "L'administrateur est maintenant un utilisateur normal"
 msgstr ""
 
 #: admin/settings/views.py:165
-msgid "Message has been updated"
+msgid "Le message a été mis à jour"
 msgstr ""
 
 #: admin/settings/views.py:179
-msgid "Update welcome messages"
+msgid "Mettre à jour les messages de bienvenue"
 msgstr ""
 
 #: admin/settings/views.py:192
-msgid "Your default language has been updated"
+msgid "Votre langue par défaut a été mise à jour"
 msgstr ""
 
 #: admin/settings/views.py:208
-msgid "Update your default language"
+msgid "Mettez à jour votre langue par défaut"
 msgstr ""
 
 #: admin/settings/views.py:230 admin/settings/views.py:241
@@ -1543,111 +1543,111 @@ msgid "TOTP 2FA"
 msgstr ""
 
 #: admin/settings/views.py:241
-msgid "Enable TOTP 2FA"
+msgid "Activer TOTP 2FA"
 msgstr ""
 
 #: admin/settings/views.py:277
-msgid "Slack has now been connected, check if you got a message from your bot!"
+msgid "Slack est maintenant connecté, vérifiez si vous avez reçu un message de votre robot !"
 msgstr ""
 
 #: admin/settings/views.py:283
-msgid "Slack bot setup"
+msgid "Configuration du robot Slack"
 msgstr ""
 
 #: admin/settings/views.py:303
 msgid ""
-"Newly added channels have been added. Make sure the bot has been added to "
-"that channel too if you want it to post/get info there!"
+"Les chaînes nouvellement ajoutées ont été ajoutées. Assurez-vous que le bot a également "
+"été ajouté à ce canal si vous souhaitez qu'il y publie/obtienne des informations !"
 msgstr ""
 
 #: admin/to_do/forms.py:50
-msgid "Please select a channel to send the message to"
+msgid "Veuillez sélectionner un canal auquel envoyer le message"
 msgstr ""
 
 #: admin/to_do/forms.py:59
 msgid ""
-"Let your new hire now that the answers are going to be shared with the team!"
+"Veuillez sélectionner un canal auquel envoyer le message"
 msgstr ""
 
 #: admin/to_do/models.py:12
-msgid "Due on day"
+msgid "Dû le jour"
 msgstr ""
 
 #: admin/to_do/models.py:16
-msgid "Post new hire's answers from form (if applicable) back to Slack channel"
+msgid "Publiez les réponses des nouvelles recrues à partir du formulaire (s'il y a lieu) sur le canal Slack"
 msgstr ""
 
 #: admin/to_do/models.py:22
-msgid "Slack channel"
+msgid "Canal Slack"
 msgstr ""
 
 #: admin/to_do/templates/templates.html:30
-msgid "No items available"
+msgid "Aucun élément disponible"
 msgstr ""
 
 #: admin/to_do/templates/upload_field.html:16
-msgid "Current file:"
+msgid "Fichier actuel:"
 msgstr ""
 
 #: admin/to_do/templates/upload_field.html:25
 #: new_hire/templates/_content.html:107
-msgid "Upload"
+msgid "Télécharger"
 msgstr ""
 
 #: admin/to_do/templates/upload_field.html:29
-msgid "File storage has not been set up. Please read the docs here: "
+msgid "Le stockage de fichiers n'a pas été configuré. Veuillez lire les documents ici: "
 msgstr ""
 
 #: admin/to_do/templates/upload_field.html:29
-msgid "Set up object storage"
+msgid "Configurer le stockage d'objets"
 msgstr ""
 
 #: admin/to_do/views.py:33
-msgid "To do item has been created"
+msgid "La tâche à faire a été créée"
 msgstr ""
 
 #: admin/to_do/views.py:37
-msgid "Create to do item"
+msgid "Créer une tâche à accomplir"
 msgstr ""
 
 #: admin/to_do/views.py:49
-msgid "To do item has been updated"
+msgid "La tâche à faire a été mise à jour"
 msgstr ""
 
 #: admin/to_do/views.py:53
-msgid "Update to do item"
+msgid "Mettre à jour l'élément à faire"
 msgstr ""
 
 #: admin/to_do/views.py:64
-msgid "To do item has been removed"
+msgid "La tâche à faire a été supprimée"
 msgstr ""
 
 #: back/settings.py:372
-msgid "English"
+msgid "Anglais"
 msgstr ""
 
 #: back/settings.py:373
-msgid "Dutch"
+msgid "Néerlandais"
 msgstr ""
 
 #: back/settings.py:374
-msgid "French"
+msgid "Français"
 msgstr ""
 
 #: back/settings.py:375
-msgid "German"
+msgid "Allemand"
 msgstr ""
 
 #: back/settings.py:376
-msgid "Turkish"
+msgid "Turc"
 msgstr ""
 
 #: back/settings.py:377
-msgid "Portuguese"
+msgid "Portugais"
 msgstr ""
 
 #: back/settings.py:378
-msgid "Spanish"
+msgid "Espagnol"
 msgstr ""
 
 #: back/templatetags/model_functions.py:12
@@ -1655,121 +1655,121 @@ msgid "N/A"
 msgstr ""
 
 #: back/templatetags/model_functions.py:21
-msgid "Could not find answer"
+msgid "Impossible de trouver la réponse"
 msgstr ""
 
 #: misc/templates/_paginator.html:10
-msgid "prev"
+msgid "précédent"
 msgstr ""
 
 #: misc/templates/_paginator.html:20
-msgid "last"
+msgid "dernier"
 msgstr ""
 
 #: new_hire/templates/_colleague_intro.html:23
 #: new_hire/templates/_new_hire_colleagues_search.html:25
 #: new_hire/templates/_new_hire_colleagues_search.html:56
-msgid "Call"
+msgid "Appeler"
 msgstr ""
 
 #: new_hire/templates/_content.html:39
-msgid "Sorry, your browser doesn't support embedded videos."
+msgid "Désolé, votre navigateur ne prend pas en charge les vidéos intégrées."
 msgstr ""
 
 #: new_hire/templates/_content.html:65
-msgid "You have already completed this form"
+msgid "Vous avez déjà rempli ce formulaire"
 msgstr ""
 
 #: new_hire/templates/_content.html:111
-msgid "File storage has not been set up. Please ask your supervisor."
+msgid "Le stockage de fichiers n'a pas été configuré. Veuillez demander à votre superviseur."
 msgstr ""
 
 #: new_hire/templates/_new_hire_colleagues_search.html:65
-msgid "No search results found"
+msgid "Aucun résultat de recherche trouvé"
 msgstr ""
 
 #: new_hire/templates/_new_hire_resources_search.html:17
-msgid "See resource"
+msgid "Voir la ressource"
 msgstr ""
 
 #: new_hire/templates/_new_hire_resources_search.html:25
-msgid "We couldn't find any matching items"
+msgid "Nous n'avons trouvé aucun élément correspondant"
 msgstr ""
 
 #: new_hire/templates/new_hire_base.html:8 users/templates/admin_base.html:8
 #: users/templates/no_login_base.html:8
-msgid "Employee onboarding"
+msgid "Intégration des employés"
 msgstr ""
 
 #: new_hire/templates/new_hire_base.html:101 users/templates/admin_base.html:39
-msgid "Logout"
+msgid "Se déconnecter"
 msgstr ""
 
 #: new_hire/templates/new_hire_preboarding.html:64
 #: new_hire/templates/new_hire_to_do.html:47
 #: new_hire/templates/slack_form.html:38 users/templates/admin_base.html:252
-msgid "uploading..."
+msgid "téléchargement..."
 msgstr ""
 
 #: new_hire/templates/new_hire_resource_detail.html:46
-msgid "Answers saved successfully! Click on 'next' to continue."
+msgid "Réponses enregistrées avec succès ! Cliquez sur 'suivant' pour continuer."
 msgstr ""
 
 #: new_hire/templates/new_hire_resource_detail.html:54
 #: slack_bot/slack_resource.py:93 slack_bot/views.py:632
-msgid "Next"
+msgid "Prochain"
 msgstr ""
 
 #: new_hire/templates/new_hire_resources.html:38
-msgid "Search through resources"
+msgid "Rechercher dans les ressources"
 msgstr ""
 
 #: new_hire/templates/new_hire_to_do.html:18
-msgid "I have completed this item!"
+msgid "J'ai terminé cet élément !"
 msgstr ""
 
 #: new_hire/templates/new_hire_to_do.html:22
-msgid "You have already completed this item"
+msgid "Vous avez déjà terminé cet élément"
 msgstr ""
 
 #: new_hire/templates/new_hire_to_dos.html:13
-msgid "You have completed all to do items"
+msgid "Vous avez terminé tous les éléments à faire"
 msgstr ""
 
 #: new_hire/templates/new_hire_to_dos.html:20
-msgid "Overdue"
+msgid "En retard"
 msgstr ""
 
 #: new_hire/templates/new_hire_to_dos.html:35
-msgid "Due on "
+msgid "Dû le "
 msgstr ""
 
 #: new_hire/views.py:76
-msgid "Things you need to do"
+msgid "Choses que vous devez faire"
 msgstr ""
 
 #: new_hire/views.py:119
-msgid "This form could not be processed - invalid items"
+msgid "Ce formulaire n'a pas pu être traité - éléments non valides"
 msgstr ""
 
 #: new_hire/views.py:125
-msgid "You have submitted this form successfully"
+msgid "Vous avez soumis ce formulaire avec succès"
 msgstr ""
 
 #: new_hire/views.py:363
-msgid "You have completed this course!"
+msgid "Vous avez terminé ce cours !"
 msgstr ""
 
 #: organization/models.py:37
-msgid "Base color"
+msgid "Couleur de base"
 msgstr ""
 
 #: organization/models.py:40
-msgid "Accent color"
+msgid "Couleur d'accentuation"
 msgstr ""
 
 #: organization/models.py:43
-msgid "Bot color"
+msgid "Couleur du robot"
 msgstr ""
 
 #: organization/models.py:46
@@ -1777,107 +1777,107 @@ msgid "Logo"
 msgstr ""
 
 #: organization/models.py:51
-msgid "Allow users to login with their username and password"
+msgid "Autoriser les utilisateurs à se connecter avec leur nom d'utilisateur et leur mot de passe"
 msgstr ""
 
 #: organization/models.py:55
-msgid "Allow users to login with their Google account"
+msgid "Autoriser les utilisateurs à se connecter avec leur compte Google"
 msgstr ""
 
 #: organization/models.py:58
-msgid "Allow users to login with their Slack account"
+msgid "Autoriser les utilisateurs à se connecter avec leur compte Slack"
 msgstr ""
 
 #: organization/models.py:63
-msgid "Send email to new hire with login credentials"
+msgid "Envoyer un e-mail au nouvel employé avec les identifiants de connexion"
 msgstr ""
 
 #: organization/models.py:65
 msgid ""
-"This is essential if you want your new hires to login to the dashboard "
-"(disable if using Slack)"
+"Ceci est essentiel si vous souhaitez que vos nouvelles recrues "
+"se connectent au tableau de bord (désactiver si vous utilisez Slack)"
 msgstr ""
 
 #: organization/models.py:71
-msgid "Send email to new hire with updates"
+msgid "Envoyer un e-mail au nouvel employé avec des mises à jour"
 msgstr ""
 
 #: organization/models.py:72
-msgid "Think of new tasks that got assigned, new resources, badges... "
+msgid "Pensez aux nouvelles tâches qui ont été assignées, aux nouvelles ressources, aux badges... "
 msgstr ""
 
 #: organization/models.py:76
-msgid "Send email to new hire when tasks are overdue"
+msgid "Envoyer un e-mail au nouvel employé lorsque les tâches sont en retard"
 msgstr ""
 
 #: organization/models.py:77
-msgid "These are daily emails, until all overdue tasks are completed."
+msgid "Ce sont des e-mails quotidiens, jusqu'à ce que toutes les tâches en retard soient terminées."
 msgstr ""
 
 #: organization/models.py:84
 msgid ""
-"Add 'todo' and 'resource' buttons to the first message that's being sent to "
-"the new hire."
+"Ajoutez les boutons "à faire" et "ressource" au premier message envoyé à "
+"la nouvelle recrue."
 msgstr ""
 
 #: organization/models.py:91
 msgid ""
-"Send a Slack message to the team to collect personal welcome messages from "
-"colleages."
+"Envoyez un message Slack à l'équipe pour recueillir les messages de bienvenue "
+"personnels des collègues."
 msgstr ""
 
 #: organization/models.py:98
-msgid "Send a Slack message to the team on the day the new hire starts"
+msgid "Envoyez un message Slack à l'équipe le jour où la nouvelle embauche commence"
 msgstr ""
 
 #: organization/models.py:103
-msgid "Create a new hire when they join your Slack team"
+msgid "Créez une nouvelle recrue lorsqu'elle rejoint votre équipe Slack"
 msgstr ""
 
 #: organization/models.py:104
-msgid "If the user does not exist yet"
+msgid "Si l'utilisateur n'existe pas encore"
 msgstr ""
 
 #: organization/models.py:108
-msgid "Create new hires without needing confirm from a user"
+msgid "Créez de nouvelles embauches sans avoir besoin de la confirmation d'un utilisateur"
 msgstr ""
 
 #: organization/models.py:113
-msgid "User to sent new hire account requests to"
+msgid "Utilisateur auquel envoyer les demandes des comptes des recrues"
 msgstr ""
 
 #: organization/models.py:120
-msgid "This is the default channel where the bot will post messages in"
+msgid "Il s'agit du canal par défaut où le robot publiera des messages"
 msgstr ""
 
 #: organization/models.py:129
-msgid "Base email template"
+msgid "Modèle d'e-mail de base"
 msgstr ""
 
 #: organization/models.py:131
 msgid ""
-"Leave blank to use the default one. See documentation if you want to use "
-"your own."
+"Laissez vide pour utiliser celui par défaut. Voir la documentation si vous "
+"souhaitez utiliser le vôtre."
 msgstr ""
 
 #: organization/models.py:186
-msgid "pre-boarding"
+msgid "pré-embarquement"
 msgstr ""
 
 #: organization/models.py:187
-msgid "new hire welcome"
+msgid "accueil de la nouvelle recrue"
 msgstr ""
 
 #: organization/models.py:188
-msgid "text welcome"
+msgid "SMS de bienvenue"
 msgstr ""
 
 #: organization/models.py:189
-msgid "slack welcome"
+msgid "Accueil sur Slack"
 msgstr ""
 
 #: organization/models.py:190
-msgid "slack knowledge"
+msgid "connaissances Slack"
 msgstr ""
 
 #: organization/models.py:193 users/models.py:99
@@ -1885,139 +1885,139 @@ msgid "Message"
 msgstr ""
 
 #: organization/models.py:250
-msgid "A new to do item has been added"
+msgid "Un nouvel élément à faire a été ajouté"
 msgstr ""
 
 #: organization/models.py:251
-msgid "To do item has been marked as completed"
+msgid "L'élément à faire a été marqué comme terminé"
 msgstr ""
 
 #: organization/models.py:252
-msgid "A new resource item has been added"
+msgid "Un nouvel élément de ressource a été ajouté"
 msgstr ""
 
 #: organization/models.py:253
-msgid "Course has been completed"
+msgid "Le cours est terminé"
 msgstr ""
 
 #: organization/models.py:254
-msgid "A new badge item has been added"
+msgid "Un nouvel élément de badge a été ajouté"
 msgstr ""
 
 #: organization/models.py:255
-msgid "A new introduction item has been added"
+msgid "Un nouvel élément d'introduction a été ajouté"
 msgstr ""
 
 #: organization/models.py:256
-msgid "A new preboarding item has been added"
+msgid "Un nouvel élément de préembarquement a été ajouté"
 msgstr ""
 
 #: organization/models.py:257
-msgid "A new hire has been added"
+msgid "Une nouvelle recrue a été ajoutée"
 msgstr ""
 
 #: organization/models.py:258
-msgid "A new administrator has been added"
+msgid "Un nouvel administrateur a été ajouté"
 msgstr ""
 
 #: organization/models.py:259
-msgid "A new manager has been added"
+msgid "Un nouveau gestionnaire a été ajouté"
 msgstr ""
 
 #: organization/models.py:260
-msgid "A new admin task has been added"
+msgid "Une nouvelle tâche d'administration a été ajoutée"
 msgstr ""
 
 #: organization/models.py:261
-msgid "A new email has been sent"
+msgid "Un nouveau mail a été envoyé"
 msgstr ""
 
 #: organization/models.py:262
-msgid "A new text message has been sent"
+msgid "Un nouveau SMS a été envoyé"
 msgstr ""
 
 #: organization/models.py:263
-msgid "A new slack message has been sent"
+msgid "Un nouveau message slack a été envoyé"
 msgstr ""
 
 #: organization/models.py:264
-msgid "Login credentials have been sent"
+msgid "Les identifiants de connexion ont été envoyés"
 msgstr ""
 
 #: organization/models.py:265
-msgid "Reopened task email has been sent"
+msgid "L'e-mail de tâche rouvert a été envoyé"
 msgstr ""
 
 #: organization/models.py:266
-msgid "Task reminder email has been sent"
+msgid "L'e-mail de rappel de tâche a été envoyé"
 msgstr ""
 
 #: organization/models.py:267
-msgid "Sent new hire credentials email"
+msgid "E-mail d'informations d'identification pour les nouveaux employés envoyé"
 msgstr ""
 
 #: organization/models.py:268
-msgid "Sent new hire preboarding email"
+msgid "E-mail de préembarquement pour les nouveaux employés envoyé"
 msgstr ""
 
 #: organization/models.py:269
-msgid "Sent email from sequence"
+msgid "E-mail de la séquence envoyé"
 msgstr ""
 
 #: organization/models.py:270
-msgid "Sent email with updates to new hire"
+msgid "Email avec des mises à jour à la nouvelle recrue envoyé"
 msgstr ""
 
 #: organization/models.py:271
-msgid "Sent email to extra person in admin task"
+msgid "E-mail à une personne supplémentaire dans la tâche d'administration envoyé"
 msgstr ""
 
 #: organization/models.py:274
-msgid "Sent email about new person assigned to admin task"
+msgid "E-mail envoyé à propos de la nouvelle personne affectée à la tâche d'administration"
 msgstr ""
 
 #: organization/models.py:278
-msgid "Sent email about new comment on admin task"
+msgid "E-mail concernant un nouveau commentaire sur la tâche d'administration envoyé"
 msgstr ""
 
 #: organization/models.py:282
-msgid "Sent email about completing integration call"
+msgid "E-mail concernant l'appel de fin d'intégration envoyé"
 msgstr ""
 
 #: organization/models.py:284
-msgid "Couldn't send text message: number is missing"
+msgid "Impossible d'envoyer le SMS : le numéro est manquant"
 msgstr ""
 
 #: organization/models.py:285
-msgid "Couldn't send email message: email is missing"
+msgid "Impossible d'envoyer l'e-mail : l'e-mail est manquant"
 msgstr ""
 
 #: organization/models.py:288
-msgid "Couldn't deliver email message: recipient refused"
+msgid "Impossible de remettre l'e-mail : le destinataire a refusé"
 msgstr ""
 
 #: organization/models.py:290 organization/models.py:291
-msgid "Couldn't deliver email message: provider error"
+msgid "Impossible de remettre l'e-mail : erreur du fournisseur de service"
 msgstr ""
 
 #: organization/models.py:292
-msgid "Integration has been triggered"
+msgid "L'intégration a été déclenchée"
 msgstr ""
 
 #: organization/models.py:293
-msgid "Couldn't complete integration"
+msgid "Impossible de terminer l'intégration"
 msgstr ""
 
 #: organization/models.py:296
-msgid "Couldn't send integration notification"
+msgid "Impossible d'envoyer la notification d'intégration"
 msgstr ""
 
 #: organization/templates/notifications.html:17
-msgid "For "
+msgid "Pour "
 msgstr ""
 
 #: organization/templates/notifications.html:17
-msgid "By "
+msgid "Par "
 msgstr ""
 
 #: organization/views.py:73
@@ -2029,353 +2029,353 @@ msgid "global"
 msgstr ""
 
 #: slack_bot/slack_misc.py:13 slack_bot/slack_misc.py:19
-msgid "Select sequences"
+msgid "Sélectionner des séquences"
 msgstr ""
 
 #: slack_bot/slack_misc.py:40
-msgid "Click a button to see more information :)"
+msgid "Cliquez sur un bouton pour voir plus d'informations :)"
 msgstr ""
 
 #: slack_bot/slack_resource.py:19
-msgid "View course"
+msgid "Voir le cours"
 msgstr ""
 
 #: slack_bot/slack_resource.py:21
-msgid "View resource"
+msgid "Afficher la ressource"
 msgstr ""
 
 #: slack_bot/slack_resource.py:44
-msgid "Select chapter"
+msgid "Sélectionner le chapitre"
 msgstr ""
 
 #: slack_bot/slack_resource.py:86
-msgid "Course"
+msgid "Cours"
 msgstr ""
 
 #: slack_bot/slack_resource.py:114
-msgid "No resources available"
+msgid "Aucune ressource disponible"
 msgstr ""
 
 #: slack_bot/slack_resource.py:118
-msgid "No category"
+msgid "Pas de catégorie"
 msgstr ""
 
 #: slack_bot/slack_resource.py:121 slack_bot/views.py:123
-msgid "Select a category:"
+msgid "Choisir une catégorie:"
 msgstr ""
 
 #: slack_bot/slack_to_do.py:19
-msgid "This task has no deadline."
+msgid "Cette tâche n'a pas de date limite."
 msgstr ""
 
 #: slack_bot/slack_to_do.py:21
-msgid "This task is overdue"
+msgid "Cette tâche est en retard"
 msgstr ""
 
 #: slack_bot/slack_to_do.py:23
-msgid "This task is due today"
+msgid "Cette tâche est due aujourd'hui"
 msgstr ""
 
 #: slack_bot/slack_to_do.py:24
 #, python-format
-msgid "This task needs to be completed in %(amount)s working days"
+msgid "Cette tâche doit être accomplie en %(amount)s jours ouvrés"
 msgstr ""
 
 #: slack_bot/slack_to_do.py:31 slack_bot/slack_to_do.py:52
-msgid "View details"
+msgid "Voir les détails"
 msgstr ""
 
 #: slack_bot/slack_to_do.py:34
-msgid "Mark completed"
+msgid "Marquer terminée"
 msgstr ""
 
 #: slack_bot/slack_to_do.py:81
-msgid "done"
+msgid "fini"
 msgstr ""
 
 #: slack_bot/slack_to_do.py:101 slack_bot/tasks.py:73 slack_bot/tasks.py:77
 #: slack_bot/views.py:147 slack_bot/views.py:513
-msgid "These are the tasks you need to complete:"
+msgid "Ce sont les tâches que vous devez accomplir:"
 msgstr ""
 
 #: slack_bot/slack_to_do.py:103 slack_bot/views.py:149 slack_bot/views.py:515
-msgid "I couldn't find any tasks."
+msgid "Je n'ai trouvé aucune tâche."
 msgstr ""
 
 #: slack_bot/tasks.py:62
-msgid "Welcome!"
+msgid "Bienvenue!"
 msgstr ""
 
 #: slack_bot/tasks.py:116
 msgid ""
-"Good morning! These are the tasks you need to complete. Some to do items are "
-"overdue. Please complete those as soon as possible!"
+"Bonjour ! Ce sont les tâches que vous devez accomplir. Certains éléments "
+"à faire sont en retard. Veuillez les compléter dès que possible!"
 msgstr ""
 
 #: slack_bot/tasks.py:121
-msgid "Good morning! These are the tasks you need to complete today:"
+msgid "Bonjour ! Ce sont les tâches que vous devez accomplir aujourd'hui:"
 msgstr ""
 
 #: slack_bot/tasks.py:130
-msgid "Here are some courses that you need to complete"
+msgid "Voici quelques cours que vous devez suivre"
 msgstr ""
 
 #: slack_bot/tasks.py:153
 #, python-format
-msgid "Just a quick reminder: It's %(name)s's first day today!"
+msgid "Juste un petit rappel: C'est le premier jour de %(name)s aujourd'hui !"
 msgstr ""
 
 #: slack_bot/tasks.py:159
 #, python-format
-msgid "We got some new hires coming in! %(names)s are starting today!"
+msgid "Nous avons de nouvelles recrues qui arrivent! %(names)s commencent aujourd'hui!"
 msgstr ""
 
 #: slack_bot/tasks.py:189
 msgid ""
-"We got some new hires coming in soon! Make sure to leave a welcome message "
-"for them!"
+"Nous avons bientôt de nouvelles recrues ! Assurez-vous de leur laisser un message "
+"de bienvenue !"
 msgstr ""
 
 #: slack_bot/tasks.py:194
 #, python-format
 msgid ""
-"We have a new hire coming in soon! Make sure to leave a message for "
+"Nous avons une nouvelle recrue qui arrive bientôt ! Assurez-vous de laisser un message à "
 "%(first_name)s!"
 msgstr ""
 
 #: slack_bot/tasks.py:222
 #, python-format
-msgid " and is our new %(position)s"
+msgid " et est notre nouveau %(position)s"
 msgstr ""
 
 #: slack_bot/tasks.py:227
 #, python-format
-msgid "%(first_name)s starts on %(start_day)s %(footer_extra)s."
+msgid "%(first_name)s commencent le %(start_day)s %(footer_extra)s."
 msgstr ""
 
 #: slack_bot/tasks.py:240 slack_bot/views.py:680
-msgid "Welcome this new hire!"
+msgid "Accueillez cette nouvelle recrue!"
 msgstr ""
 
 #: slack_bot/views.py:80
 msgid ""
-"Happy to help! Here are all the things you can say to me: \n"
+"Heureux d'aider! Voici toutes les choses que vous pouvez me dire: \n"
 "\n"
 msgstr ""
 
 #: slack_bot/views.py:82
 msgid ""
-"*What do I need to do today?*\n"
-"This will show all the tasks you need to do today. I will show you these "
-"every day as well, but just incase you want to get them again.\n"
+"*Que dois-je faire aujourd'hui ?*\n"
+"Cela montrera toutes les tâches que vous devez faire aujourd'hui. Je vous les montrerai "
+"également tous les jours, mais au cas où vous voudriez les voir à nouveau.\n"
 msgstr ""
 
 #: slack_bot/views.py:87
 msgid ""
-"*Do I have any to do items that are overdue?*\n"
-"This will show all tasks that should have been completed. Please do those as "
-"soon as possible.\n"
+"*Ai-je des choses à faire qui sont en retard ?*\n"
+"Cela montrera toutes les tâches qui auraient dû être terminées. Merci de les "
+"faire dès que possible.\n"
 msgstr ""
 
 #: slack_bot/views.py:91
 msgid ""
-"*Show me all to do items*\n"
-"This will show all tasks\n"
+"*Montrez-moi tous les éléments à faire*\n"
+"Cela affichera toutes les tâches\n"
 msgstr ""
 
 #: slack_bot/views.py:92
 msgid ""
-"*Show me all resources*\n"
-"This will show all resources."
+"*Montrez-moi toutes les ressources*\n"
+"Cela affichera toutes les ressources."
 msgstr ""
 
 #: slack_bot/views.py:105
-msgid "You don't seem to be setup yet. Please ask your supervisor for access."
+msgid "Vous ne semblez pas être encore configuré. Veuillez demander l'accès à votre superviseur."
 msgstr ""
 
 #: slack_bot/views.py:139
-msgid "today"
+msgid "aujourd'hui"
 msgstr ""
 
 #: slack_bot/views.py:141
-msgid "overdue"
+msgid "en retard"
 msgstr ""
 
 #: slack_bot/views.py:178
-msgid "Please complete the form first. Click on 'View details' to complete it."
+msgid "Veuillez d'abord remplir le formulaire. Cliquez sur 'Afficher les détails' pour le compléter."
 msgstr ""
 
 #: slack_bot/views.py:229
-msgid "Here is what I found: "
+msgid "Voici ce que j'ai trouvé: "
 msgstr ""
 
 #: slack_bot/views.py:231
-msgid "Unfortunately, I couldn't find anything."
+msgid "Malheureusement, je n'ai rien trouvé."
 msgstr ""
 
 #: slack_bot/views.py:297
 #, python-format
 msgid ""
-"Would you like to put this new hire through onboarding?\n"
-"*Name:* %(name)s "
+"Souhaitez-vous que cette nouvelle recrue soit intégrée ?\n"
+"*Nom:* %(name)s "
 msgstr ""
 
 #: slack_bot/views.py:305
-msgid "Yeah!"
+msgid "Ouais !"
 msgstr ""
 
 #: slack_bot/views.py:310
-msgid "Nope"
+msgid "Non"
 msgstr ""
 
 #: slack_bot/views.py:332
-msgid "New hire options"
+msgid "Options de nouvelle recrue"
 msgstr ""
 
 #: slack_bot/views.py:375
 #, python-format
-msgid "You approved the request to onboard %(name)s"
+msgid "Vous avez approuvé la demande d'intégration de %(name)s"
 msgstr ""
 
 #: slack_bot/views.py:393
-msgid "You denied the request to onboard this person."
+msgid "Vous avez refusé la demande d'intégration de cette personne."
 msgstr ""
 
 #: slack_bot/views.py:426 slack_bot/views.py:434
-msgid "Here are your options:"
+msgid "Voici vos options:"
 msgstr ""
 
 #: slack_bot/views.py:655
-msgid "Thanks! This has been marked as completed."
+msgid "Merci! Ceci a été marqué comme terminé."
 msgstr ""
 
 #: slack_bot/views.py:694
-msgid "What would you like to say to our new hire?"
+msgid "Que voudriez-vous dire à notre nouvelle recrue ?"
 msgstr ""
 
 #: slack_bot/views.py:737
-msgid "Message has been saved! Your message: \""
+msgid "Le message a été enregistré ! Votre message: \""
 msgstr ""
 
 #: user_auth/templates/email/reset.html:2
-msgid "Reset your password!"
+msgid "Réinitialisez votre mot de passe!"
 msgstr ""
 
 #: user_auth/templates/email/reset.html:3
-msgid "Use this link to change your password:"
+msgid "Utilisez ce lien pour changer votre mot de passe:"
 msgstr ""
 
 #: user_auth/templates/email/reset_subject.txt:2
-msgid "Reset your password"
+msgid "Réinitialisez votre mot de passe"
 msgstr ""
 
 #: user_auth/templates/mfa.html:13 users/templates/login.html:19
-msgid "Log in"
+msgid "Connexion"
 msgstr ""
 
 #: user_auth/views.py:98
-msgid "Google login access token has not been set"
+msgid "Le jeton d'accès à la connexion Google n'a pas été défini"
 msgstr ""
 
 #: user_auth/views.py:124
-msgid "Something went wrong with reaching Google. Please try again."
+msgid "Une erreur s'est produite lors de la connexion à Google. Veuillez réessayer."
 msgstr ""
 
 #: user_auth/views.py:141
 msgid ""
-"There is no account associated with your email address. Did you try to log "
-"in with the correct account?"
+"Aucun compte n'est associé à votre adresse e-mail. Avez-vous essayé de vous "
+"connecter avec le bon compte ?"
 msgstr ""
 
 #: users/emails.py:17
-msgid "Your login credentials!"
+msgid "Vos identifiants de connexion!"
 msgstr ""
 
 #: users/emails.py:23
 msgid ""
-"Someone in your organisation invited you to join ChiefOnboarding.Here are "
-"your login details:"
+"Quelqu'un de votre organisation vous a invité à rejoindre ChiefOnboarding. Voici vos "
+"identifiants de connexion:"
 msgstr ""
 
 #: users/emails.py:32
-msgid "Username:"
+msgid "Nom d'utilisateur:"
 msgstr ""
 
 #: users/emails.py:34
-msgid "Password:"
+msgid "Mot de passe:"
 msgstr ""
 
 #: users/emails.py:36
-msgid "Login URL:"
+msgid "URL de connexion:"
 msgstr ""
 
 #: users/emails.py:58
-msgid "Please redo this task"
+msgid "Veuillez refaire cette tâche"
 msgstr ""
 
 #: users/emails.py:64
 #, python-format
-msgid "Hi %(name)s, we have just reopened this task. %(message)s"
+msgid "Salut %(name)s, nous venons de rouvrir cette tâche. %(message)s"
 msgstr ""
 
 #: users/emails.py:72 users/emails.py:109
 #, python-format
 msgid ""
-"<strong>%(task_name)s</strong> <br />Go to your dashboard to complete it"
+"<strong>%(task_name)s</strong> <br />Rendez-vous sur votre tableau de bord pour le compléter"
 msgstr ""
 
 #: users/emails.py:78 users/emails.py:115 users/emails.py:150
-msgid "Dashboard"
+msgid "Tableau de bord"
 msgstr ""
 
 #: users/emails.py:92
-msgid "Please complete this task"
+msgid "Veuillez terminer cette tâche"
 msgstr ""
 
 #: users/emails.py:100
 #, python-format
-msgid "Hi %(name)s, Here is a quick reminder of the following task:"
+msgid "Salut %(name)s, Voici un petit rappel de la tâche suivante:"
 msgstr ""
 
 #: users/emails.py:144
-msgid "Username: "
+msgid "Nom d'utilisateur: "
 msgstr ""
 
 #: users/emails.py:146
-msgid "Password: "
+msgid "Mot de passe: "
 msgstr ""
 
 #: users/emails.py:169
 #, python-format
-msgid "Welcome to %(name)s!"
+msgid "Bienvenue à %(name)s!"
 msgstr ""
 
 #: users/emails.py:175
-msgid "See pages"
+msgid "Voir pages"
 msgstr ""
 
 #: users/models.py:27
-msgid "New Hire"
+msgid "Nouvelle recrue"
 msgstr ""
 
 #: users/models.py:30
-msgid "Other"
+msgid "Autre"
 msgstr ""
 
 #: users/models.py:85
-msgid "First name"
+msgid "Prénom"
 msgstr ""
 
 #: users/models.py:86
-msgid "Last name"
+msgid "Nom"
 msgstr ""
 
 #: users/models.py:95
-msgid "Phone"
+msgid "Téléphone"
 msgstr ""
 
 #: users/models.py:101
-msgid "Profile image"
+msgid "Photo de profil"
 msgstr ""
 
 #: users/models.py:104
@@ -2391,33 +2391,33 @@ msgid "Twitter"
 msgstr ""
 
 #: users/models.py:114
-msgid "Department"
+msgid "Service"
 msgstr ""
 
 #: users/models.py:127
 msgid ""
-"An administrator has access to everything. A manager has only access to "
-"their new hires and their tasks."
+"Un administrateur a accès à tout. Un manager n'a accès qu'à ses "
+"nouvelles recrues et à leurs tâches."
 msgstr ""
 
 #: users/models.py:158
-msgid "First working day"
+msgid "Premier jour de travail"
 msgstr ""
 
 #: users/models.py:427
 #, python-format
-msgid "*Our new hire %(name)s just answered some questions:*"
+msgid "*Notre nouvelle recrue %(name)s vient de répondre à quelques questions:*"
 msgstr ""
 
 #: users/models.py:547
 #, python-format
 msgid ""
-"%(amount_of_correct_answers)s correct answers out of %(amount_of_questions)s "
+"%(amount_of_correct_answers)s réponses correctes parmi %(amount_of_questions)s "
 "questions"
 msgstr ""
 
 #: users/templates/admin_base.html:52
-msgid "People"
+msgid "Personnes"
 msgstr ""
 
 #: users/templates/admin_base.html:183
@@ -2425,7 +2425,7 @@ msgid "Documentation"
 msgstr ""
 
 #: users/templates/admin_base.html:188
-msgid "Source code"
+msgid "Code source"
 msgstr ""
 
 #: users/templates/admin_base.html:196
@@ -2433,43 +2433,43 @@ msgid "ChiefOnboarding"
 msgstr ""
 
 #: users/templates/login.html:24
-msgid "or"
+msgid "ou"
 msgstr ""
 
 #: users/templates/login.html:34
-msgid "Log in with Google"
+msgid "Connectez-vous avec Google"
 msgstr ""
 
 #: users/templates/login.html:42
-msgid "Forgot password?"
+msgid "Mot de passe oublié ?"
 msgstr ""
 
 #: users/templates/password_change.html:8
 #: users/templates/password_change.html:20
-msgid "Change password"
+msgid "Changer le mot de passe"
 msgstr ""
 
 #: users/templates/password_change.html:14
 msgid ""
-"That didn't go well. This link isn't valid. Please request a new reset URL"
+"Cela ne s'est pas bien passé. Ce lien n'est pas valide. Veuillez demander une nouvelle URL de réinitialisation"
 msgstr ""
 
 #: users/templates/password_change.html:27
 #: users/templates/password_reset.html:22
-msgid "Go back to the log in screen"
+msgid "Revenir à l'écran de connexion"
 msgstr ""
 
 #: users/templates/password_change_done.html:7
-msgid "Your password has been reset"
+msgid "Votre mot de passe a été réinitialisé"
 msgstr ""
 
 #: users/templates/password_change_done.html:9
-msgid "You have successfully reset your password."
+msgid "Vous avez réinitialisé votre mot de passe avec succès."
 msgstr ""
 
 #: users/templates/password_change_done.html:13
 #: users/templates/password_reset_done.html:14
-msgid "Go back to the login page"
+msgid "Retournez à la page de connexion"
 msgstr ""
 
 #: users/templates/password_reset.html:8
