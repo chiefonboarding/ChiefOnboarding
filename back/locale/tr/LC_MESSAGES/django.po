@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-05-30 23:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Last-Translator: Ibrahim AYDIN (ibrhmhaydn@gmail.com)\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
@@ -20,56 +20,57 @@ msgstr ""
 
 #: admin/admin_tasks/emails.py:9
 msgid "Can you please do this for me?"
-msgstr ""
+msgstr "Lütfen, benim için bunu yapar mısınız?"
 
 #: admin/admin_tasks/emails.py:16
 #, python-format
-msgid "Hi! Could you please help me with this? It's for our new hire %(name)s"
-msgstr ""
+msgid "Lütfen, benim için bunu yapar mısınız?"
+msgstr "Merhaba! Bana bu konuda yardımcı olur musunuz? Bu %(name)s isimli adayımızla ilgili."
 
 #: admin/admin_tasks/emails.py:42
 msgid "A task has been assigned to you!"
-msgstr ""
+msgstr "Size yeni bir görev atanmıştır!"
 
 #: admin/admin_tasks/emails.py:48
 #, python-format
 msgid "This is about task: %(title)s for %(new_hire)s"
-msgstr ""
+msgstr "%(new_hire)s'e ait %(title)s görevi ile ilgili"
 
 #: admin/admin_tasks/emails.py:59
 msgid "Last message: "
-msgstr ""
+msgstr "Son mesaj: "
 
 #: admin/admin_tasks/emails.py:80
 #, python-format
 msgid "Someone added something to task: %(task_name)s"
-msgstr ""
+msgstr "Birisi %(task_name)s görevine bir şey eklemiştir. "
 
 #: admin/admin_tasks/emails.py:88
 #, python-format
 msgid "Hi %(name)s"
-msgstr ""
+msgstr "Merhaba %(name)s"
 
 #: admin/admin_tasks/emails.py:96
 msgid ""
 "One of your todo items has been updated by someone else. Here is the message:"
 msgstr ""
+"Yapılacaklar listeniz başkası tarafından güncellenmiştir. İşte mesajı:"
 
 #: admin/admin_tasks/models.py:14
 msgid "Low"
-msgstr ""
+msgstr "Düşük"
 
 #: admin/admin_tasks/models.py:14
 msgid "Medium"
-msgstr ""
+msgstr "Orta"
 
 #: admin/admin_tasks/models.py:14
 msgid "High"
-msgstr ""
+msgstr "Yüksek"
 
 #: admin/admin_tasks/models.py:16
 msgid "No"
-msgstr ""
+msgstr "Hayır"
 
 #: admin/admin_tasks/models.py:16 admin/admin_tasks/models.py:48
 #: admin/sequences/models.py:143 admin/sequences/models.py:323
@@ -77,23 +78,23 @@ msgstr ""
 #: new_hire/templates/_new_hire_colleagues_search.html:20
 #: new_hire/templates/_new_hire_colleagues_search.html:51 users/models.py:87
 msgid "Email"
-msgstr ""
+msgstr "E-posta"
 
 #: admin/admin_tasks/models.py:16 admin/sequences/models.py:144
 #: admin/settings/views.py:71
 msgid "Slack"
-msgstr ""
+msgstr "Slack"
 
 #: admin/admin_tasks/models.py:22 admin/sequences/models.py:24
 msgid "New hire"
-msgstr ""
+msgstr "Yeni çalışan"
 
 #: admin/admin_tasks/models.py:28
 #: admin/people/templates/new_hire_admin_tasks.html:21
 #: admin/people/templates/new_hire_admin_tasks.html:61
 #: admin/sequences/models.py:299
 msgid "Assigned to"
-msgstr ""
+msgstr "Atanan kişi"
 
 #: admin/admin_tasks/models.py:34 admin/people/templates/add_resources.html:12
 #: admin/people/templates/colleagues.html:27
@@ -105,28 +106,28 @@ msgstr ""
 #: admin/to_do/templates/templates.html:12 organization/models.py:24
 #: organization/models.py:204
 msgid "Name"
-msgstr ""
+msgstr "İsim"
 
 #: admin/admin_tasks/models.py:36
 msgid "Send email or text to extra user?"
-msgstr ""
+msgstr "Başka kullanıcıya da e-posta veya mesaj gönderilsin mi?"
 
 #: admin/admin_tasks/models.py:41 admin/sequences/models.py:316
 msgid "Slack user"
-msgstr ""
+msgstr "Slack user"
 
 #: admin/admin_tasks/models.py:50
 msgid "Completed"
-msgstr ""
+msgstr "Tamamlandı"
 
 #: admin/admin_tasks/models.py:51 admin/appointments/forms.py:14
 #: admin/appointments/models.py:13
 msgid "Date"
-msgstr ""
+msgstr "Tarih"
 
 #: admin/admin_tasks/models.py:53 admin/sequences/models.py:327
 msgid "Priority"
-msgstr ""
+msgstr "Öncelik"
 
 #: admin/admin_tasks/models.py:72
 #, python-format
@@ -135,11 +136,14 @@ msgid ""
 "*%(task_name)s*\n"
 "_%(comment)s_"
 msgstr ""
+"%(name_assigned_to)s kişisi bu görevde yardımına ihtiyaç duyuyor:\n"
+"*%(task_name)s*\n"
+"_%(comment)s_"
 
 #: admin/admin_tasks/models.py:84 admin/admin_tasks/models.py:117
 #: admin/admin_tasks/models.py:166
 msgid "I have completed this"
-msgstr ""
+msgstr "Bunu tamamladım"
 
 #: admin/admin_tasks/models.py:102
 #, python-format
@@ -151,11 +155,11 @@ msgstr ""
 #: admin/admin_tasks/models.py:107
 #, python-format
 msgid "You have just been assigned to *%(title)s* for *%(name)s*\n"
-msgstr ""
+msgstr "*%(name)s* kişisinin adına *%(title)s* görevine atandınız\n"
 
 #: admin/admin_tasks/models.py:128
 msgid "New assigned task!"
-msgstr ""
+msgstr "Yeni görev!"
 
 #: admin/admin_tasks/models.py:154
 #, python-format
@@ -164,40 +168,43 @@ msgid ""
 "*%(task_title)s*\n"
 "_%(comment)s_"
 msgstr ""
+"%(name)s görevinize yeni bir mesaj ekledi:\n"
+"*%(task_title)s*\n"
+"_%(comment)s_"
 
 #: admin/admin_tasks/templates/admin_tasks_all.html:8
 #: users/templates/admin_base.html:118
 msgid "All tasks"
-msgstr ""
+msgstr "Tüm görevler"
 
 #: admin/admin_tasks/templates/admin_tasks_all.html:13
 #: admin/admin_tasks/templates/admin_tasks_yours.html:13
 msgid "For new hire"
-msgstr ""
+msgstr "Yeni çalışan için"
 
 #: admin/admin_tasks/templates/admin_tasks_all.html:14
 #: admin/admin_tasks/templates/admin_tasks_yours.html:14
 #: admin/people/templates/new_hire_admin_tasks.html:22
 #: admin/people/templates/new_hire_admin_tasks.html:62
 msgid "Task"
-msgstr ""
+msgstr "Görev"
 
 #: admin/admin_tasks/templates/admin_tasks_all.html:15
 #: admin/admin_tasks/templates/admin_tasks_yours.html:15
 #: admin/people/templates/new_hire_admin_tasks.html:23
 msgid "Due in"
-msgstr ""
+msgstr "Teslim tarihi"
 
 #: admin/admin_tasks/templates/admin_tasks_all.html:30
 #: admin/admin_tasks/templates/admin_tasks_yours.html:30
 #: admin/people/templates/new_hire_admin_tasks.html:37
 msgid "No deadline set"
-msgstr ""
+msgstr "Son teslim tarihi ayarlanmamış"
 
 #: admin/admin_tasks/templates/admin_tasks_all.html:46
 #: admin/people/templates/new_hire_admin_tasks.html:42
 msgid "There are no open items"
-msgstr ""
+msgstr "Açık öğe bulunmamaktadır"
 
 #: admin/admin_tasks/templates/admin_tasks_create.html:13
 #: admin/integrations/views.py:30
@@ -205,19 +212,19 @@ msgstr ""
 #: admin/resources/templates/resource_update.html:30
 #: admin/templates/templates/template_update.html:29
 msgid "Create"
-msgstr ""
+msgstr "Oluştur"
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:7
 #: admin/people/templates/new_hire_progress.html:32
 #: admin/people/templates/new_hire_progress.html:90
 msgid "Reopen"
-msgstr ""
+msgstr "Yeniden aç"
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:9
 #: admin/people/templates/new_hire_progress.html:73
 #: new_hire/templates/new_hire_resource_detail.html:21 slack_bot/views.py:630
 msgid "Complete"
-msgstr ""
+msgstr "Tamamlandı"
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:25
 #: admin/integrations/views.py:51 admin/integrations/views.py:82
@@ -229,11 +236,11 @@ msgstr ""
 #: admin/settings/templates/settings_google_login_setup.html:12
 #: admin/templates/templates/template_update.html:29
 msgid "Update"
-msgstr ""
+msgstr "Güncelle"
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:36
 msgid "Add comment"
-msgstr ""
+msgstr "Yorum ekle"
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:43
 #: admin/sequences/templates/sequence.html:94
@@ -242,78 +249,78 @@ msgstr ""
 #: new_hire/templates/_content.html:119
 #: new_hire/templates/_question_form.html:6 slack_bot/views.py:682
 msgid "Submit"
-msgstr ""
+msgstr "Teslim et"
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:51
 msgid "Comments"
-msgstr ""
+msgstr "Yorumlar"
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:67
 msgid "There are no comments yet"
-msgstr ""
+msgstr "Henüz herhangi bir yorum yapılmamış"
 
 #: admin/admin_tasks/templates/admin_tasks_yours.html:8
 #: users/templates/admin_base.html:115
 msgid "Your tasks"
-msgstr ""
+msgstr "Görevleriniz"
 
 #: admin/admin_tasks/templates/admin_tasks_yours.html:46
 msgid " There are no open items"
-msgstr ""
+msgstr " Açık öğe bulunmamaktadır"
 
 #: admin/admin_tasks/views.py:64
 msgid "Task has been created"
-msgstr ""
+msgstr "Görev oluşturulmuştur"
 
 #: admin/admin_tasks/views.py:84
 msgid "New task"
-msgstr ""
+msgstr "Yeni görev"
 
 #: admin/admin_tasks/views.py:85 admin/admin_tasks/views.py:105
 #: admin/people/templates/_new_hire_menu.html:65 new_hire/views.py:77
 #: users/templates/admin_base.html:110
 msgid "Tasks"
-msgstr ""
+msgstr "Görevler"
 
 #: admin/admin_tasks/views.py:95
 msgid "Task has been updated"
-msgstr ""
+msgstr "Görev güncellenmiştir"
 
 #: admin/admin_tasks/views.py:104
 #, python-format
 msgid "Task: %(name)s"
-msgstr ""
+msgstr "Görev: %(name)s"
 
 #: admin/admin_tasks/views.py:129
 msgid "Comment has been posted"
-msgstr ""
+msgstr "Yorum yayınlanmıştır"
 
 #: admin/appointments/forms.py:55 admin/appointments/forms.py:58
 #: admin/appointments/forms.py:60
 msgid "This field is required"
-msgstr ""
+msgstr "Bu alan gereklidir"
 
 #: admin/appointments/models.py:11 admin/badges/models.py:15
 #: admin/preboarding/models.py:11 admin/sequences/models.py:148
 #: admin/sequences/models.py:149 admin/to_do/models.py:11
 msgid "Content"
-msgstr ""
+msgstr "İçerik"
 
 #: admin/appointments/models.py:12
 msgid "Time"
-msgstr ""
+msgstr "Zaman"
 
 #: admin/appointments/models.py:14
 msgid "Fixed date"
-msgstr ""
+msgstr "Sabit tarih"
 
 #: admin/appointments/models.py:15
 msgid "On day"
-msgstr ""
+msgstr "Gün"
 
 #: admin/appointments/views.py:21
 msgid "Appointment items"
-msgstr ""
+msgstr "Randevu öğeleri"
 
 #: admin/appointments/views.py:22 admin/appointments/views.py:38
 #: admin/appointments/views.py:54 admin/badges/views.py:38
@@ -324,65 +331,65 @@ msgstr ""
 #: admin/resources/views.py:52 admin/resources/views.py:82
 #: admin/to_do/views.py:22 admin/to_do/views.py:38 admin/to_do/views.py:54
 msgid "templates"
-msgstr ""
+msgstr "şablonlar"
 
 #: admin/appointments/views.py:33 admin/appointments/views.py:49
 msgid "Appointment item has been updated"
-msgstr ""
+msgstr "Randevu öğesi güncellenmiştir"
 
 #: admin/appointments/views.py:37
 msgid "Create appointment item"
-msgstr ""
+msgstr "Randevu öğesi oluştur"
 
 #: admin/appointments/views.py:53
 msgid "Update appointment item"
-msgstr ""
+msgstr "Randevu öğesini güncelle"
 
 #: admin/appointments/views.py:64
 msgid "Appointment item has been removed"
-msgstr ""
+msgstr "Randevu öğesi kaldırılmıştır"
 
 #: admin/badges/models.py:13
 msgid "Image"
-msgstr ""
+msgstr "Görsel"
 
 #: admin/badges/views.py:33
 msgid "badge item has been updated"
-msgstr ""
+msgstr "rozet öğesi güncellenmiştir"
 
 #: admin/badges/views.py:37
 msgid "Create badge item"
-msgstr ""
+msgstr "Rozet öğesi oluştur"
 
 #: admin/badges/views.py:49
 msgid "Badge item has been updated"
-msgstr ""
+msgstr "Rozet öğesi güncellenmiştir"
 
 #: admin/badges/views.py:53
 msgid "Update badge item"
-msgstr ""
+msgstr "Rozet öğesini güncelle"
 
 #: admin/badges/views.py:64
 msgid "badge item has been removed"
-msgstr ""
+msgstr "rozet öğresi kaldırılmıştır"
 
 #: admin/integrations/models.py:21
 #: admin/settings/templates/settings_base.html:12
 #: admin/settings/templates/settings_integrations.html:16
 msgid "Slack bot"
-msgstr ""
+msgstr "Slack botu"
 
 #: admin/integrations/models.py:22
 msgid "Slack account creation"
-msgstr ""
+msgstr "Slack hesabı oluşturma"
 
 #: admin/integrations/models.py:23
 msgid "Google account creation"
-msgstr ""
+msgstr "Google hesabı oluşturma"
 
 #: admin/integrations/models.py:24
 msgid "Google Login"
-msgstr ""
+msgstr "Google girişi"
 
 #: admin/integrations/models.py:25
 msgid "Asana"
@@ -390,12 +397,12 @@ msgstr ""
 
 #: admin/integrations/views.py:23
 msgid "Integration has been created!"
-msgstr ""
+msgstr "Entegrasyon oluşturulmuştur!"
 
 #: admin/integrations/views.py:28 admin/integrations/views.py:49
 #: admin/integrations/views.py:80
 msgid "Add new integration"
-msgstr ""
+msgstr "Yeni entegrasyon ekle"
 
 #: admin/integrations/views.py:29 admin/integrations/views.py:50
 #: admin/integrations/views.py:65 admin/integrations/views.py:81
@@ -406,43 +413,44 @@ msgstr ""
 #: admin/settings/views.py:243 admin/settings/views.py:253
 #: admin/settings/views.py:284
 msgid "settings"
-msgstr ""
+msgstr "ayarlar"
 
 #: admin/integrations/views.py:44
 msgid "Integration has been updated!"
-msgstr ""
+msgstr "Entegrasyon güncellenmiştir!"
 
 #: admin/integrations/views.py:64
 msgid "Delete integration"
-msgstr ""
+msgstr "Entegrasyonu kaldır"
 
 #: admin/integrations/views.py:75
 msgid "Your config values have been updated!"
-msgstr ""
+msgstr "Konfigürasyon değerleriniz güncellenmiştir!"
 
 #: admin/integrations/views.py:92
 msgid "Could not optain slack authentication code."
-msgstr ""
+msgstr "Slack otorizasyon kodunuz alınamamaktadır."
 
 #: admin/integrations/views.py:113
 msgid ""
 "Slack has successfully been connected. You have a new bot in your workspace."
 msgstr ""
+"Slack başarılı bir şekilde bağlanmıştır. Çalışma ortamınızda yeni bir botunuz var."
 
 #: admin/integrations/views.py:118
 msgid "Could not get tokens from Slack"
-msgstr ""
+msgstr "Slack jetonlarınız alınamamıştır"
 
 #: admin/introductions/models.py:13
 msgid "Person to introduce"
-msgstr ""
+msgstr "Tanıtılacak kişi"
 
 #: admin/introductions/templates/intro_update.html:10
 #: admin/resources/templates/resource_update.html:11
 #: admin/sequences/templates/sequence.html:10
 #: admin/templates/templates/template_update.html:10
 msgid "Duplicate"
-msgstr ""
+msgstr "Kopya"
 
 #: admin/introductions/templates/intro_update.html:16
 #: admin/people/templates/colleague_update.html:9
@@ -452,98 +460,98 @@ msgstr ""
 #: admin/settings/templates/settings_admins.html:28
 #: admin/templates/templates/template_update.html:16
 msgid "Delete"
-msgstr ""
+msgstr "Kaldır"
 
 #: admin/introductions/templates/intro_update.html:35
 msgid "Preview"
-msgstr ""
+msgstr "Önizleme"
 
 #: admin/introductions/views.py:23
 msgid "Introduction items"
-msgstr ""
+msgstr "Tanıtma öğeleri"
 
 #: admin/introductions/views.py:35 admin/introductions/views.py:63
 msgid "Introduction item has been updated"
-msgstr ""
+msgstr "Tanıtma öğesi güncellenmiştir"
 
 #: admin/introductions/views.py:39
 msgid "Create introduction item"
-msgstr ""
+msgstr "Tanıtma öğesi oluştur"
 
 #: admin/introductions/views.py:67
 msgid "Update introduction item"
-msgstr ""
+msgstr "Tanıtma öğesini güncelle"
 
 #: admin/introductions/views.py:78
 msgid "Introduction item has been removed"
-msgstr ""
+msgstr "Tanıtma öğresi kaldırılmıştır"
 
 #: admin/people/forms.py:26 users/templates/admin_base.html:100
 msgid "Sequences"
-msgstr ""
+msgstr "Sekanslar"
 
 #: admin/people/forms.py:29 admin/people/forms.py:99 admin/settings/forms.py:18
 #: organization/models.py:32 users/models.py:112
 msgid "Timezone"
-msgstr ""
+msgstr "Saat dilimi"
 
 #: admin/people/forms.py:32 admin/people/forms.py:102
 #: admin/people/templates/new_hires.html:12 users/models.py:155
 msgid "Start date"
-msgstr ""
+msgstr "Başlangıç tarihi"
 
 #: admin/people/forms.py:77 slack_bot/views.py:334
 msgid "Create new hire"
-msgstr ""
+msgstr "Yeni işe alım oluştur"
 
 #: admin/people/forms.py:271
 msgid "Select sequences you want to add "
-msgstr ""
+msgstr "Eklemek istediğiniz sekansları seçiniz "
 
 #: admin/people/forms.py:280
 msgid "This task has just been reopened! "
-msgstr ""
+msgstr "Bu görev az önce yeniden açılmıştır! "
 
 #: admin/people/forms.py:283
 msgid "Message that you want to leave for your new hire:"
-msgstr ""
+msgstr "Yeni çalışanıza bırakmak istediğiniz mesaj:"
 
 #: admin/people/forms.py:291
 msgid "Send via text"
-msgstr ""
+msgstr "Mesaj olarak gönder"
 
 #: admin/people/forms.py:291 admin/people/forms.py:300
 msgid "Send via email"
-msgstr ""
+msgstr "E-posta olarak gönder"
 
 #: admin/people/forms.py:304
 msgid "Send type"
-msgstr ""
+msgstr "Gönderme türü"
 
 #: admin/people/new_hire_views.py:63 users/templates/admin_base.html:57
 msgid "New hires"
-msgstr ""
+msgstr "Yeni işe alımlar"
 
 #: admin/people/new_hire_views.py:64 admin/people/new_hire_views.py:82
 #: admin/people/views.py:38
 msgid "people"
-msgstr ""
+msgstr "kişiler"
 
 #: admin/people/new_hire_views.py:76
 msgid "New hire has been created"
-msgstr ""
+msgstr "Yeni işe alım oluşturulmuştur"
 
 #: admin/people/new_hire_views.py:81
 msgid "Add new hire"
-msgstr ""
+msgstr "Yeni işe alım ekle"
 
 #: admin/people/new_hire_views.py:195
 msgid "Sequence(s) have been added to this new hire"
-msgstr ""
+msgstr "Sekans(lar) bu işe alıma eklenmiştir"
 
 #: admin/people/new_hire_views.py:269
 msgid "Sent email to new hire"
-msgstr ""
+msgstr "Yeni çalışana e-posta gönderilmiştir"
 
 #: admin/people/new_hire_views.py:284 admin/people/new_hire_views.py:322
 #: admin/people/new_hire_views.py:359 admin/people/new_hire_views.py:376
@@ -556,158 +564,158 @@ msgstr ""
 #: admin/people/templates/not_triggered_conditions.html:16
 #: admin/sequences/templates/_sequence_condition.html:53
 msgid "new hire"
-msgstr ""
+msgstr "Yeni işe alım"
 
 #: admin/people/new_hire_views.py:312
 msgid "New hire has been updated"
-msgstr ""
+msgstr "İşe alım güncellenmiştir"
 
 #: admin/people/new_hire_views.py:331
 msgid "New hire is now a normal account."
-msgstr ""
+msgstr "İşe alım normal hesaba dönüştürülmüştür."
 
 #: admin/people/new_hire_views.py:343
 msgid "Note has been added"
-msgstr ""
+msgstr "Not eklenmiştir"
 
 #: admin/people/new_hire_views.py:454
 msgid "Don't forget this item!"
-msgstr ""
+msgstr "Bu öğeyi unutmayınız!"
 
 #: admin/people/new_hire_views.py:460
 msgid "Reminder has been sent!"
-msgstr ""
+msgstr "Hatırlatıcı gönderilmiştir!"
 
 #: admin/people/new_hire_views.py:514
 msgid "Item has been reopened"
-msgstr ""
+msgstr "Öğe yeniden açılmıştır"
 
 #: admin/people/new_hire_views.py:622
 #, python-format
 msgid "Add/Remove templates for %(name)s"
-msgstr ""
+msgstr "%(name)s Ekle/Çıkar şablonları"
 
 #: admin/people/new_hire_views.py:673
 msgid "New hire has been removed"
-msgstr ""
+msgstr "Yeni işe alım kaldırılmıştır"
 
 #: admin/people/templates/_new_hire_access_card.html:21
 msgid "Checking status"
-msgstr ""
+msgstr "Durum kontrol ediliyor"
 
 #: admin/people/templates/_new_hire_access_card.html:27
 msgid "Activated"
-msgstr ""
+msgstr "Etkinleştirilmiştir"
 
 #: admin/people/templates/_new_hire_access_card.html:31
 #: admin/people/templates/_toggle_colleague_access.html:20
 #: admin/people/views.py:195 admin/people/views.py:249
 msgid "Give access"
-msgstr ""
+msgstr "Erişim izni ver"
 
 #: admin/people/templates/_new_hire_form_answers.html:28
 msgid "Download user uploaded file"
-msgstr ""
+msgstr "Kullanıcının yüklediği dosyayı indir"
 
 #: admin/people/templates/_new_hire_menu.html:21
 msgid "Overview"
-msgstr ""
+msgstr "Genel Bakış"
 
 #: admin/people/templates/_new_hire_menu.html:35
 #: admin/people/templates/new_hire_profile.html:12
 msgid "Profile"
-msgstr ""
+msgstr "Profil"
 
 #: admin/people/templates/_new_hire_menu.html:45
 msgid "Access"
-msgstr ""
+msgstr "Erişim"
 
 #: admin/people/templates/_new_hire_menu.html:81
 #: admin/people/templates/new_hires.html:14
 msgid "Progress"
-msgstr ""
+msgstr "İlerleme"
 
 #: admin/people/templates/_new_hire_menu.html:99
 msgid "Forms"
-msgstr ""
+msgstr "Formlar"
 
 #: admin/people/templates/_new_hire_menu.html:115
 #: admin/people/templates/new_hire_notes.html:26
 msgid "Notes"
-msgstr ""
+msgstr "Notlar"
 
 #: admin/people/templates/_new_hire_menu.html:133
 msgid "Admin Tasks"
-msgstr ""
+msgstr "Yönetici Görevleri"
 
 #: admin/people/templates/_new_hire_menu.html:149
 msgid "Welcome Messages"
-msgstr ""
+msgstr "Hoşgeldiniz Mesajları"
 
 #: admin/people/templates/_new_hire_settings_menu.html:4
 #: users/templates/admin_base.html:128
 msgid "Settings"
-msgstr ""
+msgstr "Ayarlar"
 
 #: admin/people/templates/_new_hire_settings_menu.html:7
 msgid "Send Preboarding email"
-msgstr ""
+msgstr "İşe başlangıç öncesi e-postası gönder"
 
 #: admin/people/templates/_new_hire_settings_menu.html:9
 msgid "Send login email (day 1 and onwards)"
-msgstr ""
+msgstr "Hesaba giriş e-postası gönderi (1. günden itibaren)"
 
 #: admin/people/templates/_new_hire_settings_menu.html:11
 msgid "Add Sequence"
-msgstr ""
+msgstr "Sekans ekle"
 
 #: admin/people/templates/_new_hire_settings_menu.html:13
 msgid "Delete user"
-msgstr ""
+msgstr "Kullanıcıyı sil"
 
 #: admin/people/templates/_toggle_button_new_hire_template.html:5
 #: admin/people/templates/_toggle_button_resources.html:5
 msgid "Added"
-msgstr ""
+msgstr "Eklendi"
 
 #: admin/people/templates/_toggle_button_new_hire_template.html:7
 #: admin/people/templates/_toggle_button_resources.html:7
 #: users/templates/admin_base.html:159
 msgid "Add"
-msgstr ""
+msgstr "Ekle"
 
 #: admin/people/templates/_toggle_colleague_access.html:22
 #: admin/people/views.py:246
 msgid "Revoke access"
-msgstr ""
+msgstr "Erişim iznini kaldır"
 
 #: admin/people/templates/_trigger_sequence_items.html:4
 msgid "Done!"
-msgstr ""
+msgstr "Bitti!"
 
 #: admin/people/templates/_trigger_sequence_items.html:6
 msgid "Trigger all these items now"
-msgstr ""
+msgstr "Tüm bu öğeleri şimdi başlat"
 
 #: admin/people/templates/add_resources.html:13
 #: admin/people/templates/new_hire_add_task.html:13
 #: admin/templates/forms.py:123 admin/to_do/templates/templates.html:13
 #: organization/models.py:206
 msgid "Tags"
-msgstr ""
+msgstr "Etiketler"
 
 #: admin/people/templates/colleague_create.html:10
 #: admin/people/templates/colleague_update.html:19
 msgid "Colleague"
-msgstr ""
+msgstr "İş arkadaşı"
 
 #: admin/people/templates/colleague_update.html:29
 msgid "Resources available"
-msgstr ""
+msgstr "Mevcut kaynaklar"
 
 #: admin/people/templates/colleague_update.html:44
 msgid "No resources are available to this user yet"
-msgstr ""
+msgstr "Bu kullanıcı için hiç bir kaynak bulunmamaktadır"
 
 #: admin/people/templates/colleague_update.html:52
 #: admin/people/templates/new_hire_tasks.html:19
@@ -717,241 +725,247 @@ msgstr ""
 #: admin/people/templates/new_hire_tasks.html:139
 #: admin/settings/templates/settings_admins.html:22
 msgid "Change"
-msgstr ""
+msgstr "Değiştir"
 
 #: admin/people/templates/colleagues.html:14
 msgid "Sync with Slack"
-msgstr ""
+msgstr "Slack ile senkronize et"
 
 #: admin/people/templates/colleagues.html:28
 #: admin/people/templates/new_hires.html:13 users/models.py:92
 msgid "Position"
-msgstr ""
+msgstr "Pozisyon"
 
 #: admin/people/templates/colleagues.html:49
 #: admin/people/templates/new_hires.html:38
 #: admin/to_do/templates/templates.html:24
 #: new_hire/templates/_new_hire_to_do_item.html:13
 msgid "View"
-msgstr ""
+msgstr "Göster"
 
 #: admin/people/templates/give_new_hire_access.html:13
 msgid "Create user"
-msgstr ""
+msgstr "Kullanıcı oluştur"
 
 #: admin/people/templates/new_hire_access.html:19
 msgid "You have not enabled any integrations for account provisitioning."
-msgstr ""
+msgstr "Hesap provizyonları için herhangi bir entegrasyon etkinleştirmediniz."
 
 #: admin/people/templates/new_hire_admin_tasks.html:14
 msgid "Open admin tasks"
-msgstr ""
+msgstr "Açık yönetici görevleri"
 
 #: admin/people/templates/new_hire_admin_tasks.html:54
 msgid "Completed admin tasks"
-msgstr ""
+msgstr "Tamamlanmış yönetici görevleri"
 
 #: admin/people/templates/new_hire_admin_tasks.html:80
 msgid "There are no closed items"
-msgstr ""
+msgstr "Kapatılmış öğe bulunmamaktadır"
 
 #: admin/people/templates/new_hire_course_answers.html:11
 msgid "Answers"
-msgstr ""
+msgstr "Cevaplar"
 
 #: admin/people/templates/new_hire_course_answers.html:30
-msgid "Answer given by new hire: "
-msgstr ""
+msgid "Answer given by new hire:"
+msgstr "Aday tarafından verilen cevap: "
 
 #: admin/people/templates/new_hire_course_answers.html:40
 msgid "No answers were given in yet."
-msgstr ""
+msgstr "Henüz herhangi bir cevap verilmemiştir."
 
 #: admin/people/templates/new_hire_delete.html:9
 #, python-format
 msgid "Are you sure you want to delete %(full_name)s?"
-msgstr ""
+msgstr "%(full_name)s 'i silmek istediğinizden emin misiniz?"
 
 #: admin/people/templates/new_hire_delete.html:12
 msgid ""
 "Are you sure you want to delete this new hire? You have two options here:"
 msgstr ""
+"Bu yeni adayı silmek istediğinizden emin misiniz? İki seçeneğiniz var:"
 
 #: admin/people/templates/new_hire_delete.html:14
 msgid ""
 "Move them to a normal account, so they keep having access to things like the "
 "colleagues page and resources."
 msgstr ""
+"İş arkadaşları ve kaynaklar gibi sayfalara erişebilmeleri için onu "
+"normal bir hesaba taşıyabilirsiniz."
 
 #: admin/people/templates/new_hire_delete.html:15
 msgid ""
 "Completely remove them. Access to ChiefOnboarding will be revoke entirely. "
 "Third party accounts remain."
 msgstr ""
+"Onu tamamen kaldırabilirsiniz. ChiefOnboarding'e erişimleri tamamen iptal "
+"edilmiş olacaktır. Üçüncü taraf (third-party) hesaplar kalacaktır."
 
 #: admin/people/templates/new_hire_delete.html:21
 msgid "Delete account"
-msgstr ""
+msgstr "Hesabı kaldır"
 
 #: admin/people/templates/new_hire_delete.html:25
 msgid "Migrate account to normal account"
-msgstr ""
+msgstr "Hesabı normal hesaba taşı"
 
 #: admin/people/templates/new_hire_detail.html:14
 msgid "What's up next..."
-msgstr ""
+msgstr "Bizi neler bekliyor..."
 
 #: admin/people/templates/new_hire_detail.html:26
 msgid "Before first day"
-msgstr ""
+msgstr "Birinci gün öncesi"
 
 #: admin/people/templates/new_hire_detail.html:89
 #: admin/people/templates/new_hire_detail.html:156
 #: admin/people/templates/not_triggered_conditions.html:42
 #: admin/sequences/templates/_sequence_condition.html:88
 msgid "admins"
-msgstr ""
+msgstr "yöneticiler"
 
 #: admin/people/templates/new_hire_detail.html:108
 #, python-format
 msgid "%(start_day)s - New hire's first day!"
-msgstr ""
+msgstr "%(start_day)s - Çalışanın birinci günü!"
 
 #: admin/people/templates/new_hire_detail.html:182
 msgid "Latest activity..."
-msgstr ""
+msgstr "En güncel aktivite..."
 
 #: admin/people/templates/new_hire_detail.html:192
 #, python-format
 msgid "For %(full_name)s"
-msgstr ""
+msgstr "%(full_name)s için"
 
 #: admin/people/templates/new_hire_detail.html:192
 msgid "By"
-msgstr ""
+msgstr "Kimden:"
 
 #: admin/people/templates/new_hire_detail.html:198
 msgid "No items yet"
-msgstr ""
+msgstr "Henüz herhangi bir öğe bulunmamaktadır"
 
 #: admin/people/templates/new_hire_forms.html:14
 msgid "Preboarding forms"
-msgstr ""
+msgstr "İşe başlamadan öncesi formları"
 
 #: admin/people/templates/new_hire_forms.html:28
 msgid "To do forms"
-msgstr ""
+msgstr "Yapılacaklar formları"
 
 #: admin/people/templates/new_hire_forms.html:42
 msgid "This new hire has not filled in any forms yet"
-msgstr ""
+msgstr "Bu yeni aday henüz herhangi bir form doldurmamıştır"
 
 #: admin/people/templates/new_hire_notes.html:12
 msgid "Add note"
-msgstr ""
+msgstr "Not ekle"
 
 #: admin/people/templates/new_hire_notes.html:45
 msgid "There are no notes yet"
-msgstr ""
+msgstr "Henüz herhangi bir not bulunmamaktadır"
 
 #: admin/people/templates/new_hire_progress.html:15 admin/to_do/views.py:21
 #: new_hire/templates/new_hire_base.html:119 slack_bot/slack_misc.py:50
 msgid "To do items"
-msgstr ""
+msgstr "Yapılacaklar"
 
 #: admin/people/templates/new_hire_progress.html:38
 #: admin/people/templates/new_hire_progress.html:94
 msgid "Remind"
-msgstr ""
+msgstr "Hatırlat"
 
 #: admin/people/templates/new_hire_progress.html:56
 msgid "Courses"
-msgstr ""
+msgstr "Kurslar"
 
 #: admin/people/templates/new_hire_progress.html:79
 #, python-format
 msgid " At step %(step)s of %(amount_chapters_in_course)s "
-msgstr ""
+msgstr " %(amount_chapters_in_course)s içinden %(step)s . adımda "
 
 #: admin/people/templates/new_hire_progress.html:81
 msgid "New hire has completed the course!"
-msgstr ""
+msgstr "Aday kursu tamamlamıştır!"
 
 #: admin/people/templates/new_hire_progress.html:110
 msgid "There are no todo items or resources assigned to this user"
-msgstr ""
+msgstr "Bu kullanıcıya atanan hernagi bir yapılacaklar öğesi veya kaynak bulunmamaktadır"
 
 #: admin/people/templates/new_hire_reopen_task.html:12
 msgid "Reopen this task for new hire"
-msgstr ""
+msgstr "Aday için bu görevi yeniden aç"
 
 #: admin/people/templates/new_hire_tasks.html:15
 #: users/templates/admin_base.html:87
 msgid "Preboarding"
-msgstr ""
+msgstr "İşe başlamadan önce"
 
 #: admin/people/templates/new_hire_tasks.html:34
 msgid "There are no preboarding items yet"
-msgstr ""
+msgstr "Herhangi bir işe başlamadan öncesi öğesi bulunmamaktadır"
 
 #: admin/people/templates/new_hire_tasks.html:45
 #: users/templates/admin_base.html:75
 msgid "To do"
-msgstr ""
+msgstr "Yapılacaklar"
 
 #: admin/people/templates/new_hire_tasks.html:64
 msgid "There are no to do items yet"
-msgstr ""
+msgstr "Henüz herhangi bir yapılacaklar öğesi bulunmamaktadır"
 
 #: admin/people/templates/new_hire_tasks.html:75 admin/sequences/emails.py:57
 #: new_hire/templates/new_hire_base.html:133
 #: new_hire/templates/new_hire_resources.html:12 slack_bot/slack_misc.py:58
 #: users/templates/admin_base.html:78
 msgid "Resources"
-msgstr ""
+msgstr "Kaynaklar"
 
 #: admin/people/templates/new_hire_tasks.html:94
 msgid "There are no resource items yet"
-msgstr ""
+msgstr "Henüz kaynak öğeleri bulunmamaktadır"
 
 #: admin/people/templates/new_hire_tasks.html:105
 #: users/templates/admin_base.html:81
 msgid "Introductions"
-msgstr ""
+msgstr "Tanıtımlar"
 
 #: admin/people/templates/new_hire_tasks.html:124
 msgid "There are no introduction items yet"
-msgstr ""
+msgstr "Henüz herhangi bir tanıtma öğesi bulunmamaktadır"
 
 #: admin/people/templates/new_hire_tasks.html:135
 #: users/templates/admin_base.html:84
 msgid "Appointments"
-msgstr ""
+msgstr "Randevular"
 
 #: admin/people/templates/new_hire_tasks.html:154
 msgid "There are no appointment items yet"
-msgstr ""
+msgstr "Henüz herhangi bir randevu öğesi bulunmamaktadır"
 
 #: admin/people/templates/new_hire_welcome_messages.html:13
 msgid "Welcome messages from colleagues"
-msgstr ""
+msgstr "İş arkadaşlarından hoşgeldin mesajarı"
 
 #: admin/people/templates/new_hire_welcome_messages.html:32
 msgid ""
 "No one has created any messages yet. This needs to be done through Slack."
 msgstr ""
+"Kimse henüz herhangi bir mesaj oluşturmamıştır. Bunun Slack üzerinden yapılması gerekmektedir"
 
 #: admin/people/templates/not_triggered_conditions.html:9
 msgid "Items that will never be triggered"
-msgstr ""
+msgstr "Asla başlatılmayacak öğeler"
 
 #: admin/people/templates/not_triggered_conditions.html:54
 msgid "Condition"
-msgstr ""
+msgstr "Şart"
 
 #: admin/people/templates/not_triggered_conditions.html:59
 msgid "Go back to new hires"
-msgstr ""
+msgstr "Yeni işe alımlara geri dön"
 
 #: admin/people/templates/trigger_preboarding_notification.html:11
 msgid ""
@@ -960,260 +974,269 @@ msgid ""
 "mobile number is provided) or an email. Make sure that you are sending the "
 "email to an email address that is accessible to them right now!"
 msgstr ""
+"Bu yeni çalışanınıza 'işe başlamadan önce' sayfasını görüntüleyebileceği "
+"bağlantıyı içeren bir e-posta veya mesaj gönderecektir. (Cep telefonu bilgisi "
+"verilmişse) mesaj olarak veya e-posta olarak gönderebilirsiniz. Eğer e-posta "
+"gönderiyorsanız, erişimleri olan güncel bir e-posta adresine gönderdiğinizden "
+"emin olunuz!"
 
 #: admin/people/templates/trigger_preboarding_notification.html:13
 msgid "Send preboarding notification"
-msgstr ""
+msgstr "İşe başlamadan önce bildirimi gönder"
 
 #: admin/people/views.py:37 new_hire/templates/new_hire_base.html:149
 #: new_hire/templates/new_hire_colleagues.html:20
 #: users/templates/admin_base.html:60
 msgid "Colleagues"
-msgstr ""
+msgstr "İş arkadaşları"
 
 #: admin/people/views.py:50
 msgid "Colleague has been added"
-msgstr ""
+msgstr "İş arkadaşı eklendi"
 
 #: admin/people/views.py:60
 msgid "Create new colleague"
-msgstr ""
+msgstr "Yeni iş arkadaşı oluştur"
 
 #: admin/people/views.py:61 admin/people/views.py:81 admin/people/views.py:106
 msgid "Employee"
-msgstr ""
+msgstr "Çalışan"
 
 #: admin/people/views.py:71
 msgid "Employee has been updated"
-msgstr ""
+msgstr "Çalışan güncellenmiştir"
 
 #: admin/people/views.py:91
 msgid "Colleague has been removed"
-msgstr ""
+msgstr "Çalışan çıkarılmıştır"
 
 #: admin/people/views.py:103
 #, python-format
 msgid "Add new resource for %(name)s"
-msgstr ""
+msgstr "%(name)s için yeni kaynak ekle"
 
 #: admin/people/views.py:201
 msgid "Could not find user"
-msgstr ""
+msgstr "Kullanıcı bulunamadı"
 
 #: admin/people/views.py:211
 msgid ""
 "Click on the button to see all the categories that are available to you!"
 msgstr ""
+"Size açık olan tüm kategorileri görebilmek için butona tıklayınız!"
 
 #: admin/people/views.py:217
 msgid "resources"
-msgstr ""
+msgstr "kaynaklar"
 
 #: admin/people/views.py:229
 msgid "Revoke Slack access"
-msgstr ""
+msgstr "Slack erişimini iptal et"
 
 #: admin/preboarding/views.py:21
 msgid "Preboarding items"
-msgstr ""
+msgstr "'İşe başlamadan önce' öğeleri"
 
 #: admin/preboarding/views.py:33 admin/preboarding/views.py:49
 msgid "Preboarding item has been updated"
-msgstr ""
+msgstr "'İşe başlamadan önce' öğeleri güncellenmiştir"
 
 #: admin/preboarding/views.py:37
 msgid "Create preboarding item"
-msgstr ""
+msgstr "'İşe başlamadan önce' öğesi oluştur"
 
 #: admin/preboarding/views.py:53
 msgid "Update preboarding item"
-msgstr ""
+msgstr "'işe başlamadan önce' öğesini güncelle"
 
 #: admin/preboarding/views.py:64
 msgid "Preboarding item has been removed"
-msgstr ""
+msgstr "İşe başlamadan önce öğesi kaldırılmıştır"
 
 #: admin/resources/forms.py:23 admin/resources/models.py:59
 msgid "Category"
-msgstr ""
+msgstr "Kategori"
 
 #: admin/resources/forms.py:55
 msgid "Do not use only numbers as a category. Always add some text."
-msgstr ""
+msgstr "Kategori olarak sadece rakam kullanmayınız. Her zaman biraz metin ekleyiniz"
 
 #: admin/resources/forms.py:98
 msgid "When enabled, new hires will have to walk through this"
-msgstr ""
+msgstr "Etkinleştirildiğinde, yeni çalışanlar bu süreçten geçeceklerdir"
 
 #: admin/resources/forms.py:100
 msgid "If disabled, it will turn into a normal resource after completing"
-msgstr ""
+msgstr "Etkinsizleştirildiğinde, tamamlandıktan sonra normal bir kaynağa dönüşecektir"
 
 #: admin/resources/models.py:16
 msgid "page"
-msgstr ""
+msgstr "sayfa"
 
 #: admin/resources/models.py:16
 msgid "folder"
-msgstr ""
+msgstr "klasör"
 
 #: admin/resources/models.py:16
 msgid "questions"
-msgstr ""
+msgstr "sorular"
 
 #: admin/resources/models.py:63
 msgid "Is a course item"
-msgstr ""
+msgstr "Bir kurs öğesidir"
 
 #: admin/resources/models.py:65
 msgid "Workday that this item is due"
-msgstr ""
+msgstr "Bu öğenin son teslim zamanı olan iş günü"
 
 #: admin/resources/models.py:68
 msgid "Remove item when new hire walked through"
-msgstr ""
+msgstr "Yeni çalışanın üzerinden geçtiği öğeyi kaldır"
 
 #: admin/resources/models.py:84 admin/sequences/models.py:47
 #: organization/models.py:232
 #, python-format
 msgid "%(name)s (duplicate)"
-msgstr ""
+msgstr "%(name)s (kopya)"
 
 #: admin/resources/templates/_chapter_options.html:29
 msgid "Add page"
-msgstr ""
+msgstr "Sayfa ekle"
 
 #: admin/resources/templates/_chapter_options.html:30
 msgid "Add folder"
-msgstr ""
+msgstr "Klasör ekle"
 
 #: admin/resources/templates/_chapter_options.html:31
 msgid "Add questions"
-msgstr ""
+msgstr "Sorular ekle"
 
 #: admin/resources/templates/_chapter_options.html:33
 msgid "Move up"
-msgstr ""
+msgstr "Yukarı taşı"
 
 #: admin/resources/templates/_chapter_options.html:34
 msgid "Move down"
-msgstr ""
+msgstr "Aşağı taşı"
 
 #: admin/resources/templates/chapter_field.html:15
 #: new_hire/templates/new_hire_resource_detail.html:15
 msgid "Chapters"
-msgstr ""
+msgstr "Bölümler"
 
 #: admin/resources/templates/chapter_field.html:33
 msgid "Folders can't have content"
-msgstr ""
+msgstr "Klasörlerin içeriği olamaz"
 
 #: admin/resources/templates/chapter_field.html:38
 msgid "The question you want to ask:"
-msgstr ""
+msgstr "Sormak istediğiniz soru:"
 
 #: admin/resources/templates/chapter_field.html:56
 msgid "Add option"
-msgstr ""
+msgstr "Seçenek ekle"
 
 #: admin/resources/templates/chapter_field.html:58
 msgid "Add question"
-msgstr ""
+msgstr "Soru ekle"
 
 #: admin/resources/templates/resource_update.html:41
 #: admin/sequences/templates/sequence.html:235
 msgid "Start typing here..."
-msgstr ""
+msgstr "Buraya yazmaya başla..."
 
 #: admin/resources/templates/resource_update.html:42
 #: admin/sequences/templates/sequence.html:236
 msgid "New item"
-msgstr ""
+msgstr "Yeni öğe"
 
 #: admin/resources/views.py:23
 msgid "Resource items"
-msgstr ""
+msgstr "Kaynak öğeleri"
 
 #: admin/resources/views.py:35 admin/resources/views.py:63
 msgid "Resource item has been updated"
-msgstr ""
+msgstr "Kaynak öğesi güncellenmiştir"
 
 #: admin/resources/views.py:51
 msgid "Create resource item"
-msgstr ""
+msgstr "Kaynak öğesi oluştur"
 
 #: admin/resources/views.py:81
 msgid "Update resource item"
-msgstr ""
+msgstr "Kaynak öğesini güncelle"
 
 #: admin/resources/views.py:92
 msgid "Resource item has been removed"
-msgstr ""
+msgstr "Kaynak öğesi kaldırılmıştır"
 
 #: admin/sequences/emails.py:27 admin/sequences/models.py:161
 msgid "Here is an update!"
-msgstr ""
+msgstr "Bir güncelleme var!"
 
 #: admin/sequences/emails.py:36
 msgid "Todo item"
-msgstr ""
+msgstr "Yapılacaklar öğesi"
 
 #: admin/sequences/emails.py:38
 msgid "Todo items"
-msgstr ""
+msgstr "Yapılacaklar öğeleri"
 
 #: admin/sequences/emails.py:55 slack_bot/slack_resource.py:86
 msgid "Resource"
-msgstr ""
+msgstr "Kaynaklar"
 
 #: admin/sequences/emails.py:74
 msgid "Badge"
-msgstr ""
+msgstr "Rozet"
 
 #: admin/sequences/emails.py:74 users/templates/admin_base.html:90
 msgid "Badges"
-msgstr ""
+msgstr "Rozetler"
 
 #: admin/sequences/forms.py:34 admin/sequences/templates/sequence.html:52
 msgid "Add block"
-msgstr ""
+msgstr "Blok ekle"
 
 #: admin/sequences/forms.py:72
 msgid "Must be in a 5 minute interval."
-msgstr ""
+msgstr "5dk'lık aralıkta olmalıdır."
 
 #: admin/sequences/forms.py:83
 msgid ""
 "You cannot use 0 or less. The day before starting is 1 and the first workday "
 "is 1"
 msgstr ""
+"0 veya daha küçük değer kullanamazsınız. Başlamadan önceki gün 1'dir, ilk "
+"iş günü de 1'dir"
 
 #: admin/sequences/forms.py:101
 #, python-format
 msgid ""
 "Time must be in an interval of 5 minutes. %(minutes)s must end in 0 or 5."
 msgstr ""
+"Zaman 5dk'lık aralıkta olmalıdır. %(minutes)s 0 veya 5 ile bitmelidir."
 
 #: admin/sequences/forms.py:118
 msgid "You must add at least one to do item"
-msgstr ""
+msgstr "En az bir yapılacaklar öğesi eklemelisiniz"
 
 #: admin/sequences/forms.py:120
 msgid "Both the time and days have to be filled in."
-msgstr ""
+msgstr "Zaman ve günler kısımlarının her ikisinin de girilmesi gerekmektedir"
 
 #: admin/sequences/forms.py:132
 msgid "Edit block"
-msgstr ""
+msgstr "Blok düzenle"
 
 #: admin/sequences/forms.py:144 admin/sequences/models.py:325
 msgid "Due date"
-msgstr ""
+msgstr "Son teslim tarihi"
 
 #: admin/sequences/models.py:25 admin/settings/forms.py:155
 #: admin/settings/forms.py:165 users/models.py:29 users/models.py:149
 msgid "Manager"
-msgstr ""
+msgstr "Müdür"
 
 #: admin/sequences/models.py:26 users/models.py:142
 msgid "Buddy"
@@ -1221,59 +1244,59 @@ msgstr ""
 
 #: admin/sequences/models.py:27
 msgid "Custom"
-msgstr ""
+msgstr "Özel"
 
 #: admin/sequences/models.py:145
 msgid "Text"
-msgstr ""
+msgstr "Metin"
 
 #: admin/sequences/models.py:150
 msgid "Send via"
-msgstr ""
+msgstr "ile gönder"
 
 #: admin/sequences/models.py:153
 msgid "Send to"
-msgstr ""
+msgstr "Kime gönder"
 
 #: admin/sequences/models.py:159
 msgid "Subject"
-msgstr ""
+msgstr "Konu"
 
 #: admin/sequences/models.py:165
 msgid "For"
-msgstr ""
+msgstr "için"
 
 #: admin/sequences/models.py:295
 msgid "Comment"
-msgstr ""
+msgstr "Yorum"
 
 #: admin/sequences/models.py:305
 msgid "Pick user"
-msgstr ""
+msgstr "Kullanıcı seç"
 
 #: admin/sequences/models.py:310
 msgid "Send email or Slack message to extra user?"
-msgstr ""
+msgstr "Bir kullanıcıya daha e-posta veya Slack mesajı gönderilsin mi?"
 
 #: admin/sequences/models.py:400
 msgid "After new hire has started"
-msgstr ""
+msgstr "Yeni çalışan işe başladıktan sonra"
 
 #: admin/sequences/models.py:401
 msgid "Based on one or more to do item(s)"
-msgstr ""
+msgstr "Bir veya daha fazla yapılacaklar öğesine göre"
 
 #: admin/sequences/models.py:402
 msgid "Before the new hire has started"
-msgstr ""
+msgstr "Yeni çalışan işe başlamadan önce"
 
 #: admin/sequences/models.py:403
 msgid "Without trigger"
-msgstr ""
+msgstr "Başlatma olmadan"
 
 #: admin/sequences/models.py:409
 msgid "Block type"
-msgstr ""
+msgstr "Blok tipi"
 
 #: admin/sequences/models.py:412
 msgid "Amount of days before/after new hire has started"
@@ -1281,11 +1304,11 @@ msgstr ""
 
 #: admin/sequences/models.py:414
 msgid "At"
-msgstr ""
+msgstr "da"
 
 #: admin/sequences/models.py:417
 msgid "Trigger after these to do items have been completed:"
-msgstr ""
+msgstr "Bu yapılacaklar öğeleri tamamlandıktan sonra başlat: "
 
 #: admin/sequences/tasks.py:64
 #, python-format
@@ -1293,79 +1316,83 @@ msgid ""
 "*Congrats, you unlocked: %(item_name)s *\n"
 " %(message)s"
 msgstr ""
+"*Tebrikler, %(item_name)s isimli öğeyi açtınız! *\n"
+" %(message)s"
 
 #: admin/sequences/tasks.py:81 admin/sequences/tasks.py:83
 msgid "Here are some new items for you!"
-msgstr ""
+msgstr "Sizin için yeni öğeler var!"
 
 #: admin/sequences/templates/_sequence_condition.html:18
 #, python-format
 msgid "On day %(days)s at %(time)s"
-msgstr ""
+msgstr "%(days)s günü %(time)s saatinde"
 
 #: admin/sequences/templates/_sequence_condition.html:20
 msgid "When these tasks are completed:"
-msgstr ""
+msgstr "Bu görevler ne zaman tamamlandı:"
 
 #: admin/sequences/templates/_sequence_condition.html:27
 #, python-format
 msgid "%(days)s days before starting at %(time)s"
-msgstr ""
+msgstr "Başlamadan %(days)s gün önce %(time)s saatinde"
 
 #: admin/sequences/templates/_sequence_condition.html:29
 msgid "Without any trigger - assign directly"
-msgstr ""
+msgstr "Herhangi bir başltma olmadan - doğrudan atama yap"
 
 #: admin/sequences/templates/_sequence_templates_list.html:3
 #: users/templates/admin_base.html:70
 msgid "Templates"
-msgstr ""
+msgstr "Şablonlar"
 
 #: admin/sequences/templates/_sequence_templates_list.html:72
 msgid "Create new one"
-msgstr ""
+msgstr "Yenisini oluştur"
 
 #: admin/sequences/templates/sequence.html:25
 msgid ""
 "All changes will be automatically saved. This doesn't impact current new "
 "hires."
 msgstr ""
+"Tüm değişiklikler otomatik olarak kaydedilecektir. Bu yeni çalışanları "
+"etkilememektedir."
 
 #: admin/sequences/templates/sequence.html:69
 msgid "Block"
-msgstr ""
+msgstr "Blok"
 
 #: admin/sequences/templates/sequence.html:84
 msgid "Item"
-msgstr ""
+msgstr "Öğe"
 
 #: admin/sequences/views.py:52
 msgid "Sequence items"
-msgstr ""
+msgstr "Sekans öğeleri"
 
 #: admin/sequences/views.py:83
 msgid "Sequence"
-msgstr ""
+msgstr "Sekans"
 
 #: admin/sequences/views.py:509
 msgid "Sequence item has been removed"
-msgstr ""
+msgstr "Sekans öğesi kaldırılmıştır"
 
 #: admin/settings/forms.py:21
 msgid "Sequences that are preselected for all new hires:"
-msgstr ""
+msgstr "Tüm yeni çalışanlar için önceden seçili olan sekanslar:"
 
 #: admin/settings/forms.py:50
 msgid "Login options"
-msgstr ""
+msgstr "Giriş seçenekleri"
 
 #: admin/settings/forms.py:102
 msgid "You must enable at least one login option"
-msgstr ""
+msgstr "En az bir giriş seçeneğini etkinleştirmelisiniz"
 
 #: admin/settings/forms.py:155 admin/settings/forms.py:165 users/models.py:28
 msgid "Administrator"
-msgstr ""
+msgstr "Yönetici"
 
 #: admin/settings/forms.py:183 admin/to_do/templates/wysiwyg_field.html:11
 msgid ""
@@ -1374,23 +1401,27 @@ msgid ""
 "&#125;, and &#123;&#123; buddy &#125;&#125; in the editor. It will be "
 "replaced by the values corresponding to the new hire."
 msgstr ""
+"Editörde &#123;&#123; first_name &#125;&#125;, &#123;&#123; last_name "
+"&#125;&#125;, &#123;&#123; position &#125;&#125;, &#123;&#123; manager &#125;"
+"&#125;, and &#123;&#123; buddy &#125;&#125; kullanabilirsiniz. İgili yeni "
+"çalışanın bilgileri ile güncellenecektir."
 
 #: admin/settings/forms.py:194
 msgid "6 digit OTP code"
-msgstr ""
+msgstr "6 haneli OTP kodu"
 
 #: admin/settings/forms.py:195
 msgid "This is the code that your 2FA application shows you."
-msgstr ""
+msgstr "Bu 2FA başvurunuzun size gösterdiği koddur"
 
 #: admin/settings/forms.py:211
 msgid "OTP token was not correct. Please wait 30 seconds and then try again"
-msgstr ""
+msgstr "OTP doğrulanamadı. Lütfen 30 saniye bekledikten sonra deneyiniz"
 
 #: admin/settings/templates/_personal_tabs.html:4 organization/models.py:26
 #: users/models.py:117
 msgid "Language"
-msgstr ""
+msgstr "Dil"
 
 #: admin/settings/templates/_personal_tabs.html:7
 msgid "OTP"
@@ -1398,145 +1429,149 @@ msgstr ""
 
 #: admin/settings/templates/integration-delete.html:11
 msgid "Are you sure you want to remove this integration?"
-msgstr ""
+msgstr "Bu entegrasyonu kaldırmak istediğinizden emin misiniz?"
 
 #: admin/settings/templates/integration-delete.html:13
 msgid "Disconnect integration"
-msgstr ""
+msgstr "Entegrasyon bağlantısını kes"
 
 #: admin/settings/templates/personal_otp.html:11
 msgid "OTP has been enabled for your account"
-msgstr ""
+msgstr "OTP hesabınız için etkinleştirilmiştir"
 
 #: admin/settings/templates/personal_otp.html:13
 msgid ""
 "Please copy and save the keys below. These will only show once - you won't "
 "be able to see them again."
 msgstr ""
+"Lütfen aşağıdaki anahtarları kopyalayıp kaydediniz. Bunları sadece şuan "
+"gösterilmektedir - daha sonra görüntüleyemeyeceksiniz"
 
 #: admin/settings/templates/personal_otp.html:14
 msgid "You will need these if you ever lose access to your 2FA app."
-msgstr ""
+msgstr "2FA uygulamanıza erişiminizi kaybetme durumunda bunlara ihtiyacınız olacaktır."
 
 #: admin/settings/templates/personal_otp.html:24
 msgid ""
 "Please scan the code below with your 2FA app of your choice. We recommend "
 "andOTP or Aegis (but you can use Google Authenticator or Authy)."
 msgstr ""
+"Lütfen aşağıdaki kodu dilediğiniz 2FA uygulaması ile taratınız. andOTP veya "
+"Aegis uygulamalarını öneriyoruz (Google Authenticator veya Authy de kullnabilirsiniz)"
 
 #: admin/settings/templates/settings_admins.html:11 users/models.py:123
 msgid "Role"
-msgstr ""
+msgstr "Rol"
 
 #: admin/settings/templates/settings_admins_create.html:12
 msgid "Add administrator"
-msgstr ""
+msgstr "Yönetici ekle"
 
 #: admin/settings/templates/settings_admins_update.html:12
 msgid "Update administrator"
-msgstr ""
+msgstr "Yönetici güncelle"
 
 #: admin/settings/templates/settings_base.html:11
 msgid "General"
-msgstr ""
+msgstr "Genel"
 
 #: admin/settings/templates/settings_base.html:13
 msgid "Welcome messages"
-msgstr ""
+msgstr "Hoşgeldiniz Mesajları"
 
 #: admin/settings/templates/settings_base.html:14
 msgid "Personal"
-msgstr ""
+msgstr "Kişisel"
 
 #: admin/settings/templates/settings_base.html:15 admin/settings/views.py:252
 msgid "Integrations"
-msgstr ""
+msgstr "Entegrasyonlar"
 
 #: admin/settings/templates/settings_base.html:16 admin/settings/views.py:82
 msgid "Administrators"
-msgstr ""
+msgstr "Yöneticiler"
 
 #: admin/settings/templates/settings_integrations.html:10
 msgid "Official Integrations"
-msgstr ""
+msgstr "Resmi Entegrasyonlar"
 
 #: admin/settings/templates/settings_integrations.html:20
 msgid "Update Slack channels list"
-msgstr ""
+msgstr "Slack kanal listesini güncelle"
 
 #: admin/settings/templates/settings_integrations.html:23
 #: admin/settings/templates/settings_integrations.html:57
 msgid "Remove"
-msgstr ""
+msgstr "Kaldır"
 
 #: admin/settings/templates/settings_integrations.html:27
 #: admin/settings/views.py:285
 msgid "Enable"
-msgstr ""
+msgstr "Etkinleştir"
 
 #: admin/settings/templates/settings_integrations.html:41
 msgid "Custom integrations"
-msgstr ""
+msgstr "Özelleştirilmiş entegrasyonlar"
 
 #: admin/settings/templates/settings_integrations.html:51
 msgid "Update credentials"
-msgstr ""
+msgstr "Kimlik bilgilerini güncelle"
 
 #: admin/settings/templates/settings_integrations.html:54
 msgid "Update manifest"
-msgstr ""
+msgstr "Manifesto güncelle"
 
 #: admin/settings/templates/settings_integrations.html:63
 msgid "No custom integrations yet"
-msgstr ""
+msgstr "Henüz Özelleştirilmiş entegrasyon bulunmamaktadır"
 
 #: admin/settings/views.py:38
 msgid "Organization info has been updated"
-msgstr ""
+msgstr "Organizasyon bilgileri güncellenmiştir"
 
 #: admin/settings/views.py:53
 msgid "General Updates"
-msgstr ""
+msgstr "Genel Güncellemeler"
 
 #: admin/settings/views.py:64
 msgid "Slackbot settings have been updated"
-msgstr ""
+msgstr "Slackbot ayarları güncellenmiştir"
 
 #: admin/settings/views.py:114
 msgid "Admin/Manager has been created"
-msgstr ""
+msgstr "Yönetici/Müdür oluşturulmuştur"
 
 #: admin/settings/views.py:119
 msgid "Add Administrator"
-msgstr ""
+msgstr "Yönetici ekle"
 
 #: admin/settings/views.py:131
 msgid "Admin/Manager has been changed"
-msgstr ""
+msgstr "Yönetici/Müdür değiştirilmiştir"
 
 #: admin/settings/views.py:135
 msgid "Change Administrator"
-msgstr ""
+msgstr "Yönetici Değiştir"
 
 #: admin/settings/views.py:156
 msgid "Admin is now a normal user"
-msgstr ""
+msgstr "Yönetici normal kullanıcıya dönüştürülmüştür"
 
 #: admin/settings/views.py:165
 msgid "Message has been updated"
-msgstr ""
+msgstr "Mesaj güncellenmiştir"
 
 #: admin/settings/views.py:179
 msgid "Update welcome messages"
-msgstr ""
+msgstr "Hoşgeldiniz mesajlarını güncelle"
 
 #: admin/settings/views.py:192
 msgid "Your default language has been updated"
-msgstr ""
+msgstr "Varsayılan dil seçeneğiniz güncellenmiştir"
 
 #: admin/settings/views.py:208
 msgid "Update your default language"
-msgstr ""
+msgstr "Varsayılan dil seçeneğini güncelle"
 
 #: admin/settings/views.py:230 admin/settings/views.py:241
 msgid "TOTP 2FA"
@@ -1544,111 +1579,114 @@ msgstr ""
 
 #: admin/settings/views.py:241
 msgid "Enable TOTP 2FA"
-msgstr ""
+msgstr "TOTP 2FA Etkinleştir"
 
 #: admin/settings/views.py:277
 msgid "Slack has now been connected, check if you got a message from your bot!"
-msgstr ""
+msgstr "Slack bağlanmıştır, bot'unuzdan bir mesaj alıp alamadığınızı kontrol ediniz!"
 
 #: admin/settings/views.py:283
 msgid "Slack bot setup"
-msgstr ""
+msgstr "Slack bot ayarları"
 
 #: admin/settings/views.py:303
 msgid ""
 "Newly added channels have been added. Make sure the bot has been added to "
 "that channel too if you want it to post/get info there!"
 msgstr ""
+"Yeni eklenen kanallar eklenmiştir. Bilgi göndermesini/almasını istiyorsanız, "
+"bot'unuzun o kanala da ekli olduğundan emin olunuz!"
 
 #: admin/to_do/forms.py:50
 msgid "Please select a channel to send the message to"
-msgstr ""
+msgstr "Lütfen mesajı göndermek istediğiniz kanalı seçiniz"
 
 #: admin/to_do/forms.py:59
 msgid ""
 "Let your new hire now that the answers are going to be shared with the team!"
 msgstr ""
+"Yeni çalışanınıza cevapların takımın geri kalanı ile paylaşılacağını bildir!"
 
 #: admin/to_do/models.py:12
 msgid "Due on day"
-msgstr ""
+msgstr "Son teslim günü"
 
 #: admin/to_do/models.py:16
 msgid "Post new hire's answers from form (if applicable) back to Slack channel"
-msgstr ""
+msgstr "Yeni çalışanın form üzerindeki cevaplarını (uygunsa) Slack kanalda yayınla"
 
 #: admin/to_do/models.py:22
 msgid "Slack channel"
-msgstr ""
+msgstr "Slack kanalı"
 
 #: admin/to_do/templates/templates.html:30
 msgid "No items available"
-msgstr ""
+msgstr "Öğe bulunmamaktadır"
 
 #: admin/to_do/templates/upload_field.html:16
 msgid "Current file:"
-msgstr ""
+msgstr "Mevcut klasör:"
 
 #: admin/to_do/templates/upload_field.html:25
 #: new_hire/templates/_content.html:107
 msgid "Upload"
-msgstr ""
+msgstr "Yükle"
 
 #: admin/to_do/templates/upload_field.html:29
 msgid "File storage has not been set up. Please read the docs here: "
-msgstr ""
+msgstr "Dosya depolama kurulmamıştır. Lütfen şu dökümanları okuyunuz: "
 
 #: admin/to_do/templates/upload_field.html:29
 msgid "Set up object storage"
-msgstr ""
+msgstr "Nesne depolama kur"
 
 #: admin/to_do/views.py:33
 msgid "To do item has been created"
-msgstr ""
+msgstr "Yapılacaklar öğesi oluşturulmuştur"
 
 #: admin/to_do/views.py:37
 msgid "Create to do item"
-msgstr ""
+msgstr "Yapılacaklar öğesi oluştur"
 
 #: admin/to_do/views.py:49
 msgid "To do item has been updated"
-msgstr ""
+msgstr "Yapılacaklar öğesi güncellenmiştir"
 
 #: admin/to_do/views.py:53
 msgid "Update to do item"
-msgstr ""
+msgstr "Yapılacaklar öğesini güncelle"
 
 #: admin/to_do/views.py:64
 msgid "To do item has been removed"
-msgstr ""
+msgstr "Yapılacaklar öğesi kaldırılmıştır"
 
 #: back/settings.py:372
 msgid "English"
-msgstr ""
+msgstr "İngilizce"
 
 #: back/settings.py:373
 msgid "Dutch"
-msgstr ""
+msgstr "Flemenkçe"
 
 #: back/settings.py:374
 msgid "French"
-msgstr ""
+msgstr "Fransızca"
 
 #: back/settings.py:375
 msgid "German"
-msgstr ""
+msgstr "Almanca"
 
 #: back/settings.py:376
 msgid "Turkish"
-msgstr ""
+msgstr "Türkçe"
 
 #: back/settings.py:377
 msgid "Portuguese"
-msgstr ""
+msgstr "Portekizce"
 
 #: back/settings.py:378
 msgid "Spanish"
-msgstr ""
+msgstr "İspanyolca"
 
 #: back/templatetags/model_functions.py:12
 msgid "N/A"
@@ -1656,121 +1694,121 @@ msgstr ""
 
 #: back/templatetags/model_functions.py:21
 msgid "Could not find answer"
-msgstr ""
+msgstr "Cevap bulunamadı"
 
 #: misc/templates/_paginator.html:10
 msgid "prev"
-msgstr ""
+msgstr "önceki"
 
 #: misc/templates/_paginator.html:20
 msgid "last"
-msgstr ""
+msgstr "son"
 
 #: new_hire/templates/_colleague_intro.html:23
 #: new_hire/templates/_new_hire_colleagues_search.html:25
 #: new_hire/templates/_new_hire_colleagues_search.html:56
 msgid "Call"
-msgstr ""
+msgstr "Ara"
 
 #: new_hire/templates/_content.html:39
 msgid "Sorry, your browser doesn't support embedded videos."
-msgstr ""
+msgstr "Pardon, tarayıcınız gömülü video içeriklerini desteklememektedir."
 
 #: new_hire/templates/_content.html:65
 msgid "You have already completed this form"
-msgstr ""
+msgstr "Bu formu daha önce tamamladınız"
 
 #: new_hire/templates/_content.html:111
 msgid "File storage has not been set up. Please ask your supervisor."
-msgstr ""
+msgstr "Dosya depolama kurulu değil. Lütfen amirinize danışınız."
 
 #: new_hire/templates/_new_hire_colleagues_search.html:65
 msgid "No search results found"
-msgstr ""
+msgstr "Arama sonuçları bulunamadı"
 
 #: new_hire/templates/_new_hire_resources_search.html:17
 msgid "See resource"
-msgstr ""
+msgstr "Kaynaklara gözat"
 
 #: new_hire/templates/_new_hire_resources_search.html:25
 msgid "We couldn't find any matching items"
-msgstr ""
+msgstr "Eleşen herhangi bir öğe bulunamadı"
 
 #: new_hire/templates/new_hire_base.html:8 users/templates/admin_base.html:8
 #: users/templates/no_login_base.html:8
 msgid "Employee onboarding"
-msgstr ""
+msgstr "Çalışan işe başlatma"
 
 #: new_hire/templates/new_hire_base.html:101 users/templates/admin_base.html:39
 msgid "Logout"
-msgstr ""
+msgstr "Çıkış"
 
 #: new_hire/templates/new_hire_preboarding.html:64
 #: new_hire/templates/new_hire_to_do.html:47
 #: new_hire/templates/slack_form.html:38 users/templates/admin_base.html:252
 msgid "uploading..."
-msgstr ""
+msgstr "yükleniyor..."
 
 #: new_hire/templates/new_hire_resource_detail.html:46
 msgid "Answers saved successfully! Click on 'next' to continue."
-msgstr ""
+msgstr "Cevaplar başarılı bir şekilde kaydedildi! Devam etmek için 'ileri'ye tıklayınız."
 
 #: new_hire/templates/new_hire_resource_detail.html:54
 #: slack_bot/slack_resource.py:93 slack_bot/views.py:632
 msgid "Next"
-msgstr ""
+msgstr "İleri"
 
 #: new_hire/templates/new_hire_resources.html:38
 msgid "Search through resources"
-msgstr ""
+msgstr "Kaynaklar arasında ara"
 
 #: new_hire/templates/new_hire_to_do.html:18
 msgid "I have completed this item!"
-msgstr ""
+msgstr "Bu öğeyi tamamladım!"
 
 #: new_hire/templates/new_hire_to_do.html:22
 msgid "You have already completed this item"
-msgstr ""
+msgstr "Bu öğeyi daha önce tamamladınız"
 
 #: new_hire/templates/new_hire_to_dos.html:13
 msgid "You have completed all to do items"
-msgstr ""
+msgstr "Tüm yapılacaklar öğelerini tamamladınız"
 
 #: new_hire/templates/new_hire_to_dos.html:20
 msgid "Overdue"
-msgstr ""
+msgstr "Teslim tarihi geçmiş"
 
 #: new_hire/templates/new_hire_to_dos.html:35
 msgid "Due on "
-msgstr ""
+msgstr "Son teslim tarihi "
 
 #: new_hire/views.py:76
 msgid "Things you need to do"
-msgstr ""
+msgstr "Yapmanız gereken şeyler"
 
 #: new_hire/views.py:119
 msgid "This form could not be processed - invalid items"
-msgstr ""
+msgstr "Bu form işlenemiyor - geçersiz öğeler"
 
 #: new_hire/views.py:125
 msgid "You have submitted this form successfully"
-msgstr ""
+msgstr "Bu formu başarılı bir şekilde teslim ettiniz"
 
 #: new_hire/views.py:363
 msgid "You have completed this course!"
-msgstr ""
+msgstr "Bu kursu tamamladınız!"
 
 #: organization/models.py:37
 msgid "Base color"
-msgstr ""
+msgstr "Ana renk"
 
 #: organization/models.py:40
 msgid "Accent color"
-msgstr ""
+msgstr "Vurgu rengi"
 
 #: organization/models.py:43
 msgid "Bot color"
-msgstr ""
+msgstr "Bot rengi"
 
 #: organization/models.py:46
 msgid "Logo"
@@ -1778,251 +1816,260 @@ msgstr ""
 
 #: organization/models.py:51
 msgid "Allow users to login with their username and password"
-msgstr ""
+msgstr "Kullanıcıların kullanıcı adı ve şifre ile giriş yapmalarına izin ver"
 
 #: organization/models.py:55
 msgid "Allow users to login with their Google account"
-msgstr ""
+msgstr "Kullanıcıların Google Hesabı ile giriş yapmalarına izin ver"
 
 #: organization/models.py:58
 msgid "Allow users to login with their Slack account"
-msgstr ""
+msgstr "Kullanıcıların Slack hesapları ile giriş yapmalarına izin ver"
 
 #: organization/models.py:63
 msgid "Send email to new hire with login credentials"
-msgstr ""
+msgstr "Yeni çalışana giriş bilgilerini içeren e-posta gönder"
 
 #: organization/models.py:65
 msgid ""
 "This is essential if you want your new hires to login to the dashboard "
 "(disable if using Slack)"
 msgstr ""
+"Yeni çalışanlarınızın panele giriş yapabilmelerini istiyorsanız bu önemlidir "
+"(Slack kullanıyorsanız iptal ediniz)"
 
 #: organization/models.py:71
 msgid "Send email to new hire with updates"
-msgstr ""
+msgstr "Yeni çalışana güncellemelerle ilgili eposta gönder"
 
 #: organization/models.py:72
-msgid "Think of new tasks that got assigned, new resources, badges... "
-msgstr ""
+msgid "Think of new tasks that got assigned, new resources, badges..."
+msgstr "Yeni atanan görevleri, yeni kaynakları, rozetleri düşünün... "
 
 #: organization/models.py:76
 msgid "Send email to new hire when tasks are overdue"
-msgstr ""
+msgstr "Görevlerin son teslim tarihi aşıldığı zaman yeni çalışana e-posta gönder"
 
 #: organization/models.py:77
-msgid "These are daily emails, until all overdue tasks are completed."
+msgid "These are daily emails, until all overdue tasks are completed." 
 msgstr ""
+"Bunlar günlük e-postalar, tüm zaman aşımına uğramış görevler tamamlanana "
+"kadar gönderilecektir"
 
 #: organization/models.py:84
 msgid ""
 "Add 'todo' and 'resource' buttons to the first message that's being sent to "
 "the new hire."
 msgstr ""
+"Yeni çalışana gönderilen ilk mesaja 'yapılacaklar' ve 'kaynak' butonu ekle"
 
 #: organization/models.py:91
 msgid ""
 "Send a Slack message to the team to collect personal welcome messages from "
 "colleages."
 msgstr ""
+"İç arkadaşlarından kişisel 'hoşgeldin mesajlarını' toplamak için takıma "
+"Slack mesajı gönder"
 
 #: organization/models.py:98
 msgid "Send a Slack message to the team on the day the new hire starts"
-msgstr ""
+msgstr "Yeni çalışanın başladığı gün takıma Slack mesajı gönder"
 
 #: organization/models.py:103
 msgid "Create a new hire when they join your Slack team"
-msgstr ""
+msgstr "Slack takımına katıldığı zaman, yeni bir çalışan oluştur"
 
 #: organization/models.py:104
 msgid "If the user does not exist yet"
-msgstr ""
+msgstr "Eğer kullanıcı henüz bulunmuyorsa"
 
 #: organization/models.py:108
 msgid "Create new hires without needing confirm from a user"
-msgstr ""
+msgstr "Kullanıcıdan onay beklemeden yeni çalışanlar oluştur"
 
 #: organization/models.py:113
 msgid "User to sent new hire account requests to"
-msgstr ""
+msgstr "Yeni çalışan hesap oluşturma taleplerinin gönderileceği kullanıcı"
 
 #: organization/models.py:120
 msgid "This is the default channel where the bot will post messages in"
-msgstr ""
+msgstr "Bu, bot'un mesajlarını gönderdiği varsayılan kanaldır"
 
 #: organization/models.py:129
 msgid "Base email template"
-msgstr ""
+msgstr "Temel e-posta şablonu"
 
 #: organization/models.py:131
 msgid ""
 "Leave blank to use the default one. See documentation if you want to use "
 "your own."
 msgstr ""
+"Varsayılanı kullanmak için boş bırakınız. Kendinizinkini kullanmak "
+"istiyorsanız, dökümantasyonu inceleyiniz"
 
 #: organization/models.py:186
 msgid "pre-boarding"
-msgstr ""
+msgstr "İşe başlamadan önce"
 
 #: organization/models.py:187
 msgid "new hire welcome"
-msgstr ""
+msgstr "Yeni çalışan hoşgeldin"
 
 #: organization/models.py:188
 msgid "text welcome"
-msgstr ""
+msgstr "Hoşgeldin mesajı"
 
 #: organization/models.py:189
 msgid "slack welcome"
-msgstr ""
+msgstr "Hoşgeldin Slack"
 
 #: organization/models.py:190
 msgid "slack knowledge"
-msgstr ""
+msgstr "slack bilim"
 
 #: organization/models.py:193 users/models.py:99
 msgid "Message"
-msgstr ""
+msgstr "Mesaj"
 
 #: organization/models.py:250
 msgid "A new to do item has been added"
-msgstr ""
+msgstr "Yeni bir yapılacaklar öğesi eklenmiştir"
 
 #: organization/models.py:251
 msgid "To do item has been marked as completed"
-msgstr ""
+msgstr "Yapılacaklar öğesi tamamlandı olarak işaretlenmiştir"
 
 #: organization/models.py:252
 msgid "A new resource item has been added"
-msgstr ""
+msgstr "Yeni bir kaynak öğesi eklenmiştir"
 
 #: organization/models.py:253
 msgid "Course has been completed"
-msgstr ""
+msgstr "Kurs tamamlanmıştır"
 
 #: organization/models.py:254
 msgid "A new badge item has been added"
-msgstr ""
+msgstr "Yeni bir rozet öğesi eklenmiştir"
 
 #: organization/models.py:255
-msgid "A new introduction item has been added"
-msgstr ""
+msgid "A new introduction item has been adde"
+msgstr "Yeni bir tanışma öğesi eklenmiştir"
 
 #: organization/models.py:256
 msgid "A new preboarding item has been added"
-msgstr ""
+msgstr "Yeni bir 'işe başlamadan önce' öğesi eklenmiştir"
 
 #: organization/models.py:257
 msgid "A new hire has been added"
-msgstr ""
+msgstr "Yeni bir işe alma eklenmiştir"
 
 #: organization/models.py:258
 msgid "A new administrator has been added"
-msgstr ""
+msgstr "Yeni bir yönetici eklenmiştir"
 
 #: organization/models.py:259
 msgid "A new manager has been added"
-msgstr ""
+msgstr "Yeni bir müdür eklenmiştir"
 
 #: organization/models.py:260
 msgid "A new admin task has been added"
-msgstr ""
+msgstr "Yeni bir yönetici görevi eklenmiştir"
 
 #: organization/models.py:261
 msgid "A new email has been sent"
-msgstr ""
+msgstr "Yeni bir e-posta gönderilmiştir"
 
 #: organization/models.py:262
 msgid "A new text message has been sent"
-msgstr ""
+msgstr "Yeni bir kısa mesaj gönderilmiştir"
 
 #: organization/models.py:263
 msgid "A new slack message has been sent"
-msgstr ""
+msgstr "Yeni bir slack mesajı gönderilmiştir"
 
 #: organization/models.py:264
 msgid "Login credentials have been sent"
-msgstr ""
+msgstr "Giriş bilgileri gönderilmiştir"
 
 #: organization/models.py:265
 msgid "Reopened task email has been sent"
-msgstr ""
+msgstr "Yeniden açılmış görev e-postası gönderilmiştir"
 
 #: organization/models.py:266
 msgid "Task reminder email has been sent"
-msgstr ""
+msgstr "Görev hatıratma e-postası gönderilmiştir"
 
 #: organization/models.py:267
 msgid "Sent new hire credentials email"
-msgstr ""
+msgstr "Yeni çalışan bilgileri e-postası gönderilmiştir"
 
 #: organization/models.py:268
 msgid "Sent new hire preboarding email"
-msgstr ""
+msgstr "Yeni çalışan 'işe başlamadan önce' e-postası gönderilmiştir"
 
 #: organization/models.py:269
 msgid "Sent email from sequence"
-msgstr ""
+msgstr "Sekanstan e-posta gönderilmiştir"
 
 #: organization/models.py:270
 msgid "Sent email with updates to new hire"
-msgstr ""
+msgstr "Yeni çalışana güncellerle ilgili e-posta gönderilmiştir"
 
 #: organization/models.py:271
 msgid "Sent email to extra person in admin task"
-msgstr ""
+msgstr "Yönetici görevindeki bir kişiye daha e-posta gönderilmiştir"
 
 #: organization/models.py:274
 msgid "Sent email about new person assigned to admin task"
-msgstr ""
+msgstr "Yönetici görevine yeni birinin atanması ile ilgili e-posta gönderilmiştir"
 
 #: organization/models.py:278
 msgid "Sent email about new comment on admin task"
-msgstr ""
+msgstr "Yönetici görevine yeni yorum bildirim e-postası gönderilmiştir"
 
 #: organization/models.py:282
 msgid "Sent email about completing integration call"
-msgstr ""
+msgstr "Entegrasyon araması tamamlanması ile ilgili e-posta gönderilmiştir"
 
 #: organization/models.py:284
 msgid "Couldn't send text message: number is missing"
-msgstr ""
+msgstr "Kısa mesaj gönderilemedi: Cep numarası eksik"
 
 #: organization/models.py:285
 msgid "Couldn't send email message: email is missing"
-msgstr ""
+msgstr "E-posta gönderilemedi: E-posta adresi eksik"
 
 #: organization/models.py:288
 msgid "Couldn't deliver email message: recipient refused"
-msgstr ""
+msgstr "E-posta iletilemedi: alıcı reddetti"
 
 #: organization/models.py:290 organization/models.py:291
 msgid "Couldn't deliver email message: provider error"
-msgstr ""
+msgstr "E-posta iletilemedi: sağlayıcı hatası"
 
 #: organization/models.py:292
 msgid "Integration has been triggered"
-msgstr ""
+msgstr "Entegrasyon başlatıldı"
 
 #: organization/models.py:293
 msgid "Couldn't complete integration"
-msgstr ""
+msgstr "Entegrasyon tamamlanamadı"
 
 #: organization/models.py:296
-msgid "Couldn't send integration notification"
-msgstr ""
+msgid "Couldn't send integration notificatio"
+msgstr "Entegrasyon bildirimi gönderilemedi"
 
 #: organization/templates/notifications.html:17
-msgid "For "
-msgstr ""
+msgid "For: "
+msgstr "Kime: "
 
 #: organization/templates/notifications.html:17
-msgid "By "
-msgstr ""
+msgid "By: "
+msgstr "Kimden: "
 
 #: organization/views.py:73
 msgid "Notifications"
-msgstr ""
+msgstr "Bildirimler"
 
 #: organization/views.py:74
 msgid "global"
@@ -2030,111 +2077,115 @@ msgstr ""
 
 #: slack_bot/slack_misc.py:13 slack_bot/slack_misc.py:19
 msgid "Select sequences"
-msgstr ""
+msgstr "Sekansları seç"
 
 #: slack_bot/slack_misc.py:40
 msgid "Click a button to see more information :)"
-msgstr ""
+msgstr "Daha fazla bilgi almak için bir butona tıkla :)"
 
 #: slack_bot/slack_resource.py:19
 msgid "View course"
-msgstr ""
+msgstr "Kursu görüntüle"
 
 #: slack_bot/slack_resource.py:21
 msgid "View resource"
-msgstr ""
+msgstr "Kaynak görüntüle"
 
 #: slack_bot/slack_resource.py:44
 msgid "Select chapter"
-msgstr ""
+msgstr "Bölüm seç"
 
 #: slack_bot/slack_resource.py:86
 msgid "Course"
-msgstr ""
+msgstr "Kurs"
 
 #: slack_bot/slack_resource.py:114
 msgid "No resources available"
-msgstr ""
+msgstr "Kaynak bulunmuyor"
 
 #: slack_bot/slack_resource.py:118
 msgid "No category"
-msgstr ""
+msgstr "Kategori bulunmuyor"
 
 #: slack_bot/slack_resource.py:121 slack_bot/views.py:123
 msgid "Select a category:"
-msgstr ""
+msgstr "Bir kategori seç:"
 
 #: slack_bot/slack_to_do.py:19
 msgid "This task has no deadline."
-msgstr ""
+msgstr "Bu görevin son teslim tarihi yoktur."
 
 #: slack_bot/slack_to_do.py:21
 msgid "This task is overdue"
-msgstr ""
+msgstr "Bu görevin son teslim tarihi geçmiştir"
 
 #: slack_bot/slack_to_do.py:23
 msgid "This task is due today"
-msgstr ""
+msgstr "Bu görevin son teslim günü bugündür"
 
 #: slack_bot/slack_to_do.py:24
 #, python-format
 msgid "This task needs to be completed in %(amount)s working days"
-msgstr ""
+msgstr "Bu görevin %(amount)s iş günü içerisinde tamamlanması gerekmektedir"
 
 #: slack_bot/slack_to_do.py:31 slack_bot/slack_to_do.py:52
 msgid "View details"
-msgstr ""
+msgstr "Detayları görüntüle"
 
 #: slack_bot/slack_to_do.py:34
 msgid "Mark completed"
-msgstr ""
+msgstr "Tamamlandı olarak işaretle"
 
 #: slack_bot/slack_to_do.py:81
 msgid "done"
-msgstr ""
+msgstr "bitti"
 
 #: slack_bot/slack_to_do.py:101 slack_bot/tasks.py:73 slack_bot/tasks.py:77
 #: slack_bot/views.py:147 slack_bot/views.py:513
 msgid "These are the tasks you need to complete:"
-msgstr ""
+msgstr "Tamamlamanız gerek görevler bunlardır:"
 
 #: slack_bot/slack_to_do.py:103 slack_bot/views.py:149 slack_bot/views.py:515
 msgid "I couldn't find any tasks."
-msgstr ""
+msgstr "Herhangi bir görev bulamadım."
 
 #: slack_bot/tasks.py:62
 msgid "Welcome!"
-msgstr ""
+msgstr "Hoşgeldiniz!"
 
 #: slack_bot/tasks.py:116
 msgid ""
 "Good morning! These are the tasks you need to complete. Some to do items are "
 "overdue. Please complete those as soon as possible!"
 msgstr ""
+"Günaydın! Tamamlamanız gereken görevler bunlardır. Bazı yapılacaklar öğelerinizin "
+"son teslim tarihleri geçmiştir. Lütfen bunları en kısa zamanda tamamlayınız!"
 
 #: slack_bot/tasks.py:121
 msgid "Good morning! These are the tasks you need to complete today:"
-msgstr ""
+msgstr "Günaydın! Bunlar, bugün tamamlamanız gereken görevlerdir:"
 
 #: slack_bot/tasks.py:130
 msgid "Here are some courses that you need to complete"
-msgstr ""
+msgstr "Bunlar tamamlamanız gereken kursların bazılarıdır"
 
 #: slack_bot/tasks.py:153
 #, python-format
 msgid "Just a quick reminder: It's %(name)s's first day today!"
-msgstr ""
+msgstr "Hızlı bir hatırlatıcı: Bugün %(name)s'in birinci iş günü!"
 
 #: slack_bot/tasks.py:159
 #, python-format
 msgid "We got some new hires coming in! %(names)s are starting today!"
-msgstr ""
+msgstr "Yeni bir çalışanımız var! %(names)s bugün başlıyor!"
 
 #: slack_bot/tasks.py:189
 msgid ""
 "We got some new hires coming in soon! Make sure to leave a welcome message "
 "for them!"
 msgstr ""
+"Yakında yeni bir çalışanımız başlayacaktır! Onlar için bir 'Hoşgeldiniz' "
+"mesajı bırakmayı unutmayınız!"
 
 #: slack_bot/tasks.py:194
 #, python-format
@@ -2142,26 +2193,30 @@ msgid ""
 "We have a new hire coming in soon! Make sure to leave a message for "
 "%(first_name)s!"
 msgstr ""
+"Yakında yeni bir çalışanımız başlayacaktır! %(first_name)s için bir "
+"'Hoşgeldiniz' mesajı bırakmayı unutmayınız!"
 
 #: slack_bot/tasks.py:222
 #, python-format
 msgid " and is our new %(position)s"
-msgstr ""
+msgstr " ve bizim yeni %(position)s"
 
 #: slack_bot/tasks.py:227
 #, python-format
 msgid "%(first_name)s starts on %(start_day)s %(footer_extra)s."
-msgstr ""
+msgstr "%(first_name)s , %(start_day)s gününde başlıyor %(footer_extra)s."
 
 #: slack_bot/tasks.py:240 slack_bot/views.py:680
 msgid "Welcome this new hire!"
-msgstr ""
+msgstr "Bu yeni çalışana bir 'Hoşgeldin' deyin.!"
 
 #: slack_bot/views.py:80
 msgid ""
 "Happy to help! Here are all the things you can say to me: \n"
 "\n"
 msgstr ""
+"Size yardımcı olmaktan memnuniyet duyuyorum! İşte bana söyleyebileceklerinizin tamamı: \n"
+"\n"
 
 #: slack_bot/views.py:82
 msgid ""
@@ -2169,6 +2224,10 @@ msgid ""
 "This will show all the tasks you need to do today. I will show you these "
 "every day as well, but just incase you want to get them again.\n"
 msgstr ""
+"*Bugün ne yapmam gerekiyor?*\n"
+"Bu size bugün yapmanız gereken tüm görevleri gösterecektir. Ben bunları "
+"size günlük olarak gösteriyor olacağım zaten. Yine de tekrar görmek "
+"istediğinizde kullanabilirsiniz"
 
 #: slack_bot/views.py:87
 msgid ""
@@ -2176,42 +2235,51 @@ msgid ""
 "This will show all tasks that should have been completed. Please do those as "
 "soon as possible.\n"
 msgstr ""
+"*Son teslim tarihi geçmiş olan görevim var mı?*\n"
+"Bu size tamamlanmış olması gereken tüm görevleri gösterecektir. Lütfen bunları "
+"en kısa zamanda tamamlayınız.\n"
 
 #: slack_bot/views.py:91
 msgid ""
 "*Show me all to do items*\n"
 "This will show all tasks\n"
 msgstr ""
+"*Bana tüm yapılacakları göster*\n"
+"Bu size tüm görevleri gösterecektir\n"
 
 #: slack_bot/views.py:92
 msgid ""
 "*Show me all resources*\n"
 "This will show all resources."
 msgstr ""
+"*Bana tüm kaynakları göster*\n"
+"Bu size tüm kaynakları gösterecektir"
 
 #: slack_bot/views.py:105
 msgid "You don't seem to be setup yet. Please ask your supervisor for access."
 msgstr ""
+"Henüz kurulumunuzu tamamlamamış gibi görünüyorsunuz. "
+"Lütfen erişim için amirinize danışınız"
 
 #: slack_bot/views.py:139
 msgid "today"
-msgstr ""
+msgstr "bugün"
 
 #: slack_bot/views.py:141
 msgid "overdue"
-msgstr ""
+msgstr "son teslim tarihi geçmiş"
 
 #: slack_bot/views.py:178
 msgid "Please complete the form first. Click on 'View details' to complete it."
-msgstr ""
+msgstr "Lütfen önce formu doldurunuz. Tamamlamak için 'Detayları göster'e tıklayınız."
 
 #: slack_bot/views.py:229
 msgid "Here is what I found: "
-msgstr ""
+msgstr "Bakın ne buldum: "
 
 #: slack_bot/views.py:231
 msgid "Unfortunately, I couldn't find anything."
-msgstr ""
+msgstr "Maalesef hiç bir şey bulamadım."
 
 #: slack_bot/views.py:297
 #, python-format
@@ -2219,164 +2287,171 @@ msgid ""
 "Would you like to put this new hire through onboarding?\n"
 "*Name:* %(name)s "
 msgstr ""
+"Bu yeni çalışanı 'işe başlangıç' sürecine geçirmek istiyor musunuz?\n"
+"*Ad:* %(name)s "
 
 #: slack_bot/views.py:305
 msgid "Yeah!"
-msgstr ""
+msgstr "Evet!"
 
 #: slack_bot/views.py:310
 msgid "Nope"
-msgstr ""
+msgstr "Hayır"
 
 #: slack_bot/views.py:332
 msgid "New hire options"
-msgstr ""
+msgstr "Yeni çalışan seçenekleri"
 
 #: slack_bot/views.py:375
 #, python-format
 msgid "You approved the request to onboard %(name)s"
-msgstr ""
+msgstr "%(name)s isimli yeni çalışan için 'işe başlangıç' talebini onayladınız"
 
 #: slack_bot/views.py:393
 msgid "You denied the request to onboard this person."
-msgstr ""
+msgstr "Bu kişiyi işe başlatma talebini reddettiniz."
 
 #: slack_bot/views.py:426 slack_bot/views.py:434
 msgid "Here are your options:"
-msgstr ""
+msgstr "Seçenekleriniz aşağıdaki gibidir:"
 
 #: slack_bot/views.py:655
 msgid "Thanks! This has been marked as completed."
-msgstr ""
+msgstr "Teşekkürler! Bu tamamlandı olarak işaretlenmiştir."
 
 #: slack_bot/views.py:694
 msgid "What would you like to say to our new hire?"
-msgstr ""
+msgstr "Yeni çalışanımıza ne demek istersiniz?"
 
 #: slack_bot/views.py:737
 msgid "Message has been saved! Your message: \""
-msgstr ""
+msgstr "Mesaj kaydedildi. Mesajınız: \""
 
 #: user_auth/templates/email/reset.html:2
 msgid "Reset your password!"
-msgstr ""
+msgstr "Şifrenizi yenileyin!"
 
 #: user_auth/templates/email/reset.html:3
 msgid "Use this link to change your password:"
-msgstr ""
+msgstr "Şifrenizi yenilemek için bu bağlantıyı kullanın:"
 
 #: user_auth/templates/email/reset_subject.txt:2
 msgid "Reset your password"
-msgstr ""
+msgstr "Şifrenizi yenileyin"
 
 #: user_auth/templates/mfa.html:13 users/templates/login.html:19
 msgid "Log in"
-msgstr ""
+msgstr "Giriş Yap"
 
 #: user_auth/views.py:98
 msgid "Google login access token has not been set"
-msgstr ""
+msgstr "Google hesabi giriş anahtarı kurulmamış"
 
 #: user_auth/views.py:124
 msgid "Something went wrong with reaching Google. Please try again."
-msgstr ""
+msgstr "Google'a erişmeye çalışırken bir şeyler ters gitti. Lütfen tekrar deneyin."
 
 #: user_auth/views.py:141
 msgid ""
 "There is no account associated with your email address. Did you try to log "
 "in with the correct account?"
 msgstr ""
+"E-posta adresinizle ilişkili herhangi bir hesap bulunmamaktadır. Doğru hesap "
+"ile giriş yapmayı denediniz mi?"
 
 #: users/emails.py:17
 msgid "Your login credentials!"
-msgstr ""
+msgstr "Giriş bilgileriniz!"
 
 #: users/emails.py:23
 msgid ""
-"Someone in your organisation invited you to join ChiefOnboarding.Here are "
+"Someone in your organisation invited you to join ChiefOnboarding.Here are"
 "your login details:"
 msgstr ""
+"Kurumunuzdan birisi sizi ChiefOnboarding'e katılmak üzere davet etti. Giriş "
+"bilgileriniz:" 
 
 #: users/emails.py:32
 msgid "Username:"
-msgstr ""
+msgstr "Kullanıcı Adı:"
 
 #: users/emails.py:34
 msgid "Password:"
-msgstr ""
+msgstr "Şifre:"
 
 #: users/emails.py:36
 msgid "Login URL:"
-msgstr ""
+msgstr "Giriş URL'si:"
 
 #: users/emails.py:58
 msgid "Please redo this task"
-msgstr ""
+msgstr "Lütfen bu görevi tekrar yapınız"
 
 #: users/emails.py:64
 #, python-format
 msgid "Hi %(name)s, we have just reopened this task. %(message)s"
-msgstr ""
+msgstr "Merhaba %(name)s, Bu görevi tekrar açtık. %(message)s"
 
 #: users/emails.py:72 users/emails.py:109
 #, python-format
 msgid ""
 "<strong>%(task_name)s</strong> <br />Go to your dashboard to complete it"
 msgstr ""
+"<strong>%(task_name)s</strong> <br />Tamamlamak için panelinize gidiniz"
 
 #: users/emails.py:78 users/emails.py:115 users/emails.py:150
 msgid "Dashboard"
-msgstr ""
+msgstr "Panel"
 
 #: users/emails.py:92
 msgid "Please complete this task"
-msgstr ""
+msgstr "Lütfen bu görevi tamamlayınız"
 
 #: users/emails.py:100
 #, python-format
 msgid "Hi %(name)s, Here is a quick reminder of the following task:"
-msgstr ""
+msgstr "Merhaba %(name)s, bu bildirim; aşağıdaki görev için kısa bir hatırlatıcıdır:"
 
 #: users/emails.py:144
 msgid "Username: "
-msgstr ""
+msgstr "Kullanıcı Adı: "
 
 #: users/emails.py:146
 msgid "Password: "
-msgstr ""
+msgstr "Şifre: "
 
 #: users/emails.py:169
 #, python-format
 msgid "Welcome to %(name)s!"
-msgstr ""
+msgstr "Hoşgeldin to %(name)s!"
 
 #: users/emails.py:175
 msgid "See pages"
-msgstr ""
+msgstr "Sayfaları gör"
 
 #: users/models.py:27
 msgid "New Hire"
-msgstr ""
+msgstr "Yeni Çalışan"
 
 #: users/models.py:30
 msgid "Other"
-msgstr ""
+msgstr "Diğer"
 
 #: users/models.py:85
 msgid "First name"
-msgstr ""
+msgstr "Ad"
 
 #: users/models.py:86
 msgid "Last name"
-msgstr ""
+msgstr "Soyad"
 
 #: users/models.py:95
 msgid "Phone"
-msgstr ""
+msgstr "Telefon"
 
 #: users/models.py:101
 msgid "Profile image"
-msgstr ""
+msgstr "Profil Fotoğrafı"
 
 #: users/models.py:104
 msgid "Linkedin"
@@ -2391,23 +2466,25 @@ msgid "Twitter"
 msgstr ""
 
 #: users/models.py:114
-msgid "Department"
-msgstr ""
+msgid "Profile image"
+msgstr "Bölüm"
 
 #: users/models.py:127
 msgid ""
 "An administrator has access to everything. A manager has only access to "
 "their new hires and their tasks."
 msgstr ""
+"Bir yöneticinin her şeye erişim izni bulunurken bir müdürün sadece kendi "
+"yeni işe alımları ve görevlerine erişimleri bulunmaktadır"
 
 #: users/models.py:158
 msgid "First working day"
-msgstr ""
+msgstr "Birinci çalışma günü"
 
 #: users/models.py:427
 #, python-format
 msgid "*Our new hire %(name)s just answered some questions:*"
-msgstr ""
+msgstr "*Yeni çalışanımız, %(name)s, az önce bazı soruları cevapladı:*"
 
 #: users/models.py:547
 #, python-format
@@ -2415,18 +2492,20 @@ msgid ""
 "%(amount_of_correct_answers)s correct answers out of %(amount_of_questions)s "
 "questions"
 msgstr ""
+"%(amount_of_questions)s sorudan %(amount_of_correct_answers)s adedi doğru cevaplanmıştır "
+"questions"
 
 #: users/templates/admin_base.html:52
 msgid "People"
-msgstr ""
+msgstr "Kişiler"
 
 #: users/templates/admin_base.html:183
 msgid "Documentation"
-msgstr ""
+msgstr "Dökümantasyon"
 
 #: users/templates/admin_base.html:188
 msgid "Source code"
-msgstr ""
+msgstr "Kaynak kod"
 
 #: users/templates/admin_base.html:196
 msgid "ChiefOnboarding"
@@ -2434,64 +2513,71 @@ msgstr ""
 
 #: users/templates/login.html:24
 msgid "or"
-msgstr ""
+msgstr "veya"
 
 #: users/templates/login.html:34
 msgid "Log in with Google"
-msgstr ""
+msgstr "Google ile giriş yap"
 
 #: users/templates/login.html:42
 msgid "Forgot password?"
-msgstr ""
+msgstr "Şifreni mi unuttun?"
 
 #: users/templates/password_change.html:8
 #: users/templates/password_change.html:20
 msgid "Change password"
-msgstr ""
+msgstr "Şifre değiştir"
 
 #: users/templates/password_change.html:14
 msgid ""
 "That didn't go well. This link isn't valid. Please request a new reset URL"
 msgstr ""
+"Başarısız oldu. Bu bağlandı geçerli değil. Lütfen yeni bir yenileme URL'si talep ediniz."
 
 #: users/templates/password_change.html:27
 #: users/templates/password_reset.html:22
 msgid "Go back to the log in screen"
-msgstr ""
+msgstr "Giriş yapma ekranına geri dön"
 
 #: users/templates/password_change_done.html:7
 msgid "Your password has been reset"
-msgstr ""
+msgstr "Şifreniz yenilenmiştir"
 
 #: users/templates/password_change_done.html:9
 msgid "You have successfully reset your password."
-msgstr ""
+msgstr "Şifrenizi başarılı bir şekilde sıfırladınız."
 
 #: users/templates/password_change_done.html:13
 #: users/templates/password_reset_done.html:14
 msgid "Go back to the login page"
-msgstr ""
+msgstr "Giriş ekranına tekrar dön"
 
 #: users/templates/password_reset.html:8
 msgid "Forgot password"
-msgstr ""
+msgstr "Şifremi unuttum"
 
 #: users/templates/password_reset.html:16
 msgid "Send me a reset link"
-msgstr ""
+msgstr "Şifre yenileme linki gönder"
 
 #: users/templates/password_reset_done.html:7
 msgid "Please check your email"
-msgstr ""
+msgstr "Lütfen e-posta kutunuzu kontrol ediniz"
 
 #: users/templates/password_reset_done.html:9
 msgid ""
 "We've emailed you instructions for setting your password, if an account "
 "exists with the email you entered. You should receive that shortly."
 msgstr ""
+"Eğer girmiş olduğunuz e-posta adresi ile eşleşen bir hesap varsa size "
+"şifrenizi ayarlamanız için gerekli talimatları size eposta olarak "
+"gönderdik. Kısa süre içerisinde e-posta kutunuza düşecektir."
 
 #: users/templates/password_reset_done.html:10
 msgid ""
 "If you don’t receive an email, please make sure you’ve entered the address "
 "you registered with, and check your spam folder."
 msgstr ""
+"Eğer e-posta gelmezse, lütfen hesabınızı kaydettiğiniz e-posta adresi "
+"olduğundan emin olunuz. Eminseniz, e-posta kutunuzda 'spam' klasörünüzü "
+"kontrol ediniz." 
