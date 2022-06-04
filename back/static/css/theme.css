@@ -12856,9 +12856,6 @@ Antialiasing
 .selectize-input {
     border: none;
 }
-.multi-with-add {
-  z-index: 1000
-}
 select {
   display: none !important;
 }

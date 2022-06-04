@@ -48,18 +48,37 @@ class NewHireAddForm(forms.ModelForm):
             Div(
                 Div(
                     Field("first_name"),
-                    Field("email"),
-                    Field("position"),
                     css_class="col-6",
                 ),
                 Div(
                     Field("last_name"),
+                    css_class="col-6",
+                ),
+                css_class="row",
+            ),
+            Div(
+                Div(
+                    Field("email"),
+                    css_class="col-6",
+                ),
+                Div(
                     Field("phone"),
+                    css_class="col-6",
+                ),
+                css_class="row",
+            ),
+            Div(
+                Div(
+                    Field("position"),
+                    css_class="col-6",
+                ),
+                Div(
                     Field("start_day"),
                     css_class="col-6",
                 ),
                 css_class="row",
             ),
+
             Div(
                 Div(Field("message"), css_class="col-12"),
                 css_class="row",
@@ -67,10 +86,17 @@ class NewHireAddForm(forms.ModelForm):
             Div(
                 Div(
                     Field("timezone"),
+                    css_class="col-6",
+                ),
+                Div(Field("language"), css_class="col-6"),
+                css_class="row",
+            ),
+            Div(
+                Div(
                     Field("buddy"),
                     css_class="col-6",
                 ),
-                Div(Field("language"), Field("manager"), css_class="col-6"),
+                Div(Field("manager"), css_class="col-6"),
                 css_class="row",
             ),
             Div(MultiSelectField("sequences"), css_class="row"),

@@ -189,7 +189,7 @@
                 <div class="text-truncate">
                   <strong>{{ object.get_notification_type_display }}: {{ object.extra_text }}</strong>
                 </div>
-                <div class="text-truncate text-muted">{% if object.created_for %}{% blocktranslate with full_name=object.created_for_full_name %}For {{ full_name }}{% endblocktranslate %}- {% endif %}{% translate "By" %}{% if object.created_by %}{{ object.created_by.full_name }}{% else %}ChiefOnboarding{% endif %}</div>
+                <div class="text-truncate text-muted">{% translate "By" %}{% if object.created_by %} {{ object.created_by.full_name }}{% else %} ChiefOnboarding{% endif %}</div>
               </div>
             </div>
           {% empty %}
