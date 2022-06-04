@@ -157,7 +157,7 @@ msgstr ""
 #: admin/admin_tasks/models.py:107
 #, python-format
 msgid "You have just been assigned to *%(title)s* for *%(name)s*\n"
-msgstr "Dir wurde gerade *%(title)s* für *%(name)s*\n zugewiesen"
+msgstr "Dir wurde gerade *%(title)s* für *%(name)s* zugewiesen \n"
 
 #: admin/admin_tasks/models.py:128
 msgid "New assigned task!"

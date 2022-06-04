@@ -1301,7 +1301,7 @@ msgstr "Type de bloc"
 
 #: admin/sequences/models.py:412
 msgid "Amount of days before/after new hire has started"
-msgstr Nombre de jours avant/après le début d'une nouvelle embauche"
+msgstr "Nombre de jours avant/après le début d'une nouvelle embauche"
 
 #: admin/sequences/models.py:414
 msgid "At"
@@ -1860,7 +1860,7 @@ msgid ""
 "Add 'todo' and 'resource' buttons to the first message that's being sent to "
 "the new hire."
 msgstr ""
-"Ajoutez les boutons "à faire" et "ressource" au premier message envoyé à "
+"Ajoutez les boutons 'à faire' et 'ressource' au premier message envoyé à "
 "la nouvelle recrue."
 
 #: organization/models.py:91
@@ -2502,7 +2502,7 @@ msgstr "Documentation"
 
 #: users/templates/admin_base.html:188
 msgid "Source code"
-msgstr "Code source
+msgstr "Code source"
 
 #: users/templates/admin_base.html:196
 msgid "ChiefOnboarding"

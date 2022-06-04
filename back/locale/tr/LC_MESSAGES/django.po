@@ -24,7 +24,7 @@ msgstr "Lütfen, benim için bunu yapar mısınız?"
 
 #: admin/admin_tasks/emails.py:16
 #, python-format
-msgid "Lütfen, benim için bunu yapar mısınız?"
+msgid "Hi! Could you please help me with this? It's for our new hire %(name)s"
 msgstr "Merhaba! Bana bu konuda yardımcı olur musunuz? Bu %(name)s isimli adayımızla ilgili."
 
 #: admin/admin_tasks/emails.py:42
@@ -2227,7 +2227,7 @@ msgstr ""
 "*Bugün ne yapmam gerekiyor?*\n"
 "Bu size bugün yapmanız gereken tüm görevleri gösterecektir. Ben bunları "
 "size günlük olarak gösteriyor olacağım zaten. Yine de tekrar görmek "
-"istediğinizde kullanabilirsiniz"
+"istediğinizde kullanabilirsiniz.\n"
 
 #: slack_bot/views.py:87
 msgid ""
@@ -2288,7 +2288,7 @@ msgid ""
 "*Name:* %(name)s "
 msgstr ""
 "Bu yeni çalışanı 'işe başlangıç' sürecine geçirmek istiyor musunuz?\n"
-"*Ad:* %(name)s "
+"*İsim:* %(name)s "
 
 #: slack_bot/views.py:305
 msgid "Yeah!"
@@ -2466,8 +2466,8 @@ msgid "Twitter"
 msgstr ""
 
 #: users/models.py:114
-msgid "Profile image"
-msgstr "Bölüm"
+msgid "Department"
+msgstr "Departman"
 
 #: users/models.py:127
 msgid ""
