@@ -1,6 +1,5 @@
 import uuid
-from datetime import datetime, timedelta
-
+from datetime import datetime, timedelta , date
 import pyotp
 import pytz
 from django.conf import settings
@@ -156,6 +155,7 @@ class User(AbstractBaseUser):
         null=True,
         blank=True,
         help_text=_("First working day"),
+        default=date.today().strftime('%Y-%m-%d'),
     )
     unique_url = models.CharField(max_length=250, null=True, unique=True, blank=True)
 

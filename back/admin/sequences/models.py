@@ -4,7 +4,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from twilio.rest import Client
-
+from datetime import date
 from admin.admin_tasks.models import NOTIFICATION_CHOICES, PRIORITY_CHOICES
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
@@ -322,7 +322,7 @@ class PendingAdminTask(models.Model):
     email = models.EmailField(
         verbose_name=_("Email"), max_length=12500, default="", blank=True
     )
-    date = models.DateField(verbose_name=_("Due date"), blank=True, null=True)
+    date = models.DateField(verbose_name=_("Due date"), blank=True, null=True, default=date.today().strftime('%Y-%m-%d'), )
     priority = models.IntegerField(
         verbose_name=_("Priority"), choices=PRIORITY_CHOICES, default=2
     )
