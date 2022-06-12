@@ -78,7 +78,6 @@ class NewHireAddForm(forms.ModelForm):
                 ),
                 css_class="row",
             ),
-
             Div(
                 Div(Field("message"), css_class="col-12"),
                 css_class="row",

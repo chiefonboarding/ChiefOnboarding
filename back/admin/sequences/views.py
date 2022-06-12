@@ -1,5 +1,4 @@
 from django.contrib import messages
-from django.db.models import Prefetch
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
@@ -10,13 +9,8 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
-from admin.appointments.models import Appointment
-from admin.badges.models import Badge
 from admin.integrations.forms import IntegrationConfigForm
 from admin.integrations.models import Integration
-from admin.introductions.models import Introduction
-from admin.preboarding.models import Preboarding
-from admin.resources.models import Resource
 from admin.sequences.utils import get_sequence_model_form, get_sequence_templates_model
 from admin.templates.utils import get_templates_model
 from admin.to_do.models import ToDo
@@ -33,7 +27,6 @@ from .models import (
     Condition,
     ExternalMessage,
     IntegrationConfig,
-    PendingAdminTask,
     Sequence,
 )
 

@@ -1,10 +1,10 @@
 from django.conf import settings
 from django.db import models
+from django.db.models import Prefetch
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from twilio.rest import Client
-from django.db.models import Prefetch
 
 from admin.admin_tasks.models import NOTIFICATION_CHOICES, PRIORITY_CHOICES
 from admin.appointments.models import Appointment
@@ -420,17 +420,14 @@ class ConditionPrefetchManager(models.Manager):
                 ),
                 to_attr="external_admin",
             ),
-            Prefetch(
-                "condition_to_do", queryset=ToDo.objects.all().defer("content")
-            ),
+            Prefetch("condition_to_do", queryset=ToDo.objects.all().defer("content")),
             Prefetch("admin_tasks", queryset=PendingAdminTask.objects.all()),
             Prefetch(
                 "preboarding", queryset=Preboarding.objects.all().defer("content")
             ),
-            Prefetch(
-                "integration_configs", queryset=IntegrationConfig.objects.all()
-            ),
+            Prefetch("integration_configs", queryset=IntegrationConfig.objects.all()),
         )
+
 
 class Condition(models.Model):
     CONDITION_TYPE = (

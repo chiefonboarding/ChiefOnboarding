@@ -44,6 +44,7 @@ def personalize(text, user):
 
     return user.personalize(text)
 
+
 @register.filter(name="new_hire_trigger_date")
 def new_hire_trigger_date(condition, new_hire):
     """
@@ -54,6 +55,7 @@ def new_hire_trigger_date(condition, new_hire):
         return new_hire.start_day - timedelta(days=condition.days)
     else:
         return new_hire.workday_to_datetime(condition.days)
+
 
 @register.simple_tag
 def show_start_card(conditions, idx, new_hire):
@@ -71,16 +73,14 @@ def show_start_card(conditions, idx, new_hire):
         return False
 
     try:
-        prev_condition = conditions[idx-1]
-    except:
+        prev_condition = conditions[idx - 1]
+    except Exception:
         prev_condition = None
 
-    if (
-        (prev_condition is None and current_condition.condition_type == 0) or (
-            prev_condition is not None and
-            prev_condition.condition_type == 2 and
-            current_condition.condition_type == 0
-        )
+    if (prev_condition is None and current_condition.condition_type == 0) or (
+        prev_condition is not None
+        and prev_condition.condition_type == 2
+        and current_condition.condition_type == 0
     ):
         return True
 

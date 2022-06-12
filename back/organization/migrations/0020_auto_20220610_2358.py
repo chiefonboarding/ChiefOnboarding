@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
         schedule.save()
 
     dependencies = [
-        ('organization', '0019_auto_20220523_1620'),
+        ("organization", "0019_auto_20220523_1620"),
     ]
 
     operations = [

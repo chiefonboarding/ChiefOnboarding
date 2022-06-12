@@ -1,11 +1,11 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Case, When, IntegerField, F
+from django.db.models import Case, F, IntegerField, When
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
@@ -106,7 +106,7 @@ class NewHireAddView(
             async_task(
                 "users.tasks.send_new_hire_credentials",
                 new_hire.id,
-                task_name=f"Send login credentials: {new_hire.full_name}"
+                task_name=f"Send login credentials: {new_hire.full_name}",
             )
 
         # Linking user in Slack and sending welcome message (if exists)
@@ -291,13 +291,26 @@ class NewHireSequenceView(
         conditions = new_hire.conditions.prefetched()
 
         # condition items
-        context["conditions"] = (conditions.filter(
-            condition_type=2, days__lte=new_hire.days_before_starting
-        ) | conditions.filter(
-            condition_type=0, days__gte=new_hire.workday
-        )).annotate(days_order=Case(When(condition_type=2, then=F("days") * -1), default=F("days"), output_field=IntegerField())).order_by("days_order")
+        context["conditions"] = (
+            (
+                conditions.filter(
+                    condition_type=2, days__lte=new_hire.days_before_starting
+                )
+                | conditions.filter(condition_type=0, days__gte=new_hire.workday)
+            )
+            .annotate(
+                days_order=Case(
+                    When(condition_type=2, then=F("days") * -1),
+                    default=F("days"),
+                    output_field=IntegerField(),
+                )
+            )
+            .order_by("days_order")
+        )
 
-        context["notifications"] = Notification.objects.filter(created_for=new_hire).select_related("created_by")
+        context["notifications"] = Notification.objects.filter(
+            created_for=new_hire
+        ).select_related("created_by")
         return context
 
 

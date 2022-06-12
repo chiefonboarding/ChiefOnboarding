@@ -49,7 +49,7 @@ def main():
             last_name="User",
             email=username,
             password=password,
-            role=1
+            role=1,
         )
         Organization.objects.create(
             name="Demo organization",

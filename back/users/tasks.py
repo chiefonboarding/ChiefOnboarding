@@ -32,5 +32,5 @@ def hourly_check_for_new_hire_send_credentials():
             async_task(
                 "users.tasks.send_new_hire_creds",
                 new_hire.id,
-                task_name=f"Sending login credentials: {new_hire.full_name}"
+                task_name=f"Sending login credentials: {new_hire.full_name}",
             )
