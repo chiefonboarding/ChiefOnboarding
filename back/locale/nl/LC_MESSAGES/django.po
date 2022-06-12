@@ -2229,8 +2229,8 @@ msgid " and is our new %(position)s"
 msgstr " en is onze nieuwe %(postition)s"
 
 #: slack_bot/tasks.py:227
-msgid "%(first_name)s starts on %(start_day)s %(footer_extra)s."
-msgstr "%(first_name) start op %(start_day)s %(footer_extra)s."
+msgid "%(first_name)s starts on %(start_day)s%(footer_extra)s."
+msgstr "%(first_name) start op %(start_day)s%(footer_extra)s."
 
 #: slack_bot/tasks.py:240 slack_bot/views.py:680
 msgid "Welcome this new hire!"

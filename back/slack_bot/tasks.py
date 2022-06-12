@@ -224,7 +224,7 @@ def introduce_new_people():
             }
 
         # Add when the new hire starts
-        start_text = _("%(first_name)s starts on %(start_day)s %(footer_extra)s.") % {
+        start_text = _("%(first_name)s starts on %(start_day)s%(footer_extra)s.") % {
             "first_name": new_hire.first_name,
             "start_day": localize(new_hire.start_day),
             "footer_extra": footer_extra,
