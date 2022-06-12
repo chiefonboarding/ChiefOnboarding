@@ -367,7 +367,7 @@ class SequenceConditionItemView(LoginRequiredMixin, ManagerPermMixin, View):
         template_item = get_object_or_404(templates_model, id=template_pk)
         condition.add_item(template_item)
         todos = ToDo.templates.all()
-        condition = Condition.objects.filter(id=condition.id).prefetched().first()
+        condition = Condition.objects.prefetched().filter(id=condition.id).first()
         return render(
             request,
             "_sequence_condition.html",
