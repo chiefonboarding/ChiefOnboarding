@@ -124,6 +124,7 @@ class Integration(models.Model):
                     new_hire.id,
                     self.id,
                     params,
+                    task_name=f"Retrying integration {self.name}",
                     next_run=timezone.now() + timedelta(hours=1),
                 )
                 return

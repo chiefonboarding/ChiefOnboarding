@@ -1,5 +1,6 @@
 {% extends 'admin_base.html' %}
 {% load i18n %}
+{% load general %}
 
 {% block actions %}
 {% include "_new_hire_settings_menu.html" %}
@@ -45,31 +46,46 @@
               </div>
             </li>
           {% endif %}
-          {# only show if user has not started yet #}
-          {% if object.days_before_starting != 0 %}
-            {% for condition in conditions_before_first_day %}
+            {% for condition in conditions %}
+              {% show_start_card conditions forloop.counter0 object as show_start %}
+              {% if show_start %}
+                <li>
+                  <div class="list-timeline-icon">
+                  </div>
+                  <div class="list-timeline-content pt-0" style="margin-top: -5px">
+                    <div class="card">
+                      <div class="card-header">
+                        <h4 class="card-title">{% blocktranslate with start_day=object.start_day %}{{ start_day }} - New hire's first day!{% endblocktranslate %}</h4>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              {% endif %}
               <li>
                 <div class="list-timeline-icon">
                 </div>
                 <div class="list-timeline-content pt-0" style="margin-top: -5px">
                   <div class="card">
                     <div class="card-header">
-                      <h4 class="card-title">{{ condition.days }}</h4>
+                      <h4 class="card-title">{{ condition|new_hire_trigger_date:object }}</h4>
                     </div>
                     <div class="card-body">
 
                       {# FOR NEW HIRES #}
-                      {% if condition.external_messages.for_new_hire|length or condition.to_do.all|length or condition.resources.all|length or condition.introductions.all|length %}
+                      {% if condition.external_new_hire|length or condition.to_do.all|length or condition.resources.all|length or condition.introductions.all|length %}
                       <span class="badge bg-azure mb-2">{% translate "new hire" %}</span>
                       {% endif %}
-                      {% for item in condition.preboarding.all %}
-                        {% include '_condition_line_item.html' with type='preboarding' read_only=True %}
-                      {% endfor %}
                       {% for item in condition.appointments.all %}
                         {% include '_condition_line_item.html' with type='appointment' read_only=True %}
                       {% endfor %}
-                      {% for item in condition.external_messages.for_new_hire %}
-                        {% include '_condition_line_item.html' with type='external_message' read_only=True %}
+                      {% for item in condition.external_new_hire %}
+                        {% if item.send_via == 0 %}{# email #}
+                          {% include '_condition_line_item.html' with type='pendingemailmessage' read_only=True %}
+                        {% elif item.send_via == 1 %}{# slack #}
+                          {% include '_condition_line_item.html' with type='pendingslackmessage' read_only=True %}
+                        {% else %}
+                          {% include '_condition_line_item.html' with type='pendingtextmessage' read_only=True %}
+                        {% endif %}
                       {% endfor %}
                       {% for item in condition.to_do.all %}
                         {% include '_condition_line_item.html' with type='todo' read_only=True %}
@@ -85,93 +101,26 @@
                       {% endfor %}
 
                       {# FOR ADMINS #}
-                      {% if condition.external_messages.for_admins|length or condition.admin_tasks.all|length %}
+                      {% if condition.external_admin|length or condition.admin_tasks.all|length %}
                       <span class="badge bg-orange mb-2">{% translate "admins" %}</span>
                       {% endif %}
                       {% for item in condition.admin_tasks.all %}
                         {% include '_condition_line_item.html' with type='admintask' read_only=True %}
                       {% endfor %}
-                      {% for item in condition.external_messages.for_admins %}
-                        {% include '_condition_line_item.html' with type='external_message' read_only=True %}
+                      {% for item in condition.external_admin %}
+                        {% if item.send_via == 0 %}{# email #}
+                          {% include '_condition_line_item.html' with type='pendingemailmessage' read_only=True %}
+                        {% elif item.send_via == 1 %}{# slack #}
+                          {% include '_condition_line_item.html' with type='pendingslackmessage' read_only=True %}
+                        {% else %}
+                          {% include '_condition_line_item.html' with type='pendingtextmessage' read_only=True %}
+                        {% endif %}
                       {% endfor %}
                     </div>
                   </div>
                 </div>
               </li>
             {% endfor %}
-            <li>
-              <div class="list-timeline-icon">
-              </div>
-              <div class="list-timeline-content pt-0" style="margin-top: -5px">
-                <div class="card">
-                  <div class="card-header">
-                    <h4 class="card-title">{% blocktranslate with start_day=object.start_day %}{{ start_day }} - New hire's first day!{% endblocktranslate %}</h4>
-                  </div>
-                </div>
-              </div>
-            </li>
-          {% endif %}
-          {% for condition in conditions_after_first_day %}
-            <li>
-              <div class="list-timeline-icon">
-              </div>
-              <div class="list-timeline-content pt-0" style="margin-top: -5px">
-                <div class="card">
-                  <div class="card-header">
-                    <h4 class="card-title">{{ condition.days }}</h4>
-                  </div>
-                  <div class="card-body">
-
-                    {# FOR NEW HIRES #}
-                    {% if condition.external_messages.for_new_hire|length or condition.to_do.all|length or condition.resources.all|length or condition.introductions.all|length %}
-                      <span class="badge bg-azure mb-2">{% translate "new hire" %}</span>
-                    {% endif %}
-                    {% for external_message in condition.external_messages.for_new_hire %}
-                      <p class="text-muted" style="margin-bottom: 5px">
-                      {{ external_message.get_icon_template }}
-                      {{ external_message.name }}
-                      </p>
-                    {% endfor %}
-                    {% for to_do in condition.to_do.all %}
-                      <p class="text-muted" style="margin-bottom: 5px">
-                      {{ to_do.get_icon_template }}
-                      {{ to_do.name }}
-                      </p>
-                    {% endfor %}
-                    {% for resource in condition.resources.all %}
-                      <p class="text-muted" style="margin-bottom: 5px">
-                      {{ resource.get_icon_template }}
-                      {{ resource.name }}
-                      </p>
-                    {% endfor %}
-                    {% for intro in condition.introductions.all %}
-                      <p class="text-muted" style="margin-bottom: 5px">
-                      {{ intro.get_icon_template }}
-                      {{ intro.name }}
-                      </p>
-                    {% endfor %}
-
-                    {# FOR ADMINS #}
-                    {% if condition.external_messages.for_admins|length or condition.admin_tasks.all|length %}
-                      <span class="badge bg-orange mb-2">{% translate "admins" %}</span>
-                    {% endif %}
-                    {% for admin_task in condition.admin_tasks.all %}
-                      <p class="text-muted" style="margin-bottom: 5px">
-                        {{ admin_task.get_icon_template }}
-                        {{ admin_task.name }}
-                      </p>
-                    {% endfor %}
-                    {% for external_message in condition.external_messages.for_admins %}
-                      <p class="text-muted" style="margin-bottom: 5px">
-                      {{ external_message.get_icon_template }}
-                      {{ external_message.name }}
-                      </p>
-                    {% endfor %}
-                  </div>
-                </div>
-              </div>
-            </li>
-          {% endfor %}
         </ul>
       </div>
     </div>
@@ -182,14 +131,14 @@
         <h3 class="card-title">{% translate "Latest activity..." %}</h3>
       </div>
       <div class="card-body">
-        <div class="divide-y">
+        <div class="divide-y" style="max-height: 500px; overflow-y: scroll;">
           {% for object in notifications %}
             <div class="row">
               <div class="col">
                 <div class="text-truncate">
                   <strong>{{ object.get_notification_type_display }}: {{ object.extra_text }}</strong>
                 </div>
-                <div class="text-truncate text-muted">{% translate "By" %}{% if object.created_by %} {{ object.created_by.full_name }}{% else %} ChiefOnboarding{% endif %}</div>
+                <div class="text-truncate text-muted">{% translate "By" %}{% if object.created_by %} {{ object.created_by.full_name }}{% else %} ChiefOnboarding{% endif %} - {{ object.created }}</div>
               </div>
             </div>
           {% empty %}

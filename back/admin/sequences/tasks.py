@@ -21,8 +21,8 @@ def process_condition(condition_id, user_id):
     """
     Processing triggered condition
 
-    :param Condition condition: the condition that got triggered
-    :param User user: the user that it got triggered for
+    :param condition_id int: the condition that got triggered
+    :param user_id int: the user that it got triggered for
     """
 
     condition = Condition.objects.get(id=condition_id)
@@ -149,4 +149,9 @@ def timed_triggers():
             # avoid long standing tasks. I.e. sending lots of emails might take more
             # time.
             for i in conditions:
-                async_task(process_condition, i.id, user.id)
+                async_task(
+                    process_condition,
+                    i.id,
+                    user.id,
+                    task_name=f"Process condition: {i.id} for {user.full_name}",
+                )

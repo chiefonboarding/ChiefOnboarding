@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import Case, When, IntegerField, F
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
@@ -102,7 +103,11 @@ class NewHireAddView(
             and new_hire_datetime.weekday() < 5
             and org.new_hire_email
         ):
-            async_task("users.tasks.send_new_hire_credentials", new_hire.id)
+            async_task(
+                "users.tasks.send_new_hire_credentials",
+                new_hire.id,
+                task_name=f"Send login credentials: {new_hire.full_name}"
+            )
 
         # Linking user in Slack and sending welcome message (if exists)
         link_slack_users([new_hire])
@@ -283,23 +288,16 @@ class NewHireSequenceView(
         context["title"] = new_hire.full_name
         context["subtitle"] = _("new hire")
 
+        conditions = new_hire.conditions.prefetched()
+
         # condition items
-        conditions_before_first_day = new_hire.conditions.filter(
+        context["conditions"] = (conditions.filter(
             condition_type=2, days__lte=new_hire.days_before_starting
-        )
-        conditions_after_first_day = new_hire.conditions.filter(
-            condition_type=0, days__lte=new_hire.days_before_starting
-        )
-        for condition in conditions_before_first_day:
-            condition.days = new_hire.start_day - timedelta(days=condition.days)
+        ) | conditions.filter(
+            condition_type=0, days__gte=new_hire.workday
+        )).annotate(days_order=Case(When(condition_type=2, then=F("days") * -1), default=F("days"), output_field=IntegerField())).order_by("days_order")
 
-        for condition in conditions_after_first_day:
-            condition.days = new_hire.workday_to_datetime(condition.days)
-
-        context["conditions_before_first_day"] = conditions_before_first_day
-        context["conditions_after_first_day"] = conditions_after_first_day
-
-        context["notifications"] = Notification.objects.filter(created_for=new_hire)
+        context["notifications"] = Notification.objects.filter(created_for=new_hire).select_related("created_by")
         return context
 
 

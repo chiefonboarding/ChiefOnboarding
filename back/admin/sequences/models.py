@@ -4,6 +4,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from twilio.rest import Client
+from django.db.models import Prefetch
 
 from admin.admin_tasks.models import NOTIFICATION_CHOICES, PRIORITY_CHOICES
 from admin.appointments.models import Appointment
@@ -395,6 +396,42 @@ class IntegrationConfig(models.Model):
         return self
 
 
+class ConditionPrefetchManager(models.Manager):
+    def prefetched(self):
+        return self.get_queryset().prefetch_related(
+            Prefetch("introductions", queryset=Introduction.objects.all()),
+            Prefetch("to_do", queryset=ToDo.objects.all().defer("content")),
+            Prefetch("resources", queryset=Resource.objects.all()),
+            Prefetch(
+                "appointments", queryset=Appointment.objects.all().defer("content")
+            ),
+            Prefetch("badges", queryset=Badge.objects.all().defer("content")),
+            Prefetch(
+                "external_messages",
+                queryset=ExternalMessage.objects.for_new_hire().defer(
+                    "content", "content_json"
+                ),
+                to_attr="external_new_hire",
+            ),
+            Prefetch(
+                "external_messages",
+                queryset=ExternalMessage.objects.for_admins().defer(
+                    "content", "content_json"
+                ),
+                to_attr="external_admin",
+            ),
+            Prefetch(
+                "condition_to_do", queryset=ToDo.objects.all().defer("content")
+            ),
+            Prefetch("admin_tasks", queryset=PendingAdminTask.objects.all()),
+            Prefetch(
+                "preboarding", queryset=Preboarding.objects.all().defer("content")
+            ),
+            Prefetch(
+                "integration_configs", queryset=IntegrationConfig.objects.all()
+            ),
+        )
+
 class Condition(models.Model):
     CONDITION_TYPE = (
         (0, _("After new hire has started")),
@@ -426,6 +463,8 @@ class Condition(models.Model):
     preboarding = models.ManyToManyField(Preboarding)
     appointments = models.ManyToManyField(Appointment)
     integration_configs = models.ManyToManyField(IntegrationConfig)
+
+    objects = ConditionPrefetchManager()
 
     def remove_item(self, model_item):
         # model_item is a template item. I.e. a ToDo object.

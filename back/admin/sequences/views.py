@@ -86,35 +86,7 @@ class SequenceView(LoginRequiredMixin, ManagerPermMixin, DetailView):
         context["condition_form"] = ConditionCreateForm()
         context["todos"] = ToDo.templates.all().defer("content")
         obj = self.get_object()
-        context["conditions"] = obj.conditions.prefetch_related(
-            Prefetch("introductions", queryset=Introduction.objects.all()),
-            Prefetch("to_do", queryset=ToDo.objects.all().defer("content")),
-            Prefetch("resources", queryset=Resource.objects.all()),
-            Prefetch(
-                "appointments", queryset=Appointment.objects.all().defer("content")
-            ),
-            Prefetch("badges", queryset=Badge.objects.all().defer("content")),
-            Prefetch(
-                "external_messages",
-                queryset=ExternalMessage.objects.for_new_hire().defer(
-                    "content", "content_json"
-                ),
-                to_attr="external_new_hire",
-            ),
-            Prefetch(
-                "external_messages",
-                queryset=ExternalMessage.objects.for_admins().defer(
-                    "content", "content_json"
-                ),
-                to_attr="external_admin",
-            ),
-            Prefetch("condition_to_do", queryset=ToDo.objects.all().defer("content")),
-            Prefetch("admin_tasks", queryset=PendingAdminTask.objects.all()),
-            Prefetch(
-                "preboarding", queryset=Preboarding.objects.all().defer("content")
-            ),
-            Prefetch("integration_configs", queryset=IntegrationConfig.objects.all()),
-        ).order_by("id")
+        context["conditions"] = obj.conditions.prefetched().order_by("id")
         return context
 
 
@@ -206,35 +178,7 @@ class SequenceTimelineDetailView(LoginRequiredMixin, ManagerPermMixin, DetailVie
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         obj = self.get_object()
-        context["conditions"] = obj.conditions.prefetch_related(
-            Prefetch("introductions", queryset=Introduction.objects.all()),
-            Prefetch("to_do", queryset=ToDo.objects.all().defer("content")),
-            Prefetch("resources", queryset=Resource.objects.all()),
-            Prefetch(
-                "appointments", queryset=Appointment.objects.all().defer("content")
-            ),
-            Prefetch("badges", queryset=Badge.objects.all().defer("content")),
-            Prefetch(
-                "external_messages",
-                queryset=ExternalMessage.objects.for_new_hire().defer(
-                    "content", "content_json"
-                ),
-                to_attr="external_new_hire",
-            ),
-            Prefetch(
-                "external_messages",
-                queryset=ExternalMessage.objects.for_admins().defer(
-                    "content", "content_json"
-                ),
-                to_attr="external_admin",
-            ),
-            Prefetch("condition_to_do", queryset=ToDo.objects.all().defer("content")),
-            Prefetch("admin_tasks", queryset=PendingAdminTask.objects.all()),
-            Prefetch(
-                "preboarding", queryset=Preboarding.objects.all().defer("content")
-            ),
-            Prefetch("integration_configs", queryset=IntegrationConfig.objects.all()),
-        ).order_by("id")
+        context["conditions"] = obj.conditions.prefetched().order_by("id")
         context["todos"] = ToDo.templates.all()
         return context
 
@@ -430,43 +374,7 @@ class SequenceConditionItemView(LoginRequiredMixin, ManagerPermMixin, View):
         template_item = get_object_or_404(templates_model, id=template_pk)
         condition.add_item(template_item)
         todos = ToDo.templates.all()
-        condition = (
-            Condition.objects.filter(id=condition.id)
-            .prefetch_related(
-                Prefetch("introductions", queryset=Introduction.objects.all()),
-                Prefetch("to_do", queryset=ToDo.objects.all().defer("content")),
-                Prefetch("resources", queryset=Resource.objects.all()),
-                Prefetch(
-                    "appointments", queryset=Appointment.objects.all().defer("content")
-                ),
-                Prefetch("badges", queryset=Badge.objects.all().defer("content")),
-                Prefetch(
-                    "external_messages",
-                    queryset=ExternalMessage.objects.for_new_hire().defer(
-                        "content", "content_json"
-                    ),
-                    to_attr="external_new_hire",
-                ),
-                Prefetch(
-                    "external_messages",
-                    queryset=ExternalMessage.objects.for_admins().defer(
-                        "content", "content_json"
-                    ),
-                    to_attr="external_admin",
-                ),
-                Prefetch(
-                    "condition_to_do", queryset=ToDo.objects.all().defer("content")
-                ),
-                Prefetch("admin_tasks", queryset=PendingAdminTask.objects.all()),
-                Prefetch(
-                    "preboarding", queryset=Preboarding.objects.all().defer("content")
-                ),
-                Prefetch(
-                    "integration_configs", queryset=IntegrationConfig.objects.all()
-                ),
-            )
-            .first()
-        )
+        condition = Condition.objects.filter(id=condition.id).prefetched().first()
         return render(
             request,
             "_sequence_condition.html",

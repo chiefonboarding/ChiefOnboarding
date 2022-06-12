@@ -2322,7 +2322,7 @@ def test_introduce_new_hire(new_hire_factory, integration_factory):
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": f"{new_hire4.first_name} starts on May 13, 2022.",
+                "text": f"{new_hire4.first_name} starts on May 13, 2022 .",
             },
         },
         {
