@@ -120,6 +120,9 @@
                   </div>
                 </div>
               </li>
+            {% empty %}
+              No items left!
+
             {% endfor %}
         </ul>
       </div>
@@ -131,7 +134,7 @@
         <h3 class="card-title">{% translate "Latest activity..." %}</h3>
       </div>
       <div class="card-body">
-        <div class="divide-y" style="max-height: 500px; overflow-y: scroll;">
+        <div class="divide-y" style="max-height: 500px; overflow-y: scroll; overflow-x: hidden;">
           {% for object in notifications %}
             <div class="row">
               <div class="col">

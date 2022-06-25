@@ -443,7 +443,7 @@ class Condition(models.Model):
         verbose_name=_("Block type"), choices=CONDITION_TYPE, default=0
     )
     days = models.IntegerField(
-        verbose_name=_("Amount of days before/after new hire has started"), default=0
+        verbose_name=_("Amount of days before/after new hire has started"), default=1
     )
     time = models.TimeField(verbose_name=_("At"), default="08:00")
     condition_to_do = models.ManyToManyField(

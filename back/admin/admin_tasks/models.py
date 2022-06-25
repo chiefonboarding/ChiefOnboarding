@@ -99,7 +99,7 @@ class AdminTask(models.Model):
         if self.assigned_to.has_slack_account:
             comment = ""
             if self.comment.all().exists():
-                comment = _("_%(comment)s\n by %(name)s_") % {
+                comment = _("_%(comment)s_\n by _%(name)s_") % {
                     "comment": self.comment.last().content,
                     "name": self.comment.last().comment_by.full_name,
                 }
