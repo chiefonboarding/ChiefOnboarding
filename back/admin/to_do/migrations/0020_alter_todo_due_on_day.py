@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('to_do', '0019_remove_todo_form'),
+        ("to_do", "0019_remove_todo_form"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='todo',
-            name='due_on_day',
-            field=models.IntegerField(default=1, verbose_name='Due on day'),
+            model_name="todo",
+            name="due_on_day",
+            field=models.IntegerField(default=1, verbose_name="Due on day"),
         ),
     ]

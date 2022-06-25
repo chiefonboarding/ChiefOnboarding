@@ -6,13 +6,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sequences', '0037_auto_20220520_0129'),
+        ("sequences", "0037_auto_20220520_0129"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='condition',
-            name='days',
-            field=models.IntegerField(default=1, verbose_name='Amount of days before/after new hire has started'),
+            model_name="condition",
+            name="days",
+            field=models.IntegerField(
+                default=1,
+                verbose_name="Amount of days before/after new hire has started",
+            ),
         ),
     ]
