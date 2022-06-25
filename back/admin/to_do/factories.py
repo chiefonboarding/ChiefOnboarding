@@ -8,6 +8,7 @@ from admin.to_do.models import ToDo
 @register
 class ToDoFactory(factory.django.DjangoModelFactory):
     name = FuzzyText()
+    due_on_day = 0
     content = {
         "time": 0,
         "blocks": [
