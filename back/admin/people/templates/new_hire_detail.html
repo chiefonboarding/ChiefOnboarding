@@ -17,7 +17,7 @@
       <div class="card-body">
         <ul class="list list-timeline">
           {# only show preboarding if before first day #}
-          {% if object.workday == 0 %}
+          {% if object.workday == 0 and object.preboarding.all|length %}
             <li>
               <div class="list-timeline-icon bg-twitter">
               </div>

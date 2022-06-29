@@ -464,6 +464,13 @@ class Condition(models.Model):
     objects = ConditionPrefetchManager()
 
     def remove_item(self, model_item):
+        # If any of the external messages, then get the root one
+        if type(model_item)._meta.model_name in [
+            "pendingemailmessage",
+            "pendingslackmessage",
+            "pendingtextmessage"
+        ]:
+            model_item = ExternalMessage.objects.get(pk=model_item.id)
         # model_item is a template item. I.e. a ToDo object.
         for field in self._meta.many_to_many:
             # We only want to remove assigned items, not triggers

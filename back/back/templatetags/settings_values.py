@@ -10,3 +10,7 @@ register = template.Library()
 @register.simple_tag
 def aws_enabled():
     return settings.AWS_ACCESS_KEY_ID != ""
+
+@register.simple_tag
+def text_enabled():
+    return settings.TWILIO_FROM_NUMBER != ""

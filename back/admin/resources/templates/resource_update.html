@@ -36,7 +36,11 @@
 </div>
 {% endblock %}
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+{% if DEBUG %}
+<script src="{% static 'js/vue.js' %}"></script>
+{% else %}
+<script src="{% static 'js/vue.min.js' %}"></script>
+{% endif %}
 <script>
 var placeholder = '{% translate "Start typing here..." %}';
 var newItemText = '{% translate "New item" %}';
