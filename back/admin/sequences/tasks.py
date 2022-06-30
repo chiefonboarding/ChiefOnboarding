@@ -139,11 +139,15 @@ def timed_triggers():
             # Generally, this should be only one, but just in case, we can handle more
             conditions = Condition.objects.none()
             if amount_days == 0:
+                # Before starting
                 conditions = user.conditions.filter(
                     condition_type=2, days=amount_days_before, time=current_time
                 )
             elif user.get_local_time(last_updated).weekday() < 5:
-                conditions = user.conditions.filter(condition_type=0, days=amount_days)
+                # On workday x
+                conditions = user.conditions.filter(
+                    condition_type=0, days=amount_days, time=current_time
+                )
 
             # Schedule conditions to be executed with new scheduled task, we do this to
             # avoid long standing tasks. I.e. sending lots of emails might take more

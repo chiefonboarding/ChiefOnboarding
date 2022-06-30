@@ -468,7 +468,7 @@ class Condition(models.Model):
         if type(model_item)._meta.model_name in [
             "pendingemailmessage",
             "pendingslackmessage",
-            "pendingtextmessage"
+            "pendingtextmessage",
         ]:
             model_item = ExternalMessage.objects.get(pk=model_item.id)
         # model_item is a template item. I.e. a ToDo object.
