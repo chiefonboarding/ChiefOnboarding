@@ -111,7 +111,15 @@ function changeTemplate(itemId, conditionId, typeId, provCreated=0) {
   item = itemId
   condition = conditionId
   provisionCreated = provCreated
-  htmx.ajax('GET', `/admin/sequences/forms/${typeId}/${itemId}/`, `#form`).then(() => {
+
+  $.ajax({
+    url: `/admin/sequences/forms/${typeId}/${itemId}/`,
+    headers: {
+      'X-CSRFToken': '{{ csrf_token }}'
+    }
+  }).done(function( data ) {
+    console.log("got htere")
+    $("#form").html(data)
     if (type === 'resource') {
       initResource()
     } else {
@@ -143,14 +151,39 @@ $("#form-add-item").submit(function (event) {
     if (type === 'integration' || type === 'integrationconfig') {
       htmx.ajax('POST', `/admin/sequences/update_integration_config/${type}/${item}/${condition}/${provisionCreated}/`, {'values': getFormData($(this)), 'target': '#form'})
     } else {
-      htmx.ajax('POST', `/admin/sequences/update_item/${type}/${item}/${condition}/`, {'values': getFormData($(this)), 'target': '#form'})
+      $.ajax({
+        url: `/admin/sequences/update_item/${type}/${item}/${condition}/`,
+        method: "post",
+        data: getFormData($(this)),
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}'
+        }
+      }).done(function( data, textStatus, request) {
+        console.log("got htere")
+        console.log(request.getResponseHeader("HX-Trigger"))
+        if (request.getResponseHeader("HX-Trigger") !== null) {
+          $('.modal').modal('hide')
+          // document.getElementById("add-condition-form").reset();
+          htmx.ajax('GET', "{% url 'sequences:timeline' object.id %}", '#timeline')
+          return
+        }
+        $("#form").html(data)
+        if (type === 'resource') {
+          initResource()
+        } else {
+          initWYSIWYGEditor()
+        }
+        initSelectize("#form-modal-content")
+        // Specific for Pending admin task
+        $("#div_id_slack_user").addClass("d-none")
+        $("#div_id_email").addClass("d-none")
+      });
     }
 })
 
 // close modals when we are reloading the sequence part
 $(document).on("reload-sequence", function(evt){
     $('.modal').modal('hide')
-    document.getElementById("add-condition-form").reset();
     htmx.ajax('GET', "{% url 'sequences:timeline' object.id %}", '#timeline')
 })
 
@@ -234,7 +267,7 @@ $(document).on('change', "select#id_person_type", function() {
 {% endif %}
 <script>
 var placeholder = '{% translate "Start typing here..." %}';
-var newItem = '{% translate "New item" %}';
+var newItemText = '{% translate "New item" %}';
 </script>
 <script src="{% static 'js/resources.js' %}"></script>
 {% endblock %}
