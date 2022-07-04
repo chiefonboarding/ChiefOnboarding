@@ -8,7 +8,7 @@
   </div>
   {% if not read_only %}
   <div class="col-1" style="margin-top: -4px;">
-    <button class="btn btn-danger btn-sm" hx-delete="{% url 'sequences:template_condition' condition.pk type item.id %}" hx-target="closest .d-flex">
+    <button class="btn btn-danger btn-sm" hx-delete="{% url 'sequences:template_condition' condition.pk type item.id %}" hx-target="#condition-{{condition.pk}}">
       <svg xmlns="http://www.w3.org/2000/svg" style="margin: 0 -0.25rem 0 -.25rem" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
         <line x1="18" y1="6" x2="6" y2="18"></line>

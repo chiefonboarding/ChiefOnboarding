@@ -30,7 +30,7 @@
           {% endif %}
         </h4>
       </div>
-      {% if not disable_delete %}
+      {% if not disable_delete and condition.condition_type != 3 %}
       <div class="col-2 text-end">
         <button class="btn btn-azure btn-sm" onclick="editCondition({{condition.id}})">
           {% include "_edit_icon.html" %}
@@ -47,9 +47,12 @@
     </div>
   </div>
   <div class="card-body">
+    {% if not condition.external_new_hire|length and not condition.preboarding.all|length and not condition.to_do.all|length and not condition.resources.all|length and not condition.introductions.all|length and not condition.external_admin|length and not condition.admin_tasks.all|length and not condition.preboarding.all|length and not condition.badges.all|length and not condition.integration_configs.all|length %}
+      No items yet
+    {% endif %}
 
     {# FOR NEW HIRES #}
-    {% if condition.external_new_hire|length or condition.to_do.all|length or condition.resources.all|length or condition.introductions.all|length %}
+    {% if condition.external_new_hire|length or condition.to_do.all|length or condition.preboarding.all|length or condition.badges.all|length or condition.integration_configs.all|length or condition.resources.all|length or condition.introductions.all|length %}
     <span class="badge bg-azure mb-2">{% translate "new hire" %}</span>
     {% endif %}
     {% for item in condition.preboarding.all %}

@@ -139,7 +139,10 @@
             <div class="row">
               <div class="col">
                 <div class="text-truncate">
-                  <strong>{{ object.get_notification_type_display }}: {{ object.extra_text }}</strong>
+                  <strong>{{ object.extra_text }}</strong>
+                  <div class="text-muted">
+                    {{ object.get_notification_type_display }}
+                  </div>
                 </div>
                 <div class="text-truncate text-muted">{% translate "By" %}{% if object.created_by %} {{ object.created_by.full_name }}{% else %} ChiefOnboarding{% endif %} - {{ object.created }}</div>
               </div>

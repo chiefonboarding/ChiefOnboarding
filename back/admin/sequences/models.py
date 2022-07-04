@@ -92,17 +92,9 @@ class Sequence(models.Model):
                         user_condition = condition
                         break
             else:
-                # Condition is the unconditional one. Add them directly to the new hire
-                # Needs to be rewritten to clean it up
-                for preboarding in sequence_condition.preboarding.all():
-                    user.preboarding.add(preboarding)
-                for todo in sequence_condition.to_do.all():
-                    user.to_do.add(todo)
-                for resource in sequence_condition.resources.all():
-                    user.resources.add(resource)
-                for intro in sequence_condition.introductions.all():
-                    user.introductions.add(intro)
-
+                # Condition (always just one) that will be assigned directly (type == 3)
+                # Just run the condition with the new hire
+                sequence_condition.process_condition(user)
                 continue
 
             # Let's add the condition to the new hire. Either through adding it to the
@@ -120,7 +112,7 @@ class Sequence(models.Model):
                 sequence_condition.sequence = None
                 sequence_condition.save()
 
-                # Add conmdition to_dos
+                # Add condition to_dos
                 for condition_to_do in old_condition.condition_to_do.all():
                     sequence_condition.condition_to_do.add(condition_to_do)
 
@@ -223,7 +215,7 @@ class ExternalMessage(ContentMixin, models.Model):
                 return
 
             send_sequence_message(
-                user, self.get_user(user), self.content_json, self.subject
+                user, self.get_user(user), self.content_json["blocks"], self.subject
             )
         elif self.is_slack_message:
             blocks = []
@@ -251,7 +243,7 @@ class ExternalMessage(ContentMixin, models.Model):
         Notification.objects.create(
             notification_type=self.notification_add_type,
             extra_text=self.name,
-            created_for=self.get_user(user),
+            created_for=user,
         )
 
     objects = ExternalMessageManager()

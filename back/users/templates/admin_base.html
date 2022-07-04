@@ -1,5 +1,6 @@
 {% load static %}
 {% load i18n %}
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
@@ -374,10 +375,6 @@
       }
       window.onload = function(){
         initWYSIWYGEditor()
-      }
-      function editCondition(id) {
-          htmx.ajax('GET', `/sequences/{{ object.id }}/condition/${id}/`, `#add-condition-form`)
-          $('#modal-block').modal('show')
       }
       $(document).on('change', "select#id_condition_type", function() {
         // Change things to fill in when condition_type changes
