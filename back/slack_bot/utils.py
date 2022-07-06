@@ -1,4 +1,5 @@
 import json
+
 import slack_sdk
 from django.conf import settings
 from django.core.cache import cache
@@ -57,6 +58,7 @@ class Slack:
 
     def update_message(self, text="", blocks=[], channel="", ts=0):
         from users.models import User
+
         # if there is no channel, then drop
         if channel == "" or ts == 0:
             return False
@@ -100,6 +102,7 @@ class Slack:
 
     def send_message(self, blocks=[], channel="", text=""):
         from users.models import User
+
         # if there is no channel, then drop
         if channel == "":
             return False
@@ -111,12 +114,12 @@ class Slack:
             return {"channel": "slacky"}
 
         response = None
-        users = User.objects.filter(Q(slack_user_id=channel) | Q(slack_channel_id=channel))
+        users = User.objects.filter(
+            Q(slack_user_id=channel) | Q(slack_channel_id=channel)
+        )
         try:
             response = self.client.chat_postMessage(
-                channel=channel,
-                text=text,
-                blocks=blocks
+                channel=channel, text=text, blocks=blocks
             )
             if users.exists():
                 Notification.objects.create(

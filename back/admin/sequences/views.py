@@ -23,12 +23,7 @@ from .forms import (
     PendingSlackMessageForm,
     PendingTextMessageForm,
 )
-from .models import (
-    Condition,
-    ExternalMessage,
-    IntegrationConfig,
-    Sequence,
-)
+from .models import Condition, ExternalMessage, IntegrationConfig, Sequence
 
 
 class SequenceListView(LoginRequiredMixin, ManagerPermMixin, ListView):

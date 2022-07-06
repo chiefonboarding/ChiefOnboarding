@@ -222,7 +222,9 @@ class ExternalMessage(ContentMixin, models.Model):
             # We don't have the model function on this model, so let's get it from a
             # different model. A bit hacky, but should be okay.
             blocks = ToDo(content=self.content_json).to_slack_block(user)
-            Slack().send_message(blocks=blocks, channel=self.get_user(user).slack_user_id)
+            Slack().send_message(
+                blocks=blocks, channel=self.get_user(user).slack_user_id
+            )
         else:  # text message
             phone_number = self.get_user(user).phone
             if phone_number == "":

@@ -108,9 +108,15 @@ class Integration(models.Model):
         self.new_hire = new_hire
 
         # Renew access key if necessary
-        if self.has_oauth and 'expires_in' in self.extra_args and self.expiring < timezone.now():
+        if (
+            self.has_oauth
+            and "expires_in" in self.extra_args
+            and self.expiring < timezone.now()
+        ):
             try:
-                self.extra_args |= self._run_request(self.manifest["oauth"]["refresh_url"]).json()
+                self.extra_args |= self._run_request(
+                    self.manifest["oauth"]["refresh_url"]
+                ).json()
             except requests.RequestException as e:
                 Notification.objects.create(
                     notification_type="failed_integration",

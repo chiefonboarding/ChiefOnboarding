@@ -1,6 +1,6 @@
-from .models import Organization
-
 from django.conf import settings
+
+from .models import Organization
 
 
 def org_include(request):

@@ -437,10 +437,8 @@ class ToDoUser(models.Model):
             for question in self.form:
                 # For some reason, Slack adds a \n to the name, which messes up
                 # formatting.
-                title = question['data']['text'].replace('\n', '')
-                blocks.append(
-                    paragraph(f"*{title}*\n{question['answer']}")
-                )
+                title = question["data"]["text"].replace("\n", "")
+                blocks.append(paragraph(f"*{title}*\n{question['answer']}"))
 
             Slack().send_message(
                 blocks=blocks,
@@ -546,9 +544,7 @@ class ResourceUser(models.Model):
     @property
     def is_course(self):
         # used to determine if item should show up as course or as article
-        return (
-            self.resource.course and not self.completed_course
-        )
+        return self.resource.course and not self.completed_course
 
     @property
     def get_rating(self):

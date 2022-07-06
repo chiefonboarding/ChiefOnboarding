@@ -4,7 +4,7 @@ import requests
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponse
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic import View
@@ -103,31 +103,31 @@ class IntegrationUpdateExtraArgsView(
 
 
 class IntegrationOauthRedirectView(LoginRequiredMixin, RedirectView):
-
     def get_redirect_url(self, *args, **kwargs):
         integration = get_object_or_404(
             Integration,
             pk=self.kwargs.pk,
             manifest__oauth__isnull=False,
-            enabled_oauth=False
+            enabled_oauth=False,
         )
         return integration.manifest["oauth"]["url"]
 
 
 class IntegrationOauthCallbackView(LoginRequiredMixin, RedirectView):
-
     def get_redirect_url(self, *args, **kwargs):
         integration = get_object_or_404(
             Integration,
             pk=self.kwargs.pk,
             manifest__oauth__isnull=False,
-            enabled_oauth=False
+            enabled_oauth=False,
         )
         code = kwargs.get("code", "")
         if code == "":
             return HttpResponse("Code was not provided")
 
-        data = integration._run_request(integration.manifest["oauth"]["access_token_url"])
+        data = integration._run_request(
+            integration.manifest["oauth"]["access_token_url"]
+        )
         integration.extra_args = integration.extra_args | data.json()
         integration.enabled_oauth = True
         integration.save()
