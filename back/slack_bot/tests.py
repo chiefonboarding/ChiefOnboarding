@@ -1160,7 +1160,7 @@ def test_resource_next_page(new_hire_factory, resource_user_factory, chapter_fac
         "view": {
             "hash": "F8VrpY",
             "id": "id",
-        }
+        },
     }
     view = {
         "id": "id",
