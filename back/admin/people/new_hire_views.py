@@ -218,7 +218,10 @@ class NewHireAddSequenceView(
                 ) | seq.conditions.filter(condition_type=0, days__lte=new_hire.workday)
 
         if conditions.count():
-            conditions = conditions.prefetched()
+            # Prefetch records to avoid a massive amount of queries
+            conditions = Condition.objects.prefetched().filter(
+                id__in=conditions.values_list("pk", flat=True)
+            )
             return render(
                 self.request,
                 "not_triggered_conditions.html",

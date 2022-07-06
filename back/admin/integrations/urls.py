@@ -13,9 +13,9 @@ urlpatterns = [
     ),
     path("update/<int:pk>/", views.IntegrationUpdateView.as_view(), name="update"),
     path(
-        "update/<int:pk>/google/",
-        views.IntegrationUpdateGoogleLoginView.as_view(),
-        name="update-google",
+        "create/google_login/",
+        views.IntegrationCreateGoogleLoginView.as_view(),
+        name="create-google",
     ),
     path("oauth/<int:pk>/", views.IntegrationOauthRedirectView.as_view(), name="oauth"),
     path(

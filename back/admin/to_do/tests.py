@@ -7,7 +7,7 @@ from .factories import *  # noqa
 
 
 @pytest.mark.django_db
-def test_create_to_do(client, django_user_model):
+def test_create_to_do(client, django_user_model, integration_factory):
     client.force_login(django_user_model.objects.create(role=1))
 
     url = reverse("todo:create")
@@ -46,7 +46,17 @@ def test_create_to_do(client, django_user_model):
 
     response = client.post(url, data, follow=True)
 
+    # This is disabled, since there is no slack integration
+    assert "select a channel" not in response.content.decode()
+
+    # Create the slack bot now
+    integration_factory(integration=0)
+
+    response = client.post(url, data, follow=True)
+
+    # This is now an active field
     assert "select a channel" in response.content.decode()
+
     # not created
     assert ToDo.objects.all().count() == 1
 

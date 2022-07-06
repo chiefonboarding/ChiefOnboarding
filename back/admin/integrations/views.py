@@ -37,14 +37,18 @@ class IntegrationCreateView(
         return super().form_valid(form)
 
 
-class IntegrationUpdateGoogleLoginView(
-    LoginRequiredMixin, AdminPermMixin, UpdateView, SuccessMessageMixin
+class IntegrationCreateGoogleLoginView(
+    LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin
 ):
     template_name = "token_create.html"
     fields = ["client_id", "client_secret"]
     queryset = Integration.objects.filter(integration=3)
     success_message = _("Integration has been updated!")
     success_url = reverse_lazy("settings:integrations")
+
+    def form_valid(self, form):
+        form.instance.integration = 3
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

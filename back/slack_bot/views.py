@@ -176,7 +176,8 @@ def slack_open_todo_dialog(payload, body):
     )
 
     # Avoid race condition. If item is completed, then don't allow to try again
-    if to_do_user.completed:
+    if to_do_user.to_do.inline_slack_form and to_do_user.completed:
+
         # Get updated blocks (without completed one, but with text)
         blocks = SlackToDoManager(to_do_user.user).get_blocks(
             [block["block_id"] for block in body["message"]["blocks"]][1:],
@@ -269,8 +270,6 @@ def slack_create_new_hire_or_ask_perm(event):
     if not org.auto_create_user:
         return
 
-    translation.activate(org.slack_confirm_person.language)
-
     joined_user = (
         get_user_model()
         .objects.filter(email__iexact=event["user"]["profile"]["email"])
@@ -315,6 +314,8 @@ def slack_create_new_hire_or_ask_perm(event):
         joined_user.add_sequences(Sequence.objects.filter(auto_add=True))
 
     else:
+        translation.activate(org.slack_confirm_person.language)
+
         # needs approval for new hire account
         blocks = [
             paragraph(

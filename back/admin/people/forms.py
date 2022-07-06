@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from admin.integrations.models import Integration
 from admin.sequences.models import Sequence
 from admin.templates.forms import (
     ModelChoiceFieldWithCreate,
@@ -42,7 +43,7 @@ class NewHireAddForm(forms.ModelForm):
         self.fields["timezone"].initial = Organization.objects.get().timezone
         self.fields["start_day"].initial = timezone.now().date()
         self.helper = FormHelper()
-        self.helper.layout = Layout(
+        layout = Layout(
             Div(
                 Div(
                     Field("first_name"),
@@ -77,10 +78,6 @@ class NewHireAddForm(forms.ModelForm):
                 css_class="row",
             ),
             Div(
-                Div(Field("message"), css_class="col-12"),
-                css_class="row",
-            ),
-            Div(
                 Div(
                     Field("timezone"),
                     css_class="col-6",
@@ -99,6 +96,17 @@ class NewHireAddForm(forms.ModelForm):
             Div(MultiSelectField("sequences"), css_class="row"),
             Submit(name="submit", value=_("Create new hire")),
         )
+        # Only show if the slack bot has been enabled
+        if Integration.objects.filter(integration=0).exists():
+            layout[2].extend(
+                [
+                    Div(
+                        Div(Field("message"), css_class="col-12"),
+                        css_class="row",
+                    ),
+                ]
+            )
+        self.helper.layout = layout
 
     class Meta:
         model = get_user_model()

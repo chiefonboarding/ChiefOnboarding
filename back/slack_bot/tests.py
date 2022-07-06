@@ -521,7 +521,7 @@ def test_slack_open_todo_dialog(new_hire_factory, to_do_user_factory):
 
 @pytest.mark.django_db
 def test_slack_to_do_complete_external_form(new_hire_factory, to_do_user_factory):
-    new_hire = new_hire_factory(slack_user_id="slackx")
+    new_hire = new_hire_factory(slack_user_id="slackx", slack_channel_id="slackx")
 
     # to do item with upload field
     to_do_user1 = to_do_user_factory(
@@ -542,7 +542,7 @@ def test_slack_to_do_complete_external_form(new_hire_factory, to_do_user_factory
         {
             "user": {"id": "slackx"},
             "trigger_id": 21212,
-            "containers": {"message_ts": 23123},
+            "container": {"message_ts": 23123},
             "message": {
                 "text": "Here are the todo items:",
                 "blocks": [
@@ -562,6 +562,7 @@ def test_slack_to_do_complete_external_form(new_hire_factory, to_do_user_factory
 
     # Mock form filling
     to_do_user1.form = {"test": "test"}
+    to_do_user1.completed = True
     to_do_user1.save()
 
     # Reclick the button
@@ -570,7 +571,7 @@ def test_slack_to_do_complete_external_form(new_hire_factory, to_do_user_factory
         {
             "user": {"id": "slackx"},
             "trigger_id": 21212,
-            "containers": {"message_ts": 23123},
+            "container": {"message_ts": 23123},
             "message": {
                 "text": "Here are the todo items:",
                 "blocks": [
@@ -1010,7 +1011,7 @@ def test_show_to_do_items(new_hire_factory, to_do_user_factory):
 
 @pytest.mark.django_db
 def test_complete_to_do(new_hire_factory, to_do_user_factory):
-    new_hire1 = new_hire_factory(slack_user_id="slackx")
+    new_hire1 = new_hire_factory(slack_user_id="slackx", slack_channel_id="slackx")
 
     to_do_user1 = to_do_user_factory(user=new_hire1)
     to_do_user2 = to_do_user_factory(user=new_hire1)
@@ -1156,6 +1157,10 @@ def test_resource_next_page(new_hire_factory, resource_user_factory, chapter_fac
             "name": "hello",
             "team_id": "xx",
         },
+        "view": {
+            "hash": "F8VrpY",
+            "id": "id",
+        }
     }
     view = {
         "id": "id",
@@ -1185,8 +1190,6 @@ def test_resource_next_page(new_hire_factory, resource_user_factory, chapter_fac
     slack_next_page_resource(mock, body, view)
     assert cache.get("slack_view_id") == "id"
     assert cache.get("slack_view") == {
-        "id": "id",
-        "hash": "F8VrpY",
         "type": "modal",
         "callback_id": "dialog:resource",
         "title": {"type": "plain_text", "text": "Course", "emoji": True},
