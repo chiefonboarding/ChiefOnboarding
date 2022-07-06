@@ -15,7 +15,7 @@ class SlackResource:
         self.user = user
 
     def get_block(self):
-        if self.resource_user.is_course and not self.resource_user.completed_course:
+        if self.resource_user.is_course:
             action_text = _("View course")
         else:
             action_text = _("View resource")

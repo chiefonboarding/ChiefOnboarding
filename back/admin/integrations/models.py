@@ -49,13 +49,14 @@ class Integration(models.Model):
     account_id = models.CharField(max_length=22300, default="", blank=True)
     active = models.BooleanField(default=True)
     ttl = models.IntegerField(null=True, blank=True)
-    expiring = models.DateTimeField(null=True, blank=True)
+    expiring = models.DateTimeField(auto_now_add=True, blank=True)
     one_time_auth_code = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True
     )
 
     manifest = models.JSONField(default=dict)
     extra_args = EncryptedJSONField(default=dict)
+    enabled_oauth = models.BooleanField(default=False)
 
     # Slack
     app_id = models.CharField(max_length=100, default="")
@@ -86,6 +87,10 @@ class Integration(models.Model):
         return text
 
     @property
+    def has_oauth(self):
+        return "oauth" in self.manifest
+
+    @property
     def _headers(self):
         new_headers = {}
         for key, value in self.manifest["headers"].items():
@@ -101,6 +106,19 @@ class Integration(models.Model):
     def execute(self, new_hire, params):
         self.parms = params
         self.new_hire = new_hire
+
+        # Renew access key if necessary
+        if self.has_oauth and 'expires_in' in self.extra_args and self.expiring < timezone.now():
+            try:
+                self.extra_args |= self._run_request(self.manifest["oauth"]["refresh_url"]).json()
+            except requests.RequestException as e:
+                Notification.objects.create(
+                    notification_type="failed_integration",
+                    extra_text=self.name,
+                    created_for=new_hire,
+                    description=str(e),
+                )
+            self.save()
 
         # Add generated secrets
         for item in self.manifest["initial_data_form"]:

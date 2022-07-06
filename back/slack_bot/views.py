@@ -76,6 +76,10 @@ def show_help(message):
 
 
 def slack_show_help(message):
+    # user = get_user(message["user"])
+    # if user is None:
+    #     return
+
     messages = [
         _("Happy to help! Here are all the things you can say to me: \n\n"),
         _(
@@ -98,6 +102,7 @@ def slack_show_help(message):
 def get_user(slack_user_id):
     users = get_user_model().objects.filter(slack_user_id=slack_user_id)
     if users.exists():
+        translation.activate(users.first().language)
         return users.first()
     else:
         Slack().send_message(
@@ -169,6 +174,24 @@ def slack_open_todo_dialog(payload, body):
     to_do_user = ToDoUser.objects.get(
         id=int(payload["action_id"].split(":")[2]), user=user
     )
+
+    # Avoid race condition. If item is completed, then don't allow to try again
+    if to_do_user.completed:
+        # Get updated blocks (without completed one, but with text)
+        blocks = SlackToDoManager(to_do_user.user).get_blocks(
+            [block["block_id"] for block in body["message"]["blocks"]][1:],
+            to_do_user.id,
+            body["message"]["text"],
+        )
+
+        # Remove completed item from message
+        Slack().update_message(
+            channel=to_do_user.user.slack_channel_id,
+            ts=body["container"]["message_ts"],
+            blocks=blocks,
+        )
+        return
+
     if not to_do_user.to_do.inline_slack_form:
         # Item must be completed on website instead of slack
         if not len(to_do_user.form):
@@ -193,8 +216,8 @@ def slack_open_todo_dialog(payload, body):
 
             # Remove completed item from message
             Slack().update_message(
-                channel=to_do_user.user.slack_user_id,
-                ts=body["containers"]["message_ts"],
+                channel=to_do_user.user.slack_channel_id,
+                ts=body["container"]["message_ts"],
                 blocks=blocks,
             )
 
@@ -245,6 +268,8 @@ def slack_create_new_hire_or_ask_perm(event):
     org = Organization.object.get()
     if not org.auto_create_user:
         return
+
+    translation.activate(org.slack_confirm_person.language)
 
     joined_user = (
         get_user_model()
@@ -387,6 +412,7 @@ def deny_new_hire(ack, body):
 
 def slack_deny_new_hire(body):
     org = Organization.object.get()
+    translation.activate(org.language)
     Slack().update_message(
         channel=org.slack_confirm_person.slack_channel_id,
         ts=body["container"]["message_ts"],
@@ -562,7 +588,7 @@ def slack_complete_to_do(body, view):
 
     # Remove completed item from message
     Slack().update_message(
-        channel=to_do_user.user.slack_user_id,
+        channel=to_do_user.user.slack_channel_id,
         ts=message_ts,
         blocks=blocks,
     )
@@ -606,15 +632,14 @@ def slack_next_page_resource(ack, body, view):
         resource_user.answers.add(course_answers)
 
     next_chapter = resource_user.add_step()
-    private_meta_data["current_chapter"] = next_chapter.id
     if next_chapter is None:
         ack({"response_action": "clear"})
         return
 
+    private_meta_data["current_chapter"] = next_chapter.id
+
     # Get updated blocks (without completed one, but with text)
     view = {
-        "id": view["id"],
-        "hash": view["hash"],
         "type": "modal",
         "callback_id": view["callback_id"],
         "title": view["title"],
@@ -631,7 +656,7 @@ def slack_next_page_resource(ack, body, view):
         else:
             view["submit"] = {"type": "plain_text", "text": _("Next")}
 
-    Slack().update_modal(view_id=view["id"], hash=view["hash"], view=view)
+    Slack().update_modal(view_id=body["view"]["id"], hash=body["view"]["hash"], view=view)
 
 
 @exception_handler
@@ -697,6 +722,8 @@ def slack_show_welcome_dialog(body, payload):
         ],
         "private_metadata": json.dumps({"user_id": payload["value"]}),
     }
+    if len(view["title"]["text"]) > 24:
+        view["title"]["text"] = view["title"]["text"][:21] + "..."
     Slack().open_modal(trigger_id=body["trigger_id"], view=view)
 
 
@@ -709,7 +736,6 @@ def save_welcome_message(ack, body, view):
 
 def slack_save_welcome_message(body, view):
     org = Organization.object.get()
-    translation.activate(org.language)
 
     user = get_user(body["user"]["id"])
     if user is None:

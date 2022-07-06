@@ -480,9 +480,9 @@
                             {% else %}
                               <ul>
                             {% endif %}
-                              {% for j in i.items %}
-                                <li>{{ j.content|safe|personalize:user }}</li>
-                              {% endfor %}
+                            {% for j in i.data.items %}
+                              <li>{{ j.content|safe|personalize:user }}</li>
+                            {% endfor %}
                             {% if i.data.style == "ordered" %}
                               </ol>
                             {% else %}

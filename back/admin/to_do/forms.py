@@ -3,6 +3,7 @@ from crispy_forms.layout import Div, Field, Layout
 from django.utils.translation import gettext_lazy as _
 
 from admin.templates.forms import MultiSelectField, TagModelForm, WYSIWYGField
+from admin.integrations.models import Integration
 
 from .models import ToDo
 
@@ -20,7 +21,7 @@ class ToDoForm(TagModelForm):
         ):
             send_back_class = ""
 
-        self.helper.layout = Layout(
+        layout = Layout(
             Div(
                 Div(
                     Field("name"),
@@ -30,16 +31,23 @@ class ToDoForm(TagModelForm):
                 ),
                 Div(
                     WYSIWYGField("content"),
-                    Field("send_back"),
-                    Div(
-                        Field("slack_channel"),
-                        css_class=send_back_class + "slack_channel_dissapear",
-                    ),
                     css_class="col-8",
                 ),
                 css_class="row",
             ),
         )
+        # Only show if the slack bot has been enabled
+        if Integration.objects.filter(integration=0).exists():
+            layout[0][1].extend(
+                [
+                    Field("send_back"),
+                    Div(
+                        Field("slack_channel"),
+                        css_class=send_back_class + "slack_channel_dissapear",
+                    ),
+                ]
+            )
+        self.helper.layout = layout
 
     def clean(self):
         cleaned_data = super(ToDoForm, self).clean()

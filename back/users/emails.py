@@ -89,6 +89,7 @@ def email_reopen_task(task_name, message, user):
 
 
 def send_reminder_email(task_name, user):
+    translation.activate(user.language)
     subject = _("Please complete this task")
     message = ""
     org = Organization.object.get()
@@ -127,6 +128,7 @@ def send_reminder_email(task_name, user):
 
 def send_new_hire_credentials(new_hire_id):
     new_hire = User.objects.get(id=new_hire_id)
+    translation.activate(new_hire.language)
     password = User.objects.make_random_password()
     org = Organization.object.get()
     new_hire.set_password(password)
@@ -163,6 +165,7 @@ def send_new_hire_credentials(new_hire_id):
 
 def send_new_hire_preboarding(new_hire):
     org = Organization.object.get()
+    translation.activate(new_hire.language)
     message = WelcomeMessage.objects.get(
         language=new_hire.language, message_type=0
     ).message

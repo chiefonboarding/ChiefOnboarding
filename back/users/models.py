@@ -189,6 +189,12 @@ class User(AbstractBaseUser):
         return f"{self.first_name} {self.last_name}".strip()
 
     @cached_property
+    def progress(self):
+        if self.completed_tasks == 0 or self.total_tasks == 0:
+            return 0
+        return (self.completed_tasks / self.total_tasks) * 100
+
+    @cached_property
     def initials(self):
         initial_characters = ""
         if len(self.first_name):
@@ -429,12 +435,20 @@ class ToDoUser(models.Model):
                 )
             ]
             for question in self.form:
-                blocks.append(paragraph(f"*{question['text']}*\n{question['value']}"))
+                # For some reason, Slack adds a \n to the name, which messes up
+                # formatting.
+                title = question['data']['text'].replace('\n', '')
+                blocks.append(
+                    paragraph(f"*{title}*\n{question['answer']}")
+                )
 
             Slack().send_message(
                 blocks=blocks,
-                text="Our new hire %(name)s just answered some questions:",
-                channel=self.to_do.channel,
+                text=(
+                    _("Our new hire %(name)s just answered some questions:")
+                    % {"name": self.user.full_name}
+                ),
+                channel=self.to_do.slack_channel.name,
             )
 
         for condition in conditions:
@@ -489,8 +503,13 @@ class ResourceUser(models.Model):
         self.step += 1
         self.save()
 
-        # Check if that's the last one and wrap up if so
+        # Check if we are already past the max amount of steps
+        # Avoid race conditions
         chapters = self.resource.chapters
+        if self.step > chapters.count():
+            return None
+
+        # Check if that's the last one and wrap up if so
         if self.step == chapters.count():
             self.completed_course = True
             self.save()
@@ -528,7 +547,7 @@ class ResourceUser(models.Model):
     def is_course(self):
         # used to determine if item should show up as course or as article
         return (
-            self.resource.course and self.amount_chapters_in_course is not self.step - 1
+            self.resource.course and not self.completed_course
         )
 
     @property

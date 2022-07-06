@@ -35,8 +35,6 @@ class NewHireAddForm(forms.ModelForm):
     )
 
     def __init__(self, *args, **kwargs):
-        from organization.models import Organization
-
         super().__init__(*args, **kwargs)
         self.fields["buddy"].required = False
         self.fields["manager"].required = False

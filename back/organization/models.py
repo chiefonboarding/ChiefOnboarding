@@ -289,6 +289,8 @@ NOTIFICATION_TYPES = [
     ),
     ("failed_email_delivery", _("Couldn't deliver email message: provider error")),
     ("failed_email_address", _("Couldn't deliver email message: provider error")),
+    ("failed_send_slack_message", _("Couldn't send Slack message")),
+    ("failed_update_slack_message", _("Couldn't update Slack message")),
     ("ran_integration", _("Integration has been triggered")),
     ("failed_integration", _("Couldn't complete integration")),
     (

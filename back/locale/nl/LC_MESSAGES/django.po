@@ -2346,7 +2346,7 @@ msgstr "Bedankt! Te doen item is afgevinkt."
 
 #: slack_bot/views.py:694
 msgid "What would you like to say to our new hire?"
-msgstr "What zou je tegen onze nieuwe medewerker willen zeggen?"
+msgstr "Wat zou je tegen onze nieuwe medewerker willen zeggen?"
 
 #: slack_bot/views.py:737
 msgid "Message has been saved! Your message: \""

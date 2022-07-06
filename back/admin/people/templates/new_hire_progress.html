@@ -75,10 +75,10 @@
               </div>
             </td>
             <td class="">
-              {% if resource.course_completed %}
-                {% blocktranslate with step=resource.step amount_chapters=resource.amount_chapters_in_course %} At step {{ step }} of {{ amount_chapters_in_course }} {% endblocktranslate %}
-              {% else %}
+              {% if resource.completed_course %}
                 {% translate "New hire has completed the course!" %}
+              {% else %}
+                {% blocktranslate with step=resource.step amount_chapters=resource.amount_chapters_in_course %} At step {{ step }} of {{ amount_chapters }} {% endblocktranslate %}
               {% endif %}
             </td>
             <td class="">
@@ -90,9 +90,12 @@
                   {% translate "Reopen" %}
                 </a>
               {% else %}
-                <a href="{% url 'people:new_hire_remind' 'resourceuser' resource.id %}" class="btn btn-primary">
-                  {% translate "Remind" %}
-                </a>
+                <form method="post" action="{% url 'people:new_hire_remind' 'resourceuser' resource.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-primary">
+                    {% translate "Remind" %}
+                  </button>
+                </form>
               {% endif %}
             </td>
           </tr>

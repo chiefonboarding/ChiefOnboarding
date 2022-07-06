@@ -67,7 +67,7 @@
                 <div class="list-timeline-content pt-0" style="margin-top: -5px">
                   <div class="card">
                     <div class="card-header">
-                      <h4 class="card-title">{{ condition|new_hire_trigger_date:object }}</h4>
+                      <h4 class="card-title">{{ condition|new_hire_trigger_date:object }} {% trans "at" %} {{ condition.time }}</h4>
                     </div>
                     <div class="card-body">
 

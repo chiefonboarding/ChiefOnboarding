@@ -6,6 +6,8 @@
 
 {% block content %}
 {% include "_new_hire_menu.html" %}
+
+{% if resource_user.answers.all|length %}
 <div class="card mt-3">
   <div class="card-header">
     <h3 class="card-title">{% translate "Answers" %}</h3>
@@ -34,7 +36,7 @@
   </div>
 </div>
 
-{% if not resource_user.answers.all|length %}
+{% else %}
 <div class="card mt-3">
   <div class="card-body">
     <p>{% translate "No answers were given in yet." %}</p>

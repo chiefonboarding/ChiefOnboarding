@@ -254,6 +254,9 @@ class IntegrationsListView(LoginRequiredMixin, AdminPermMixin, TemplateView):
         context["slack_bot"] = Integration.objects.filter(
             integration=0, active=True
         ).first()
+        context["google_login"] = Integration.objects.filter(
+            integration=3, active=True
+        ).first()
         context["slack_bot_environ"] = settings.SLACK_APP_TOKEN != ""
 
         context["custom_integrations"] = Integration.objects.filter(integration=10)

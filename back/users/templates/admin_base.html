@@ -321,6 +321,15 @@
                 form: Form,
                 {% endif %}
                 quote: Quote,
+                embed: {
+                  class: Embed,
+                  inlineToolbar: false,
+                  config: {
+                    services: {
+                      youtube: true,
+                    }
+                  }
+                },
                 list: {
                   class: NestedList,
                   inlineToolbar: true,

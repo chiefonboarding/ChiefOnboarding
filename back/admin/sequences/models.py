@@ -222,14 +222,14 @@ class ExternalMessage(ContentMixin, models.Model):
             # We don't have the model function on this model, so let's get it from a
             # different model. A bit hacky, but should be okay.
             blocks = ToDo(content=self.content_json).to_slack_block(user)
-            Slack().send_message(blocks=blocks, channel=user.slack_user_id)
+            Slack().send_message(blocks=blocks, channel=self.get_user(user).slack_user_id)
         else:  # text message
             phone_number = self.get_user(user).phone
             if phone_number == "":
                 Notification.objects.create(
                     notification_type="failed_no_phone",
                     extra_text=self.name,
-                    created_for=self.get_user(user),
+                    created_for=user,
                 )
                 return
 
@@ -237,7 +237,7 @@ class ExternalMessage(ContentMixin, models.Model):
             client.messages.create(
                 to=phone_number,
                 from_=settings.TWILIO_FROM_NUMBER,
-                body=self.content,
+                body=self.get_user(user).personalize(self.content),
             )
 
         Notification.objects.create(
@@ -298,6 +298,7 @@ class PendingAdminTask(models.Model):
         verbose_name=_("Pick user"),
         on_delete=models.CASCADE,
         related_name="assigned_user",
+        null=True,
     )
     option = models.IntegerField(
         verbose_name=_("Send email or Slack message to extra user?"),

@@ -3,10 +3,12 @@ import json
 import requests
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.shortcuts import redirect
+from django.http import HttpResponse
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic import View
+from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from users.mixins import AdminPermMixin, LoginRequiredMixin
@@ -33,6 +35,23 @@ class IntegrationCreateView(
     def form_valid(self, form):
         form.instance.integration = 10
         return super().form_valid(form)
+
+
+class IntegrationUpdateGoogleLoginView(
+    LoginRequiredMixin, AdminPermMixin, UpdateView, SuccessMessageMixin
+):
+    template_name = "token_create.html"
+    fields = ["client_id", "client_secret"]
+    queryset = Integration.objects.filter(integration=3)
+    success_message = _("Integration has been updated!")
+    success_url = reverse_lazy("settings:integrations")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("Change Google login credentials")
+        context["subtitle"] = _("settings")
+        context["button_text"] = _("Update")
+        return context
 
 
 class IntegrationUpdateView(
@@ -81,6 +100,39 @@ class IntegrationUpdateExtraArgsView(
         context["subtitle"] = _("settings")
         context["button_text"] = _("Update")
         return context
+
+
+class IntegrationOauthRedirectView(LoginRequiredMixin, RedirectView):
+
+    def get_redirect_url(self, *args, **kwargs):
+        integration = get_object_or_404(
+            Integration,
+            pk=self.kwargs.pk,
+            manifest__oauth__isnull=False,
+            enabled_oauth=False
+        )
+        return integration.manifest["oauth"]["url"]
+
+
+class IntegrationOauthCallbackView(LoginRequiredMixin, RedirectView):
+
+    def get_redirect_url(self, *args, **kwargs):
+        integration = get_object_or_404(
+            Integration,
+            pk=self.kwargs.pk,
+            manifest__oauth__isnull=False,
+            enabled_oauth=False
+        )
+        code = kwargs.get("code", "")
+        if code == "":
+            return HttpResponse("Code was not provided")
+
+        data = integration._run_request(integration.manifest["oauth"]["access_token_url"])
+        integration.extra_args = integration.extra_args | data.json()
+        integration.enabled_oauth = True
+        integration.save()
+
+        return reverse_lazy("settings:integrations")
 
 
 class SlackOAuthView(LoginRequiredMixin, View):

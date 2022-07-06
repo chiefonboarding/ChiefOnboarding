@@ -9,6 +9,7 @@ from django.db.models import Case, F, IntegerField, When
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
+from django.utils import translation
 from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
@@ -217,6 +218,7 @@ class NewHireAddSequenceView(
                 ) | seq.conditions.filter(condition_type=0, days__lte=new_hire.workday)
 
         if conditions.count():
+            conditions = conditions.prefetched()
             return render(
                 self.request,
                 "not_triggered_conditions.html",
@@ -453,6 +455,7 @@ class NewHireRemindView(LoginRequiredMixin, ManagerPermMixin, View):
         template_user_obj.reminded = datetime.now()
         template_user_obj.save()
 
+        translation.activate(template_user_obj.user.language)
         if template_user_obj.user.has_slack_account:
             if template_type == "todouser":
                 block = SlackToDo(template_user_obj, template_user_obj.user).get_block()
@@ -468,6 +471,8 @@ class NewHireRemindView(LoginRequiredMixin, ManagerPermMixin, View):
         else:
             send_reminder_email(template_user_obj.object_name, template_user_obj.user)
 
+        # Revert language as reminder should be sent in admin language
+        translation.activate(request.user.language)
         messages.success(self.request, _("Reminder has been sent!"))
 
         return redirect("people:new_hire_progress", pk=template_user_obj.user.id)
@@ -498,10 +503,12 @@ class NewHireReopenTaskView(LoginRequiredMixin, ManagerPermMixin, FormView):
             template_user_obj.form = []
         else:
             template_user_obj.completed_course = False
+            template_user_obj.step = 0
             template_user_obj.answers.clear()
 
         template_user_obj.save()
 
+        translation.activate(template_user_obj.user.language)
         if template_user_obj.user.has_slack_account:
             if template_type == "todouser":
                 block = SlackToDo(template_user_obj, template_user_obj.user).get_block()
@@ -522,6 +529,8 @@ class NewHireReopenTaskView(LoginRequiredMixin, ManagerPermMixin, FormView):
                 template_user_obj.user,
             )
 
+        # Revert language as reminder should be sent in admin language
+        translation.activate(self.request.user.language)
         messages.success(self.request, _("Item has been reopened"))
 
         # Update user amount completed

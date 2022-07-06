@@ -1,8 +1,11 @@
+import json
 import slack_sdk
 from django.conf import settings
 from django.core.cache import cache
+from django.db.models import Q
 
 from admin.integrations.models import Integration
+from organization.models import Notification
 
 
 class Slack:
@@ -53,6 +56,7 @@ class Slack:
         return response
 
     def update_message(self, text="", blocks=[], channel="", ts=0):
+        from users.models import User
         # if there is no channel, then drop
         if channel == "" or ts == 0:
             return False
@@ -64,12 +68,20 @@ class Slack:
             cache.set("slack_text", text)
             return
 
-        return self.client.chat_update(
-            channel=channel,
-            ts=ts,
-            text=text,
-            blocks=blocks,
-        )
+        try:
+            return self.client.chat_update(
+                channel=channel,
+                ts=ts,
+                text=text,
+                blocks=blocks,
+            )
+        except Exception as e:
+            Notification.objects.create(
+                notification_type="failed_update_slack_message",
+                extra_text=text,
+                created_for=User.objects.get(slack_channel_id=channel),
+                description=str(e),
+            )
 
     def send_ephemeral_message(self, user, blocks=[], channel="", text=""):
         # if there is no channel, then drop
@@ -87,6 +99,7 @@ class Slack:
         )
 
     def send_message(self, blocks=[], channel="", text=""):
+        from users.models import User
         # if there is no channel, then drop
         if channel == "":
             return False
@@ -97,7 +110,31 @@ class Slack:
             cache.set("slack_text", text)
             return {"channel": "slacky"}
 
-        return self.client.chat_postMessage(channel=channel, text=text, blocks=blocks)
+        response = None
+        users = User.objects.filter(Q(slack_user_id=channel) | Q(slack_channel_id=channel))
+        try:
+            response = self.client.chat_postMessage(
+                channel=channel,
+                text=text,
+                blocks=blocks
+            )
+            if users.exists():
+                Notification.objects.create(
+                    notification_type="sent_slack_message",
+                    extra_text=text,
+                    created_for=users.first(),
+                    description=json.dumps(blocks),
+                )
+        except Exception as e:
+            if users.exists():
+                Notification.objects.create(
+                    notification_type="failed_send_slack_message",
+                    extra_text=text,
+                    created_for=users.first(),
+                    description=str(e),
+                )
+
+        return response
 
     def open_modal(self, trigger_id, view):
         if settings.FAKE_SLACK_API:

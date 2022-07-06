@@ -12868,6 +12868,9 @@ form .btn {
   float:right;
   margin-left: 5px;
 }
+form .form-footer .btn {
+  margin-bottom: 14px;
+}
 form .upload-field .btn {
   float: unset !important;
   margin-left: unset !important;
@@ -12881,3 +12884,6 @@ form .upload-field .btn {
   padding-bottom: 0px;
 }
 
+.badge:empty {
+  margin-bottom: 6px;
+}

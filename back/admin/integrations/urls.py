@@ -12,6 +12,13 @@ urlpatterns = [
         name="delete",
     ),
     path("update/<int:pk>/", views.IntegrationUpdateView.as_view(), name="update"),
+    path("update/<int:pk>/google/", views.IntegrationUpdateGoogleLoginView.as_view(), name="update-google"),
+    path("oauth/<int:pk>/", views.IntegrationOauthRedirectView.as_view(), name="oauth"),
+    path(
+        "oauth/<int:pk>/callback/",
+        views.IntegrationOauthCallbackView.as_view(),
+        name="oauth-callback"
+    ),
     path(
         "update_creds/<int:pk>/",
         views.IntegrationUpdateExtraArgsView.as_view(),

@@ -56,6 +56,17 @@ These requests will be ran when this integration gets triggered.
 ## Headers
 These headers will be send with every request. These could include some sort of token variable for authentication.
 
+## Oauth
+If you need to use OAuth2 to get a token, then you will need to use this. Just create a prop called `oauth` and then in that use these properties:
+
+`url`: The url to start the Oauth authentication process. This will generally be a login screen which requests for permissions.
+`access_token_url`: This is used when you come back to our site with a token. With that token, it will need to fetch an access token from the third party (and perhaps a refresh token).
+
+If the `expires_in` value is provided by the third party, then ChiefOnboarding will automatically refresh the api tokens at use (if necessary). In that case, you will have to set:
+
+`refresh_url`: Used to refresh the token to get a new one
+
+
 ## Initial data form
 This is a form that you can create to fill in when you add this integration to your instance. Any sensitive info should be filled in here, instead of in the manifest itself. Data that gets filled in here will be saved encrypted in the database. The manifest itself does not get encrypted. So, again, any tokens, authentication, sensitive info should be filled in through this form and not hardcoded!
 
