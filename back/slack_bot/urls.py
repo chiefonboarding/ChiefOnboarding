@@ -17,7 +17,7 @@ if not settings.SLACK_USE_SOCKET:
 
     handler = SlackRequestHandler(app=app)
     urlpatterns = [
-        path("bot/", slack_events_handler, name="slack_events"),
+        path("bot", slack_events_handler, name="slack_events"),
     ]
 elif settings.SLACK_APP_TOKEN != "":
     # Start websocket app
