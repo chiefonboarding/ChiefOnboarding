@@ -48,7 +48,7 @@
         </div>
       </div>
       <div class="card-footer">
-        <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal-block">
+        <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal-block" hx-get="{% url 'sequences:condition-create' object.id %}" hx-target="#condition_form" hx-swap="#add-condition-form">
           {% translate "Add block" %}
         </a>
       </div>
@@ -118,7 +118,6 @@ function changeTemplate(itemId, conditionId, typeId, provCreated=0) {
       'X-CSRFToken': '{{ csrf_token }}'
     }
   }).done(function( data ) {
-    console.log("got htere")
     $("#form").html(data)
     if (type === 'resource') {
       initResource()
@@ -159,8 +158,6 @@ $("#form-add-item").submit(function (event) {
           'X-CSRFToken': '{{ csrf_token }}'
         }
       }).done(function( data, textStatus, request) {
-        console.log("got htere")
-        console.log(request.getResponseHeader("HX-Trigger"))
         if (request.getResponseHeader("HX-Trigger") !== null) {
           $('.modal').modal('hide')
           // document.getElementById("add-condition-form").reset();

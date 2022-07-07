@@ -199,7 +199,7 @@ class PendingSlackMessageForm(forms.ModelForm):
 
         # Check if send_to field should be hidden
         hide_send_to = "d-none"
-        if self.instance is not None and self.instance.send_to == 3:
+        if self.instance is not None and self.instance.person_type == 3:
             hide_send_to = ""
 
         self.helper.layout = Layout(
@@ -232,7 +232,7 @@ class PendingTextMessageForm(forms.ModelForm):
 
         # Check if send_to field should be hidden
         hide_send_to = "d-none"
-        if self.instance is not None and self.instance.send_to == 3:
+        if self.instance is not None and self.instance.person_type == 3:
             hide_send_to = ""
 
         self.helper.layout = Layout(
@@ -265,7 +265,7 @@ class PendingEmailMessageForm(forms.ModelForm):
 
         # Check if send_to field should be hidden
         hide_send_to = "d-none"
-        if self.instance is not None and self.instance.send_to == 3:
+        if self.instance is not None and self.instance.person_type == 3:
             hide_send_to = ""
 
         self.helper.layout = Layout(
