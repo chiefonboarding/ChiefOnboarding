@@ -317,7 +317,7 @@
               data: content,
               tools: {
                 header: Header,
-                {% if 'todo' in request.path or 'preboarding' in request.path %}
+                {% if 'todo' in request.path or 'preboarding' in request.path or 'sequences' in request.path %}
                 form: Form,
                 {% endif %}
                 quote: Quote,

@@ -101,14 +101,12 @@ def migrate_wysiwyg_field(apps, schema_context, **context):
                 new_json.append(
                     {
                         "type": "question",
-                        "data": {
-                            "items": [
-                                {"id": item["id"], "text": item["text"]}
-                                for item in block.items
-                            ],
-                            "answer": block.answer,
-                            "content": block.content,
-                        },
+                        "items": [
+                            {"id": item["id"], "text": item["text"]}
+                            for item in block.items
+                        ],
+                        "answer": block.answer,
+                        "content": block.content,
                     }
                 )
 
@@ -123,6 +121,8 @@ def migrate_forms_to_wysiwyg(apps, schema_context, **context):
     for item in Model.objects.all():
         content = item.content
         for form_item in item.form:
+            if form_item["type"] == "select":
+                continue
             if form_item["type"] in ["text", "input", "upload"]:
                 content["blocks"].append(
                     {
