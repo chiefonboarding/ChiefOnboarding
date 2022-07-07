@@ -103,7 +103,7 @@ def migrate_wysiwyg_field(apps, schema_context, **context):
                         "type": "question",
                         "data": {
                             "items": [
-                                {"id": item.id, "text": item.text}
+                                {"id": item["id"], "text": item["text"]}
                                 for item in block.items
                             ],
                             "answer": block.answer,
