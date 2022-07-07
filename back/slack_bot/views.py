@@ -245,7 +245,7 @@ def slack_catch_all_message_search_resources(message):
 
     items = Resource.objects.search(user, message["text"])
     results = [
-        SlackResource(task.resource_new_hire.all()[0], user).get_block()
+        SlackResource(task.resource_new_hire.filter(user=user)[0], user).get_block()
         for task in items
     ]
 

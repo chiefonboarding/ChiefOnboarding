@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import migrations, router
 
 
@@ -126,6 +128,7 @@ def migrate_forms_to_wysiwyg(apps, schema_context, **context):
             if form_item["type"] in ["text", "input", "upload"]:
                 content["blocks"].append(
                     {
+                        "id": str(uuid.uuid4()),
                         "type": "form",
                         "data": {
                             "type": form_item["type"],
@@ -136,6 +139,7 @@ def migrate_forms_to_wysiwyg(apps, schema_context, **context):
             else:
                 content["blocks"].append(
                     {
+                        "id": str(uuid.uuid4()),
                         "type": "paragraph",
                         "data": {
                             "text": form_item["text"],
@@ -153,6 +157,7 @@ def migrate_forms_to_wysiwyg(apps, schema_context, **context):
                 for sub_item in form_item[key]:
                     content["blocks"].append(
                         {
+                            "id": str(uuid.uuid4()),
                             "type": "form",
                             "data": {
                                 "type": form_item["type"],

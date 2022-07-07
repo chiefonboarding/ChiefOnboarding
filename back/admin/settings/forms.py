@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from django.utils.safestring import mark_safe
 
 from admin.integrations.models import Integration
 from admin.templates.forms import UploadField
@@ -179,13 +180,13 @@ class WelcomeMessagesUpdateForm(forms.ModelForm):
             "message": forms.Textarea,
         }
         help_texts = {
-            "message": _(
+            "message": mark_safe(_(
                 "You can use &#123;&#123; first_name &#125;&#125;, "
                 "&#123;&#123; last_name &#125;&#125;, &#123;&#123; position "
                 "&#125;&#125;, &#123;&#123; manager &#125;&#125;, and &#123;&#123; "
                 "buddy &#125;&#125; in the editor. It will be replaced by the values "
                 "corresponding to the new hire."
-            )
+            ))
         }
 
 
