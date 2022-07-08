@@ -2,7 +2,7 @@ name: update_docs
 on:
   push:
     branches:
-      - fix-docs-load
+      - master
     paths:
       - 'docs/**'
 jobs:
