@@ -112,16 +112,13 @@ class GoogleLoginView(View):
                     "grant_type": "authorization_code",
                 },
             )
-            print(r.json())
             user_access_token = r.json()["access_token"]
 
             user_info = requests.get(
                 "https://www.googleapis.com/oauth2/v3/userinfo"
                 f"?access_token={user_access_token}",
             ).json()
-            print(user_info)
-        except Exception as e:
-            print(e)
+        except Exception:
             messages.error(
                 request,
                 _("Something went wrong with reaching Google. Please try again."),

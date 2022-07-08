@@ -154,9 +154,6 @@ def test_create_new_hire_with_sequences_before_starting(
     )
 
     # To do item in condition is passed time, so we should notify user of that
-    new_hire = get_user_model().objects.last()
-    print(new_hire.start_day)
-
     assert "Items that will never be triggered" in response.content.decode()
     assert to_do1.name in response.content.decode()
     assert to_do3.name not in response.content.decode()
@@ -948,7 +945,6 @@ def test_new_hire_reopen_todo(
     assert mailoutbox[0].subject == "Please redo this task"
     assert len(mailoutbox[0].to) == 1
     assert mailoutbox[0].to[0] == to_do_user1.user.email
-    print(mailoutbox[0].alternatives[0][0])
     assert settings.BASE_URL in mailoutbox[0].alternatives[0][0]
     assert "You forgot this one!" in mailoutbox[0].alternatives[0][0]
     assert to_do_user1.user.first_name in mailoutbox[0].alternatives[0][0]
