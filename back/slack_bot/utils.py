@@ -1,6 +1,8 @@
 import json
 
 import slack_sdk
+from slack_bolt.adapter.socket_mode import SocketModeHandler
+from slack_bolt import App as SlackBoltApp
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
@@ -12,12 +14,17 @@ from organization.models import Notification
 class Slack:
     def __init__(self):
         if not settings.FAKE_SLACK_API:
-            try:
+            if not settings.SLACK_USE_SOCKET:
                 team = Integration.objects.get(integration=0)
                 self.client = slack_sdk.WebClient(token=team.token)
-            except Integration.DoesNotExist:
+            else:
                 if settings.SLACK_BOT_TOKEN != "":
-                    self.client = slack_sdk.WebClient(token=settings.SLACK_BOT_TOKEN)
+                    app = SlackBoltApp(token=settings.SLACK_BOT_TOKEN)
+                    handler = SocketModeHandler(app, settings.SLACK_APP_TOKEN)
+                    handler.connect()
+                    self.client = app.client
+                    return
+
                 raise Exception("Access token not available")
 
     def get_channels(self):

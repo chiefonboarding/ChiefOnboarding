@@ -1893,7 +1893,7 @@ def test_link_slack_users_send_welcome_message_without_to_dos(
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": f"*{intro.name}:*{intro.intro_person.full_name}\n{intro.intro_person.position}\n_Hi {new_hire.first_name}, how is it going? Great to have you with us!_\n{intro.intro_person.email} ",  # noqa
+                "text": f"*{intro.name}:* {intro.intro_person.full_name}\n{intro.intro_person.position}\n_Hi {new_hire.first_name}, how is it going? Great to have you with us!_\n{intro.intro_person.email} ",  # noqa
             },
         },
     ]
