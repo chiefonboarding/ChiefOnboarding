@@ -26,7 +26,11 @@ urlpatterns = [
         TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
     ),
     path("", include(auth_urls)),
-    path("api/auth/google_login", user_auth.views.GoogleLoginView.as_view(), name="google_login"),
+    path(
+        "api/auth/google_login",
+        user_auth.views.GoogleLoginView.as_view(),
+        name="google_login",
+    ),
     path("api/org/", include(org_urls)),
     path("admin/people/", include((people_urls, "admin.people"), namespace="admin")),
     path("admin/settings/", include(settings_urls)),
