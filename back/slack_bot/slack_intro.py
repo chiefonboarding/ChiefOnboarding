@@ -7,7 +7,7 @@ class SlackIntro:
         self.user = user
 
     def format_block(self):
-        text = f"*{self.intro.name}:*{self.intro.intro_person.full_name}\n"
+        text = f"*{self.intro.name}:* {self.intro.intro_person.full_name}\n"
         if self.intro.intro_person.position != "":
             text += f"{self.intro.intro_person.position}\n"
         if self.intro.intro_person.message != "":

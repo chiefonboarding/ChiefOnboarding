@@ -125,7 +125,7 @@ class ContentMixin:
             elif item["type"] == "list" and item["data"]["style"] == "unordered":
                 ol_list = ""
                 for list_item in item["data"]["items"]:
-                    ol_list += "* " + user.personalize(list_item) + "\n"
+                    ol_list += "* " + user.personalize(list_item["content"]) + "\n"
                 slack_block["text"]["text"] = ol_list
             elif item["type"] == "delimiter":
                 slack_block = {"type": "divider"}

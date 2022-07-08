@@ -12,10 +12,10 @@ from organization.models import Notification
 class Slack:
     def __init__(self):
         if not settings.FAKE_SLACK_API:
-            try:
+            if not settings.SLACK_USE_SOCKET:
                 team = Integration.objects.get(integration=0)
                 self.client = slack_sdk.WebClient(token=team.token)
-            except Integration.DoesNotExist:
+            else:
                 if settings.SLACK_BOT_TOKEN != "":
                     self.client = slack_sdk.WebClient(token=settings.SLACK_BOT_TOKEN)
                 raise Exception("Access token not available")
