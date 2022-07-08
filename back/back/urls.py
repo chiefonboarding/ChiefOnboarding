@@ -18,6 +18,7 @@ from new_hire import urls as new_hire_urls
 from organization import urls as org_urls
 from slack_bot import urls as slack_urls
 from user_auth import urls as auth_urls
+import user_auth
 
 urlpatterns = [
     path(
@@ -25,6 +26,7 @@ urlpatterns = [
         TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
     ),
     path("", include(auth_urls)),
+    path("api/auth/google_login", user_auth.views.GoogleLoginView.as_view(), "google_login"),
     path("api/org/", include(org_urls)),
     path("admin/people/", include((people_urls, "admin.people"), namespace="admin")),
     path("admin/settings/", include(settings_urls)),
