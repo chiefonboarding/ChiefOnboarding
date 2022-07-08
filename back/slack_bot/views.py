@@ -46,6 +46,8 @@ else:
             )
         except Exception as e:
             logger.info("Couldn't start slack app: " + str(e))
+            # Mock app since the app would otherwise crash for not having it
+            app = Mock()
 
 
 def exception_handler(func):
