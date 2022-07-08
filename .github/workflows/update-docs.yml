@@ -2,7 +2,9 @@ name: update_docs
 on:
   push:
     branches:
-      - main 
+      - master 
+    paths:
+      - 'docs/**'
 jobs:
   build:
     runs-on: ubuntu-latest
