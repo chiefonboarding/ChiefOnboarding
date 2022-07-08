@@ -2,7 +2,7 @@ name: update_docs
 on:
   push:
     branches:
-      - master 
+      - fix-docs-load
     paths:
       - 'docs/**'
 jobs:
@@ -21,4 +21,4 @@ jobs:
         env:
           RCLONE_CONF: ${{ secrets.RCLONE_CONF }}
         with:
-          args: sync .docs/retype/ storage:/caddy/chief_docs/
+          args: sync docs/.retype/ storage:/caddy/chief_docs/
