@@ -14,12 +14,12 @@ WHITELISTED_URLS = [
     "robots.txt",
     "logout/",
     "google/",
+    "api/auth/google_login",
     "password/reset_request/",
     "password/reset_request/done/",
     "password/reset_change/<uidb64>/<token>/",
     "password/reset_change/done/",
     "api/slack/bot",
-    "api/slack/callback",
     "new_hire/preboarding/",
     "new_hire/slackform/<int:pk>/",
 ]
