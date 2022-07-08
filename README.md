@@ -1,6 +1,6 @@
 # ChiefOnboarding
 
-> IMPORTANT: v2.0 has been released. Consider this as beta for now. We are doing quick rolling releases on this for the next few weeks. Keep your ChiefOnboarding instance up-to-date to get the latest bug fixes/improvements. If you want to use the old version, then check out (this branch)[https://github.com/chiefonboarding/ChiefOnboarding/tree/v1.x].
+> IMPORTANT: v2.0 has been released. Consider this as beta for now. We are doing quick rolling releases on this for the next few weeks. Keep your ChiefOnboarding instance up-to-date to get the latest bug fixes/improvements. If you want to use the old version, then check out [this branch](https://github.com/chiefonboarding/ChiefOnboarding/tree/v1.x).
 
 ChiefOnboarding is a free and open source employee onboarding platform. You can onboarding new hires through Slack or the dashboard. 
 
