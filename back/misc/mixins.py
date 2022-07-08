@@ -120,7 +120,12 @@ class ContentMixin:
             elif item["type"] == "list" and item["data"]["style"] == "ordered":
                 ul_list = ""
                 for idx, list_item in enumerate(item["data"]["items"]):
-                    ul_list += str(idx + 1) + ". " + user.personalize(list_item) + "\n"
+                    ul_list += (
+                        str(idx + 1)
+                        + ". "
+                        + user.personalize(list_item["content"])
+                        + "\n"
+                    )
                 slack_block["text"]["text"] = ul_list
             elif item["type"] == "list" and item["data"]["style"] == "unordered":
                 ol_list = ""
