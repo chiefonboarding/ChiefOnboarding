@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Building
         run: |
-          npm install retypeapp --global
+          npm install retypeapp --location=global
           cd docs
           retype build
       - name: Uploading files with rclone 
