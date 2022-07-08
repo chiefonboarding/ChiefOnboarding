@@ -108,7 +108,7 @@ class GoogleLoginView(View):
                     "code": request.GET.get("code", ""),
                     "client_id": access_code.client_id,
                     "client_secret": access_code.client_secret,
-                    "redirect_url": settings.BASE_URL + "/api/auth/google_login",
+                    "redirect_uri": settings.BASE_URL + "/api/auth/google_login",
                     "grant_type": "authorization_code",
                 },
             )
