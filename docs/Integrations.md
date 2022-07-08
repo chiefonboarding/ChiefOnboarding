@@ -57,6 +57,8 @@ These requests will be ran when this integration gets triggered.
 These headers will be send with every request. These could include some sort of token variable for authentication.
 
 ## Oauth
+> Not fully functional yet! WIP.
+
 If you need to use OAuth2 to get a token, then you will need to use this. Just create a prop called `oauth` and then in that use these properties:
 
 `url`: The url to start the Oauth authentication process. This will generally be a login screen which requests for permissions.
