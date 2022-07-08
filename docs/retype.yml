@@ -1,0 +1,17 @@
+input: .
+output: .retype
+url: https://docs.chiefonboarding.com
+branding:
+  title: ChiefOnboarding
+  label: Docs
+links:
+- text: Support
+  link: https://chiefonboarding.com/pricing
+- text: Github
+  link: https://github.com/chiefonboarding/ChiefOnboarding
+- text: Website
+  link: https://chiefonboarding.com
+footer:
+  copyright: "&copy; Copyright {{ year }}. All rights reserved."
+edit:
+  repo: "https://github.com/chiefonboarding/ChiefOnboarding"

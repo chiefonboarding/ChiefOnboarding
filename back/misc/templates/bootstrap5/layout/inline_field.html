@@ -1,0 +1,26 @@
+{% load crispy_forms_field %}
+
+{% if field.is_hidden %}
+    {{ field }}
+{% else %}
+    {% if field|is_checkbox %}
+        <div id="div_{{ field.auto_id }}" class="form-check form-check-inline{% if wrapper_class %} {{ wrapper_class }}{% endif %}">
+            {% crispy_field field 'class' 'form-check-input' %}
+            <label for="{{ field.id_for_label }}" class="form-check-label">
+                {{ field.label }}
+            </label>
+        </div>
+    {% else %}
+        <div id="div_{{ field.auto_id }}"{% if wrapper_class %} class="{{ wrapper_class }}"{% endif %}>
+            <label for="{{ field.id_for_label }}" class="visually-hidden">
+                {{ field.label }}
+            </label>
+            {% if field.errors %}
+                {% crispy_field field 'class' 'form-control is-invalid' 'placeholder' field.label %}
+            {% else %}
+                {% crispy_field field 'class' 'form-control' 'placeholder' field.label %}
+            {% endif %}
+            
+        </div>
+    {% endif %}
+{% endif %}

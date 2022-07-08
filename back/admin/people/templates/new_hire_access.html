@@ -1,0 +1,32 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block actions %}
+  {% include "_new_hire_settings_menu.html" %}
+{% endblock %}
+
+{% block content %}
+{% include "_new_hire_menu.html" %}
+<div class="row">
+  {% for integration in integrations %}
+  <div class="column col-3 integration-{{integration.id}}">
+    {% include "_new_hire_access_card.html" %}
+  </div>
+  {% empty %}
+  <div class="card">
+    <div class="card-body">
+      {% translate "You have not enabled any integrations for account provisitioning." %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  {% for integration in integrations %}
+    htmx.ajax('GET', "{% url 'people:new_hire_check_integration' object.id integration.id %}", '.integration-{{integration.id}}')
+  {% endfor %}
+</script>
+{% endblock %}

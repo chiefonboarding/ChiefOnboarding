@@ -1,0 +1,54 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+{% load humanize %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">{% translate "All tasks" %}</h3>
+  </div>
+  <table class="table table-responsive table-vcenter text-nowrap">
+    <thead>
+      <tr>
+        <th>{% translate "For new hire" %}</th>
+        <th>{% translate "Task" %}</th>
+        <th>{% translate "Due in" %}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for task in object_list %}
+      <tr>
+        <td>
+          {% include "_table_user.html" with user=task.new_hire %}
+        </td>
+        <td>
+          <div class="text-truncate">
+            {{ task.name }}
+          </div>
+        </td>
+        <td>{% if task.date|naturaltime is not None %}{{ task.date|naturaltime }}{% else %}{% translate "No deadline set" %}{%endif %}</td>
+        <td class="text-end">
+          {% if task.completed %}<button class="btn btn-success" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check" style="margin-right: 0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M5 12l5 5l10 -10"></path>
+            </svg>
+          </button>{% endif %}
+          <a href="{% url 'admin_tasks:detail' task.id %}" class="btn btn-white">
+            View
+          </a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="3">
+          {% translate "There are no open items" %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% include "_paginator.html" %}
+</div>
+{% endblock %}

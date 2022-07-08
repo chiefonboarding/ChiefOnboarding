@@ -1,0 +1,124 @@
+{% load general %}
+{% load settings_values %}
+{% aws_enabled as aws_active %}
+{% load i18n %}
+{% with content=content|parse_to_json %}
+{% for block in content.blocks %}
+  {% if block.type == 'paragraph' %}
+    <p> {{ block.data.text | safe }} </p>
+  {% endif %}
+  {% if block.type == 'header' %}
+    <h{{block.data.level}}> {{ block.data.text | safe }} </h{{block.data.level}}>
+  {% endif %}
+  {% if block.type == 'quote' %}
+    <blockquote>{{ block.data.text }}</blockquote>
+  {% endif %}
+  {% if block.type == 'list' %}
+    {% if block.data.style == 'ordered' %}
+      <ol>
+    {% endif %}
+    {% if block.data.style == 'unordered' %}
+      <ul>
+    {% endif %}
+    {% for item in block.data.items %}
+      <li>{{item.content}}</li>
+    {% endfor %}
+    {% if block.data.style == 'unordered' %}
+      </ul>
+    {% endif %}
+    {% if block.data.style == 'ordered' %}
+      </ol>
+    {% endif %}
+    <blockquote>{{ block.data.text }}</blockquote>
+  {% endif %}
+  {% if block.type == 'attaches' %}
+    {% if block.data.file.extension == 'mp4' or block.data.file.extension == 'webm' %}
+      <video controls width="800" class="mt-2">
+          <source src="{{ block.data.file.url }}"
+                  type="video/{{ block.data.file.extension }}">
+          {% translate "Sorry, your browser doesn't support embedded videos." %}
+      </video>
+    {% else %}
+    <div class="d-block mt-2">
+      <a href="{{ block.data.file.url }}" type="button" class="btn btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+           <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5"></path>
+           <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5"></path>
+        </svg>
+        {{ block.data.file.name }}
+      </a>
+    </div>
+    {% endif %}
+  {% endif %}
+  {% if block.type == 'image' %}
+    <div class="d-block mt-2">
+      <figure>
+        <img src="{{ block.data.file.url }}" alt="{{block.data.caption}}" />
+        <figcaption>{{block.data.caption}}</figcaption>
+      </figure>
+    </div>
+  {% endif %}
+  {% if block.type == 'form' %}
+    {% if block.id in object.completed_form_items %}
+      {% if not content|next_still_form:forloop.counter0 %}
+        {% translate "You have already completed this form" %}
+      {% endif %}
+    {% else %}
+      {# Create new form when `form` is new #}
+      {% ifchanged block.type %}
+        <form hx-post="{% url 'new_hire:to_do_form' object.id %}">
+      {% endifchanged %}
+      {% if block.data.type == 'input' %}
+        <div class="mb-3">
+          <label class="form-label">{{ block.data.text }}</label>
+          <input type="text" class="form-control" name="{{ block.id }}">
+        </div>
+      {% endif %}
+      {% if block.data.type == 'text' %}
+      <div class="mb-3">
+        <label class="form-label">{{ block.data.text }}</label>
+        <textarea class="form-control" name="{{ block.id }}"></textarea>
+      </div>
+      {% endif %}
+      {% if block.data.type == 'check' %}
+      <div class="mb-3">
+        <label class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" name="{{ block.id }}">
+          <span class="form-check-label">{{ block.data.text }}</span>
+        </label>
+      </div>
+      {% endif %}
+      {% if block.data.type == 'upload' %}
+      <div class="upload-field mb-1">
+        <label class="form-label custom-control-label">{{ block.data.text }}</label>
+        {% if aws_active %}
+          <img src="{{ file.get_url }}" style="max-width: 100px; max-height: 100px;"/>
+          <input type="file" class="form-control d-none file-input">
+          <input class="file-id d-none" name="{{ block.id }}">
+
+          <a class="btn btn-sm btn-primary mb-3 upload-button">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-upload" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+              <polyline points="7 9 12 4 17 9"></polyline>
+              <line x1="12" y1="4" x2="12" y2="16"></line>
+            </svg>
+            {% translate "Upload" %}
+          </a>
+        {% else %}
+          <div class="alert alert-warning" role="alert">
+            {% translate "File storage has not been set up. Please ask your supervisor." %}
+          </div>
+        {% endif %}
+      </div>
+      {% endif %}
+    {% endif %}
+
+    {% if not content|next_still_form:forloop.counter0 and block.id not in object.completed_form_items or forloop.last %}
+      <button class="btn btn-primary mb-2" type="submit">{% translate "Submit" %}</button>
+      </form>
+    {% endif %}
+  {% endif %}
+{% endfor %}
+{% endwith %}

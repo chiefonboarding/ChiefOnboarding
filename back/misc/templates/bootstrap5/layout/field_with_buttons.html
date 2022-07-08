@@ -1,0 +1,24 @@
+{% load crispy_forms_field %}
+
+<div{% if div.css_id %} id="{{ div.css_id }}"{% endif %} class="mb-3{% if 'form-horizontal' in form_class %} row{% endif %}{% if wrapper_class %} {{ wrapper_class }}{% endif %}{% if field.css_classes %} {{ field.css_classes }}{% endif %}{% if div.css_class %} {{ div.css_class }}{% endif %}" {{ div.flat_attrs }}>
+    {% if field.label and form_show_labels %}
+        <label for="{{ field.id_for_label }}" class="{% if 'form-horizontal' in form_class %}col-form-label {% else %}form-label {% endif %}{{ label_class }}{% if field.field.required %} requiredField{% endif %}">
+            {{ field.label }}{% if field.field.required %}<span class="asteriskField">*</span>{% endif %}
+        </label>
+    {% endif %}
+
+    <div{% if field_class %}class="{{ field_class }}"{% endif %}>
+        <div class="input-group{% if input_size %} {{ input_size }}{% endif %}">
+            {% if field.errors %}
+                {% crispy_field field 'class' 'form-control is-invalid' %}
+            {% else %}
+                {% crispy_field field 'class' 'form-control' %}
+            {% endif %}
+            {{ buttons|safe }}
+        </div>
+        {% for error in field.errors %}
+            <p id="error_{{ forloop.counter }}_{{ field.auto_id }}" class="text-danger mb-0"><small><strong>{{ error }}</strong></small></p>
+        {% endfor %}
+        {% include 'bootstrap5/layout/help_text.html' %}
+    </div>
+</div>

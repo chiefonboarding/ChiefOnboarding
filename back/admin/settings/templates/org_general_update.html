@@ -1,0 +1,30 @@
+{% extends 'settings_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block actions %}{% endblock %}
+{% block settings_content %}
+  <div class="card-body">
+    {% crispy form %}
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // disable two options when not "make new user automatically"
+  $("#id_auto_create_user").on('change', function() {
+    if (this.checked == true){
+      $("#div_id_create_new_hire_without_confirm").parent().parent().removeClass("d-none")
+    } else {
+      $("#div_id_create_new_hire_without_confirm").parent().parent().addClass("d-none")
+    }
+  })
+  // disable two options when not "make new user automatically"
+  $("#id_create_new_hire_without_confirm").on('change', function() {
+    if (this.checked == false){
+      $("#id_slack_confirm_person").parent().parent().removeClass("d-none")
+    } else {
+      $("#id_slack_confirm_person").parent().parent().addClass("d-none")
+    }
+  })
+</script>
+{% endblock %}

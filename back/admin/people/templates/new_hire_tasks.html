@@ -1,0 +1,160 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block actions %}
+{% include "_new_hire_settings_menu.html" %}
+{% endblock %}
+
+{% block content %}
+{% include "_new_hire_menu.html" %}
+<div class="card mt-3">
+  <div class="card-header">
+    <div class="row w-100">
+      <div class="col">
+        <h3 class="card-title mt-2">{% translate "Preboarding" %}</h3>
+      </div>
+      <div class="col text-end">
+        <a href="{% url 'people:new_hire_task_list' object.id 'preboarding' %}" class="btn btn-primary">
+          {% translate "Change" %}
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    {% for preboarding in object.preboarding.all %}
+    <div class="row">
+      <div class="col">
+        {{ preboarding.name }}
+      </div>
+    </div>
+    {% empty %}
+    <div class="row">
+      <div class="col">
+        {% translate "There are no preboarding items yet" %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="card mt-3">
+  <div class="card-header">
+    <div class="row w-100">
+      <div class="col">
+        <h3 class="card-title mt-2">{% translate "To do" %}</h3>
+      </div>
+      <div class="col text-end">
+        <a href="{% url 'people:new_hire_task_list' object.id 'todo' %}" class="btn btn-primary">
+          {% translate "Change" %}
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    {% for to_do in object.to_do.all %}
+    <div class="row">
+      <div class="col">
+        {{ to_do.name }}
+      </div>
+    </div>
+    {% empty %}
+    <div class="row">
+      <div class="col">
+        {% translate "There are no to do items yet" %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="card mt-3">
+  <div class="card-header">
+    <div class="row w-100">
+      <div class="col">
+        <h3 class="card-title mt-2">{% translate "Resources" %}</h3>
+      </div>
+      <div class="col text-end">
+        <a href="{% url 'people:new_hire_task_list' object.id 'resource' %}" class="btn btn-primary">
+          {% translate "Change" %}
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    {% for resource in object.resources.all %}
+    <div class="row">
+      <div class="col">
+        {{ resource.name }}
+      </div>
+    </div>
+    {% empty %}
+    <div class="row">
+      <div class="col">
+        {% translate "There are no resource items yet" %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="card mt-3">
+  <div class="card-header">
+    <div class="row w-100">
+      <div class="col">
+        <h3 class="card-title">{% translate "Introductions" %}</h3>
+      </div>
+      <div class="col text-end">
+        <a href="{% url 'people:new_hire_task_list' object.id 'introduction' %}" class="btn btn-primary">
+          {% translate "Change" %}
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    {% for introduction in object.introductions.all %}
+    <div class="row">
+      <div class="col">
+        {{ introduction.name }}
+      </div>
+    </div>
+    {% empty %}
+    <div class="row">
+      <div class="col">
+        {% translate "There are no introduction items yet" %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="card mt-3">
+  <div class="card-header">
+    <div class="row w-100">
+      <div class="col">
+        <h3 class="card-title">{% translate "Appointments" %}</h3>
+      </div>
+      <div class="col text-end">
+        <a href="{% url 'people:new_hire_task_list' object.id 'appointment' %}" class="btn btn-primary">
+          {% translate "Change" %}
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    {% for appointment in object.appointments.all %}
+    <div class="row">
+      <div class="col">
+        {{ appointment.name }}
+      </div>
+    </div>
+    {% empty %}
+    <div class="row">
+      <div class="col">
+        {% translate "There are no appointment items yet" %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

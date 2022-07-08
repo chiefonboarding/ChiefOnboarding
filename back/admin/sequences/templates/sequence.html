@@ -1,0 +1,270 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block actions %}
+{% if object %}
+<form method="POST" action="{% url 'templates:duplicate' object.class_name object.id %}">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-primary">
+    {% translate "Duplicate" %}
+  </button>
+</form>
+<form method="POST" action="{% url 'todo:delete' object.id %}">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger">
+    {% translate "Delete" %}
+  </button>
+</form>
+{% endif %}
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-7">
+    <div class="alert alert-warning" role="alert">
+      {% translate "All changes will be automatically saved. This doesn't impact current new hires." %}
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex">
+          <label for="id_name" class="form-label requiredField">{% translate "Name" %}</label>
+        </div>
+        <div class="input-icon">
+          <input class="form-control d-inline-block w-9 me-3"
+                 id="name"
+                 value="{{ object.name }}"
+                 placeholder="Sequence name"
+                 name="name"
+                 hx-post="{% url 'sequences:update_name' object.id %}"
+                 hx-trigger="keyup delay:500ms changed"
+                 hx-indicator="#name-spinner"
+                 >
+                 <span class="input-icon-addon requesting" id="name-spinner">
+                   <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
+                 </span>
+        </div>
+        <div class="card-body" id="timeline">
+          {% include '_sequence_timeline.html' %}
+        </div>
+      </div>
+      <div class="card-footer">
+        <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal-block" hx-get="{% url 'sequences:condition-create' object.id %}" hx-target="#condition_form" hx-swap="#add-condition-form">
+          {% translate "Add block" %}
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="col-5">
+    <div class="card seq-icons sticky-top" id="template-list" style="max-height: calc(44rem + 10px)">
+      {% include '_sequence_templates_list.html' with active='todo' template='Todo' %}
+    </div>
+  </div>
+</div>
+
+<!-- modal for adding new block -->
+<div class="modal modal-blur fade show" id="modal-block" tabindex="-1" role="dialog" aria-modal="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{% translate "Block" %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="condition_form">
+        {% include "_condition_form.html" %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- modal for changing item in condition -->
+<div class="modal modal-blur fade show" id="modal-template-edit" tabindex="-1" role="dialog" aria-modal="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{% translate "Item" %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="form-modal-content">
+        <form id="form-add-item" method="post" action=".">
+          <div id="form">
+            <div class="text-center">
+              <div class="spinner-border" role="status"></div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">{% translate "Submit" %}</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script>
+var type = '';
+var item = '';
+var condition = '';
+var provisionCreated = '';
+function changeTemplate(itemId, conditionId, typeId, provCreated=0) {
+  $("#form").html('<div class="text-center"><div class="spinner-border" role="status"></div></div>')
+  type = typeId
+  item = itemId
+  condition = conditionId
+  provisionCreated = provCreated
+
+  $.ajax({
+    url: `/admin/sequences/forms/${typeId}/${itemId}/`,
+    headers: {
+      'X-CSRFToken': '{{ csrf_token }}'
+    }
+  }).done(function( data ) {
+    $("#form").html(data)
+    if (type === 'resource') {
+      initResource()
+    } else {
+      initWYSIWYGEditor()
+    }
+    initSelectize("#form-modal-content")
+    // Specific for Pending admin task
+    $("#div_id_slack_user").addClass("d-none")
+    $("#div_id_email").addClass("d-none")
+  });
+}
+// credits: https://stackoverflow.com/a/11339012
+function getFormData($form){
+  var unindexed_array = $form.serializeArray();
+  var indexed_array = {};
+
+  $.map(unindexed_array, function(n, i){
+      indexed_array[n['name']] = n['value'];
+  });
+
+  return indexed_array;
+}
+
+// Normally we would use `hx-post`, but for whatever reason, it won't always update the url
+// So this is a temporary workaround for that.
+// Nothing is as permanent as a temporary workaround.
+$("#form-add-item").submit(function (event) {
+    event.preventDefault();
+    if (type === 'integration' || type === 'integrationconfig') {
+      htmx.ajax('POST', `/admin/sequences/update_integration_config/${type}/${item}/${condition}/${provisionCreated}/`, {'values': getFormData($(this)), 'target': '#form'})
+    } else {
+      $.ajax({
+        url: `/admin/sequences/update_item/${type}/${item}/${condition}/`,
+        method: "post",
+        data: getFormData($(this)),
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}'
+        }
+      }).done(function( data, textStatus, request) {
+        if (request.getResponseHeader("HX-Trigger") !== null) {
+          $('.modal').modal('hide')
+          // document.getElementById("add-condition-form").reset();
+          htmx.ajax('GET', "{% url 'sequences:timeline' object.id %}", '#timeline')
+          return
+        }
+        $("#form").html(data)
+        if (type === 'resource') {
+          initResource()
+        } else {
+          initWYSIWYGEditor()
+        }
+        initSelectize("#form-modal-content")
+        // Specific for Pending admin task
+        $("#div_id_slack_user").addClass("d-none")
+        $("#div_id_email").addClass("d-none")
+      });
+    }
+})
+
+// close modals when we are reloading the sequence part
+$(document).on("reload-sequence", function(evt){
+    $('.modal').modal('hide')
+    htmx.ajax('GET', "{% url 'sequences:timeline' object.id %}", '#timeline')
+})
+
+$("select#id_condition_type").on('change', function() {
+  // Change things to fill in when condition_type changes
+  if ($(this).val() == 1){
+    $("#add-condition-form #div_id_condition_to_do").parent().removeClass("d-none")
+    $("#div_id_days").parent().addClass("d-none")
+  } else {
+    $("#add-condition-form #div_id_condition_to_do").parent().addClass("d-none")
+    $("#div_id_days").parent().removeClass("d-none")
+  }
+})
+function editCondition(id) {
+  htmx.ajax('GET', `/admin/sequences/{{ object.id }}/condition/${id}/`, `#add-condition-form`)
+  $('#modal-block').modal('show')
+}
+// reload selectboxes when we get a new form back from backend
+document.getElementById("condition_form").addEventListener('htmx:load', function(evt) {
+  $("#id_condition_to_do").selectize()
+  $("#id_condition_type").selectize()
+});
+</script>
+<script>
+// FOR APPOINTMENTS
+// Change when appointment date/time changes
+$(document).on('change', "#id_fixed_date", function() {
+  if (this.checked == true){
+    $("#div_id_date").parent().removeClass("d-none")
+    $("#div_id_on_day").parent().addClass("d-none")
+  } else {
+    $("#div_id_date").parent().addClass("d-none")
+    $("#div_id_on_day").parent().removeClass("d-none")
+  }
+})
+// FOR TODOS
+$(document).on('change', "#id_send_back", function() {
+  if (this.checked == true){
+    $(".slack_channel_dissapear").removeClass("d-none")
+  } else {
+    $(".slack_channel_dissapear").addClass("d-none")
+  }
+})
+
+// FOR PENDING ADMIN TASKS
+$(document).on('change', "select#id_option", function() {
+  // Change things to fill in when notification option changes
+  if ($(this).val() == 0){
+    $("#div_id_slack_user").addClass("d-none")
+    $("#div_id_email").addClass("d-none")
+  } else if ($(this).val() == 2){
+    $("#div_id_slack_user").removeClass("d-none")
+    $("#div_id_email").addClass("d-none")
+  } else {
+    $("#div_id_slack_user").addClass("d-none")
+    $("#div_id_email").removeClass("d-none")
+  }
+})
+$(document).on('change', "select#id_person_type", function() {
+  // Change things to fill in when condition_type changes
+  console.log($(this).val())
+  if ($(this).val() == 3){
+    $("#div_id_assigned_to").parent().removeClass("d-none")
+  } else {
+    $("#div_id_assigned_to").parent().addClass("d-none")
+  }
+})
+// FOR PENDING MESSAGES
+$(document).on('change', "select#id_person_type", function() {
+  if ($(this).val() == 3){
+    $("#div_id_send_to").parent().removeClass("d-none")
+  } else {
+    $("#div_id_send_to").parent().addClass("d-none")
+  }
+})
+</script>
+{% if DEBUG %}
+<script src="{% static 'js/vue.js' %}"></script>
+{% else %}
+<script src="{% static 'js/vue.min.js' %}"></script>
+{% endif %}
+<script>
+var placeholder = '{% translate "Start typing here..." %}';
+var newItemText = '{% translate "New item" %}';
+</script>
+<script src="{% static 'js/resources.js' %}"></script>
+{% endblock %}

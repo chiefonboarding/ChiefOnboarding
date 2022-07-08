@@ -1,0 +1,39 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block actions %}
+{% include "_new_hire_settings_menu.html" %}
+{% endblock %}
+
+{% block content %}
+{% include "_new_hire_menu.html" %}
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">{% translate "Welcome messages from colleagues" %}</h3>
+  </div>
+  <div class="card-body card-body-scrollable card-body-scrollable-shadow">
+    <div class="divide-y">
+      {% for welcome_message in object_list %}
+      <div class="row">
+        <div class="col-auto">
+          {% include "_profile_image.html" with user=welcome_message.colleague %}
+        </div>
+        <div class="col">
+          <div class="text-truncate">
+            {{ welcome_message.message }}
+          </div>
+          <div class="text-muted">{{ welcome_message.colleague.full_name }}</div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="row">
+        <div class="col-12">
+          <p class="mb-0">{% translate "No one has created any messages yet. This needs to be done through Slack." %}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

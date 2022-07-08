@@ -1,0 +1,89 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block actions %}
+{% include "_new_hire_settings_menu.html" %}
+{% endblock %}
+
+{% block content %}
+{% include "_new_hire_menu.html" %}
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">{% translate "Open admin tasks" %}</h3>
+  </div>
+  <div class="">
+    <div class="divide-y">
+      <table class="table table-responsive table-vcenter text-nowrap">
+        <thead>
+          <tr>
+            <th>{% translate "Assigned to" %}</th>
+            <th>{% translate "Task" %}</th>
+            <th>{% translate "Due in" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for task in tasks_open %}
+          <tr>
+            <td>
+              {% include "_table_user.html" with user=task.assigned_to %}
+            </td>
+            <td>
+              <div class="text-truncate">
+                {{ task.name }}
+              </div>
+            </td>
+            <td>{% if task.date|naturaltime is not None %}{{ task.date|naturaltime }}{% else %}{% translate "No deadline set" %}{%endif %}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3">
+              {% translate "There are no open items" %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">{% translate "Completed admin tasks" %}</h3>
+  </div>
+  <div class="">
+    <div class="divide-y">
+      <table class="table table-responsive table-vcenter text-nowrap">
+        <thead>
+          <tr>
+            <th>{% translate "Assigned to" %}</th>
+            <th>{% translate "Task" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for task in tasks_completed %}
+          <tr>
+            <td>
+              {% include "_table_user.html" with user=task.assigned_to %}
+            </td>
+            <td>
+              <div class="text-truncate">
+                {{ task.name }}
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3">
+              {% translate "There are no closed items" %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

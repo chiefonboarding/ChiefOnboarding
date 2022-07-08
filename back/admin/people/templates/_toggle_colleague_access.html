@@ -1,0 +1,27 @@
+{% load i18n %}
+<button hx-post="{% url url_name colleague.id %}" class="btn btn-{% if exists %}danger{% else %}primary{% endif %}" hx-swap="outerHTML" hx-indicator="#spinner-{{colleague.id}}-{% if slack %}1{% else %}0{% endif %}">
+  {% if slack %}
+    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-slack" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+       <path d="M12 12v-6a2 2 0 0 1 4 0v6m0 -2a2 2 0 1 1 2 2h-6"></path>
+       <path d="M12 12h6a2 2 0 0 1 0 4h-6m2 0a2 2 0 1 1 -2 2v-6"></path>
+       <path d="M12 12v6a2 2 0 0 1 -4 0v-6m0 2a2 2 0 1 1 -2 -2h6"></path>
+       <path d="M12 12h-6a2 2 0 0 1 0 -4h6m-2 0a2 2 0 1 1 2 -2v6"></path>
+    </svg>
+  {% else %}
+    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+       <polyline points="5 12 3 12 12 3 21 12 19 12"></polyline>
+       <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"></path>
+       <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"></path>
+    </svg>
+  {% endif %}
+  {% if not exists and not button_name %}
+    {% translate "Give access" %}
+  {% elif exists and not button_name %}
+    {% translate "Revoke access" %}
+  {% else %}
+    {{ button_name }}
+  {% endif %}
+  <span class="requesting alsodisplay spinner-border spinner-border-sm me-2" id="spinner-{{colleague.id}}-{% if slack %}1{% else %}0{% endif %}" role="status"></span>
+</button>

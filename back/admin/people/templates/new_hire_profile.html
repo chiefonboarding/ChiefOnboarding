@@ -1,0 +1,18 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% block actions %}
+{% include "_new_hire_settings_menu.html" %}
+{% endblock %}
+
+{% block content %}
+{% include "_new_hire_menu.html" %}
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">{% translate "Profile" %}</h3>
+  </div>
+  <div class="card-body">
+    {% crispy form %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,15 @@
+<div class="accordion-item">
+    <h2 class="accordion-header">
+        <button class="accordion-button{% if not div.active %} collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#{{ div.css_id }}" aria-expanded="true"
+            aria-controls="{{ div.css_id }}">
+            {{ div.name }}
+        </button>
+    </h2>
+
+    <div id="{{ div.css_id }}" class="accordion-collapse collapse{% if div.active %} show{% endif %}"
+         aria-labelledby="{{ div.css_id }}" {% if not div.always_open %} data-bs-parent="#{{ div.data_parent }}" {% endif %}>
+        <div class="accordion-body">
+            {{ fields|safe }}
+        </div>
+    </div>  
+</div>

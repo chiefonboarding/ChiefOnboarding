@@ -1,0 +1,73 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% block actions %}
+<a type="submit" href="{% url 'admin_tasks:completed' object.id %}" class="btn btn-primary">
+  {% if object.completed %}
+    {% translate "Reopen" %}
+  {% else %}
+    {% translate "Complete" %}
+  {% endif %}
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-4">
+    <div class="card">
+      <div class="card-body">
+        {% include "_table_user.html" with user=object.new_hire %}
+        <form class="mt-3" method="POST">
+          {% csrf_token %}
+          {{ form|crispy }}
+          {% if not object.completed %}
+          <div class="form-footer">
+            <button type="submit" class="btn btn-primary">{% translate "Update" %}</button>
+          </div>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-8">
+    {% if not object.completed %}
+    <div class="card mb-3">
+      <div class="card-header">
+        <h3 class="card-title">{% translate "Add comment" %}</h3>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="{% url 'admin_tasks:comment' object.id %}">
+          {% csrf_token %}
+          {{ comment_form|crispy }}
+          <div class="form-footer">
+            <button type="submit" class="btn btn-primary">{% translate "Submit" %}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">{% translate "Comments" %}</h3>
+      </div>
+      <div class="card-body">
+        {% if object.comment.all|length %}
+        <ul class="mt-3 list list-timeline">
+          {% for comment in object.comment.all %}
+          <li>
+            <div class="list-timeline-icon {% if comment.comment_by == request.user %}bg-primary{% else %}bg-secondary{% endif %}"></div>
+            <div class="list-timeline-content">
+              <p class="mb-0 text-muted">{{ comment.content }}</p>
+              <p><span class="list-timeline-title">{{ comment.comment_by }}</span> - {{ comment.date }}</p>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="mt-3">{% translate "There are no comments yet" %}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

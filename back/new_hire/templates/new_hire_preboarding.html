@@ -1,0 +1,107 @@
+{% extends 'new_hire_base.html' %}
+{% load i18n %}
+{% load humanize %}
+
+{% block actions %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-md-center">
+  <div class="col-8">
+    <div class="card">
+      <div class="card-body" style="position: relative;">
+        <h3 class="header-title">{{ object.preboarding.name }}</h3>
+        {% include '_content.html' with content=object.preboarding.content_json %}
+        {% if amount_preboarding_pages > 1 %}
+          <a href="{% url 'new_hire:preboarding' next_id %}" class="btn btn-primary">
+            {{ button_text }}
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% if welcome_messages %}
+  <div class="col-4">
+    <div class="card">
+      <div class="card-body" style="position: relative;">
+        <div class="divide-y">
+          {% for welcome_message in welcome_messages %}
+          <div>
+            <div class="row">
+              <div class="col">
+                <div class="text-truncate">
+                  {{ welcome_message.message }}
+                </div>
+                <div class="text-muted">{{ welcome_message.colleague.full_name }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  $(".upload-button").each(function (item) {
+    $(this).on('click', function () {
+      $(this).parent().find("input").click()
+    })
+  })
+  $(".file-input").each(function (item) {
+    $(this).on('change', function (file) {
+      // ugly, needs clean up
+      const originalButtonText = $(this).parent().find(".upload-button").text()
+      const fileField = $(this)
+      const fileIdInput = $(this).parent().find(".file-id")
+      const newFileName = fileField.val().match(/[^\\/]*$/)[0];
+      const fileNameSpan = $(this).parent().find(".file-name");
+      const filePreview = $(this).parent().find("img");
+
+      $(this).parent().find(".upload-button").text('{% translate "uploading..." %}')
+      $.ajax({
+        url: "/api/org/file",
+        type: 'post',
+        data: {'name': newFileName},
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        success: function( data ) {
+          const fileMetaData = data
+          $.ajax({
+            type: 'PUT',
+            url: data.file.url,
+            contentType: 'binary/octet-stream',
+            processData: false,
+            data: fileField.get()[0].files[0],
+            success: function () {
+              fileField.parent().find(".upload-button").text(originalButtonText)
+              fileIdInput.val(fileMetaData.file.id);
+              fileNameSpan.text(newFileName);
+              filePreview.attr("src", fileMetaData.file.get_url);
+            }
+          });
+        }
+      });
+    })
+  })
+  function getSignedURL (file) {
+    return $.ajax({
+      url: "/api/org/file",
+      type: 'post',
+      data: {'name': file.name},
+      headers: {'X-CSRFToken': '{{ csrf_token }}'},
+    })
+  }
+  function uploadFile (file, response) {
+    return $.ajax({
+      type: 'PUT',
+      url: response.url,
+      contentType: 'binary/octet-stream',
+      processData: false,
+      data: file
+    })
+  }
+</script>
+{% endblock %}

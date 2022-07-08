@@ -1,0 +1,43 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-4">
+    <div class="card">
+      <div class="card-body">
+        <form class="mt-3" method="POST">
+          {% csrf_token %}
+          {{ form|crispy }}
+          <div class="form-footer">
+            <button type="submit" class="btn btn-primary">{% translate "Create" %}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function () {
+  $("#div_id_slack_user").addClass("d-none")
+  $("#div_id_email").addClass("d-none")
+})
+
+$("select#id_option").on('change', function() {
+  // Change things to fill in when condition_type changes
+  if ($(this).val() == 0){
+    $("#div_id_slack_user").addClass("d-none")
+    $("#div_id_email").addClass("d-none")
+  } else if ($(this).val() == 2){
+    $("#div_id_slack_user").removeClass("d-none")
+    $("#div_id_email").addClass("d-none")
+  } else {
+    $("#div_id_slack_user").addClass("d-none")
+    $("#div_id_email").removeClass("d-none")
+  }
+})
+</script>
+{% endblock %}

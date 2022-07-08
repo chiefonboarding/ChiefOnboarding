@@ -1,0 +1,31 @@
+{% load i18n %}
+<div class="divide-y mt-3">
+  <div class="list-group">
+    {% for result in results %}
+    <div class="list-group-item">
+      <div class="row">
+        <div class="col">
+          <div>
+            {{ result.name }}
+          </div>
+          {% if '<b>' in result.headline %}
+            <div class="text-muted">{{ result.headline|safe }}</div>
+          {% endif %}
+          {% if '<b>' in result.inner %}
+            <div class="text-muted">{% include '_content.html' with content=result.inner %}</div>
+          {% endif %}
+          <a href="{% url 'new_hire:resource-detail' result.id result.first_chapter_id %}">{% translate "See resource" %}</a>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="list-group-item">
+      <div class="row">
+        <div class="col">
+          {% translate "We couldn't find any matching items" %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>

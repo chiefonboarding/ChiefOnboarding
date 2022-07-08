@@ -1,0 +1,106 @@
+{% load crispy_forms_tags %}
+{% load i18n %}
+<div class="card drop
+    {% if condition.condition_type == 0 %}
+      after
+    {% elif condition.condition_type == 1 %}
+      to_do
+    {% elif condition.condition_type == 2 %}
+      before
+    {% else %}
+      unconditioned
+    {% endif %}" data-id="{{ condition.id }}">
+  <div class="card-header">
+    <div class="row d-flex" style="width: 103% !important;">
+      <div class="col-10">
+        <h4 class="card-title">
+          {% if condition.condition_type == 0 %}
+            {% blocktranslate with days=condition.days time=condition.time %}On day {{ days }} at {{ time }}{% endblocktranslate %}
+          {% elif condition.condition_type == 1 %}
+            {% translate "When these tasks are completed:" %}
+            <div id="div_id_condition_to_do">
+              {% for todo in condition.condition_to_do.all %}
+                <span class="badge bg-blue-lt mt-1">{{ todo.name }}</span>
+              {% endfor %}
+            </div>
+          {% elif condition.condition_type == 2 %}
+            {% blocktranslate with days=condition.days time=condition.time %}{{ days }} days before starting at {{ time }}{% endblocktranslate %}
+          {% else %}
+            {% translate "Without any trigger - assign directly" %}
+          {% endif %}
+        </h4>
+      </div>
+      {% if not disable_delete and condition.condition_type != 3 %}
+      <div class="col-2 text-end">
+        <button class="btn btn-azure btn-sm" onclick="editCondition({{condition.id}})">
+          {% include "_edit_icon.html" %}
+        </button>
+        <button class="btn btn-danger btn-sm" style="margin-right: 4px" hx-delete="{% url 'sequences:condition-delete' object.id condition.id %}" hx-target="closest li" hx-swap="outerHTML">
+          <svg xmlns="http://www.w3.org/2000/svg" style="margin: 0 -0.25rem 0 -.25rem" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="card-body">
+    {% if not condition.external_new_hire|length and not condition.preboarding.all|length and not condition.to_do.all|length and not condition.resources.all|length and not condition.introductions.all|length and not condition.external_admin|length and not condition.admin_tasks.all|length and not condition.preboarding.all|length and not condition.badges.all|length and not condition.integration_configs.all|length %}
+      No items yet
+    {% endif %}
+
+    {# FOR NEW HIRES #}
+    {% if condition.external_new_hire|length or condition.to_do.all|length or condition.preboarding.all|length or condition.badges.all|length or condition.integration_configs.all|length or condition.resources.all|length or condition.introductions.all|length %}
+    <span class="badge bg-azure mb-2">{% translate "new hire" %}</span>
+    {% endif %}
+    {% for item in condition.preboarding.all %}
+      {% include '_condition_line_item.html' with type='preboarding' %}
+    {% endfor %}
+    {% for item in condition.appointments.all %}
+      {% include '_condition_line_item.html' with type='appointment' %}
+    {% endfor %}
+    {% for item in condition.external_new_hire %}
+      {% if item.send_via == 0 %}{# email #}
+        {% include '_condition_line_item.html' with type='pendingemailmessage' %}
+      {% elif item.send_via == 1 %}{# slack #}
+        {% include '_condition_line_item.html' with type='pendingslackmessage' %}
+      {% else %}
+        {% include '_condition_line_item.html' with type='pendingtextmessage' %}
+      {% endif %}
+    {% endfor %}
+    {% for item in condition.to_do.all %}
+      {% include '_condition_line_item.html' with type='todo' %}
+    {% endfor %}
+    {% for item in condition.resources.all %}
+      {% include '_condition_line_item.html' with type='resource' %}
+    {% endfor %}
+    {% for item in condition.introductions.all %}
+      {% include '_condition_line_item.html' with type='introduction' %}
+    {% endfor %}
+    {% for item in condition.badges.all %}
+      {% include '_condition_line_item.html' with type='badge' %}
+    {% endfor %}
+    {% for item in condition.integration_configs.all %}
+      {% include '_condition_line_item.html' with type='integrationconfig' provision_created=1 %}
+    {% endfor %}
+
+    {# FOR ADMINS #}
+    {% if condition.external_admin|length or condition.admin_tasks.all|length %}
+    <span class="badge bg-orange mb-2">{% translate "admins" %}</span>
+    {% endif %}
+    {% for item in condition.admin_tasks.all %}
+      {% include '_condition_line_item.html' with type='pendingadmintask' %}
+    {% endfor %}
+    {% for item in condition.external_admin %}
+      {% if item.send_via == 0 %}{# email #}
+        {% include '_condition_line_item.html' with type='pendingemailmessage' %}
+      {% elif item.send_via == 1 %}{# slack #}
+        {% include '_condition_line_item.html' with type='pendingslackmessage' %}
+      {% else %}
+        {% include '_condition_line_item.html' with type='pendingtextmessage' %}
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>

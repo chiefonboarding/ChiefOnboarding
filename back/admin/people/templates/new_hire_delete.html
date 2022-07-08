@@ -1,0 +1,31 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-6">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">{% blocktranslate with full_name=object.full_name %}Are you sure you want to delete {{ full_name }}?{% endblocktranslate %}</h3>
+      </div>
+      <div class="card-body">
+        <p>{% translate "Are you sure you want to delete this new hire? You have two options here:" %}</p>
+        <ol>
+          <li>{% translate "Move them to a normal account, so they keep having access to things like the colleagues page and resources." %}</li>
+          <li>{% translate "Completely remove them. Access to ChiefOnboarding will be revoke entirely. Third party accounts remain." %}</li>
+        </ol>
+      </div>
+      <div class="card-footer text-end">
+        <form method="post" style="display:inline-block" class="mb-0">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">{% translate "Delete account" %}</button>
+        </form>
+        <form method="post" style="display:inline-block" class="mb-0" action="{% url 'people:migrate-to-normal' object.id %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-danger">{% translate "Migrate account to normal account" %}</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'settings_base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block actions %}{% endblock %}
+{% block settings_content %}
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <button type="submit" class="btn btn-primary">{% translate "Submit" %}</button>
+    </form>
+  </div>
+{% endblock %}

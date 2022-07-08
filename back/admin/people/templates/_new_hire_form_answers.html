@@ -1,0 +1,31 @@
+{% load general %}
+{% load i18n %}
+
+{% for block in blocks %}
+  {% if block.data.type == 'input' %}
+    <div class="mb-3">
+      <label class="form-label">{{ block.data.text }}</label>
+      <input type="text" class="form-control" readonly value="{{ block.answer }}">
+    </div>
+  {% endif %}
+  {% if block.data.type == 'text' %}
+  <div class="mb-3">
+    <label class="form-label">{{ block.data.text }}</label>
+    <textarea class="form-control" name="{{ block.id }}" readonly>{{ block.answer }}</textarea>
+  </div>
+  {% endif %}
+  {% if block.data.type == 'check' %}
+  <div class="mb-3">
+    <label class="form-check form-switch">
+      <input class="form-check-input" disabled type="checkbox"{% if block.answer == 'on' %} checked{% endif %}>
+      <span class="form-check-label">{{ block.data.text }}</span>
+    </label>
+  </div>
+  {% endif %}
+  {% if block.data.type == 'upload' %}
+  <div class="mb-3">
+    <label class="form-label">{{ block.data.text }}</label>
+    <a href="{{ block.answer|full_download_url }}" class="btn btn-primary btn-sm">{% trans "Download user uploaded file" %}</a>
+  </div>
+  {% endif %}
+{% endfor %}

@@ -1,0 +1,78 @@
+{% load i18n %}
+<div class="card-body" >
+  <h3>{% translate "Templates" %}</h3>
+
+  <button hx-get="{% url 'sequences:template_list' %}?type=todo" class="btn btn-{% if active == 'todo' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_todo_icon.html' %}
+  </button>
+  <button hx-get="{% url 'sequences:template_list' %}?type=resource" class="btn btn-{% if active == 'resource' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_resource_icon.html' %}
+  </button>
+  <button hx-get="{% url 'sequences:template_list' %}?type=introduction" class="btn btn-{% if active == 'introduction' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_intro_icon.html' %}
+  </button>
+  <button hx-get="{% url 'sequences:template_list' %}?type=appointment" class="btn btn-{% if active == 'appointment' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_appointment_icon.html' %}
+  </button>
+  <button hx-get="{% url 'sequences:template_list' %}?type=badge" class="btn btn-{% if active == 'badge' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_badge_icon.html' %}
+  </button>
+  <button hx-get="{% url 'sequences:template_list' %}?type=preboarding" class="btn btn-{% if active == 'preboarding' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_preboarding_icon.html' %}
+  </button>
+  <button hx-get="{% url 'sequences:template_list' %}?type=pendingadmintask" class="btn btn-{% if active == 'pendingadmintask' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_admin_task_icon.html' %}
+  </button>
+  <button hx-get="{% url 'sequences:template_list' %}?type=pendingslackmessage" class="btn btn-{% if active == 'pendingslackmessage' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_slack_icon.html' %}
+  </button>
+  <button hx-get="{% url 'sequences:template_list' %}?type=pendingtextmessage" class="btn btn-{% if active == 'pendingtextmessage' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_text_icon.html' %}
+  </button>
+  <button hx-get="{% url 'sequences:template_list' %}?type=pendingemailmessage" class="btn btn-{% if active == 'pendingemailmessage' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_email_icon.html' %}
+  </button>
+  <button hx-get="{% url 'sequences:template_list' %}?type=integration" class="btn btn-{% if active == 'integration' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_integration_config.html' %}
+  </button>
+  <div style="display: inline-flex;">
+    <span class="requesting" id="spinner">
+      <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
+    </span>
+  </div>
+
+</div>
+{% if object_list %}
+<div class="card-body card-body-scrollable card-body-scrollable-shadow">
+  <div class="divide-y">
+    {% for template in object_list %}
+    <div>
+      <div class="row" draggable="true" style="cursor:pointer" data-id="{{template.id}}" data-type="{{ active }}">
+        <div class="col">
+          <div class="text-truncate">
+            <p style="margin-bottom:0px">{{ template.name }}</p>
+          </div>
+          <div class="text-right">{% for tag in template.tags %}<span class="badge bg-blue" style="margin-right: 10px; font-size: 10px;">{{ tag }}</span>{% endfor %}</div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% if active != 'integration' %}
+<div class="card-footer">
+  <div>
+    <div class="row" draggable="true" style="cursor:pointer" data-id="0" data-type="{{ active }}">
+      <div class="col-auto align-self-center">
+        <div class="badge bg-primary"></div>
+      </div>
+      <div class="col">
+        <div class="text-truncate">
+          <strong>{% translate "Create new one" %}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}

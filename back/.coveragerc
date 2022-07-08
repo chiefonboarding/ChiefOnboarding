@@ -1,0 +1,6 @@
+[run]
+source = .
+omit = *tests*, *apps.py, *manage.py, *__init__.py, *migrations*, *migration_scripts*, *asgi*, *wsgi*, *factories.py
+
+[report]
+omit = *tests*, *apps.py, *manage.py, *__init__.py, *migrations*, *migration_scripts*, *asgi*, *wsgi*, *factories.py

@@ -1,0 +1,46 @@
+{% extends 'new_hire_base.html' %}
+{% load i18n %}
+
+{% block actions %}{% endblock %}
+
+{% block content %}
+{% if user.introductions.all %}
+<div class="row row-cards mb-4 mt-3">
+  {% for intro in user.introductions.all %}
+  <div class="col-md-6 col-lg-3">
+    {% include "_colleague_intro.html" with intro_person=intro.intro_person %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+<div class="card">
+  <div class="row card-body">
+    <div class="col-8">
+      <h2 class="page-title">
+        {% translate "Colleagues" %}
+      </h2>
+    </div>
+    <div class="col-4 ms-auto d-print-none">
+      <div class="d-flex">
+        <div class="input-icon float-right w-100">
+          <input type="search"
+                 class="form-control d-inline-block w-9 me-3"
+                 placeholder="Search colleague…"
+                 name="search"
+                 hx-get="{% url 'new_hire:colleagues-search' %}"
+                 hx-trigger="keyup delay:500ms changed"
+                 hx-target="#search-results"
+                 hx-indicator="#spinner"
+                 >
+                 <span class="input-icon-addon requesting" id="spinner">
+                   <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
+                 </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="search-results">
+  {% include '_new_hire_colleagues_search.html' %}
+</div>
+{% endblock %}

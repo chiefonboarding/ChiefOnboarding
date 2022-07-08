@@ -1,0 +1,9 @@
+<div{% if formactions.attrs %} {{ formactions.flat_attrs }}{% endif %} class="mb-3">
+    {% if label_class %}
+        <div class="aab {{ label_class }}"></div>
+    {% endif %}
+
+    <div class="{{ field_class }}">
+        {{ fields_output|safe }}
+    </div>
+</div>

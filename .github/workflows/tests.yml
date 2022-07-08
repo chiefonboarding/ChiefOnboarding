@@ -1,0 +1,63 @@
+name: Tests
+on: 
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - master
+      - dev
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      db:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.9
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install --upgrade pipenv
+        sudo apt-get install -y gettext
+        cd back
+        pipenv install --dev --system
+    - name: Run migrations
+      run: |
+        cd back
+        mv back/.env.example back/.env
+        python manage.py migrate
+    - name: Test with pytest
+      run: |
+        cd back
+        django-admin compilemessages 
+        pytest --cov=. --cov-report=xml
+    - name: "Upload coverage to Codecov"
+      uses: codecov/codecov-action@v2
+      with:
+        fail_ci_if_error: true
+    - name: Check formatting flake8/black/isort
+      run: |
+        cd back
+        flake8 .
+        black --check .
+    - name: Test fixtures
+      run: |
+        cd back
+        python manage.py shell < fixtures/init_testing.py
+        python manage.py loaddata all.json
+        python manage.py loaddata welcome_message.json
+# credits: https://hacksoft.io/github-actions-in-action-setting-up-django-and-postgres/

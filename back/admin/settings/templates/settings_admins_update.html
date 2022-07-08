@@ -1,0 +1,16 @@
+{% extends 'settings_base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block actions %}{% endblock %}
+{% block settings_content %}
+<form method="POST">
+  <div class="card-body">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <div class="form-footer">
+      <button type="submit" class="btn btn-primary">{% translate "Update administrator" %}</button>
+    </div>
+  </div>
+</form>
+{% endblock %}

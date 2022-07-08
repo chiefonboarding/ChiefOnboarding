@@ -19,11 +19,7 @@ services:
         sync: false
       - key: ACCOUNT_PASSWORD 
         sync: false
-      - key: BASE_URL 
-        sync: false
       - key: ALLOWED_HOSTS
-        sync: false
-      - key: DEFAULT_FROM_EMAIL
         sync: false
       - key: SECRET_KEY
         generateValue: true

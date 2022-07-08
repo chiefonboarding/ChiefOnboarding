@@ -1,0 +1,49 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="col-12">
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table card-table table-vcenter text-nowrap">
+        <thead>
+          <tr>
+            <th>{% translate "Name" %}</th>
+            <th>{% translate "Start date" %}</th>
+            <th>{% translate "Position" %}</th>
+            <th>{% translate "Progress" %}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for new_hire in object_list %}
+          <tr>
+            <td>
+              {% include "_table_user.html" with user=new_hire %}
+            </td>
+            <td>
+              {{ new_hire.start_day }}
+            </td>
+            <td>
+              {{ new_hire.position }}
+            </td>
+            <td>
+              <div class="progress mb-2">
+                <div class="progress-bar" style="width: {{new_hire.progress}}%" role="progressbar" aria-valuenow="{{ new_hire.completed_tasks }}" aria-valuemin="0" aria-valuemax="{{ new_hire.total_tasks }}">
+                </div>
+              </div>
+            </td>
+            <td class="text-end">
+              <a href="{% url 'people:new_hire' new_hire.id %}" class="btn btn-white">
+                {% translate "View" %}
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% include "_paginator.html" %}
+  </div>
+</div>
+{% endblock %}

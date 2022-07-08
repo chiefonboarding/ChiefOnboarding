@@ -1,87 +1,148 @@
+import requests
+from axes.decorators import axes_dispatch
 from django.conf import settings
-from django.contrib.auth import authenticate, login, get_user_model
+from django.contrib import messages
+from django.contrib.auth import get_user_model, login, signals
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
-from django.utils import translation
-from rest_framework import status
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from django.utils.decorators import method_decorator
+from django.utils.translation import gettext as _
+from django.views.generic import View
+from django.views.generic.edit import FormView
 
-from users.serializers import NewHireSerializer
-from django.utils.translation import gettext_lazy as _
-from integrations.models import AccessToken
-from google_auth_oauthlib.flow import Flow
+from admin.integrations.models import Integration
+from admin.settings.forms import OTPVerificationForm
 from organization.models import Organization
-from .serializers import LoginSerializer
-import pyotp
-import uuid
-from django.core.cache import cache
+from users.mixins import LoginRequiredMixin as LoginWithMFARequiredMixin
 
 
-class LoginView(APIView):
-    permission_classes = (AllowAny,)
-
-    def post(self, request):
-        serializer = LoginSerializer(data=request.data)
-        if serializer.is_valid():
-            user = authenticate(request, username=serializer.data['username'], password=serializer.data['password'])
-            if user is not None:
-                # check TOTP
-                if user.requires_otp:
-                    totp_input = serializer.data['totp'].strip().replace(' ', '')
-
-                    if totp_input == '':
-                        return Response({'totp': 'provide_totp'}, status=status.HTTP_400_BAD_REQUEST)
-
-                    totp = pyotp.TOTP(user.totp_secret)
-                    otp_recovery_key = user.check_otp_recovery_key(totp_input)
-                    if (not totp.verify(totp_input) and otp_recovery_key is None) or cache.get(user.email) != None:
-                        return Response({'error': 'TOTP code does not match'}, status=status.HTTP_400_BAD_REQUEST)
-
-                    cache.set(user.email, 'passed', 30)
-
-                login(request, user)
-                translation.activate(request.user.language)
-                user = NewHireSerializer(request.user)
-                return Response(user.data)
-        return Response({'error': _('Username and password do not match. Please try again.')},
-                        status=status.HTTP_400_BAD_REQUEST)
+class LoginRedirectView(LoginWithMFARequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        if request.user.is_admin_or_manager:
+            return redirect("admin:new_hires")
+        elif request.user.role == 0:
+            return redirect("new_hire:todos")
+        else:
+            return redirect("new_hire:colleagues")
 
 
-class GoogleLoginView(APIView):
-    permission_classes = (AllowAny,)
+class AuthenticateView(LoginView):
+    template_name = "login.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        org = Organization.object.get()
+        # Block anyone trying to login when credentials are not allowed
+        if request.method == "POST" and not org.credentials_login:
+            raise Http404
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["organization"] = Organization.object.get()
+        context["base_url"] = settings.BASE_URL
+        if Integration.objects.filter(integration=3, active=True).exists():
+            context["google_login"] = Integration.objects.get(
+                integration=3, active=True
+            )
+
+        return context
+
+
+@method_decorator(axes_dispatch, name="dispatch")
+class MFAView(LoginRequiredMixin, FormView):
+    template_name = "mfa.html"
+    form_class = OTPVerificationForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+    def form_invalid(self, form):
+        # Check if recovery key was entered instead
+        recovery_key = self.request.user.check_otp_recovery_key(form.data["otp"])
+        if recovery_key is not None:
+            self.request.user.requires_otp = False
+            self.request.user.save()
+            return redirect("logged_in_user_redirect")
+
+        # Log wrong keys by ip to prevent guessing/bruteforcing
+        signals.user_login_failed.send(
+            sender=self.request.user,
+            request=self.request,
+            credentials={
+                "token": "MFA invalid",
+            },
+        )
+        return self.render_to_response(self.get_context_data(form=form))
+
+    def form_valid(self, form):
+        self.request.session["passed_mfa"] = True
+        return redirect("logged_in_user_redirect")
+
+
+class GoogleLoginView(View):
+    permanent = False
+
+    def dispatch(self, request, *args, **kwargs):
+        org = Organization.object.get()
+        if not org.google_login:
+            raise Http404
+
+        # Make sure access token exists. Technically, it shouldn't be possible
+        # to enable `google_login` when this is not set, but just to be safe
+        if not Integration.objects.filter(integration=3, active=True).exists():
+            return HttpResponse(_("Google login access token has not been set"))
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
-        access_code = AccessToken.objects.filter(integration=3)
-        org = Organization.objects.get()
-        if access_code.exists():
-            access_code = access_code.first()
-            # TODO: proper error handling necessary.
-            try:
-                flow = Flow.from_client_config(client_config={
-                    "web":
-                        {"client_id": access_code.client_id,
-                         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                         "token_uri": "https://oauth2.googleapis.com/token",
-                         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-                         "client_secret": access_code.client_secret,
-                         "redirect_uris": [settings.BASE_URL + "/api/auth/google_login"],
-                         "javascript_origins": [settings.BASE_URL]}},
-                    scopes=['https://www.googleapis.com/auth/userinfo.email', 'openid'], redirect_uri=settings.BASE_URL + "/api/auth/google_login")
-                flow.fetch_token(code=request.GET.get('code', ''))
-                session = flow.authorized_session()
-                results = session.get('https://openidconnect.googleapis.com/v1/userinfo').json()
-            except:
-                return redirect('/#/?error=not_found')
-            if 'email' in results:
-                users = get_user_model().objects.filter(email=results['email'].lower())
-                if users.exists() and org.google_login:
-                    user = users.first()
-                    user.backend = 'django.contrib.auth.backends.ModelBackend'
-                    login(request, user)
-                    if user.role == 1 or user.role == 2:
-                        return redirect('/#/admin/')
-                    else:
-                        return redirect('/#/portal/')
+        access_code = Integration.objects.get(integration=3, active=True)
+        try:
+            r = requests.post(
+                "https://oauth2.googleapis.com/token",
+                data={
+                    "code": request.GET.get("code", ""),
+                    "client_id": access_code.client_id,
+                    "client_secret": access_code.client_secret,
+                    "redirect_uri": settings.BASE_URL + "/api/auth/google_login",
+                    "grant_type": "authorization_code",
+                },
+            )
+            print(r.json())
+            user_access_token = r.json()["access_token"]
 
-        return redirect('/#/?error=not_found')
+            user_info = requests.get(
+                "https://www.googleapis.com/oauth2/v3/userinfo"
+                f"?access_token={user_access_token}",
+            ).json()
+            print(user_info)
+        except Exception as e:
+            print(e)
+            messages.error(
+                request,
+                _("Something went wrong with reaching Google. Please try again."),
+            )
+            return redirect("login")
+        if "email" in user_info:
+            users = get_user_model().objects.filter(email=user_info["email"])
+            if users.exists():
+                user = users.first()
+                user.backend = "django.contrib.auth.backends.ModelBackend"
+                login(request, user)
+                # Also pass MFA, since Google handles that (otherwise they would get
+                # stuck in our app having to pass MFA)
+                self.request.session["passed_mfa"] = True
+                return redirect("logged_in_user_redirect")
+
+        messages.error(
+            request,
+            _(
+                "There is no account associated with your email address. Did you try to"
+                " log in with the correct account?"
+            ),
+        )
+        return redirect("login")

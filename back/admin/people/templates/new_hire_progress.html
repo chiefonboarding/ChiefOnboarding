@@ -1,0 +1,117 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block actions %}
+{% include "_new_hire_settings_menu.html" %}
+{% endblock %}
+
+{% block content %}
+{% include "_new_hire_menu.html" %}
+{% if todos|length %}
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">{% translate "To do items" %}</h3>
+  </div>
+  <div>
+    <div class="table-responsive">
+      <table class="table card-table table-vcenter">
+        <tbody>
+          {% for todo in todos %}
+          <tr>
+            <td class="w-1 pe-0">
+              <input type="checkbox" disabled class="form-check-input m-0 align-middle" aria-label="Select task" {% if todo.completed %}checked=""{% endif %}>
+            </td>
+            <td class="w-100">
+              {{ todo.to_do.name }}
+            </td>
+            <td class="text-end">
+              {% if todo.completed %}
+                <a href="{% url 'people:new_hire_reopen' 'todouser' todo.id %}" class="btn btn-white">
+                  {% translate "Reopen" %}
+                </a>
+              {% else %}
+              <form method="post" action="{% url 'people:new_hire_remind' 'todouser' todo.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">
+                  {% translate "Remind" %}
+                </button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <h4>{{ todo.to_do.name }}</h4>
+  </div>
+</div>
+{% endif %}
+
+{% if resources|length %}
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">{% translate "Courses" %}</h3>
+  </div>
+  <div>
+    <div class="table-responsive">
+      <table class="table card-table table-vcenter">
+        <tbody>
+          {% for resource in resources %}
+          <tr>
+            <td class="w-1 pe-0">
+              <input type="checkbox" disabled class="form-check-input m-0 align-middle" aria-label="Select task" {% if resource.completed_course %}checked=""{% endif %}>
+            </td>
+            <td>
+              {{ resource.resource.name }}
+            </td>
+            <td style="width: 100px">
+              <div class="progress">
+                <div class="progress-bar" style="width: {{resource.percentage_completed}}%" role="progressbar" aria-valuenow="{{resource.percentage_completed}}" aria-valuemin="0" aria-valuemax="100">
+                  <span class="visually-hidden">{{ resource.percentage_completed }}% {% translate "Complete" %}</span>
+                </div>
+              </div>
+            </td>
+            <td class="">
+              {% if resource.completed_course %}
+                {% translate "New hire has completed the course!" %}
+              {% else %}
+                {% blocktranslate with step=resource.step amount_chapters=resource.amount_chapters_in_course %} At step {{ step }} of {{ amount_chapters }} {% endblocktranslate %}
+              {% endif %}
+            </td>
+            <td class="">
+              <a href="{% url 'admin:new-hire-course-answers' object.id resource.id %}">Rating: {{ resource.get_rating }}</a>
+            </td>
+            <td class="text-end">
+              {% if resource.completed_course %}
+                <a href="{% url 'people:new_hire_reopen' 'resourceuser' resource.id %}" class="btn btn-white">
+                  {% translate "Reopen" %}
+                </a>
+              {% else %}
+                <form method="post" action="{% url 'people:new_hire_remind' 'resourceuser' resource.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-primary">
+                    {% translate "Remind" %}
+                  </button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% if not todos|length and not resources|length %}
+<div class="card mt-3">
+  <div class="card-body">
+    <p>{% translate "There are no todo items or resources assigned to this user" %}</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

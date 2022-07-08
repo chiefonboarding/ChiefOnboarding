@@ -1,0 +1,16 @@
+{% load i18n %}
+<tr>
+  <td class="w-1">
+    <input class="form-check-input" style="width: 1.5rem; height: 1.5rem" disabled type="checkbox" {% if to_do.completed %}checked=""{% endif %}>
+  </td>
+  <td class="td-truncate">
+    <div class="text-truncate">
+      {{ to_do.to_do.name }}
+    </div>
+  </td>
+  <td class="text-end">
+    <a href="{% url 'new_hire:to_do' to_do.id %}" class="btn btn-white">
+      {% translate "View" %}
+    </a>
+  </td>
+</tr>

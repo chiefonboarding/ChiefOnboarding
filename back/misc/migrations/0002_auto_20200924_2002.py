@@ -7,23 +7,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('misc', '0001_initial'),
+        ("misc", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='content',
-            name='answer',
+            model_name="content",
+            name="answer",
             field=models.TextField(blank=True),
         ),
         migrations.AlterField(
-            model_name='content',
-            name='content',
+            model_name="content",
+            name="content",
             field=models.TextField(blank=True),
         ),
         migrations.AlterField(
-            model_name='content',
-            name='items',
-            field=django.contrib.postgres.fields.jsonb.JSONField(default=list, verbose_name=models.TextField(blank=True)),
+            model_name="content",
+            name="items",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                default=list, verbose_name=models.TextField(blank=True)
+            ),
         ),
     ]

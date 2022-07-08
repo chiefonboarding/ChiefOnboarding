@@ -1,0 +1,29 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+
+{% block actions %}{% endblock %}
+{% block content %}
+<div class="row">
+  {% if user.is_admin %}
+  <div class="col-2">
+    <div class="card">
+      <ul class="list-group">
+        <a href="{% url 'settings:general' %}"><li class="list-group-item{% if 'general' in request.path %} active{% endif %}" aria-current="true">{% translate "General" %}</li></a>
+        <a href="{% url 'settings:slack' %}"><li class="list-group-item{% if 'slack' in request.path %} active{% endif %}" aria-current="true">{% translate "Slack bot" %}</li></a>
+        <a href="{% url 'settings:welcome-message' "en" 0 %}"><li class="list-group-item{% if 'welcome_message' in request.path %} active{% endif %}">{% translate "Welcome messages" %}</li></a>
+        <a href="{% url 'settings:personal-language' %}"><li class="list-group-item{% if 'personal' in request.path %} active{% endif %}">{% translate "Personal" %}</li></a>
+        <a href="{% url 'settings:integrations' %}"><li class="list-group-item{% if 'integrations' in request.path %} active{% endif %}">{% translate "Integrations" %}</li></a>
+        <a href="{% url 'settings:administrators' %}"><li class="list-group-item{% if 'administrators' in request.path %} active{% endif %}">{% translate "Administrators" %}</li></a>
+      </ul>
+    </div>
+  </div>
+  {% endif %}
+  <div class="col-{% if user.is_admin %}10{% else %}12{% endif %}">
+    <div class="card">
+      {% block settings_content %}
+      {% endblock %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

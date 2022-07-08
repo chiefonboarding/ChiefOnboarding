@@ -1,0 +1,65 @@
+{% extends 'new_hire_base.html' %}
+{% load i18n %}
+{% load humanize %}
+{% load static %}
+
+{% block actions %}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-4">
+    <div class="card">
+      <div class="card-header">
+        <div class="row" style="width: 110%">
+          <div class="col-8">
+            <h3 class="card-title">{% translate "Chapters" %}</h3>
+          </div>
+          {% if object.course and not resource_user.completed_course %}
+          <div class="col-4">
+            <div class="progress" style="margin-top:11px !important">
+              <div class="progress-bar" style="width: {{resource_user.percentage_completed}}%" role="progressbar" aria-valuenow="{{resource_user.percentage_completed}}" aria-valuemin="0" aria-valuemax="100">
+                <span class="visually-hidden">{{ resource_user.percentage_completed }}% {% translate "Complete" %}</span>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="list-group list-group-flush list-group-hoverable">
+        {% for chapter_item in object.chapters_display %}
+          {% include '_chapter_recursive.html' with sub_chapter_item=chapter_item  %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="col-8">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">{{ chapter.name }}</h3>
+      </div>
+      <div class="card-body" style="position: relative;">
+        {% if chapter.type == 2 and form %}
+          {% include '_question_form.html' %}
+        {% else %}
+          {% if chapter.type == 2 %}
+            {# Got a refresh from htmx and answers got saved as no form returned #}
+            <p>{% translate "Answers saved successfully! Click on 'next' to continue." %}</p>
+          {% endif %}
+
+          {% include '_content.html' with content=chapter.content %}
+
+          {% if object.course and not resource_step.completed_course and resource_user.step == chapter.order and not form %}
+          <form method="post" action="{% url 'new_hire:course-next-step' resource_user.id %}">
+            {% csrf_token %}
+            <button class="btn btn-primary" style="float:right">{% translate "Next" %}</button>
+          </form>
+          {% endif %}
+
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+{% endblock %}

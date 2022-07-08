@@ -1,0 +1,28 @@
+{% load crispy_forms_field %}
+
+<div class="{{ field_class }} mb-2">
+{% for widget in field.subwidgets %}
+{% if widget.data.is_initial %}
+<div class="input-group mb-2">
+    <span class="input-group-text">{{ widget.data.initial_text }}</span>
+    <div class="form-control d-flex h-auto">
+        <span class="text-break" style="flex-grow:1;min-width:0">
+            <a href="{{ field.value.url }}">{{ field.value.name }}</a>
+        </span>
+        {% if not widget.data.required %}
+        <span class="align-self-center ml-2">
+            <span class="form-check">
+                <input type="checkbox" name="{{ widget.data.checkbox_name }}" id="{{ widget.data.checkbox_id }}" class="form-check-input"{% if field.field.disabled %} disabled{% endif %} >
+                <label class="form-check-label mb-0" for="{{ widget.data.checkbox_id }}">{{ widget.data.clear_checkbox_label }}</label>
+            </span>
+        </span>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+<div{% if field.errors %} class="is-invalid"{%endif%}>
+    <input type="{{ widget.data.type }}" name="{{ widget.data.name }}" class="form-control{% if widget.data.attrs.class %} {{ widget.data.attrs.class }}{% endif %}{% if field.errors %} is-invalid{%endif%}"{% if field.field.disabled %} disabled{% endif %}{% for name, value in widget.data.attrs.items %}{% if value is not False and name != 'class' %} {{ name }}{% if value is not True %}="{{ value|stringformat:'s' }}"{% endif %}{% endif %}{% endfor %}>
+    {% include 'bootstrap5/layout/help_text_and_errors.html' %}
+</div>
+{% endfor %}
+</div>

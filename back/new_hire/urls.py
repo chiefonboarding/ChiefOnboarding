@@ -1,24 +1,60 @@
-from django.urls import path, include
-from rest_framework import routers
+from django.urls import path
+
 from new_hire import views
 
-router = routers.DefaultRouter(trailing_slash=False)
-# router.register('notes', views.NoteViewSet, 'notes')
-
+app_name = "new_hire"
 urlpatterns = [
-    path('', include(router.urls)),
-    path('authenticate', views.AuthenticateView.as_view()),
-    path('me', views.MeView.as_view()),
-    path('to_do', views.ToDoView.as_view()),
-    path('to_do/<int:id>', views.ToDoView.as_view()),
-    path('to_do_preboarding/<int:id>', views.ToDoPreboardingView.as_view()),
-    path('slack/to_do/<int:id>', views.ToDoSlackView.as_view()),
-    path('colleagues', views.ColleagueView.as_view()),
-    path('introductions', views.IntroductionView.as_view()),
-    path('preboarding', views.PreboardingView.as_view()),
-    path('resources', views.ResourceView.as_view()),
-    path('badges', views.BadgeView.as_view()),
-    path('resource/<int:id>', views.ResourceItemView.as_view()),
-    path('change_step/<int:id>', views.CourseStep.as_view()),
-    path('course/<int:id>', views.CourseItemView.as_view())
+    path("todos/", views.NewHireDashboard.as_view(), name="todos"),
+    path("resources/", views.ResourceListView.as_view(), name="resources"),
+    path(
+        "resources/search/",
+        views.ResourceSearchView.as_view(),
+        name="resources-search",
+    ),
+    path(
+        "resources/<int:pk>/<int:chapter>/",
+        views.ResourceDetailView.as_view(),
+        name="resource-detail",
+    ),
+    path(
+        "resources/form/<int:pk>/<int:chapter>/",
+        views.CourseAnswerView.as_view(),
+        name="question-form",
+    ),
+    path(
+        "course/<int:pk>/", views.CourseNextStepView.as_view(), name="course-next-step"
+    ),
+    path("todos/<int:pk>/", views.ToDoDetailView.as_view(), name="to_do"),
+    path("slackform/<int:pk>/", views.SlackToDoFormView.as_view(), name="slack_to_do"),
+    path(
+        "todos/<int:pk>/complete/",
+        views.ToDoCompleteView.as_view(),
+        name="to_do_complete",
+    ),
+    path(
+        "todos/<int:pk>/form/",
+        views.ToDoFormSubmitView.as_view(),
+        name="to_do_form",
+    ),
+    path("colleagues/", views.ColleagueListView.as_view(), name="colleagues"),
+    path(
+        "colleagues/search/",
+        views.ColleagueSearchView.as_view(),
+        name="colleagues-search",
+    ),
+    path(
+        "preboarding/",
+        views.PreboardingShortURLRedirectView.as_view(),
+        name="preboarding-url",
+    ),
+    path(
+        "preboarding/<int:pk>/",
+        views.PreboardingDetailView.as_view(),
+        name="preboarding",
+    ),
+    path(
+        "updates/",
+        views.SeenUpdatesView.as_view(),
+        name="seen-updates",
+    ),
 ]

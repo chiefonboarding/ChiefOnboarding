@@ -1,0 +1,46 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% block actions %}
+{% include "_new_hire_settings_menu.html" %}
+{% endblock %}
+
+{% block content %}
+{% include "_new_hire_menu.html" %}
+{% if preboarding_forms|length %}
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">{% translate "Preboarding forms" %}</h3>
+  </div>
+  <div>
+    {% for preboard in preboarding_forms %}
+      <h4>{{ preboard.preboarding.name }}</h4>
+      {% include "_new_hire_form_answers.html" with blocks=preboard.form %}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if todo_forms|length %}
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">{% translate "To do forms" %}</h3>
+  </div>
+  <div class="card-body">
+    {% for todo in todo_forms %}
+      <h4>{{ todo.to_do.name }}</h4>
+      {% include "_new_hire_form_answers.html" with blocks=todo.form %}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if not todo_forms|length and not preboarding_forms|length %}
+<div class="card mt-3">
+  <div class="card-body">
+    <p>{% translate "This new hire has not filled in any forms yet" %}</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
