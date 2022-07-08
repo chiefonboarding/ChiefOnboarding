@@ -18,6 +18,7 @@ class Slack:
             else:
                 if settings.SLACK_BOT_TOKEN != "":
                     self.client = slack_sdk.WebClient(token=settings.SLACK_BOT_TOKEN)
+                    return
                 raise Exception("Access token not available")
 
     def get_channels(self):
