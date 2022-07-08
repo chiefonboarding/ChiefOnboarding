@@ -1,5 +1,7 @@
 # ChiefOnboarding
 
+> IMPORTANT: v2.0 has been released. Consider this as beta for now. We are doing quick rolling releases on this for the next few weeks. Keep your ChiefOnboarding instance up-to-date to get the latest bug fixes/improvements. If you want to use the old version, then check out (this branch)[https://github.com/chiefonboarding/ChiefOnboarding/tree/v1.x].
+
 ChiefOnboarding is a free and open source employee onboarding platform. You can onboarding new hires through Slack or the dashboard. 
 
 Documentation: [https://docs.chiefonboarding.com](https://docs.chiefonboarding.com)
@@ -37,7 +39,7 @@ See details here: [ChiefOnboarding on Docker Hub](https://hub.docker.com/r/chief
 
 
 ## Support
-This software is provided under an open source license and comes as is. If you have any questions, then you will have to open an issue on Github for that. If you want guaranteed, quick support, then we offer a paid support package for that (best effort - generally under 1 hours response time). Please see our [pricing page](https://chiefonboarding.com/pricing) for more details. 
+This software is provided under an open source license and comes as is. If you have any questions, then you will have to open an issue on Github for that. If you want guaranteed, quick support, then we offer a paid support package for that (best effort - generally under 2 hours response time). Please see our [pricing page](https://chiefonboarding.com/pricing) for more details. 
 
 If you don't want to deal with hosting, maintaining and backing up your ChiefOnboarding instance, then we can do that for you as well. Please see our [pricing page](https://chiefonboarding.com/pricing) for more details.
 
