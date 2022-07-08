@@ -76,4 +76,5 @@ The data part of that query (with explanation):
 	]
 }
 ```
+
 It will return the full new hire object including the ID of the new hire.
