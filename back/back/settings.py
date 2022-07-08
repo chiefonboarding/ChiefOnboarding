@@ -92,7 +92,7 @@ LOGIN_URL = "login"
 
 RUNNING_TESTS = "pytest" in sys.modules
 FAKE_SLACK_API = False
-SLACK_USE_SOCKET = env.bool("SLACK_USE_SOCKET", default=True)
+SLACK_USE_SOCKET = env.bool("SLACK_USE_SOCKET", default=False)
 SLACK_APP_TOKEN = env("SLACK_APP_TOKEN", default="")
 SLACK_BOT_TOKEN = env("SLACK_BOT_TOKEN", default="")
 
