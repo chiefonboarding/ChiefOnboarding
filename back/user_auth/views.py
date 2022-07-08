@@ -116,8 +116,8 @@ class GoogleLoginView(View):
             user_access_token = r.json()["access_token"]
 
             user_info = requests.get(
-                "https://www.googleapis.com/oauth2/v3/userinfo",
-                headers={"Authorization": user_access_token},
+                "https://www.googleapis.com/oauth2/v3/userinfo"
+                f"?access_token={user_access_token}",
             ).json()
             print(user_info)
         except Exception as e:
