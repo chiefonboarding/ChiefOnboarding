@@ -608,7 +608,12 @@ def slack_next_page_resource(ack, body, view):
     if user is None:
         return
 
+    print("Next page")
+    print("body: ", body)
+    print("view: ", view)
+
     private_meta_data = json.loads(view["private_metadata"])
+    print("private data: ", private_meta_data)
 
     # Meta data items
     resource_user = private_meta_data["resource_user"]
@@ -621,6 +626,7 @@ def slack_next_page_resource(ack, body, view):
         bool(view["state"]["values"])
         and "change_resource_page" not in view["state"]["values"]
     ):
+        print("Got in if statement")
         chapter = resource_user.resource.chapters.get(order=resource_user.step)
         data = {}
         for idx, item in enumerate(chapter.content["blocks"]):
@@ -633,11 +639,13 @@ def slack_next_page_resource(ack, body, view):
         resource_user.answers.add(course_answers)
 
     next_chapter = resource_user.add_step()
+    print("next chapter:", next_chapter)
     if next_chapter is None:
+        print("NOOOOO")
         ack({"response_action": "clear"})
         return
 
-    private_meta_data["current_chapter"] = str(next_chapter.id)
+    private_meta_data["current_chapter"] = next_chapter.id
 
     # Get updated blocks (without completed one, but with text)
     view = {
@@ -657,6 +665,7 @@ def slack_next_page_resource(ack, body, view):
         else:
             view["submit"] = {"type": "plain_text", "text": _("Next")}
 
+    print("view", view)
     Slack().update_modal(
         view_id=body["view"]["id"], hash=body["view"]["hash"], view=view
     )
