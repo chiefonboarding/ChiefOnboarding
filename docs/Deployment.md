@@ -227,6 +227,103 @@ AWS_STORAGE_BUCKET_NAME=bucket-name
 AWS_REGION=eu-west-1
 ```
 
+If you want to use Minio (self-hosted), then you could use something like this as an example for both ChiefOnboarding and Minio:
+
+```
+# docker-compose.yml
+version: '3'                  
+                                                                                                                   
+services:                      
+  db:                                   
+    image: postgres:latest                 
+    restart: always         
+    expose:    
+      - "5432"
+    volumes: 
+      - pgdata:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=chiefonboarding
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - global 
+                                                         
+  web:      
+    image: chiefonboarding/chiefonboarding:latest
+    restart: always   
+    expose:             
+      - "8000"              
+    environment:
+      - SECRET_KEY=somethingsupersecret
+      - BASE_URL=https://test.chiefonboarding.com
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/chiefonboarding
+      - ALLOWED_HOSTS=test.chiefonboarding.com
+      - DEFAULT_FROM_EMAIL=hello@example.com
+      - ACCOUNT_EMAIL=hello@example.com
+      - ACCOUNT_PASSWORD=password
+      - AWS_S3_ENDPOINT_URL=https://minio.chiefonboarding.com
+      - AWS_ACCESS_KEY_ID=chief
+      - AWS_SECRET_ACCESS_KEY=chiefpass
+      - AWS_STORAGE_BUCKET_NAME=test-bucket
+      - AWS_REGION=us-east-1
+    depends_on:                                      
+      - db                                                                                                         
+    networks:
+      - global
+
+  caddy:
+    image: caddy:2.3.0-alpine
+    restart: unless-stopped
+    ports:     
+      - "80:80"
+      - "443:443"
+    volumes:
+      - $PWD/Caddyfile:/etc/caddy/Caddyfile
+      - $PWD/site:/srv
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - global
+
+  minio-server:
+    image: minio/minio
+    expose:
+      - "9000"
+      - "9001"
+    volumes:
+      - ./storage/minio:/data
+    environment:
+      - MINIO_ROOT_USER=chief
+      - MINIO_ROOT_PASSWORD=chiefpass
+      - MINIO_DOMAIN=http://minio.chiefonboarding.com
+    command: server --address 0.0.0.0:9000 --console-address 0.0.0.0:9001 /data
+    networks:
+      - global
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:
+
+networks:
+  global:
+```
+
+Caddyfile
+
+```
+test.chiefonboarding.com {
+  reverse_proxy web:8000
+}
+minio.chiefonboarding.com {
+  reverse_proxy minio-server:9000
+}
+minio-console.chiefonboarding.com {
+  reverse_proxy minio-server:9001
+}
+```
+
+
 ### Email
 If you want to send emails to anyone, then you will need to add a provider. Technically, if you are using a VPS, you could start selfhosting your own SMTP server, however we recommend against that. In any case, you need to set up the email environment variables if you want to start sending any emails.
 
@@ -279,6 +376,55 @@ EMAIL_USE_TLS=True
 EMAIL_USE_SSL=True
 ```
 For SMTP, you only need to set either `EMAIL_USE_TLS` OR `EMAIL_USE_SSL` to `True`. If you set both, then it will likely not send out any emails.
+
+### Custom email template
+You can set your own email template if you want. You can see the default one here: https://github.com/chiefonboarding/ChiefOnboarding/blob/master/back/users/templates/email/base.html
+
+Some things are rendered dynamically. You can use this as an example:
+
+```
+{% for i in content %}
+  {% if i.type == 'paragraph' %}
+    <p>{{i.data.text|safe|personalize:user}}</p>
+  {% endif %}
+  {% if i.type == 'header' %}
+    <h{{ i.data.level }}>{{ i.data.text|safe|personalize:user }}</h{{ i.data.level }}>
+  {% endif %}
+  {% if i.type == 'list' %}
+    {% if i.data.style == "ordered" %}
+      <ol>
+    {% else %}
+      <ul>
+    {% endif %}
+    {% for j in i.data.items %}
+      <li>{{ j.content|safe|personalize:user }}</li>
+    {% endfor %}
+    {% if i.data.style == "ordered" %}
+      </ol>
+    {% else %}
+      </ul>
+    {% endif %}
+  {% endif %}
+  {% if i.type == 'quote' %}
+     {{i.data.text|personalize:user}}
+  {% endif %}
+  {% if i.type == 'image' %}
+    <img src="{{ i.data.file.url }}" />
+  {% endif %}
+  {% if i.type == 'file' %}
+      <a href="{{ j.data.file.url }}">{{ j.data.file.name }}</a><br />
+  {% endif %}
+  {% if i.type == 'button' %}
+    <a href="{{ i.data.url }}">{{i.data.text|safe|personalize:user}}</a>
+  {% endif %}
+  {% if i.type == 'hr' %}
+    <hr />
+  {% endif %}
+{% endfor %}
+```
+
+Don't change whatever is within the brackets. Feel free to customize everything around it however you would like!
+
 
 ### Text messages
 If you want to start sending text messages to new hires or colleagues, then you will need to signup with Twilio and get a number there. 
