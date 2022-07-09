@@ -258,6 +258,7 @@ class IntegrationsListView(LoginRequiredMixin, AdminPermMixin, TemplateView):
             integration=3, active=True
         ).first()
         context["slack_bot_environ"] = settings.SLACK_APP_TOKEN != ""
+        context["base_url"] = settings.BASE_URL
 
         context["custom_integrations"] = Integration.objects.filter(integration=10)
         context["add_action"] = reverse_lazy("integrations:create")

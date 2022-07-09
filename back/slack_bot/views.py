@@ -637,7 +637,7 @@ def slack_next_page_resource(ack, body, view):
         ack({"response_action": "clear"})
         return
 
-    private_meta_data["current_chapter"] = next_chapter.id
+    private_meta_data["current_chapter"] = str(next_chapter.id)
 
     # Get updated blocks (without completed one, but with text)
     view = {
