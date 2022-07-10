@@ -656,18 +656,12 @@ def slack_next_page_resource(ack, body, view):
         else:
             view["submit"] = {"type": "plain_text", "text": _("Next")}
 
-    ack(
-        {
-          "response_action": "update",
-          "view": view
-        }
-    )
+    ack({"response_action": "update", "view": view})
     # This is only used for testing - should be removed and fixed
     if settings.FAKE_SLACK_API:
         Slack().update_modal(
             view_id=body["view"]["id"], hash=body["view"]["hash"], view=view
         )
-
 
 
 @exception_handler
