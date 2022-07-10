@@ -665,9 +665,16 @@ def slack_next_page_resource(ack, body, view):
             view["submit"] = {"type": "plain_text", "text": _("Next")}
 
     print("view", view)
+    ack(
+        {
+          "response_action": "update",
+          "view": view
+        }
+    )
     Slack().update_modal(
         view_id=body["view"]["id"], hash=body["view"]["hash"], view=view
     )
+
 
 
 @exception_handler
