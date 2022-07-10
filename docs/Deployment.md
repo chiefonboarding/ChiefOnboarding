@@ -378,4 +378,7 @@ settings:
 4. Review the permissions and then click on 'Create'.
 5. Scroll a bit on the new page and notice the `App credentials` part. You need the information there to fill in on the settings/integrations page in your ChiefOnboarding instance.
 6. Fill in the details accordingly.
-8. Submit the form. You will get back a Slack button. Click it and verify that you want to install your bot in your Slack team.
+7. Submit the form. You will now get a "Add to your Slack team" button. Click it and verify that you want to install your bot in your Slack team.
+8. Go back to your Slack bot and go to "App Home". Then scroll down till you see: "Show Tabs". Enable the "message tab" and check the "Allow users to send Slash commands and messages from the messages tab".
+
+That's it!
