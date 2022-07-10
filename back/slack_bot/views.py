@@ -600,7 +600,6 @@ def slack_complete_to_do(body, view):
 def next_page_resource(ack, body, view):
     # Course has same meganism
     slack_next_page_resource(ack, body, view)
-    ack()
 
 
 def slack_next_page_resource(ack, body, view):
