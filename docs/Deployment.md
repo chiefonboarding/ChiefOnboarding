@@ -337,49 +337,6 @@ You will only be able to let people log in who already have an account in ChiefO
 ### Slack bot
 This is the bot that will ping your new hires and colleagues with things they have to do. This is needed if you want to use ChiefOnboarding in Slack.
 Since there is no centralized app, you will have to create an app in Slack yourself. The benefit of this is that you can use your own profile picture and name for the bot. 
-There are two ways to create the Slack bot. You can use the websocket or webhooks. We generally recommend the websocket as you wouldn't need to expose the server to the internet then. You can keep it locally as the websocket works pretty much anywhere. We built two manifests with everything that you need to get up and running quickly. 
-
-Manifest (websocket):
-
-```
-display_information:
-   name: Onboardingbot
-features:
-  bot_user:
-    display_name: Onboardingbot
-    always_online: true
-oauth_config:
-  scopes:
-    bot:
-      - im:history
-      - users:read
-      - chat:write
-      - users:read.email
-      - im:write
-      - im:read
-settings:
-  event_subscriptions:
-    bot_events:
-      - message.im
-      - team_join
-  interactivity:
-    is_enabled: true
-  org_deploy_enabled: false
-  socket_mode_enabled: true
-  token_rotation_enabled: false
-```
-
-1. Go to [https://api.slack.com/apps](https://api.slack.com/apps) and click on 'Create New App' (big green button, can't be missed). Click on "From an app manifest".
-2. Select the workspace where you want to install ChiefOnboarding.
-3. Copy and paste the manifest in the little text box.
-4. Review the permissions and then click on 'Create'.
-5. Click on "Install to Workspace" and install it in your team.
-6. You will be redirected back to the bot settings, then scroll down till you see "App-Level Tokens" and click on "Generate Token and Scopes".
-7. Give it a name (doesn't really matter what)
-8. Under "Add scope" add "connections:write". 
-9. Click on "Generate" and copy the token into your environment variables as `SLACK_APP_TOKEN`.
-10. In the left sidebar, go to "Install app" and there you will see the `SLACK_BOT_TOKEN`. Add that to your environment variables as well. 
-
 
 Manifest (webhook) - replace XXX with your domain name:
 
@@ -392,7 +349,7 @@ features:
     always_online: true
 oauth_config:
   redirect_urls:
-    - https://XXXXXXXXXXXXXXX/api/integrations/slack
+    - https://XXXXXXXXXXXXXXX/admin/integrations/slack
   scopes:
     bot:
       - im:history
@@ -409,7 +366,7 @@ settings:
       - team_join
   interactivity:
     is_enabled: true
-    request_url: https://XXXXXXXXXXXXXXX/api/slack/callback
+    request_url: https://XXXXXXXXXXXXXXX/api/slack/bot
   org_deploy_enabled: false
   socket_mode_enabled: false
   token_rotation_enabled: false
