@@ -600,7 +600,6 @@ def slack_complete_to_do(body, view):
 def next_page_resource(ack, body, view):
     # Course has same meganism
     slack_next_page_resource(ack, body, view)
-    ack()
 
 
 def slack_next_page_resource(ack, body, view):
@@ -657,9 +656,12 @@ def slack_next_page_resource(ack, body, view):
         else:
             view["submit"] = {"type": "plain_text", "text": _("Next")}
 
-    Slack().update_modal(
-        view_id=body["view"]["id"], hash=body["view"]["hash"], view=view
-    )
+    ack({"response_action": "update", "view": view})
+    # This is only used for testing - should be removed and fixed
+    if settings.FAKE_SLACK_API:
+        Slack().update_modal(
+            view_id=body["view"]["id"], hash=body["view"]["hash"], view=view
+        )
 
 
 @exception_handler
