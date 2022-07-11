@@ -8,18 +8,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v4
+      with:
+        images: chiefonboarding/chiefonboarding
     - name: Login to DockerHub
-      uses: docker/login-action@v1 
+      uses: docker/login-action@v2 
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Build and push
-      id: docker_build
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v3
       with:
         file: ./back/Dockerfile
-        push: true
-        tags: |
-          chiefonboarding/chiefonboarding:latest
-          chiefonboarding/chiefonboarding:${GITHUB_REF/refs\/tags\//}
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta.outputs.tags }}
