@@ -453,7 +453,7 @@ def slack_show_resources_items_in_category(payload, body):
         paragraph(_("Here are your options:")),
         *[
             SlackResource(resource_user, user).get_block()
-            for resource_user in resources
+            for resource_user in resources.order_by("resource__name")
         ],
     ]
 
