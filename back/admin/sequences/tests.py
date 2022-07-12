@@ -78,7 +78,7 @@ def test_sequence_create_view(client, admin_factory):
     sequence = Sequence.objects.first()
     # Check that condition without actual condition was created
     assert sequence.conditions.all().first().condition_type == 3
-    assert sequence.update_url() == reverse("sequences:update", args=[sequence.id])
+    assert sequence.update_url == reverse("sequences:update", args=[sequence.id])
     assert sequence.class_name() == "Sequence"
     assert response.redirect_chain[-1][0] == reverse(
         "sequences:update", args=[sequence.id]

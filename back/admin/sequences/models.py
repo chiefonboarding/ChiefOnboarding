@@ -36,6 +36,7 @@ class Sequence(models.Model):
     def __str__(self):
         return self.name
 
+    @property
     def update_url(self):
         return reverse("sequences:update", args=[self.id])
 

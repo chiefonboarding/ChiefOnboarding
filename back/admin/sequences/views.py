@@ -54,7 +54,7 @@ class SequenceCreateView(LoginRequiredMixin, ManagerPermMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         seq = Sequence.objects.create(name="New sequence")
         seq.conditions.create(condition_type=3)
-        return seq.update_url()
+        return seq.update_url
 
 
 class SequenceView(LoginRequiredMixin, ManagerPermMixin, DetailView):
