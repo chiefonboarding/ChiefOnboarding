@@ -366,7 +366,7 @@
                       async uploadByFile(file){
                         // your own uploading logic here
                         let response = await getSignedURL(file)
-                        let completed = await uploadFile(file, response.file)
+                        let completed = await uploadFile(file, response)
                         return response
                       },
                     }
