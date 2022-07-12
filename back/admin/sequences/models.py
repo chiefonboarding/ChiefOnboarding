@@ -189,7 +189,7 @@ class ExternalMessage(ContentMixin, models.Model):
         if self.is_text_message:
             return render_to_string("_text_icon.html")
 
-    def duplicate(self):
+    def duplicate(self, change_name=False):
         self.pk = None
         self.save()
         return self
@@ -368,7 +368,7 @@ class PendingAdminTask(models.Model):
     def get_icon_template(self):
         return render_to_string("_admin_task_icon.html")
 
-    def duplicate(self):
+    def duplicate(self, change_name=False):
         self.pk = None
         self.save()
         return self
@@ -386,7 +386,7 @@ class IntegrationConfig(models.Model):
     def get_icon_template(self):
         return render_to_string("_integration_config.html")
 
-    def duplicate(self):
+    def duplicate(self, change_name=False):
         self.pk = None
         self.save()
         return self
@@ -515,24 +515,27 @@ class Condition(models.Model):
                 "integration_configs",
             ]:
                 # Duplicate old ones
+                items = []
                 old_custom_templates = getattr(old_condition, field.name).filter(
                     template=False
                 )
                 for old in old_custom_templates:
-                    dup = old.duplicate()
-                    getattr(self, field.name).add(dup)
+                    dup = old.duplicate(change_name=False)
+                    items.append(dup)
 
                 # Only using set() for template items. The other ones need to be
                 # duplicated as they are unique to the condition
                 old_templates = getattr(old_condition, field.name).filter(template=True)
-                getattr(self, field.name).set(old_templates)
+                getattr(self, field.name).add(*old_templates, *items)
 
             else:
                 # For items that do not have templates, just duplicate them
+                items = []
                 old_custom_templates = getattr(old_condition, field.name).all()
                 for old in old_custom_templates:
-                    dup = old.duplicate()
-                    getattr(self, field.name).add(dup)
+                    dup = old.duplicate(change_name=False)
+                    items.append(dup)
+                getattr(self, field.name).add(*items)
 
         # returning the new item
         return self

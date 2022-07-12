@@ -227,9 +227,10 @@ class BaseItem(ContentMixin, models.Model):
     def class_name(self):
         return self.__class__.__name__
 
-    def duplicate(self):
+    def duplicate(self, change_name=True):
         self.pk = None
-        self.name = _("%(name)s (duplicate)") % {"name": self.name}
+        if change_name:
+            self.name = _("%(name)s (duplicate)") % {"name": self.name}
         self.save()
         return self
 
