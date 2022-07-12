@@ -78,10 +78,11 @@ class Resource(BaseItem):
     def notification_add_type(self):
         return "added_resource"
 
-    def duplicate(self):
+    def duplicate(self, change_name=True):
         old_resource = Resource.objects.get(pk=self.pk)
         self.pk = None
-        self.name = _("%(name)s (duplicate)") % {"name": self.name}
+        if change_name:
+            self.name = _("%(name)s (duplicate)") % {"name": self.name}
         self.save()
 
         # old vs new ids for referencing parent_chapters

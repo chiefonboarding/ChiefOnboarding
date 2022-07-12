@@ -131,8 +131,12 @@ def test_slack_show_resources_items_in_category_no_category(
 ):
     new_hire = new_hire_factory(slack_user_id="slackx")
 
-    resource_user1 = resource_user_factory(resource__category=None, user=new_hire)
-    resource_user2 = resource_user_factory(resource__category=None, user=new_hire)
+    resource_user1 = resource_user_factory(
+        resource__category=None, user=new_hire, resource__name="1test"
+    )
+    resource_user2 = resource_user_factory(
+        resource__category=None, user=new_hire, resource__name="2test"
+    )
 
     ResourceUserFactory(user=new_hire)
 

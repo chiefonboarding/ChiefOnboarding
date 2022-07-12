@@ -9,4 +9,9 @@ urlpatterns = [
         views.TemplateDuplicateView.as_view(),
         name="duplicate",
     ),
+    path(
+        "duplicate_seq/<int:template_pk>/",
+        views.SequenceDuplicateView.as_view(),
+        name="duplicate_seq",
+    ),
 ]

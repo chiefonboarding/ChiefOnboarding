@@ -4,7 +4,7 @@
 
 {% block actions %}
 {% if object %}
-<form method="POST" action="{% url 'templates:duplicate' object.class_name object.id %}">
+<form method="POST" action="{% url 'templates:duplicate_seq' object.id %}">
   {% csrf_token %}
   <button type="submit" class="btn btn-primary">
     {% translate "Duplicate" %}
