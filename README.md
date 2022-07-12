@@ -1,5 +1,9 @@
 # ChiefOnboarding
 
+[![Tests](https://github.com/chiefonboarding/ChiefOnboarding/actions/workflows/tests.yml/badge.svg)](https://github.com/chiefonboarding/ChiefOnboarding/actions/workflows/tests.yml)
+[![codecov](https://codecov.io/gh/chiefonboarding/ChiefOnboarding/branch/master/graph/badge.svg?token=J8Y441KA54)](https://codecov.io/gh/chiefonboarding/ChiefOnboarding)
+[![CodeQL](https://github.com/chiefonboarding/ChiefOnboarding/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/chiefonboarding/ChiefOnboarding/actions/workflows/codeql-analysis.yml)
+
 > IMPORTANT: v2.0 has been released. Consider this as beta for now. We are doing quick rolling releases on this for the next few weeks. Keep your ChiefOnboarding instance up-to-date to get the latest bug fixes/improvements. If you want to use the old version, then check out [this branch](https://github.com/chiefonboarding/ChiefOnboarding/tree/v1.x).
 > Also see [this issue](https://github.com/chiefonboarding/ChiefOnboarding/issues/152) for breaking changes and release notes.
 
