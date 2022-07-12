@@ -20,53 +20,112 @@ class IntegrationConfigForm(forms.ModelForm):
             value = value[notation]
         return value
 
+    def _expected_example(self, form_item):
+        def _add_items(form_item):
+            items = []
+            # Add two example items
+            for item in range(2):
+                items.append(
+                    {
+                        form_item.get("choice_value", "id"): item,
+                        form_item.get("choice_name", "name"): f"name {item}",
+                    }
+                )
+            return items
+
+        inner = form_item.get("data_from", "")
+        if inner == "":
+            return _add_items(form_item)
+
+        # This is pretty ugly, but we are building a json string first
+        # and then convert it to a real json object to avoid nested loops
+        notations = inner.split(".")
+        stringified_json = "{"
+        for idx, notation in enumerate(notations):
+            if idx + 1 == len(notations):
+                stringified_json += f'"{notation}":'
+                stringified_json += json.dumps(_add_items(form_item))
+                stringified_json += "}" * len(notations)
+
+        return json.loads(stringified_json)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         integration = Integration.objects.get(id=self.instance.id)
         form = self.instance.manifest["form"]
         self.helper = FormHelper()
         self.helper.form_tag = False
+        self.error = None
         for item in form:
-            if item["type"] in ["multiple_choice", "choice"]:
+            if item["type"] == "input":
+                self.fields[item["id"]] = forms.TextField(
+                    label=item["name"],
+                    required=False,
+                )
 
-                if item["type"] == "multiple_choice":
-                    form_field = forms.MultipleChoiceField
-                else:
-                    form_field = forms.ChoiceField
+            if item["type"] == "choice":
 
                 # If there is a url to fetch the items from then do so
                 if "url" in item:
-                    option_data = requests.get(
-                        integration._replace_vars(item["url"]),
-                        headers=integration._headers,
-                    ).json()
+                    try:
+                        option_data = requests.get(
+                            integration._replace_vars(item["url"]),
+                            headers=integration._headers,
+                        ).json()
+                    except Exception as e:
+                        self.error = (
+                            f"The request to ({item['url']}) of the requests could "
+                            "not be completed. Here is the full error: <br/> " + str(e)
+                        )
+                        break
                 else:
                     # No url, so get the static items
                     option_data = item["items"]
 
-                self.fields[item["id"]] = form_field(
-                    label=item["name"],
-                    widget=forms.CheckboxSelectMultiple
-                    if item["type"] == "multiple_choice"
-                    else forms.Select,
-                    choices=[
-                        (
-                            self._get_result(item.get("choice_value", "id"), x),
-                            self._get_result(item.get("choice_name", "name"), x),
-                        )
-                        for x in self._get_result(
-                            item.get("data_from", ""), option_data
-                        )
-                    ],
-                    required=False,
-                )
+                try:
+                    self.fields[item["id"]] = forms.ChoiceField(
+                        label=item["name"],
+                        widget=forms.CheckboxSelectMultiple
+                        if item["type"] == "multiple_choice"
+                        else forms.Select,
+                        choices=[
+                            (
+                                self._get_result(item.get("choice_value", "id"), x),
+                                self._get_result(item.get("choice_name", "name"), x),
+                            )
+                            for x in self._get_result(
+                                item.get("data_from", ""), option_data
+                            )
+                        ],
+                        required=False,
+                    )
+                except Exception:
+                    expected = self._expected_example(item)
+
+                    self.error = (
+                        f"Form item ({item['name']}) could not be rendered. Format "
+                        "was different than expected.<br><h2>Expected format:"
+                        f"</h2><pre>{json.dumps(expected, indent=4)}</pre><br><h2>"
+                        "Got from server:</h2><pre>"
+                        f"{json.dumps(option_data, indent=4)}</pre>"
+                    )
+                    break
 
     class Meta:
         model = Integration
         fields = ()
 
 
+# Credits: https://stackoverflow.com/a/72256767
+# Removed the sort options
+class PrettyJSONEncoder(json.JSONEncoder):
+    def __init__(self, *args, indent, **kwargs):
+        super().__init__(*args, indent=4, **kwargs)
+
+
 class IntegrationForm(forms.ModelForm):
+    manifest = forms.JSONField(encoder=PrettyJSONEncoder)
+
     class Meta:
         model = Integration
         fields = ("name", "manifest")
