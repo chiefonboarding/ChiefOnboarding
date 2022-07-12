@@ -1,7 +1,15 @@
 {% load crispy_forms_tags %}
+{% load i18n %}
 
 {% csrf_token %}
-{% crispy form %}
+
+{% if not form.error %}
+  {% crispy form %}
+  <button type="submit" class="btn btn-primary">{% translate "Submit" %}</button>
+{% else %}
+  {{ form.error|safe }}
+{% endif %}
+
 
 {% if form.instance is not None %}
 {{ form.instance.content_json|json_script:"content_json" }}
