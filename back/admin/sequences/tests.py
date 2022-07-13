@@ -974,10 +974,14 @@ def test_sequence_add_unconditional_item(
 
 
 @pytest.mark.django_db
-def test_pending_email_message_item(new_hire_factory, admin_factory, pending_email_message_factory, mailoutbox):
+def test_pending_email_message_item(
+    new_hire_factory, admin_factory, pending_email_message_factory, mailoutbox
+):
     new_hire = new_hire_factory(first_name="John")
     admin = admin_factory(first_name="Jane")
-    pending_email_message = pending_email_message_factory(subject="Hi {{ first_name }}!")
+    pending_email_message = pending_email_message_factory(
+        subject="Hi {{ first_name }}!"
+    )
     assert pending_email_message.is_email_message
     assert not pending_email_message.is_slack_message
     assert not pending_email_message.is_text_message
@@ -990,6 +994,7 @@ def test_pending_email_message_item(new_hire_factory, admin_factory, pending_ema
 
     assert len(mailoutbox) == 1
     assert mailoutbox[0].subject == f"Hi {new_hire.first_name}!"
+
 
 @pytest.mark.django_db
 def test_pending_text_message_item(pending_text_message_factory):
