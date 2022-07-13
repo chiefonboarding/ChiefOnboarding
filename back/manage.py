@@ -53,7 +53,7 @@ def main():
         )
         admin_user.set_password(raw_password=password)
         admin_user.save()
-        
+
         Organization.objects.create(
             name="Demo organization",
             slack_default_channel=SlackChannel.objects.get(name="general"),
