@@ -1,4 +1,0 @@
-run:
-  web: gunicorn --chdir back back.wsgi
-  worker: python back/manage.py qcluster
-release: python back/manage.py createcachetable && python back/manage.py migrate
