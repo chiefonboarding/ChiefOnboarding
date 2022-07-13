@@ -37,6 +37,7 @@ from admin.sequences.models import (
     IntegrationConfig,
     Sequence,
 )
+from admin.sequences.emails import send_sequence_message
 from admin.sequences.tasks import timed_triggers
 from admin.to_do.factories import ToDoFactory
 from admin.to_do.forms import ToDoForm
@@ -973,14 +974,26 @@ def test_sequence_add_unconditional_item(
 
 
 @pytest.mark.django_db
-def test_pending_email_message_item(pending_email_message_factory):
-    pending_email_message = pending_email_message_factory()
+def test_pending_email_message_item(
+    new_hire_factory, admin_factory, pending_email_message_factory, mailoutbox
+):
+    new_hire = new_hire_factory(first_name="John")
+    admin = admin_factory(first_name="Jane")
+    pending_email_message = pending_email_message_factory(
+        subject="Hi {{ first_name }}!"
+    )
     assert pending_email_message.is_email_message
     assert not pending_email_message.is_slack_message
     assert not pending_email_message.is_text_message
 
     assert pending_email_message.notification_add_type == "sent_email_message"
     assert "mail" in pending_email_message.get_icon_template
+
+    # Test variable swapping
+    send_sequence_message(new_hire, admin, [], pending_email_message.subject)
+
+    assert len(mailoutbox) == 1
+    assert mailoutbox[0].subject == f"Hi {new_hire.first_name}!"
 
 
 @pytest.mark.django_db

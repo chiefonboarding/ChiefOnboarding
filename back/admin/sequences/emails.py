@@ -12,7 +12,7 @@ def send_sequence_message(new_hire, admin, message, subject):
     org = Organization.object.get()
     html_message = org.create_email({"org": org, "content": message, "user": new_hire})
     send_email_with_notification(
-        subject=subject,
+        subject=new_hire.personalize(subject),
         message="",
         to=admin.email,
         created_for=admin,
