@@ -44,13 +44,16 @@ def main():
                 ----------------------------------------"""
                 % (username, password)
             )
-        User.objects.create(
+        admin_user = User.objects.create(
             first_name="Demo",
             last_name="User",
             email=username,
             password=password,
             role=1,
         )
+        admin_user.set_password(raw_password=password)
+        admin_user.save()
+        
         Organization.objects.create(
             name="Demo organization",
             slack_default_channel=SlackChannel.objects.get(name="general"),
