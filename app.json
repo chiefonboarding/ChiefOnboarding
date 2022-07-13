@@ -1,7 +1,7 @@
 {
   "name": "ChiefOnboarding",
   "description": "Free and open-source employee onboarding platform. Onboard new hires through Slack or the web portal.",
-  "repository": "https://github.com/chiefonboarding/ChiefOnboarding/tree/v2.0",
+  "repository": "https://github.com/chiefonboarding/ChiefOnboarding",
   "logo": "https://avatars.githubusercontent.com/u/29075722",
   "keywords": ["python", "django", "employee", "onboarding", "slack"],
   "website": "https://chiefonboarding.com/",
