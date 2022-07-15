@@ -31,7 +31,7 @@ def main():
             password = settings.ACCOUNT_PASSWORD
         else:
             username = get_random_string(length=6).lower() + "@example.com"
-            password = get_random_string(length=4)
+            password = get_random_string(length=12)
 
             print(
                 """
@@ -48,7 +48,6 @@ def main():
             first_name="Demo",
             last_name="User",
             email=username,
-            password=password,
             role=1,
         )
         admin_user.set_password(raw_password=password)
