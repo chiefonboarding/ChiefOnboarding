@@ -74,7 +74,11 @@ class Integration(models.Model):
         else:
             post_data = {}
         return requests.request(
-            data["method"], url, headers=self._headers, data=post_data, timeout=120
+            data.get("method", "POST"),
+            url,
+            headers=self._headers,
+            data=post_data,
+            timeout=120,
         ).json()
 
     def _replace_vars(self, text):

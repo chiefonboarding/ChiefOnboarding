@@ -4,7 +4,9 @@
     {% translate "Settings" %}
   </button>
   <div class="dropdown-menu dropdown-menu-right">
+    {% if object.workday < 1 %}
     <a class="dropdown-item" href="{% url 'people:send_preboarding_notification' object.id %}">{% translate "Send Preboarding email" %}</a>
+    {% endif %}
     <form method="post" class="mb-0" action="{% url 'people:send_login_email' object.id %}">
       <button type="submit" class="dropdown-item">{% translate "Send login email (day 1 and onwards)" %}</button>
     </form>

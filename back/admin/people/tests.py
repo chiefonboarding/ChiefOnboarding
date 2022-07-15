@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from unittest.mock import Mock, patch
 
 import pytest
@@ -345,6 +345,28 @@ def test_new_hire_latest_activity(client, new_hire_factory, django_user_model):
     # For different user
     assert not3.extra_text not in response.content.decode()
     assert not3.get_notification_type_display() not in response.content.decode()
+
+
+@pytest.mark.django_db
+@freeze_time("2022-05-13 08:00:00")
+def test_send_preboarding_send_menu_option(client, new_hire_factory, django_user_model):
+    # Test if send preboarding menu option is available
+    # Should only be available before start date
+    client.force_login(django_user_model.objects.create(role=1))
+    new_hire = new_hire_factory(start_day=datetime.fromisoformat("2022-05-15"))
+
+    url = reverse("people:new_hire", args=[new_hire.id])
+    response = client.get(url)
+
+    assert "Send Preboarding email" in response.content.decode()
+
+    new_hire.start_day -= timedelta(days=2)
+    new_hire.save()
+
+    url = reverse("people:new_hire", args=[new_hire.id])
+    response = client.get(url)
+
+    assert "Send Preboarding email" not in response.content.decode()
 
 
 @pytest.mark.django_db
