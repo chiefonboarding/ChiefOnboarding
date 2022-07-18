@@ -10,7 +10,7 @@
     {% translate "Duplicate" %}
   </button>
 </form>
-<form method="POST" action="{% url 'todo:delete' object.id %}">
+<form method="POST" action="{% url 'sequences:delete' object.id %}">
   {% csrf_token %}
   <button type="submit" class="btn btn-danger">
     {% translate "Delete" %}
