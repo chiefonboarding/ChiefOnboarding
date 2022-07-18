@@ -67,7 +67,19 @@
                 <div class="list-timeline-content pt-0" style="margin-top: -5px">
                   <div class="card">
                     <div class="card-header">
+                      {% if condition.condition_type != 1 %}
                       <h4 class="card-title">{{ condition|new_hire_trigger_date:object }} {% trans "at" %} {{ condition.time }}</h4>
+                      {% else %}
+                      <h4 class="card-title">
+                        {% trans "When these tasks are completed:" %}
+                        <div id="div_id_condition_to_do">
+                          {% for to_do in condition.condition_to_do.all %}
+                          <span class="badge {% if to_do.id in completed_todos %}bg-green-lt{% else %}bg-blue-lt{% endif %} mt-1">{{ to_do.name }}</span>
+                          {% endfor %}
+                        </div>
+                      </h4>
+                      {% endif %}
+
                     </div>
                     <div class="card-body">
 

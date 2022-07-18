@@ -303,6 +303,37 @@ def test_new_hire_list_view(client, new_hire_factory, django_user_model):
 
 
 @pytest.mark.django_db
+def test_new_hire_to_do_sequence_item(
+    client,
+    new_hire_factory,
+    django_user_model,
+    to_do_user_factory,
+    condition_to_do_factory,
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    condition = condition_to_do_factory()
+    new_hire1 = new_hire_factory()
+    new_hire1.conditions.add(condition)
+    # Uncompletd to do item
+    to_do_user = to_do_user_factory(user=new_hire1)
+    condition.condition_to_do.set([to_do_user.to_do])
+
+    url = reverse("people:new_hire", args=[new_hire1.id])
+    response = client.get(url)
+
+    assert '"badge bg-blue-lt mt-1"' in response.content.decode()
+    assert "bg-green-lt" not in response.content.decode()
+
+    to_do_user.completed = True
+    to_do_user.save()
+
+    response = client.get(url)
+    assert "bg-blue-lt" not in response.content.decode()
+    assert "bg-green-lt" in response.content.decode()
+
+
+@pytest.mark.django_db
 def test_new_hire_latest_activity(client, new_hire_factory, django_user_model):
     client.force_login(django_user_model.objects.create(role=1))
 
