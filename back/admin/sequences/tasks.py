@@ -47,14 +47,14 @@ def process_condition(condition_id, user_id):
     if user.has_slack_account:
         to_do_blocks = [
             SlackToDo(
-                ToDoUser.objects.get(to_do__id=notif.item.id, user=user), user
+                ToDoUser.objects.get(to_do__id=notif.item_id, user=user), user
             ).get_block()
             for notif in notifications.filter(notification_type="added_todo")
         ]
 
         resource_blocks = [
             SlackResource(
-                ResourceUser.objects.get(user=user, resource__id=notif.id), user
+                ResourceUser.objects.get(user=user, resource__id=notif.item_id), user
             ).get_block()
             for notif in notifications.filter(notification_type="added_resource")
         ]
