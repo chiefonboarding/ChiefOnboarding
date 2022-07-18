@@ -302,10 +302,12 @@ class NewHireSequenceView(
                     condition_type=2, days__lte=new_hire.days_before_starting
                 )
                 | conditions.filter(condition_type=0, days__gte=new_hire.workday)
+                | conditions.filter(condition_type=1)
             )
             .annotate(
                 days_order=Case(
                     When(condition_type=2, then=F("days") * -1),
+                    When(condition_type=1, then=99999),
                     default=F("days"),
                     output_field=IntegerField(),
                 )
@@ -316,6 +318,10 @@ class NewHireSequenceView(
         context["notifications"] = Notification.objects.filter(
             created_for=new_hire
         ).select_related("created_by")
+
+        context["completed_todos"] = ToDoUser.objects.filter(
+            user=new_hire, completed=True
+        ).values_list("to_do__pk", flat=True)
         return context
 
 
