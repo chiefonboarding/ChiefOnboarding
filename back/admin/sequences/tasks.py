@@ -61,14 +61,14 @@ def process_condition(condition_id, user_id):
 
         badge_blocks = [
             paragraph(
-                _("*Congrats, you unlocked: %(item_name)s *\n %(message)s")
+                _("*Congrats, you unlocked: %(item_name)s *\n")
                 % {
                     "item_name": user.personalize(
                         Badge.objects.get(id=notif.item_id).name
                     ),
-                    "message": Badge.objects.get(id=notif.item_id).to_slack_block(user),
-                }
+                },
             )
+            # * Badge.objects.get(id=notif.item_id).to_slack_block(user)
             for notif in notifications.filter(notification_type="added_badge")
         ]
 

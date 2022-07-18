@@ -421,6 +421,7 @@ class ToDoUser(models.Model):
 
     def mark_completed(self):
         from admin.sequences.tasks import process_condition
+
         self.completed = True
         self.save()
 
