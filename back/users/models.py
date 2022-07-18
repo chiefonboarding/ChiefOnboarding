@@ -420,6 +420,7 @@ class ToDoUser(models.Model):
         return completed_blocks
 
     def mark_completed(self):
+        from admin.sequences.tasks import process_condition
         self.completed = True
         self.save()
 
@@ -461,7 +462,7 @@ class ToDoUser(models.Model):
 
             # If the amount matches, then we should process it
             if to_do_user.count() == len(condition_to_do_ids):
-                condition.process_condition(self.user)
+                process_condition(condition.id, self.user.id)
 
 
 class PreboardingUser(models.Model):
