@@ -19,7 +19,7 @@
             <a href="{% url "settings:slack-account-update-channels" %}" class="btn btn-primary">
               {% trans "Update Slack channels list" %}
             </a>
-            <a href="https://slack.com/oauth/v2/authorize?scope=im:history,users:read,chat:write,users:read.email,im:write,im:read,channels:read&client_id={{ slack_bot.client_id }}&redirect_uri={{ base_url }}{% url 'integrations:slack' %}" class="btn btn-primary">
+            <a href="https://slack.com/oauth/v2/authorize?scope=im:history,users:read,chat:write,users:read.email,im:write,im:read,channels:read,groups:read&client_id={{ slack_bot.client_id }}&redirect_uri={{ base_url }}{% url 'integrations:slack' %}" class="btn btn-primary">
               Add to your Slack team
             </a>
             <a href="{% url 'integrations:delete' slack_bot.id %}" class="btn btn-danger">
