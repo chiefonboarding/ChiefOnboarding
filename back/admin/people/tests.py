@@ -315,7 +315,7 @@ def test_new_hire_to_do_sequence_item(
     condition = condition_to_do_factory()
     new_hire1 = new_hire_factory()
     new_hire1.conditions.add(condition)
-    # Uncompletd to do item
+    # Uncompleted to do item
     to_do_user = to_do_user_factory(user=new_hire1)
     condition.condition_to_do.set([to_do_user.to_do])
 

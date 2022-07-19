@@ -38,7 +38,7 @@ from admin.sequences.models import (
     Sequence,
 )
 from admin.sequences.emails import send_sequence_message
-from admin.sequences.tasks import timed_triggers
+from admin.sequences.tasks import timed_triggers, process_condition
 from admin.to_do.factories import ToDoFactory
 from admin.to_do.forms import ToDoForm
 from admin.to_do.models import ToDo
@@ -1138,3 +1138,92 @@ def test_execute_pending_admin_task(
     assert AdminTaskComment.objects.all().count() == 1
     assert admin_task.assigned_to == manager
     assert admin_task.new_hire == new_hire
+
+
+# TASKS
+
+
+@pytest.mark.django_db
+def test_send_slack_message_after_process_condition(
+    condition_to_do_factory,
+    new_hire_factory,
+    to_do_factory,
+    resource_factory,
+    badge_factory,
+):
+    from users.models import ToDoUser, ResourceUser
+
+    # Condition with to do item
+    condition = condition_to_do_factory()
+    to_do = to_do_factory()
+    condition.to_do.add(to_do)
+    # New hire with Slack account
+    new_hire = new_hire_factory(slack_user_id="test")
+
+    process_condition(condition.id, new_hire.id)
+
+    to_do_user = ToDoUser.objects.last()
+
+    assert cache.get("slack_channel") == "test"
+
+    assert cache.get("slack_blocks") == [
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": "Here are some new items for you!"},
+        },
+        {
+            "type": "section",
+            "block_id": str(to_do_user.id),
+            "text": {
+                "type": "mrkdwn",
+                "text": f"*{to_do.name}*\nThis task has no deadline.",
+            },
+            "accessory": {
+                "type": "button",
+                "text": {"type": "plain_text", "text": "View details"},
+                "style": "primary",
+                "value": str(to_do_user.id),
+                "action_id": f"dialog:to_do:{to_do_user.id}",
+            },
+        },
+    ]
+
+    resource = resource_factory()
+    badge = badge_factory()
+    condition.resources.add(resource)
+    condition.to_do.clear()
+    condition.badges.add(badge)
+
+    process_condition(condition.id, new_hire.id)
+
+    resource_user = ResourceUser.objects.last()
+
+    assert cache.get("slack_channel") == "test"
+
+    print(cache.get("slack_blocks"))
+    assert cache.get("slack_blocks") == [
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": "Here are some new items for you!"},
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"*Congrats, you unlocked: {badge.name} *",
+            },
+        },
+        [{"type": "section", "text": {"type": "mrkdwn", "text": "Well done!"}}],
+        {
+            "type": "section",
+            "block_id": str(resource_user.id),
+            "text": {"type": "mrkdwn", "text": f"*{resource_user.resource.name}*"},
+            "accessory": {
+                "type": "button",
+                "text": {"type": "plain_text", "text": "View resource"},
+                "style": "primary",
+                "value": str(resource_user.id),
+                "action_id": f"dialog:resource:{resource_user.id}",
+            },
+        },
+    ]

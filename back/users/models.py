@@ -23,6 +23,8 @@ from admin.to_do.models import ToDo
 from misc.models import File
 from slack_bot.utils import Slack, paragraph
 
+from .utils import CompletedFormCheck
+
 ROLE_CHOICES = (
     (0, _("New Hire")),
     (1, _("Administrator")),
@@ -387,7 +389,7 @@ class ToDoUserManager(models.Manager):
         )
 
 
-class ToDoUser(models.Model):
+class ToDoUser(CompletedFormCheck, models.Model):
     user = models.ForeignKey(
         get_user_model(), related_name="to_do_new_hire", on_delete=models.CASCADE
     )
@@ -402,24 +404,9 @@ class ToDoUser(models.Model):
     def object_name(self):
         return self.to_do.name
 
-    @property
-    def completed_form_items(self):
-        completed_blocks = []
-        filled_items = [item["id"] for item in self.form]
-
-        for block in self.to_do.content["blocks"]:
-            if (
-                "data" in block
-                and "type" in block["data"]
-                and block["data"]["type"] in ["input", "text", "check", "upload"]
-            ):
-                item = next((x for x in filled_items if x == block["id"]), None)
-                if item is not None:
-                    completed_blocks.append(item)
-
-        return completed_blocks
-
     def mark_completed(self):
+        from admin.sequences.tasks import process_condition
+
         self.completed = True
         self.save()
 
@@ -461,10 +448,13 @@ class ToDoUser(models.Model):
 
             # If the amount matches, then we should process it
             if to_do_user.count() == len(condition_to_do_ids):
-                condition.process_condition(self.user)
+                # Send notification only if user has a slack account
+                process_condition(
+                    condition.id, self.user.id, self.user.has_slack_account
+                )
 
 
-class PreboardingUser(models.Model):
+class PreboardingUser(CompletedFormCheck, models.Model):
     user = models.ForeignKey(
         get_user_model(), related_name="new_hire_preboarding", on_delete=models.CASCADE
     )

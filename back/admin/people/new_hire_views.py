@@ -251,7 +251,7 @@ class NewHireTriggerConditionView(
     def post(self, request, pk, condition_pk, *args, **kwargs):
         condition = get_object_or_404(Condition, id=condition_pk)
         new_hire = get_object_or_404(get_user_model(), id=pk)
-        condition.process_condition(new_hire)
+        condition.process_condition(new_hire, skip_notification=True)
 
         # Update user amount completed
         new_hire.update_progress()
@@ -428,7 +428,7 @@ class NewHireFormsView(LoginRequiredMixin, ManagerPermMixin, DetailView):
         context["title"] = new_hire.full_name
         context["subtitle"] = _("new hire")
         context["preboarding_forms"] = PreboardingUser.objects.filter(
-            user=new_hire, completed=True
+            user=new_hire, form__isnull=False
         ).exclude(form=[])
         context["todo_forms"] = ToDoUser.objects.filter(
             user=new_hire, completed=True

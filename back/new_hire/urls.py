@@ -32,9 +32,9 @@ urlpatterns = [
         name="to_do_complete",
     ),
     path(
-        "todos/<int:pk>/form/",
-        views.ToDoFormSubmitView.as_view(),
-        name="to_do_form",
+        "<int:pk>/form/<slug:type>/",
+        views.FormSubmitView.as_view(),
+        name="form",
     ),
     path("colleagues/", views.ColleagueListView.as_view(), name="colleagues"),
     path(

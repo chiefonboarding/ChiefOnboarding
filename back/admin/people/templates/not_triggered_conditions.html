@@ -16,34 +16,34 @@
             <span class="badge bg-azure mb-2">{% translate "new hire" %}</span>
             {% endif %}
             {% for item in condition.preboarding.all %}
-              {% include '_condition_line_item.html' with type='preboarding' %}
+              {% include '_condition_line_item.html' with type='preboarding' read_only=True %}
             {% endfor %}
             {% for item in condition.appointments.all %}
-              {% include '_condition_line_item.html' with type='appointment' %}
+              {% include '_condition_line_item.html' with type='appointment' read_only=True %}
             {% endfor %}
             {% for item in condition.external_new_hire %}
               {% if item.send_via == 0 %}{# email #}
-                {% include '_condition_line_item.html' with type='pendingemailmessage' %}
+                {% include '_condition_line_item.html' with type='pendingemailmessage' read_only=True %}
               {% elif item.send_via == 1 %}{# slack #}
-                {% include '_condition_line_item.html' with type='pendingslackmessage' %}
+                {% include '_condition_line_item.html' with type='pendingslackmessage' read_only=True %}
               {% else %}
-                {% include '_condition_line_item.html' with type='pendingtextmessage' %}
+                {% include '_condition_line_item.html' with type='pendingtextmessage' read_only=True %}
               {% endif %}
             {% endfor %}
             {% for item in condition.to_do.all %}
-              {% include '_condition_line_item.html' with type='todo' %}
+              {% include '_condition_line_item.html' with type='todo' read_only=True %}
             {% endfor %}
             {% for item in condition.resources.all %}
-              {% include '_condition_line_item.html' with type='resource' %}
+              {% include '_condition_line_item.html' with type='resource' read_only=True %}
             {% endfor %}
             {% for item in condition.introductions.all %}
-              {% include '_condition_line_item.html' with type='introduction' %}
+              {% include '_condition_line_item.html' with type='introduction' read_only=True %}
             {% endfor %}
             {% for item in condition.badges.all %}
-              {% include '_condition_line_item.html' with type='badge' %}
+              {% include '_condition_line_item.html' with type='badge' read_only=True %}
             {% endfor %}
             {% for item in condition.integration_configs.all %}
-              {% include '_condition_line_item.html' with type='integrationconfig' provision_created=1 %}
+              {% include '_condition_line_item.html' with type='integrationconfig' provision_created=1 read_only=True %}
             {% endfor %}
 
             {# FOR ADMINS #}
@@ -51,15 +51,15 @@
             <span class="badge bg-orange mb-2">{% translate "admins" %}</span>
             {% endif %}
             {% for item in condition.admin_tasks.all %}
-              {% include '_condition_line_item.html' with type='pendingadmintask' %}
+              {% include '_condition_line_item.html' with type='pendingadmintask' read_only=True %}
             {% endfor %}
             {% for item in condition.external_admin %}
               {% if item.send_via == 0 %}{# email #}
-                {% include '_condition_line_item.html' with type='pendingemailmessage' %}
+                {% include '_condition_line_item.html' with type='pendingemailmessage' read_only=True %}
               {% elif item.send_via == 1 %}{# slack #}
-                {% include '_condition_line_item.html' with type='pendingslackmessage' %}
+                {% include '_condition_line_item.html' with type='pendingslackmessage' read_only=True %}
               {% else %}
-                {% include '_condition_line_item.html' with type='pendingtextmessage' %}
+                {% include '_condition_line_item.html' with type='pendingtextmessage' read_only=True %}
               {% endif %}
             {% endfor %}
 

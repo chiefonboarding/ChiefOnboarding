@@ -243,9 +243,10 @@ def test_complete_to_do_item_with_form_view(
     )
 
     url = reverse(
-        "new_hire:to_do_form",
+        "new_hire:form",
         args=[
             to_do_user.id,
+            "to_do",
         ],
     )
     response = client.post(
