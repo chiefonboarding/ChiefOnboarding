@@ -92,15 +92,16 @@ def process_condition(condition_id, user_id, send_email=True):
                 channel=user.slack_user_id,
             )
 
-            Slack().send_message(
-                text=_("Here are some new items for you!"),
-                blocks=[
-                    *intro_blocks,
-                    *badge_blocks,
-                    *resource_blocks,
-                ],
-                channel=user.slack_user_id,
-            )
+            if len(resource_blocks) or len(badge_blocks) or len(intro_blocks):
+                Slack().send_message(
+                    text=_("Here are some new items for you!"),
+                    blocks=[
+                        *intro_blocks,
+                        *badge_blocks,
+                        *resource_blocks,
+                    ],
+                    channel=user.slack_user_id,
+                )
 
         else:
             Slack().send_message(
