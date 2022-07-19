@@ -227,8 +227,8 @@ class ExternalMessage(ContentMixin, models.Model):
                 blocks=blocks, channel=self.get_user(user).slack_user_id
             )
         else:  # text message
-            phone_number = self.get_user(user).phone
-            if phone_number == "":
+            send_to = self.get_user(user)
+            if send_to is None or send_to.phone == "":
                 Notification.objects.create(
                     notification_type="failed_no_phone",
                     extra_text=self.name,
@@ -238,7 +238,7 @@ class ExternalMessage(ContentMixin, models.Model):
 
             client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
             client.messages.create(
-                to=phone_number,
+                to=send_to.phone,
                 from_=settings.TWILIO_FROM_NUMBER,
                 body=self.get_user(user).personalize(self.content),
             )
