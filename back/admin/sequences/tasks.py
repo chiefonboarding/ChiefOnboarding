@@ -17,12 +17,13 @@ from slack_bot.utils import Slack, paragraph
 from users.models import ResourceUser, ToDoUser
 
 
-def process_condition(condition_id, user_id):
+def process_condition(condition_id, user_id, send_email=True):
     """
     Processing triggered condition
 
     :param condition_id int: the condition that got triggered
     :param user_id int: the user that it got triggered for
+    :param send_email bool: should send update email (not for portal)
     """
 
     condition = Condition.objects.get(id=condition_id)
@@ -113,7 +114,7 @@ def process_condition(condition_id, user_id):
                 ],
                 channel=user.slack_user_id,
             )
-    else:
+    elif send_email:
         send_sequence_update_message(notifications, user)
 
     # Update notifications to not notify user again

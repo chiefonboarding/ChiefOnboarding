@@ -463,7 +463,8 @@ class ToDoUser(models.Model):
 
             # If the amount matches, then we should process it
             if to_do_user.count() == len(condition_to_do_ids):
-                process_condition(condition.id, self.user.id)
+                # Send notification only if user has a slack account
+                process_condition(condition.id, self.user.id, self.user.has_slack_account)
 
 
 class PreboardingUser(models.Model):
