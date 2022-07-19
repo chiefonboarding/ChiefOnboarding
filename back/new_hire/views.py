@@ -104,19 +104,19 @@ class FormSubmitView(LoginRequiredMixin, View):
     """
 
     def post(self, request, pk, type, *args, **kwargs):
-        if type == 'to_do':
+        if type == "to_do":
             item_user = get_object_or_404(ToDoUser, pk=pk, user=self.request.user)
             form_items = item_user.to_do.form_items
         else:
-            item_user = get_object_or_404(PreboardingUser, pk=pk, user=self.request.user)
+            item_user = get_object_or_404(
+                PreboardingUser, pk=pk, user=self.request.user
+            )
             form_items = item_user.preboarding.form_items
 
         answers = item_user.form
         for key, value in request.POST.items():
             # check if item is valid
-            item = next(
-                (x for x in form_items if x["id"] == key), None
-            )
+            item = next((x for x in form_items if x["id"] == key), None)
             if item is not None:
                 item["answer"] = value
                 answers.append(item)
