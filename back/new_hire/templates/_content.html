@@ -5,13 +5,13 @@
 {% with content=content|parse_to_json %}
 {% for block in content.blocks %}
   {% if block.type == 'paragraph' %}
-    <p> {{ block.data.text | safe }} </p>
+    <p> {{ block.data.text | safe |personalize:user}} </p>
   {% endif %}
   {% if block.type == 'header' %}
-    <h{{block.data.level}}> {{ block.data.text | safe }} </h{{block.data.level}}>
+    <h{{block.data.level}}> {{ block.data.text | safe |personalize:user}} </h{{block.data.level}}>
   {% endif %}
   {% if block.type == 'quote' %}
-    <blockquote>{{ block.data.text }}</blockquote>
+    <blockquote>{{ block.data.text |personalize:user}}</blockquote>
   {% endif %}
   {% if block.type == 'list' %}
     {% if block.data.style == 'ordered' %}
@@ -21,7 +21,7 @@
       <ul>
     {% endif %}
     {% for item in block.data.items %}
-      <li>{{item.content}}</li>
+      <li>{{item.content|personalize:user}}</li>
     {% endfor %}
     {% if block.data.style == 'unordered' %}
       </ul>
@@ -29,7 +29,7 @@
     {% if block.data.style == 'ordered' %}
       </ol>
     {% endif %}
-    <blockquote>{{ block.data.text }}</blockquote>
+    <blockquote>{{ block.data.text|personalize:user }}</blockquote>
   {% endif %}
   {% if block.type == 'attaches' %}
     {% if block.data.file.extension == 'mp4' or block.data.file.extension == 'webm' %}
@@ -54,8 +54,8 @@
   {% if block.type == 'image' %}
     <div class="d-block mt-2">
       <figure>
-        <img src="{{ block.data.file.url }}" alt="{{block.data.caption}}" />
-        <figcaption>{{block.data.caption}}</figcaption>
+        <img src="{{ block.data.file.url }}" alt="{{block.data.caption|personalize:user}}" />
+        <figcaption>{{block.data.caption|personalize:user}}</figcaption>
       </figure>
     </div>
   {% endif %}
@@ -67,17 +67,21 @@
     {% else %}
       {# Create new form when `form` is new #}
       {% ifchanged block.type %}
-        <form hx-post="{% url 'new_hire:to_do_form' object.id %}">
+        {% if "preboarding" in request.path %}
+          <form hx-post="{% url 'new_hire:form' object.id 'preboarding' %}">
+        {% else %}
+          <form hx-post="{% url 'new_hire:form' object.id 'to_do' %}">
+        {% endif %}
       {% endifchanged %}
       {% if block.data.type == 'input' %}
         <div class="mb-3">
-          <label class="form-label">{{ block.data.text }}</label>
+          <label class="form-label">{{ block.data.text|personalize:user }}</label>
           <input type="text" class="form-control" name="{{ block.id }}">
         </div>
       {% endif %}
       {% if block.data.type == 'text' %}
       <div class="mb-3">
-        <label class="form-label">{{ block.data.text }}</label>
+        <label class="form-label">{{ block.data.text|personalize:user }}</label>
         <textarea class="form-control" name="{{ block.id }}"></textarea>
       </div>
       {% endif %}
@@ -85,13 +89,13 @@
       <div class="mb-3">
         <label class="form-check form-switch">
           <input class="form-check-input" type="checkbox" name="{{ block.id }}">
-          <span class="form-check-label">{{ block.data.text }}</span>
+          <span class="form-check-label">{{ block.data.text|personalize:user }}</span>
         </label>
       </div>
       {% endif %}
       {% if block.data.type == 'upload' %}
       <div class="upload-field mb-1">
-        <label class="form-label custom-control-label">{{ block.data.text }}</label>
+        <label class="form-label custom-control-label">{{ block.data.text|personalize:user }}</label>
         {% if aws_active %}
           <img src="{{ file.get_url }}" style="max-width: 100px; max-height: 100px;"/>
           <input type="file" class="form-control d-none file-input">
@@ -115,7 +119,7 @@
       {% endif %}
     {% endif %}
 
-    {% if not content|next_still_form:forloop.counter0 and block.id not in object.completed_form_items or forloop.last %}
+    {% if not content|next_still_form:forloop.counter0 and block.id not in object.completed_form_items or forloop.last and block.id not in object.completed_form_items %}
       <button class="btn btn-primary mb-2" type="submit">{% translate "Submit" %}</button>
       </form>
     {% endif %}

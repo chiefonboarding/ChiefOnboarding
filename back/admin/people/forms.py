@@ -39,8 +39,8 @@ class NewHireAddForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["buddy"].required = False
         self.fields["manager"].required = False
-        self.fields["language"].initial = Organization.objects.get().language
-        self.fields["timezone"].initial = Organization.objects.get().timezone
+        self.fields["language"].initial = Organization.object.get().language
+        self.fields["timezone"].initial = Organization.object.get().timezone
         self.fields["start_day"].initial = timezone.now().date()
         self.helper = FormHelper()
         layout = Layout(

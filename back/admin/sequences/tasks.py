@@ -59,35 +59,60 @@ def process_condition(condition_id, user_id):
             for notif in notifications.filter(notification_type="added_resource")
         ]
 
-        badge_blocks = [
-            paragraph(
-                _("*Congrats, you unlocked: %(item_name)s *\n")
-                % {
-                    "item_name": user.personalize(
-                        Badge.objects.get(id=notif.item_id).name
-                    ),
-                },
+        badge_blocks = []
+        for notif in notifications.filter(notification_type="added_badge"):
+            badge_blocks.append(
+                paragraph(
+                    _("*Congrats, you unlocked: %(item_name)s *")
+                    % {
+                        "item_name": user.personalize(
+                            Badge.objects.get(id=notif.item_id).name
+                        ),
+                    },
+                ),
             )
-            # * Badge.objects.get(id=notif.item_id).to_slack_block(user)
-            for notif in notifications.filter(notification_type="added_badge")
-        ]
+            badge_blocks.append(
+                Badge.objects.get(id=notif.item_id).to_slack_block(user)
+            )
 
         intro_blocks = [
             SlackIntro(Introduction.objects.get(id=notif.item_id), user).format_block()
             for notif in notifications.filter(notification_type="added_introduction")
         ]
 
-        Slack().send_message(
-            text=_("Here are some new items for you!"),
-            blocks=[
-                paragraph(_("Here are some new items for you!")),
-                *intro_blocks,
-                *badge_blocks,
-                *resource_blocks,
-                *to_do_blocks,
-            ],
-            channel=user.slack_user_id,
-        )
+        if len(to_do_blocks):
+            # Send to do items separate as we need to update this block
+            Slack().send_message(
+                text=_("Here are some new items for you!"),
+                blocks=[
+                    paragraph(_("Here are some new items for you!")),
+                    *to_do_blocks,
+                ],
+                channel=user.slack_user_id,
+            )
+
+            Slack().send_message(
+                text=_("Here are some new items for you!"),
+                blocks=[
+                    *intro_blocks,
+                    *badge_blocks,
+                    *resource_blocks,
+                ],
+                channel=user.slack_user_id,
+            )
+
+        else:
+            Slack().send_message(
+                text=_("Here are some new items for you!"),
+                blocks=[
+                    paragraph(_("Here are some new items for you!")),
+                    *intro_blocks,
+                    *badge_blocks,
+                    *resource_blocks,
+                    *to_do_blocks,
+                ],
+                channel=user.slack_user_id,
+            )
     else:
         send_sequence_update_message(notifications, user)
 

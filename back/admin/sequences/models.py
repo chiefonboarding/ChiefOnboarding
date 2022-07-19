@@ -540,7 +540,7 @@ class Condition(models.Model):
         # returning the new item
         return self
 
-    def process_condition(self, user):
+    def process_condition(self, user, skip_notification=False):
         # Loop over all m2m fields and add the ones that can be easily added
         for field in [
             "to_do",
@@ -558,6 +558,7 @@ class Condition(models.Model):
                     extra_text=item.name,
                     created_for=user,
                     item_id=item.id,
+                    notified_user=skip_notification,
                 )
 
         # For the ones that aren't a quick copy/paste, follow back to their model and

@@ -13,7 +13,7 @@
   <div class="card-header">
     <h3 class="card-title">{% translate "Preboarding forms" %}</h3>
   </div>
-  <div>
+  <div class="card-body">
     {% for preboard in preboarding_forms %}
       <h4>{{ preboard.preboarding.name }}</h4>
       {% include "_new_hire_form_answers.html" with blocks=preboard.form %}

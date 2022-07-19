@@ -98,18 +98,24 @@ class ToDoCompleteView(LoginRequiredMixin, View):
         return redirect("new_hire:todos")
 
 
-class ToDoFormSubmitView(LoginRequiredMixin, View):
+class FormSubmitView(LoginRequiredMixin, View):
     """
     HTMX: Submit form that user filled in
     """
 
-    def post(self, request, pk, *args, **kwargs):
-        to_do_user = get_object_or_404(ToDoUser, pk=pk, user=self.request.user)
-        answers = to_do_user.form
+    def post(self, request, pk, type, *args, **kwargs):
+        if type == 'to_do':
+            item_user = get_object_or_404(ToDoUser, pk=pk, user=self.request.user)
+            form_items = item_user.to_do.form_items
+        else:
+            item_user = get_object_or_404(PreboardingUser, pk=pk, user=self.request.user)
+            form_items = item_user.preboarding.form_items
+
+        answers = item_user.form
         for key, value in request.POST.items():
             # check if item is valid
             item = next(
-                (x for x in to_do_user.to_do.form_items if x["id"] == key), None
+                (x for x in form_items if x["id"] == key), None
             )
             if item is not None:
                 item["answer"] = value
@@ -119,8 +125,8 @@ class ToDoFormSubmitView(LoginRequiredMixin, View):
                     _("This form could not be processed - invalid items")
                 )
 
-        to_do_user.form = answers
-        to_do_user.save()
+        item_user.form = answers
+        item_user.save()
 
         return HttpResponse(_("You have submitted this form successfully"))
 
@@ -253,9 +259,9 @@ class PreboardingDetailView(LoginRequiredMixin, DetailView):
         # Check that current item is not last, otherwise push first
         if self.object.id != preboarding_user_items[-1]:
             next_id = preboarding_user_items[index_current_item + 1]
-            button_text = "Next"
+            button_text = _("Next")
         else:
-            button_text = "Restart"
+            button_text = _("Restart")
             next_id = preboarding_user_items[0]
 
         context["button_text"] = button_text

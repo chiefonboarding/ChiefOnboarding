@@ -477,6 +477,23 @@ class PreboardingUser(models.Model):
     completed = models.BooleanField(default=False)
     order = models.IntegerField(default=0)
 
+    @property
+    def completed_form_items(self):
+        completed_blocks = []
+        filled_items = [item["id"] for item in self.form]
+
+        for block in self.preboarding.content["blocks"]:
+            if (
+                "data" in block
+                and "type" in block["data"]
+                and block["data"]["type"] in ["input", "text", "check", "upload"]
+            ):
+                item = next((x for x in filled_items if x == block["id"]), None)
+                if item is not None:
+                    completed_blocks.append(item)
+
+        return completed_blocks
+
     def save(self, *args, **kwargs):
         # Adding order number when record is not created yet (always the last item
         # in the list)

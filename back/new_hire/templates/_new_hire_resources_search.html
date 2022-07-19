@@ -12,7 +12,7 @@
             <div class="text-muted">{{ result.headline|safe }}</div>
           {% endif %}
           {% if '<b>' in result.inner %}
-            <div class="text-muted">{% include '_content.html' with content=result.inner %}</div>
+            <div class="text-muted">{% include '_content.html' with content=result.inner user=request.user %}</div>
           {% endif %}
           <a href="{% url 'new_hire:resource-detail' result.id result.first_chapter_id %}">{% translate "See resource" %}</a>
         </div>

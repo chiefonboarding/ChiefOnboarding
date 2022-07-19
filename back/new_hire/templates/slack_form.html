@@ -11,7 +11,7 @@
     <div class="card">
       <div class="card-body" style="position: relative;">
         <h3 class="header-title">{{ object.to_do.name }}</h3>
-        {% include '_content.html' with content=object.to_do.content %}
+        {% include '_content.html' with content=object.to_do.content user=request.user type="to_do" %}
       </div>
     </div>
   </div>
