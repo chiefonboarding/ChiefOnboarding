@@ -23,38 +23,45 @@ class FileView(APIView):
         return Response(url)
 
     def post(self, request):
-        ext = ""
-        if len(request.data["name"].split(".")) > 1:
-            ext = request.data["name"].split(".")[-1]
+        try:
+            ext = ""
+            if len(request.data["name"].split(".")) > 1:
+                ext = request.data["name"].split(".")[-1]
+            print("ext: ", ext)
 
-        serializer = FileSerializer(
-            data={
-                "name": request.data["name"],
-                "ext": ext,
-            }
-        )
-        serializer.is_valid(raise_exception=True)
-        f = serializer.save()
-        key = (
-            f"{f.id}-{serializer.data['name'].split('.')[0]}/{serializer.data['name']}"
-        )
-        f.key = key
-        f.save()
-        # Specifics based on Editor.js expectations
-        return Response(
-            {
-                "success": 1,
-                "file": {
-                    "url": S3().get_presigned_url(key),
-                    "id": f.id,
-                    "name": f.name,
-                    "ext": f.ext,
-                    "get_url": f.get_url(),
-                    "size": None,
-                    "title": f.name,
-                },
-            }
-        )
+            serializer = FileSerializer(
+                data={
+                    "name": request.data["name"],
+                    "ext": ext,
+                }
+            )
+            serializer.is_valid(raise_exception=True)
+            f = serializer.save()
+            key = (
+                f"{f.id}-{serializer.data['name'].split('.')[0]}/{serializer.data['name']}"
+            )
+            print("key:", key)
+            print("full_key:", S3().get_presigned_url(key))
+            f.key = key
+            f.save()
+            # Specifics based on Editor.js expectations
+            return Response(
+                {
+                    "success": 1,
+                    "file": {
+                        "url": S3().get_presigned_url(key),
+                        "id": f.id,
+                        "name": f.name,
+                        "ext": f.ext,
+                        "get_url": f.get_url(),
+                        "size": None,
+                        "title": f.name,
+                    },
+                }
+            )
+        except Exception as e:
+            print(str(e))
+            return {}
 
     def delete(self, request, id):
         if request.user.is_admin_or_manager:
