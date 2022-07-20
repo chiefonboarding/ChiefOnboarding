@@ -1213,6 +1213,7 @@ def test_send_slack_message_after_process_condition(
             },
         },
         {"type": "section", "text": {"type": "mrkdwn", "text": "Well done!"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": "Well done!"}},
         {
             "type": "section",
             "block_id": str(resource_user.id),
