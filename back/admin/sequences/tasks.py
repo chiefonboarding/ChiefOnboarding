@@ -73,7 +73,7 @@ def process_condition(condition_id, user_id, send_email=True):
                 ),
             )
             badge_blocks.append(
-                Badge.objects.get(id=notif.item_id).to_slack_block(user)
+                *Badge.objects.get(id=notif.item_id).to_slack_block(user)
             )
 
         intro_blocks = [

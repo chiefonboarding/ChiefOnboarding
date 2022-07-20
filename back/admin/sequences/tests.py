@@ -1200,7 +1200,6 @@ def test_send_slack_message_after_process_condition(
 
     assert cache.get("slack_channel") == "test"
 
-    print(cache.get("slack_blocks"))
     assert cache.get("slack_blocks") == [
         {
             "type": "section",
@@ -1213,7 +1212,7 @@ def test_send_slack_message_after_process_condition(
                 "text": f"*Congrats, you unlocked: {badge.name} *",
             },
         },
-        [{"type": "section", "text": {"type": "mrkdwn", "text": "Well done!"}}],
+        {"type": "section", "text": {"type": "mrkdwn", "text": "Well done!"}},
         {
             "type": "section",
             "block_id": str(resource_user.id),
