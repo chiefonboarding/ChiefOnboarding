@@ -504,6 +504,8 @@ oauth_config:
       - users:read.email
       - im:write
       - chat:write
+      - channels:read
+      - groups:read
 settings:
   event_subscriptions:
     request_url: https://XXXXXXXXXXXXXXX/api/slack/bot

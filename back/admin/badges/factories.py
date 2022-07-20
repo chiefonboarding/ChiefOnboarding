@@ -10,7 +10,10 @@ class BadgeFactory(factory.django.DjangoModelFactory):
     name = FuzzyText()
     content = {
         "time": 0,
-        "blocks": [{"data": {"text": "Well done!"}, "type": "paragraph"}],
+        "blocks": [
+            {"data": {"text": "Well done!"}, "type": "paragraph"},
+            {"data": {"text": "Well done!"}, "type": "paragraph"},
+        ],
     }
 
     class Meta:
