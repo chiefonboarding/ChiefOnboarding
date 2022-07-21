@@ -437,7 +437,11 @@ def test_send_preboarding_message_via_email(
     assert "This field is required" in response.content.decode()
 
     # missing email address
-    response = client.post(url, data={"send_type": "email", "email": "hello@chiefonboarding.com"}, follow=True)
+    response = client.post(
+        url,
+        data={"send_type": "email", "email": "hello@chiefonboarding.com"},
+        follow=True,
+    )
 
     assert response.status_code == 200
     assert len(mailoutbox) == 1
