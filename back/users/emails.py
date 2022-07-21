@@ -163,7 +163,7 @@ def send_new_hire_credentials(new_hire_id):
     )
 
 
-def send_new_hire_preboarding(new_hire):
+def send_new_hire_preboarding(new_hire, email):
     org = Organization.object.get()
     translation.activate(new_hire.language)
     message = WelcomeMessage.objects.get(
@@ -189,7 +189,7 @@ def send_new_hire_preboarding(new_hire):
         subject=subject,
         created_for=new_hire,
         message=message,
-        to=new_hire.email,
+        to=email,
         html_message=html_message,
         notification_type="sent_email_preboarding_access",
     )

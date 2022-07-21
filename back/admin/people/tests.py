@@ -430,14 +430,21 @@ def test_send_preboarding_message_via_email(
     assert "Send via text" not in response.content.decode()
     assert "Send via email" in response.content.decode()
 
+    # missing email address
     response = client.post(url, data={"send_type": "email"}, follow=True)
+
+    assert response.status_code == 200
+    assert "This field is required" in response.content.decode()
+
+    # missing email address
+    response = client.post(url, data={"send_type": "email", "email": "hello@chiefonboarding.com"}, follow=True)
 
     assert response.status_code == 200
     assert len(mailoutbox) == 1
     assert mailoutbox[0].subject == f"Welcome to {org.name}!"
     assert new_hire1.first_name in mailoutbox[0].alternatives[0][0]
     assert len(mailoutbox[0].to) == 1
-    assert mailoutbox[0].to[0] == new_hire1.email
+    assert mailoutbox[0].to[0] == "hello@chiefonboarding.com"
     assert (
         settings.BASE_URL
         + reverse("new_hire:preboarding-url")
