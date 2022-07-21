@@ -163,7 +163,7 @@ class NewHireSendPreboardingNotificationView(
     def form_valid(self, form):
         new_hire = get_object_or_404(get_user_model(), id=self.kwargs.get("pk", -1))
         if form.cleaned_data["send_type"] == "email":
-            send_new_hire_preboarding(new_hire)
+            send_new_hire_preboarding(new_hire, form.cleaned_data["email"])
         else:
             client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
             client.messages.create(

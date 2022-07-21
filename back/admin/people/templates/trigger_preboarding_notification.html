@@ -18,3 +18,14 @@
   </div>
 </div>
 {% endblock %}
+{% block extra_js %}
+<script>
+$("select#id_send_type").on('change', function() {
+  if ($(this).val() == 'text'){
+    $("#div_id_email").addClass("d-none")
+  } else {
+    $("#div_id_email").removeClass("d-none")
+  }
+})
+</script>
+{% endblock %}

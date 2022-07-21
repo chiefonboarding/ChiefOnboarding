@@ -319,16 +319,24 @@ class RemindMessageForm(forms.Form):
 
 class PreboardingSendForm(forms.Form):
     send_type = forms.ChoiceField(
-        choices=[("text", _("Send via text")), ("email", _("Send via email"))]
+        choices=[("email", _("Send via email")), ("text", _("Send via text"))]
     )
+    email = forms.EmailField(required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # if Twillio is not configured, then auto select email and make it disabled
         if settings.TWILIO_ACCOUNT_SID == "":
-            self.fields["send_type"].widget.attrs["disabled"] = "true"
             self.fields["send_type"].initial = "email"
             self.fields["send_type"].choices = [("email", _("Send via email"))]
+
+    def clean(self):
+        cleaned_data = super(PreboardingSendForm, self).clean()
+        send_type = cleaned_data.get("send_type")
+        email = cleaned_data.get("email", "")
+        if send_type == "email" and email in [None, ""]:
+            self.add_error("email", _("This field is required"))
+        return cleaned_data
 
     class Meta:
         labels = {
