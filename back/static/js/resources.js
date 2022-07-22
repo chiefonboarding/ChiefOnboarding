@@ -14,6 +14,15 @@ function initResource() {
           class: NestedList,
           inlineToolbar: true,
         },
+        embed: {
+          class: Embed,
+          inlineToolbar: false,
+          config: {
+            services: {
+              youtube: true,
+            }
+          }
+        },
         delimiter: Delimiter,
         image: {
           class: ImageTool,
@@ -28,13 +37,8 @@ function initResource() {
                 // your own uploading logic here
                 let response = await getSignedURL(file)
                 let completed = await uploadFile(file, response)
-                return {
-                  success: 1,
-                  file: {
-                    url: response.get_url,
-                    id: response.id
-                  }
-                }
+                response["file"]["url"] = response["file"]["get_url"]
+                return response
               },
             }
           }
@@ -51,7 +55,7 @@ function initResource() {
               async uploadByFile(file){
                 // your own uploading logic here
                 let response = await getSignedURL(file)
-                let completed = await uploadFile(file, response.file)
+                let completed = await uploadFile(file, response)
                 return response
               },
             }
