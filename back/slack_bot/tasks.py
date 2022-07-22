@@ -101,13 +101,24 @@ def update_new_hire():
         overdue_items = ToDoUser.objects.overdue(user)
         tasks = ToDoUser.objects.due_today(user) | overdue_items
 
-        courses_due = ResourceUser.objects.filter(resource__on_day__lte=user.workday)
+        courses_due = ResourceUser.objects.filter(user=user, resource__on_day__lte=user.workday)
         # Filter out completed courses
         course_blocks = [
             SlackResource(course, user).get_block()
             for course in courses_due
             if course.is_course
         ]
+
+        if len(course_blocks):
+            course_blocks.insert(
+                0,
+                paragraph(_("Here are some courses that you need to complete"))
+            )
+            Slack().send_message(
+                blocks=course_blocks,
+                text=_("Here are some courses that you need to complete"),
+                channel=user.slack_user_id,
+            )
 
         # If any overdue tasks exist, then notify the user
         if tasks.exists():
@@ -124,11 +135,6 @@ def update_new_hire():
             blocks = SlackToDoManager(user).get_blocks(
                 tasks.values_list("id", flat=True),
                 text=text,
-            )
-            Slack().send_message(
-                blocks=course_blocks,
-                text=_("Here are some courses that you need to complete"),
-                channel=user.slack_user_id,
             )
             Slack().send_message(blocks=blocks, text=text, channel=user.slack_user_id)
 
