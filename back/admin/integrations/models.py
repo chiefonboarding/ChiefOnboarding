@@ -158,7 +158,7 @@ class Integration(models.Model):
                 return
 
         # Run all post requests (notifications)
-        for item in self.manifest["post_execute_notification"]:
+        for item in self.manifest.get("post_execute_notification", []):
             if item["type"] == "email":
                 send_email_with_notification(
                     subject=self._replace_vars(item["subject"]),
