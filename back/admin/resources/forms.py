@@ -31,9 +31,11 @@ class ResourceForm(TagModelForm):
         self.fields["chapters"] = forms.JSONField()
         self.helper = FormHelper()
         self.helper.form_tag = False
-        none_class = ""
-        if not self.instance.course or "course" not in self.data:
-            none_class = " d-none"
+        none_class = "d-none"
+        if (self.instance is not None and self.instance.course) or (
+            "course" in self.data and self.data["course"] == "on"
+        ):
+            none_class = ""
 
         self.helper.layout = Layout(
             Div(
@@ -66,11 +68,11 @@ class ResourceForm(TagModelForm):
                 ),
                 Div(
                     Field("on_day"),
-                    css_class="col-2" + none_class,
+                    css_class="col-2 " + none_class,
                 ),
                 Div(
                     Field("remove_on_complete"),
-                    css_class="col-2" + none_class,
+                    css_class="col-2 " + none_class,
                 ),
                 css_class="row",
             ),
