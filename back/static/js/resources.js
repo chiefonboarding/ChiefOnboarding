@@ -53,10 +53,13 @@ function initResource() {
                * @return {Promise.<{success, file: {url}}>}
                */
               async uploadByFile(file){
-                // your own uploading logic here
-                let response = await getSignedURL(file)
-                let completed = await uploadFile(file, response)
-                return response
+                  console.log("file", file)
+                  // your own uploading logic here
+                  let response = await getSignedURL(file)
+                  console.log("presigned_url", response)
+                  let completed = await uploadFile(file, response)
+                  console.log("completed this")
+                  return response
               },
             }
           }
