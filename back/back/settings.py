@@ -218,11 +218,12 @@ REST_FRAMEWORK = {
 
 
 # API
-if env.bool("API_ACCESS", default=False):
+API_ACCESS = env.bool("API_ACCESS", default=False)
+if API_ACCESS:
     REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].append(
         "rest_framework.authentication.TokenAuthentication"
     )
-    INSTALLED_APPS += ["rest_framework.authtoken"]
+    INSTALLED_APPS += ["rest_framework.authtoken", "api"]
 
 # Email
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
