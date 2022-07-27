@@ -26,13 +26,25 @@ class UserView(generics.CreateAPIView):
     ]
 
     def perform_create(self, serializer):
-        sequences = serializer.pop("sequences")
-        sequences = Sequence.objects.filter(id__in=sequences)
+        sequences = serializer.validated_data.pop("sequences", None)
+        # Default back to the organization timezone if not provided
+        org = Organization.object.get()
+        serializer.validated_data["timezone"] = serializer.validated_data.get(
+            "timezone", org.timezone
+        )
+        serializer.validated_data["language"] = serializer.validated_data.get(
+            "language", org.language
+        )
+        serializer.validated_data["start_day"] = serializer.validated_data.get(
+            "start_day", org.current_datetime.date()
+        )
 
         new_hire = serializer.save(role=1)
 
         # Add sequences to new hire
-        new_hire.add_sequences(sequences)
+        if sequences is not None:
+            sequences = Sequence.objects.filter(id__in=sequences)
+            new_hire.add_sequences(sequences)
 
         # Send credentials email if the user was created after their start day
         org = Organization.object.get()

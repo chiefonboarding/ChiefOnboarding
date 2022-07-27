@@ -6,16 +6,15 @@ from users.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
-    sequences = serializers.MultipleChoiceField(choices=[])
-    timezone = serializers.MultipleChoiceField(
-        choices=[(x, x) for x in pytz.common_timezones]
+    sequences = serializers.ListField(child=serializers.IntegerField(), required=False)
+    timezone = serializers.ChoiceField(
+        choices=[(x, x) for x in pytz.common_timezones], required=False
     )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["sequences"].choices = [
-            (s.id, s.name) for s in Sequence.objects.all()
-        ]
+    def validate_sequences(self, value):
+        if Sequence.objects.filter(pk__in=value).count() != len(value):
+            raise serializers.ValidationError("Not all sequence ids are valid.")
+        return value
 
     class Meta:
         model = User
@@ -26,12 +25,15 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "position",
             "phone",
+            "buddy",
+            "manager",
             "message",
             "linkedin",
             "facebook",
             "twitter",
             "timezone",
             "language",
+            "sequences",
         ]
 
 

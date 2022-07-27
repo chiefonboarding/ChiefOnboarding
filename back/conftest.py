@@ -50,6 +50,7 @@ from users.factories import (
 @pytest.fixture(autouse=True)
 def run_around_tests(settings):
     settings.FAKE_SLACK_API = True
+    settings.API_ACCESS = True
     settings.SLACK_APP_TOKEN = ""
     OrganizationFactory()
 
