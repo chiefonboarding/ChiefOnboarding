@@ -218,7 +218,7 @@ REST_FRAMEWORK = {
 
 
 # API
-API_ACCESS = env.bool("API_ACCESS", default=False)
+API_ACCESS = env.bool("API_ACCESS", default=DEBUG or RUNNING_TESTS)
 if API_ACCESS:
     REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].append(
         "rest_framework.authentication.TokenAuthentication"
