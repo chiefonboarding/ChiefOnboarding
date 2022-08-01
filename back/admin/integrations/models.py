@@ -108,7 +108,7 @@ class Integration(models.Model):
         )
 
     def execute(self, new_hire, params):
-        self.parms = params
+        self.params = params
         self.new_hire = new_hire
 
         # Renew access key if necessary
