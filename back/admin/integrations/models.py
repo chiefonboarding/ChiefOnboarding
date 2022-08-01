@@ -84,7 +84,8 @@ class Integration(models.Model):
     def _replace_vars(self, text):
         params = {} if not hasattr(self, "params") else self.params
         if hasattr(self, "new_hire") and self.new_hire is not None:
-            text = self.new_hire.personalize(text, self.extra_args)
+            text = self.new_hire.personalize(text, self.extra_args | params)
+            return text
         t = Template(text)
         context = Context(self.extra_args | params)
         text = t.render(context)
