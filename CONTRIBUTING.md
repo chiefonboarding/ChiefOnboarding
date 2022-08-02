@@ -14,7 +14,7 @@ If you are unsure where to begin contributing to ChiefOnboarding? You can start 
 
 
 # Getting started
-Please read the [ARCHITECT.md](ARCHITECT.md) file first to get a sense of how ChiefOnboarding is set up.
+Please read the [docs/ARCHITECT.md](ARCHITECT.md) file first to get a sense of how ChiefOnboarding is set up.
 
 For something that is bigger than a few lines of code changes:
 
