@@ -3,6 +3,7 @@ from django.utils.translation import gettext as _
 from django.views.generic.list import ListView
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -16,6 +17,9 @@ from .models import Notification
 
 class FileView(APIView):
     permission_classes = (IsAuthenticated,)
+    authentication_classes = [
+        SessionAuthentication,
+    ]
 
     def get(self, request, id, uuid):
         file = get_object_or_404(File, uuid=uuid, id=id)

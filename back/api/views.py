@@ -1,5 +1,4 @@
 from rest_framework import generics
-from rest_framework.authentication import TokenAuthentication
 from django_q.tasks import async_task
 
 from admin.sequences.models import Sequence
@@ -7,7 +6,6 @@ from organization.models import Notification, Organization
 from slack_bot.tasks import link_slack_users
 from users.models import User
 
-from .permissions import AdminPermission
 from .serializers import EmployeeSerializer, SequenceSerializer, UserSerializer
 
 
@@ -18,12 +16,6 @@ class UserView(generics.CreateAPIView):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [
-        AdminPermission,
-    ]
-    authentication_classes = [
-        TokenAuthentication,
-    ]
 
     def perform_create(self, serializer):
         sequences = serializer.validated_data.pop("sequences", None)
@@ -82,12 +74,6 @@ class EmployeeView(generics.ListAPIView):
 
     queryset = User.objects.all()
     serializer_class = EmployeeSerializer
-    permission_classes = [
-        AdminPermission,
-    ]
-    authentication_classes = [
-        TokenAuthentication,
-    ]
 
 
 class SequenceView(generics.ListAPIView):
@@ -97,9 +83,3 @@ class SequenceView(generics.ListAPIView):
 
     queryset = Sequence.objects.all()
     serializer_class = SequenceSerializer
-    permission_classes = [
-        AdminPermission,
-    ]
-    authentication_classes = [
-        TokenAuthentication,
-    ]

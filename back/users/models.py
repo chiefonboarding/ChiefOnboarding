@@ -111,7 +111,12 @@ class User(AbstractBaseUser):
     twitter = models.CharField(
         verbose_name=_("Twitter"), default="", max_length=100, blank=True
     )
-    timezone = models.CharField(verbose_name=_("Timezone"), default="", max_length=1000)
+    timezone = models.CharField(
+        verbose_name=_("Timezone"),
+        default="",
+        max_length=1000,
+        choices=[(x, x) for x in pytz.common_timezones],
+    )
     department = models.ForeignKey(
         Department, verbose_name=_("Department"), on_delete=models.SET_NULL, null=True
     )

@@ -154,6 +154,23 @@ def test_create_new_hire_with_invalid_options(setup_rest, sequence_factory):
         "buddy": ['Invalid pk "1999999" - object does not exist.']
     }
 
+    # Timezone does not exist
+    response = client.post(
+        reverse("api:newhires"),
+        data={
+            "first_name": "john",
+            "last_name": "Do",
+            "email": "john@chiefonboarding.com",
+            "sequences": [seq1.id],
+            "timezone": "falsetimezone",
+        },
+        format="json",
+    )
+    assert response.status_code == 400
+    assert User.objects.count() == 1
+
+    assert response.json() == {"timezone": ['"falsetimezone" is not a valid choice.']}
+
     # Sequence does not exist
     response = client.post(
         reverse("api:newhires"),

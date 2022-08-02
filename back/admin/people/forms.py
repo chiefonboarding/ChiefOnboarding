@@ -1,4 +1,3 @@
-import pytz
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, Layout, Submit
 from django import forms
@@ -25,9 +24,6 @@ class NewHireAddForm(forms.ModelForm):
         initial=Sequence.objects.filter(auto_add=True),
         required=False,
         label=_("Sequences"),
-    )
-    timezone = forms.ChoiceField(
-        label=_("Timezone"), choices=[(x, x) for x in pytz.common_timezones]
     )
     start_day = forms.DateField(
         label=_("Start date"),
@@ -126,9 +122,6 @@ class NewHireAddForm(forms.ModelForm):
 
 
 class NewHireProfileForm(forms.ModelForm):
-    timezone = forms.ChoiceField(
-        label=_("Timezone"), choices=[(x, x) for x in pytz.common_timezones]
-    )
     start_day = forms.DateField(
         label=_("Start date"),
         required=True,
@@ -190,7 +183,6 @@ class NewHireProfileForm(forms.ModelForm):
 
 
 class ColleagueUpdateForm(forms.ModelForm):
-    timezone = forms.ChoiceField(choices=[(x, x) for x in pytz.common_timezones])
     department = ModelChoiceFieldWithCreate(
         queryset=Department.objects.all(), to_field_name="name", required=False
     )
@@ -243,7 +235,6 @@ class ColleagueUpdateForm(forms.ModelForm):
 
 
 class ColleagueCreateForm(forms.ModelForm):
-    timezone = forms.ChoiceField(choices=[(x, x) for x in pytz.common_timezones])
     department = ModelChoiceFieldWithCreate(
         queryset=Department.objects.all(), to_field_name="name", required=False
     )
