@@ -70,7 +70,9 @@ class NewHireManager(models.Manager):
         return self.get_queryset().exclude(slack_user_id="")
 
     def starting_today(self):
-        return self.get_queryset().filter(start_day=datetime.now().date())
+        return self.get_queryset().filter(
+            start_day=datetime.now().date()
+        ).order_by("id")
 
     def to_introduce(self):
         return self.get_queryset().filter(
