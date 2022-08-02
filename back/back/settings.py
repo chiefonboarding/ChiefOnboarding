@@ -204,25 +204,21 @@ CORS_ALLOWED_ORIGINS = [
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.TokenAuthentication",
     ],
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
     ],
-    "DEFAULT_THROTTLE_RATES": {"anon": "100/day"},
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
+        "api.permissions.AdminPermission",
     ],
 }
 
 
 # API
-if env.bool("API_ACCESS", default=False):
-    REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].append(
-        "rest_framework.authentication.TokenAuthentication"
-    )
-    INSTALLED_APPS += ["rest_framework.authtoken"]
+API_ACCESS = env.bool("API_ACCESS", default=DEBUG or RUNNING_TESTS)
+if API_ACCESS:
+    INSTALLED_APPS += ["rest_framework.authtoken", "api"]
 
 # Email
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

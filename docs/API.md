@@ -4,13 +4,7 @@ order: 50
 
 # API
 
-!!!
-The API does not work in v2.0 yet! It will still work for versions starting with v1.
-!!!
-
-This API will give you full control over ChiefOnboarding. ChiefOnboarding is built with Django and VueJS. Django is used as an API and VueJS is for the front end. With the steps below, you will be able to call the whole API yourself. Currently, ChiefOnboarding uses sessions/cookies for authentication. We can't use those for the API, as those expire. Therefore, you will have to explicitly enable token authentication in the settings. 
-
-Please note that tokens do not expire and endpoints are subjected to change with updates!
+This API will allow you to programmatically create new hires. The API does not work when you are logged in with sessions (logging in through the log in form), you will need to use a token to get access. These tokens do not expire and you can create them through shell.
 
 ## Setup
 Enable the API through the environment variable:
@@ -19,17 +13,17 @@ Enable the API through the environment variable:
 API_ACCESS=True
 ```
 
-Just to be safe, run the migrations for the token table `docker-compose run web python3 manage.py migrate`. Up next, you will have to generate a token to authenticate with the API. You will have to attach a user to it, like this:
+Just to be safe, run the migrations for the token table `docker-compose run --rm web python3 manage.py migrate` (docker) or redeploy on Render/Heroku. Up next, you will have to generate a token to authenticate with the API. You will have to attach a user to it, like this:
 
 ```
-docker-compose run web python manage.py drf_create_token email@example.com
+docker-compose run --rm web python manage.py drf_create_token email@example.com
 ```
-Use the email address from an (admin) user there. You will then get to see the newly created token. Now you can make calls to the API. 
+Use the email address from an admin user there. You will then get to see the newly created token. Now you can make calls to the API. Please note that if you ever remove this person, then the token will also be revoked.
 
 Example:
 
 ```
-curl -H "Authorization: Token xxxxxxxxxxxxxxx" https://YOURDOMAIN/api/users/admin
+curl -H "Authorization: Token xxxxxxxxxxxxxxx" https://YOURDOMAIN/api/employees/
 ```
 
 ## API usage example
@@ -39,14 +33,25 @@ curl -H "Authorization: Token xxxxxxxxxxxxxxx" https://YOURDOMAIN/api/users/admi
 1. We would like to assign a buddy to this new hire, so first we need to get a list of employees to find the id of our buddy. Getting all employees that are in ChiefOnboarding:
 
 ```
-curl -H "Authorization: Token xxxxxxxxxxxxxxx" https://YOURDOMAIN/api/users/employee
+curl -H "Authorization: Token xxxxxxxxxxxxxxx" https://YOURDOMAIN/api/employees/
+```
+
+2. We might also want to add some sequences to the new hire. In that case, we need the ids of the sequences we want to add. We can get all sequences with this request:
+
+```
+curl -H "Authorization: Token xxxxxxxxxxxxxxx" https://YOURDOMAIN/api/sequences/
 ```
 
 2. Create the new hire:
 
 ```
-curl -X POST -H "Authorization: Token xxxxxxxxxxxxxxx" -d {"first_name":"James","last_name":"Weller","email":"james@chiefonboarding.com","phone":"","position":"Technical lead","language":"en","message":"","start_day":"2020-12-04","buddy":4,"manager":null,"timezone":"UTC","google":{"create":false,"email":""},"slack":{"create":false,"email":""},"sequences":[{"id":5}]} -H "Content-Type: application/json" https://YOURDOMAIN/api/users/new_hire
+curl -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' -H "Authorization: Token xxxxxxxxxxxxxxx" -d '{"first_name":"James","last_name":"Weller","email":"james@chiefonboarding.com","phone":"","position":"Technical lead","language":"en","message":"","start_day":"2020-12-04","buddy":4,"timezone":"UTC","sequences":[3]}' http://0.0.0.0:8000/api/newhires/
 ```
+
+!!!
+`first_name`, `last_name` and `email` are required
+!!!
+
 
 The data part of that query (with explanation):
 
@@ -55,25 +60,15 @@ The data part of that query (with explanation):
 	"first_name": "James", # required
 	"last_name": "Weller", # required
 	"email": "james@chiefonboarding.com", # required and should be the business email address (even if not created yet)
-	"phone": "",
+	"phone": "1233444",
 	"position": "Technical lead",
 	"language": "en",
-	"message": "",
-	"start_day": "2020-12-04", # required
+	"message": "This is our new hire....",
+	"start_day": "2020-12-04", # if not provided, it will default to the day you create this request
 	"buddy": 4, # the id of the employee taken from previous request
-	"manager": null,
-	"timezone": "UTC",
-	"google": { # Google account creation, it will create the email address from the new hire
- 		"create": false,
- 		"email": "" # this should be the email where the login details are sent to (so, not the business email address)
- 	},
-	"slack": {
-		"create": false,
-		"email": "" # probably business email address (invite email is sent to this)
-	},
-	"sequences": [ # sequences that are automatically assigned to new hire
-		{ "id": 5 } 
-	]
+	"manager": 3, # the id of the employee taken from previous request
+	"timezone": "UTC", # if not provided, it will default to the organization timezone
+	"sequences": [5, 3] # Array of sequence ids that should be assigned to the user
 }
 ```
 

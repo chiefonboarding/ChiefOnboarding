@@ -29,7 +29,10 @@ class Organization(models.Model):
         choices=settings.LANGUAGES,
     )
     timezone = models.CharField(
-        verbose_name=_("Timezone"), default="UTC", max_length=1000
+        verbose_name=_("Timezone"),
+        default="UTC",
+        max_length=1000,
+        choices=[(x, x) for x in pytz.common_timezones],
     )
 
     # customization
