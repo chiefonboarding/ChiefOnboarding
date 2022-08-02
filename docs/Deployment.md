@@ -17,6 +17,8 @@ You can easily deploy ChiefOnboarding with Docker (Docker-compose). Make sure th
 1. Point your domain name to your IP address.
 2. Create a folder somewhere and then add this `docker-compose.yml` file (change the environment variables to something that works for you!):
 
+### Caddy-based deployment
+
 ```
 version: '3'
 
@@ -74,9 +76,6 @@ networks:
   global:
 
 ```
-A quick note: it will generate an account for you. Please check the logs for that (you can and should delete this account after you created a new admin account). If you want to specify your own login details, then specify a `ACCOUNT_EMAIL` (should always be lowercase email address) and `ACCOUNT_PASSWORD` in the environment variables.
-Second note: if you need to do a healthcheck for your container, then you can use the url `/health` for that. This url is available under any IP/domain name. It will respond with a 200 status and an `ok` as content. The `ALLOWED_HOSTS` variable is ignored for that url.
-
 If you don't want to have a secure connecting and want to connect over `http` (not secure, and you will have to change the Caddy file below), then add `HTTP_INSECURE=True` to your environment variables.
 
 3. Then we need to create a `Caddyfile` to route the requests to the server (change the domain name, obviously):
@@ -85,7 +84,40 @@ test.chiefonboarding.com {
   reverse_proxy web:8000
 }
 ```
+### Non-caddy-based deployment
+This method may make it easier to deploy on a server that is already configured with an existing web server (e.g., Nginx, Apache, etc.) You will need to install Cerbot to configure LetsEncrypt. This approach assumes that you will be configuring a reverse proxy on port 8888.
+```
+version: '3'
+
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    volumes:
+      - /var/chiefonboarding/pg_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=chiefonboarding
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  app:
+    image: chiefonboarding/chiefonboarding:latest
+    restart: always
+    ports:
+      - "8888:8000"
+    environment:
+      - SECRET_KEY=SuperDuperSecretKey
+      - BASE_URL=https://test.chiefonboarding.com
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/chiefonboarding
+      - ALLOWED_HOSTS=test.chiefonboarding.com
+      - DEFAULT_FROM_EMAIL=hello@chiefonboarding.com
+    depends_on:
+      - db
+```
 5. You can now run docker compose: `docker-compose up`. When you go to your domain name, you should see a login form where you can fill in your username and password (either from the logs, or specified yourself). There will be some demo data in there already, feel free to delete everything. 
+
+>Note: The script will generate an account for you. Please check the logs for that (you can and should delete this account after you created a new admin account). If you want to specify your own login details, then specify a `ACCOUNT_EMAIL` (should always be lowercase email address) and `ACCOUNT_PASSWORD` in the environment variables.
+Second note: if you need to do a healthcheck for your container, then you can use the url `/health` for that. This url is available under any IP/domain name. It will respond with a 200 status and an `ok` as content. The `ALLOWED_HOSTS` variable is ignored for that url.
 
 ### Update docker image
 Please make a backup of your database before doing this.  
