@@ -72,7 +72,7 @@ class EmployeeView(generics.ListAPIView):
     API endpoint that lists all employees
     """
 
-    queryset = User.objects.all()
+    queryset = User.objects.all().order_by("id")
     serializer_class = EmployeeSerializer
 
 
@@ -81,5 +81,5 @@ class SequenceView(generics.ListAPIView):
     API endpoint that lists all sequences
     """
 
-    queryset = Sequence.objects.all()
+    queryset = Sequence.objects.all().order_by("id")
     serializer_class = SequenceSerializer
