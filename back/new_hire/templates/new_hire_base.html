@@ -75,7 +75,7 @@
                               {% endif %}
                               <div class="col text-truncate">
                                 {% if notification.full_link == "" %}
-                                  <p class="text-reset d-block mb-0">{{ notification.get_notification_type_display }}: {{ notification.extra_text }}</p>
+                                <p class="text-reset d-block mb-0">{{ notification.get_notification_type_display }}:<br> <strong>{{ notification.extra_text }}</strong></p>
                                 {% else %}
                                   <a href="{{ notification.full_link }}" class="text-reset d-block mb-0">{{ notification.get_notification_type_display }}: {{ notification.extra_text }}</a>
                                 {% endif %}
