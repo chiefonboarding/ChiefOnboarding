@@ -6,13 +6,13 @@ ChiefOnboarding is build on top of Django (Python). It's mostly a "boring" app i
 
 A few things you should know about ChiefOnboarding:
 
-- It uses Pytest for testing the code. For object creation, it uses `factoryboy`. You will find `factory.py` in almost every app.
+- It uses Pytest for testing the code. For object creation, it uses `factoryboy`. You will find `factories.py` in almost every app.
 
 - It relies heavily on background tasks. You can find those tasks in the `tasks.py` files in the apps folders. Especially the Slack bot and the `Sequence`s use those a lot.  
 
 - Supervisord is set up for docker-compose. It will run two processes: the background worker (`Django-Q`) and `python manage.py runserver` for the server.
 
-- Sequences are basically blueprints for new hires. The `Conditions` that are in there are all connected to the `Sequence`. Once a sequence gets assigned to a new hire, it will *duplicate* the `Condition` and assign it directly to the `User` model. This means that if an admin would change a `Condition` in a `Sequence`, then that won't affect new hires that are currently going through sequences.
+- Sequences are basically blueprints for new hires. The `Condition`s that are in there are all connected to the `Sequence`. Once a sequence gets assigned to a new hire, it will *duplicate* the `Condition` and assign it directly to the `User` model. This means that if an admin would change a `Condition` in a `Sequence`, then that won't affect new hires that are currently going through sequences.
 There is one caveat with that though: if a template gets changes (i.e. a to do item or resource), then that will reflect for all people that don't have a custom one. Once you make changes to a template in a sequence, then it becomes a custom item and those items will not update when you update the original one.
 
 
