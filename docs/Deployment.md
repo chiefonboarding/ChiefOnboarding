@@ -44,10 +44,8 @@ services:
       - "8000"
     environment:
       - SECRET_KEY=somethingsupersecret
-      - BASE_URL=https://test.chiefonboarding.com
       - DATABASE_URL=postgres://postgres:postgres@db:5432/chiefonboarding
       - ALLOWED_HOSTS=test.chiefonboarding.com
-      - DEFAULT_FROM_EMAIL=hello@chiefonboarding.com
     depends_on:
       - db
     networks:
@@ -78,7 +76,7 @@ networks:
 ```
 If you don't want to have a secure connecting and want to connect over `http` (not secure, and you will have to change the Caddy file below), then add `HTTP_INSECURE=True` to your environment variables.
 
-3. Then we need to create a `Caddyfile` to route the requests to the server (change the domain name, obviously):
+2.1.1 Then we need to create a `Caddyfile` to route the requests to the server (change the domain name, obviously):
 ```
 test.chiefonboarding.com {
   reverse_proxy web:8000
@@ -107,16 +105,14 @@ services:
       - "8888:8000"
     environment:
       - SECRET_KEY=somethingsupersecret
-      - BASE_URL=https://test.chiefonboarding.com
       - DATABASE_URL=postgres://postgres:postgres@db:5432/chiefonboarding
       - ALLOWED_HOSTS=test.chiefonboarding.com
-      - DEFAULT_FROM_EMAIL=hello@chiefonboarding.com
     depends_on:
       - db
 ```
-5. You can now run docker compose: `docker-compose up`. When you go to your domain name, you should see a login form where you can fill in your username and password (either from the logs, or specified yourself). There will be some demo data in there already, feel free to delete everything. 
+3. You can now run docker compose: `docker-compose up`. When you go to your domain name, you should see a login form where you can fill in your username and password (either from the logs, or specified yourself). There will be some demo data in there already, feel free to delete everything. 
 
->Note: The script will generate an account for you. Please check the logs for that (you can and should delete this account after you created a new admin account). If you want to specify your own login details, then specify a `ACCOUNT_EMAIL` (should always be lowercase email address) and `ACCOUNT_PASSWORD` in the environment variables.
+>Note: The script will generate an account for you. Please check the logs for that (you can and should delete this account after you created a new admin account). If you want to specify your own login details, then specify a `ACCOUNT_EMAIL` (should always be a lowercase email address) and `ACCOUNT_PASSWORD` in the environment variables.
 Second note: if you need to do a healthcheck for your container, then you can use the url `/health` for that. This url is available under any IP/domain name. It will respond with a 200 status and an `ok` as content. The `ALLOWED_HOSTS` variable is ignored for that url.
 
 ### Update docker image
@@ -287,10 +283,8 @@ services:
       - "8000"              
     environment:
       - SECRET_KEY=somethingsupersecret
-      - BASE_URL=https://test.chiefonboarding.com
       - DATABASE_URL=postgres://postgres:postgres@db:5432/chiefonboarding
       - ALLOWED_HOSTS=test.chiefonboarding.com
-      - DEFAULT_FROM_EMAIL=hello@example.com
       - ACCOUNT_EMAIL=hello@example.com
       - ACCOUNT_PASSWORD=password
       - AWS_S3_ENDPOINT_URL=https://minio.chiefonboarding.com
@@ -404,7 +398,7 @@ EMAIL_HOST=smtp.chiefonboarding.com
 EMAIL_PORT=587
 EMAIL_HOST_USER=exampleuser
 EMAIL_HOST_PASSWORD=examplePass
-EMAIL_USE_TLS=True
+EMAIL_USE_TLS=False
 EMAIL_USE_SSL=True
 ```
 For SMTP, you only need to set either `EMAIL_USE_TLS` OR `EMAIL_USE_SSL` to `True`. If you set both, then it will likely not send out any emails.
@@ -414,46 +408,7 @@ You can set your own email template if you want. You can see the default one her
 
 Some things are rendered dynamically. You can use this as an example:
 
-```
-{% for i in content %}
-  {% if i.type == 'paragraph' %}
-    <p>{{i.data.text|safe|personalize:user}}</p>
-  {% endif %}
-  {% if i.type == 'header' %}
-    <h{{ i.data.level }}>{{ i.data.text|safe|personalize:user }}</h{{ i.data.level }}>
-  {% endif %}
-  {% if i.type == 'list' %}
-    {% if i.data.style == "ordered" %}
-      <ol>
-    {% else %}
-      <ul>
-    {% endif %}
-    {% for j in i.data.items %}
-      <li>{{ j.content|safe|personalize:user }}</li>
-    {% endfor %}
-    {% if i.data.style == "ordered" %}
-      </ol>
-    {% else %}
-      </ul>
-    {% endif %}
-  {% endif %}
-  {% if i.type == 'quote' %}
-     {{i.data.text|personalize:user}}
-  {% endif %}
-  {% if i.type == 'image' %}
-    <img src="{{ i.data.file.url }}" />
-  {% endif %}
-  {% if i.type == 'file' %}
-      <a href="{{ j.data.file.url }}">{{ j.data.file.name }}</a><br />
-  {% endif %}
-  {% if i.type == 'button' %}
-    <a href="{{ i.data.url }}">{{i.data.text|safe|personalize:user}}</a>
-  {% endif %}
-  {% if i.type == 'hr' %}
-    <hr />
-  {% endif %}
-{% endfor %}
-```
+:::code source="static/email.html" :::
 
 Don't change whatever is within the brackets. Feel free to customize everything around it however you would like!
 

@@ -12,7 +12,7 @@ ChiefOnboarding is a free and open source employee onboarding platform. You can 
 Documentation: [https://docs.chiefonboarding.com](https://docs.chiefonboarding.com)
 
 ## Features
-- **Automatically provision user accounts and trigger webhooks**, see [https://integrations.chiefonboarding.com](integrations.chiefonboarding.com) for a list of integrations or create your own!
+- **Automatically provision user accounts and trigger webhooks**, see [https://integrations.chiefonboarding.com](https://integrations.chiefonboarding.com) for a list of integrations or create your own!
 - **Pre-boarding**: onboarding doesn't start on day 1, it starts before that. Build pre-boarding pages to welcome new hires before they start.
 - **To do items**: keep track of the things that your new hires need to do and allow them to fill in forms.
 - **Resources**: let them search through the knowledge base and complete courses so they are quickly up to speed with colleagues.
