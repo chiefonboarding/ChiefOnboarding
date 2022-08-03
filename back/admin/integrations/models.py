@@ -99,7 +99,7 @@ class Integration(models.Model):
     def _headers(self):
         new_headers = {}
         for key, value in self.manifest["headers"].items():
-            new_headers[self._replace_vars(key)] = self._replace_vars(value)
+            new_headers[str(self._replace_vars(key))] = self._replace_vars(str(value))
         return new_headers
 
     def user_exists(self, new_hire):
