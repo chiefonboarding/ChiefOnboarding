@@ -17,7 +17,7 @@ You can easily deploy ChiefOnboarding with Docker (Docker-compose). Make sure th
 1. Point your domain name to your IP address.
 2. Create a folder somewhere and then add this `docker-compose.yml` file (change the environment variables to something that works for you!):
 
-### Caddy-based deployment
+### 2.1 Caddy-based deployment
 
 ```
 version: '3'
@@ -84,7 +84,7 @@ test.chiefonboarding.com {
   reverse_proxy web:8000
 }
 ```
-### Non-caddy-based deployment
+### 2.2 Non-caddy-based deployment
 This method may make it easier to deploy on a server that is already configured with an existing web server (e.g., Nginx, Apache, etc.) You will need to install Cerbot to configure LetsEncrypt. This approach assumes that you will be configuring a reverse proxy on port 8888.
 ```
 version: '3'
@@ -106,7 +106,7 @@ services:
     ports:
       - "8888:8000"
     environment:
-      - SECRET_KEY=SuperDuperSecretKey
+      - SECRET_KEY=somethingsupersecret
       - BASE_URL=https://test.chiefonboarding.com
       - DATABASE_URL=postgres://postgres:postgres@db:5432/chiefonboarding
       - ALLOWED_HOSTS=test.chiefonboarding.com
