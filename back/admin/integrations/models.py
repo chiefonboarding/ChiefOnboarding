@@ -101,7 +101,7 @@ class Integration(models.Model):
         for key, value in self.manifest["headers"].items():
             # Adding an empty string to force to return a string instead of a
             # safestring. Ref: https://github.com/psf/requests/issues/6159
-            new_headers[self._replace_vars(key) + ""] = self._replace_vars(value + "")
+            new_headers[self._replace_vars(key) + ""] = self._replace_vars(value) + ""
         return new_headers
 
     def user_exists(self, new_hire):
