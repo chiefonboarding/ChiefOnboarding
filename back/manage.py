@@ -2,6 +2,8 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+from datetime import timedelta
+from django.utils import timezone
 
 
 def main():
@@ -63,6 +65,13 @@ def main():
         all_path = os.path.join(settings.BASE_DIR, "fixtures/all.json")
         management.call_command("loaddata", welcome_message_path, verbosity=0)
         management.call_command("loaddata", all_path, verbosity=0)
+
+        # Rotate start date, unique url, and password from fixture
+        demo_user = User.objects.get(email="john@chiefonboarding.com")
+        demo_user.set_unusable_password()
+        demo_user.unique_url = get_random_string(length=8)
+        demo_user.start_day = timezone.now().date() - timedelta(days=5)
+        demo_user.save()
 
 
 if __name__ == "__main__":
