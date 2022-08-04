@@ -70,7 +70,7 @@ def main():
         demo_user = User.objects.get(email="john@chiefonboarding.com")
         demo_user.set_unusable_password()
         demo_user.unique_url = get_random_string(length=8)
-        demo_user.start_day = timezone.now().date() - timedelta(days=5)
+        demo_user.start_day = timezone.now().date() + timedelta(days=5)
         demo_user.save()
 
 
