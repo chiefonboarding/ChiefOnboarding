@@ -93,7 +93,7 @@ class SlackResource:
             self.resource_user.is_course
             and self.resource_user.resource.chapters.count() > 1
         ) or (
-            not self.resource_user.course
+            not self.resource_user.is_course
             and self.resource_user.resource.chapters.filter(type=0).count() > 1
         ):
             modal["submit"] = {"type": "plain_text", "text": _("Next")}
