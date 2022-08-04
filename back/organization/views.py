@@ -69,7 +69,7 @@ class FileView(APIView):
 
 class NotificationListView(LoginRequiredMixin, AdminPermMixin, ListView):
     template_name = "notifications.html"
-    queryset = Notification.objects.all()
+    queryset = Notification.objects.all().select_related("created_by", "created_for")
     paginate_by = 40
 
     def get_context_data(self, **kwargs):

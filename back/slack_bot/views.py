@@ -478,8 +478,9 @@ def slack_open_resource_dialog(payload, body):
         user=user,
         id=int(payload["action_id"].split(":")[2]),
     )
-    resource_user.step = 0
-    resource_user.save()
+    if resource_user.is_course:
+        resource_user.step = 0
+        resource_user.save()
 
     view = SlackResource(resource_user=resource_user, user=user).modal_view(
         resource_user.resource.first_chapter_id
