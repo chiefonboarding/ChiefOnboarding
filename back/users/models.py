@@ -219,7 +219,7 @@ class User(AbstractBaseUser):
     @cached_property
     def has_new_hire_notifications(self):
         # Notification bell badge on new hire pages
-        last_notification = self.notification_receivers.last()
+        last_notification = self.notification_receivers.latest("created")
         if last_notification is not None:
             return last_notification.created > self.seen_updates
         return False
@@ -286,6 +286,8 @@ class User(AbstractBaseUser):
 
     def workday_to_datetime(self, workdays):
         start_day = self.start_day
+        if workdays == 0:
+            return None
 
         start = 1
         while start != workdays:

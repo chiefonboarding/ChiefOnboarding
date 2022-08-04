@@ -559,6 +559,7 @@ class Condition(models.Model):
                     created_for=user,
                     item_id=item.id,
                     notified_user=skip_notification,
+                    public_to_new_hire=True,
                 )
 
         # For the ones that aren't a quick copy/paste, follow back to their model and

@@ -258,6 +258,7 @@ NOTIFICATION_TYPES = [
     ("added_badge", _("A new badge item has been added")),
     ("added_introduction", _("A new introduction item has been added")),
     ("added_preboarding", _("A new preboarding item has been added")),
+    ("added_appointment", _("A new appointment item has been added")),
     ("added_new_hire", _("A new hire has been added")),
     ("added_administrator", _("A new administrator has been added")),
     ("added_manager", _("A new manager has been added")),
