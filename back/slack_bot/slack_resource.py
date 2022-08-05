@@ -89,7 +89,10 @@ class SlackResource:
             "private_metadata": json.dumps(private_metadata),
         }
 
-        if self.resource_user.resource.chapters.count() > 1:
+        if (
+            self.resource_user.is_course
+            and self.resource_user.resource.chapters.count() > 1
+        ):
             modal["submit"] = {"type": "plain_text", "text": _("Next")}
 
         return modal
