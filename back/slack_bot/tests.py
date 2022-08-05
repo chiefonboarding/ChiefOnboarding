@@ -600,7 +600,7 @@ def test_slack_to_do_complete_external_form(new_hire_factory, to_do_user_factory
 def test_open_resource_dialog(new_hire_factory, resource_user_factory):
     new_hire = new_hire_factory(slack_user_id="slackx")
 
-    # Should reset steps back to one
+    # Should not reset steps back to one, if it's not a course
     # Resource has questions and a page. Questions should be ignored. So not showing
     # menu.
     resource_user1 = resource_user_factory(user=new_hire, step=5)
@@ -712,12 +712,11 @@ def test_open_resource_dialog(new_hire_factory, resource_user_factory):
         + ', "resource_user": '
         + str(resource_user1.id)
         + "}",
-        "submit": {"type": "plain_text", "text": "Next"},
     }
 
     resource_user1.refresh_from_db()
 
-    assert resource_user1.step == 0
+    assert resource_user1.step == 5
 
 
 @pytest.mark.django_db
