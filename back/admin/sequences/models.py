@@ -65,6 +65,7 @@ class Sequence(models.Model):
                 user_condition = user.conditions.filter(
                     condition_type=sequence_condition.condition_type,
                     days=sequence_condition.days,
+                    time=sequence_condition.time,
                 ).first()
 
             elif sequence_condition.condition_type == 1:

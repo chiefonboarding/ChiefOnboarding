@@ -817,6 +817,30 @@ def test_sequence_assign_to_user(
 
 
 @pytest.mark.django_db
+def test_sequence_assign_to_user_conditions_on_same_day(
+    sequence_factory,
+    new_hire_factory,
+    condition_to_do_factory,
+    condition_timed_factory,
+    to_do_factory,
+):
+    new_hire = new_hire_factory()
+    sequence = sequence_factory()
+    condition = condition_timed_factory(days=1, time="11:00", sequence=sequence)
+    condition2 = condition_timed_factory(days=1, time="10:00", sequence=sequence)
+    to_do1 = to_do_factory()
+    to_do2 = to_do_factory(template=False)
+    to_do3 = to_do_factory()
+
+    condition.to_do.add(to_do1)
+    condition.to_do.add(to_do2)
+    condition2.to_do.add(to_do3)
+
+    new_hire.add_sequences([sequence])
+    assert new_hire.conditions.all().count() == 2
+
+
+@pytest.mark.django_db
 def test_sequence_assign_to_user_merge_to_do_condition(
     sequence_factory,
     new_hire_factory,
