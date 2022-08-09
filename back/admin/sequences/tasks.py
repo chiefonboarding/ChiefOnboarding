@@ -109,7 +109,6 @@ def process_condition(condition_id, user_id, send_email=True):
                     *intro_blocks,
                     *badge_blocks,
                     *resource_blocks,
-                    *to_do_blocks,
                 ],
                 channel=user.slack_user_id,
             )

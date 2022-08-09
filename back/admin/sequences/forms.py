@@ -28,8 +28,8 @@ class ConditionCreateForm(forms.ModelForm):
         return (
             (
                 '<button hx-post="{% url "sequences:condition-create" object.id %}" '
-                'hx-target="#condition_form" hx-swap="#add-condition-form" class="btn '
-                'btn-primary ms-auto">'
+                'hx-target="#condition_form" hx-swap="#condition_form" '
+                'class="btn btn-primary ms-auto">'
             )
             + _("Add block")
             + "</button>"
