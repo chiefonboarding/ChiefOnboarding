@@ -18,5 +18,4 @@ class SequenceDuplicateView(LoginRequiredMixin, ManagerPermMixin, View):
     def post(self, request, template_pk, *args, **kwargs):
         template_item = get_object_or_404(Sequence, id=template_pk)
         new_template_item = template_item.duplicate()
-        print(new_template_item)
         return redirect(new_template_item.update_url)

@@ -48,7 +48,7 @@
         </div>
       </div>
       <div class="card-footer">
-        <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal-block" hx-get="{% url 'sequences:condition-create' object.id %}" hx-target="#condition_form" hx-swap="#add-condition-form">
+        <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal-block" hx-get="{% url 'sequences:condition-create' object.id %}" hx-target="#condition_form" hx-swap="#condition_form">
           {% translate "Add block" %}
         </a>
       </div>
@@ -194,7 +194,7 @@ $("select#id_condition_type").on('change', function() {
   }
 })
 function editCondition(id) {
-  htmx.ajax('GET', `/admin/sequences/{{ object.id }}/condition/${id}/`, `#add-condition-form`)
+  htmx.ajax('GET', `/admin/sequences/{{ object.id }}/condition/${id}/`, `#condition_form`)
   $('#modal-block').modal('show')
 }
 // reload selectboxes when we get a new form back from backend
