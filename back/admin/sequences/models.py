@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Case, F, IntegerField, When
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -423,7 +423,14 @@ class ConditionPrefetchManager(models.Manager):
                 "preboarding", queryset=Preboarding.objects.all().defer("content")
             ),
             Prefetch("integration_configs", queryset=IntegrationConfig.objects.all()),
-        )
+        ).annotate(
+            days_order=Case(
+                When(condition_type=2, then=F("days") * -1),
+                When(condition_type=1, then=99999),
+                default=F("days"),
+                output_field=IntegerField(),
+            )
+        ).order_by("days_order", "time")
 
 
 class Condition(models.Model):
