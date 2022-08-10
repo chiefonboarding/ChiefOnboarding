@@ -34,6 +34,7 @@ class Slack:
                 data={
                     "exclude_archived": True,
                     "types": "public_channel,private_channel",
+                    "limit": 1000,
                 },
             )
         except Exception:
