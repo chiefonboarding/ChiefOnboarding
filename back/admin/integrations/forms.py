@@ -63,7 +63,7 @@ class IntegrationConfigForm(forms.ModelForm):
                     required=False,
                 )
 
-            if item["type"] == "choice":
+            if item["type"] in ["choice", "multiple_choice"]:
 
                 # If there is a url to fetch the items from then do so
                 if "url" in item:
@@ -82,8 +82,14 @@ class IntegrationConfigForm(forms.ModelForm):
                     # No url, so get the static items
                     option_data = item["items"]
 
+                # Can we select one or multiple?
+                if item["type"] == "choice":
+                    field = forms.ChoiceField
+                else:
+                    field = forms.MultipleChoiceField
+
                 try:
-                    self.fields[item["id"]] = forms.ChoiceField(
+                    self.fields[item["id"]] = field(
                         label=item["name"],
                         widget=forms.CheckboxSelectMultiple
                         if item["type"] == "multiple_choice"
