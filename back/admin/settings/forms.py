@@ -151,7 +151,6 @@ class SlackSettingsForm(forms.ModelForm):
 
 
 class AdministratorsCreateForm(forms.ModelForm):
-
     def __init__(self, *args, **kwargs):
         super(AdministratorsCreateForm, self).__init__(*args, **kwargs)
         self.fields["role"].choices = ((1, _("Administrator")), (2, _("Manager")))

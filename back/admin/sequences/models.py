@@ -395,42 +395,51 @@ class IntegrationConfig(models.Model):
 
 class ConditionPrefetchManager(models.Manager):
     def prefetched(self):
-        return self.get_queryset().prefetch_related(
-            Prefetch("introductions", queryset=Introduction.objects.all()),
-            Prefetch("to_do", queryset=ToDo.objects.all().defer("content")),
-            Prefetch("resources", queryset=Resource.objects.all()),
-            Prefetch(
-                "appointments", queryset=Appointment.objects.all().defer("content")
-            ),
-            Prefetch("badges", queryset=Badge.objects.all().defer("content")),
-            Prefetch(
-                "external_messages",
-                queryset=ExternalMessage.objects.for_new_hire().defer(
-                    "content", "content_json"
+        return (
+            self.get_queryset()
+            .prefetch_related(
+                Prefetch("introductions", queryset=Introduction.objects.all()),
+                Prefetch("to_do", queryset=ToDo.objects.all().defer("content")),
+                Prefetch("resources", queryset=Resource.objects.all()),
+                Prefetch(
+                    "appointments", queryset=Appointment.objects.all().defer("content")
                 ),
-                to_attr="external_new_hire",
-            ),
-            Prefetch(
-                "external_messages",
-                queryset=ExternalMessage.objects.for_admins().defer(
-                    "content", "content_json"
+                Prefetch("badges", queryset=Badge.objects.all().defer("content")),
+                Prefetch(
+                    "external_messages",
+                    queryset=ExternalMessage.objects.for_new_hire().defer(
+                        "content", "content_json"
+                    ),
+                    to_attr="external_new_hire",
                 ),
-                to_attr="external_admin",
-            ),
-            Prefetch("condition_to_do", queryset=ToDo.objects.all().defer("content")),
-            Prefetch("admin_tasks", queryset=PendingAdminTask.objects.all()),
-            Prefetch(
-                "preboarding", queryset=Preboarding.objects.all().defer("content")
-            ),
-            Prefetch("integration_configs", queryset=IntegrationConfig.objects.all()),
-        ).annotate(
-            days_order=Case(
-                When(condition_type=2, then=F("days") * -1),
-                When(condition_type=1, then=99999),
-                default=F("days"),
-                output_field=IntegerField(),
+                Prefetch(
+                    "external_messages",
+                    queryset=ExternalMessage.objects.for_admins().defer(
+                        "content", "content_json"
+                    ),
+                    to_attr="external_admin",
+                ),
+                Prefetch(
+                    "condition_to_do", queryset=ToDo.objects.all().defer("content")
+                ),
+                Prefetch("admin_tasks", queryset=PendingAdminTask.objects.all()),
+                Prefetch(
+                    "preboarding", queryset=Preboarding.objects.all().defer("content")
+                ),
+                Prefetch(
+                    "integration_configs", queryset=IntegrationConfig.objects.all()
+                ),
             )
-        ).order_by("days_order", "time")
+            .annotate(
+                days_order=Case(
+                    When(condition_type=2, then=F("days") * -1),
+                    When(condition_type=1, then=99999),
+                    default=F("days"),
+                    output_field=IntegerField(),
+                )
+            )
+            .order_by("days_order", "time")
+        )
 
 
 class Condition(models.Model):
