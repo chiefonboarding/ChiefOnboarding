@@ -155,6 +155,9 @@ class AdministratorsCreateForm(forms.ModelForm):
         super(AdministratorsCreateForm, self).__init__(*args, **kwargs)
         self.fields["role"].choices = ((1, _("Administrator")), (2, _("Manager")))
 
+    def validate_unique(self):
+        pass
+
     class Meta:
         model = get_user_model()
         fields = ["first_name", "last_name", "email", "role"]
