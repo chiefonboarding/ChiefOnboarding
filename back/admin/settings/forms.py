@@ -184,7 +184,8 @@ class WelcomeMessagesUpdateForm(forms.ModelForm):
                 _(
                     "You can use &#123;&#123; first_name &#125;&#125;, "
                     "&#123;&#123; last_name &#125;&#125;, &#123;&#123; position "
-                    "&#125;&#125;, &#123;&#123; manager &#125;&#125;, and &#123;&#123; "
+                    "&#125;&#125;, &#123;&#123; department &#125;&#125;, &#123;&#123; "
+                    "manager &#125;&#125;, and &#123;&#123; "
                     "buddy &#125;&#125; in the editor. It will be replaced by the "
                     "values corresponding to the new hire."
                 )
