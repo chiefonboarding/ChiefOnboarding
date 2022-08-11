@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ChiefOnboarding\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-04 12:48+0000\n"
+"POT-Creation-Date: 2022-08-11 23:33+0000\n"
 "PO-Revision-Date: 2022-06-02 11:47+0900\n"
 "Last-Translator: Jo Mio <jmworks@gmail.com>\n"
 "Language-Team: \n"
@@ -74,34 +74,35 @@ msgid "No"
 msgstr "いいえ"
 
 #: admin/admin_tasks/models.py:16 admin/admin_tasks/models.py:48
-#: admin/sequences/models.py:137 admin/sequences/models.py:320
+#: admin/sequences/models.py:147 admin/sequences/models.py:342
 #: new_hire/templates/_colleague_intro.html:20
 #: new_hire/templates/_new_hire_colleagues_search.html:20
 #: new_hire/templates/_new_hire_colleagues_search.html:51 users/models.py:91
 msgid "Email"
 msgstr "メールアドレス"
 
-#: admin/admin_tasks/models.py:16 admin/sequences/models.py:138
+#: admin/admin_tasks/models.py:16 admin/sequences/models.py:148
 #: admin/settings/views.py:71
 msgid "Slack"
 msgstr "Slack"
 
-#: admin/admin_tasks/models.py:22 admin/sequences/models.py:25
+#: admin/admin_tasks/models.py:22 admin/sequences/models.py:26
+#: admin/sequences/models.py:33
 msgid "New hire"
 msgstr "新規採用"
 
 #: admin/admin_tasks/models.py:28
 #: admin/people/templates/new_hire_admin_tasks.html:21
 #: admin/people/templates/new_hire_admin_tasks.html:61
-#: admin/sequences/models.py:295
+#: admin/sequences/models.py:317
 msgid "Assigned to"
 msgstr "担当者"
 
 #: admin/admin_tasks/models.py:34 admin/people/templates/add_resources.html:12
 #: admin/people/templates/colleagues.html:27
 #: admin/people/templates/new_hire_add_task.html:13
-#: admin/people/templates/new_hires.html:11 admin/sequences/models.py:33
-#: admin/sequences/models.py:141 admin/sequences/models.py:289
+#: admin/people/templates/new_hires.html:11 admin/sequences/models.py:42
+#: admin/sequences/models.py:151 admin/sequences/models.py:311
 #: admin/sequences/templates/sequence.html:30
 #: admin/settings/templates/settings_admins.html:10
 #: admin/to_do/templates/templates.html:12 organization/models.py:24
@@ -113,7 +114,7 @@ msgstr "名前"
 msgid "Send email or text to extra user?"
 msgstr "追加ユーザーにメールやテキストを送信しますか？"
 
-#: admin/admin_tasks/models.py:41 admin/sequences/models.py:313
+#: admin/admin_tasks/models.py:41 admin/sequences/models.py:335
 msgid "Slack user"
 msgstr "Slackユーザー"
 
@@ -126,7 +127,7 @@ msgstr "完了"
 msgid "Date"
 msgstr "日付"
 
-#: admin/admin_tasks/models.py:53 admin/sequences/models.py:324
+#: admin/admin_tasks/models.py:53 admin/sequences/models.py:346
 msgid "Priority"
 msgstr "優先"
 
@@ -226,7 +227,7 @@ msgstr "再開"
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:9
 #: admin/people/templates/new_hire_progress.html:73
-#: new_hire/templates/new_hire_resource_detail.html:21 slack_bot/views.py:655
+#: new_hire/templates/new_hire_resource_detail.html:21 slack_bot/views.py:656
 msgid "Complete"
 msgstr "完了"
 
@@ -252,7 +253,7 @@ msgstr "コメントの追加"
 #: admin/settings/templates/personal_otp.html:28
 #: admin/settings/templates/token_create.html:11
 #: new_hire/templates/_content.html:123
-#: new_hire/templates/_question_form.html:6 slack_bot/views.py:712
+#: new_hire/templates/_question_form.html:6 slack_bot/views.py:713
 msgid "Submit"
 msgstr "送信"
 
@@ -306,8 +307,8 @@ msgid "This field is required"
 msgstr "この項目は必須です"
 
 #: admin/appointments/models.py:11 admin/badges/models.py:15
-#: admin/preboarding/models.py:11 admin/sequences/models.py:142
-#: admin/sequences/models.py:143 admin/to_do/models.py:11
+#: admin/preboarding/models.py:11 admin/sequences/models.py:152
+#: admin/sequences/models.py:153 admin/to_do/models.py:11
 msgid "Content"
 msgstr "コンテンツ"
 
@@ -1103,7 +1104,7 @@ msgstr "このアイテムの期限である勤務日"
 msgid "Remove item when new hire walked through"
 msgstr "新入社員の完了時ににアイテムを削除"
 
-#: admin/resources/models.py:85 admin/sequences/models.py:49
+#: admin/resources/models.py:85 admin/sequences/models.py:58
 #: organization/models.py:236
 #, python-format
 msgid "%(name)s (duplicate)"
@@ -1151,12 +1152,12 @@ msgid "Add question"
 msgstr "新しい質問を追加"
 
 #: admin/resources/templates/resource_update.html:45
-#: admin/sequences/templates/sequence.html:265
+#: admin/sequences/templates/sequence.html:269
 msgid "Start typing here..."
 msgstr "ここから入力..."
 
 #: admin/resources/templates/resource_update.html:46
-#: admin/sequences/templates/sequence.html:266
+#: admin/sequences/templates/sequence.html:270
 msgid "New item"
 msgstr "新規アイテム"
 
@@ -1180,7 +1181,7 @@ msgstr "リソースアイテムを更新する"
 msgid "Resource item has been removed"
 msgstr "リソースアイテムが削除されました"
 
-#: admin/sequences/emails.py:27 admin/sequences/models.py:155
+#: admin/sequences/emails.py:27 admin/sequences/models.py:172
 msgid "Here is an update!"
 msgstr "更新情報はこちらです！"
 
@@ -1204,21 +1205,21 @@ msgstr "バッジ"
 msgid "Badges"
 msgstr "バッチ"
 
-#: admin/sequences/forms.py:34 admin/sequences/templates/sequence.html:52
+#: admin/sequences/forms.py:35 admin/sequences/templates/sequence.html:52
 msgid "Add block"
 msgstr "ブロックを追加"
 
-#: admin/sequences/forms.py:72
+#: admin/sequences/forms.py:73
 msgid "Must be in a 5 minute interval."
 msgstr "5分間隔にしてください。"
 
-#: admin/sequences/forms.py:83
+#: admin/sequences/forms.py:84
 msgid ""
 "You cannot use 0 or less. The day before starting is 1 and the first workday "
 "is 1"
 msgstr "０以下は使用できません。開始前日は１で、初出勤日も１になります。"
 
-#: admin/sequences/forms.py:101
+#: admin/sequences/forms.py:102
 #, python-format
 msgid ""
 "Time must be in an interval of 5 minutes. %(minutes)s must end in 0 or 5."
@@ -1226,96 +1227,103 @@ msgstr ""
 "時刻は5分間隔でなければなりません。%(minutes)s は 0 または 5 で終わる必要があ"
 "ります。"
 
-#: admin/sequences/forms.py:118
+#: admin/sequences/forms.py:119
 msgid "You must add at least one to do item"
 msgstr "少なくとも1つのTo Do アイテムを追加してください"
 
-#: admin/sequences/forms.py:120
+#: admin/sequences/forms.py:121
 msgid "Both the time and days have to be filled in."
 msgstr "時間・日数ともに入力してください。"
 
-#: admin/sequences/forms.py:132
+#: admin/sequences/forms.py:133
 msgid "Edit block"
 msgstr "ブロックの編集"
 
-#: admin/sequences/forms.py:146 admin/sequences/models.py:322
+#: admin/sequences/forms.py:147 admin/sequences/models.py:344
 msgid "Due date"
 msgstr "期限"
 
-#: admin/sequences/models.py:26 admin/settings/forms.py:156
-#: admin/settings/forms.py:166 users/models.py:31 users/models.py:158
+#: admin/sequences/models.py:27 admin/sequences/models.py:34
+#: admin/settings/forms.py:156 admin/settings/forms.py:166 users/models.py:31
+#: users/models.py:158
 msgid "Manager"
 msgstr "マネージャー"
 
-#: admin/sequences/models.py:27 users/models.py:151
+#: admin/sequences/models.py:28 admin/sequences/models.py:35
+#: users/models.py:151
 msgid "Buddy"
 msgstr "仲間"
 
-#: admin/sequences/models.py:28
+#: admin/sequences/models.py:29 admin/sequences/models.py:36
 msgid "Custom"
 msgstr "カスタム"
 
-#: admin/sequences/models.py:139
+#: admin/sequences/models.py:37 admin/sequences/models.py:164
+#: admin/to_do/models.py:22
+msgid "Slack channel"
+msgstr "Slackチャンネル"
+
+#: admin/sequences/models.py:149
 msgid "Text"
 msgstr "テキスト"
 
-#: admin/sequences/models.py:144
+#: admin/sequences/models.py:154
 msgid "Send via"
 msgstr "経由して送信"
 
-#: admin/sequences/models.py:147
+#: admin/sequences/models.py:157
 msgid "Send to"
 msgstr "送信先"
 
-#: admin/sequences/models.py:153
+#: admin/sequences/models.py:170
 msgid "Subject"
 msgstr "件名"
 
-#: admin/sequences/models.py:159
+#: admin/sequences/models.py:176
 msgid "For"
 msgstr "対象"
 
-#: admin/sequences/models.py:291
+#: admin/sequences/models.py:313
 msgid "Comment"
 msgstr "コメント"
 
-#: admin/sequences/models.py:301
+#: admin/sequences/models.py:323
 msgid "Pick user"
 msgstr "ユーザーを選択"
 
-#: admin/sequences/models.py:307
+#: admin/sequences/models.py:329
 msgid "Send email or Slack message to extra user?"
 msgstr "外部ユーザにメールまたはSlackのメッセージ送信しますか？"
 
-#: admin/sequences/models.py:430
+#: admin/sequences/models.py:452
 msgid "After new hire has started"
 msgstr "新入社員の開始後"
 
-#: admin/sequences/models.py:431
+#: admin/sequences/models.py:453
 msgid "Based on one or more to do item(s)"
 msgstr "1つ以上のTo Doアイテムに基づきます"
 
-#: admin/sequences/models.py:432
+#: admin/sequences/models.py:454
 msgid "Before the new hire has started"
 msgstr "新入社員が開始する前に"
 
-#: admin/sequences/models.py:433
+#: admin/sequences/models.py:455
 msgid "Without trigger"
 msgstr "トリガーなしで"
 
-#: admin/sequences/models.py:439
+#: admin/sequences/models.py:461
 msgid "Block type"
 msgstr "ブロック タイプ"
 
-#: admin/sequences/models.py:442
+#: admin/sequences/models.py:464
 msgid "Amount of days before/after new hire has started"
 msgstr "入社前・入社後の日数"
 
-#: admin/sequences/models.py:444
+#: admin/sequences/models.py:466
 msgid "At"
 msgstr "で"
 
-#: admin/sequences/models.py:447
+#: admin/sequences/models.py:469
 msgid "Trigger after these to do items have been completed:"
 msgstr "これらのTo Doアイテムが完了した後にトリガーする :"
 
@@ -1402,26 +1410,33 @@ msgid "Administrator"
 msgstr "管理者"
 
 #: admin/settings/forms.py:185 admin/to_do/templates/wysiwyg_field.html:11
+#, fuzzy
+#| msgid ""
+#| "You can use &#123;&#123; first_name &#125;&#125;, &#123;&#123; last_name "
+#| "&#125;&#125;, &#123;&#123; position &#125;&#125;, &#123;&#123; manager "
+#| "&#125;&#125;, and &#123;&#123; buddy &#125;&#125; in the editor. It will "
+#| "be replaced by the values corresponding to the new hire."
 msgid ""
 "You can use &#123;&#123; first_name &#125;&#125;, &#123;&#123; last_name "
-"&#125;&#125;, &#123;&#123; position &#125;&#125;, &#123;&#123; manager &#125;"
-"&#125;, and &#123;&#123; buddy &#125;&#125; in the editor. It will be "
-"replaced by the values corresponding to the new hire."
+"&#125;&#125;, &#123;&#123; position &#125;&#125;, &#123;&#123; department "
+"&#125;&#125;, &#123;&#123; manager &#125;&#125;, and &#123;&#123; buddy "
+"&#125;&#125; in the editor. It will be replaced by the values corresponding "
+"to the new hire."
 msgstr ""
-"エディタ内で&#123;&#123; 名 &#125;&#125;, &#123;&#123; 姓 &#125;&#125;, "
-"&#123;&#123; ポジション &#125;&#125;, &#123;&#123; マネージャー &#125;"
-"&#125;, そして &#123;&#123; 仲間 &#125;&#125; を使用することができます。新入"
-"社員に対応した値に置き換わります。"
+"エディタ内で&#123;&#123; first_name &#125;&#125;, &#123;&#123; last_name "
+"&#125;&#125;, &#123;&#123; position &#125;&#125;, &#123;&#123; department "
+"&#125;&#125;,  &#123;&#123; manager &#125;&#125;, そして &#123;&#123; buddy "
+"&#125;&#125; を使用することができます。新入社員に対応した値に置き換わります。"
 
-#: admin/settings/forms.py:197
+#: admin/settings/forms.py:198
 msgid "6 digit OTP code"
 msgstr "6桁のOTPコード"
 
-#: admin/settings/forms.py:198
+#: admin/settings/forms.py:199
 msgid "This is the code that your 2FA application shows you."
 msgstr "これは、2FAアプリケーションが表示するコードです。"
 
-#: admin/settings/forms.py:214
+#: admin/settings/forms.py:215
 msgid "OTP token was not correct. Please wait 30 seconds and then try again"
 msgstr "OTPトークンが正しくありません。30秒待ってからもう一度お試しください。"
 
@@ -1635,10 +1650,6 @@ msgstr "期日"
 msgid "Post new hire's answers from form (if applicable) back to Slack channel"
 msgstr "新入社員のフォームからの回答を（可能な場合）Slackチャンネルに投稿する"
 
-#: admin/to_do/models.py:22
-msgid "Slack channel"
-msgstr "Slackチャンネル"
-
 #: admin/to_do/templates/templates.html:30
 msgid "No items available"
 msgstr "該当するアイテムはありません"
@@ -1780,7 +1791,7 @@ msgid "Answers saved successfully! Click on 'next' to continue."
 msgstr "回答が正常に保存されました。『次へ』をクリックして次に進んでください。"
 
 #: new_hire/templates/new_hire_resource_detail.html:54 new_hire/views.py:262
-#: slack_bot/slack_resource.py:93 slack_bot/views.py:657
+#: slack_bot/slack_resource.py:96 slack_bot/views.py:658
 msgid "Next"
 msgstr "次へ"
 
@@ -2146,15 +2157,15 @@ msgstr "章を選択"
 msgid "Course"
 msgstr "コース"
 
-#: slack_bot/slack_resource.py:114
+#: slack_bot/slack_resource.py:117
 msgid "No resources available"
 msgstr "利用可能なリソースがありません"
 
-#: slack_bot/slack_resource.py:118
+#: slack_bot/slack_resource.py:121
 msgid "No category"
 msgstr "カテゴリがありません"
 
-#: slack_bot/slack_resource.py:121 slack_bot/views.py:128
+#: slack_bot/slack_resource.py:124 slack_bot/views.py:128
 msgid "Select a category:"
 msgstr "カテゴリーを選択してください :"
 
@@ -2188,11 +2199,11 @@ msgid "done"
 msgstr "完了"
 
 #: slack_bot/slack_to_do.py:101 slack_bot/tasks.py:73 slack_bot/tasks.py:77
-#: slack_bot/views.py:152 slack_bot/views.py:540
+#: slack_bot/views.py:152 slack_bot/views.py:541
 msgid "These are the tasks you need to complete:"
 msgstr "こちらがあなたが完了しなければならないタスクです :"
 
-#: slack_bot/slack_to_do.py:103 slack_bot/views.py:154 slack_bot/views.py:542
+#: slack_bot/slack_to_do.py:103 slack_bot/views.py:154 slack_bot/views.py:543
 msgid "I couldn't find any tasks."
 msgstr "タスクがありません。"
 
@@ -2252,7 +2263,7 @@ msgstr " そして私たちの新しい%(position)sです"
 msgid "%(first_name)s starts on %(start_day)s%(footer_extra)s."
 msgstr "%(first_name)s さんは %(start_day)s 日で始まります。%(footer_extra)s."
 
-#: slack_bot/tasks.py:247 slack_bot/views.py:710
+#: slack_bot/tasks.py:247 slack_bot/views.py:711
 msgid "Welcome this new hire!"
 msgstr "新入社員を歓迎しましょう！"
 
@@ -2362,15 +2373,15 @@ msgstr "この人のオンボードを断りました。"
 msgid "Here are your options:"
 msgstr "オプションはこちら："
 
-#: slack_bot/views.py:685
+#: slack_bot/views.py:686
 msgid "Thanks! This has been marked as completed."
 msgstr "ありがとうございます！こちらは完了と記録されました。"
 
-#: slack_bot/views.py:724
+#: slack_bot/views.py:725
 msgid "What would you like to say to our new hire?"
 msgstr "新入社員に対して言いたいことは何ですか？"
 
-#: slack_bot/views.py:768
+#: slack_bot/views.py:769
 msgid "Message has been saved! Your message: \""
 msgstr "メッセージが保存されました。 あなたのメッセージ: “"
 
@@ -2529,17 +2540,17 @@ msgstr ""
 msgid "First working day"
 msgstr "第1営業日"
 
-#: users/models.py:429
+#: users/models.py:433
 #, python-format
 msgid "*Our new hire %(name)s just answered some questions:*"
 msgstr "*新採用の %(name)s さんが質問に答えました：*"
 
-#: users/models.py:442
+#: users/models.py:446
 #, python-format
 msgid "Our new hire %(name)s just answered some questions:"
 msgstr "新採用の %(name)s さんが質問に答えました："
 
-#: users/models.py:561
+#: users/models.py:565
 #, python-format
 msgid ""
 "%(amount_of_correct_answers)s correct answers out of %(amount_of_questions)s "
