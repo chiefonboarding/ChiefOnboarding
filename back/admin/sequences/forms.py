@@ -9,7 +9,6 @@ from admin.to_do.models import ToDo
 from users.models import User
 
 from .models import (
-    PEOPLE_CHOICES_WITH_CHANNELS,
     PEOPLE_CHOICES,
     Condition,
     PendingAdminTask,

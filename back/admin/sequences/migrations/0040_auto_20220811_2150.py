@@ -7,19 +7,35 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('slack_bot', '0001_initial'),
-        ('sequences', '0039_alter_pendingadmintask_assigned_to'),
+        ("slack_bot", "0001_initial"),
+        ("sequences", "0039_alter_pendingadmintask_assigned_to"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='externalmessage',
-            name='send_to_channel',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='slack_bot.slackchannel', verbose_name='Slack channel'),
+            model_name="externalmessage",
+            name="send_to_channel",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="slack_bot.slackchannel",
+                verbose_name="Slack channel",
+            ),
         ),
         migrations.AlterField(
-            model_name='externalmessage',
-            name='person_type',
-            field=models.IntegerField(choices=[(0, 'New hire'), (1, 'Manager'), (2, 'Buddy'), (3, 'Custom'), (4, 'Slack channel')], default=1, verbose_name='For'),
+            model_name="externalmessage",
+            name="person_type",
+            field=models.IntegerField(
+                choices=[
+                    (0, "New hire"),
+                    (1, "Manager"),
+                    (2, "Buddy"),
+                    (3, "Custom"),
+                    (4, "Slack channel"),
+                ],
+                default=1,
+                verbose_name="For",
+            ),
         ),
     ]
