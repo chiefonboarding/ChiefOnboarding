@@ -1096,20 +1096,16 @@ def test_execute_external_message_slack(
     )
     pending_slack_message.execute(new_hire)
 
-    assert cache.get("slack_channel", "slackx")
-    assert cache.get(
-        "slack_blocks",
-        [
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": "Please complete the previous item!, "
-                    + new_hire.first_name,
-                },
-            }
-        ],
-    )
+    assert cache.get("slack_channel") == "slackx"
+    assert cache.get("slack_blocks") == [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"Please complete the previous item, {new_hire.first_name}!",
+            },
+        }
+    ]
 
 
 @pytest.mark.django_db
@@ -1131,23 +1127,20 @@ def test_execute_external_message_slack_to_slack_channel(
             ],
         },
         person_type=4,
-        send_to_channel=SlackChannel.objects.first()
+        send_to_channel=SlackChannel.objects.first(),
     )
     pending_slack_message.execute(new_hire)
 
-    assert cache.get("slack_channel", "#general")
-    assert cache.get(
-        "slack_blocks",
-        [
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"Please complete the previous item!, {new_hire.first_name}"
-                },
-            }
-        ],
-    )
+    assert cache.get("slack_channel") == "#general"
+    assert cache.get("slack_blocks") == [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"Please complete the previous item, {new_hire.first_name}!",
+            },
+        }
+    ]
 
 
 @pytest.mark.django_db
@@ -1173,8 +1166,13 @@ def test_execute_external_message_slack_to_slack_channel_invalid_channel(
     )
     pending_slack_message.execute(new_hire)
 
-    assert cache.get("slack_channel", "")
-    assert Notification.objects.filter(notification_type="failed_send_slack_message").count() == 1
+    assert cache.get("slack_channel", "") == ""
+    assert (
+        Notification.objects.filter(
+            notification_type="failed_send_slack_message"
+        ).count()
+        == 1
+    )
 
 
 @pytest.mark.django_db

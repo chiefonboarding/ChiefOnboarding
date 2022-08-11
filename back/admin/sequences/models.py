@@ -243,7 +243,11 @@ class ExternalMessage(ContentMixin, models.Model):
 
             # Send to channel instead of person?
             if self.person_type == 4:
-                channel = None if self.send_to_channel is None else "#" + self.send_to_channel.name
+                channel = (
+                    None
+                    if self.send_to_channel is None
+                    else "#" + self.send_to_channel.name
+                )
             else:
                 channel = self.get_user(user).slack_user_id
 
