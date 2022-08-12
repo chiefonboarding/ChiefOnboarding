@@ -21,9 +21,14 @@ class ContentJSONField(JSONField):
 
         for block in value["blocks"]:
             if block["type"] in ["attaches", "image"]:
-                block["data"]["file"]["url"] = File.objects.get(
-                    id=block["data"]["file"]["id"]
-                ).get_url()
+                if "id" not in block["data"]["file"]:
+                    block["data"]["file"]["url"] = File.objects.get(
+                        id=block["data"]["file"]["id"]
+                    ).get_url()
+                else:
+                    block["data"]["file"]["name"] = (
+                        "File is invalid. Please remove and try again"
+                    )
         return value
 
 
