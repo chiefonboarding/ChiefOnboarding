@@ -13,7 +13,7 @@ from .models import ToDo
 
 class ToDoListView(LoginRequiredMixin, ManagerPermMixin, ListView):
     template_name = "templates.html"
-    queryset = ToDo.templates.all().order_by("name")
+    queryset = ToDo.templates.all().order_by("name").defer("content")
     paginate_by = 10
 
     def get_context_data(self, **kwargs):
