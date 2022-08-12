@@ -144,23 +144,29 @@ def test_days_before_starting(date, daybefore, new_hire_factory):
 
 
 @pytest.mark.django_db
-def test_personalize(manager_factory, new_hire_factory):
+def test_personalize(manager_factory, new_hire_factory, department_factory):
+    department = department_factory(name="IT")
     manager = manager_factory(first_name="jane", last_name="smith")
     new_hire = new_hire_factory(
-        first_name="john", last_name="smith", manager=manager, position="developer"
+        first_name="john",
+        last_name="smith",
+        manager=manager,
+        position="developer",
+        department=department,
     )
 
     text = (
         "Hello {{ first_name }} {{ last_name }}, your manager is {{ manager }} and "
-        "you will be our {{ position }}"
+        "you will be our {{ position }} in {{ department }}"
     )
     text_without_spaces = (
         "Hello {{first_name}} {{last_name}}, your manager is {{manager}} and you will "
-        "be our {{position}}"
+        "be our {{position}} in {{department}}"
     )
 
     expected_output = (
-        "Hello john smith, your manager is jane smith and you will be our developer"
+        "Hello john smith, your manager is jane smith "
+        "and you will be our developer in IT"
     )
 
     assert new_hire.personalize(text) == expected_output
