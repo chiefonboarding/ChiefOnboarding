@@ -29,6 +29,9 @@ class ContentJSONField(JSONField):
                     block["data"]["file"]["name"] = (
                         "File is invalid. Please remove and try again"
                     )
+                    block["data"]["title"] = (
+                        "File is invalid. Please remove and try again"
+                    )
         return value
 
 
