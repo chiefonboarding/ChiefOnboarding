@@ -112,7 +112,11 @@ class Slack:
         from users.models import User
 
         # if there is no channel, then drop
-        if channel == "":
+        if channel == "" or channel is None:
+            Notification.objects.create(
+                notification_type="failed_send_slack_message",
+                extra_text=text,
+            )
             return False
 
         if settings.FAKE_SLACK_API:

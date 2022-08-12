@@ -9,6 +9,7 @@ from admin.to_do.models import ToDo
 from users.models import User
 
 from .models import (
+    PEOPLE_CHOICES,
     Condition,
     PendingAdminTask,
     PendingEmailMessage,
@@ -202,6 +203,10 @@ class PendingSlackMessageForm(forms.ModelForm):
         if self.instance is not None and self.instance.person_type == 3:
             hide_send_to = ""
 
+        hide_send_to_channel = "d-none"
+        if self.instance is not None and self.instance.person_type == 4:
+            hide_send_to_channel = ""
+
         self.helper.layout = Layout(
             Div(
                 Field("name"),
@@ -210,6 +215,10 @@ class PendingSlackMessageForm(forms.ModelForm):
                 Div(
                     Field("send_to"),
                     css_class=hide_send_to,
+                ),
+                Div(
+                    Field("send_to_channel"),
+                    css_class=hide_send_to_channel,
                 ),
             ),
         )
@@ -221,6 +230,7 @@ class PendingSlackMessageForm(forms.ModelForm):
             "content_json",
             "person_type",
             "send_to",
+            "send_to_channel",
         ]
 
 
@@ -234,6 +244,10 @@ class PendingTextMessageForm(forms.ModelForm):
         hide_send_to = "d-none"
         if self.instance is not None and self.instance.person_type == 3:
             hide_send_to = ""
+
+        # Remove the Slack channel options
+        self.fields["person_type"].choices = PEOPLE_CHOICES
+        self.fields["person_type"].widget.choices = PEOPLE_CHOICES
 
         self.helper.layout = Layout(
             Div(
@@ -267,6 +281,10 @@ class PendingEmailMessageForm(forms.ModelForm):
         hide_send_to = "d-none"
         if self.instance is not None and self.instance.person_type == 3:
             hide_send_to = ""
+
+        # Remove the Slack channel options
+        self.fields["person_type"].choices = PEOPLE_CHOICES
+        self.fields["person_type"].widget.choices = PEOPLE_CHOICES
 
         self.helper.layout = Layout(
             Div(

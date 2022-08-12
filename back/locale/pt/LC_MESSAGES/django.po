@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-04 12:48+0000\n"
+"POT-Creation-Date: 2022-08-11 23:33+0000\n"
 "PO-Revision-Date: 2022-06-01 13:55-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -73,34 +73,35 @@ msgid "No"
 msgstr "Não"
 
 #: admin/admin_tasks/models.py:16 admin/admin_tasks/models.py:48
-#: admin/sequences/models.py:137 admin/sequences/models.py:320
+#: admin/sequences/models.py:147 admin/sequences/models.py:342
 #: new_hire/templates/_colleague_intro.html:20
 #: new_hire/templates/_new_hire_colleagues_search.html:20
 #: new_hire/templates/_new_hire_colleagues_search.html:51 users/models.py:91
 msgid "Email"
 msgstr "Email"
 
-#: admin/admin_tasks/models.py:16 admin/sequences/models.py:138
+#: admin/admin_tasks/models.py:16 admin/sequences/models.py:148
 #: admin/settings/views.py:71
 msgid "Slack"
 msgstr "Slack"
 
-#: admin/admin_tasks/models.py:22 admin/sequences/models.py:25
+#: admin/admin_tasks/models.py:22 admin/sequences/models.py:26
+#: admin/sequences/models.py:33
 msgid "New hire"
 msgstr "Novo contratado"
 
 #: admin/admin_tasks/models.py:28
 #: admin/people/templates/new_hire_admin_tasks.html:21
 #: admin/people/templates/new_hire_admin_tasks.html:61
-#: admin/sequences/models.py:295
+#: admin/sequences/models.py:317
 msgid "Assigned to"
 msgstr "Atribuído à"
 
 #: admin/admin_tasks/models.py:34 admin/people/templates/add_resources.html:12
 #: admin/people/templates/colleagues.html:27
 #: admin/people/templates/new_hire_add_task.html:13
-#: admin/people/templates/new_hires.html:11 admin/sequences/models.py:33
-#: admin/sequences/models.py:141 admin/sequences/models.py:289
+#: admin/people/templates/new_hires.html:11 admin/sequences/models.py:42
+#: admin/sequences/models.py:151 admin/sequences/models.py:311
 #: admin/sequences/templates/sequence.html:30
 #: admin/settings/templates/settings_admins.html:10
 #: admin/to_do/templates/templates.html:12 organization/models.py:24
@@ -112,7 +113,7 @@ msgstr "Nome"
 msgid "Send email or text to extra user?"
 msgstr "Enviar email ou mensagem de texto para usuário adicional?"
 
-#: admin/admin_tasks/models.py:41 admin/sequences/models.py:313
+#: admin/admin_tasks/models.py:41 admin/sequences/models.py:335
 msgid "Slack user"
 msgstr "Usuário Slack"
 
@@ -125,7 +126,7 @@ msgstr "Concluído"
 msgid "Date"
 msgstr "Data"
 
-#: admin/admin_tasks/models.py:53 admin/sequences/models.py:324
+#: admin/admin_tasks/models.py:53 admin/sequences/models.py:346
 msgid "Priority"
 msgstr "Prioridade"
 
@@ -224,7 +225,7 @@ msgstr "Reabrir"
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:9
 #: admin/people/templates/new_hire_progress.html:73
-#: new_hire/templates/new_hire_resource_detail.html:21 slack_bot/views.py:655
+#: new_hire/templates/new_hire_resource_detail.html:21 slack_bot/views.py:656
 msgid "Complete"
 msgstr "Concluir"
 
@@ -250,7 +251,7 @@ msgstr "Adicionar comentário"
 #: admin/settings/templates/personal_otp.html:28
 #: admin/settings/templates/token_create.html:11
 #: new_hire/templates/_content.html:123
-#: new_hire/templates/_question_form.html:6 slack_bot/views.py:712
+#: new_hire/templates/_question_form.html:6 slack_bot/views.py:713
 msgid "Submit"
 msgstr "Submeter"
 
@@ -304,8 +305,8 @@ msgid "This field is required"
 msgstr "Este campo é mandatório"
 
 #: admin/appointments/models.py:11 admin/badges/models.py:15
-#: admin/preboarding/models.py:11 admin/sequences/models.py:142
-#: admin/sequences/models.py:143 admin/to_do/models.py:11
+#: admin/preboarding/models.py:11 admin/sequences/models.py:152
+#: admin/sequences/models.py:153 admin/to_do/models.py:11
 msgid "Content"
 msgstr "Conteúdo"
 
@@ -1099,7 +1100,7 @@ msgstr "Dia útil de vencimento deste item"
 msgid "Remove item when new hire walked through"
 msgstr "Remover item quando novo contratado concluir"
 
-#: admin/resources/models.py:85 admin/sequences/models.py:49
+#: admin/resources/models.py:85 admin/sequences/models.py:58
 #: organization/models.py:236
 #, python-format
 msgid "%(name)s (duplicate)"
@@ -1147,12 +1148,12 @@ msgid "Add question"
 msgstr "Adicionar pergunta"
 
 #: admin/resources/templates/resource_update.html:45
-#: admin/sequences/templates/sequence.html:265
+#: admin/sequences/templates/sequence.html:269
 msgid "Start typing here..."
 msgstr "Comece digitando aqui..."
 
 #: admin/resources/templates/resource_update.html:46
-#: admin/sequences/templates/sequence.html:266
+#: admin/sequences/templates/sequence.html:270
 msgid "New item"
 msgstr "Novo item"
 
@@ -1176,7 +1177,7 @@ msgstr "Atualizar recurso"
 msgid "Resource item has been removed"
 msgstr "Recurso foi removido"
 
-#: admin/sequences/emails.py:27 admin/sequences/models.py:155
+#: admin/sequences/emails.py:27 admin/sequences/models.py:172
 msgid "Here is an update!"
 msgstr "Uma nova atualização!"
 
@@ -1200,15 +1201,15 @@ msgstr "Selo"
 msgid "Badges"
 msgstr "Selos"
 
-#: admin/sequences/forms.py:34 admin/sequences/templates/sequence.html:52
+#: admin/sequences/forms.py:35 admin/sequences/templates/sequence.html:52
 msgid "Add block"
 msgstr "Adicionar bloco"
 
-#: admin/sequences/forms.py:72
+#: admin/sequences/forms.py:73
 msgid "Must be in a 5 minute interval."
 msgstr "Deve estar em um intervalo de 5 minutos."
 
-#: admin/sequences/forms.py:83
+#: admin/sequences/forms.py:84
 msgid ""
 "You cannot use 0 or less. The day before starting is 1 and the first workday "
 "is 1"
@@ -1216,7 +1217,7 @@ msgstr ""
 "Você não pode usar 0 ou menos. O dia antes de iniciar é 1 e o primeiro dia "
 "de trabalho é 1"
 
-#: admin/sequences/forms.py:101
+#: admin/sequences/forms.py:102
 #, python-format
 msgid ""
 "Time must be in an interval of 5 minutes. %(minutes)s must end in 0 or 5."
@@ -1224,104 +1225,110 @@ msgstr ""
 "O tempo deve estar em um intervalo de 5 minutes. %(minutes)s deve terminar "
 "em 0 ou 5."
 
-#: admin/sequences/forms.py:118
+#: admin/sequences/forms.py:119
 msgid "You must add at least one to do item"
 msgstr "Você precisa adicionar pelo menos uma tarefa"
 
-#: admin/sequences/forms.py:120
+#: admin/sequences/forms.py:121
 msgid "Both the time and days have to be filled in."
 msgstr "Ambos dias e hora precisam ser preenchidos."
 
-#: admin/sequences/forms.py:132
+#: admin/sequences/forms.py:133
 msgid "Edit block"
 msgstr "Editar bloco"
 
-#: admin/sequences/forms.py:146 admin/sequences/models.py:322
+#: admin/sequences/forms.py:147 admin/sequences/models.py:344
 msgid "Due date"
 msgstr "Vencimento em"
 
-#: admin/sequences/models.py:26 admin/settings/forms.py:156
-#: admin/settings/forms.py:166 users/models.py:31 users/models.py:158
+#: admin/sequences/models.py:27 admin/sequences/models.py:34
+#: admin/settings/forms.py:156 admin/settings/forms.py:166 users/models.py:31
+#: users/models.py:158
 msgid "Manager"
 msgstr "Gerente"
 
-#: admin/sequences/models.py:27 users/models.py:151
+#: admin/sequences/models.py:28 admin/sequences/models.py:35
+#: users/models.py:151
 msgid "Buddy"
 msgstr "Companheiro"
 
-#: admin/sequences/models.py:28
+#: admin/sequences/models.py:29 admin/sequences/models.py:36
 msgid "Custom"
 msgstr "Personalizado"
 
-#: admin/sequences/models.py:139
+#: admin/sequences/models.py:37 admin/sequences/models.py:164
+#: admin/to_do/models.py:22
+msgid "Slack channel"
+msgstr "Canal do Slack"
+
+#: admin/sequences/models.py:149
 msgid "Text"
 msgstr "Texto"
 
-#: admin/sequences/models.py:144
+#: admin/sequences/models.py:154
 msgid "Send via"
 msgstr "Enviar por"
 
-#: admin/sequences/models.py:147
+#: admin/sequences/models.py:157
 msgid "Send to"
 msgstr "Enviar para"
 
-#: admin/sequences/models.py:153
+#: admin/sequences/models.py:170
 msgid "Subject"
 msgstr "Assunto"
 
-#: admin/sequences/models.py:159
+#: admin/sequences/models.py:176
 msgid "For"
 msgstr "Para"
 
-#: admin/sequences/models.py:291
+#: admin/sequences/models.py:313
 msgid "Comment"
 msgstr "Comentário"
 
-#: admin/sequences/models.py:301
+#: admin/sequences/models.py:323
 msgid "Pick user"
 msgstr "Selecionar usuário"
 
-#: admin/sequences/models.py:307
+#: admin/sequences/models.py:329
 msgid "Send email or Slack message to extra user?"
 msgstr "Enviar email ou mensagem do Slack para usuário adicional?"
 
-#: admin/sequences/models.py:430
+#: admin/sequences/models.py:452
 msgid "After new hire has started"
 msgstr "Após nova contratado iniciar"
 
-#: admin/sequences/models.py:431
+#: admin/sequences/models.py:453
 msgid "Based on one or more to do item(s)"
 msgstr "Baseado em um ou mais tarefa(s)"
 
-#: admin/sequences/models.py:432
+#: admin/sequences/models.py:454
 msgid "Before the new hire has started"
 msgstr "Antes do novo contratado iniciar"
 
-#: admin/sequences/models.py:433
+#: admin/sequences/models.py:455
 msgid "Without trigger"
 msgstr "Sem acionamento"
 
-#: admin/sequences/models.py:439
+#: admin/sequences/models.py:461
 msgid "Block type"
 msgstr "Tipo de bloqueio"
 
-#: admin/sequences/models.py:442
+#: admin/sequences/models.py:464
 msgid "Amount of days before/after new hire has started"
 msgstr "Quantidade de dias antes/depois da nova contratado iniciar"
 
-#: admin/sequences/models.py:444
+#: admin/sequences/models.py:466
 msgid "At"
 msgstr "Em"
 
-#: admin/sequences/models.py:447
+#: admin/sequences/models.py:469
 msgid "Trigger after these to do items have been completed:"
 msgstr "Acionar após esses afazerem serem concluídos:"
 
 #: admin/sequences/tasks.py:67
 #, python-format
 msgid "*Congrats, you unlocked: %(item_name)s *"
-msgstr ""
-"*Parabéns, você desbloqueou: %(item_name)s "
+msgstr "*Parabéns, você desbloqueou: %(item_name)s "
 
 #: admin/sequences/tasks.py:85 admin/sequences/tasks.py:87
 #: admin/sequences/tasks.py:95 admin/sequences/tasks.py:106
@@ -1401,26 +1408,34 @@ msgid "Administrator"
 msgstr "Administrador"
 
 #: admin/settings/forms.py:185 admin/to_do/templates/wysiwyg_field.html:11
+#, fuzzy
+#| msgid ""
+#| "You can use &#123;&#123; first_name &#125;&#125;, &#123;&#123; last_name "
+#| "&#125;&#125;, &#123;&#123; position &#125;&#125;, &#123;&#123; manager "
+#| "&#125;&#125;, and &#123;&#123; buddy &#125;&#125; in the editor. It will "
+#| "be replaced by the values corresponding to the new hire."
 msgid ""
 "You can use &#123;&#123; first_name &#125;&#125;, &#123;&#123; last_name "
-"&#125;&#125;, &#123;&#123; position &#125;&#125;, &#123;&#123; manager &#125;"
-"&#125;, and &#123;&#123; buddy &#125;&#125; in the editor. It will be "
-"replaced by the values corresponding to the new hire."
+"&#125;&#125;, &#123;&#123; position &#125;&#125;, &#123;&#123; department "
+"&#125;&#125;, &#123;&#123; manager &#125;&#125;, and &#123;&#123; buddy "
+"&#125;&#125; in the editor. It will be replaced by the values corresponding "
+"to the new hire."
 msgstr ""
 "Você pode usar &#123;&#123; first_name &#125;&#125;, &#123;&#123; last_name "
-"&#125;&#125;, &#123;&#123; position &#125;&#125;, &#123;&#123; manager &#125;"
-"&#125;, and &#123;&#123; buddy &#125;&#125; no editor. Os campos serão "
-"substituídos pelos valores correspondentes da nova contratação."
+"&#125;&#125;, &#123;&#123; position &#125;&#125;, &#123;&#123; department "
+"&#125;&#125;, &#123;&#123; manager &#125;&#125;, and &#123;&#123; buddy "
+"&#125;&#125; no editor. Os campos serão substituídos pelos valores "
+"correspondentes da nova contratação."
 
-#: admin/settings/forms.py:197
+#: admin/settings/forms.py:198
 msgid "6 digit OTP code"
 msgstr "Código de 6 dígitos OTP"
 
-#: admin/settings/forms.py:198
+#: admin/settings/forms.py:199
 msgid "This is the code that your 2FA application shows you."
 msgstr "Esse é o código presente na sua aplicação 2FA."
 
-#: admin/settings/forms.py:214
+#: admin/settings/forms.py:215
 msgid "OTP token was not correct. Please wait 30 seconds and then try again"
 msgstr ""
 "Token OTP não está correto. Por favor, aguarde 30 segundos e tente novamente"
@@ -1638,10 +1653,6 @@ msgstr ""
 "Submeter as respostas do formulário da nova contratação (se aplicável) de "
 "volta no canal do Slack"
 
-#: admin/to_do/models.py:22
-msgid "Slack channel"
-msgstr "Canal do Slack"
-
 #: admin/to_do/templates/templates.html:30
 msgid "No items available"
 msgstr "Não há itens disponíveis"
@@ -1785,7 +1796,7 @@ msgid "Answers saved successfully! Click on 'next' to continue."
 msgstr "Respostas salvas com sucesso! Clique em 'próximo' para continuar."
 
 #: new_hire/templates/new_hire_resource_detail.html:54 new_hire/views.py:262
-#: slack_bot/slack_resource.py:93 slack_bot/views.py:657
+#: slack_bot/slack_resource.py:96 slack_bot/views.py:658
 msgid "Next"
 msgstr "Próximo"
 
@@ -2154,15 +2165,15 @@ msgstr "Selecionar capítulo"
 msgid "Course"
 msgstr "Curso"
 
-#: slack_bot/slack_resource.py:114
+#: slack_bot/slack_resource.py:117
 msgid "No resources available"
 msgstr "Sem recursos disponíveis"
 
-#: slack_bot/slack_resource.py:118
+#: slack_bot/slack_resource.py:121
 msgid "No category"
 msgstr "Sem categoria"
 
-#: slack_bot/slack_resource.py:121 slack_bot/views.py:128
+#: slack_bot/slack_resource.py:124 slack_bot/views.py:128
 msgid "Select a category:"
 msgstr "Selecione a categoria:"
 
@@ -2196,11 +2207,11 @@ msgid "done"
 msgstr "feito"
 
 #: slack_bot/slack_to_do.py:101 slack_bot/tasks.py:73 slack_bot/tasks.py:77
-#: slack_bot/views.py:152 slack_bot/views.py:540
+#: slack_bot/views.py:152 slack_bot/views.py:541
 msgid "These are the tasks you need to complete:"
 msgstr "Essas são as tarefas que você precisa completar:"
 
-#: slack_bot/slack_to_do.py:103 slack_bot/views.py:154 slack_bot/views.py:542
+#: slack_bot/slack_to_do.py:103 slack_bot/views.py:154 slack_bot/views.py:543
 msgid "I couldn't find any tasks."
 msgstr "Não foi possível encontrar nenhuma tarefa."
 
@@ -2261,7 +2272,7 @@ msgstr " e é nosso novo %(position)s"
 msgid "%(first_name)s starts on %(start_day)s%(footer_extra)s."
 msgstr "%(first_name)s começa em %(start_day)s%(footer_extra)s."
 
-#: slack_bot/tasks.py:247 slack_bot/views.py:710
+#: slack_bot/tasks.py:247 slack_bot/views.py:711
 msgid "Welcome this new hire!"
 msgstr "De às boas-vindas a esse novo contratado!"
 
@@ -2373,15 +2384,15 @@ msgstr "Você negou a solicitação de integração desta pessoa."
 msgid "Here are your options:"
 msgstr "Aqui estão suas opções:"
 
-#: slack_bot/views.py:685
+#: slack_bot/views.py:686
 msgid "Thanks! This has been marked as completed."
 msgstr "Obrigado! Este item foi marcado como completo."
 
-#: slack_bot/views.py:724
+#: slack_bot/views.py:725
 msgid "What would you like to say to our new hire?"
 msgstr "O que você gostaria de dizer para nosso novo contratado?"
 
-#: slack_bot/views.py:768
+#: slack_bot/views.py:769
 msgid "Message has been saved! Your message: \""
 msgstr "A mensagem foi salva! Sua mensagem: \""
 
@@ -2540,17 +2551,17 @@ msgstr ""
 msgid "First working day"
 msgstr "Primeiro dia de trabalho"
 
-#: users/models.py:429
+#: users/models.py:433
 #, python-format
 msgid "*Our new hire %(name)s just answered some questions:*"
 msgstr "*Nosso novo contratado %(name)s respondeu algumas perguntas agora:*"
 
-#: users/models.py:442
+#: users/models.py:446
 #, python-format
 msgid "Our new hire %(name)s just answered some questions:"
 msgstr "Nosso novo contratado %(name)s respondeu algumas perguntas agora:"
 
-#: users/models.py:561
+#: users/models.py:565
 #, python-format
 msgid ""
 "%(amount_of_correct_answers)s correct answers out of %(amount_of_questions)s "

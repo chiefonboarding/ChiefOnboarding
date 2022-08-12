@@ -240,7 +240,6 @@ $(document).on('change', "select#id_option", function() {
 })
 $(document).on('change', "select#id_person_type", function() {
   // Change things to fill in when condition_type changes
-  console.log($(this).val())
   if ($(this).val() == 3){
     $("#div_id_assigned_to").parent().removeClass("d-none")
   } else {
@@ -253,6 +252,11 @@ $(document).on('change', "select#id_person_type", function() {
     $("#div_id_send_to").parent().removeClass("d-none")
   } else {
     $("#div_id_send_to").parent().addClass("d-none")
+  }
+  if ($(this).val() == 4){
+    $("#div_id_send_to_channel").parent().removeClass("d-none")
+  } else {
+    $("#div_id_send_to_channel").parent().addClass("d-none")
   }
 })
 </script>

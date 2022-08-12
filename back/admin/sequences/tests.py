@@ -43,6 +43,7 @@ from admin.to_do.factories import ToDoFactory
 from admin.to_do.forms import ToDoForm
 from admin.to_do.models import ToDo
 from organization.models import Notification, Organization
+from slack_bot.models import SlackChannel
 
 
 @pytest.mark.django_db
@@ -1095,19 +1096,82 @@ def test_execute_external_message_slack(
     )
     pending_slack_message.execute(new_hire)
 
-    assert cache.get("slack_channel", "slackx")
-    assert cache.get(
-        "slack_blocks",
-        [
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": "Please complete the previous item!, "
-                    + new_hire.first_name,
-                },
-            }
-        ],
+    assert cache.get("slack_channel") == "slackx"
+    assert cache.get("slack_blocks") == [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"Please complete the previous item, {new_hire.first_name}!",
+            },
+        }
+    ]
+
+
+@pytest.mark.django_db
+def test_execute_external_message_slack_to_slack_channel(
+    pending_slack_message_factory, new_hire_factory
+):
+    new_hire = new_hire_factory(slack_user_id="slackx")
+    # Send text message to slack channel
+    pending_slack_message = pending_slack_message_factory(
+        content_json={
+            "time": 0,
+            "blocks": [
+                {
+                    "data": {
+                        "text": "Please complete the previous item, {{first_name}}!"
+                    },
+                    "type": "paragraph",
+                }
+            ],
+        },
+        person_type=4,
+        send_to_channel=SlackChannel.objects.first(),
+    )
+    pending_slack_message.execute(new_hire)
+
+    assert cache.get("slack_channel") == "#general"
+    assert cache.get("slack_blocks") == [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"Please complete the previous item, {new_hire.first_name}!",
+            },
+        }
+    ]
+
+
+@pytest.mark.django_db
+def test_execute_external_message_slack_to_slack_channel_invalid_channel(
+    pending_slack_message_factory, new_hire_factory
+):
+    new_hire = new_hire_factory(slack_user_id="slackx")
+    # Send text message to slack channel
+    # No slack channel selected
+    pending_slack_message = pending_slack_message_factory(
+        content_json={
+            "time": 0,
+            "blocks": [
+                {
+                    "data": {
+                        "text": "Please complete the previous item, {{first_name}}!"
+                    },
+                    "type": "paragraph",
+                }
+            ],
+        },
+        person_type=4,
+    )
+    pending_slack_message.execute(new_hire)
+
+    assert cache.get("slack_channel", "") == ""
+    assert (
+        Notification.objects.filter(
+            notification_type="failed_send_slack_message"
+        ).count()
+        == 1
     )
 
 

@@ -18,6 +18,7 @@ from misc.fields import ContentJSONField, EncryptedJSONField
 from misc.mixins import ContentMixin
 from organization.models import Notification
 from slack_bot.utils import Slack
+from slack_bot.models import SlackChannel
 
 from .emails import send_sequence_message
 
@@ -26,6 +27,14 @@ PEOPLE_CHOICES = (
     (1, _("Manager")),
     (2, _("Buddy")),
     (3, _("Custom")),
+)
+
+PEOPLE_CHOICES_WITH_CHANNELS = (
+    (0, _("New hire")),
+    (1, _("Manager")),
+    (2, _("Buddy")),
+    (3, _("Custom")),
+    (4, _("Slack channel")),
 )
 
 
@@ -150,6 +159,13 @@ class ExternalMessage(ContentMixin, models.Model):
         blank=True,
         null=True,
     )
+    send_to_channel = models.ForeignKey(
+        SlackChannel,
+        verbose_name=_("Slack channel"),
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
     subject = models.CharField(
         verbose_name=_("Subject"),
         max_length=78,
@@ -157,7 +173,7 @@ class ExternalMessage(ContentMixin, models.Model):
         blank=True,
     )
     person_type = models.IntegerField(
-        verbose_name=_("For"), choices=PEOPLE_CHOICES, default=1
+        verbose_name=_("For"), choices=PEOPLE_CHOICES_WITH_CHANNELS, default=1
     )
 
     @property
@@ -224,9 +240,18 @@ class ExternalMessage(ContentMixin, models.Model):
             # We don't have the model function on this model, so let's get it from a
             # different model. A bit hacky, but should be okay.
             blocks = ToDo(content=self.content_json).to_slack_block(user)
-            Slack().send_message(
-                blocks=blocks, channel=self.get_user(user).slack_user_id
-            )
+
+            # Send to channel instead of person?
+            if self.person_type == 4:
+                channel = (
+                    None
+                    if self.send_to_channel is None
+                    else "#" + self.send_to_channel.name
+                )
+            else:
+                channel = self.get_user(user).slack_user_id
+
+            Slack().send_message(blocks=blocks, channel=channel)
         else:  # text message
             send_to = self.get_user(user)
             if send_to is None or send_to.phone == "":
