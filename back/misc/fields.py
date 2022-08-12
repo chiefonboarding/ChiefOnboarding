@@ -30,7 +30,7 @@ class ContentJSONField(JSONField):
                         "File is invalid. Please remove and try again"
                     )
                     block["data"]["title"] = (
-                        "File is invalid. Please remove and try again"
+                        "File is invalid. Please remove and try again:" + block["data"]["title"]
                     )
         return value
 

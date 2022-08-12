@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ChiefOnboarding\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-11 23:33+0000\n"
+"POT-Creation-Date: 2022-08-12 23:33+0000\n"
 "PO-Revision-Date: 2022-06-02 11:47+0900\n"
 "Last-Translator: Jo Mio <jmworks@gmail.com>\n"
 "Language-Team: \n"
@@ -74,7 +74,7 @@ msgid "No"
 msgstr "いいえ"
 
 #: admin/admin_tasks/models.py:16 admin/admin_tasks/models.py:48
-#: admin/sequences/models.py:147 admin/sequences/models.py:342
+#: admin/sequences/models.py:147 admin/sequences/models.py:346
 #: new_hire/templates/_colleague_intro.html:20
 #: new_hire/templates/_new_hire_colleagues_search.html:20
 #: new_hire/templates/_new_hire_colleagues_search.html:51 users/models.py:91
@@ -94,7 +94,7 @@ msgstr "新規採用"
 #: admin/admin_tasks/models.py:28
 #: admin/people/templates/new_hire_admin_tasks.html:21
 #: admin/people/templates/new_hire_admin_tasks.html:61
-#: admin/sequences/models.py:317
+#: admin/sequences/models.py:321
 msgid "Assigned to"
 msgstr "担当者"
 
@@ -102,7 +102,7 @@ msgstr "担当者"
 #: admin/people/templates/colleagues.html:27
 #: admin/people/templates/new_hire_add_task.html:13
 #: admin/people/templates/new_hires.html:11 admin/sequences/models.py:42
-#: admin/sequences/models.py:151 admin/sequences/models.py:311
+#: admin/sequences/models.py:151 admin/sequences/models.py:315
 #: admin/sequences/templates/sequence.html:30
 #: admin/settings/templates/settings_admins.html:10
 #: admin/to_do/templates/templates.html:12 organization/models.py:24
@@ -114,7 +114,7 @@ msgstr "名前"
 msgid "Send email or text to extra user?"
 msgstr "追加ユーザーにメールやテキストを送信しますか？"
 
-#: admin/admin_tasks/models.py:41 admin/sequences/models.py:335
+#: admin/admin_tasks/models.py:41 admin/sequences/models.py:339
 msgid "Slack user"
 msgstr "Slackユーザー"
 
@@ -127,7 +127,7 @@ msgstr "完了"
 msgid "Date"
 msgstr "日付"
 
-#: admin/admin_tasks/models.py:53 admin/sequences/models.py:346
+#: admin/admin_tasks/models.py:53 admin/sequences/models.py:350
 msgid "Priority"
 msgstr "優先"
 
@@ -1239,12 +1239,12 @@ msgstr "時間・日数ともに入力してください。"
 msgid "Edit block"
 msgstr "ブロックの編集"
 
-#: admin/sequences/forms.py:147 admin/sequences/models.py:344
+#: admin/sequences/forms.py:147 admin/sequences/models.py:348
 msgid "Due date"
 msgstr "期限"
 
 #: admin/sequences/models.py:27 admin/sequences/models.py:34
-#: admin/settings/forms.py:156 admin/settings/forms.py:166 users/models.py:31
+#: admin/settings/forms.py:156 admin/settings/forms.py:169 users/models.py:31
 #: users/models.py:158
 msgid "Manager"
 msgstr "マネージャー"
@@ -1283,47 +1283,47 @@ msgstr "件名"
 msgid "For"
 msgstr "対象"
 
-#: admin/sequences/models.py:313
+#: admin/sequences/models.py:317
 msgid "Comment"
 msgstr "コメント"
 
-#: admin/sequences/models.py:323
+#: admin/sequences/models.py:327
 msgid "Pick user"
 msgstr "ユーザーを選択"
 
-#: admin/sequences/models.py:329
+#: admin/sequences/models.py:333
 msgid "Send email or Slack message to extra user?"
 msgstr "外部ユーザにメールまたはSlackのメッセージ送信しますか？"
 
-#: admin/sequences/models.py:452
+#: admin/sequences/models.py:472
 msgid "After new hire has started"
 msgstr "新入社員の開始後"
 
-#: admin/sequences/models.py:453
+#: admin/sequences/models.py:473
 msgid "Based on one or more to do item(s)"
 msgstr "1つ以上のTo Doアイテムに基づきます"
 
-#: admin/sequences/models.py:454
+#: admin/sequences/models.py:474
 msgid "Before the new hire has started"
 msgstr "新入社員が開始する前に"
 
-#: admin/sequences/models.py:455
+#: admin/sequences/models.py:475
 msgid "Without trigger"
 msgstr "トリガーなしで"
 
-#: admin/sequences/models.py:461
+#: admin/sequences/models.py:481
 msgid "Block type"
 msgstr "ブロック タイプ"
 
-#: admin/sequences/models.py:464
+#: admin/sequences/models.py:484
 msgid "Amount of days before/after new hire has started"
 msgstr "入社前・入社後の日数"
 
-#: admin/sequences/models.py:466
+#: admin/sequences/models.py:486
 msgid "At"
 msgstr "で"
 
-#: admin/sequences/models.py:469
+#: admin/sequences/models.py:489
 msgid "Trigger after these to do items have been completed:"
 msgstr "これらのTo Doアイテムが完了した後にトリガーする :"
 
@@ -1405,11 +1405,11 @@ msgstr "ログインオプション"
 msgid "You must enable at least one login option"
 msgstr "少なくとも1つのログインオプションを有効にする必要があります"
 
-#: admin/settings/forms.py:156 admin/settings/forms.py:166 users/models.py:30
+#: admin/settings/forms.py:156 admin/settings/forms.py:169 users/models.py:30
 msgid "Administrator"
 msgstr "管理者"
 
-#: admin/settings/forms.py:185 admin/to_do/templates/wysiwyg_field.html:11
+#: admin/settings/forms.py:188 admin/to_do/templates/wysiwyg_field.html:11
 #, fuzzy
 #| msgid ""
 #| "You can use &#123;&#123; first_name &#125;&#125;, &#123;&#123; last_name "
@@ -1428,15 +1428,15 @@ msgstr ""
 "&#125;&#125;,  &#123;&#123; manager &#125;&#125;, そして &#123;&#123; buddy "
 "&#125;&#125; を使用することができます。新入社員に対応した値に置き換わります。"
 
-#: admin/settings/forms.py:198
+#: admin/settings/forms.py:201
 msgid "6 digit OTP code"
 msgstr "6桁のOTPコード"
 
-#: admin/settings/forms.py:199
+#: admin/settings/forms.py:202
 msgid "This is the code that your 2FA application shows you."
 msgstr "これは、2FAアプリケーションが表示するコードです。"
 
-#: admin/settings/forms.py:215
+#: admin/settings/forms.py:218
 msgid "OTP token was not correct. Please wait 30 seconds and then try again"
 msgstr "OTPトークンが正しくありません。30秒待ってからもう一度お試しください。"
 
@@ -2573,6 +2573,12 @@ msgstr "ソースコード"
 #: users/templates/admin_base.html:197
 msgid "ChiefOnboarding"
 msgstr "ChiefOnboarding"
+
+#: users/templates/admin_base.html:316
+#, fuzzy
+#| msgid "Start typing here..."
+msgid "Start typing..."
+msgstr "ここから入力..."
 
 #: users/templates/login.html:24
 msgid "or"

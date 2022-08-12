@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-11 23:33+0000\n"
+"POT-Creation-Date: 2022-08-12 23:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -76,7 +76,7 @@ msgid "No"
 msgstr "Nein"
 
 #: admin/admin_tasks/models.py:16 admin/admin_tasks/models.py:48
-#: admin/sequences/models.py:147 admin/sequences/models.py:342
+#: admin/sequences/models.py:147 admin/sequences/models.py:346
 #: new_hire/templates/_colleague_intro.html:20
 #: new_hire/templates/_new_hire_colleagues_search.html:20
 #: new_hire/templates/_new_hire_colleagues_search.html:51 users/models.py:91
@@ -96,7 +96,7 @@ msgstr "Neuer Mitarbeiter"
 #: admin/admin_tasks/models.py:28
 #: admin/people/templates/new_hire_admin_tasks.html:21
 #: admin/people/templates/new_hire_admin_tasks.html:61
-#: admin/sequences/models.py:317
+#: admin/sequences/models.py:321
 msgid "Assigned to"
 msgstr "Zugewiesen zu"
 
@@ -104,7 +104,7 @@ msgstr "Zugewiesen zu"
 #: admin/people/templates/colleagues.html:27
 #: admin/people/templates/new_hire_add_task.html:13
 #: admin/people/templates/new_hires.html:11 admin/sequences/models.py:42
-#: admin/sequences/models.py:151 admin/sequences/models.py:311
+#: admin/sequences/models.py:151 admin/sequences/models.py:315
 #: admin/sequences/templates/sequence.html:30
 #: admin/settings/templates/settings_admins.html:10
 #: admin/to_do/templates/templates.html:12 organization/models.py:24
@@ -116,7 +116,7 @@ msgstr "Name"
 msgid "Send email or text to extra user?"
 msgstr "Sende E-Mail oder SMS an weiteren Benutzer?"
 
-#: admin/admin_tasks/models.py:41 admin/sequences/models.py:335
+#: admin/admin_tasks/models.py:41 admin/sequences/models.py:339
 msgid "Slack user"
 msgstr "Slack-Benutzer"
 
@@ -129,7 +129,7 @@ msgstr "Abgeschlossen"
 msgid "Date"
 msgstr "Datum"
 
-#: admin/admin_tasks/models.py:53 admin/sequences/models.py:346
+#: admin/admin_tasks/models.py:53 admin/sequences/models.py:350
 msgid "Priority"
 msgstr "Priorität"
 
@@ -1253,12 +1253,12 @@ msgstr "Die Zeit und Tage müssen beide ausgefüllt werden."
 msgid "Edit block"
 msgstr "Block bearbeiten"
 
-#: admin/sequences/forms.py:147 admin/sequences/models.py:344
+#: admin/sequences/forms.py:147 admin/sequences/models.py:348
 msgid "Due date"
 msgstr "Frist-Datum"
 
 #: admin/sequences/models.py:27 admin/sequences/models.py:34
-#: admin/settings/forms.py:156 admin/settings/forms.py:166 users/models.py:31
+#: admin/settings/forms.py:156 admin/settings/forms.py:169 users/models.py:31
 #: users/models.py:158
 msgid "Manager"
 msgstr "Manager"
@@ -1297,47 +1297,47 @@ msgstr "Betreff"
 msgid "For"
 msgstr "Für"
 
-#: admin/sequences/models.py:313
+#: admin/sequences/models.py:317
 msgid "Comment"
 msgstr "Kommentar"
 
-#: admin/sequences/models.py:323
+#: admin/sequences/models.py:327
 msgid "Pick user"
 msgstr "Wähle Benutzter aus"
 
-#: admin/sequences/models.py:329
+#: admin/sequences/models.py:333
 msgid "Send email or Slack message to extra user?"
 msgstr "E-Mail oder Slack-Nachricht an einen weiteren Benutzter senden?"
 
-#: admin/sequences/models.py:452
+#: admin/sequences/models.py:472
 msgid "After new hire has started"
 msgstr "Nachdem neuer Mitarbeiter angefangen hat"
 
-#: admin/sequences/models.py:453
+#: admin/sequences/models.py:473
 msgid "Based on one or more to do item(s)"
 msgstr "Basierend auf einem oder mehr Einträgen"
 
-#: admin/sequences/models.py:454
+#: admin/sequences/models.py:474
 msgid "Before the new hire has started"
 msgstr "Bevor neuer Mitarbeiter angefangen hat"
 
-#: admin/sequences/models.py:455
+#: admin/sequences/models.py:475
 msgid "Without trigger"
 msgstr "Ohne Auslöser"
 
-#: admin/sequences/models.py:461
+#: admin/sequences/models.py:481
 msgid "Block type"
 msgstr "Block Typ"
 
-#: admin/sequences/models.py:464
+#: admin/sequences/models.py:484
 msgid "Amount of days before/after new hire has started"
 msgstr "Anzahl der Tage bevor/nachdem ein neuer Mitarbeiter angefangen hat"
 
-#: admin/sequences/models.py:466
+#: admin/sequences/models.py:486
 msgid "At"
 msgstr "Bei"
 
-#: admin/sequences/models.py:469
+#: admin/sequences/models.py:489
 msgid "Trigger after these to do items have been completed:"
 msgstr "Löse aus, nachdem diese To-Do-Einträge abgeschlossen wurden"
 
@@ -1422,11 +1422,11 @@ msgstr "Anmeldeoptionen"
 msgid "You must enable at least one login option"
 msgstr "Du musst mindestens eine Anmeldeoption aktivieren"
 
-#: admin/settings/forms.py:156 admin/settings/forms.py:166 users/models.py:30
+#: admin/settings/forms.py:156 admin/settings/forms.py:169 users/models.py:30
 msgid "Administrator"
 msgstr "Administrator"
 
-#: admin/settings/forms.py:185 admin/to_do/templates/wysiwyg_field.html:11
+#: admin/settings/forms.py:188 admin/to_do/templates/wysiwyg_field.html:11
 #, fuzzy
 #| msgid ""
 #| "You can use &#123;&#123; first_name &#125;&#125;, &#123;&#123; last_name "
@@ -1446,15 +1446,15 @@ msgstr ""
 "&#125; im Editor benutzen. Es wird durch die Werte, die dem neuen "
 "Mitarbeiter entsprechen ersetzt."
 
-#: admin/settings/forms.py:198
+#: admin/settings/forms.py:201
 msgid "6 digit OTP code"
 msgstr "6-stelliger OTP-Code"
 
-#: admin/settings/forms.py:199
+#: admin/settings/forms.py:202
 msgid "This is the code that your 2FA application shows you."
 msgstr "Das ist der Code, den dein 2FA-Antrag dir zeigt."
 
-#: admin/settings/forms.py:215
+#: admin/settings/forms.py:218
 msgid "OTP token was not correct. Please wait 30 seconds and then try again"
 msgstr ""
 "OTP-Token war nicht korrekt. Bitte warte 30 Sekunden und versuche es dann "
@@ -2615,6 +2615,12 @@ msgstr "Source-Code"
 #: users/templates/admin_base.html:197
 msgid "ChiefOnboarding"
 msgstr "ChiefOnboarding"
+
+#: users/templates/admin_base.html:316
+#, fuzzy
+#| msgid "Start typing here..."
+msgid "Start typing..."
+msgstr "Fange hier an zu schreiben..."
 
 #: users/templates/login.html:24
 msgid "or"
