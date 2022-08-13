@@ -47,7 +47,8 @@ class Slack:
             response = self.client.api_call("users.list", data={"limit": 200})
             users.extend(response["members"])
 
-            # An empty, null, or non-existent next_cursor in the response indicates no further results.
+            # An empty, null, or non-existent next_cursor in the response indicates no
+            # further results.
             while (
                 "response_metadata" in response
                 and "next_cursor" in response["response_metadata"]
