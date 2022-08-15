@@ -130,50 +130,56 @@ class ColleagueSyncSlack(LoginRequiredMixin, ManagerPermMixin, View):
         slack_users = Slack().get_all_users()
 
         for user in slack_users:
-            # Skip all bots, fake users, and people with missing profile or missing
-            # email. We need to be extra careful here. Slack doesn't always respond
-            # back with all info. Sometimes it might be None, an emtpy string or not
-            # exist at all!
-            if (
-                user["id"] == "USLACKBOT"
-                or user["is_bot"]
-                or "real_name" not in user["profile"]
-                or "email" not in user["profile"]
-                or user["profile"]["email"] == ""
-                or user["profile"]["email"] is None
-                or ("deleted" in user and user["deleted"])
-            ):
-                continue
-
-            user_info = {}
-
-            # Get the props we need and put them into a user object
-            user_props = [
-                ["first_name", "first_name"],
-                ["last_name", "last_name"],
-                ["title", "position"],
-            ]
-            for slack_prop, chief_prop in user_props:
+            try:
+                # Skip all bots, fake users, and people with missing profile or missing
+                # email. We need to be extra careful here. Slack doesn't always respond
+                # back with all info. Sometimes it might be None, an emtpy string or not
+                # exist at all!
                 if (
-                    slack_prop in user["profile"]
-                    and user["profile"][slack_prop] is not None
+                    user["id"] == "USLACKBOT"
+                    or user["is_bot"]
+                    or "real_name" not in user["profile"]
+                    or "email" not in user["profile"]
+                    or user["profile"]["email"] == ""
+                    or user["profile"]["email"] is None
+                    or ("deleted" in user and user["deleted"])
                 ):
-                    user_info[chief_prop] = user["profile"][slack_prop]
+                    continue
 
-            # If we don't have the first_name, then attempt on splitting the "real_name"
-            # property. This is less accurate, as names like "John van Klaas" will have
-            # three words.
-            if "first_name" not in user_info:
-                split_name = user["profile"]["real_name"].split(" ", 1)
-                user_info["first_name"] = split_name[0]
-                user_info["last_name"] = "" if len(split_name) == 1 else split_name[1]
+                user_info = {}
 
-            # Find user, if email already exists, then update the user.
-            # Otherwise, create the user.
-            get_user_model().objects.get_or_create(
-                email=user["profile"]["email"],
-                defaults=user_info,
-            )
+                # Get the props we need and put them into a user object
+                user_props = [
+                    ["first_name", "first_name"],
+                    ["last_name", "last_name"],
+                    ["title", "position"],
+                ]
+                for slack_prop, chief_prop in user_props:
+                    if (
+                        slack_prop in user["profile"]
+                        and user["profile"][slack_prop] is not None
+                    ):
+                        user_info[chief_prop] = user["profile"][slack_prop]
+
+                # If we don't have the first_name, then attempt on splitting the
+                # "real_name" property. This is less accurate, as names like
+                # "John van Klaas" will have three words.
+                if "first_name" not in user_info:
+                    split_name = user["profile"]["real_name"].split(" ", 1)
+                    user_info["first_name"] = split_name[0]
+                    user_info["last_name"] = (
+                        "" if len(split_name) == 1 else split_name[1]
+                    )
+
+                # Find user, if email already exists, then update the user.
+                # Otherwise, create the user.
+                get_user_model().objects.get_or_create(
+                    email=user["profile"]["email"],
+                    defaults=user_info,
+                )
+            except Exception as e:
+                print(f"Could not process {user['profile']['email']}")
+                print(e)
         # Force refresh of page
         return HttpResponse(headers={"HX-Refresh": "true"})
 
