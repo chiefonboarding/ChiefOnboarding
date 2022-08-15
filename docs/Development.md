@@ -37,3 +37,9 @@ It will generate a new file for you to fill in. It's a `.po` that you can edit (
 Up next, you will need to add the language to the list of languages. Go to `back/back/settings.py` and add your language to this array `https://github.com/chiefonboarding/ChiefOnboarding/blob/v2.0/back/back/settings.py#L371`. That way, it will show up in the lists to choose the language.
 
 
+## Updating existing translations
+Simply run this command and it will update all current translations:
+
+```
+docker-compose run --rm web django-admin makemessages -l tr -l pt -l nl -l jp -l fr -l es -l de
+```
