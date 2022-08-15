@@ -167,6 +167,7 @@ class User(AbstractBaseUser):
         help_text=_("First working day"),
     )
     unique_url = models.CharField(max_length=250, null=True, unique=True, blank=True)
+    extra_fields = models.JSONField(default=dict)
 
     to_do = models.ManyToManyField(ToDo, through="ToDoUser", related_name="user_todos")
     introductions = models.ManyToManyField(
