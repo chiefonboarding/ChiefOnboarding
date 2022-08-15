@@ -26,9 +26,6 @@ class ContentJSONField(JSONField):
                         id=block["data"]["file"]["id"]
                     ).get_url()
                 else:
-                    block["data"]["file"][
-                        "name"
-                    ] = "File is invalid. Please remove and try again"
                     block["data"]["title"] = (
                         "File is invalid. Please remove and try again:"
                         + block["data"]["title"]
