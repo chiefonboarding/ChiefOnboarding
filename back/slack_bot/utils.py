@@ -43,10 +43,30 @@ class Slack:
 
     def get_all_users(self):
         try:
-            response = self.client.api_call("users.list")
+            users = []
+            response = self.client.api_call("users.list", data={"limit": 200})
+            users.extend(response["members"])
+
+            # An empty, null, or non-existent next_cursor in the response indicates no
+            # further results.
+            while (
+                "response_metadata" in response
+                and "next_cursor" in response["response_metadata"]
+                and response["response_metadata"]["next_cursor"] is not None
+                and response["response_metadata"]["next_cursor"] != ""
+            ):
+                response = self.client.api_call(
+                    "users.list",
+                    data={
+                        "limit": 200,
+                        "cursor": response["response_metadata"]["next_cursor"],
+                    },
+                )
+                users.extend(response["members"])
+
+            return users
         except Exception:
             return []
-        return response["members"]
 
     def find_by_email(self, email):
         try:

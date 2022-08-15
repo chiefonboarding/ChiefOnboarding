@@ -141,6 +141,7 @@ class ColleagueSyncSlack(LoginRequiredMixin, ManagerPermMixin, View):
                 or "email" not in user["profile"]
                 or user["profile"]["email"] == ""
                 or user["profile"]["email"] is None
+                or ("deleted" in user and user["deleted"])
             ):
                 continue
 
