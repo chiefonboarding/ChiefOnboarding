@@ -351,6 +351,9 @@ class User(AbstractBaseUser):
             "department": department,
         }
         text = t.render(Context(new_hire_context | extra_values))
+        # Remove non breakable space html code (if any). These could show up in the
+        # Slack bot.
+        text = text.replace("&nbsp;", " ")
         return text
 
     def reset_otp_recovery_keys(self):
