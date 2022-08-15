@@ -134,10 +134,11 @@ class ContentMixin:
                 slack_block["text"]["text"] = ol_list
             elif item["type"] == "delimiter":
                 slack_block = {"type": "divider"}
-            elif item["type"] == "file":
+            elif item["type"] == "attaches":
                 files_text = (
                     "<"
                     + File.objects.get(id=item["data"]["file"]["id"]).get_url()
+                    + "|"
                     + item["data"]["file"]["title"]
                     + ">"
                 )
