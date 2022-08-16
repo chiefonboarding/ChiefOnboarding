@@ -18,7 +18,9 @@ class MyAdminTasksListView(LoginRequiredMixin, ManagerPermMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return AdminTask.objects.filter(assigned_to=self.request.user)
+        return AdminTask.objects.filter(assigned_to=self.request.user).select_related(
+            "new_hire", "assigned_to"
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -33,7 +35,7 @@ class AllAdminTasksListView(LoginRequiredMixin, ManagerPermMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return AdminTask.objects.all()
+        return AdminTask.objects.all().select_related("new_hire", "assigned_to")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

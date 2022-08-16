@@ -543,7 +543,7 @@ class ResourceUser(models.Model):
     def amount_chapters_in_course(self):
         return self.resource.chapters.count()
 
-    @property
+    @cached_property
     def percentage_completed(self):
         return self.step / self.resource.chapters.count() * 100
 
@@ -552,7 +552,7 @@ class ResourceUser(models.Model):
         # used to determine if item should show up as course or as article
         return self.resource.course and not self.completed_course
 
-    @property
+    @cached_property
     def get_rating(self):
         if not self.answers.exists():
             return "n/a"

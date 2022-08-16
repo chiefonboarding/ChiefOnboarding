@@ -880,6 +880,9 @@ def test_new_hire_course_rating(
     )
     resource_user1.answers.add(answer_obj)
 
+    # Delete cache
+    del resource_user1.get_rating
+
     assert resource_user1.get_rating == "1 correct answers out of 1 questions"
 
     # First one is wrong, second one is right
@@ -887,6 +890,9 @@ def test_new_hire_course_rating(
         chapter=new_chapter, answers={"item-0": "3", "item-1": "5"}
     )
     resource_user1.answers.add(answer_obj)
+
+    # Delete cache
+    del resource_user1.get_rating
 
     assert resource_user1.get_rating == "2 correct answers out of 3 questions"
 

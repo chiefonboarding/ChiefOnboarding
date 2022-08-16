@@ -20,7 +20,7 @@ from .models import (
 
 class ConditionCreateForm(forms.ModelForm):
     condition_to_do = forms.ModelMultipleChoiceField(
-        queryset=ToDo.templates.all().defer("content"),
+        queryset=ToDo.templates.defer_content().all(),
         to_field_name="id",
         required=False,
     )

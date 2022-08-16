@@ -1,7 +1,7 @@
 {% load i18n %}
 <form hx-post="{% url 'people:toggle_new_hire_task' object.id template.id view.kwargs.type %}" hx-swap="outerHTML" hx-indicator="#spinner-{{template.id}}">
-  <button type="submit" class="btn {% if template in user_items.all %}btn-primary{% else %}btn-white{% endif %}">
-    {% if template in user_items.all %}
+  <button type="submit" class="btn {% if template.id in user_items %}btn-primary{% else %}btn-white{% endif %}">
+    {% if template.id in user_items %}
       {% translate "Added" %}
     {% else %}
       {% translate "Add" %}
