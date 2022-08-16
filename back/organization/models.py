@@ -203,6 +203,18 @@ class TemplateManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(template=True)
 
+    def defer_content(self):
+        if "content" in self.model._meta.get_fields():
+            return self.get_queryset().defer("content")
+        return self.get_queryset()
+
+
+class ObjectsManager(models.Manager):
+    def defer_content(self):
+        if "content" in super().model._meta.get_fields():
+            return super().get_queryset().defer("content")
+        return super().get_queryset()
+
 
 class BaseItem(ContentMixin, models.Model):
     name = models.CharField(verbose_name=_("Name"), max_length=240)
@@ -213,7 +225,7 @@ class BaseItem(ContentMixin, models.Model):
     updated = models.DateTimeField(auto_now=True)
     template = models.BooleanField(default=True)
 
-    objects = models.Manager()
+    objects = ObjectsManager()
     templates = TemplateManager()
 
     class Meta:

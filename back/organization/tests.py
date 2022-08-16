@@ -96,27 +96,36 @@ def test_cache_logo_url(settings, file_factory):
     file2 = file_factory()
     org = Organization.object.get()
 
-    assert org.get_logo_url() == ""
+    assert org.get_logo_url == ""
 
     org.logo = file1
     org.save()
 
+    # delete cache
+    del org.get_logo_url
+
     # Duplicate it so we are not referencing it
-    logo_url = "".join(org.get_logo_url())
+    logo_url = "".join(org.get_logo_url)
 
     assert cache.get("logo_url", None) is not None
     assert cache.get("logo_url", None) == logo_url
 
-    org.get_logo_url()
+    org.get_logo_url
 
-    assert org.get_logo_url() == logo_url
+    # Delete cache
+    del org.get_logo_url
+
+    assert org.get_logo_url == logo_url
 
     # Invalidate cache with new logo
 
     org.logo = file2
     org.save()
 
-    assert org.get_logo_url() != logo_url
+    # Delete cache
+    del org.get_logo_url
+
+    assert org.get_logo_url != logo_url
 
 
 @pytest.mark.django_db

@@ -669,7 +669,7 @@ class NewHireTaskListView(LoginRequiredMixin, ManagerPermMixin, DetailView):
             "name": self.object.full_name
         }
         context["subtitle"] = _("new hire")
-        context["object_list"] = templates_model.templates.all().defer("content")
+        context["object_list"] = templates_model.templates.defer_content().all()
         context["user_items"] = getattr(
             self.object, get_user_field(self.kwargs.get("type", ""))
         ).values_list("id", flat=True)
