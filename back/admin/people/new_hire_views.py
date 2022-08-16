@@ -379,7 +379,11 @@ class NewHireNotesView(
         context["object"] = new_hire
         context["title"] = new_hire.full_name
         context["subtitle"] = _("new hire")
-        context["notes"] = Note.objects.filter(new_hire=new_hire).order_by("-id")
+        context["notes"] = (
+            Note.objects.filter(new_hire=new_hire)
+            .order_by("-id")
+            .select_related("admin")
+        )
         return context
 
 
@@ -388,7 +392,11 @@ class NewHireWelcomeMessagesView(LoginRequiredMixin, ManagerPermMixin, ListView)
 
     def get_queryset(self):
         new_hire = get_object_or_404(get_user_model(), pk=self.kwargs.get("pk"))
-        return NewHireWelcomeMessage.objects.filter(new_hire=new_hire).order_by("-id")
+        return (
+            NewHireWelcomeMessage.objects.filter(new_hire=new_hire)
+            .order_by("-id")
+            .select_related("colleague")
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -410,10 +418,10 @@ class NewHireAdminTasksView(LoginRequiredMixin, ManagerPermMixin, TemplateView):
         context["subtitle"] = _("new hire")
         context["tasks_completed"] = AdminTask.objects.filter(
             new_hire=new_hire, completed=True
-        )
+        ).select_related("new_hire", "assigned_to")
         context["tasks_open"] = AdminTask.objects.filter(
             new_hire=new_hire, completed=False
-        )
+        ).select_related("new_hire", "assigned_to")
         return context
 
 
@@ -427,12 +435,17 @@ class NewHireFormsView(LoginRequiredMixin, ManagerPermMixin, DetailView):
         new_hire = self.object
         context["title"] = new_hire.full_name
         context["subtitle"] = _("new hire")
-        context["preboarding_forms"] = PreboardingUser.objects.filter(
-            user=new_hire, form__isnull=False
-        ).exclude(form=[])
-        context["todo_forms"] = ToDoUser.objects.filter(
-            user=new_hire, completed=True
-        ).exclude(form=[])
+        context["preboarding_forms"] = (
+            PreboardingUser.objects.filter(user=new_hire, form__isnull=False)
+            .exclude(form=[])
+            .defer("preboarding__content")
+        )
+        context["todo_forms"] = (
+            ToDoUser.objects.filter(user=new_hire, completed=True)
+            .exclude(form=[])
+            .select_related("to_do")
+            .defer("to_do__content")
+        )
         return context
 
 
@@ -449,7 +462,11 @@ class NewHireProgressView(LoginRequiredMixin, ManagerPermMixin, DetailView):
         context["resources"] = ResourceUser.objects.filter(
             user=new_hire, resource__course=True
         )
-        context["todos"] = ToDoUser.objects.filter(user=new_hire)
+        context["todos"] = (
+            ToDoUser.objects.filter(user=new_hire)
+            .select_related("to_do")
+            .only("completed", "to_do__name", "to_do__id")
+        )
         return context
 
 
@@ -652,10 +669,10 @@ class NewHireTaskListView(LoginRequiredMixin, ManagerPermMixin, DetailView):
             "name": self.object.full_name
         }
         context["subtitle"] = _("new hire")
-        context["object_list"] = templates_model.templates.all()
+        context["object_list"] = templates_model.templates.all().defer("content")
         context["user_items"] = getattr(
             self.object, get_user_field(self.kwargs.get("type", ""))
-        )
+        ).values_list("id", flat=True)
         return context
 
 
@@ -677,6 +694,7 @@ class NewHireToggleTaskView(LoginRequiredMixin, ManagerPermMixin, TemplateView):
         else:
             user_items.add(template)
 
+        user_items = user_items.values_list("id", flat=True)
         # Update user amount completed
         user.update_progress()
 

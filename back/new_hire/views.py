@@ -39,8 +39,12 @@ class NewHireDashboard(LoginRequiredMixin, TemplateView):
 
         context["overdue_to_do_items"] = ToDoUser.objects.overdue(new_hire)
 
-        to_do_items = ToDoUser.objects.filter(
-            user=new_hire, to_do__due_on_day__gte=new_hire.workday
+        to_do_items = (
+            ToDoUser.objects.filter(
+                user=new_hire, to_do__due_on_day__gte=new_hire.workday
+            )
+            .select_related("to_do")
+            .defer("to_do__content")
         )
 
         # Group items by amount work days
@@ -300,8 +304,11 @@ class ResourceListView(LoginRequiredMixin, ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        return ResourceUser.objects.filter(user=self.request.user).order_by(
-            "resource__category"
+        return (
+            ResourceUser.objects.filter(user=self.request.user)
+            .order_by("resource__category")
+            .select_related("resource__category")
+            .prefetch_related("resource__chapters")
         )
 
 

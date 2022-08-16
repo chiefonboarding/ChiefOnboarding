@@ -164,6 +164,7 @@ class Organization(models.Model):
             t = Template(self.custom_email_template)
             return t.render(Context(context))
 
+    @cached_property
     def get_logo_url(self):
         if self.logo is None:
             return ""
