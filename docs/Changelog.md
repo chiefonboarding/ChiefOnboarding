@@ -6,21 +6,28 @@ order: 30
 
 ## v2.0.0
 * Completely new look
-* Dropped most dependency for VueJS
-* Support for custom integrations created by you!
-* Time triggers can now be triggered at a custom time (used to be always 8 am)
-* Slack doesn't depend on webhooks anymore - websocket is now supported as well
-* Notifications on both the new hire and admin side
+* Moved from SPA back to MPA (dropped almost all javascript requirements)
+* Support for custom integrations and webhooks created by you (https://integrations.chiefonboarding.com / https://github.com/chiefonboarding/ChiefOnboarding/blob/v2.0/docs/Integrations.md)!
+* Sequence timed based triggers can now be triggered at a custom time (used to be always at 8 am)
+* Slack doesn't need to depend on webhooks anymore - websocket is now supported as well (so you can also use it without having a public access point).
+* Notifications on both the new hire and admin side on various actions
 * Change channel where bot sends messages to
 * Change admin to manager and vise versa
 * Change email template
-* Assign admin tasks in sequence to admin/manager instead of person
-* Webhook support
+* Assign admin tasks in sequence to admin/manager instead of a specific person
+* Docs have been updated and moved to the ChiefOnboardig repo (instead of a standalone repo)
 
 BREAKING CHANGES:
-* Scheduled access items will not be executed anymore - table is dropped and functionality has been replaced
-* Slack account creation integration will be dropped due to dropped support from Slack. It can be put back, but requires some changes.
-* API is currently dropped, but will be back later.
+
+* Scheduled access items that have been scheduled on the old version will not be executed anymore - table is dropped and functionality has been replaced
+* API has breaking changes. Please see the dedicated API page for that.
+* Some urls will not be accessible (like preboarding links). I am not setting up a redirect for this. These will return 404.
+* Slack account creation will temporarily be removed. You can add it back when you go to our integrations site (see above). If you need the old key, then you can find it in Slack under your apps list (api.slack.com).
+* Google account creation will be temporarily removed. Record will still be in the database and will be available for use when we create this integration again. You could also remove this integration before migrating if you want to.
+* Selectboxes have been dropped temporarily from forms. Those will be gone after migration.
+* You can update Slack to use the internal websocket instead of the HTTPS calls webhooks. That way, you remove one open endpoint (technically, you could use the app now with Slack behind a VPN). Webhooks is the default as we have noticated that they are more stable.
+* SLACK BOT: Under "Interactivity & Shortcuts" in the config of your bot (https://api.slack.com/apps), change "callback" to "bot" in the URL. It should now be the same URL as you have under "Event Subscriptions". You will also need to change the redirect url. Change "api" to "admin" in the url and save it.
+* Buttons posted in Slack before this migrations might become invalid.
 
 ## v1.2.23
 * Fix email default from field for password reset
