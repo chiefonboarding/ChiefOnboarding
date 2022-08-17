@@ -67,9 +67,9 @@ The **Due on workday** field will allow you to add a workday on when the tasks n
 
 Then we have the **Tags** part. This is just a means of identification for yourself and other staff members. Totally optionally, but just something for you to separate tasks that have the same name. New hires will never get to see the tags. 
 
-The **content** is basically a WYSIWYG editor that allows you to add various things. Such as headers, lists, files and images. 
+The **content** is basically a WYSIWYG editor that allows you to add various things. Such as headers, lists, files and images. You can even create forms in these if you would like to get some info back from the new hire.
 
-**Form options** is exactly the same as with the pre-boarding part. Just a form that your new hires would need to fill in and then it's sent back to you. At the very bottom, you have a quick check box (only available with Slack integration), which is currently checked. This means that the answers from the new hire will be sent back to the Slack channel that you specify there. It's best to make the new hire aware of this, so they don't add anything they wouldn't want to share with the rest of the team. This feature is perfect for when you want to let your new hire introduce to the team with a default format. 
+At the very bottom, you have a quick check box (only available with Slack integration), which is currently checked. This means that the answers from the new hire will be sent back to the Slack channel that you specify there. It's best to make the new hire aware of this, so they don't add anything they wouldn't want to share with the rest of the team. This feature is perfect for when you want to let your new hire introduce to the team with a default format. 
 
 
 ### Resource items
@@ -77,7 +77,7 @@ Resource items are meant to inform your new hire. Think of general procedures, h
 
 ![resources edit](static/resources-edit.png)
 
-We already covered the title, tags and content part - they are the same as with the todo/preboarding items. Something new here is the 'Chapters' part. The name already gives it away, you can create chapters in these resources. This comes in handy when you want to split information a bit more (in the event that headers aren't enough). By default, you can't really check if the new hire indeed read/understood what was in the chapter. To solve that, you could turn the resource into a course (see the switch 'This is a course'). If you enable that, your new hire will have to go through the resource chapter by chapter. You could also add questions in between the chapters, so you can check their knowledge. You will be able to see the answer that they filled in on your side. The chapter with a question mark icon before it are these test. They can only consist of multiple choice questions.
+We already covered the title, tags and content part - they are the same as with the todo/preboarding items. Something new here is the 'Chapters' part. The name already gives it away, you can create chapters in these resources. This comes in handy when you want to split information a bit more (in the event that headers aren't enough). By default, you can't really check if the new hire indeed read/understood what was in the chapter. To solve that, you could turn the resource into a course (see the switch 'Is a course item'). If you enable that, your new hire will have to go through the resource chapter by chapter. You could also add questions in between the chapters, so you can check their knowledge. You will be able to see the answer that they filled in on your side. The chapter with a question mark icon before it are these test. They can only consist of multiple choice questions.
 You can also pick or create a category to separate the multiple resources for your new hire.
 
 ### Introduction items
@@ -87,20 +87,26 @@ Your new hire is new to the company and they barely know anyone. Perhaps they kn
 ![introduction edit](static/intro-edit.png)
 
 ::: v-pre
-On the right side, you have an example of how it looks for your new hire (in the webportal). Please note that things like `{{ first_name }}` will be replaced with the new hire's first name. This goes for most fields in the software (including content and title items). You can use these placeholders:
+On the right side, you have an example of how it looks for your new hire (in the webportal). Please note that items within the curly brackets, those will be replaced with the new hire's first name. This goes for most fields in the software (including content and title items). You can use these placeholders (within curly brackets):
 
 
-`{{ first_name }}`: new hire's first name
+`first_name`: new hire's first name
 
-`{{ last_name }}`: new hire's last name
+`last_name`: new hire's last name
 
-`{{ email }}`: new hire's email address
+`email`: new hire's email address
 
-`{{ position }}`: new hire's position
+`position`: new hire's position
 
-`{{ buddy }}`: new hire's buddy's full name
+`department`: new hire's department (if any)
 
-`{{ manager }}`: new hire's manager's full name
+`buddy`: new hire's buddy's full name
+
+`buddy_email`: new hire's buddy's email address
+
+`manager`: new hire's manager's full name
+
+`manager_email`: new hire's manager's email address
 :::
 
 ### Badge items
@@ -108,7 +114,6 @@ Badges are a way to keep your new hire motivated. You can't really do much with 
 
 ![badge edit](static/badge-edit.png)
 
-On the right side, you will see an example of how it looks for the new hire. This, again, is for the webportal, but can be used for Slack as well. 
 
 ### Admin to do items
 Sometimes, you or any of your colleagues need to do something for your new hire as well. With these items, you can automatically create a to do item for someone. You can assign it to someone and you can also notify someone else of this. 
@@ -118,13 +123,11 @@ Sometimes, you or any of your colleagues need to do something for your new hire 
 They will get a notification of this through Slack or email.
 
 ### Text/Slack/Email messages
-I am going over those all at once as they all have the same purpose: Sending a one-off message to someone. This 'someone' could be the new hire themselves, the manager or buddy assigned to the new hire or some random person that you can pick yourself. 
+I am going over those all at once as they all have the same purpose: Sending a one-off message to someone. This 'someone' could be the new hire themselves, the manager or buddy assigned to the new hire or some random person that you can pick yourself (or in the case of Slack; a channel is possible as well). 
 
 Here is an example of an email message:
 
 ![admin todo edit](static/email-edit.png)
-
-In the top right corner, you have the option to send an email message/slack message to yourself - just to test it out and see if everything is exactly how you want it to be. Please note that you need to have connected your account to your Slack account to be able to do this.
 
 Here is how the bottom part of our sequence looks like now. Now, this is only a really small sequence and you can make those as large as you want. You could also stack them - adding multiple sequences to one new hire.
 
@@ -137,10 +140,10 @@ Everyone that is in ChiefOnboarding is listed under 'People' -> 'Employees'. Tho
 Administrators are people that have full control over the dashboard. They can create new hires, remove them, create sequences and templates and so on. You can create as many as you would like.
 
 ### Administrators with limited access
-Optionally, you can add people with limited access. They would have access to their new hire's (being the manager) and their admin to do items. That's it.
+Optionally, you can add people with limited access. They have access to their new hire's (being the manager), the templates/sequences and their admin to do items. They will NOT have access to settings items.
 
 ### Employees
-Employees are basically empty accounts. They don't do much by default. They will show up on the colleagues page, but that's basically it. You can import them from Slack or Google to quickly have them all listed here. 
+Employees are basically empty accounts. They don't do much by default. They will show up on the colleagues page, but that's basically it. You can import them from Slack to quickly have them all listed here. 
 
 If you want, you can assign resources to these people and then they will be able to use the Slack bot and online webportal too look into these. Resources don't have to be just for new hires - they can be useful for long time employees as well. The colleagues page will be accessible for them too then. 
 
@@ -157,11 +160,11 @@ You can create new hires in three different ways:
 
 Let's look at each form field:
 
-`First name`: The new hire's first name*
+`First name`: The new hire's first name
 
-`Last name`: The new hire's last name*
+`Last name`: The new hire's last name
 
-`Email`: This is the email address from the new hire - the corporate one*
+`Email`: This is the email address from the new hire - the corporate one
 
 `Phone number`: This is the new hire's phone number (used to send sequence text messages to or preboarding page invitations)
 
@@ -179,12 +182,12 @@ Let's look at each form field:
 
 `New hire's manager`: This is the new hire's manager, you can use this field for sending messages in the sequence.
 
-`Assign one or more sequences to this new hire`: This is the part where you can assign your pre-made sequences to the new hire. If some items won't be triggered (because you created the new hire later than the first item in the sequence), then you will git a popup asking if you want to trigger those items immediately. 
+`Sequences`: This is the part where you can assign your pre-made sequences to the new hire. If some items won't be triggered (because you created the new hire later than the first item in the sequence), then you will git a popup asking if you want to trigger those items immediately. 
 
 Once created, you can choose to send the new hire's preboarding email. This one is not sent automatically, as you might want to make changes before you send it (this will be implemented as part of the sequences later on though).
 
 #### Using the API
-Please go to the [API doc page](static/API.html#api-documentation) for instructions on how to set this up.
+Please go to the [API doc page](/API/) for instructions on how to set this up.
 
 #### Automatically adding new hires when they join Slack (with or without manual approval)
 In the settings, there is now the option to enable 'automatic new hire creation from people joining Slack'. When a new hire joins Slack, ChiefOnboarding will get notified and it will automatically create a new hire account for them. It will also assign one or more default sequences to the new hire. No manual action is needed here - everything is automated.
