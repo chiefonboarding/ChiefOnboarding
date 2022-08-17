@@ -343,6 +343,9 @@ class Notification(models.Model):
     item_id = models.IntegerField(null=True)
     notified_user = models.BooleanField(default=False)
 
+    # Slack only
+    blocks = models.JSONField(default=list)
+
     class Meta:
         ordering = ["-created"]
 

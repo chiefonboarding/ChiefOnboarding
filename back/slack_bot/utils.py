@@ -111,6 +111,7 @@ class Slack:
                 extra_text=text,
                 created_for=User.objects.get(slack_channel_id=channel),
                 description=str(e),
+                blocks=blocks,
             )
 
     def send_ephemeral_message(self, user, blocks=[], channel="", text=""):
@@ -136,6 +137,7 @@ class Slack:
             Notification.objects.create(
                 notification_type="failed_send_slack_message",
                 extra_text=text,
+                blocks=blocks,
             )
             return False
 
@@ -159,6 +161,7 @@ class Slack:
                     extra_text=text,
                     created_for=users.first(),
                     description=json.dumps(blocks),
+                    blocks=blocks,
                 )
         except Exception as e:
             if users.exists():
@@ -167,6 +170,7 @@ class Slack:
                     extra_text=text,
                     created_for=users.first(),
                     description=str(e),
+                    blocks=blocks,
                 )
 
         return response
