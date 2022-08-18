@@ -24,19 +24,7 @@ Sequences consist of blocks. We currently have 3 types of blocks:
    - Block before the new hire starts
    - Block after the new hire has started
    - Block based on the completion of a to do item
-- Pre-boarding block
 - Unconditioned block
-
-### The pre-boarding block
-Within this block, you can add items (also called 'pages') that your new hire will be able to see BEFORE they join the company. A pre-boarding page basically looks like this:
-
-![preboarding edit](static/preboarding-edit.png)
-
-And you can preview it with the preview button, it will look like this:
-
-![preboarding view](static/preboarding-view.png)
-
-You might have noticed the little part at the bottom that says "Form options". You can actually build a custom form where you can allow your new hire to send some information back to you. Perhaps you want to know what their favorite snack is. 
 
 ### The general blocks
 There are three types of general blocks that you can choose from. You can create a block that triggers before the new hire starts. You could use this to create tasks (we will get to this later) for colleagues for things they need to do or send some emails/slack/text messages. 
@@ -48,7 +36,17 @@ All of the above blocks trigger at 8 AM in the new hire's timezone. Yes, ChiefOn
 The third type of general block is a special one. You can have things happen based on a to do item. We will get into to do items in a bit, but basically what this means is that you can wait for your new hire to complete a to do item and then it will trigger to create a new to do item for the new hire or perhaps send a message to a colleague. The possibilities are endless.
 
 ### The unconditioned block
-You can only add one of these and you can add things in here that are automatically added to the new hire when you add the sequence to your new hire. You could add some random stuff in here that your new hire might need or that they need right from the start. Think of some policies and some default to do items.
+You can only add one of these and you can add things in here that are automatically added to the new hire when you add the sequence to your new hire. You could add some random stuff in here that your new hire might need or that they need right from the start. Think of some policies and some default to do items. 
+
+Also often used to add preboarding pages that your new hire will be able to see BEFORE they join the company. A pre-boarding page basically looks like this:
+
+![preboarding edit](static/preboarding-edit.png)
+
+And you can preview it with the preview button, it will look like this:
+
+![preboarding view](static/preboarding-view.png)
+
+You might have noticed the little part at the bottom that says "Form options". You can actually build a custom form where you can allow your new hire to send some information back to you. Perhaps you want to know what their favorite snack is. 
 
 
 ## Templates
