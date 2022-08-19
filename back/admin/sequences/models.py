@@ -269,7 +269,6 @@ class ExternalMessage(ContentMixin, models.Model):
                 body=self.get_user(user).personalize(self.content),
             )
 
-
         if not self.is_slack_message:
             # The Slack send_message function already registered this notification so
             # skip it in that case.
