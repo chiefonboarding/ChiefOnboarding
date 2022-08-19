@@ -1022,6 +1022,19 @@ def test_pending_email_message_item(
 
 
 @pytest.mark.django_db
+def test_notification_execute_pending_email_message_item(
+    new_hire_factory, pending_email_message_factory
+):
+    new_hire = new_hire_factory(first_name="John")
+    pending_email_message = pending_email_message_factory(
+        subject="Hi {{ first_name }}!"
+    )
+    pending_email_message.execute(new_hire)
+
+    Notification.objects.count() == 1
+
+
+@pytest.mark.django_db
 def test_pending_text_message_item(pending_text_message_factory):
     pending_text_message = pending_text_message_factory()
     assert not pending_text_message.is_email_message
