@@ -269,11 +269,15 @@ class ExternalMessage(ContentMixin, models.Model):
                 body=self.get_user(user).personalize(self.content),
             )
 
-        Notification.objects.create(
-            notification_type=self.notification_add_type,
-            extra_text=self.name,
-            created_for=user,
-        )
+
+        if not self.is_slack_message:
+            # The Slack send_message function already registered this notification so
+            # skip it in that case.
+            Notification.objects.create(
+                notification_type=self.notification_add_type,
+                extra_text=self.name,
+                created_for=user,
+            )
 
     objects = ExternalMessageManager()
 
