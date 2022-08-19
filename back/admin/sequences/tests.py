@@ -1109,8 +1109,6 @@ def test_execute_external_message_slack(
     )
     pending_slack_message.execute(new_hire)
 
-    assert Notification.objects.count() == 1
-
     assert cache.get("slack_channel") == "slackx"
     assert cache.get("slack_blocks") == [
         {
