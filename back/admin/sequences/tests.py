@@ -761,6 +761,51 @@ def test_sequence_trigger_task(
     assert new_hire1.badges.all().count() == 1
 
 
+@pytest.mark.django_db
+@freeze_time("2022-05-13")
+def test_sequence_trigger_two_people_same_time(
+    sequence_factory,
+    new_hire_factory,
+    condition_timed_factory,
+    to_do_factory,
+):
+    org = Organization.object.get()
+    # Set it back 5 minutes, so it will actually run through the triggers
+    org.timed_triggers_last_check = timezone.now() - timedelta(minutes=5)
+    org.save()
+
+    new_hire1 = new_hire_factory()
+    new_hire2 = new_hire_factory()
+
+    to_do1 = to_do_factory()
+
+    seq = sequence_factory()
+
+    # Round current time to 0 or 5 to make it valid entry
+    current_time = timezone.now()
+    current_time = current_time.replace(
+        minute=current_time.minute - (current_time.minute % 5), second=0, microsecond=0
+    )
+
+    condition = condition_timed_factory(days=1, time=current_time)
+    condition.add_item(to_do1)
+
+    seq.conditions.add(condition)
+
+    # Add sequence to user
+    new_hire1.add_sequences([seq])
+    new_hire2.add_sequences([seq])
+
+    assert new_hire1.to_do.all().count() == 0
+    assert new_hire2.to_do.all().count() == 0
+
+    # Trigger sequence conditions
+    timed_triggers()
+
+    assert new_hire1.to_do.all().count() == 1
+    assert new_hire2.to_do.all().count() == 1
+
+
 # MODEL TESTS
 
 
