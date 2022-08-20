@@ -92,6 +92,11 @@ urlpatterns = [
         name="send_login_email",
     ),
     path(
+        "new_hire/<int:pk>/extra_info/",
+        new_hire_views.NewHireExtraInfoUpdateView.as_view(),
+        name="new_hire_extra_info",
+    ),
+    path(
         "new_hire/<int:pk>/delete/",
         new_hire_views.NewHireDeleteView.as_view(),
         name="delete",

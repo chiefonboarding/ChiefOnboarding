@@ -4,6 +4,7 @@ import requests
 from crispy_forms.helper import FormHelper
 from django import forms
 from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
 
 from .models import Integration
 from .serializers import ManifestSerializer
@@ -167,4 +168,24 @@ class IntegrationExtraArgsForm(forms.ModelForm):
 
     class Meta:
         model = Integration
+        fields = ()
+
+
+class IntegrationExtraUserInfoForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        missing_info = self.instance.missing_extra_info
+        for item in missing_info:
+            self.fields[item["id"]] = forms.CharField(
+                label=item["name"], help_text=item["description"]
+            )
+
+    def save(self):
+        integration = self.instance
+        integration.extra_fields |= self.cleaned_data
+        integration.save()
+        return integration
+
+    class Meta:
+        model = get_user_model()
         fields = ()

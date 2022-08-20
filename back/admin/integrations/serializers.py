@@ -79,6 +79,12 @@ class ManifestInitialDataFormSerializer(ValidateMixin, serializers.Serializer):
     description = serializers.CharField()
 
 
+class ManifestExtraUserInfoFormSerializer(ValidateMixin, serializers.Serializer):
+    id = serializers.CharField()
+    name = serializers.CharField()
+    description = serializers.CharField()
+
+
 class ManifestSerializer(ValidateMixin, serializers.Serializer):
     form = ManifestFormSerializer(required=False, many=True)
     exists = ManifestExistSerializer(required=False)
@@ -87,4 +93,5 @@ class ManifestSerializer(ValidateMixin, serializers.Serializer):
         many=True, required=False
     )
     initial_data_form = ManifestInitialDataFormSerializer(many=True, required=False)
+    extra_user_info = ManifestExtraUserInfoFormSerializer(many=True, required=False)
     headers = serializers.JSONField(required=False)

@@ -15,6 +15,7 @@ from fernet_fields import EncryptedTextField
 
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
+from admin.integrations.models import Integration
 from admin.introductions.models import Introduction
 from admin.preboarding.models import Preboarding
 from admin.resources.models import CourseAnswer, Resource
@@ -224,6 +225,28 @@ class User(AbstractBaseUser):
         if last_notification is not None:
             return last_notification.created > self.seen_updates
         return False
+
+    @cached_property
+    def missing_extra_info(self):
+        extra_info = self.conditions.filter(
+            integration_configs__isnull=False,
+            integration_configs__integration__manifest__extra_user_info__isnull=False,
+        ).values_list(
+            "integration_configs__integration__manifest__extra_user_info", flat=True
+        )
+
+        # We now have arrays within extra_info: [[{..}], [{..}, {..}]]. Let's make one
+        # array with all items: [{..}, {..}, {..}].
+        extra_user_info = []
+        for info in extra_info:
+            extra_user_info.extend(info)
+
+        # Only return what we still need
+        return [
+            item
+            for item in extra_user_info
+            if item["id"] not in self.extra_fields.keys()
+        ]
 
     def update_progress(self):
         all_to_do_ids = list(

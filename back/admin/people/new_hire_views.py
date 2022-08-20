@@ -8,7 +8,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Case, F, IntegerField, When
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.utils import translation
 from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView, View
@@ -19,6 +19,7 @@ from django_q.tasks import async_task
 from twilio.rest import Client
 
 from admin.admin_tasks.models import AdminTask
+from admin.integrations.forms import IntegrationExtraUserInfoForm
 from admin.integrations.models import Integration
 from admin.notes.models import Note
 from admin.sequences.models import Condition, Sequence
@@ -352,6 +353,27 @@ class NewHireMigrateToNormalAccountView(LoginRequiredMixin, ManagerPermMixin, Vi
         user.save()
         messages.info(request, _("New hire is now a normal account."))
         return redirect("people:new_hires")
+
+
+class NewHireExtraInfoUpdateView(
+    LoginRequiredMixin, ManagerPermMixin, UpdateView, SuccessMessageMixin
+):
+    template_name = "token_create.html"
+    form_class = IntegrationExtraUserInfoForm
+    queryset = get_user_model().new_hires.all()
+    success_message = _("Extra info has been added!")
+
+    def get_success_url(self):
+        user = get_object_or_404(get_user_model(), pk=self.kwargs.get("pk"))
+        return reverse("people:new_hire", args=[user.id])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        new_hire = context["object"]
+        context["title"] = new_hire.full_name
+        context["subtitle"] = _("new hire")
+        context["button_text"] = _("Update")
+        return context
 
 
 class NewHireNotesView(
