@@ -1,4 +1,5 @@
 import json
+from urllib.parse import urlparse
 
 import requests
 from django.contrib import messages
@@ -107,17 +108,21 @@ class IntegrationUpdateExtraArgsView(
 
 
 class IntegrationOauthRedirectView(LoginRequiredMixin, RedirectView):
-    def get_redirect_url(self, *args, **kwargs):
+    permanent = False
+
+    def get_redirect_url(self, pk, *args, **kwargs):
         integration = get_object_or_404(
             Integration,
-            pk=self.kwargs.pk,
+            pk=pk,
             manifest__oauth__isnull=False,
             enabled_oauth=False,
         )
-        return integration.manifest["oauth"]["url"]
+        return integration._replace_vars(integration.manifest["oauth"]["authenticate_url"])
 
 
 class IntegrationOauthCallbackView(LoginRequiredMixin, RedirectView):
+    permanent = False
+
     def get_redirect_url(self, *args, **kwargs):
         integration = get_object_or_404(
             Integration,
@@ -129,9 +134,15 @@ class IntegrationOauthCallbackView(LoginRequiredMixin, RedirectView):
         if code == "":
             return HttpResponse("Code was not provided")
 
-        data = integration._run_request(
-            integration.manifest["oauth"]["access_token_url"]
-        )
+        # Check if url has parameters already
+        url = integration.manifest["oauth"]["access_token_url"]
+        parsed_url = urlparse(url)
+        if len(parsed_url.query):
+            url += "&code=" + code
+        else:
+            url += "?code=" + code
+
+        data = integration._run_request(url)
         integration.extra_args = integration.extra_args | data.json()
         integration.enabled_oauth = True
         integration.save()

@@ -14,7 +14,7 @@ class ValidateMixin:
 
 class ManifestFormSerializer(ValidateMixin, serializers.Serializer):
     id = serializers.CharField()
-    url = serializers.CharField()
+    url = serializers.URLField()
     name = serializers.CharField()
     type = serializers.ChoiceField(
         [
@@ -30,7 +30,7 @@ class ManifestFormSerializer(ValidateMixin, serializers.Serializer):
 
 
 class ManifestExistSerializer(ValidateMixin, serializers.Serializer):
-    url = serializers.CharField()
+    url = serializers.URLField()
     expected = serializers.CharField()
     method = serializers.ChoiceField(
         [
@@ -43,8 +43,8 @@ class ManifestExistSerializer(ValidateMixin, serializers.Serializer):
 
 
 class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):
-    url = serializers.CharField()
-    data = serializers.JSONField()
+    url = serializers.URLField()
+    data = serializers.JSONField(required=False, default=dict)
     method = serializers.ChoiceField(
         [
             ("HEAD", "HEAD"),
@@ -85,6 +85,12 @@ class ManifestExtraUserInfoFormSerializer(ValidateMixin, serializers.Serializer)
     description = serializers.CharField()
 
 
+class ManifestOauthSerializer(ValidateMixin, serializers.Serializer):
+    authenticate_url = serializers.URLField()
+    access_token = ManifestExecuteSerializer(required=True)
+    refresh = ManifestExecuteSerializer(required=True)
+
+
 class ManifestSerializer(ValidateMixin, serializers.Serializer):
     form = ManifestFormSerializer(required=False, many=True)
     exists = ManifestExistSerializer(required=False)
@@ -95,3 +101,4 @@ class ManifestSerializer(ValidateMixin, serializers.Serializer):
     initial_data_form = ManifestInitialDataFormSerializer(many=True, required=False)
     extra_user_info = ManifestExtraUserInfoFormSerializer(many=True, required=False)
     headers = serializers.JSONField(required=False)
+    oauth = ManifestOauthSerializer(required=False)

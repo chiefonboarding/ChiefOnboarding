@@ -9,6 +9,7 @@ from django.template import Context, Template
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
+from django.urls import reverse_lazy
 from django_q.tasks import async_task
 from fernet_fields import EncryptedTextField
 from twilio.rest import Client
@@ -83,6 +84,7 @@ class Integration(models.Model):
 
     def _replace_vars(self, text):
         params = {} if not hasattr(self, "params") else self.params
+        params["redirect_url"] = reverse_lazy("integrations:oauth-callback", args=[self.id])
         if hasattr(self, "new_hire") and self.new_hire is not None:
             text = self.new_hire.personalize(text, self.extra_args | params)
             return text
