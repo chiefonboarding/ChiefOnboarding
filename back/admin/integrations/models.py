@@ -10,7 +10,8 @@ from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse_lazy
-from django_q.tasks import async_task
+from django_q.tasks import schedule
+from django_q.models import Schedule
 from fernet_fields import EncryptedTextField
 from twilio.rest import Client
 
@@ -82,7 +83,7 @@ class Integration(models.Model):
             headers=self._headers(data.get("headers", {})),
             data=post_data,
             timeout=120,
-        ).json()
+        )
 
     def _replace_vars(self, text):
         params = {} if not hasattr(self, "params") else self.params
@@ -111,7 +112,7 @@ class Integration(models.Model):
     def user_exists(self, new_hire):
         self.new_hire = new_hire
         return self._replace_vars(self.manifest["exists"]["expected"]) in json.dumps(
-            self._run_request(self.manifest["exists"])
+            self._run_request(self.manifest["exists"]).json()
         )
 
     def execute(self, new_hire, params):
@@ -126,9 +127,15 @@ class Integration(models.Model):
             and self.expiring < timezone.now()
         ):
             try:
-                self.extra_args["oauth"] = self._run_request(
+                response = self._run_request(
                     self.manifest["oauth"]["refresh_url"]
                 ).json()
+
+                # Raise if we don't get back a 2xx status
+                response.raise_for_status()
+
+                self.extra_args["oauth"] = response.json()
+                self.save()
             except requests.RequestException as e:
                 Notification.objects.create(
                     notification_type="failed_integration",
@@ -136,7 +143,6 @@ class Integration(models.Model):
                     created_for=new_hire,
                     description=str(e),
                 )
-            self.save()
 
         # Add generated secrets
         for item in self.manifest["initial_data_form"]:
@@ -146,7 +152,10 @@ class Integration(models.Model):
         # Run all requests
         for item in self.manifest["execute"]:
             try:
-                self._run_request(item)
+                response = self._run_request(item)
+                # Raise if we don't get back a 2xx status
+                response.raise_for_status()
+
             except requests.RequestException as e:
                 Notification.objects.create(
                     notification_type="failed_integration",
@@ -155,13 +164,14 @@ class Integration(models.Model):
                     description=str(e),
                 )
                 # Retry url in one hour
-                async_task(
+                schedule(
                     "admin.integrations.tasks.retry_integration",
                     new_hire.id,
                     self.id,
                     params,
-                    task_name=f"Retrying integration {self.name}",
+                    name=f"Retrying integration {self.name} for {new_hire.full_name}",
                     next_run=timezone.now() + timedelta(hours=1),
+                    schedule_type=Schedule.ONCE,
                 )
                 return
 
@@ -174,6 +184,7 @@ class Integration(models.Model):
                     to=self._replace_vars(item["to"]),
                     notification_type="sent_email_integration_notification",
                 )
+                return
             else:
                 try:
                     client = Client(
@@ -191,6 +202,7 @@ class Integration(models.Model):
                         created_for=new_hire,
                         description=str(e),
                     )
+                    return
 
         # Succesfully ran integration, add notification
         Notification.objects.create(

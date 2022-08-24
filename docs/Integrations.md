@@ -44,6 +44,8 @@ Exists is an option to check if a user is already part of a team. If you add thi
 
 `expected`: Whatever we expect. Generally this will probably be a positive message or the new hire's email. You can use new hire values by wrapping them around double curly brackets.
 
+`headers`: (optionally) This will overwrite the default headers.
+
 ## Execute
 These requests will be ran when this integration gets triggered.
 
@@ -53,16 +55,21 @@ These requests will be ran when this integration gets triggered.
 
 `method`: The request method. E.g. `POST` or `GET`.
 
+`headers`: (optionally) This will overwrite the default headers.
+
 ## Headers
 These headers will be send with every request. These could include some sort of token variable for authentication.
 
 ## Oauth
 If you need to use OAuth2 to get a token, then you will need to use this. Just create a prop called `oauth` and then in that use these properties:
 
-`url`: The url to start the Oauth authentication process. This will generally be a login screen which requests for permissions.
-`access_token_url`: This is used when you come back to our site with a token. With that token, it will need to fetch an access token from the third party (and perhaps a refresh token).
+`authenticate_url`: This is the url that is used to send the user to the login/authorize the connection (this should be a url to the third party). This is always a `GET` request. It expects an url here.
 
-`refresh_url`: Used to refresh the token to get a new one, if this is not added, then it will assume that the token is permanent.
+`access_token`: This is used when you come back to our site with a token. With that token, it will need to fetch an access token from the third party (and perhaps a refresh token). Format is an object like the `execute` part.
+
+`refresh`: Used to refresh the token to get a new one, if this is not added, then it will assume that the token is permanent. Format is an object like the `execute` part.
+
+`without_code`: Default: `False`. Enable this is a valid callback won't return a `code` query in the url. In some cases, we don't get it and also not need it.
 
 
 ## Initial data form
