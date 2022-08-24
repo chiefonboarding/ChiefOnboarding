@@ -71,20 +71,22 @@ class Integration(models.Model):
     def _run_request(self, data):
         url = self._replace_vars(data["url"])
         if "data" in data:
-            post_data = json.loads(self._replace_vars(json.dumps(data["data"])))
+            post_data = self._replace_vars(json.dumps(data["data"]))
         else:
             post_data = {}
+        if data.get("cast_data_to_json", True):
+            post_data = json.loads(post_data)
         return requests.request(
             data.get("method", "POST"),
             url,
-            headers=self._headers,
+            headers=self._headers(data.get("headers", {})),
             data=post_data,
             timeout=120,
         ).json()
 
     def _replace_vars(self, text):
         params = {} if not hasattr(self, "params") else self.params
-        params["redirect_url"] = reverse_lazy("integrations:oauth-callback", args=[self.id])
+        params["redirect_url"] = settings.BASE_URL + reverse_lazy("integrations:oauth-callback", args=[self.id])
         if hasattr(self, "new_hire") and self.new_hire is not None:
             text = self.new_hire.personalize(text, self.extra_args | params)
             return text
@@ -97,10 +99,10 @@ class Integration(models.Model):
     def has_oauth(self):
         return "oauth" in self.manifest
 
-    @property
-    def _headers(self):
+    def _headers(self, headers={}):
+        headers = self.manifest["headers"].items() if len(headers) == 0 else headers.items()
         new_headers = {}
-        for key, value in self.manifest["headers"].items():
+        for key, value in headers:
             # Adding an empty string to force to return a string instead of a
             # safestring. Ref: https://github.com/psf/requests/issues/6159
             new_headers[self._replace_vars(key) + ""] = self._replace_vars(value) + ""
@@ -124,7 +126,7 @@ class Integration(models.Model):
             and self.expiring < timezone.now()
         ):
             try:
-                self.extra_args |= self._run_request(
+                self.extra_args["oauth"] = self._run_request(
                     self.manifest["oauth"]["refresh_url"]
                 ).json()
             except requests.RequestException as e:
@@ -138,7 +140,7 @@ class Integration(models.Model):
 
         # Add generated secrets
         for item in self.manifest["initial_data_form"]:
-            if "type" in item and item["type"] == "generate":
+            if "name" in item and item["name"] == "generate":
                 self.extra_args[item["id"]] = get_random_string(length=10)
 
         # Run all requests

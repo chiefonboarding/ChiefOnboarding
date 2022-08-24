@@ -20,7 +20,7 @@ You can customize where we get the info from and what an admin should fill in. T
 
 `name`: The form label shown to the admin.
 
-`type`: options: `choice` or `input`. If you choose `choice`, you will be able to set the options yourself OR fetch from an external url.
+`type`: options: `choice`, `multiple_choice` and `input`. If you choose `choice`, you will be able to set the options yourself OR fetch from an external url.
 
 For `choice`:
 
@@ -57,16 +57,12 @@ These requests will be ran when this integration gets triggered.
 These headers will be send with every request. These could include some sort of token variable for authentication.
 
 ## Oauth
-> Not fully functional yet! WIP.
-
 If you need to use OAuth2 to get a token, then you will need to use this. Just create a prop called `oauth` and then in that use these properties:
 
 `url`: The url to start the Oauth authentication process. This will generally be a login screen which requests for permissions.
 `access_token_url`: This is used when you come back to our site with a token. With that token, it will need to fetch an access token from the third party (and perhaps a refresh token).
 
-If the `expires_in` value is provided by the third party, then ChiefOnboarding will automatically refresh the api tokens at use (if necessary). In that case, you will have to set:
-
-`refresh_url`: Used to refresh the token to get a new one
+`refresh_url`: Used to refresh the token to get a new one, if this is not added, then it will assume that the token is permanent.
 
 
 ## Initial data form
@@ -77,7 +73,7 @@ You can obviously add as many as you want. You can use these variables by using 
 
 `id`: Reference for any other part of the manifest. Wrap it around double curly brackets to use it. 
 
-`name`: The label of the field. Please do not use spaces or weird characters. A single word is prefered.
+`name`: The label of the field. Please do not use spaces or weird characters. A single word is prefered. Use `generate` to generate a secret value, use this for i.e. one-time password.
 
 `description`: Any other info you want to leave to make it clear where to find this value. Mainly used for documentation and/or sharing.
 
@@ -108,6 +104,8 @@ Throughout the manifest you can use the variables that you have defined in the `
 `buddy_email`: The buddy's email address
 
 `position`: New hire's position
+
+`department`: New hire's department
 
 `first_name`: New hire's first name
 

@@ -71,7 +71,7 @@ class IntegrationConfigForm(forms.ModelForm):
                     try:
                         option_data = requests.get(
                             integration._replace_vars(item["url"]),
-                            headers=integration._headers,
+                            headers=integration._headers(item.get("headers", {})),
                         ).json()
                     except Exception as e:
                         self.error = (
@@ -157,7 +157,8 @@ class IntegrationExtraArgsForm(forms.ModelForm):
             if item["id"] in initial_data:
                 self.fields[item["id"]].initial = initial_data[item["id"]]
             # If field is secret field, then hide it - values are generated on the fly
-            if "type" in item and item["type"] == "generated":
+            if "name" in item and item["name"] == "generate":
+                self.fields[item["id"]].required = False
                 self.fields[item["id"]].widget = forms.HiddenInput()
 
     def save(self):

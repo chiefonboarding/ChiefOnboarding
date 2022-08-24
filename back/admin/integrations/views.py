@@ -120,30 +120,33 @@ class IntegrationOauthRedirectView(LoginRequiredMixin, RedirectView):
         return integration._replace_vars(integration.manifest["oauth"]["authenticate_url"])
 
 
-class IntegrationOauthCallbackView(LoginRequiredMixin, RedirectView):
+class IntegrationOauthCallbackView(RedirectView):
     permanent = False
 
-    def get_redirect_url(self, *args, **kwargs):
+    def get_redirect_url(self, pk, *args, **kwargs):
         integration = get_object_or_404(
             Integration,
-            pk=self.kwargs.pk,
+            pk=pk,
             manifest__oauth__isnull=False,
             enabled_oauth=False,
         )
         code = kwargs.get("code", "")
-        if code == "":
+        if code == "" and not integration.manifest["oauth"].get("without_code", False):
             return HttpResponse("Code was not provided")
 
         # Check if url has parameters already
-        url = integration.manifest["oauth"]["access_token_url"]
-        parsed_url = urlparse(url)
-        if len(parsed_url.query):
-            url += "&code=" + code
-        else:
-            url += "?code=" + code
+        url = integration.manifest["oauth"]["access_token"]["url"]
+        if not integration.manifest["oauth"].get("without_code", False):
+            parsed_url = urlparse(url)
+            if len(parsed_url.query):
+                url += "&code=" + code
+            else:
+                url += "?code=" + code
 
-        data = integration._run_request(url)
-        integration.extra_args = integration.extra_args | data.json()
+        integration.manifest["oauth"]["access_token"]["url"] = url
+
+        data = integration._run_request(integration.manifest["oauth"]["access_token"])
+        integration.extra_args["oauth"] = data
         integration.enabled_oauth = True
         integration.save()
 
