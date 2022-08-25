@@ -6,6 +6,7 @@ from .models import Integration
 
 class IntegrationFactory(factory.django.DjangoModelFactory):
     name = FuzzyText()
+    integration = 10
 
     class Meta:
         model = Integration

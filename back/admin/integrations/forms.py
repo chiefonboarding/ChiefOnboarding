@@ -182,10 +182,10 @@ class IntegrationExtraUserInfoForm(forms.ModelForm):
             )
 
     def save(self):
-        integration = self.instance
-        integration.extra_fields |= self.cleaned_data
-        integration.save()
-        return integration
+        user = self.instance
+        user.extra_fields |= self.cleaned_data
+        user.save()
+        return user
 
     class Meta:
         model = get_user_model()

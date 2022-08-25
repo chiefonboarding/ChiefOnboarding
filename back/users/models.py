@@ -235,10 +235,15 @@ class User(AbstractBaseUser):
         )
 
         # We now have arrays within extra_info: [[{..}], [{..}, {..}]]. Let's make one
-        # array with all items: [{..}, {..}, {..}].
+        # array with all items: [{..}, {..}, {..}] and remove the duplicates.
+        # Loop through both arrays and then add it, if it doesn't exist already.
+        # Do the check on the ID, so other props could be different, but it still
+        # wouldn't show it.
         extra_user_info = []
-        for info in extra_info:
-            extra_user_info.extend(info)
+        for requested_info_arr in extra_info:
+            for requested_info in requested_info_arr:
+                if requested_info["id"] not in [item["id"] for item in extra_user_info]:
+                    extra_user_info.append(requested_info)
 
         # Only return what we still need
         return [

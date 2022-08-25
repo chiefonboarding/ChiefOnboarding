@@ -3,7 +3,19 @@ import uuid
 from datetime import timedelta
 
 import requests
-from requests.exceptions import HTTPError, ConnectionError, Timeout, ConnectTimeout, InvalidJSONError, JSONDecodeError, SSLError, URLRequired, MissingSchema, InvalidSchema, InvalidURL, TooManyRedirects, InvalidHeader
+from requests.exceptions import (
+    HTTPError,
+    Timeout,
+    InvalidJSONError,
+    JSONDecodeError,
+    SSLError,
+    URLRequired,
+    MissingSchema,
+    InvalidSchema,
+    InvalidURL,
+    TooManyRedirects,
+    InvalidHeader,
+)
 from django.conf import settings
 from django.db import models
 from django.template import Context, Template
@@ -152,9 +164,7 @@ class Integration(models.Model):
         if not success:
             return None
 
-        return self._replace_vars(
-            self.manifest["exists"]["expected"]
-        ) in response.text
+        return self._replace_vars(self.manifest["exists"]["expected"]) in response.text
 
     def execute(self, new_hire, params):
         self.params = params
@@ -167,9 +177,7 @@ class Integration(models.Model):
             and "expires_in" in self.extra_args
             and self.expiring < timezone.now()
         ):
-            success, response = self.run_request(
-                self.manifest["oauth"]["refresh_url"]
-            )
+            success, response = self.run_request(self.manifest["oauth"]["refresh_url"])
 
             if not success:
                 Notification.objects.create(

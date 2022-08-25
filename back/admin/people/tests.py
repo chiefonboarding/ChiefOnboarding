@@ -1491,6 +1491,75 @@ def test_new_hire_toggle_tasks(
         assert "Add" in response.content.decode()
 
 
+@pytest.mark.django_db
+def test_new_hire_extra_info_update_view(
+    client,
+    django_user_model,
+    condition_to_do_factory,
+    integration_config_factory,
+    integration_factory,
+    new_hire_factory,
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    integration = integration_factory(
+        manifest={
+            "extra_user_info": [
+                {
+                    "id": "PERSONAL_EMAIL",
+                    "name": "Personal email address",
+                    "description": "test",
+                },
+                {
+                    "id": "NEW_ONE",
+                    "name": "Second personal email address",
+                    "description": "test2",
+                },
+            ]
+        }
+    )
+    integration_config = integration_config_factory(integration=integration)
+    condition = condition_to_do_factory()
+    condition.integration_configs.add(integration_config)
+
+    new_hire = new_hire_factory()
+    new_hire.conditions.add(condition)
+
+    url = reverse("people:new_hire_extra_info", args=[new_hire.id])
+    response = client.get(url)
+
+    assert response.status_code == 200
+    # Check that the form is there
+    assert "personal email address" in response.content.decode()
+    assert "test2" in response.content.decode()
+
+    assert len(new_hire.missing_extra_info) == 2
+
+    url = reverse("people:new_hire_extra_info", args=[new_hire.id])
+    response = client.post(
+        url,
+        data={
+            "PERSONAL_EMAIL": "hi@chiefonboarding.com",
+            "NEW_ONE": "test",
+            "FAKE_ONE": "test",
+        },
+        follow=True,
+    )
+
+    assert response.status_code == 200
+
+    # Missing extra info is now cleared
+    new_hire.refresh_from_db()
+    del new_hire.missing_extra_info
+
+    assert len(new_hire.missing_extra_info) == 0
+
+    assert new_hire.extra_fields == {
+        "PERSONAL_EMAIL": "hi@chiefonboarding.com",
+        "NEW_ONE": "test",
+    }
+
+
 # COLLEAGUES #
 
 
