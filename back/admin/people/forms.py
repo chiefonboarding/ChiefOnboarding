@@ -35,6 +35,8 @@ class NewHireAddForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["buddy"].required = False
         self.fields["manager"].required = False
+        self.fields["department"].required = False
+        self.fields["profile_image"].required = False
         self.fields["language"].initial = Organization.object.get().language
         self.fields["timezone"].initial = Organization.object.get().timezone
         self.fields["start_day"].initial = timezone.now().date()
@@ -82,6 +84,17 @@ class NewHireAddForm(forms.ModelForm):
                 css_class="row",
             ),
             Div(
+                Div(Field("department", css_class="add"), css_class="col-6"),
+                Div(
+                    UploadField(
+                        "profile_image",
+                        extra_context={"file": self.instance.profile_image},
+                    ),
+                    css_class="col-6",
+                ),
+                css_class="row",
+            ),
+            Div(
                 Div(
                     Field("buddy"),
                     css_class="col-6",
@@ -118,6 +131,8 @@ class NewHireAddForm(forms.ModelForm):
             "language",
             "buddy",
             "manager",
+            "department",
+            "profile_image",
         )
 
 
@@ -133,6 +148,8 @@ class NewHireProfileForm(forms.ModelForm):
         self.helper = FormHelper()
         self.fields["buddy"].required = False
         self.fields["manager"].required = False
+        self.fields["department"].required = False
+        self.fields["profile_image"].required = False
         self.helper.layout = Layout(
             Div(
                 Div(
@@ -151,6 +168,17 @@ class NewHireProfileForm(forms.ModelForm):
             ),
             Div(
                 Div(Field("message"), css_class="col-12"),
+                css_class="row",
+            ),
+            Div(
+                Div(Field("department", css_class="add"), css_class="col-6"),
+                Div(
+                    UploadField(
+                        "profile_image",
+                        extra_context={"file": self.instance.profile_image},
+                    ),
+                    css_class="col-6",
+                ),
                 css_class="row",
             ),
             Div(
@@ -179,6 +207,8 @@ class NewHireProfileForm(forms.ModelForm):
             "language",
             "buddy",
             "manager",
+            "department",
+            "profile_image",
         )
 
 
