@@ -1324,12 +1324,6 @@ def test_new_hire_access_list(
 
 
 @pytest.mark.django_db
-@patch(
-    "requests.request",
-    Mock(
-        return_value=Mock(status_code=201, json=lambda: {"email": "stan@example.com"})
-    ),
-)
 def test_new_hire_access_per_integration(
     client, django_user_model, new_hire_factory, custom_integration_factory
 ):
@@ -1339,25 +1333,38 @@ def test_new_hire_access_per_integration(
     new_hire2 = new_hire_factory()
     integration1 = custom_integration_factory(name="Asana", integration=10)
 
-    # New hire already has an account (email matches with return)
-    url = reverse(
-        "people:new_hire_check_integration", args=[new_hire1.id, integration1.id]
-    )
+    with patch('admin.integrations.models.Integration.user_exists', Mock(return_value=True)):
+        # New hire already has an account (email matches with return)
+        url = reverse(
+            "people:new_hire_check_integration", args=[new_hire1.id, integration1.id]
+        )
 
-    response = client.get(url)
+        response = client.get(url)
 
-    assert integration1.name in response.content.decode()
-    assert "Activated" in response.content.decode()
+        assert integration1.name in response.content.decode()
+        assert "Activated" in response.content.decode()
 
-    # New hire has no account
-    url = reverse(
-        "people:new_hire_check_integration", args=[new_hire2.id, integration1.id]
-    )
+    with patch('admin.integrations.models.Integration.user_exists', Mock(return_value=False)):
+        # New hire has no account
+        url = reverse(
+            "people:new_hire_check_integration", args=[new_hire2.id, integration1.id]
+        )
 
-    response = client.get(url)
+        response = client.get(url)
 
-    assert integration1.name in response.content.decode()
-    assert "Give access" in response.content.decode()
+        assert integration1.name in response.content.decode()
+        assert "Give access" in response.content.decode()
+
+    with patch('admin.integrations.models.Integration.user_exists', Mock(return_value=None)):
+        # New hire has no account
+        url = reverse(
+            "people:new_hire_check_integration", args=[new_hire2.id, integration1.id]
+        )
+
+        response = client.get(url)
+
+        assert integration1.name in response.content.decode()
+        assert "Error when trying to reach service" in response.content.decode()
 
 
 @pytest.mark.django_db
