@@ -87,7 +87,9 @@ class Integration(models.Model):
 
     def _replace_vars(self, text):
         params = {} if not hasattr(self, "params") else self.params
-        params["redirect_url"] = settings.BASE_URL + reverse_lazy("integrations:oauth-callback", args=[self.id])
+        params["redirect_url"] = settings.BASE_URL + reverse_lazy(
+            "integrations:oauth-callback", args=[self.id]
+        )
         if hasattr(self, "new_hire") and self.new_hire is not None:
             text = self.new_hire.personalize(text, self.extra_args | params)
             return text
@@ -101,7 +103,9 @@ class Integration(models.Model):
         return "oauth" in self.manifest
 
     def _headers(self, headers={}):
-        headers = self.manifest["headers"].items() if len(headers) == 0 else headers.items()
+        headers = (
+            self.manifest["headers"].items() if len(headers) == 0 else headers.items()
+        )
         new_headers = {}
         for key, value in headers:
             # Adding an empty string to force to return a string instead of a
@@ -116,10 +120,10 @@ class Integration(models.Model):
             # Raise if we don't get back a 2xx status
             response.raise_for_status()
 
-            return self._replace_vars(self.manifest["exists"]["expected"]) in json.dumps(
-                response.json()
-            )
-        except:
+            return self._replace_vars(
+                self.manifest["exists"]["expected"]
+            ) in json.dumps(response.json())
+        except Exception:
             return None
 
     def execute(self, new_hire, params):

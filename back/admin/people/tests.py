@@ -1333,7 +1333,9 @@ def test_new_hire_access_per_integration(
     new_hire2 = new_hire_factory()
     integration1 = custom_integration_factory(name="Asana", integration=10)
 
-    with patch('admin.integrations.models.Integration.user_exists', Mock(return_value=True)):
+    with patch(
+        "admin.integrations.models.Integration.user_exists", Mock(return_value=True)
+    ):
         # New hire already has an account (email matches with return)
         url = reverse(
             "people:new_hire_check_integration", args=[new_hire1.id, integration1.id]
@@ -1344,7 +1346,9 @@ def test_new_hire_access_per_integration(
         assert integration1.name in response.content.decode()
         assert "Activated" in response.content.decode()
 
-    with patch('admin.integrations.models.Integration.user_exists', Mock(return_value=False)):
+    with patch(
+        "admin.integrations.models.Integration.user_exists", Mock(return_value=False)
+    ):
         # New hire has no account
         url = reverse(
             "people:new_hire_check_integration", args=[new_hire2.id, integration1.id]
@@ -1355,7 +1359,9 @@ def test_new_hire_access_per_integration(
         assert integration1.name in response.content.decode()
         assert "Give access" in response.content.decode()
 
-    with patch('admin.integrations.models.Integration.user_exists', Mock(return_value=None)):
+    with patch(
+        "admin.integrations.models.Integration.user_exists", Mock(return_value=None)
+    ):
         # New hire has no account
         url = reverse(
             "people:new_hire_check_integration", args=[new_hire2.id, integration1.id]

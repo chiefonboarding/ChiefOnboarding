@@ -15,7 +15,6 @@ from fernet_fields import EncryptedTextField
 
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
-from admin.integrations.models import Integration
 from admin.introductions.models import Introduction
 from admin.preboarding.models import Preboarding
 from admin.resources.models import CourseAnswer, Resource

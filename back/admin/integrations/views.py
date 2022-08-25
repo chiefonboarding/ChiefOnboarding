@@ -117,7 +117,9 @@ class IntegrationOauthRedirectView(LoginRequiredMixin, RedirectView):
             manifest__oauth__isnull=False,
             enabled_oauth=False,
         )
-        return integration._replace_vars(integration.manifest["oauth"]["authenticate_url"])
+        return integration._replace_vars(
+            integration.manifest["oauth"]["authenticate_url"]
+        )
 
 
 class IntegrationOauthCallbackView(LoginRequiredMixin, RedirectView):
@@ -147,7 +149,7 @@ class IntegrationOauthCallbackView(LoginRequiredMixin, RedirectView):
 
         try:
             response = self._run_request(
-               integration.manifest["oauth"]["access_token"]
+                integration.manifest["oauth"]["access_token"]
             ).json()
 
             # Raise if we don't get back a 2xx status
