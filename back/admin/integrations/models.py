@@ -111,9 +111,16 @@ class Integration(models.Model):
 
     def user_exists(self, new_hire):
         self.new_hire = new_hire
-        return self._replace_vars(self.manifest["exists"]["expected"]) in json.dumps(
-            self._run_request(self.manifest["exists"]).json()
-        )
+        try:
+            response = self._run_request(self.manifest["exists"])
+            # Raise if we don't get back a 2xx status
+            response.raise_for_status()
+
+            return self._replace_vars(self.manifest["exists"]["expected"]) in json.dumps(
+                response.json()
+            )
+        except:
+            return None
 
     def execute(self, new_hire, params):
         self.params = params

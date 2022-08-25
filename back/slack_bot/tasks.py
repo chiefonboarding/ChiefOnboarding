@@ -182,7 +182,7 @@ def introduce_new_people():
     ):
         return
 
-    new_hires = get_user_model().new_hires.to_introduce()
+    new_hires = get_user_model().new_hires.to_introduce().order_by("start_day", "id")
 
     # If there are no new hires starting, then drop
     if not new_hires.exists():

@@ -120,7 +120,7 @@ class IntegrationOauthRedirectView(LoginRequiredMixin, RedirectView):
         return integration._replace_vars(integration.manifest["oauth"]["authenticate_url"])
 
 
-class IntegrationOauthCallbackView(RedirectView):
+class IntegrationOauthCallbackView(LoginRequiredMixin, RedirectView):
     permanent = False
 
     def get_redirect_url(self, pk, *args, **kwargs):
