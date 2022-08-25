@@ -147,16 +147,12 @@ class IntegrationOauthCallbackView(LoginRequiredMixin, RedirectView):
 
             integration.manifest["oauth"]["access_token"]["url"] = url
 
-        try:
-            response = self._run_request(
-                integration.manifest["oauth"]["access_token"]
-            ).json()
+        success, response = self.run_request(
+            integration.manifest["oauth"]["access_token"]
+        )
 
-            # Raise if we don't get back a 2xx status
-            response.raise_for_status()
-
-        except requests.RequestException as e:
-            return HttpResponse("Couldn't save token: " + str(e))
+        if not success:
+            return HttpResponse("Couldn't save token: {response}")
 
         integration.extra_args["oauth"] = response.json()
         integration.enabled_oauth = True

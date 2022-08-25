@@ -3,6 +3,7 @@ import uuid
 from datetime import timedelta
 
 import requests
+from requests.exceptions import HTTPError, ConnectionError, Timeout, ConnectTimeout, InvalidJSONError, JSONDecodeError, SSLError, URLRequired, MissingSchema, InvalidSchema, InvalidURL, TooManyRedirects, InvalidHeader
 from django.conf import settings
 from django.db import models
 from django.template import Context, Template
@@ -69,7 +70,7 @@ class Integration(models.Model):
     bot_token = EncryptedTextField(max_length=10000, default="", blank=True)
     bot_id = models.CharField(max_length=100, default="")
 
-    def _run_request(self, data):
+    def run_request(self, data):
         url = self._replace_vars(data["url"])
         if "data" in data:
             post_data = self._replace_vars(json.dumps(data["data"]))
@@ -77,13 +78,44 @@ class Integration(models.Model):
             post_data = {}
         if data.get("cast_data_to_json", True):
             post_data = json.loads(post_data)
-        return requests.request(
-            data.get("method", "POST"),
-            url,
-            headers=self._headers(data.get("headers", {})),
-            data=post_data,
-            timeout=120,
-        )
+        try:
+            response = requests.request(
+                data.get("method", "POST"),
+                url,
+                headers=self._headers(data.get("headers", {})),
+                data=post_data,
+                timeout=120,
+            )
+        except (InvalidJSONError, JSONDecodeError):
+            return False, "JSON is invalid"
+
+        except HTTPError:
+            return False, "An HTTP error occurred"
+
+        except SSLError:
+            return False, "An SSL error occurred"
+
+        except Timeout:
+            return False, "The request timed out"
+
+        except (URLRequired, MissingSchema, InvalidSchema, InvalidURL):
+            return False, "The url is invalid"
+
+        except TooManyRedirects:
+            return False, "There are too many redirects"
+
+        except InvalidHeader:
+            return False, "The header is invalid"
+
+        except Exception:
+            return False, "There was an unexpected error with the request"
+
+        try:
+            response.raise_for_status()
+        except Exception:
+            return False, response.text
+
+        return True, response
 
     def _replace_vars(self, text):
         params = {} if not hasattr(self, "params") else self.params
@@ -115,16 +147,14 @@ class Integration(models.Model):
 
     def user_exists(self, new_hire):
         self.new_hire = new_hire
-        try:
-            response = self._run_request(self.manifest["exists"])
-            # Raise if we don't get back a 2xx status
-            response.raise_for_status()
+        success, response = self.run_request(self.manifest["exists"])
 
-            return self._replace_vars(
-                self.manifest["exists"]["expected"]
-            ) in json.dumps(response.json())
-        except Exception:
+        if not success:
             return None
+
+        return self._replace_vars(
+            self.manifest["exists"]["expected"]
+        ) in response.text
 
     def execute(self, new_hire, params):
         self.params = params
@@ -137,23 +167,21 @@ class Integration(models.Model):
             and "expires_in" in self.extra_args
             and self.expiring < timezone.now()
         ):
-            try:
-                response = self._run_request(
-                    self.manifest["oauth"]["refresh_url"]
-                ).json()
+            success, response = self.run_request(
+                self.manifest["oauth"]["refresh_url"]
+            )
 
-                # Raise if we don't get back a 2xx status
-                response.raise_for_status()
-
-                self.extra_args["oauth"] = response.json()
-                self.save()
-            except requests.RequestException as e:
+            if not success:
                 Notification.objects.create(
                     notification_type="failed_integration",
                     extra_text=self.name,
                     created_for=new_hire,
-                    description=str(e),
+                    description="Refresh url: " + str(response),
                 )
+                return
+
+            self.extra_args["oauth"] = response.json()
+            self.save()
 
         # Add generated secrets
         for item in self.manifest["initial_data_form"]:
@@ -162,17 +190,14 @@ class Integration(models.Model):
 
         # Run all requests
         for item in self.manifest["execute"]:
-            try:
-                response = self._run_request(item)
-                # Raise if we don't get back a 2xx status
-                response.raise_for_status()
+            success, response = self.run_request(item)
 
-            except requests.RequestException as e:
+            if not success:
                 Notification.objects.create(
                     notification_type="failed_integration",
                     extra_text=self.name,
                     created_for=new_hire,
-                    description=str(e),
+                    description="Execute url ({item['url']}): {response}",
                 )
                 # Retry url in one hour
                 schedule(
@@ -206,12 +231,11 @@ class Integration(models.Model):
                         from_=settings.TWILIO_FROM_NUMBER,
                         body=self._replace_vars(item["message"]),
                     )
-                except Exception as e:
+                except Exception:
                     Notification.objects.create(
                         notification_type="failed_text_integration_notification",
                         extra_text=self.name,
                         created_for=new_hire,
-                        description=str(e),
                     )
                     return
 
