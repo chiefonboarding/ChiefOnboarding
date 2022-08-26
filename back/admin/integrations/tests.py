@@ -41,6 +41,21 @@ def test_update_integration(client, django_user_model, custom_integration_factor
 
 
 @pytest.mark.django_db
+def test_create_google_login_integration(client, django_user_model):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    url = reverse("integrations:create-google")
+    response = client.get(url)
+
+    assert "client_id" in response.content.decode()
+    assert "client_secret" in response.content.decode()
+
+    response = client.post(url, data={"client_id": "12", "client_secret": "233"})
+
+    assert Integration.objects.filter(integration=3).count() == 1
+
+
+@pytest.mark.django_db
 def test_delete_integration(client, django_user_model, custom_integration_factory):
     client.force_login(django_user_model.objects.create(role=1))
     integration = custom_integration_factory()
@@ -83,6 +98,89 @@ def test_integration_extra_args_form(
     assert integration.extra_args["ORG"] == "123"
     assert integration.extra_args["TOKEN"] == "SECRET_TOKEN"
     assert "NOTWORKING" not in integration.extra_args
+
+
+@pytest.mark.django_db
+def test_integration_oauth_redirect_view(
+    client, django_user_model, custom_integration_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+    integration = custom_integration_factory(
+        manifest={"oauth": {"authenticate_url": "http://localhost:8000/test/{{TEST}}"}},
+        extra_args={"TEST": "HI"},
+    )
+
+    url = reverse("integrations:oauth", args=[integration.id])
+    response = client.get(url, follow=True)
+
+    last_url, status_code = response.redirect_chain[-1]
+
+    assert status_code == 302
+    assert last_url == "http://localhost:8000/test/HI"
+
+    integration.enabled_oauth = True
+    integration.save()
+
+    response = client.get(url, follow=True)
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_integration_oauth_callback_redirect_view_disabled_when_done(
+    client, django_user_model, custom_integration_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+    integration = custom_integration_factory(
+        manifest={"oauth": {"authenticate_url": "http://localhost:8000/test/"}},
+        enabled_oauth=True,
+    )
+
+    url = reverse("integrations:oauth-callback", args=[integration.id])
+    response = client.get(url, follow=True)
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_integration_oauth_callback_view_redirect_without_code(
+    client, django_user_model, custom_integration_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+    integration = custom_integration_factory(
+        manifest={"oauth": {"authenticate_url": "http://localhost:8000/test/"}}
+    )
+
+    url = reverse("integrations:oauth-callback", args=[integration.id])
+    response = client.get(url, follow=True)
+
+    assert "Code was not provided" in response.content.decode()
+
+
+@pytest.mark.django_db
+@patch(
+    "admin.integrations.models.Integration.run_request",
+    Mock(return_value=(True, Mock(json=lambda: {"access_token": "test"}))),
+)
+def test_integration_oauth_callback_view(
+    client, django_user_model, custom_integration_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+    integration = custom_integration_factory(
+        manifest={
+            "oauth": {
+                "access_token": {"url": "http://localhost:8000/test/"},
+                "authenticate_url": "http://localhost:8000/test/",
+            }
+        }
+    )
+
+    url = reverse("integrations:oauth-callback", args=[integration.id])
+    client.get(url + "?code=test", follow=True)
+
+    integration.refresh_from_db()
+    assert integration.enabled_oauth
+    assert integration.extra_args["oauth"] == {"access_token": "test"}
 
 
 @pytest.mark.django_db

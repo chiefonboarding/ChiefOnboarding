@@ -4,7 +4,6 @@ from urllib.parse import urlparse
 import requests
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
@@ -132,9 +131,10 @@ class IntegrationOauthCallbackView(LoginRequiredMixin, RedirectView):
             manifest__oauth__isnull=False,
             enabled_oauth=False,
         )
-        code = kwargs.get("code", "")
+        code = self.request.GET.get("code", "")
         if code == "" and not integration.manifest["oauth"].get("without_code", False):
-            return HttpResponse("Code was not provided")
+            messages.error(self.request, "Code was not provided")
+            return reverse_lazy("settings:integrations")
 
         # Check if url has parameters already
         url = integration.manifest["oauth"]["access_token"]["url"]
@@ -147,12 +147,13 @@ class IntegrationOauthCallbackView(LoginRequiredMixin, RedirectView):
 
             integration.manifest["oauth"]["access_token"]["url"] = url
 
-        success, response = self.run_request(
+        success, response = integration.run_request(
             integration.manifest["oauth"]["access_token"]
         )
 
         if not success:
-            return HttpResponse("Couldn't save token: {response}")
+            messages.error(self.request, "Couldn't save token: {response}")
+            return reverse_lazy("settings:integrations")
 
         integration.extra_args["oauth"] = response.json()
         integration.enabled_oauth = True

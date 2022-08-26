@@ -13,7 +13,6 @@ class IntegrationFactory(factory.django.DjangoModelFactory):
 
 
 class CustomIntegrationFactory(IntegrationFactory):
-    integration = 10
     manifest = {
         "form": [
             {
