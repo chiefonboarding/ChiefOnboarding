@@ -152,7 +152,7 @@ class Integration(models.Model):
 
     def headers(self, headers={}):
         headers = (
-            self.manifest["headers"].items() if len(headers) == 0 else headers.items()
+            self.manifest.get("headers", {}).items() if len(headers) == 0 else headers.items()
         )
         new_headers = {}
         for key, value in headers:
