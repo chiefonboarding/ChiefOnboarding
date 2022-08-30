@@ -91,13 +91,9 @@ class Integration(models.Model):
         if data.get("cast_data_to_json", True):
             try:
                 post_data = json.loads(post_data)
-            except Exception as e:
-                print(e)
+            except Exception:
+                pass
         try:
-            print(data.get("method", "POST"))
-            print(url)
-            print(self._headers(data.get("headers", {})))
-            print(post_data)
             response = requests.request(
                 data.get("method", "POST"),
                 url,

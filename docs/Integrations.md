@@ -24,7 +24,11 @@ You can customize where we get the info from and what an admin should fill in. T
 
 For `choice`:
 
-`url`: (if you have static items, then use `items` instead). The url it should fetch the options from. (always a GET request)
+`url`: (if you have static items, then use `items` instead). The url it should fetch the options from.
+
+`method`: Default: `POST`. You can use any request method you would like.
+
+`headers`: (optionally) This will overwrite the default headers.
 
 `data_from`: The property it should use from the response of the url. In some cases, it might happen that what you get more than just the options you need. For example, you get a dictionary instead of an array and need to go a little deeper in the data. For example: you get a dictionary that has the prop `options` which has an array with the items. You can then specify `options` as the value for `data_from` and it will use that. If you need to go deeper, you can use the dot notation to do that. E.g. `data.options.items`. Leave this field blank if you are using predefined items.
 
