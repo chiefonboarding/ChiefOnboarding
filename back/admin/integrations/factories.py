@@ -6,18 +6,18 @@ from .models import Integration
 
 class IntegrationFactory(factory.django.DjangoModelFactory):
     name = FuzzyText()
+    integration = 10
 
     class Meta:
         model = Integration
 
 
 class CustomIntegrationFactory(IntegrationFactory):
-    integration = 10
     manifest = {
         "form": [
             {
                 "id": "TEAM_ID",
-                "url": "https://app.asana.com/api/1.0/organizations/{{ORG}}/teams",
+                "url": "https://example.com/api/1.0/organizations/{{ORG}}/teams",
                 "name": "Select team to add user to",
                 "type": "choice",
                 "data_from": "data",
@@ -26,18 +26,18 @@ class CustomIntegrationFactory(IntegrationFactory):
             }
         ],
         "exists": {
-            "url": "https://app.asana.com/api/1.0/users/{{email}}",
+            "url": "https://example.com/api/1.0/users/{{email}}",
             "method": "GET",
             "expected": "{{email}}",
         },
         "execute": [
             {
-                "url": "https://app.asana.com/api/1.0/workspaces/{{ORG}}/addUser",
+                "url": "https://example.com/api/1.0/workspaces/{{ORG}}/addUser",
                 "data": {"data": {"user": "{{email}}"}},
                 "method": "POST",
             },
             {
-                "url": "https://app.asana.com/api/1.0/teams/{{TEAM_ID}}/addUser",
+                "url": "https://example.com/api/1.0/teams/{{TEAM_ID}}/addUser",
                 "data": {"data": {"user": "{{email}}"}},
                 "method": "POST",
             },
@@ -65,6 +65,18 @@ class CustomIntegrationFactory(IntegrationFactory):
                 "id": "ORG",
                 "name": "Organization id",
                 "description": "You can find your organization id here: https://...",
+            },
+            {
+                "id": "PASSWORD",
+                "name": "generate",
+                "description": "Will be generated",
+            },
+        ],
+        "extra_user_info": [
+            {
+                "id": "PERSONAL_EMAIL",
+                "name": "Personal email address",
+                "description": "You can find your token here: https://....",
             },
         ],
     }

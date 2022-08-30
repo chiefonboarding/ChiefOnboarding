@@ -20,11 +20,15 @@ You can customize where we get the info from and what an admin should fill in. T
 
 `name`: The form label shown to the admin.
 
-`type`: options: `choice` or `input`. If you choose `choice`, you will be able to set the options yourself OR fetch from an external url.
+`type`: options: `choice`, `multiple_choice` and `input`. If you choose `choice`, you will be able to set the options yourself OR fetch from an external url.
 
 For `choice`:
 
-`url`: (if you have static items, then use `items` instead). The url it should fetch the options from. (always a GET request)
+`url`: (if you have static items, then use `items` instead). The url it should fetch the options from.
+
+`method`: Default: `POST`. You can use any request method you would like.
+
+`headers`: (optionally) This will overwrite the default headers.
 
 `data_from`: The property it should use from the response of the url. In some cases, it might happen that what you get more than just the options you need. For example, you get a dictionary instead of an array and need to go a little deeper in the data. For example: you get a dictionary that has the prop `options` which has an array with the items. You can then specify `options` as the value for `data_from` and it will use that. If you need to go deeper, you can use the dot notation to do that. E.g. `data.options.items`. Leave this field blank if you are using predefined items.
 
@@ -44,6 +48,8 @@ Exists is an option to check if a user is already part of a team. If you add thi
 
 `expected`: Whatever we expect. Generally this will probably be a positive message or the new hire's email. You can use new hire values by wrapping them around double curly brackets.
 
+`headers`: (optionally) This will overwrite the default headers.
+
 ## Execute
 These requests will be ran when this integration gets triggered.
 
@@ -53,20 +59,21 @@ These requests will be ran when this integration gets triggered.
 
 `method`: The request method. E.g. `POST` or `GET`.
 
+`headers`: (optionally) This will overwrite the default headers.
+
 ## Headers
 These headers will be send with every request. These could include some sort of token variable for authentication.
 
 ## Oauth
-> Not fully functional yet! WIP.
-
 If you need to use OAuth2 to get a token, then you will need to use this. Just create a prop called `oauth` and then in that use these properties:
 
-`url`: The url to start the Oauth authentication process. This will generally be a login screen which requests for permissions.
-`access_token_url`: This is used when you come back to our site with a token. With that token, it will need to fetch an access token from the third party (and perhaps a refresh token).
+`authenticate_url`: This is the url that is used to send the user to the login/authorize the connection (this should be a url to the third party). This is always a `GET` request. It expects an url here.
 
-If the `expires_in` value is provided by the third party, then ChiefOnboarding will automatically refresh the api tokens at use (if necessary). In that case, you will have to set:
+`access_token`: This is used when you come back to our site with a token. With that token, it will need to fetch an access token from the third party (and perhaps a refresh token). Format is an object like the `execute` part.
 
-`refresh_url`: Used to refresh the token to get a new one
+`refresh`: Used to refresh the token to get a new one, if this is not added, then it will assume that the token is permanent. Format is an object like the `execute` part.
+
+`without_code`: Default: `False`. Enable this is a valid callback won't return a `code` query in the url. In some cases, we don't get it and also not need it.
 
 
 ## Initial data form
@@ -77,7 +84,7 @@ You can obviously add as many as you want. You can use these variables by using 
 
 `id`: Reference for any other part of the manifest. Wrap it around double curly brackets to use it. 
 
-`name`: The label of the field. Please do not use spaces or weird characters. A single word is prefered.
+`name`: The label of the field. Please do not use spaces or weird characters. A single word is prefered. Use `generate` to generate a secret value, use this for i.e. one-time password.
 
 `description`: Any other info you want to leave to make it clear where to find this value. Mainly used for documentation and/or sharing.
 
@@ -108,6 +115,8 @@ Throughout the manifest you can use the variables that you have defined in the `
 `buddy_email`: The buddy's email address
 
 `position`: New hire's position
+
+`department`: New hire's department
 
 `first_name`: New hire's first name
 

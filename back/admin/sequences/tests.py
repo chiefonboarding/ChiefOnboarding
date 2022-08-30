@@ -334,11 +334,14 @@ def test_sequence_unknown_form_view(client, admin_factory):
 
 @pytest.mark.django_db
 @patch(
-    "requests.get",
+    "admin.integrations.models.Integration.run_request",
     Mock(
-        return_value=Mock(
-            status_code=200,
-            json=lambda: {"data": [{"gid": 12, "name": "first team"}]},
+        return_value=(
+            True,
+            Mock(
+                status_code=200,
+                json=lambda: {"data": [{"gid": 12, "name": "first team"}]},
+            ),
         )
     ),
 )
@@ -460,13 +463,15 @@ def test_sequence_update_form_with_invalid_info(
 
 
 @pytest.mark.django_db
-@pytest.mark.django_db
 @patch(
-    "requests.get",
+    "admin.integrations.models.Integration.run_request",
     Mock(
-        return_value=Mock(
-            status_code=200,
-            json=lambda: {"data": [{"gid": 12, "name": "first team"}]},
+        return_value=(
+            True,
+            Mock(
+                status_code=200,
+                json=lambda: {"data": [{"gid": 12, "name": "first team"}]},
+            ),
         )
     ),
 )
@@ -496,13 +501,15 @@ def test_sequence_update_custom_integration_form(
 
 
 @pytest.mark.django_db
-@pytest.mark.django_db
 @patch(
-    "requests.get",
+    "admin.integrations.models.Integration.run_request",
     Mock(
-        return_value=Mock(
-            status_code=200,
-            json=lambda: {"data": [{"gid": 12, "name": "first team"}]},
+        return_value=(
+            True,
+            Mock(
+                status_code=200,
+                json=lambda: {"data": [{"gid": 12, "name": "first team"}]},
+            ),
         )
     ),
 )
@@ -528,6 +535,67 @@ def test_sequence_create_custom_integration_form(
     assert IntegrationConfig.objects.all().count() == 1
     integration_config = IntegrationConfig.objects.first()
     assert integration_config.additional_data == {"TEAM_ID": "12"}
+
+
+@pytest.mark.django_db
+@patch(
+    "admin.integrations.models.Integration.run_request",
+    Mock(return_value=(True, Mock(json=lambda: [{"user": ""}]))),
+)
+def test_integration_invalid_json_format_returned(
+    custom_integration_factory,
+    admin_factory,
+    client,
+):
+    admin = admin_factory()
+    client.force_login(admin)
+    integration = custom_integration_factory(
+        manifest={
+            "form": [
+                {
+                    "id": "TEAM_ID",
+                    "url": "https://example.com/api/1.0/organizations/{{ORG}}/teams",
+                    "name": "Select team to add user to",
+                    "type": "choice",
+                    "data_from": "data.info",
+                    "choice_value": "gid",
+                    "choice_name": "name",
+                }
+            ]
+        }
+    )
+
+    url = reverse(
+        "sequences:forms",
+        args=["integration", integration.id],
+    )
+    response = client.get(url)
+    assert '"data": {' in response.content.decode()
+    assert '"info": [' in response.content.decode()
+    assert '"name": "name 0"' in response.content.decode()
+
+    integration = custom_integration_factory(
+        manifest={
+            "form": [
+                {
+                    "id": "TEAM_ID",
+                    "url": "https://example.com/api/1.0/organizations/{{ORG}}/teams",
+                    "name": "Select team to add user to",
+                    "type": "choice",
+                    "choice_value": "gid",
+                    "choice_name": "name",
+                }
+            ]
+        }
+    )
+
+    url = reverse(
+        "sequences:forms",
+        args=["integration", integration.id],
+    )
+    response = client.get(url)
+    assert "{" in response.content.decode()
+    assert '"name": "name 0"' in response.content.decode()
 
 
 @pytest.mark.django_db

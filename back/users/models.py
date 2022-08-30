@@ -167,6 +167,7 @@ class User(AbstractBaseUser):
         help_text=_("First working day"),
     )
     unique_url = models.CharField(max_length=250, null=True, unique=True, blank=True)
+    extra_fields = models.JSONField(default=dict)
 
     to_do = models.ManyToManyField(ToDo, through="ToDoUser", related_name="user_todos")
     introductions = models.ManyToManyField(
@@ -223,6 +224,33 @@ class User(AbstractBaseUser):
         if last_notification is not None:
             return last_notification.created > self.seen_updates
         return False
+
+    @cached_property
+    def missing_extra_info(self):
+        extra_info = self.conditions.filter(
+            integration_configs__isnull=False,
+            integration_configs__integration__manifest__extra_user_info__isnull=False,
+        ).values_list(
+            "integration_configs__integration__manifest__extra_user_info", flat=True
+        )
+
+        # We now have arrays within extra_info: [[{..}], [{..}, {..}]]. Let's make one
+        # array with all items: [{..}, {..}, {..}] and remove the duplicates.
+        # Loop through both arrays and then add it, if it doesn't exist already.
+        # Do the check on the ID, so other props could be different, but it still
+        # wouldn't show it.
+        extra_user_info = []
+        for requested_info_arr in extra_info:
+            for requested_info in requested_info_arr:
+                if requested_info["id"] not in [item["id"] for item in extra_user_info]:
+                    extra_user_info.append(requested_info)
+
+        # Only return what we still need
+        return [
+            item
+            for item in extra_user_info
+            if item["id"] not in self.extra_fields.keys()
+        ]
 
     def update_progress(self):
         all_to_do_ids = list(

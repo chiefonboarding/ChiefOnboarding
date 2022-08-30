@@ -1,9 +1,9 @@
 import json
 
-import requests
 from crispy_forms.helper import FormHelper
 from django import forms
 from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
 
 from .models import Integration
 from .serializers import ManifestSerializer
@@ -42,10 +42,12 @@ class IntegrationConfigForm(forms.ModelForm):
         notations = inner.split(".")
         stringified_json = "{"
         for idx, notation in enumerate(notations):
+            stringified_json += f'"{notation}":'
             if idx + 1 == len(notations):
-                stringified_json += f'"{notation}":'
                 stringified_json += json.dumps(_add_items(form_item))
                 stringified_json += "}" * len(notations)
+            else:
+                stringified_json += "{"
 
         return json.loads(stringified_json)
 
@@ -63,27 +65,28 @@ class IntegrationConfigForm(forms.ModelForm):
                     required=False,
                 )
 
-            if item["type"] == "choice":
+            if item["type"] in ["choice", "multiple_choice"]:
 
                 # If there is a url to fetch the items from then do so
                 if "url" in item:
-                    try:
-                        option_data = requests.get(
-                            integration._replace_vars(item["url"]),
-                            headers=integration._headers,
-                        ).json()
-                    except Exception as e:
-                        self.error = (
-                            f"The request to ({item['url']}) of the requests could "
-                            "not be completed. Here is the full error: <br/> " + str(e)
-                        )
-                        break
+                    success, response = integration.run_request(item)
+                    if not success:
+                        self.error = response
+                        return
+
+                    option_data = response.json()
                 else:
                     # No url, so get the static items
                     option_data = item["items"]
 
+                # Can we select one or multiple?
+                if item["type"] == "choice":
+                    field = forms.ChoiceField
+                else:
+                    field = forms.MultipleChoiceField
+
                 try:
-                    self.fields[item["id"]] = forms.ChoiceField(
+                    self.fields[item["id"]] = field(
                         label=item["name"],
                         widget=forms.CheckboxSelectMultiple
                         if item["type"] == "multiple_choice"
@@ -150,7 +153,8 @@ class IntegrationExtraArgsForm(forms.ModelForm):
             if item["id"] in initial_data:
                 self.fields[item["id"]].initial = initial_data[item["id"]]
             # If field is secret field, then hide it - values are generated on the fly
-            if "type" in item and item["type"] == "generated":
+            if "name" in item and item["name"] == "generate":
+                self.fields[item["id"]].required = False
                 self.fields[item["id"]].widget = forms.HiddenInput()
 
     def save(self):
@@ -161,4 +165,24 @@ class IntegrationExtraArgsForm(forms.ModelForm):
 
     class Meta:
         model = Integration
+        fields = ()
+
+
+class IntegrationExtraUserInfoForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        missing_info = self.instance.missing_extra_info
+        for item in missing_info:
+            self.fields[item["id"]] = forms.CharField(
+                label=item["name"], help_text=item["description"]
+            )
+
+    def save(self):
+        user = self.instance
+        user.extra_fields |= self.cleaned_data
+        user.save()
+        return user
+
+    class Meta:
+        model = get_user_model()
         fields = ()

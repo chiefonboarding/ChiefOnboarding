@@ -22,12 +22,14 @@
     </button>
     {% endif %}
     {% if not loading %}
-      {% if active %}
+      {% if active is None %}
+        {% translate "Error when trying to reach service" %}
+      {% elif active %}
         <button class="btn btn-primary w-100">
           {% translate "Activated" %}
         </button>
       {% else %}
-      <a href="{% url 'people:new_hire_give_integration' object.id integration.id %}" class="btn btn-white w-100">
+        <a href="{% url 'people:new_hire_give_integration' object.id integration.id %}" class="btn btn-white w-100">
           {% translate "Give access" %}
         </a>
       {% endif %}

@@ -14,19 +14,20 @@ class ValidateMixin:
 
 class ManifestFormSerializer(ValidateMixin, serializers.Serializer):
     id = serializers.CharField()
-    url = serializers.CharField()
+    url = serializers.CharField(required=False)
     name = serializers.CharField()
     type = serializers.ChoiceField(
         [
             ("multiple_choice", "Multiple choice"),
             ("choice", "Choice"),
             ("input", "Input field"),
+            ("generate", "Generate random text"),
         ]
     )
     items = serializers.CharField(required=False)
     data_from = serializers.CharField(required=False)
-    choice_value = serializers.CharField()
-    choice_name = serializers.CharField()
+    choice_value = serializers.CharField(required=False)
+    choice_name = serializers.CharField(required=False)
 
 
 class ManifestExistSerializer(ValidateMixin, serializers.Serializer):
@@ -44,7 +45,8 @@ class ManifestExistSerializer(ValidateMixin, serializers.Serializer):
 
 class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):
     url = serializers.CharField()
-    data = serializers.JSONField()
+    data = serializers.JSONField(required=False, default=dict)
+    headers = serializers.JSONField(required=False, default=dict)
     method = serializers.ChoiceField(
         [
             ("HEAD", "HEAD"),
@@ -79,6 +81,19 @@ class ManifestInitialDataFormSerializer(ValidateMixin, serializers.Serializer):
     description = serializers.CharField()
 
 
+class ManifestExtraUserInfoFormSerializer(ValidateMixin, serializers.Serializer):
+    id = serializers.CharField()
+    name = serializers.CharField()
+    description = serializers.CharField()
+
+
+class ManifestOauthSerializer(ValidateMixin, serializers.Serializer):
+    authenticate_url = serializers.CharField()
+    access_token = ManifestExecuteSerializer(required=True)
+    refresh = ManifestExecuteSerializer(required=True)
+    without_code = serializers.BooleanField(required=False)
+
+
 class ManifestSerializer(ValidateMixin, serializers.Serializer):
     form = ManifestFormSerializer(required=False, many=True)
     exists = ManifestExistSerializer(required=False)
@@ -87,4 +102,6 @@ class ManifestSerializer(ValidateMixin, serializers.Serializer):
         many=True, required=False
     )
     initial_data_form = ManifestInitialDataFormSerializer(many=True, required=False)
+    extra_user_info = ManifestExtraUserInfoFormSerializer(many=True, required=False)
     headers = serializers.JSONField(required=False)
+    oauth = ManifestOauthSerializer(required=False)

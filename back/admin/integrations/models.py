@@ -1,15 +1,31 @@
+import base64
 import json
 import uuid
 from datetime import timedelta
 
 import requests
+from requests.exceptions import (
+    HTTPError,
+    Timeout,
+    InvalidJSONError,
+    JSONDecodeError,
+    SSLError,
+    URLRequired,
+    MissingSchema,
+    InvalidSchema,
+    InvalidURL,
+    TooManyRedirects,
+    InvalidHeader,
+)
 from django.conf import settings
 from django.db import models
 from django.template import Context, Template
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
-from django_q.tasks import async_task
+from django.urls import reverse_lazy
+from django_q.tasks import schedule
+from django_q.models import Schedule
 from fernet_fields import EncryptedTextField
 from twilio.rest import Client
 
@@ -67,22 +83,61 @@ class Integration(models.Model):
     bot_token = EncryptedTextField(max_length=10000, default="", blank=True)
     bot_id = models.CharField(max_length=100, default="")
 
-    def _run_request(self, data):
+    def run_request(self, data):
         url = self._replace_vars(data["url"])
         if "data" in data:
-            post_data = json.loads(self._replace_vars(json.dumps(data["data"])))
+            post_data = self._replace_vars(json.dumps(data["data"]))
         else:
             post_data = {}
-        return requests.request(
-            data.get("method", "POST"),
-            url,
-            headers=self._headers,
-            data=post_data,
-            timeout=120,
-        ).json()
+        if data.get("cast_data_to_json", False):
+            try:
+                post_data = json.loads(post_data)
+            except Exception:
+                pass
+        try:
+            response = requests.request(
+                data.get("method", "POST"),
+                url,
+                headers=self.headers(data.get("headers", {})),
+                data=post_data,
+                timeout=120,
+            )
+        except (InvalidJSONError, JSONDecodeError):
+            return False, "JSON is invalid"
+
+        except HTTPError:
+            return False, "An HTTP error occurred"
+
+        except SSLError:
+            return False, "An SSL error occurred"
+
+        except Timeout:
+            return False, "The request timed out"
+
+        except (URLRequired, MissingSchema, InvalidSchema, InvalidURL):
+            return False, "The url is invalid"
+
+        except TooManyRedirects:
+            return False, "There are too many redirects"
+
+        except InvalidHeader:
+            return False, "The header is invalid"
+
+        except:  # noqa E722
+            return False, "There was an unexpected error with the request"
+
+        try:
+            response.raise_for_status()
+        except Exception:
+            return False, response.text
+
+        return True, response
 
     def _replace_vars(self, text):
         params = {} if not hasattr(self, "params") else self.params
+        params["redirect_url"] = settings.BASE_URL + reverse_lazy(
+            "integrations:oauth-callback", args=[self.id]
+        )
         if hasattr(self, "new_hire") and self.new_hire is not None:
             text = self.new_hire.personalize(text, self.extra_args | params)
             return text
@@ -95,10 +150,19 @@ class Integration(models.Model):
     def has_oauth(self):
         return "oauth" in self.manifest
 
-    @property
-    def _headers(self):
+    def headers(self, headers={}):
+        headers = (
+            self.manifest["headers"].items() if len(headers) == 0 else headers.items()
+        )
         new_headers = {}
-        for key, value in self.manifest["headers"].items():
+        for key, value in headers:
+            # If Basic authentication then swap to base64
+            if key == "Authorization" and value.startswith("Basic"):
+                auth_details = self._replace_vars(value.split(" ", 1)[1])
+                value = "Basic " + base64.b64encode(
+                    auth_details.encode("ascii")
+                ).decode("ascii")
+
             # Adding an empty string to force to return a string instead of a
             # safestring. Ref: https://github.com/psf/requests/issues/6159
             new_headers[self._replace_vars(key) + ""] = self._replace_vars(value) + ""
@@ -106,58 +170,75 @@ class Integration(models.Model):
 
     def user_exists(self, new_hire):
         self.new_hire = new_hire
-        return self._replace_vars(self.manifest["exists"]["expected"]) in json.dumps(
-            self._run_request(self.manifest["exists"])
-        )
+        success, response = self.run_request(self.manifest["exists"])
+
+        if not success:
+            return None
+
+        return self._replace_vars(self.manifest["exists"]["expected"]) in response.text
 
     def execute(self, new_hire, params):
         self.params = params
+        self.params |= new_hire.extra_fields
         self.new_hire = new_hire
 
         # Renew access key if necessary
         if (
             self.has_oauth
-            and "expires_in" in self.extra_args
+            and "expires_in" in self.extra_args.get("oauth", {})
             and self.expiring < timezone.now()
         ):
-            try:
-                self.extra_args |= self._run_request(
-                    self.manifest["oauth"]["refresh_url"]
-                ).json()
-            except requests.RequestException as e:
+            success, response = self.run_request(self.manifest["oauth"]["refresh"])
+
+            if not success:
                 Notification.objects.create(
                     notification_type="failed_integration",
                     extra_text=self.name,
                     created_for=new_hire,
-                    description=str(e),
+                    description="Refresh url: " + str(response),
+                )
+                return
+
+            self.extra_args["oauth"] = response.json()
+            if "expires_in" in response.json():
+                self.expiring = timezone.now() + timedelta(
+                    seconds=response.json()["expires_in"]
                 )
             self.save()
 
         # Add generated secrets
         for item in self.manifest["initial_data_form"]:
-            if "type" in item and item["type"] == "generate":
+            if "name" in item and item["name"] == "generate":
                 self.extra_args[item["id"]] = get_random_string(length=10)
 
         # Run all requests
         for item in self.manifest["execute"]:
-            try:
-                self._run_request(item)
-            except requests.RequestException as e:
+            success, response = self.run_request(item)
+
+            if not success:
                 Notification.objects.create(
                     notification_type="failed_integration",
                     extra_text=self.name,
                     created_for=new_hire,
-                    description=str(e),
+                    description=f"Execute url ({item['url']}): {response}",
                 )
                 # Retry url in one hour
-                async_task(
-                    "admin.integrations.tasks.retry_integration",
-                    new_hire.id,
-                    self.id,
-                    params,
-                    task_name=f"Retrying integration {self.name}",
-                    next_run=timezone.now() + timedelta(hours=1),
-                )
+                try:
+                    schedule(
+                        "admin.integrations.tasks.retry_integration",
+                        new_hire.id,
+                        self.id,
+                        params,
+                        name=(
+                            f"Retrying integration {self.id} for new hire {new_hire.id}"
+                        ),
+                        next_run=timezone.now() + timedelta(hours=1),
+                        schedule_type=Schedule.ONCE,
+                    )
+                except:  # noqa E722
+                    # Only errors when item gets added another time, so we can safely
+                    # let it pass.
+                    pass
                 return
 
         # Run all post requests (notifications)
@@ -169,6 +250,7 @@ class Integration(models.Model):
                     to=self._replace_vars(item["to"]),
                     notification_type="sent_email_integration_notification",
                 )
+                return
             else:
                 try:
                     client = Client(
@@ -179,13 +261,13 @@ class Integration(models.Model):
                         from_=settings.TWILIO_FROM_NUMBER,
                         body=self._replace_vars(item["message"]),
                     )
-                except Exception as e:
+                except Exception:
                     Notification.objects.create(
                         notification_type="failed_text_integration_notification",
                         extra_text=self.name,
                         created_for=new_hire,
-                        description=str(e),
                     )
+                    return
 
         # Succesfully ran integration, add notification
         Notification.objects.create(

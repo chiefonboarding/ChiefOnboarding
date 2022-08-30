@@ -1,11 +1,13 @@
+from datetime import timedelta
 import json
+from urllib.parse import urlparse
 
 import requests
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.generic import View
 from django.views.generic.base import RedirectView
@@ -107,32 +109,61 @@ class IntegrationUpdateExtraArgsView(
 
 
 class IntegrationOauthRedirectView(LoginRequiredMixin, RedirectView):
-    def get_redirect_url(self, *args, **kwargs):
+    permanent = False
+
+    def get_redirect_url(self, pk, *args, **kwargs):
         integration = get_object_or_404(
             Integration,
-            pk=self.kwargs.pk,
+            pk=pk,
             manifest__oauth__isnull=False,
             enabled_oauth=False,
         )
-        return integration.manifest["oauth"]["url"]
+        return integration._replace_vars(
+            integration.manifest["oauth"]["authenticate_url"]
+        )
 
 
 class IntegrationOauthCallbackView(LoginRequiredMixin, RedirectView):
-    def get_redirect_url(self, *args, **kwargs):
+    permanent = False
+
+    def get_redirect_url(self, pk, *args, **kwargs):
         integration = get_object_or_404(
             Integration,
-            pk=self.kwargs.pk,
+            pk=pk,
             manifest__oauth__isnull=False,
             enabled_oauth=False,
         )
-        code = kwargs.get("code", "")
-        if code == "":
-            return HttpResponse("Code was not provided")
+        code = self.request.GET.get("code", "")
+        if code == "" and not integration.manifest["oauth"].get("without_code", False):
+            messages.error(self.request, "Code was not provided")
+            return reverse_lazy("settings:integrations")
 
-        data = integration._run_request(
-            integration.manifest["oauth"]["access_token_url"]
+        # Check if url has parameters already
+        url = integration.manifest["oauth"]["access_token"]["url"]
+        if not integration.manifest["oauth"].get("without_code", False):
+            parsed_url = urlparse(url)
+            if len(parsed_url.query):
+                url += "&code=" + code
+            else:
+                url += "?code=" + code
+
+            integration.manifest["oauth"]["access_token"]["url"] = url
+
+        success, response = integration.run_request(
+            integration.manifest["oauth"]["access_token"]
         )
-        integration.extra_args = integration.extra_args | data.json()
+
+        if not success:
+            messages.error(self.request, f"Couldn't save token: {response}")
+            return reverse_lazy("settings:integrations")
+
+        integration.extra_args["oauth"] = response.json()
+        if "expires_in" in response.json():
+            integration.expiring = timezone.now() + timedelta(
+                seconds=response.json()["expires_in"]
+            )
+            integration.save()
+
         integration.enabled_oauth = True
         integration.save()
 

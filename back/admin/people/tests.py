@@ -1324,12 +1324,6 @@ def test_new_hire_access_list(
 
 
 @pytest.mark.django_db
-@patch(
-    "requests.request",
-    Mock(
-        return_value=Mock(status_code=201, json=lambda: {"email": "stan@example.com"})
-    ),
-)
 def test_new_hire_access_per_integration(
     client, django_user_model, new_hire_factory, custom_integration_factory
 ):
@@ -1339,34 +1333,56 @@ def test_new_hire_access_per_integration(
     new_hire2 = new_hire_factory()
     integration1 = custom_integration_factory(name="Asana", integration=10)
 
-    # New hire already has an account (email matches with return)
-    url = reverse(
-        "people:new_hire_check_integration", args=[new_hire1.id, integration1.id]
-    )
+    with patch(
+        "admin.integrations.models.Integration.user_exists", Mock(return_value=True)
+    ):
+        # New hire already has an account (email matches with return)
+        url = reverse(
+            "people:new_hire_check_integration", args=[new_hire1.id, integration1.id]
+        )
 
-    response = client.get(url)
+        response = client.get(url)
 
-    assert integration1.name in response.content.decode()
-    assert "Activated" in response.content.decode()
+        assert integration1.name in response.content.decode()
+        assert "Activated" in response.content.decode()
 
-    # New hire has no account
-    url = reverse(
-        "people:new_hire_check_integration", args=[new_hire2.id, integration1.id]
-    )
+    with patch(
+        "admin.integrations.models.Integration.user_exists", Mock(return_value=False)
+    ):
+        # New hire has no account
+        url = reverse(
+            "people:new_hire_check_integration", args=[new_hire2.id, integration1.id]
+        )
 
-    response = client.get(url)
+        response = client.get(url)
 
-    assert integration1.name in response.content.decode()
-    assert "Give access" in response.content.decode()
+        assert integration1.name in response.content.decode()
+        assert "Give access" in response.content.decode()
+
+    with patch(
+        "admin.integrations.models.Integration.user_exists", Mock(return_value=None)
+    ):
+        # New hire has no account
+        url = reverse(
+            "people:new_hire_check_integration", args=[new_hire2.id, integration1.id]
+        )
+
+        response = client.get(url)
+
+        assert integration1.name in response.content.decode()
+        assert "Error when trying to reach service" in response.content.decode()
 
 
 @pytest.mark.django_db
 @patch(
-    "requests.get",
+    "admin.integrations.models.Integration.run_request",
     Mock(
-        return_value=Mock(
-            status_code=201,
-            json=lambda: {"data": [{"gid": "test_team", "name": "test team"}]},
+        return_value=(
+            True,
+            Mock(
+                status_code=201,
+                json=lambda: {"data": [{"gid": "test_team", "name": "test team"}]},
+            ),
         )
     ),
 )
@@ -1476,6 +1492,75 @@ def test_new_hire_toggle_tasks(
         # Should be removed now
         assert user_items.all().count() == 0
         assert "Add" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_new_hire_extra_info_update_view(
+    client,
+    django_user_model,
+    condition_to_do_factory,
+    integration_config_factory,
+    integration_factory,
+    new_hire_factory,
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    integration = integration_factory(
+        manifest={
+            "extra_user_info": [
+                {
+                    "id": "PERSONAL_EMAIL",
+                    "name": "Personal email address",
+                    "description": "test",
+                },
+                {
+                    "id": "NEW_ONE",
+                    "name": "Second personal email address",
+                    "description": "test2",
+                },
+            ]
+        }
+    )
+    integration_config = integration_config_factory(integration=integration)
+    condition = condition_to_do_factory()
+    condition.integration_configs.add(integration_config)
+
+    new_hire = new_hire_factory()
+    new_hire.conditions.add(condition)
+
+    url = reverse("people:new_hire_extra_info", args=[new_hire.id])
+    response = client.get(url)
+
+    assert response.status_code == 200
+    # Check that the form is there
+    assert "personal email address" in response.content.decode()
+    assert "test2" in response.content.decode()
+
+    assert len(new_hire.missing_extra_info) == 2
+
+    url = reverse("people:new_hire_extra_info", args=[new_hire.id])
+    response = client.post(
+        url,
+        data={
+            "PERSONAL_EMAIL": "hi@chiefonboarding.com",
+            "NEW_ONE": "test",
+            "FAKE_ONE": "test",
+        },
+        follow=True,
+    )
+
+    assert response.status_code == 200
+
+    # Missing extra info is now cleared
+    new_hire.refresh_from_db()
+    del new_hire.missing_extra_info
+
+    assert len(new_hire.missing_extra_info) == 0
+
+    assert new_hire.extra_fields == {
+        "PERSONAL_EMAIL": "hi@chiefonboarding.com",
+        "NEW_ONE": "test",
+    }
 
 
 # COLLEAGUES #

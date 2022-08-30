@@ -10,7 +10,7 @@
 {% include "_new_hire_menu.html" %}
 <div class="row">
   {% for integration in integrations %}
-  <div class="column col-3 integration-{{integration.id}}">
+  <div class="column col-3 integration-{{integration.id}} mb-2">
     {% include "_new_hire_access_card.html" %}
   </div>
   {% empty %}

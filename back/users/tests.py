@@ -255,3 +255,82 @@ def test_daily_check_for_new_hire_send_credentials_task(
     # No new email as it's 9 am and not 8 am
     assert len(mailoutbox) == 1
     freezer.stop()
+
+
+@pytest.mark.django_db
+def test_new_hire_missing_extra_info(
+    condition_to_do_factory,
+    integration_config_factory,
+    integration_factory,
+    new_hire_factory,
+):
+    integration1 = integration_factory(
+        manifest={
+            "extra_user_info": [
+                {
+                    "id": "PERSONAL_EMAIL",
+                    "name": "Personal email address",
+                    "description": "test",
+                }
+            ]
+        }
+    )
+    integration2 = integration_factory(
+        manifest={
+            "extra_user_info": [
+                {
+                    "id": "PERSONAL_EMAIL",
+                    "name": "Personal email address",
+                    "description": "test",
+                },
+                {
+                    "id": "NEW_ONE",
+                    "name": "Second personal email address",
+                    "description": "test2",
+                },
+            ]
+        }
+    )
+    integration3 = integration_factory(manifest={})
+    integration_config1 = integration_config_factory(integration=integration1)
+    integration_config2 = integration_config_factory(integration=integration2)
+    integration_config3 = integration_config_factory(integration=integration3)
+    condition1 = condition_to_do_factory()
+    condition2 = condition_to_do_factory()
+    condition1.integration_configs.set([integration_config2, integration_config3])
+    condition2.integration_configs.set([integration_config1, integration_config2])
+
+    new_hire = new_hire_factory()
+    new_hire.conditions.set([condition1, condition2])
+
+    missed_info = new_hire.missing_extra_info
+
+    assert len(missed_info) == 2
+    assert missed_info == [
+        {
+            "id": "PERSONAL_EMAIL",
+            "name": "Personal email address",
+            "description": "test",
+        },
+        {
+            "id": "NEW_ONE",
+            "name": "Second personal email address",
+            "description": "test2",
+        },
+    ]
+
+    new_hire.extra_fields = {"PERSONAL_EMAIL": "hi@chiefonboarding.com"}
+    new_hire.save()
+
+    # Remove cache value
+    del new_hire.missing_extra_info
+
+    assert len(new_hire.missing_extra_info) == 1
+
+    assert new_hire.missing_extra_info == [
+        {
+            "id": "NEW_ONE",
+            "name": "Second personal email address",
+            "description": "test2",
+        }
+    ]

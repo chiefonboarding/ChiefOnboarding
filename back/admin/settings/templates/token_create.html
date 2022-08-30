@@ -10,5 +10,8 @@
       {{ form|crispy }}
       <button type="submit" class="btn btn-primary">{% translate "Submit" %}</button>
     </form>
+    {% if object.has_oauth and not object.enabled_oauth %}
+      {% translate "Redirect URL:" %} {{ request.scheme }}://{{ request.get_host }}{% url 'integrations:oauth-callback' object.id %}
+    {% endif %}
   </div>
 {% endblock %}
