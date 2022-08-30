@@ -1,3 +1,4 @@
+import base64
 import json
 import uuid
 from datetime import timedelta
@@ -88,7 +89,7 @@ class Integration(models.Model):
             post_data = self._replace_vars(json.dumps(data["data"]))
         else:
             post_data = {}
-        if data.get("cast_data_to_json", True):
+        if data.get("cast_data_to_json", False):
             try:
                 post_data = json.loads(post_data)
             except Exception:
@@ -97,7 +98,7 @@ class Integration(models.Model):
             response = requests.request(
                 data.get("method", "POST"),
                 url,
-                headers=self._headers(data.get("headers", {})),
+                headers=self.headers(data.get("headers", {})),
                 data=post_data,
                 timeout=120,
             )
@@ -149,12 +150,19 @@ class Integration(models.Model):
     def has_oauth(self):
         return "oauth" in self.manifest
 
-    def _headers(self, headers={}):
+    def headers(self, headers={}):
         headers = (
             self.manifest["headers"].items() if len(headers) == 0 else headers.items()
         )
         new_headers = {}
         for key, value in headers:
+            # If Basic authentication then swap to base64
+            if key == "Authorization" and value.startswith("Basic"):
+                auth_details = self._replace_vars(value.split(" ", 1)[1])
+                value = "Basic " + base64.b64encode(
+                    auth_details.encode("ascii")
+                ).decode("ascii")
+
             # Adding an empty string to force to return a string instead of a
             # safestring. Ref: https://github.com/psf/requests/issues/6159
             new_headers[self._replace_vars(key) + ""] = self._replace_vars(value) + ""
@@ -212,18 +220,25 @@ class Integration(models.Model):
                     notification_type="failed_integration",
                     extra_text=self.name,
                     created_for=new_hire,
-                    description="Execute url ({item['url']}): {response}",
+                    description=f"Execute url ({item['url']}): {response}",
                 )
                 # Retry url in one hour
-                schedule(
-                    "admin.integrations.tasks.retry_integration",
-                    new_hire.id,
-                    self.id,
-                    params,
-                    name=f"Retrying integration {self.name} for {new_hire.full_name}",
-                    next_run=timezone.now() + timedelta(hours=1),
-                    schedule_type=Schedule.ONCE,
-                )
+                try:
+                    schedule(
+                        "admin.integrations.tasks.retry_integration",
+                        new_hire.id,
+                        self.id,
+                        params,
+                        name=(
+                            f"Retrying integration {self.id} for new hire {new_hire.id}"
+                        ),
+                        next_run=timezone.now() + timedelta(hours=1),
+                        schedule_type=Schedule.ONCE,
+                    )
+                except:  # noqa E722
+                    # Only errors when item gets added another time, so we can safely
+                    # let it pass.
+                    pass
                 return
 
         # Run all post requests (notifications)
