@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     def remove_old_error_tracebacks(apps, schema_editor):
         from organization.models import Notification
 
@@ -13,7 +12,7 @@ class Migration(migrations.Migration):
         ).update(description="")
 
     dependencies = [
-        ('organization', '0025_notification_blocks'),
+        ("organization", "0025_notification_blocks"),
     ]
 
     operations = [
