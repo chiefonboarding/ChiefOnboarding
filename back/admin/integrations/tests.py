@@ -1,9 +1,12 @@
 from unittest.mock import Mock, patch
+from datetime import timedelta
 
 import pytest
 from django.urls import reverse
+from django.utils import timezone
 
 from admin.integrations.models import Integration
+from organization.models import Notification
 
 
 @pytest.mark.django_db
@@ -89,6 +92,7 @@ def test_integration_extra_args_form(
     assert "Organization id" in response.content.decode()
     assert 'name="ORG"' in response.content.decode()
     assert 'name="TOKEN"' in response.content.decode()
+    assert '"hidden" name="PASSWORD"' in response.content.decode()
 
     response = client.post(
         url, {"ORG": "123", "TOKEN": "SECRET_TOKEN", "NOTWORKING": "False"}, follow=True
@@ -98,6 +102,31 @@ def test_integration_extra_args_form(
     assert integration.extra_args["ORG"] == "123"
     assert integration.extra_args["TOKEN"] == "SECRET_TOKEN"
     assert "NOTWORKING" not in integration.extra_args
+
+    response = client.get(url)
+
+    # Value that got added is now shown
+    assert "123" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_integration_request_exceptions_invalid_url(custom_integration_factory):
+    integration = custom_integration_factory(
+        manifest={
+            "oauth": {
+                "access_token": {"url": "http://localhost:8000/test/"},
+                "authenticate_url": "http://localhost:8000/test/",
+            },
+            "headers": {},
+        }
+    )
+
+    success, result = integration.run_request(
+        {"method": "POST", "url": "//localhost:8000/test/", "cast_data_to_json": False}
+    )
+
+    assert not success
+    assert result == "The url is invalid"
 
 
 @pytest.mark.django_db
@@ -124,6 +153,136 @@ def test_integration_oauth_redirect_view(
     response = client.get(url, follow=True)
 
     assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_integration_user_exists(
+    client, django_user_model, new_hire_factory, custom_integration_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+    integration = custom_integration_factory(
+        manifest={
+            "exists": {
+                "url": "http://localhost:8000/test",
+                "method": "GET",
+                "expected": "{{ email}}",
+            }
+        }
+    )
+    new_hire = new_hire_factory()
+
+    # Didn't find user
+    with patch(
+        "admin.integrations.models.Integration.run_request",
+        Mock(return_value=(True, Mock(text="[{'error': 'not_found'}]"))),
+    ):
+        exists = integration.user_exists(new_hire)
+        assert not exists
+
+    # Found user
+    with patch(
+        "admin.integrations.models.Integration.run_request",
+        Mock(return_value=(True, Mock(text="[{'user': '" + new_hire.email + "'}]"))),
+    ):
+        exists = integration.user_exists(new_hire)
+        assert exists
+
+    # Error went wrong
+    with patch(
+        "admin.integrations.models.Integration.run_request",
+        Mock(return_value=(False, Mock(text="[{'user': '" + new_hire.email + "'}]"))),
+    ):
+        exists = integration.user_exists(new_hire)
+        assert exists is None
+
+
+@pytest.mark.django_db
+def test_integration_refresh_token(
+    client, django_user_model, new_hire_factory, custom_integration_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+    integration = custom_integration_factory(
+        manifest={
+            "oauth": {
+                "refresh": {"url": "http://localhost:8000/test", "method": "GET"}
+            },
+            "initial_data_form": [],
+            "execute": [],
+        },
+        extra_args={
+            "oauth": {
+                "expires_in": 500,
+            }
+        },
+        expiring=timezone.now() - timedelta(days=1),
+    )
+    new_hire = new_hire_factory()
+
+    # This one fails as it couldn't fetch the new token
+    with patch(
+        "admin.integrations.models.Integration.run_request",
+        Mock(return_value=(False, Mock(text="[{'error': 'not_found'}]"))),
+    ):
+        integration.execute(new_hire, {})
+
+        assert (
+            Notification.objects.filter(notification_type="failed_integration").count()
+            == 1
+        )
+
+    # This one fails as it couldn't fetch the new token
+    with patch(
+        "admin.integrations.models.Integration.run_request",
+        Mock(
+            return_value=(
+                True,
+                Mock(json=lambda: {"access_token": "xxx", "expires_in": 1234}),
+            )
+        ),
+    ):
+        integration.execute(new_hire, {})
+
+        integration.refresh_from_db()
+        assert integration.extra_args["oauth"] == {
+            "access_token": "xxx",
+            "expires_in": 1234,
+        }
+        assert (
+            Notification.objects.filter(notification_type="ran_integration").count()
+            == 1
+        )
+
+
+@pytest.mark.django_db
+def test_integration_send_email(
+    client, django_user_model, new_hire_factory, mailoutbox, custom_integration_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+    integration = custom_integration_factory(
+        manifest={
+            "oauth": {},
+            "initial_data_form": [{"id": "PASSWORD", "name": "generate"}],
+            "execute": [],
+            "post_execute_notification": [
+                {
+                    "type": "email",
+                    "subject": "Welcome {{first_name}}",
+                    "message": "Here is your password: {{PASSWORD}}",
+                    "to": "{{email}}",
+                }
+            ],
+        },
+        expiring=timezone.now() - timedelta(days=1),
+    )
+    new_hire = new_hire_factory()
+    integration.execute(new_hire, {})
+
+    assert len(mailoutbox) == 1
+    assert mailoutbox[0].subject == f"Welcome {new_hire.first_name}"
+    assert len(mailoutbox[0].to) == 1
+    assert mailoutbox[0].to[0] == new_hire.email
+    assert "Here is your password:" in mailoutbox[0].body
+    assert "{{PASSWORD}}" not in mailoutbox[0].body
 
 
 @pytest.mark.django_db
@@ -181,6 +340,37 @@ def test_integration_oauth_callback_view(
     integration.refresh_from_db()
     assert integration.enabled_oauth
     assert integration.extra_args["oauth"] == {"access_token": "test"}
+
+
+@pytest.mark.django_db
+# Returns text instead of request object
+@patch(
+    "admin.integrations.models.Integration.run_request",
+    Mock(return_value=(False, '{"details": "failed_auth"}')),
+)
+def test_integration_oauth_callback_failed_view(
+    client, django_user_model, custom_integration_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+    integration = custom_integration_factory(
+        manifest={
+            "oauth": {
+                "access_token": {"url": "http://localhost:8000/test/?key=123"},
+                "authenticate_url": "http://localhost:8000/test/",
+            }
+        }
+    )
+
+    url = reverse("integrations:oauth-callback", args=[integration.id])
+    response = client.get(url + "?code=test", follow=True)
+
+    integration.refresh_from_db()
+    assert not integration.enabled_oauth
+    assert integration.extra_args == {}
+    assert (
+        "Couldn&#x27;t save token: {&quot;details&quot;: &quot;failed_auth&quot;}"
+        in response.content.decode()
+    )
 
 
 @pytest.mark.django_db

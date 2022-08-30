@@ -66,6 +66,11 @@ class CustomIntegrationFactory(IntegrationFactory):
                 "name": "Organization id",
                 "description": "You can find your organization id here: https://...",
             },
+            {
+                "id": "PASSWORD",
+                "name": "generate",
+                "description": "Will be generated",
+            },
         ],
         "extra_user_info": [
             {

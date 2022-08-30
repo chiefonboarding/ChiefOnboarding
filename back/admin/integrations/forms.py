@@ -1,6 +1,5 @@
 import json
 
-import requests
 from crispy_forms.helper import FormHelper
 from django import forms
 from django.core.exceptions import ValidationError
@@ -43,10 +42,12 @@ class IntegrationConfigForm(forms.ModelForm):
         notations = inner.split(".")
         stringified_json = "{"
         for idx, notation in enumerate(notations):
+            stringified_json += f'"{notation}":'
             if idx + 1 == len(notations):
-                stringified_json += f'"{notation}":'
                 stringified_json += json.dumps(_add_items(form_item))
                 stringified_json += "}" * len(notations)
+            else:
+                stringified_json += "{"
 
         return json.loads(stringified_json)
 
@@ -68,17 +69,12 @@ class IntegrationConfigForm(forms.ModelForm):
 
                 # If there is a url to fetch the items from then do so
                 if "url" in item:
-                    try:
-                        option_data = requests.get(
-                            integration._replace_vars(item["url"]),
-                            headers=integration._headers(item.get("headers", {})),
-                        ).json()
-                    except Exception as e:
-                        self.error = (
-                            f"The request to ({item['url']}) of the requests could "
-                            "not be completed. Here is the full error: <br/> " + str(e)
-                        )
-                        break
+                    success, response = integration.run_request(item)
+                    if not success:
+                        self.error = response
+                        return
+
+                    option_data = response.json()
                 else:
                     # No url, so get the static items
                     option_data = item["items"]

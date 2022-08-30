@@ -1,3 +1,4 @@
+from datetime import timedelta
 import json
 from urllib.parse import urlparse
 
@@ -6,6 +7,7 @@ from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.generic import View
 from django.views.generic.base import RedirectView
@@ -152,10 +154,16 @@ class IntegrationOauthCallbackView(LoginRequiredMixin, RedirectView):
         )
 
         if not success:
-            messages.error(self.request, "Couldn't save token: {response}")
+            messages.error(self.request, f"Couldn't save token: {response}")
             return reverse_lazy("settings:integrations")
 
         integration.extra_args["oauth"] = response.json()
+        if "expires_in" in response.json():
+            integration.expiring = timezone.now() + timedelta(
+                seconds=response.json()["expires_in"]
+            )
+            integration.save()
+
         integration.enabled_oauth = True
         integration.save()
 

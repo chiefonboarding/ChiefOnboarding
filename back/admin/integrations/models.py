@@ -89,8 +89,15 @@ class Integration(models.Model):
         else:
             post_data = {}
         if data.get("cast_data_to_json", True):
-            post_data = json.loads(post_data)
+            try:
+                post_data = json.loads(post_data)
+            except Exception as e:
+                print(e)
         try:
+            print(data.get("method", "POST"))
+            print(url)
+            print(self._headers(data.get("headers", {})))
+            print(post_data)
             response = requests.request(
                 data.get("method", "POST"),
                 url,
@@ -119,7 +126,7 @@ class Integration(models.Model):
         except InvalidHeader:
             return False, "The header is invalid"
 
-        except Exception:
+        except:  # noqa E722
             return False, "There was an unexpected error with the request"
 
         try:
@@ -174,10 +181,10 @@ class Integration(models.Model):
         # Renew access key if necessary
         if (
             self.has_oauth
-            and "expires_in" in self.extra_args
+            and "expires_in" in self.extra_args.get("oauth", {})
             and self.expiring < timezone.now()
         ):
-            success, response = self.run_request(self.manifest["oauth"]["refresh_url"])
+            success, response = self.run_request(self.manifest["oauth"]["refresh"])
 
             if not success:
                 Notification.objects.create(
@@ -189,6 +196,10 @@ class Integration(models.Model):
                 return
 
             self.extra_args["oauth"] = response.json()
+            if "expires_in" in response.json():
+                self.expiring = timezone.now() + timedelta(
+                    seconds=response.json()["expires_in"]
+                )
             self.save()
 
         # Add generated secrets

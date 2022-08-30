@@ -1375,11 +1375,14 @@ def test_new_hire_access_per_integration(
 
 @pytest.mark.django_db
 @patch(
-    "requests.get",
+    "admin.integrations.models.Integration.run_request",
     Mock(
-        return_value=Mock(
-            status_code=201,
-            json=lambda: {"data": [{"gid": "test_team", "name": "test team"}]},
+        return_value=(
+            True,
+            Mock(
+                status_code=201,
+                json=lambda: {"data": [{"gid": "test_team", "name": "test team"}]},
+            ),
         )
     ),
 )
