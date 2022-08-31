@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-12 23:33+0000\n"
+"POT-Creation-Date: 2022-08-30 22:54+0000\n"
 "PO-Revision-Date: 2022-02-17 22:39:+0000\n"
 "Last-Translator: Stan Triepels <hello@chiefonboarding.com>\n"
 "Language-Team: NL <nl@chiefonboarding.com>\n"
@@ -75,7 +75,7 @@ msgid "No"
 msgstr "Nee"
 
 #: admin/admin_tasks/models.py:16 admin/admin_tasks/models.py:48
-#: admin/sequences/models.py:147 admin/sequences/models.py:346
+#: admin/sequences/models.py:147 admin/sequences/models.py:349
 #: new_hire/templates/_colleague_intro.html:20
 #: new_hire/templates/_new_hire_colleagues_search.html:20
 #: new_hire/templates/_new_hire_colleagues_search.html:51 users/models.py:91
@@ -95,7 +95,7 @@ msgstr "Nieuwe medewerker"
 #: admin/admin_tasks/models.py:28
 #: admin/people/templates/new_hire_admin_tasks.html:21
 #: admin/people/templates/new_hire_admin_tasks.html:61
-#: admin/sequences/models.py:321
+#: admin/sequences/models.py:324
 msgid "Assigned to"
 msgstr "Toegekend aan"
 
@@ -103,11 +103,11 @@ msgstr "Toegekend aan"
 #: admin/people/templates/colleagues.html:27
 #: admin/people/templates/new_hire_add_task.html:13
 #: admin/people/templates/new_hires.html:11 admin/sequences/models.py:42
-#: admin/sequences/models.py:151 admin/sequences/models.py:315
+#: admin/sequences/models.py:151 admin/sequences/models.py:318
 #: admin/sequences/templates/sequence.html:30
 #: admin/settings/templates/settings_admins.html:10
 #: admin/to_do/templates/templates.html:12 organization/models.py:24
-#: organization/models.py:207
+#: organization/models.py:220
 msgid "Name"
 msgstr "Naam"
 
@@ -115,7 +115,7 @@ msgstr "Naam"
 msgid "Send email or text to extra user?"
 msgstr "Stuur een email of sms bericht naar iemand anders?"
 
-#: admin/admin_tasks/models.py:41 admin/sequences/models.py:339
+#: admin/admin_tasks/models.py:41 admin/sequences/models.py:342
 msgid "Slack user"
 msgstr "Slack gebruiker"
 
@@ -128,7 +128,7 @@ msgstr "Voltooid"
 msgid "Date"
 msgstr "Datum"
 
-#: admin/admin_tasks/models.py:53 admin/sequences/models.py:350
+#: admin/admin_tasks/models.py:53 admin/sequences/models.py:353
 msgid "Priority"
 msgstr "Prioriteit"
 
@@ -178,7 +178,7 @@ msgstr ""
 "_%(comment)s_"
 
 #: admin/admin_tasks/templates/admin_tasks_all.html:8
-#: users/templates/admin_base.html:119
+#: users/templates/admin_base.html:120
 msgid "All tasks"
 msgstr "Alle taken"
 
@@ -212,7 +212,7 @@ msgid "There are no open items"
 msgstr "Er zijn geen taken"
 
 #: admin/admin_tasks/templates/admin_tasks_create.html:13
-#: admin/integrations/views.py:32
+#: admin/integrations/views.py:34
 #: admin/introductions/templates/intro_update.html:31
 #: admin/resources/templates/resource_update.html:30
 #: admin/templates/templates/template_update.html:29
@@ -232,9 +232,10 @@ msgid "Complete"
 msgstr "Voltooid"
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:25
-#: admin/integrations/views.py:57 admin/integrations/views.py:74
-#: admin/integrations/views.py:105
-#: admin/introductions/templates/intro_update.html:31 admin/people/forms.py:165
+#: admin/integrations/views.py:59 admin/integrations/views.py:76
+#: admin/integrations/views.py:107
+#: admin/introductions/templates/intro_update.html:31 admin/people/forms.py:193
+#: admin/people/new_hire_views.py:375
 #: admin/people/templates/new_hire_notes.html:19
 #: admin/resources/templates/resource_update.html:30
 #: admin/settings/templates/org_welcome_message_update.html:26
@@ -266,7 +267,7 @@ msgid "There are no comments yet"
 msgstr "Er zijn geen opmerkingen op dit moment"
 
 #: admin/admin_tasks/templates/admin_tasks_yours.html:8
-#: users/templates/admin_base.html:116
+#: users/templates/admin_base.html:117
 msgid "Your tasks"
 msgstr "Jouw taken"
 
@@ -274,35 +275,35 @@ msgstr "Jouw taken"
 msgid " There are no open items"
 msgstr " Er zijn geen open taken"
 
-#: admin/admin_tasks/views.py:64
+#: admin/admin_tasks/views.py:66
 msgid "Task has been created"
 msgstr "Taak is aangemaakt"
 
-#: admin/admin_tasks/views.py:84
+#: admin/admin_tasks/views.py:86
 msgid "New task"
 msgstr "Nieuwe taak"
 
-#: admin/admin_tasks/views.py:85 admin/admin_tasks/views.py:105
-#: admin/people/templates/_new_hire_menu.html:65 new_hire/views.py:77
-#: users/templates/admin_base.html:111
+#: admin/admin_tasks/views.py:87 admin/admin_tasks/views.py:107
+#: admin/people/templates/_new_hire_menu.html:65 new_hire/views.py:81
+#: users/templates/admin_base.html:112
 msgid "Tasks"
 msgstr "Taken"
 
-#: admin/admin_tasks/views.py:95
+#: admin/admin_tasks/views.py:97
 msgid "Task has been updated"
 msgstr "Taak is geüpdatet"
 
-#: admin/admin_tasks/views.py:104
+#: admin/admin_tasks/views.py:106
 #, python-format
 msgid "Task: %(name)s"
 msgstr "Taak: %(name)s"
 
-#: admin/admin_tasks/views.py:129
+#: admin/admin_tasks/views.py:131
 msgid "Comment has been posted"
 msgstr "Opmerking is geplaatst"
 
 #: admin/appointments/forms.py:55 admin/appointments/forms.py:58
-#: admin/appointments/forms.py:60 admin/people/forms.py:329
+#: admin/appointments/forms.py:60 admin/people/forms.py:359
 msgid "This field is required"
 msgstr "Dit veld is verplicht"
 
@@ -379,40 +380,40 @@ msgstr "Update badge"
 msgid "badge item has been removed"
 msgstr "Badge is verwijderd"
 
-#: admin/integrations/models.py:21
+#: admin/integrations/models.py:37
 #: admin/settings/templates/settings_base.html:12
 #: admin/settings/templates/settings_integrations.html:16
 msgid "Slack bot"
 msgstr "Slack bot"
 
-#: admin/integrations/models.py:22
+#: admin/integrations/models.py:38
 msgid "Slack account creation"
 msgstr "Slack account aanmaken"
 
-#: admin/integrations/models.py:23
+#: admin/integrations/models.py:39
 msgid "Google account creation"
 msgstr "Google account aanmaken"
 
-#: admin/integrations/models.py:24
+#: admin/integrations/models.py:40
 msgid "Google Login"
 msgstr "Google login"
 
-#: admin/integrations/models.py:25
+#: admin/integrations/models.py:41
 msgid "Asana"
 msgstr "Asana"
 
-#: admin/integrations/views.py:25
+#: admin/integrations/views.py:27
 msgid "Integration has been created!"
 msgstr "Integratie is aangemaakt"
 
-#: admin/integrations/views.py:30 admin/integrations/views.py:72
-#: admin/integrations/views.py:103
+#: admin/integrations/views.py:32 admin/integrations/views.py:74
+#: admin/integrations/views.py:105
 msgid "Add new integration"
 msgstr "Nieuwe integratie toevoegen"
 
-#: admin/integrations/views.py:31 admin/integrations/views.py:56
-#: admin/integrations/views.py:73 admin/integrations/views.py:88
-#: admin/integrations/views.py:104 admin/settings/views.py:54
+#: admin/integrations/views.py:33 admin/integrations/views.py:58
+#: admin/integrations/views.py:75 admin/integrations/views.py:90
+#: admin/integrations/views.py:106 admin/settings/views.py:54
 #: admin/settings/views.py:72 admin/settings/views.py:83
 #: admin/settings/views.py:120 admin/settings/views.py:136
 #: admin/settings/views.py:180 admin/settings/views.py:209
@@ -421,32 +422,32 @@ msgstr "Nieuwe integratie toevoegen"
 msgid "settings"
 msgstr "instellingen"
 
-#: admin/integrations/views.py:46 admin/integrations/views.py:67
+#: admin/integrations/views.py:48 admin/integrations/views.py:69
 msgid "Integration has been updated!"
 msgstr "Integratie item is geüpdatet"
 
-#: admin/integrations/views.py:55
+#: admin/integrations/views.py:57
 msgid "Change Google login credentials"
 msgstr "Jouw Google login gegevens"
 
-#: admin/integrations/views.py:87
+#: admin/integrations/views.py:89
 msgid "Delete integration"
 msgstr "Verwijder integratie"
 
-#: admin/integrations/views.py:98
+#: admin/integrations/views.py:100
 msgid "Your config values have been updated!"
 msgstr "Jouw instellingen zijn gewijzigd"
 
-#: admin/integrations/views.py:148
+#: admin/integrations/views.py:179
 msgid "Could not optain slack authentication code."
 msgstr "Kon Slack code niet verkrijgen."
 
-#: admin/integrations/views.py:169
+#: admin/integrations/views.py:200
 msgid ""
 "Slack has successfully been connected. You have a new bot in your workspace."
 msgstr "Slack is succesvol geconnecteerd. Je hebt een nieuwe bot in jouw team."
 
-#: admin/integrations/views.py:174
+#: admin/integrations/views.py:205
 msgid "Could not get tokens from Slack"
 msgstr "Kon code niet van Slack krijgen"
 
@@ -495,110 +496,115 @@ msgstr "Update introductie"
 msgid "Introduction item has been removed"
 msgstr "Introductie is verwijderd"
 
-#: admin/people/forms.py:26 users/templates/admin_base.html:101
+#: admin/people/forms.py:26 users/templates/admin_base.html:102
 msgid "Sequences"
 msgstr "Tijdlijnen"
 
-#: admin/people/forms.py:29 admin/people/forms.py:126
+#: admin/people/forms.py:29 admin/people/forms.py:141
 #: admin/people/templates/new_hires.html:12 users/models.py:164
 msgid "Start date"
 msgstr "Start datum"
 
-#: admin/people/forms.py:93 slack_bot/views.py:360
+#: admin/people/forms.py:106 slack_bot/views.py:360
 msgid "Create new hire"
 msgstr "Nieuwe medewerker aanmaken"
 
-#: admin/people/forms.py:293
+#: admin/people/forms.py:323
 msgid "Select sequences you want to add "
 msgstr "Selecteer tijdlijn die je wil toevoegen"
 
-#: admin/people/forms.py:302
+#: admin/people/forms.py:332
 msgid "This task has just been reopened! "
 msgstr "Deze taak is geheropend!"
 
-#: admin/people/forms.py:305
+#: admin/people/forms.py:335
 msgid "Message that you want to leave for your new hire:"
 msgstr "Bericht die je wil achterlaten voor nieuwe medewerker:"
 
-#: admin/people/forms.py:313 admin/people/forms.py:322
+#: admin/people/forms.py:343 admin/people/forms.py:352
 msgid "Send via email"
 msgstr "Verstuur via e-mail"
 
-#: admin/people/forms.py:313
+#: admin/people/forms.py:343
 msgid "Send via text"
 msgstr "Verstuur via SMS"
 
-#: admin/people/forms.py:334
+#: admin/people/forms.py:364
 msgid "Send type"
 msgstr "Verstuur type"
 
-#: admin/people/new_hire_views.py:65 users/templates/admin_base.html:58
+#: admin/people/new_hire_views.py:66 users/templates/admin_base.html:59
 msgid "New hires"
 msgstr "Nieuwe medewerkers"
 
-#: admin/people/new_hire_views.py:66 admin/people/new_hire_views.py:84
+#: admin/people/new_hire_views.py:67 admin/people/new_hire_views.py:85
 #: admin/people/views.py:38
 msgid "people"
 msgstr "Mensen"
 
-#: admin/people/new_hire_views.py:78
+#: admin/people/new_hire_views.py:79
 msgid "New hire has been created"
 msgstr "Nieuwe medewerker is aangemaakt"
 
-#: admin/people/new_hire_views.py:83
+#: admin/people/new_hire_views.py:84
 msgid "Add new hire"
 msgstr "Voeg nieuwe medewerker toe"
 
-#: admin/people/new_hire_views.py:201
+#: admin/people/new_hire_views.py:202
 msgid "Sequence(s) have been added to this new hire"
 msgstr "Tijdlijn(en) zijn toegevoegd aan de nieuwe medewerker"
 
-#: admin/people/new_hire_views.py:279
+#: admin/people/new_hire_views.py:280
 msgid "Sent email to new hire"
 msgstr "Verstuur e-mail naar nieuwe medewerker"
 
-#: admin/people/new_hire_views.py:294 admin/people/new_hire_views.py:344
-#: admin/people/new_hire_views.py:381 admin/people/new_hire_views.py:398
-#: admin/people/new_hire_views.py:410 admin/people/new_hire_views.py:429
-#: admin/people/new_hire_views.py:448 admin/people/new_hire_views.py:560
-#: admin/people/new_hire_views.py:575 admin/people/new_hire_views.py:587
-#: admin/people/new_hire_views.py:635 admin/people/new_hire_views.py:654
-#: admin/people/templates/new_hire_detail.html:88
+#: admin/people/new_hire_views.py:295 admin/people/new_hire_views.py:345
+#: admin/people/new_hire_views.py:374 admin/people/new_hire_views.py:403
+#: admin/people/new_hire_views.py:428 admin/people/new_hire_views.py:440
+#: admin/people/new_hire_views.py:459 admin/people/new_hire_views.py:483
+#: admin/people/new_hire_views.py:599 admin/people/new_hire_views.py:614
+#: admin/people/new_hire_views.py:626 admin/people/new_hire_views.py:674
+#: admin/people/new_hire_views.py:693
+#: admin/people/templates/new_hire_detail.html:100
 #: admin/people/templates/not_triggered_conditions.html:16
 #: admin/sequences/templates/_sequence_condition.html:56
 msgid "new hire"
 msgstr "Nieuwe medewerker"
 
-#: admin/people/new_hire_views.py:334
+#: admin/people/new_hire_views.py:335
 msgid "New hire has been updated"
 msgstr "Nieuwe medewerker is geüpdatet"
 
-#: admin/people/new_hire_views.py:353
+#: admin/people/new_hire_views.py:354
 msgid "New hire is now a normal account."
 msgstr "Nieuwe medewerker heeft nu een normaal account."
 
-#: admin/people/new_hire_views.py:365
+#: admin/people/new_hire_views.py:364
+msgid "Extra info has been added!"
+msgstr "Extra info is toegevoegd!"
+
+#: admin/people/new_hire_views.py:387
 msgid "Note has been added"
 msgstr "Notitie is toegevoegd"
 
-#: admin/people/new_hire_views.py:477
+#: admin/people/new_hire_views.py:516
 msgid "Don't forget this item!"
 msgstr "Vergeet dit item niet af te vinken!"
 
-#: admin/people/new_hire_views.py:485
+#: admin/people/new_hire_views.py:524
 msgid "Reminder has been sent!"
 msgstr "Herinnering is verstuurd!"
 
-#: admin/people/new_hire_views.py:543
+#: admin/people/new_hire_views.py:582
 msgid "Item has been reopened"
 msgstr "Item is heropent"
 
-#: admin/people/new_hire_views.py:651
+#: admin/people/new_hire_views.py:690
 #, python-format
 msgid "Add/Remove templates for %(name)s"
 msgstr "Voeg toe/Verwijder items voor %(name)s"
 
-#: admin/people/new_hire_views.py:702
+#: admin/people/new_hire_views.py:742
 msgid "New hire has been removed"
 msgstr "Nieuwe medewerker is verwijderd"
 
@@ -606,13 +612,17 @@ msgstr "Nieuwe medewerker is verwijderd"
 msgid "Checking status"
 msgstr "Status controleren"
 
-#: admin/people/templates/_new_hire_access_card.html:27
+#: admin/people/templates/_new_hire_access_card.html:26
+msgid "Error when trying to reach service"
+msgstr "Fout bij connectie naar service"
+
+#: admin/people/templates/_new_hire_access_card.html:29
 msgid "Activated"
 msgstr "Actief"
 
-#: admin/people/templates/_new_hire_access_card.html:31
+#: admin/people/templates/_new_hire_access_card.html:33
 #: admin/people/templates/_toggle_colleague_access.html:20
-#: admin/people/views.py:195 admin/people/views.py:249
+#: admin/people/views.py:202 admin/people/views.py:256
 msgid "Give access"
 msgstr "Toegang geven"
 
@@ -648,6 +658,7 @@ msgid "Notes"
 msgstr "Notities"
 
 #: admin/people/templates/_new_hire_menu.html:133
+#: admin/sequences/templates/_sequence_templates_list.html:23
 msgid "Admin Tasks"
 msgstr "Administrator Taken"
 
@@ -656,7 +667,7 @@ msgid "Welcome Messages"
 msgstr "Welkom berichten"
 
 #: admin/people/templates/_new_hire_settings_menu.html:4
-#: users/templates/admin_base.html:129
+#: users/templates/admin_base.html:130
 msgid "Settings"
 msgstr "Instellingen"
 
@@ -683,12 +694,12 @@ msgstr "Toegevoegd"
 
 #: admin/people/templates/_toggle_button_new_hire_template.html:7
 #: admin/people/templates/_toggle_button_resources.html:7
-#: users/templates/admin_base.html:160
+#: users/templates/admin_base.html:161
 msgid "Add"
 msgstr "Toevoegen"
 
 #: admin/people/templates/_toggle_colleague_access.html:22
-#: admin/people/views.py:246
+#: admin/people/views.py:253
 msgid "Revoke access"
 msgstr "Toegang beperken"
 
@@ -703,7 +714,7 @@ msgstr "Zet deze items in gang"
 #: admin/people/templates/add_resources.html:13
 #: admin/people/templates/new_hire_add_task.html:14
 #: admin/templates/forms.py:123 admin/to_do/templates/templates.html:13
-#: organization/models.py:209
+#: organization/models.py:222
 msgid "Tags"
 msgstr "Tags"
 
@@ -815,43 +826,53 @@ msgstr "Verwijder account"
 msgid "Migrate account to normal account"
 msgstr "Zet om naar een gewoon account"
 
-#: admin/people/templates/new_hire_detail.html:15
+#: admin/people/templates/new_hire_detail.html:14
+msgid ""
+"Some integrations require extra information. Make sure to complete those!"
+msgstr ""
+"Sommige integraties hebben meer info nodige. Zorg ervoor dat deze worden toegevoegd!"
+
+#: admin/people/templates/new_hire_detail.html:17
+msgid "Complete info"
+msgstr "Voltooide info"
+
+#: admin/people/templates/new_hire_detail.html:27
 msgid "What's up next..."
 msgstr "Binnenkort..."
 
-#: admin/people/templates/new_hire_detail.html:27
+#: admin/people/templates/new_hire_detail.html:39
 msgid "Before first day"
 msgstr "Voor de eerste dag"
 
-#: admin/people/templates/new_hire_detail.html:58
+#: admin/people/templates/new_hire_detail.html:70
 #, python-format
 msgid "%(start_day)s - New hire's first day!"
 msgstr "%(start_day)s - Eerste dag!"
 
-#: admin/people/templates/new_hire_detail.html:71
+#: admin/people/templates/new_hire_detail.html:83
 msgid "at"
 msgstr "om"
 
-#: admin/people/templates/new_hire_detail.html:74
+#: admin/people/templates/new_hire_detail.html:86
 #: admin/sequences/templates/_sequence_condition.html:20
 msgid "When these tasks are completed:"
 msgstr "Zodra deze taken zijn voltooid:"
 
-#: admin/people/templates/new_hire_detail.html:117
+#: admin/people/templates/new_hire_detail.html:129
 #: admin/people/templates/not_triggered_conditions.html:51
 #: admin/sequences/templates/_sequence_condition.html:91
 msgid "admins"
 msgstr "administrators"
 
-#: admin/people/templates/new_hire_detail.html:146
+#: admin/people/templates/new_hire_detail.html:158
 msgid "Latest activity..."
 msgstr "Laatste activiteit..."
 
-#: admin/people/templates/new_hire_detail.html:159
+#: admin/people/templates/new_hire_detail.html:171
 msgid "By"
 msgstr "Door"
 
-#: admin/people/templates/new_hire_detail.html:165
+#: admin/people/templates/new_hire_detail.html:177
 msgid "No items yet"
 msgstr "Nog geen items"
 
@@ -908,7 +929,7 @@ msgid "Reopen this task for new hire"
 msgstr "Heropenen van deze taak voor deze nieuwe medewerker"
 
 #: admin/people/templates/new_hire_tasks.html:15
-#: users/templates/admin_base.html:88
+#: users/templates/admin_base.html:89
 msgid "Preboarding"
 msgstr "Pre-boarding"
 
@@ -917,7 +938,7 @@ msgid "There are no preboarding items yet"
 msgstr "Er zijn nog geen pre-boarding items"
 
 #: admin/people/templates/new_hire_tasks.html:45
-#: users/templates/admin_base.html:76
+#: users/templates/admin_base.html:77
 msgid "To do"
 msgstr "Te doen"
 
@@ -926,9 +947,10 @@ msgid "There are no to do items yet"
 msgstr "Er zijn nog geen te doen items"
 
 #: admin/people/templates/new_hire_tasks.html:75 admin/sequences/emails.py:57
+#: admin/sequences/templates/_sequence_templates_list.html:8
 #: new_hire/templates/new_hire_base.html:136
 #: new_hire/templates/new_hire_resources.html:12 slack_bot/slack_misc.py:58
-#: users/templates/admin_base.html:79
+#: users/templates/admin_base.html:80
 msgid "Resources"
 msgstr "Artikelen"
 
@@ -937,7 +959,8 @@ msgid "There are no resource items yet"
 msgstr "Er zijn nog geen artikelen"
 
 #: admin/people/templates/new_hire_tasks.html:105
-#: users/templates/admin_base.html:82
+#: admin/sequences/templates/_sequence_templates_list.html:11
+#: users/templates/admin_base.html:83
 msgid "Introductions"
 msgstr "Introducties"
 
@@ -946,7 +969,8 @@ msgid "There are no introduction items yet"
 msgstr "Er zijn nog geen introducties"
 
 #: admin/people/templates/new_hire_tasks.html:135
-#: users/templates/admin_base.html:85
+#: admin/sequences/templates/_sequence_templates_list.html:14
+#: users/templates/admin_base.html:86
 msgid "Appointments"
 msgstr "Afspraken"
 
@@ -974,7 +998,9 @@ msgid "Condition"
 msgstr "Conditie"
 
 #: admin/people/templates/not_triggered_conditions.html:74
-msgid "Go back to new hires"
+#, fuzzy
+#| msgid "Go back to new hires"
+msgid "Go to new hire"
 msgstr "Ga terug naar nieuwe medewerker"
 
 #: admin/people/templates/trigger_preboarding_notification.html:11
@@ -996,7 +1022,7 @@ msgstr "Verstuur pre-boarding bericht"
 
 #: admin/people/views.py:37 new_hire/templates/new_hire_base.html:152
 #: new_hire/templates/new_hire_colleagues.html:20
-#: users/templates/admin_base.html:61
+#: users/templates/admin_base.html:62
 msgid "Colleagues"
 msgstr "Collega's"
 
@@ -1025,25 +1051,26 @@ msgstr "Collega is verwijderd"
 msgid "Add new resource for %(name)s"
 msgstr "Voeg nieuw artikel toe voor %(name)s"
 
-#: admin/people/views.py:201
+#: admin/people/views.py:208
 msgid "Could not find user"
 msgstr "Kon gebruiker niet vinden"
 
-#: admin/people/views.py:211
+#: admin/people/views.py:218
 msgid ""
 "Click on the button to see all the categories that are available to you!"
 msgstr ""
 "Klik op de knop om de categorieën te zien die beschikbaar zijn voor jou!"
 
-#: admin/people/views.py:217
+#: admin/people/views.py:224
 msgid "resources"
 msgstr "artikelen"
 
-#: admin/people/views.py:229
+#: admin/people/views.py:236
 msgid "Revoke Slack access"
 msgstr "Slack toegang blokeren"
 
 #: admin/preboarding/views.py:21
+#: admin/sequences/templates/_sequence_templates_list.html:20
 msgid "Preboarding items"
 msgstr "Pre-boarding items"
 
@@ -1108,7 +1135,7 @@ msgid "Remove item when new hire walked through"
 msgstr "Verwijder item als nieuwe medewerker deze heeft afgerond"
 
 #: admin/resources/models.py:85 admin/sequences/models.py:58
-#: organization/models.py:236
+#: organization/models.py:249
 #, python-format
 msgid "%(name)s (duplicate)"
 msgstr "%(name)s (dubbel)"
@@ -1193,6 +1220,7 @@ msgid "Todo item"
 msgstr "Te doen item"
 
 #: admin/sequences/emails.py:38
+#: admin/sequences/templates/_sequence_templates_list.html:5
 msgid "Todo items"
 msgstr "Te doen items"
 
@@ -1204,7 +1232,9 @@ msgstr "Artikel"
 msgid "Badge"
 msgstr "Badge"
 
-#: admin/sequences/emails.py:74 users/templates/admin_base.html:91
+#: admin/sequences/emails.py:74
+#: admin/sequences/templates/_sequence_templates_list.html:17
+#: users/templates/admin_base.html:92
 msgid "Badges"
 msgstr "Badges"
 
@@ -1245,7 +1275,7 @@ msgstr "Zowel de tijd als dagen moet worden ingevult."
 msgid "Edit block"
 msgstr "Blok aanpassen"
 
-#: admin/sequences/forms.py:147 admin/sequences/models.py:348
+#: admin/sequences/forms.py:147 admin/sequences/models.py:351
 msgid "Due date"
 msgstr "Datum wanneer dit klaar moet zijn"
 
@@ -1291,47 +1321,47 @@ msgstr "Onderwerp"
 msgid "For"
 msgstr "Voor"
 
-#: admin/sequences/models.py:317
+#: admin/sequences/models.py:320
 msgid "Comment"
 msgstr "Opmerking"
 
-#: admin/sequences/models.py:327
+#: admin/sequences/models.py:330
 msgid "Pick user"
 msgstr "Kies gebruiker"
 
-#: admin/sequences/models.py:333
+#: admin/sequences/models.py:336
 msgid "Send email or Slack message to extra user?"
 msgstr "Stuur een email of Slack bericht naar iemand anders?"
 
-#: admin/sequences/models.py:472
+#: admin/sequences/models.py:475
 msgid "After new hire has started"
 msgstr "Nadat de nieuwe medewerker is gestart"
 
-#: admin/sequences/models.py:473
+#: admin/sequences/models.py:476
 msgid "Based on one or more to do item(s)"
 msgstr "Gebaseerd op een of meerdere te doen items"
 
-#: admin/sequences/models.py:474
+#: admin/sequences/models.py:477
 msgid "Before the new hire has started"
 msgstr "Voordat de nieuwe medewerker is gestart"
 
-#: admin/sequences/models.py:475
+#: admin/sequences/models.py:478
 msgid "Without trigger"
 msgstr "Zonder trigger"
 
-#: admin/sequences/models.py:481
+#: admin/sequences/models.py:484
 msgid "Block type"
 msgstr "Blok type"
 
-#: admin/sequences/models.py:484
+#: admin/sequences/models.py:487
 msgid "Amount of days before/after new hire has started"
 msgstr "Aantal dagen voor/na de nieuwe medewerker is gestart"
 
-#: admin/sequences/models.py:486
+#: admin/sequences/models.py:489
 msgid "At"
 msgstr "Om"
 
-#: admin/sequences/models.py:489
+#: admin/sequences/models.py:492
 msgid "Trigger after these to do items have been completed:"
 msgstr "Doorzetten nadat deze te doen items zijn afgerond:"
 
@@ -1361,9 +1391,26 @@ msgid "Without any trigger - assign directly"
 msgstr "Zonder trigger - direct toevoegen"
 
 #: admin/sequences/templates/_sequence_templates_list.html:3
-#: users/templates/admin_base.html:71
+#: users/templates/admin_base.html:72
 msgid "Templates"
 msgstr "Sjablonen"
+
+#: admin/sequences/templates/_sequence_templates_list.html:26
+msgid "Slack message"
+msgstr "Slack bericht"
+
+#: admin/sequences/templates/_sequence_templates_list.html:29
+msgid "Text message"
+msgstr "SMS bericht"
+
+#: admin/sequences/templates/_sequence_templates_list.html:32
+msgid "Email message"
+msgstr "E-mail bericht"
+
+#: admin/sequences/templates/_sequence_templates_list.html:35
+#: admin/settings/templates/settings_base.html:15 admin/settings/views.py:252
+msgid "Integrations"
+msgstr "Integraties"
 
 #: admin/sequences/templates/_sequence_templates_list.html:72
 msgid "Create new one"
@@ -1516,10 +1563,6 @@ msgstr "Welkom berichten"
 msgid "Personal"
 msgstr "Persoonlijk"
 
-#: admin/settings/templates/settings_base.html:15 admin/settings/views.py:252
-msgid "Integrations"
-msgstr "Integraties"
-
 #: admin/settings/templates/settings_base.html:16 admin/settings/views.py:82
 msgid "Administrators"
 msgstr "Administrators"
@@ -1569,6 +1612,10 @@ msgstr "Update manifest"
 #: admin/settings/templates/settings_integrations.html:86
 msgid "No custom integrations yet"
 msgstr "Nog geen eigen integraties"
+
+#: admin/settings/templates/token_create.html:14
+msgid "Redirect URL:"
+msgstr "Omleidings URL:"
 
 #: admin/settings/views.py:38
 msgid "Organization info has been updated"
@@ -1787,13 +1834,13 @@ msgstr "We konden geen items vinden op basis van jouw zoekopdracht."
 msgid "Employee onboarding"
 msgstr "Medewerker inwerken"
 
-#: new_hire/templates/new_hire_base.html:104 users/templates/admin_base.html:40
+#: new_hire/templates/new_hire_base.html:104 users/templates/admin_base.html:41
 msgid "Logout"
 msgstr "Uitloggen"
 
 #: new_hire/templates/new_hire_preboarding.html:66
 #: new_hire/templates/new_hire_to_do.html:47
-#: new_hire/templates/slack_form.html:38 users/templates/admin_base.html:253
+#: new_hire/templates/slack_form.html:38 users/templates/admin_base.html:254
 msgid "uploading..."
 msgstr "uploaden..."
 
@@ -1801,7 +1848,7 @@ msgstr "uploaden..."
 msgid "Answers saved successfully! Click on 'next' to continue."
 msgstr "Antwoorden zijn opgeslagen! Klik op 'volgende' om door te gaan."
 
-#: new_hire/templates/new_hire_resource_detail.html:54 new_hire/views.py:262
+#: new_hire/templates/new_hire_resource_detail.html:54 new_hire/views.py:266
 #: slack_bot/slack_resource.py:96 slack_bot/views.py:658
 msgid "Next"
 msgstr "Volgende"
@@ -1834,23 +1881,23 @@ msgstr "Loopt af op "
 msgid "Not urgent"
 msgstr "Zonder datum"
 
-#: new_hire/views.py:76
+#: new_hire/views.py:80
 msgid "Things you need to do"
 msgstr "Dingen die je moet doen"
 
-#: new_hire/views.py:125
+#: new_hire/views.py:129
 msgid "This form could not be processed - invalid items"
 msgstr "Formulier kon niet worden verzonden - onjuiste items"
 
-#: new_hire/views.py:131
+#: new_hire/views.py:135
 msgid "You have submitted this form successfully"
 msgstr "Jij hebt dit formulier succesvol verstuurd"
 
-#: new_hire/views.py:264
+#: new_hire/views.py:268
 msgid "Restart"
 msgstr "Herstart"
 
-#: new_hire/views.py:369
+#: new_hire/views.py:376
 msgid "You have completed this course!"
 msgstr "Jij hebt deze cursus afgerond!"
 
@@ -1968,168 +2015,168 @@ msgstr ""
 "Laat blank om de standaard te gebruiken. Bekijk de documentatie, hoe je je "
 "eigen kan gebruiken"
 
-#: organization/models.py:189
+#: organization/models.py:190
 msgid "pre-boarding"
 msgstr "pre-boarding"
 
-#: organization/models.py:190
+#: organization/models.py:191
 msgid "new hire welcome"
 msgstr "Nieuwe medewerker welkom"
 
-#: organization/models.py:191
+#: organization/models.py:192
 msgid "text welcome"
 msgstr "sms welkom"
 
-#: organization/models.py:192
+#: organization/models.py:193
 msgid "slack welcome"
 msgstr "slack welkom"
 
-#: organization/models.py:193
+#: organization/models.py:194
 msgid "slack knowledge"
 msgstr "Slack artikelen"
 
-#: organization/models.py:196 users/models.py:103
+#: organization/models.py:197 users/models.py:103
 msgid "Message"
 msgstr "Bericht"
 
-#: organization/models.py:254
+#: organization/models.py:267
 msgid "A new to do item has been added"
 msgstr "Een nieuwe te doen item is toegevoegd"
 
-#: organization/models.py:255
+#: organization/models.py:268
 msgid "To do item has been marked as completed"
 msgstr "Te doen item is gemarkeerd als compleet"
 
-#: organization/models.py:256
+#: organization/models.py:269
 msgid "A new resource item has been added"
 msgstr "Een nieuw artikel is toegevoegd"
 
-#: organization/models.py:257
+#: organization/models.py:270
 msgid "Course has been completed"
 msgstr "Cursus is voltooid"
 
-#: organization/models.py:258
+#: organization/models.py:271
 msgid "A new badge item has been added"
 msgstr "Een nieuwe badge is toegevoegd"
 
-#: organization/models.py:259
+#: organization/models.py:272
 msgid "A new introduction item has been added"
 msgstr "Een nieuwe introductie is toegevoegd"
 
-#: organization/models.py:260
+#: organization/models.py:273
 msgid "A new preboarding item has been added"
 msgstr "Een nieuwe pre-boarding item is toegevoegd"
 
-#: organization/models.py:261
+#: organization/models.py:274
 msgid "A new appointment item has been added"
 msgstr "Een nieuw kalender item is toegevoegd"
 
-#: organization/models.py:262
+#: organization/models.py:275
 msgid "A new hire has been added"
 msgstr "Een nieuwe medewerker is toegevoegd"
 
-#: organization/models.py:263
+#: organization/models.py:276
 msgid "A new administrator has been added"
 msgstr "Een nieuwe administrator is toegevoegd"
 
-#: organization/models.py:264
+#: organization/models.py:277
 msgid "A new manager has been added"
 msgstr "Een nieuwe medewerker is toegevoegd"
 
-#: organization/models.py:265
+#: organization/models.py:278
 msgid "A new admin task has been added"
 msgstr "Een nieuwe admin taak is toegevoegd"
 
-#: organization/models.py:266
+#: organization/models.py:279
 msgid "A new email has been sent"
 msgstr "Een nieuwe email is verstuurd"
 
-#: organization/models.py:267
+#: organization/models.py:280
 msgid "A new text message has been sent"
 msgstr "Een nieuw sms bericht is vestuurd"
 
-#: organization/models.py:268
+#: organization/models.py:281
 msgid "A new slack message has been sent"
 msgstr "Een nieuw Slack bericht is verstuurd"
 
-#: organization/models.py:269
+#: organization/models.py:282
 msgid "Login credentials have been sent"
 msgstr "Login gegevens zijn verstuurd"
 
-#: organization/models.py:270
+#: organization/models.py:283
 msgid "Reopened task email has been sent"
 msgstr "Heropen taak e-mail is verstuurd"
 
-#: organization/models.py:271
+#: organization/models.py:284
 msgid "Task reminder email has been sent"
 msgstr "Taak herinnerings eemail is verstuurd"
 
-#: organization/models.py:272
+#: organization/models.py:285
 msgid "Sent new hire credentials email"
 msgstr "Login gegevens voor nieuwe medewerker zijn verstuurd"
 
-#: organization/models.py:273
+#: organization/models.py:286
 msgid "Sent new hire preboarding email"
 msgstr "Preboarding e-mail is verstuurd"
 
-#: organization/models.py:274
+#: organization/models.py:287
 msgid "Sent email from sequence"
 msgstr "E-mail vanaf tijdlijn is verstuurd"
 
-#: organization/models.py:275
+#: organization/models.py:288
 msgid "Sent email with updates to new hire"
 msgstr "E-mail met updates naar nieuwe medewerker is verstuurd"
 
-#: organization/models.py:276
+#: organization/models.py:289
 msgid "Sent email to extra person in admin task"
 msgstr "Extra email naar persoon in admin taak is verstuurd"
 
-#: organization/models.py:279
+#: organization/models.py:292
 msgid "Sent email about new person assigned to admin task"
 msgstr ""
 "Email omdat een nieuwe persoon is aangesteld voor een taak is verstuurd"
 
-#: organization/models.py:283
+#: organization/models.py:296
 msgid "Sent email about new comment on admin task"
 msgstr "Nieuwe opmerking e-mail is verstuurd"
 
-#: organization/models.py:287
+#: organization/models.py:300
 msgid "Sent email about completing integration call"
 msgstr "E-mail is verstuurd vanuit integratie"
 
-#: organization/models.py:289
+#: organization/models.py:302
 msgid "Couldn't send text message: number is missing"
 msgstr "Kon sms bericht niet versturen: nummer mist"
 
-#: organization/models.py:290
+#: organization/models.py:303
 msgid "Couldn't send email message: email is missing"
 msgstr "Kon e-mail bericht niet versturen: e-mail mist"
 
-#: organization/models.py:293
+#: organization/models.py:306
 msgid "Couldn't deliver email message: recipient refused"
 msgstr "Kon bericht niet afleveren: afzender heeft geweigerd"
 
-#: organization/models.py:295 organization/models.py:296
+#: organization/models.py:308 organization/models.py:309
 msgid "Couldn't deliver email message: provider error"
 msgstr "Kon bericht niet afleveren: provider error"
 
-#: organization/models.py:297
+#: organization/models.py:310
 msgid "Couldn't send Slack message"
 msgstr "Kon Slack bericht niet versturen"
 
-#: organization/models.py:298
+#: organization/models.py:311
 msgid "Couldn't update Slack message"
 msgstr "Kon Slack bericht niet updaten"
 
-#: organization/models.py:299
+#: organization/models.py:312
 msgid "Integration has been triggered"
 msgstr "Integratie is geïnitieerd"
 
-#: organization/models.py:300
+#: organization/models.py:313
 msgid "Couldn't complete integration"
 msgstr "Kon integratie niet voltooien"
 
-#: organization/models.py:303
+#: organization/models.py:316
 msgid "Couldn't send integration notification"
 msgstr "Kon integratie melding niet versturen"
 
@@ -2557,17 +2604,17 @@ msgstr ""
 msgid "First working day"
 msgstr "Eerste werkdag"
 
-#: users/models.py:433
+#: users/models.py:464
 #, python-format
 msgid "*Our new hire %(name)s just answered some questions:*"
 msgstr "*Onze nieuwe medeweker %(name)s heeft net deze vragen beantwoord:*"
 
-#: users/models.py:446
+#: users/models.py:477
 #, python-format
 msgid "Our new hire %(name)s just answered some questions:"
 msgstr "Onze nieuwe medeweker %(name)s heeft net deze vragen beantwoord:"
 
-#: users/models.py:565
+#: users/models.py:596
 #, python-format
 msgid ""
 "%(amount_of_correct_answers)s correct answers out of %(amount_of_questions)s "
@@ -2576,23 +2623,23 @@ msgstr ""
 "%(amount_of_correct_answers)s goede antwoorden uit %(amount_of_questions)s "
 "vragen"
 
-#: users/templates/admin_base.html:53
+#: users/templates/admin_base.html:54
 msgid "People"
 msgstr "Mensen"
 
-#: users/templates/admin_base.html:184
+#: users/templates/admin_base.html:185
 msgid "Documentation"
 msgstr "Documentatie"
 
-#: users/templates/admin_base.html:189
+#: users/templates/admin_base.html:190
 msgid "Source code"
 msgstr "Broncode"
 
-#: users/templates/admin_base.html:197
+#: users/templates/admin_base.html:198
 msgid "ChiefOnboarding"
 msgstr "ChiefOnboarding"
 
-#: users/templates/admin_base.html:316
+#: users/templates/admin_base.html:317
 #, fuzzy
 #| msgid "Start typing here..."
 msgid "Start typing..."
