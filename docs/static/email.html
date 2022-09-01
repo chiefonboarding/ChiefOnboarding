@@ -1,9 +1,10 @@
+{% autoescape off %}
 {% for i in content %}
   {% if i.type == 'paragraph' %}
-    <p>{{i.data.text|safe|personalize:user}}</p>
+    <p>{{i.data.text|personalize:user}}</p>
   {% endif %}
   {% if i.type == 'header' %}
-    <h{{ i.data.level }}>{{ i.data.text|safe|personalize:user }}</h{{ i.data.level }}>
+    <h{{ i.data.level }}>{{ i.data.text|personalize:user }}</h{{ i.data.level }}>
   {% endif %}
   {% if i.type == 'list' %}
     {% if i.data.style == "ordered" %}
@@ -12,7 +13,7 @@
       <ul>
     {% endif %}
     {% for j in i.data.items %}
-      <li>{{ j.content|safe|personalize:user }}</li>
+      <li>{{ j.content|personalize:user }}</li>
     {% endfor %}
     {% if i.data.style == "ordered" %}
       </ol>
@@ -30,9 +31,10 @@
       <a href="{{ j.data.file.url }}">{{ i.data.file.name }}</a><br />
   {% endif %}
   {% if i.type == 'button' %}
-    <a href="{{ i.data.url }}">{{i.data.text|safe|personalize:user}}</a>
+    <a href="{{ i.data.url }}">{{i.data.text|personalize:user}}</a>
   {% endif %}
   {% if i.type == 'hr' %}
     <hr />
   {% endif %}
 {% endfor %}
+{% endautoescape %}
