@@ -736,6 +736,7 @@ class NewHireDeleteView(LoginRequiredMixin, ManagerPermMixin, DeleteView):
     template_name = "new_hire_delete.html"
     queryset = get_user_model().new_hires.all()
     success_url = reverse_lazy("people:new_hires")
+    context_object_name = "object"
 
     def delete(self, request, *args, **kwargs):
         response = super().delete(request, *args, **kwargs)
