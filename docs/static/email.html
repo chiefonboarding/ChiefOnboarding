@@ -21,7 +21,7 @@
     {% endif %}
   {% endif %}
   {% if i.type == 'quote' %}
-     {{i.data.text|personalize:user}}
+     {{i.data.text|safe|personalize:user}}
   {% endif %}
   {% if i.type == 'image' %}
     <img src="{{ i.data.file.url }}" />
