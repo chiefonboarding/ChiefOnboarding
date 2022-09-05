@@ -126,10 +126,11 @@ class Integration(models.Model):
         except:  # noqa E722
             return False, "There was an unexpected error with the request"
 
-        try:
-            response.raise_for_status()
-        except Exception:
-            return False, response.text
+        if data.get("allow_4xx_response_status", False):
+            try:
+                response.raise_for_status()
+            except Exception:
+                return False, response.text
 
         return True, response
 
