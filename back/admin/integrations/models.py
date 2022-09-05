@@ -175,7 +175,8 @@ class Integration(models.Model):
         self.new_hire = new_hire
 
         # Renew token if necessary
-        self.renew_key()
+        if not self.renew_key():
+            return
 
         success, response = self.run_request(self.manifest["exists"])
 
@@ -186,6 +187,7 @@ class Integration(models.Model):
 
     def renew_key(self):
         # Oauth2 refreshing access token if needed
+        success = True
         if (
             self.has_oauth
             and "expires_in" in self.extra_args.get("oauth", {})
@@ -200,7 +202,7 @@ class Integration(models.Model):
                     created_for=self.new_hire,
                     description="Refresh url: " + str(response),
                 )
-                return
+                return success
 
             self.extra_args["oauth"] = response.json()
             if "expires_in" in response.json():
@@ -208,6 +210,7 @@ class Integration(models.Model):
                     seconds=response.json()["expires_in"]
                 )
             self.save()
+        return success
 
     def execute(self, new_hire, params):
         self.params = params
@@ -215,7 +218,8 @@ class Integration(models.Model):
         self.new_hire = new_hire
 
         # Renew token if necessary
-        self.renew_key()
+        if not self.renew_key():
+            return
 
         # Add generated secrets
         for item in self.manifest["initial_data_form"]:

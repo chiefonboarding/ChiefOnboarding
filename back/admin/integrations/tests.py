@@ -223,7 +223,8 @@ def test_integration_refresh_token(
         "admin.integrations.models.Integration.run_request",
         Mock(return_value=(False, Mock(text="[{'error': 'not_found'}]"))),
     ):
-        integration.execute(new_hire, {})
+        integration.new_hire = new_hire
+        integration.renew_key()
 
         assert (
             Notification.objects.filter(notification_type="failed_integration").count()
@@ -240,15 +241,17 @@ def test_integration_refresh_token(
             )
         ),
     ):
-        integration.execute(new_hire, {})
+        integration.new_hire = new_hire
+        integration.renew_key()
 
         integration.refresh_from_db()
         assert integration.extra_args["oauth"] == {
             "access_token": "xxx",
             "expires_in": 1234,
         }
+        # Only one because of previous request
         assert (
-            Notification.objects.filter(notification_type="ran_integration").count()
+            Notification.objects.filter(notification_type="failed_integration").count()
             == 1
         )
 
