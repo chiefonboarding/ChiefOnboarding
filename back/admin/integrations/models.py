@@ -173,6 +173,10 @@ class Integration(models.Model):
 
     def user_exists(self, new_hire):
         self.new_hire = new_hire
+
+        # Renew token if necessary
+        self.renew_key()
+
         success, response = self.run_request(self.manifest["exists"])
 
         if not success:
@@ -180,12 +184,8 @@ class Integration(models.Model):
 
         return self._replace_vars(self.manifest["exists"]["expected"]) in response.text
 
-    def execute(self, new_hire, params):
-        self.params = params
-        self.params |= new_hire.extra_fields
-        self.new_hire = new_hire
-
-        # Renew access key if necessary
+    def renew_key(self):
+        # Oauth2 refreshing access token if needed
         if (
             self.has_oauth
             and "expires_in" in self.extra_args.get("oauth", {})
@@ -197,7 +197,7 @@ class Integration(models.Model):
                 Notification.objects.create(
                     notification_type="failed_integration",
                     extra_text=self.name,
-                    created_for=new_hire,
+                    created_for=self.new_hire,
                     description="Refresh url: " + str(response),
                 )
                 return
@@ -208,6 +208,14 @@ class Integration(models.Model):
                     seconds=response.json()["expires_in"]
                 )
             self.save()
+
+    def execute(self, new_hire, params):
+        self.params = params
+        self.params |= new_hire.extra_fields
+        self.new_hire = new_hire
+
+        # Renew token if necessary
+        self.renew_key()
 
         # Add generated secrets
         for item in self.manifest["initial_data_form"]:
