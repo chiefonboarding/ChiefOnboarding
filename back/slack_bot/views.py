@@ -120,15 +120,15 @@ def get_user(slack_user_id):
 @app.event("message", matchers=[message_changed_matcher])
 def message_changed(body):
     try:
-        user = get_user_model().objects.get(slack_channel_id=body["channel"])
+        user = get_user_model().objects.get(slack_channel_id=body["event"]["channel"])
     except get_user_model().DoesNotExist:
         return
 
     Notification.objects.create(
         notification_type="updated_slack_message",
-        extra_text=body.get("message", {}).get("text", ""),
+        extra_text=body["event"].get("message", {}).get("text", ""),
         created_for=user,
-        blocks=body.get("message", {}).get("blocks", []),
+        blocks=body["event"].get("message", {}).get("blocks", []),
     )
 
 
