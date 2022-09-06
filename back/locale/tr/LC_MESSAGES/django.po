@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-30 22:54+0000\n"
+"POT-Creation-Date: 2022-09-06 00:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Ibrahim AYDIN (ibrhmhaydn@gmail.com)\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -226,7 +226,7 @@ msgstr "Yeniden aç"
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:9
 #: admin/people/templates/new_hire_progress.html:73
-#: new_hire/templates/new_hire_resource_detail.html:21 slack_bot/views.py:656
+#: new_hire/templates/new_hire_resource_detail.html:21 slack_bot/views.py:675
 msgid "Complete"
 msgstr "Tamamlandı"
 
@@ -253,7 +253,7 @@ msgstr "Yorum ekle"
 #: admin/settings/templates/personal_otp.html:28
 #: admin/settings/templates/token_create.html:11
 #: new_hire/templates/_content.html:123
-#: new_hire/templates/_question_form.html:6 slack_bot/views.py:713
+#: new_hire/templates/_question_form.html:6 slack_bot/views.py:732
 msgid "Submit"
 msgstr "Teslim et"
 
@@ -506,7 +506,7 @@ msgstr "Sekanslar"
 msgid "Start date"
 msgstr "Başlangıç tarihi"
 
-#: admin/people/forms.py:106 slack_bot/views.py:360
+#: admin/people/forms.py:106 slack_bot/views.py:379
 msgid "Create new hire"
 msgstr "Yeni işe alım oluştur"
 
@@ -605,7 +605,7 @@ msgstr "Öğe yeniden açılmıştır"
 msgid "Add/Remove templates for %(name)s"
 msgstr "%(name)s Ekle/Çıkar şablonları"
 
-#: admin/people/new_hire_views.py:742
+#: admin/people/new_hire_views.py:743
 msgid "New hire has been removed"
 msgstr "Yeni işe alım kaldırılmıştır"
 
@@ -1844,7 +1844,7 @@ msgstr ""
 "tıklayınız."
 
 #: new_hire/templates/new_hire_resource_detail.html:54 new_hire/views.py:266
-#: slack_bot/slack_resource.py:96 slack_bot/views.py:658
+#: slack_bot/slack_resource.py:96 slack_bot/views.py:677
 msgid "Next"
 msgstr "İleri"
 
@@ -2093,83 +2093,87 @@ msgid "A new slack message has been sent"
 msgstr "Yeni bir slack mesajı gönderilmiştir"
 
 #: organization/models.py:282
+msgid "A new slack message has been updated"
+msgstr "Yeni bir slack mesajı güncellendi"
+
+#: organization/models.py:283
 msgid "Login credentials have been sent"
 msgstr "Giriş bilgileri gönderilmiştir"
 
-#: organization/models.py:283
+#: organization/models.py:284
 msgid "Reopened task email has been sent"
 msgstr "Yeniden açılmış görev e-postası gönderilmiştir"
 
-#: organization/models.py:284
+#: organization/models.py:285
 msgid "Task reminder email has been sent"
 msgstr "Görev hatıratma e-postası gönderilmiştir"
 
-#: organization/models.py:285
+#: organization/models.py:286
 msgid "Sent new hire credentials email"
 msgstr "Yeni çalışan bilgileri e-postası gönderilmiştir"
 
-#: organization/models.py:286
+#: organization/models.py:287
 msgid "Sent new hire preboarding email"
 msgstr "Yeni çalışan 'işe başlamadan önce' e-postası gönderilmiştir"
 
-#: organization/models.py:287
+#: organization/models.py:288
 msgid "Sent email from sequence"
 msgstr "Sekanstan e-posta gönderilmiştir"
 
-#: organization/models.py:288
+#: organization/models.py:289
 msgid "Sent email with updates to new hire"
 msgstr "Yeni çalışana güncellerle ilgili e-posta gönderilmiştir"
 
-#: organization/models.py:289
+#: organization/models.py:290
 msgid "Sent email to extra person in admin task"
 msgstr "Yönetici görevindeki bir kişiye daha e-posta gönderilmiştir"
 
-#: organization/models.py:292
+#: organization/models.py:293
 msgid "Sent email about new person assigned to admin task"
 msgstr ""
 "Yönetici görevine yeni birinin atanması ile ilgili e-posta gönderilmiştir"
 
-#: organization/models.py:296
+#: organization/models.py:297
 msgid "Sent email about new comment on admin task"
 msgstr "Yönetici görevine yeni yorum bildirim e-postası gönderilmiştir"
 
-#: organization/models.py:300
+#: organization/models.py:301
 msgid "Sent email about completing integration call"
 msgstr "Entegrasyon araması tamamlanması ile ilgili e-posta gönderilmiştir"
 
-#: organization/models.py:302
+#: organization/models.py:303
 msgid "Couldn't send text message: number is missing"
 msgstr "Kısa mesaj gönderilemedi: Cep numarası eksik"
 
-#: organization/models.py:303
+#: organization/models.py:304
 msgid "Couldn't send email message: email is missing"
 msgstr "E-posta gönderilemedi: E-posta adresi eksik"
 
-#: organization/models.py:306
+#: organization/models.py:307
 msgid "Couldn't deliver email message: recipient refused"
 msgstr "E-posta iletilemedi: alıcı reddetti"
 
-#: organization/models.py:308 organization/models.py:309
+#: organization/models.py:309 organization/models.py:310
 msgid "Couldn't deliver email message: provider error"
 msgstr "E-posta iletilemedi: sağlayıcı hatası"
 
-#: organization/models.py:310
+#: organization/models.py:311
 msgid "Couldn't send Slack message"
 msgstr "Slack mesajı gönderilemedi"
 
-#: organization/models.py:311
+#: organization/models.py:312
 msgid "Couldn't update Slack message"
 msgstr "Slack iletisi güncellenemedi"
 
-#: organization/models.py:312
+#: organization/models.py:313
 msgid "Integration has been triggered"
 msgstr "Entegrasyon başlatıldı"
 
-#: organization/models.py:313
+#: organization/models.py:314
 msgid "Couldn't complete integration"
 msgstr "Entegrasyon tamamlanamadı"
 
-#: organization/models.py:316
+#: organization/models.py:317
 #, fuzzy
 #| msgid "Couldn't send integration notificatio"
 msgid "Couldn't send integration notification"
@@ -2225,7 +2229,7 @@ msgstr "Kaynak bulunmuyor"
 msgid "No category"
 msgstr "Kategori bulunmuyor"
 
-#: slack_bot/slack_resource.py:124 slack_bot/views.py:128
+#: slack_bot/slack_resource.py:124 slack_bot/views.py:147
 msgid "Select a category:"
 msgstr "Bir kategori seç:"
 
@@ -2259,11 +2263,11 @@ msgid "done"
 msgstr "bitti"
 
 #: slack_bot/slack_to_do.py:101 slack_bot/tasks.py:73 slack_bot/tasks.py:77
-#: slack_bot/views.py:152 slack_bot/views.py:541
+#: slack_bot/views.py:171 slack_bot/views.py:560
 msgid "These are the tasks you need to complete:"
 msgstr "Tamamlamanız gerek görevler bunlardır:"
 
-#: slack_bot/slack_to_do.py:103 slack_bot/views.py:154 slack_bot/views.py:543
+#: slack_bot/slack_to_do.py:103 slack_bot/views.py:173 slack_bot/views.py:562
 msgid "I couldn't find any tasks."
 msgstr "Herhangi bir görev bulamadım."
 
@@ -2325,11 +2329,11 @@ msgstr " ve bizim yeni %(position)s"
 msgid "%(first_name)s starts on %(start_day)s%(footer_extra)s."
 msgstr "%(first_name)s , %(start_day)s gününde başlıyor %(footer_extra)s."
 
-#: slack_bot/tasks.py:247 slack_bot/views.py:711
+#: slack_bot/tasks.py:247 slack_bot/views.py:730
 msgid "Welcome this new hire!"
 msgstr "Bu yeni çalışana bir 'Hoşgeldin' deyin.!"
 
-#: slack_bot/views.py:84
+#: slack_bot/views.py:87
 msgid ""
 "Happy to help! Here are all the things you can say to me: \n"
 "\n"
@@ -2338,7 +2342,7 @@ msgstr ""
 "söyleyebileceklerinizin tamamı: \n"
 "\n"
 
-#: slack_bot/views.py:86
+#: slack_bot/views.py:89
 msgid ""
 "*What do I need to do today?*\n"
 "This will show all the tasks you need to do today. I will show you these "
@@ -2349,7 +2353,7 @@ msgstr ""
 "günlük olarak gösteriyor olacağım zaten. Yine de tekrar görmek istediğinizde "
 "kullanabilirsiniz.\n"
 
-#: slack_bot/views.py:91
+#: slack_bot/views.py:94
 msgid ""
 "*Do I have any to do items that are overdue?*\n"
 "This will show all tasks that should have been completed. Please do those as "
@@ -2359,7 +2363,7 @@ msgstr ""
 "Bu size tamamlanmış olması gereken tüm görevleri gösterecektir. Lütfen "
 "bunları en kısa zamanda tamamlayınız.\n"
 
-#: slack_bot/views.py:95
+#: slack_bot/views.py:98
 msgid ""
 "*Show me all to do items*\n"
 "This will show all tasks\n"
@@ -2367,7 +2371,7 @@ msgstr ""
 "*Bana tüm yapılacakları göster*\n"
 "Bu size tüm görevleri gösterecektir\n"
 
-#: slack_bot/views.py:96
+#: slack_bot/views.py:99
 msgid ""
 "*Show me all resources*\n"
 "This will show all resources."
@@ -2375,34 +2379,34 @@ msgstr ""
 "*Bana tüm kaynakları göster*\n"
 "Bu size tüm kaynakları gösterecektir"
 
-#: slack_bot/views.py:110
+#: slack_bot/views.py:113
 msgid "You don't seem to be setup yet. Please ask your supervisor for access."
 msgstr ""
 "Henüz kurulumunuzu tamamlamamış gibi görünüyorsunuz. Lütfen erişim için "
 "amirinize danışınız"
 
-#: slack_bot/views.py:144
+#: slack_bot/views.py:163
 msgid "today"
 msgstr "bugün"
 
-#: slack_bot/views.py:146
+#: slack_bot/views.py:165
 msgid "overdue"
 msgstr "son teslim tarihi geçmiş"
 
-#: slack_bot/views.py:202
+#: slack_bot/views.py:221
 msgid "Please complete the form first. Click on 'View details' to complete it."
 msgstr ""
 "Lütfen önce formu doldurunuz. Tamamlamak için 'Detayları göster'e tıklayınız."
 
-#: slack_bot/views.py:253
+#: slack_bot/views.py:272
 msgid "Here is what I found: "
 msgstr "Bakın ne buldum: "
 
-#: slack_bot/views.py:255
+#: slack_bot/views.py:274
 msgid "Unfortunately, I couldn't find anything."
 msgstr "Maalesef hiç bir şey bulamadım."
 
-#: slack_bot/views.py:323
+#: slack_bot/views.py:342
 #, python-format
 msgid ""
 "Would you like to put this new hire through onboarding?\n"
@@ -2411,40 +2415,40 @@ msgstr ""
 "Bu yeni çalışanı 'işe başlangıç' sürecine geçirmek istiyor musunuz?\n"
 "*İsim:* %(name)s "
 
-#: slack_bot/views.py:331
+#: slack_bot/views.py:350
 msgid "Yeah!"
 msgstr "Evet!"
 
-#: slack_bot/views.py:336
+#: slack_bot/views.py:355
 msgid "Nope"
 msgstr "Hayır"
 
-#: slack_bot/views.py:358
+#: slack_bot/views.py:377
 msgid "New hire options"
 msgstr "Yeni çalışan seçenekleri"
 
-#: slack_bot/views.py:401
+#: slack_bot/views.py:420
 #, python-format
 msgid "You approved the request to onboard %(name)s"
 msgstr "%(name)s isimli yeni çalışan için 'işe başlangıç' talebini onayladınız"
 
-#: slack_bot/views.py:420
+#: slack_bot/views.py:439
 msgid "You denied the request to onboard this person."
 msgstr "Bu kişiyi işe başlatma talebini reddettiniz."
 
-#: slack_bot/views.py:453 slack_bot/views.py:461
+#: slack_bot/views.py:472 slack_bot/views.py:480
 msgid "Here are your options:"
 msgstr "Seçenekleriniz aşağıdaki gibidir:"
 
-#: slack_bot/views.py:686
+#: slack_bot/views.py:705
 msgid "Thanks! This has been marked as completed."
 msgstr "Teşekkürler! Bu tamamlandı olarak işaretlenmiştir."
 
-#: slack_bot/views.py:725
+#: slack_bot/views.py:744
 msgid "What would you like to say to our new hire?"
 msgstr "Yeni çalışanımıza ne demek istersiniz?"
 
-#: slack_bot/views.py:769
+#: slack_bot/views.py:788
 msgid "Message has been saved! Your message: \""
 msgstr "Mesaj kaydedildi. Mesajınız: \""
 
