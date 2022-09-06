@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ChiefOnboarding\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-30 22:54+0000\n"
+"POT-Creation-Date: 2022-09-06 00:28+0000\n"
 "PO-Revision-Date: 2022-06-02 11:47+0900\n"
 "Last-Translator: Jo Mio <jmworks@gmail.com>\n"
 "Language-Team: \n"
@@ -227,7 +227,7 @@ msgstr "再開"
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:9
 #: admin/people/templates/new_hire_progress.html:73
-#: new_hire/templates/new_hire_resource_detail.html:21 slack_bot/views.py:656
+#: new_hire/templates/new_hire_resource_detail.html:21 slack_bot/views.py:675
 msgid "Complete"
 msgstr "完了"
 
@@ -254,7 +254,7 @@ msgstr "コメントの追加"
 #: admin/settings/templates/personal_otp.html:28
 #: admin/settings/templates/token_create.html:11
 #: new_hire/templates/_content.html:123
-#: new_hire/templates/_question_form.html:6 slack_bot/views.py:713
+#: new_hire/templates/_question_form.html:6 slack_bot/views.py:732
 msgid "Submit"
 msgstr "送信"
 
@@ -507,7 +507,7 @@ msgstr "Sequences"
 msgid "Start date"
 msgstr "開始日"
 
-#: admin/people/forms.py:106 slack_bot/views.py:360
+#: admin/people/forms.py:106 slack_bot/views.py:379
 msgid "Create new hire"
 msgstr "新規採用の作成"
 
@@ -606,7 +606,7 @@ msgstr "アイテムが再オープンされました"
 msgid "Add/Remove templates for %(name)s"
 msgstr "%(name)s 用のテンプレートの追加/削除"
 
-#: admin/people/new_hire_views.py:742
+#: admin/people/new_hire_views.py:743
 msgid "New hire has been removed"
 msgstr "新入社員は削除されました"
 
@@ -1837,7 +1837,7 @@ msgid "Answers saved successfully! Click on 'next' to continue."
 msgstr "回答が正常に保存されました。『次へ』をクリックして次に進んでください。"
 
 #: new_hire/templates/new_hire_resource_detail.html:54 new_hire/views.py:266
-#: slack_bot/slack_resource.py:96 slack_bot/views.py:658
+#: slack_bot/slack_resource.py:96 slack_bot/views.py:677
 msgid "Next"
 msgstr "次へ"
 
@@ -2084,82 +2084,86 @@ msgid "A new slack message has been sent"
 msgstr "新しいSlackメッセージが送信されました"
 
 #: organization/models.py:282
+msgid "A new slack message has been updated"
+msgstr "新しいスラックメッセージが更新されました"
+
+#: organization/models.py:283
 msgid "Login credentials have been sent"
 msgstr "ログイン情報が送信されました"
 
-#: organization/models.py:283
+#: organization/models.py:284
 msgid "Reopened task email has been sent"
 msgstr "再開したタスクのメールが送信されました"
 
-#: organization/models.py:284
+#: organization/models.py:285
 msgid "Task reminder email has been sent"
 msgstr "タスクのリマインダーメールが送信されました"
 
-#: organization/models.py:285
+#: organization/models.py:286
 msgid "Sent new hire credentials email"
 msgstr "新入社員情報のメールが送信されました"
 
-#: organization/models.py:286
+#: organization/models.py:287
 msgid "Sent new hire preboarding email"
 msgstr "新入社員のプレボーディングメールが送信されました"
 
-#: organization/models.py:287
+#: organization/models.py:288
 msgid "Sent email from sequence"
 msgstr "シークエンスからメール送信を送信しました"
 
-#: organization/models.py:288
+#: organization/models.py:289
 msgid "Sent email with updates to new hire"
 msgstr "新入社員への更新情報のメールが送信されました"
 
-#: organization/models.py:289
+#: organization/models.py:290
 msgid "Sent email to extra person in admin task"
 msgstr "管理者タスクについて追加の担当者にメールが送信されました"
 
-#: organization/models.py:292
+#: organization/models.py:293
 msgid "Sent email about new person assigned to admin task"
 msgstr "管理者タスクの新しい担当者についてのメールが送信されました"
 
-#: organization/models.py:296
+#: organization/models.py:297
 msgid "Sent email about new comment on admin task"
 msgstr "管理者タスクの新着コメントに関するメールが送信されました"
 
-#: organization/models.py:300
+#: organization/models.py:301
 msgid "Sent email about completing integration call"
 msgstr "インテグレーションコールの完了のメールが送信されました"
 
-#: organization/models.py:302
+#: organization/models.py:303
 msgid "Couldn't send text message: number is missing"
 msgstr "テキストメッセージを送信できませんでした: 番号が設定されていません"
 
-#: organization/models.py:303
+#: organization/models.py:304
 msgid "Couldn't send email message: email is missing"
 msgstr "メールを送信できませんでした: メールアドレスが設定されていません"
 
-#: organization/models.py:306
+#: organization/models.py:307
 msgid "Couldn't deliver email message: recipient refused"
 msgstr "メールを配信できませんでした: 受信者が拒否しました"
 
-#: organization/models.py:308 organization/models.py:309
+#: organization/models.py:309 organization/models.py:310
 msgid "Couldn't deliver email message: provider error"
 msgstr "メールを配信できませんでした：プロバイダーエラー"
 
-#: organization/models.py:310
+#: organization/models.py:311
 msgid "Couldn't send Slack message"
 msgstr "Slackメッセージの送信ができない"
 
-#: organization/models.py:311
+#: organization/models.py:312
 msgid "Couldn't update Slack message"
 msgstr "Slackメッセージの更新ができない"
 
-#: organization/models.py:312
+#: organization/models.py:313
 msgid "Integration has been triggered"
 msgstr "インテグレーション実行がトリガーされました"
 
-#: organization/models.py:313
+#: organization/models.py:314
 msgid "Couldn't complete integration"
 msgstr "インテグレーションを完了できませんでした"
 
-#: organization/models.py:316
+#: organization/models.py:317
 msgid "Couldn't send integration notification"
 msgstr "インテグレーション通知を送信できませんでした"
 
@@ -2211,7 +2215,7 @@ msgstr "利用可能なリソースがありません"
 msgid "No category"
 msgstr "カテゴリがありません"
 
-#: slack_bot/slack_resource.py:124 slack_bot/views.py:128
+#: slack_bot/slack_resource.py:124 slack_bot/views.py:147
 msgid "Select a category:"
 msgstr "カテゴリーを選択してください :"
 
@@ -2245,11 +2249,11 @@ msgid "done"
 msgstr "完了"
 
 #: slack_bot/slack_to_do.py:101 slack_bot/tasks.py:73 slack_bot/tasks.py:77
-#: slack_bot/views.py:152 slack_bot/views.py:541
+#: slack_bot/views.py:171 slack_bot/views.py:560
 msgid "These are the tasks you need to complete:"
 msgstr "こちらがあなたが完了しなければならないタスクです :"
 
-#: slack_bot/slack_to_do.py:103 slack_bot/views.py:154 slack_bot/views.py:543
+#: slack_bot/slack_to_do.py:103 slack_bot/views.py:173 slack_bot/views.py:562
 msgid "I couldn't find any tasks."
 msgstr "タスクがありません。"
 
@@ -2309,11 +2313,11 @@ msgstr " そして私たちの新しい%(position)sです"
 msgid "%(first_name)s starts on %(start_day)s%(footer_extra)s."
 msgstr "%(first_name)s さんは %(start_day)s 日で始まります。%(footer_extra)s."
 
-#: slack_bot/tasks.py:247 slack_bot/views.py:711
+#: slack_bot/tasks.py:247 slack_bot/views.py:730
 msgid "Welcome this new hire!"
 msgstr "新入社員を歓迎しましょう！"
 
-#: slack_bot/views.py:84
+#: slack_bot/views.py:87
 msgid ""
 "Happy to help! Here are all the things you can say to me: \n"
 "\n"
@@ -2321,7 +2325,7 @@ msgstr ""
 "喜んでお手伝いします！こちらがあなたが私にいえる全ての事柄です : \n"
 "\n"
 
-#: slack_bot/views.py:86
+#: slack_bot/views.py:89
 msgid ""
 "*What do I need to do today?*\n"
 "This will show all the tasks you need to do today. I will show you these "
@@ -2331,7 +2335,7 @@ msgstr ""
 "ここではあなたが今日やるべきタスクが表示されます。あなたが再確認したい場合は"
 "毎日でも表示することができます。\n"
 
-#: slack_bot/views.py:91
+#: slack_bot/views.py:94
 msgid ""
 "*Do I have any to do items that are overdue?*\n"
 "This will show all tasks that should have been completed. Please do those as "
@@ -2341,7 +2345,7 @@ msgstr ""
 "こちらでは完了すべきだったタスクがすべて表示されます。できるだけ早く完了して"
 "ください。\n"
 
-#: slack_bot/views.py:95
+#: slack_bot/views.py:98
 msgid ""
 "*Show me all to do items*\n"
 "This will show all tasks\n"
@@ -2349,7 +2353,7 @@ msgstr ""
 "*すべてのTo Doアイテムを表示する*\n"
 "すべてのタスクが表示されます\n"
 
-#: slack_bot/views.py:96
+#: slack_bot/views.py:99
 msgid ""
 "*Show me all resources*\n"
 "This will show all resources."
@@ -2357,35 +2361,35 @@ msgstr ""
 "*すべてのリソースを表示する*\n"
 "すべてのリソースを表示します。"
 
-#: slack_bot/views.py:110
+#: slack_bot/views.py:113
 msgid "You don't seem to be setup yet. Please ask your supervisor for access."
 msgstr ""
 "あなたのアカウントはまだセットアップされていないようです。管理者にアクセスで"
 "きるよう依頼してください。"
 
-#: slack_bot/views.py:144
+#: slack_bot/views.py:163
 msgid "today"
 msgstr "今日"
 
-#: slack_bot/views.py:146
+#: slack_bot/views.py:165
 msgid "overdue"
 msgstr "延滞"
 
-#: slack_bot/views.py:202
+#: slack_bot/views.py:221
 msgid "Please complete the form first. Click on 'View details' to complete it."
 msgstr ""
 "まずはフォームの入力を完成してください。『詳細を見る』をクリックして完了しま"
 "す。"
 
-#: slack_bot/views.py:253
+#: slack_bot/views.py:272
 msgid "Here is what I found: "
 msgstr "以下がみつかった内容です : "
 
-#: slack_bot/views.py:255
+#: slack_bot/views.py:274
 msgid "Unfortunately, I couldn't find anything."
 msgstr "残念ながら、何も見つかりませんでした。"
 
-#: slack_bot/views.py:323
+#: slack_bot/views.py:342
 #, python-format
 msgid ""
 "Would you like to put this new hire through onboarding?\n"
@@ -2394,40 +2398,40 @@ msgstr ""
 "この新入社員をオンボーディングに進めますか？\n"
 "*名前：* %(name)s "
 
-#: slack_bot/views.py:331
+#: slack_bot/views.py:350
 msgid "Yeah!"
 msgstr "やったー！"
 
-#: slack_bot/views.py:336
+#: slack_bot/views.py:355
 msgid "Nope"
 msgstr "いいえ"
 
-#: slack_bot/views.py:358
+#: slack_bot/views.py:377
 msgid "New hire options"
 msgstr "新規採用オプション"
 
-#: slack_bot/views.py:401
+#: slack_bot/views.py:420
 #, python-format
 msgid "You approved the request to onboard %(name)s"
 msgstr "%(name)s さんのオンボードのリクエストを許可しました"
 
-#: slack_bot/views.py:420
+#: slack_bot/views.py:439
 msgid "You denied the request to onboard this person."
 msgstr "この人のオンボードを断りました。"
 
-#: slack_bot/views.py:453 slack_bot/views.py:461
+#: slack_bot/views.py:472 slack_bot/views.py:480
 msgid "Here are your options:"
 msgstr "オプションはこちら："
 
-#: slack_bot/views.py:686
+#: slack_bot/views.py:705
 msgid "Thanks! This has been marked as completed."
 msgstr "ありがとうございます！こちらは完了と記録されました。"
 
-#: slack_bot/views.py:725
+#: slack_bot/views.py:744
 msgid "What would you like to say to our new hire?"
 msgstr "新入社員に対して言いたいことは何ですか？"
 
-#: slack_bot/views.py:769
+#: slack_bot/views.py:788
 msgid "Message has been saved! Your message: \""
 msgstr "メッセージが保存されました。 あなたのメッセージ: “"
 
