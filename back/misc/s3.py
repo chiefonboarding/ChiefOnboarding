@@ -21,7 +21,7 @@ class S3:
             Params={"Bucket": settings.AWS_STORAGE_BUCKET_NAME, "Key": key},
         )
 
-    def get_file(self, key, time=3600):
+    def get_file(self, key, time=604799):
         # If a user uploads some files and then removes the keys, this would error
         # Therefore the quick check here
         if settings.AWS_ACCESS_KEY_ID == "":
