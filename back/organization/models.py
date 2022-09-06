@@ -279,6 +279,7 @@ NOTIFICATION_TYPES = [
     ("sent_email_message", _("A new email has been sent")),
     ("sent_text_message", _("A new text message has been sent")),
     ("sent_slack_message", _("A new slack message has been sent")),
+    ("updated_slack_message", _("A new slack message has been updated")),
     ("sent_email_login_credentials", _("Login credentials have been sent")),
     ("sent_email_task_reopened", _("Reopened task email has been sent")),
     ("sent_email_task_reminder", _("Task reminder email has been sent")),
