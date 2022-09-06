@@ -61,6 +61,7 @@ def no_bot_messages(message) -> bool:
         "message" not in message or "bot_id" not in message.get("message")
     )
 
+
 def message_changed_matcher(message) -> bool:
     return message.get("subtype", "") == "message_changed"
 
