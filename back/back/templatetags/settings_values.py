@@ -2,6 +2,7 @@
 import boto3
 
 from django import template
+from django.core.cache import cache
 from django.conf import settings
 from botocore.config import Config
 
@@ -14,6 +15,9 @@ def aws_enabled():
     if settings.AWS_STORAGE_BUCKET_NAME == "":
         return False
 
+    if cache.get("aws_checked"):
+        return True
+
     # Try if we can make a connection
     try:
         boto3.client(
@@ -22,6 +26,7 @@ def aws_enabled():
             endpoint_url=settings.AWS_S3_ENDPOINT_URL,
             config=Config(signature_version="s3v4"),
         ).head_bucket(Bucket=settings.AWS_STORAGE_BUCKET_NAME)
+        cache.set("aws_checked", True, timeout=None)
         return True
     except Exception:
         return False
