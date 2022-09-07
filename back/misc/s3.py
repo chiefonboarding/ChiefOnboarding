@@ -1,5 +1,6 @@
 import boto3
 from botocore.config import Config
+from botocore.exceptions import NoCredentialsError
 from django.conf import settings
 
 
@@ -25,11 +26,15 @@ class S3:
         if settings.AWS_STORAGE_BUCKET_NAME == "":
             return ""
 
-        return self.client.generate_presigned_url(
-            ClientMethod="get_object",
-            ExpiresIn=time,
-            Params={"Bucket": settings.AWS_STORAGE_BUCKET_NAME, "Key": key},
-        )
+        try:
+            return self.client.generate_presigned_url(
+                ClientMethod="get_object",
+                ExpiresIn=time,
+                Params={"Bucket": settings.AWS_STORAGE_BUCKET_NAME, "Key": key},
+            )
+        except NoCredentialsError:
+            print("Credentials are not set or incorrect")
+            return ""
 
     def delete_file(self, key):
         return self.client.delete_object(
