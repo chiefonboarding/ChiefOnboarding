@@ -9,7 +9,7 @@ register = template.Library()
 # settings value
 @register.simple_tag
 def aws_enabled():
-    return settings.AWS_ACCESS_KEY_ID != ""
+    return settings.AWS_STORAGE_BUCKET_NAME != ""
 
 
 @register.simple_tag

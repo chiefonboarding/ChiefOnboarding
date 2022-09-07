@@ -9,8 +9,6 @@ class S3:
             "s3",
             settings.AWS_REGION,
             endpoint_url=settings.AWS_S3_ENDPOINT_URL,
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
             config=Config(signature_version="s3v4"),
         )
 
@@ -24,7 +22,7 @@ class S3:
     def get_file(self, key, time=604799):
         # If a user uploads some files and then removes the keys, this would error
         # Therefore the quick check here
-        if settings.AWS_ACCESS_KEY_ID == "":
+        if settings.AWS_STORAGE_BUCKET_NAME == "":
             return ""
 
         return self.client.generate_presigned_url(
