@@ -32,7 +32,7 @@ class S3:
                 ExpiresIn=time,
                 Params={"Bucket": settings.AWS_STORAGE_BUCKET_NAME, "Key": key},
             )
-        except NoCredentialsError:
+        except Exception:
             print("Credentials are not set or incorrect")
             return ""
 
