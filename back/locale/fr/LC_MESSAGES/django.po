@@ -769,7 +769,7 @@ msgstr "Voir"
 
 #: admin/people/templates/give_new_hire_access.html:13
 msgid "No additional data needed, please click on 'create user' to continue."
-msgstr "Aucune donnée supplémentaire n'est nécessaire, veuillez cliquer sur "créer un utilisateur" pour continuer."
+msgstr "Aucune donnée supplémentaire n'est nécessaire, veuillez cliquer sur 'créer un utilisateur' pour continuer."
 
 #: admin/people/templates/give_new_hire_access.html:18
 msgid "Create user"
