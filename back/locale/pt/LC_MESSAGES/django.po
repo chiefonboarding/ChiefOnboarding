@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-30 22:54+0000\n"
+"POT-Creation-Date: 2022-09-08 14:06+0000\n"
 "PO-Revision-Date: 2022-06-01 13:55-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -248,7 +248,7 @@ msgid "Add comment"
 msgstr "Adicionar comentário"
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:43
-#: admin/sequences/templates/_item_form.html:8
+#: admin/sequences/templates/_item_form.html:12
 #: admin/settings/templates/personal_otp.html:28
 #: admin/settings/templates/token_create.html:11
 #: new_hire/templates/_content.html:123
@@ -563,8 +563,8 @@ msgstr "Enviar email para novo contratado"
 #: admin/people/new_hire_views.py:428 admin/people/new_hire_views.py:440
 #: admin/people/new_hire_views.py:459 admin/people/new_hire_views.py:483
 #: admin/people/new_hire_views.py:599 admin/people/new_hire_views.py:614
-#: admin/people/new_hire_views.py:626 admin/people/new_hire_views.py:674
-#: admin/people/new_hire_views.py:693
+#: admin/people/new_hire_views.py:626 admin/people/new_hire_views.py:690
+#: admin/people/new_hire_views.py:708 admin/people/new_hire_views.py:727
 #: admin/people/templates/new_hire_detail.html:100
 #: admin/people/templates/not_triggered_conditions.html:16
 #: admin/sequences/templates/_sequence_condition.html:56
@@ -599,12 +599,20 @@ msgstr "Lembrete foi enviado!"
 msgid "Item has been reopened"
 msgstr "Item foi reaberto"
 
-#: admin/people/new_hire_views.py:690
+#: admin/people/new_hire_views.py:675
+msgid "Account has been created"
+msgstr "Foi criada uma conta"
+
+#: admin/people/new_hire_views.py:677
+msgid "Account could not be created"
+msgstr "Não foi possível criar uma conta"
+
+#: admin/people/new_hire_views.py:724
 #, python-format
 msgid "Add/Remove templates for %(name)s"
 msgstr "Adicionar/remover modelos para %(name)s"
 
-#: admin/people/new_hire_views.py:742
+#: admin/people/new_hire_views.py:777
 msgid "New hire has been removed"
 msgstr "Nova contratação foi removida"
 
@@ -758,6 +766,10 @@ msgid "View"
 msgstr "Visualizar"
 
 #: admin/people/templates/give_new_hire_access.html:13
+msgid "No additional data needed, please click on 'create user' to continue."
+msgstr "Não são necessários dados adicionais, por favor clique em 'criar utilizador' para continuar."
+
+#: admin/people/templates/give_new_hire_access.html:18
 msgid "Create user"
 msgstr "Criar usuário"
 
@@ -829,7 +841,8 @@ msgstr "Migrar conta para conta normal"
 msgid ""
 "Some integrations require extra information. Make sure to complete those!"
 msgstr ""
-"Algumas integrações requerem informações extras. Certifique-se de completá-los!"
+"Algumas integrações requerem informações extras. Certifique-se de completá-"
+"los!"
 
 #: admin/people/templates/new_hire_detail.html:17
 msgid "Complete info"
@@ -1363,6 +1376,10 @@ msgstr "*Parabéns, você desbloqueou: %(item_name)s "
 #: admin/sequences/tasks.py:108
 msgid "Here are some new items for you!"
 msgstr "Aqui está alguns novos itens para você!"
+
+#: admin/sequences/templates/_item_form.html:8
+msgid "No additional data needed."
+msgstr "Não são necessários dados adicionais."
 
 #: admin/sequences/templates/_sequence_condition.html:18
 #, python-format

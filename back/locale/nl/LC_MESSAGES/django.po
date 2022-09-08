@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-30 22:54+0000\n"
+"POT-Creation-Date: 2022-09-08 14:06+0000\n"
 "PO-Revision-Date: 2022-02-17 22:39:+0000\n"
 "Last-Translator: Stan Triepels <hello@chiefonboarding.com>\n"
 "Language-Team: NL <nl@chiefonboarding.com>\n"
@@ -250,7 +250,7 @@ msgid "Add comment"
 msgstr "Opmerking toevoegen"
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:43
-#: admin/sequences/templates/_item_form.html:8
+#: admin/sequences/templates/_item_form.html:12
 #: admin/settings/templates/personal_otp.html:28
 #: admin/settings/templates/token_create.html:11
 #: new_hire/templates/_content.html:123
@@ -563,8 +563,8 @@ msgstr "Verstuur e-mail naar nieuwe medewerker"
 #: admin/people/new_hire_views.py:428 admin/people/new_hire_views.py:440
 #: admin/people/new_hire_views.py:459 admin/people/new_hire_views.py:483
 #: admin/people/new_hire_views.py:599 admin/people/new_hire_views.py:614
-#: admin/people/new_hire_views.py:626 admin/people/new_hire_views.py:674
-#: admin/people/new_hire_views.py:693
+#: admin/people/new_hire_views.py:626 admin/people/new_hire_views.py:690
+#: admin/people/new_hire_views.py:708 admin/people/new_hire_views.py:727
 #: admin/people/templates/new_hire_detail.html:100
 #: admin/people/templates/not_triggered_conditions.html:16
 #: admin/sequences/templates/_sequence_condition.html:56
@@ -599,12 +599,20 @@ msgstr "Herinnering is verstuurd!"
 msgid "Item has been reopened"
 msgstr "Item is heropent"
 
-#: admin/people/new_hire_views.py:690
+#: admin/people/new_hire_views.py:675
+msgid "Account has been created"
+msgstr "Account is aangemaakt"
+
+#: admin/people/new_hire_views.py:677
+msgid "Account could not be created"
+msgstr "Account kon niet aangemaakt worden"
+
+#: admin/people/new_hire_views.py:724
 #, python-format
 msgid "Add/Remove templates for %(name)s"
 msgstr "Voeg toe/Verwijder items voor %(name)s"
 
-#: admin/people/new_hire_views.py:742
+#: admin/people/new_hire_views.py:777
 msgid "New hire has been removed"
 msgstr "Nieuwe medewerker is verwijderd"
 
@@ -758,6 +766,10 @@ msgid "View"
 msgstr "Bekijken"
 
 #: admin/people/templates/give_new_hire_access.html:13
+msgid "No additional data needed, please click on 'create user' to continue."
+msgstr "Geen extra info nodig, click op de knop om door te gaan."
+
+#: admin/people/templates/give_new_hire_access.html:18
 msgid "Create user"
 msgstr "Nieuwe gebruiker"
 
@@ -830,7 +842,8 @@ msgstr "Zet om naar een gewoon account"
 msgid ""
 "Some integrations require extra information. Make sure to complete those!"
 msgstr ""
-"Sommige integraties hebben meer info nodige. Zorg ervoor dat deze worden toegevoegd!"
+"Sommige integraties hebben meer info nodige. Zorg ervoor dat deze worden "
+"toegevoegd!"
 
 #: admin/people/templates/new_hire_detail.html:17
 msgid "Complete info"
@@ -1375,6 +1388,10 @@ msgstr "Gefeliciteerd, jij hebt %(item_name)s unlocked *"
 #: admin/sequences/tasks.py:108
 msgid "Here are some new items for you!"
 msgstr "Hier zijn een aantal nieuwe dingen voor jou!"
+
+#: admin/sequences/templates/_item_form.html:8
+msgid "No additional data needed."
+msgstr "Geen extra data nodig."
 
 #: admin/sequences/templates/_sequence_condition.html:18
 #, python-format

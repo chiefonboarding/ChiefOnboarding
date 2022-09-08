@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-30 22:54+0000\n"
+"POT-Creation-Date: 2022-09-08 14:06+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Ibrahim AYDIN (ibrhmhaydn@gmail.com)\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -249,7 +249,7 @@ msgid "Add comment"
 msgstr "Yorum ekle"
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:43
-#: admin/sequences/templates/_item_form.html:8
+#: admin/sequences/templates/_item_form.html:12
 #: admin/settings/templates/personal_otp.html:28
 #: admin/settings/templates/token_create.html:11
 #: new_hire/templates/_content.html:123
@@ -564,8 +564,8 @@ msgstr "Yeni çalışana e-posta gönderilmiştir"
 #: admin/people/new_hire_views.py:428 admin/people/new_hire_views.py:440
 #: admin/people/new_hire_views.py:459 admin/people/new_hire_views.py:483
 #: admin/people/new_hire_views.py:599 admin/people/new_hire_views.py:614
-#: admin/people/new_hire_views.py:626 admin/people/new_hire_views.py:674
-#: admin/people/new_hire_views.py:693
+#: admin/people/new_hire_views.py:626 admin/people/new_hire_views.py:690
+#: admin/people/new_hire_views.py:708 admin/people/new_hire_views.py:727
 #: admin/people/templates/new_hire_detail.html:100
 #: admin/people/templates/not_triggered_conditions.html:16
 #: admin/sequences/templates/_sequence_condition.html:56
@@ -600,12 +600,20 @@ msgstr "Hatırlatıcı gönderilmiştir!"
 msgid "Item has been reopened"
 msgstr "Öğe yeniden açılmıştır"
 
-#: admin/people/new_hire_views.py:690
+#: admin/people/new_hire_views.py:675
+msgid "Account has been created"
+msgstr "Hesap oluşturuldu"
+
+#: admin/people/new_hire_views.py:677
+msgid "Account could not be created"
+msgstr "Hesap oluşturulamadı"
+
+#: admin/people/new_hire_views.py:724
 #, python-format
 msgid "Add/Remove templates for %(name)s"
 msgstr "%(name)s Ekle/Çıkar şablonları"
 
-#: admin/people/new_hire_views.py:742
+#: admin/people/new_hire_views.py:777
 msgid "New hire has been removed"
 msgstr "Yeni işe alım kaldırılmıştır"
 
@@ -759,6 +767,10 @@ msgid "View"
 msgstr "Göster"
 
 #: admin/people/templates/give_new_hire_access.html:13
+msgid "No additional data needed, please click on 'create user' to continue."
+msgstr "Ek veriye gerek yoktur, devam etmek için lütfen 'kullanıcı oluştur'a tıklayın."
+
+#: admin/people/templates/give_new_hire_access.html:18
 msgid "Create user"
 msgstr "Kullanıcı oluştur"
 
@@ -1368,6 +1380,10 @@ msgstr "*Tebrikler, %(item_name)s isimli öğeyi açtınız! *"
 #: admin/sequences/tasks.py:108
 msgid "Here are some new items for you!"
 msgstr "Sizin için yeni öğeler var!"
+
+#: admin/sequences/templates/_item_form.html:8
+msgid "No additional data needed."
+msgstr "Ek veriye ihtiyaç yoktur."
 
 #: admin/sequences/templates/_sequence_condition.html:18
 #, python-format
