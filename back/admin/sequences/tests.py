@@ -355,6 +355,7 @@ def test_sequence_integration_form_view(
 
     url = reverse("sequences:forms", args=["integration", integration.id])
     response = client.get(url)
+    print(response.content.decode())
 
     assert response.status_code == 200
     assert "TEAM_ID" in response.content.decode()
