@@ -26,7 +26,15 @@
 {% block extra_js %}
 <script>
   {% for integration in integrations %}
-    htmx.ajax('GET', "{% url 'people:new_hire_check_integration' object.id integration.id %}", '.integration-{{integration.id}}')
+    $.ajax({
+      url: "{% url 'people:new_hire_check_integration' object.id integration.id %}",
+      method: "get",
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}'
+      }
+    }).done(function( data, textStatus, request) {
+      $(".integration-{{integration.id}}").html(data)
+    });
   {% endfor %}
 </script>
 {% endblock %}

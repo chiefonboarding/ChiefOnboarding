@@ -645,23 +645,36 @@ class NewHireCheckAccessView(LoginRequiredMixin, ManagerPermMixin, DetailView):
         return context
 
 
-class NewHireGiveAccessView(LoginRequiredMixin, ManagerPermMixin, FormView):
+class NewHireGiveAccessView(LoginRequiredMixin, ManagerPermMixin, DetailView):
     template_name = "give_new_hire_access.html"
+    model = get_user_model()
     context_object_name = "object"
 
-    def get_form(self):
+    def post(self, request, *args, **kwargs):
         integration = get_object_or_404(
             Integration, id=self.kwargs.get("integration_id", -1)
         )
-        return integration.config_form()
+        integration_config_form = integration.config_form(request.POST)
+        new_hire = get_object_or_404(get_user_model(), id=self.kwargs.get("pk", -1))
 
-    def form_valid(self, form):
-        integration = get_object_or_404(
-            Integration, id=self.kwargs.get("integration_id", -1)
-        )
-        integration.add_user(self.object.email, form.cleaned_data)
+        user_details_form = IntegrationExtraUserInfoForm(data=request.POST, instance=new_hire, missing_info=integration.manifest.get("extra_user_info", []))
 
-        return redirect("people:new_hire_access", pk=self.object.id)
+        if integration_config_form.is_valid() and user_details_form.is_valid():
+            new_hire.extra_fields |= user_details_form.cleaned_data
+            new_hire.save()
+
+            success = integration.execute(new_hire, integration_config_form.cleaned_data)
+
+            if success:
+                messages.success(request, _("Account has been created"))
+            else:
+                messages.error(request, _("Account could not be created"))
+
+            return redirect("people:new_hire_access", pk=new_hire.id)
+
+        else:
+            return render(request, self.template_name, {"integration": integration, "integration_config_form": integration_config_form, "user_details_form": user_details_form, "title": new_hire.full_name, "subtitle":_("new hire"), "new_hire": new_hire})
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -670,6 +683,8 @@ class NewHireGiveAccessView(LoginRequiredMixin, ManagerPermMixin, FormView):
         )
         new_hire = get_object_or_404(get_user_model(), id=self.kwargs.get("pk", -1))
         context["integration"] = integration
+        context["integration_config_form"] = integration.config_form()
+        context["user_details_form"] = IntegrationExtraUserInfoForm(instance=new_hire, missing_info=integration.manifest.get("extra_user_info", []))
         context["title"] = new_hire.full_name
         context["subtitle"] = _("new hire")
         context["new_hire"] = new_hire

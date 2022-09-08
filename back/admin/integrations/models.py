@@ -219,7 +219,7 @@ class Integration(models.Model):
 
         # Renew token if necessary
         if not self.renew_key():
-            return
+            return False
 
         # Add generated secrets
         for item in self.manifest["initial_data_form"]:
@@ -254,7 +254,7 @@ class Integration(models.Model):
                     # Only errors when item gets added another time, so we can safely
                     # let it pass.
                     pass
-                return
+                return False
 
         # Run all post requests (notifications)
         for item in self.manifest.get("post_execute_notification", []):
@@ -265,7 +265,7 @@ class Integration(models.Model):
                     to=self._replace_vars(item["to"]),
                     notification_type="sent_email_integration_notification",
                 )
-                return
+                return True
             else:
                 try:
                     client = Client(
@@ -282,7 +282,7 @@ class Integration(models.Model):
                         extra_text=self.name,
                         created_for=new_hire,
                     )
-                    return
+                    return True
 
         # Succesfully ran integration, add notification
         Notification.objects.create(
@@ -290,6 +290,7 @@ class Integration(models.Model):
             extra_text=self.name,
             created_for=new_hire,
         )
+        return True
 
     def config_form(self, data=None):
         from .forms import IntegrationConfigForm
