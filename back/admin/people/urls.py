@@ -42,12 +42,12 @@ urlpatterns = [
         name="new_hire_progress",
     ),
     path(
-        "new_hire/remind/<str:template_type>/<int:pk>/",
+        "new_hire/<int:pk>/remind/<str:template_type>/<int:template_pk>/",
         new_hire_views.NewHireRemindView.as_view(),
         name="new_hire_remind",
     ),
     path(
-        "new_hire/reopen/<str:template_type>/<int:pk>/",
+        "new_hire/<int:pk>/reopen/<str:template_type>/<int:template_pk>/",
         new_hire_views.NewHireReopenTaskView.as_view(),
         name="new_hire_reopen",
     ),

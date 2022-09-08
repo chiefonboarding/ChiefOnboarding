@@ -995,17 +995,33 @@ def test_new_hire_course_answers_list(
 
 @pytest.mark.django_db
 def test_new_hire_reopen_todo(
-    client, settings, django_user_model, to_do_user_factory, mailoutbox
+    client, settings, manager_factory, to_do_user_factory, mailoutbox
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    manager1 = manager_factory()
+    client.force_login(manager1)
     to_do_user1 = to_do_user_factory()
 
     # not a valid template type
-    url = reverse("people:new_hire_reopen", args=["todouser1", to_do_user1.id])
+    url = reverse(
+        "people:new_hire_reopen",
+        args=[to_do_user1.user.id, "todouser1", to_do_user1.id],
+    )
     response = client.get(url, follow=True)
     assert response.status_code == 404
 
-    url = reverse("people:new_hire_reopen", args=["todouser", to_do_user1.id])
+    # not a valid user (admin or manager of new hire)
+    url = reverse(
+        "people:new_hire_reopen", args=[to_do_user1.user.id, "todouser", to_do_user1.id]
+    )
+    response = client.get(url, follow=True)
+    assert response.status_code == 403
+
+    to_do_user1.user.manager = manager1
+    to_do_user1.user.save()
+
+    url = reverse(
+        "people:new_hire_reopen", args=[to_do_user1.user.id, "todouser", to_do_user1.id]
+    )
 
     response = client.post(url, data={"message": "You forgot this one!"}, follow=True)
 
@@ -1054,7 +1070,10 @@ def test_new_hire_reopen_course(
 
     resource_user1 = resource_user_factory(resource__course=True)
 
-    url = reverse("people:new_hire_reopen", args=["resourceuser", resource_user1.id])
+    url = reverse(
+        "people:new_hire_reopen",
+        args=[resource_user1.user.id, "resourceuser", resource_user1.id],
+    )
 
     response = client.post(url, data={"message": "You forgot this one!"}, follow=True)
 
@@ -1101,11 +1120,16 @@ def test_new_hire_remind_to_do(
     to_do_user1 = to_do_user_factory()
 
     # not a valid template type
-    url = reverse("people:new_hire_remind", args=["todouser1", to_do_user1.id])
+    url = reverse(
+        "people:new_hire_remind",
+        args=[to_do_user1.user.id, "todouser1", to_do_user1.id],
+    )
     response = client.post(url, follow=True)
     assert response.status_code == 404
 
-    url = reverse("people:new_hire_remind", args=["todouser", to_do_user1.id])
+    url = reverse(
+        "people:new_hire_remind", args=[to_do_user1.user.id, "todouser", to_do_user1.id]
+    )
 
     response = client.post(url, follow=True)
 
@@ -1131,11 +1155,16 @@ def test_new_hire_remind_to_do_slack_message(
     to_do_user1 = to_do_user_factory(user__slack_user_id="slackx")
 
     # not a valid template type
-    url = reverse("people:new_hire_remind", args=["todouser1", to_do_user1.id])
+    url = reverse(
+        "people:new_hire_remind",
+        args=[to_do_user1.user.id, "todouser1", to_do_user1.id],
+    )
     response = client.post(url, follow=True)
     assert response.status_code == 404
 
-    url = reverse("people:new_hire_remind", args=["todouser", to_do_user1.id])
+    url = reverse(
+        "people:new_hire_remind", args=[to_do_user1.user.id, "todouser", to_do_user1.id]
+    )
 
     response = client.post(url, follow=True)
 
@@ -1174,7 +1203,10 @@ def test_new_hire_remind_resource(
     client.force_login(django_user_model.objects.create(role=1))
     resource_user1 = resource_user_factory()
 
-    url = reverse("people:new_hire_remind", args=["resourceuser", resource_user1.id])
+    url = reverse(
+        "people:new_hire_remind",
+        args=[resource_user1.user.id, "resourceuser", resource_user1.id],
+    )
 
     client.post(url, follow=True)
 
@@ -1195,7 +1227,10 @@ def test_new_hire_remind_resource_slack_message(
     client.force_login(django_user_model.objects.create(role=1))
     resource_user1 = resource_user_factory(user__slack_user_id="slackx")
 
-    url = reverse("people:new_hire_remind", args=["resourceuser", resource_user1.id])
+    url = reverse(
+        "people:new_hire_remind",
+        args=[resource_user1.user.id, "resourceuser", resource_user1.id],
+    )
 
     client.post(url, follow=True)
 

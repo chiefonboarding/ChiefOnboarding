@@ -156,7 +156,7 @@ class NewHireAddView(
 
 
 class NewHireSendPreboardingNotificationView(
-    LoginRequiredMixin, ManagerPermMixin, IsAdminOrNewHireManagerMixin, FormView
+    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, FormView
 ):
     template_name = "trigger_preboarding_notification.html"
     form_class = PreboardingSendForm
@@ -188,7 +188,7 @@ class NewHireSendPreboardingNotificationView(
 
 
 class NewHireAddSequenceView(
-    LoginRequiredMixin, ManagerPermMixin, IsAdminOrNewHireManagerMixin, FormView
+    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, FormView
 ):
     template_name = "new_hire_add_sequence.html"
     form_class = SequenceChoiceForm
@@ -245,7 +245,7 @@ class NewHireAddSequenceView(
 
 
 class NewHireTriggerConditionView(
-    LoginRequiredMixin, ManagerPermMixin, IsAdminOrNewHireManagerMixin, TemplateView
+    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, TemplateView
 ):
     template_name = "_trigger_sequence_items.html"
 
@@ -271,9 +271,7 @@ class NewHireTriggerConditionView(
         return context
 
 
-class NewHireSendLoginEmailView(
-    LoginRequiredMixin, ManagerPermMixin, IsAdminOrNewHireManagerMixin, View
-):
+class NewHireSendLoginEmailView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, View):
     def post(self, request, pk, *args, **kwargs):
         new_hire = get_object_or_404(get_user_model(), id=pk)
         send_new_hire_credentials(new_hire.id)
@@ -281,9 +279,7 @@ class NewHireSendLoginEmailView(
         return redirect("people:new_hire", pk=new_hire.id)
 
 
-class NewHireSequenceView(
-    LoginRequiredMixin, ManagerPermMixin, IsAdminOrNewHireManagerMixin, DetailView
-):
+class NewHireSequenceView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "new_hire_detail.html"
     model = get_user_model()
     context_object_name = "object"
@@ -327,7 +323,7 @@ class NewHireSequenceView(
 
 
 class NewHireProfileView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, UpdateView
+    LoginRequiredMixin, SuccessMessageMixin, IsAdminOrNewHireManagerMixin, UpdateView
 ):
     template_name = "new_hire_profile.html"
     model = get_user_model()
@@ -346,7 +342,9 @@ class NewHireProfileView(
         return context
 
 
-class NewHireMigrateToNormalAccountView(LoginRequiredMixin, ManagerPermMixin, View):
+class NewHireMigrateToNormalAccountView(
+    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, View
+):
     def post(self, request, pk, *args, **kwargs):
         user = get_object_or_404(get_user_model(), id=pk, role=0)
         user.role = 3
@@ -356,7 +354,11 @@ class NewHireMigrateToNormalAccountView(LoginRequiredMixin, ManagerPermMixin, Vi
 
 
 class NewHireExtraInfoUpdateView(
-    LoginRequiredMixin, ManagerPermMixin, UpdateView, SuccessMessageMixin
+    LoginRequiredMixin,
+    ManagerPermMixin,
+    UpdateView,
+    IsAdminOrNewHireManagerMixin,
+    SuccessMessageMixin,
 ):
     template_name = "token_create.html"
     form_class = IntegrationExtraUserInfoForm
@@ -377,7 +379,11 @@ class NewHireExtraInfoUpdateView(
 
 
 class NewHireNotesView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, CreateView
+    LoginRequiredMixin,
+    ManagerPermMixin,
+    IsAdminOrNewHireManagerMixin,
+    SuccessMessageMixin,
+    CreateView,
 ):
     template_name = "new_hire_notes.html"
     model = Note
@@ -409,7 +415,9 @@ class NewHireNotesView(
         return context
 
 
-class NewHireWelcomeMessagesView(LoginRequiredMixin, ManagerPermMixin, ListView):
+class NewHireWelcomeMessagesView(
+    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, ListView
+):
     template_name = "new_hire_welcome_messages.html"
 
     def get_queryset(self):
@@ -429,7 +437,9 @@ class NewHireWelcomeMessagesView(LoginRequiredMixin, ManagerPermMixin, ListView)
         return context
 
 
-class NewHireAdminTasksView(LoginRequiredMixin, ManagerPermMixin, TemplateView):
+class NewHireAdminTasksView(
+    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, TemplateView
+):
     template_name = "new_hire_admin_tasks.html"
 
     def get_context_data(self, **kwargs):
@@ -447,7 +457,7 @@ class NewHireAdminTasksView(LoginRequiredMixin, ManagerPermMixin, TemplateView):
         return context
 
 
-class NewHireFormsView(LoginRequiredMixin, ManagerPermMixin, DetailView):
+class NewHireFormsView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "new_hire_forms.html"
     model = get_user_model()
     context_object_name = "object"
@@ -471,7 +481,7 @@ class NewHireFormsView(LoginRequiredMixin, ManagerPermMixin, DetailView):
         return context
 
 
-class NewHireProgressView(LoginRequiredMixin, ManagerPermMixin, DetailView):
+class NewHireProgressView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "new_hire_progress.html"
     model = get_user_model()
     context_object_name = "object"
@@ -492,14 +502,14 @@ class NewHireProgressView(LoginRequiredMixin, ManagerPermMixin, DetailView):
         return context
 
 
-class NewHireRemindView(LoginRequiredMixin, ManagerPermMixin, View):
-    def post(self, request, pk, template_type, *args, **kwargs):
+class NewHireRemindView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, View):
+    def post(self, request, pk, template_type, template_pk, *args, **kwargs):
         if template_type not in ["todouser", "resourceuser"]:
             raise Http404
 
         template_user_model = apps.get_model("users", template_type)
 
-        template_user_obj = template_user_model.objects.get(pk=pk)
+        template_user_obj = template_user_model.objects.get(pk=template_pk)
         template_user_obj.reminded = datetime.now()
         template_user_obj.save()
 
@@ -526,7 +536,7 @@ class NewHireRemindView(LoginRequiredMixin, ManagerPermMixin, View):
         return redirect("people:new_hire_progress", pk=template_user_obj.user.id)
 
 
-class NewHireReopenTaskView(LoginRequiredMixin, ManagerPermMixin, FormView):
+class NewHireReopenTaskView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, FormView):
     template_name = "new_hire_reopen_task.html"
     form_class = RemindMessageForm
     context_object_name = "object"
@@ -540,12 +550,12 @@ class NewHireReopenTaskView(LoginRequiredMixin, ManagerPermMixin, FormView):
         return super().dispatch(*args, **kwargs)
 
     def form_valid(self, form):
-        pk = self.kwargs.get("pk", -1)
+        template_pk = self.kwargs.get("template_pk", -1)
         template_type = self.kwargs.get("template_type", "")
 
         template_user_model = apps.get_model("users", template_type)
 
-        template_user_obj = template_user_model.objects.get(pk=pk)
+        template_user_obj = template_user_model.objects.get(pk=template_pk)
         if template_type == "todouser":
             template_user_obj.completed = False
             template_user_obj.form = []
@@ -587,7 +597,9 @@ class NewHireReopenTaskView(LoginRequiredMixin, ManagerPermMixin, FormView):
         return redirect("people:new_hire_progress", pk=template_user_obj.user.id)
 
 
-class NewHireCourseAnswersView(LoginRequiredMixin, ManagerPermMixin, DetailView):
+class NewHireCourseAnswersView(
+    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView
+):
     template_name = "new_hire_course_answers.html"
     model = get_user_model()
     context_object_name = "object"
@@ -603,7 +615,7 @@ class NewHireCourseAnswersView(LoginRequiredMixin, ManagerPermMixin, DetailView)
         return context
 
 
-class NewHireTasksView(LoginRequiredMixin, ManagerPermMixin, DetailView):
+class NewHireTasksView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "new_hire_tasks.html"
     model = get_user_model()
     context_object_name = "object"
@@ -615,7 +627,7 @@ class NewHireTasksView(LoginRequiredMixin, ManagerPermMixin, DetailView):
         return context
 
 
-class NewHireAccessView(LoginRequiredMixin, ManagerPermMixin, DetailView):
+class NewHireAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "new_hire_access.html"
     model = get_user_model()
     context_object_name = "object"
@@ -645,7 +657,9 @@ class NewHireCheckAccessView(LoginRequiredMixin, ManagerPermMixin, DetailView):
         return context
 
 
-class NewHireGiveAccessView(LoginRequiredMixin, ManagerPermMixin, DetailView):
+class NewHireGiveAccessView(
+    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView
+):
     template_name = "give_new_hire_access.html"
     model = get_user_model()
     context_object_name = "object"
@@ -710,7 +724,7 @@ class NewHireGiveAccessView(LoginRequiredMixin, ManagerPermMixin, DetailView):
         return context
 
 
-class NewHireTaskListView(LoginRequiredMixin, ManagerPermMixin, DetailView):
+class NewHireTaskListView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "new_hire_add_task.html"
     model = get_user_model()
     context_object_name = "object"
@@ -732,7 +746,9 @@ class NewHireTaskListView(LoginRequiredMixin, ManagerPermMixin, DetailView):
         return context
 
 
-class NewHireToggleTaskView(LoginRequiredMixin, ManagerPermMixin, TemplateView):
+class NewHireToggleTaskView(
+    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, TemplateView
+):
     template_name = "_toggle_button_new_hire_template.html"
     context_object_name = "object"
 
@@ -766,7 +782,7 @@ class NewHireToggleTaskView(LoginRequiredMixin, ManagerPermMixin, TemplateView):
         return self.render_to_response(context)
 
 
-class NewHireDeleteView(LoginRequiredMixin, ManagerPermMixin, DeleteView):
+class NewHireDeleteView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DeleteView):
     template_name = "new_hire_delete.html"
     queryset = get_user_model().new_hires.all()
     success_url = reverse_lazy("people:new_hires")
