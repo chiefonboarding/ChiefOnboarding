@@ -228,7 +228,7 @@ msgstr "Volver a abrir"
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:9
 #: admin/people/templates/new_hire_progress.html:73
-#: new_hire/templates/new_hire_resource_detail.html:21 slack_bot/views.py:656
+#: new_hire/templates/new_hire_resource_detail.html:21 slack_bot/views.py:675
 msgid "Complete"
 msgstr "Completada"
 
@@ -255,7 +255,7 @@ msgstr "Añadir comentario"
 #: admin/settings/templates/personal_otp.html:28
 #: admin/settings/templates/token_create.html:11
 #: new_hire/templates/_content.html:123
-#: new_hire/templates/_question_form.html:6 slack_bot/views.py:713
+#: new_hire/templates/_question_form.html:6 slack_bot/views.py:732
 msgid "Submit"
 msgstr "Enviar"
 
@@ -508,7 +508,7 @@ msgstr "Secuencias"
 msgid "Start date"
 msgstr "Fecha de inicio"
 
-#: admin/people/forms.py:106 slack_bot/views.py:360
+#: admin/people/forms.py:106 slack_bot/views.py:379
 msgid "Create new hire"
 msgstr "Crear nueva contratación"
 
@@ -1866,7 +1866,7 @@ msgstr ""
 "continuar."
 
 #: new_hire/templates/new_hire_resource_detail.html:54 new_hire/views.py:266
-#: slack_bot/slack_resource.py:96 slack_bot/views.py:658
+#: slack_bot/slack_resource.py:96 slack_bot/views.py:677
 msgid "Next"
 msgstr "Siguiente"
 
@@ -2115,86 +2115,90 @@ msgid "A new slack message has been sent"
 msgstr "Se ha enviado un nuevo mensaje de Slack"
 
 #: organization/models.py:282
+msgid "A new slack message has been updated"
+msgstr "Se ha actualizado un nuevo mensaje de Slack"
+
+#: organization/models.py:283
 msgid "Login credentials have been sent"
 msgstr "Se ha enviado la información de inicio de sesión"
 
-#: organization/models.py:283
+#: organization/models.py:284
 msgid "Reopened task email has been sent"
 msgstr "Se ha enviado el correo de tarea reabierta"
 
-#: organization/models.py:284
+#: organization/models.py:285
 msgid "Task reminder email has been sent"
 msgstr "Se ha enviado el correo recordatorio de la tarea"
 
-#: organization/models.py:285
+#: organization/models.py:286
 msgid "Sent new hire credentials email"
 msgstr "Se ha enviado el correo con las credenciales de la contratación"
 
-#: organization/models.py:286
+#: organization/models.py:287
 msgid "Sent new hire preboarding email"
 msgstr "Se ha enviado el correo de preabordaje de la contratación"
 
-#: organization/models.py:287
+#: organization/models.py:288
 msgid "Sent email from sequence"
 msgstr "Se ha enviado el correo desde la secuencia"
 
-#: organization/models.py:288
+#: organization/models.py:289
 msgid "Sent email with updates to new hire"
 msgstr "Se ha enviado el correo con actualizaciones a la contratación"
 
-#: organization/models.py:289
+#: organization/models.py:290
 msgid "Sent email to extra person in admin task"
 msgstr ""
 "Se ha enviado el correo a la persona adicional en la tarea administrativa"
 
-#: organization/models.py:292
+#: organization/models.py:293
 msgid "Sent email about new person assigned to admin task"
 msgstr ""
 "Se ha enviado el correo sobre la nueva persona asignada a la tarea "
 "administrativa"
 
-#: organization/models.py:296
+#: organization/models.py:297
 msgid "Sent email about new comment on admin task"
 msgstr ""
 "Se ha enviado el correo sobre un nuevo comentario en la tarea administrativa"
 
-#: organization/models.py:300
+#: organization/models.py:301
 msgid "Sent email about completing integration call"
 msgstr "Se ha enviado el correo para completar la integración"
 
-#: organization/models.py:302
+#: organization/models.py:303
 msgid "Couldn't send text message: number is missing"
 msgstr "No se pudo enviar el mensaje de texto: falta el número"
 
-#: organization/models.py:303
+#: organization/models.py:304
 msgid "Couldn't send email message: email is missing"
 msgstr "No se pudo enviar el correo: falta la dirección de correo electrónico"
 
-#: organization/models.py:306
+#: organization/models.py:307
 msgid "Couldn't deliver email message: recipient refused"
 msgstr "No se pudo entregar el correo: el destinatario no lo recibió"
 
-#: organization/models.py:308 organization/models.py:309
+#: organization/models.py:309 organization/models.py:310
 msgid "Couldn't deliver email message: provider error"
 msgstr "No se pudo entregar el correo: error del proveedor"
 
-#: organization/models.py:310
+#: organization/models.py:311
 msgid "Couldn't send Slack message"
 msgstr "No se puede enviar el mensaje de Slack"
 
-#: organization/models.py:311
+#: organization/models.py:312
 msgid "Couldn't update Slack message"
 msgstr "No se ha podido actualizar el mensaje de Slack"
 
-#: organization/models.py:312
+#: organization/models.py:313
 msgid "Integration has been triggered"
 msgstr "La integración se ha detonado"
 
-#: organization/models.py:313
+#: organization/models.py:314
 msgid "Couldn't complete integration"
 msgstr "No se pudo completar la integración"
 
-#: organization/models.py:316
+#: organization/models.py:317
 msgid "Couldn't send integration notification"
 msgstr "No se pudo enviar la notificación de la integración"
 
@@ -2246,7 +2250,7 @@ msgstr "No hay recursos disponibles"
 msgid "No category"
 msgstr "Sin categorías"
 
-#: slack_bot/slack_resource.py:124 slack_bot/views.py:128
+#: slack_bot/slack_resource.py:124 slack_bot/views.py:147
 msgid "Select a category:"
 msgstr "Elige una categoría:"
 
@@ -2280,11 +2284,11 @@ msgid "done"
 msgstr "listo"
 
 #: slack_bot/slack_to_do.py:101 slack_bot/tasks.py:73 slack_bot/tasks.py:77
-#: slack_bot/views.py:152 slack_bot/views.py:541
+#: slack_bot/views.py:171 slack_bot/views.py:560
 msgid "These are the tasks you need to complete:"
 msgstr "Estas son las tareas que debes completar:"
 
-#: slack_bot/slack_to_do.py:103 slack_bot/views.py:154 slack_bot/views.py:543
+#: slack_bot/slack_to_do.py:103 slack_bot/views.py:173 slack_bot/views.py:562
 msgid "I couldn't find any tasks."
 msgstr "No pude encontrar ninguna tarea."
 
@@ -2345,11 +2349,11 @@ msgstr " y es nuestro nuevo %(position)s"
 msgid "%(first_name)s starts on %(start_day)s%(footer_extra)s."
 msgstr "%(first_name)s empieza el %(start_day)s%(footer_extra)s."
 
-#: slack_bot/tasks.py:247 slack_bot/views.py:711
+#: slack_bot/tasks.py:247 slack_bot/views.py:730
 msgid "Welcome this new hire!"
 msgstr "¡Dale la bienvenida a la nueva contratación!"
 
-#: slack_bot/views.py:84
+#: slack_bot/views.py:87
 msgid ""
 "Happy to help! Here are all the things you can say to me: \n"
 "\n"
@@ -2357,7 +2361,7 @@ msgstr ""
 "¡Es un gusto ayudarte! Estas son las cosas que me puedes decir:\n"
 "\n"
 
-#: slack_bot/views.py:86
+#: slack_bot/views.py:89
 msgid ""
 "*What do I need to do today?*\n"
 "This will show all the tasks you need to do today. I will show you these "
@@ -2367,7 +2371,7 @@ msgstr ""
 "Esto te mostrará todas las tareas que necesitas hacer hoy. Te mostraré estas "
 "cada día, pero me las puedes pedir si deseas verlas otra vez.\n"
 
-#: slack_bot/views.py:91
+#: slack_bot/views.py:94
 msgid ""
 "*Do I have any to do items that are overdue?*\n"
 "This will show all tasks that should have been completed. Please do those as "
@@ -2377,7 +2381,7 @@ msgstr ""
 "Esto te mostrará todas las tareas que ya debieras haber completado. Por "
 "favor, haz estas lo antes posible.\n"
 
-#: slack_bot/views.py:95
+#: slack_bot/views.py:98
 msgid ""
 "*Show me all to do items*\n"
 "This will show all tasks\n"
@@ -2385,7 +2389,7 @@ msgstr ""
 "*Muéstrame todos los pendientes*\n"
 "Esto mostrará todas las tareas\n"
 
-#: slack_bot/views.py:96
+#: slack_bot/views.py:99
 msgid ""
 "*Show me all resources*\n"
 "This will show all resources."
@@ -2393,35 +2397,35 @@ msgstr ""
 "*Muéstrame todos los recursos*\n"
 "Esto mostrará todos los recursos."
 
-#: slack_bot/views.py:110
+#: slack_bot/views.py:113
 msgid "You don't seem to be setup yet. Please ask your supervisor for access."
 msgstr ""
 "Parece ser que aún no se te ha configurado. Por favor, solicítale el acceso "
 "a tu supervisor."
 
-#: slack_bot/views.py:144
+#: slack_bot/views.py:163
 msgid "today"
 msgstr "hoy"
 
-#: slack_bot/views.py:146
+#: slack_bot/views.py:165
 msgid "overdue"
 msgstr "atrasada"
 
-#: slack_bot/views.py:202
+#: slack_bot/views.py:221
 msgid "Please complete the form first. Click on 'View details' to complete it."
 msgstr ""
 "Por favor completa este formulario primero. Haz clic en 'ver detalles' para "
 "completarlo."
 
-#: slack_bot/views.py:253
+#: slack_bot/views.py:272
 msgid "Here is what I found: "
 msgstr "Esto es lo que encontré: "
 
-#: slack_bot/views.py:255
+#: slack_bot/views.py:274
 msgid "Unfortunately, I couldn't find anything."
 msgstr "No encontré nada."
 
-#: slack_bot/views.py:323
+#: slack_bot/views.py:342
 #, python-format
 msgid ""
 "Would you like to put this new hire through onboarding?\n"
@@ -2429,40 +2433,40 @@ msgid ""
 msgstr ""
 "¿Quisieras pasar esta nueva contratación al preabordaje? *Nombre:* %(name)s "
 
-#: slack_bot/views.py:331
+#: slack_bot/views.py:350
 msgid "Yeah!"
 msgstr "¡Sí!"
 
-#: slack_bot/views.py:336
+#: slack_bot/views.py:355
 msgid "Nope"
 msgstr "No"
 
-#: slack_bot/views.py:358
+#: slack_bot/views.py:377
 msgid "New hire options"
 msgstr "Opciones para la nueva contratación"
 
-#: slack_bot/views.py:401
+#: slack_bot/views.py:420
 #, python-format
 msgid "You approved the request to onboard %(name)s"
 msgstr "Aprobaste la solicitud de preabordar a %(name)s"
 
-#: slack_bot/views.py:420
+#: slack_bot/views.py:439
 msgid "You denied the request to onboard this person."
 msgstr "Denegaste la solicitud de preabordar a esta persona."
 
-#: slack_bot/views.py:453 slack_bot/views.py:461
+#: slack_bot/views.py:472 slack_bot/views.py:480
 msgid "Here are your options:"
 msgstr "Estas son tus opciones:"
 
-#: slack_bot/views.py:686
+#: slack_bot/views.py:705
 msgid "Thanks! This has been marked as completed."
 msgstr "¡Gracias! Esto se ha marcado como completado."
 
-#: slack_bot/views.py:725
+#: slack_bot/views.py:744
 msgid "What would you like to say to our new hire?"
 msgstr "¿Que quieres decirle a nuestra nueva contratación?"
 
-#: slack_bot/views.py:769
+#: slack_bot/views.py:788
 msgid "Message has been saved! Your message: \""
 msgstr "¡El mensaje se ha guardado! Tu mensaje: \""
 

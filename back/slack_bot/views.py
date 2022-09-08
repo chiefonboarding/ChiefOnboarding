@@ -14,7 +14,7 @@ from admin.admin_tasks.models import AdminTask
 from admin.integrations.models import Integration
 from admin.resources.models import Category, Chapter, CourseAnswer, Resource
 from admin.sequences.models import Sequence
-from organization.models import Organization
+from organization.models import Organization, Notification
 from users.models import NewHireWelcomeMessage, ResourceUser, ToDoUser
 
 from .slack_misc import get_new_hire_approve_sequence_options
@@ -60,6 +60,10 @@ def no_bot_messages(message) -> bool:
     return message.get("subtype") != "bot_message" and (
         "message" not in message or "bot_id" not in message.get("message")
     )
+
+
+def message_changed_matcher(message) -> bool:
+    return message.get("subtype", "") == "message_changed"
 
 
 @exception_handler
@@ -111,6 +115,22 @@ def get_user(slack_user_id):
             ),
             channel=slack_user_id,
         )
+
+
+@exception_handler
+@app.event("message", matchers=[message_changed_matcher])
+def message_changed(body):
+    try:
+        user = get_user_model().objects.get(slack_channel_id=body["event"]["channel"])
+    except get_user_model().DoesNotExist:
+        return
+
+    Notification.objects.create(
+        notification_type="updated_slack_message",
+        extra_text=body["event"].get("message", {}).get("text", ""),
+        created_for=user,
+        blocks=body["event"].get("message", {}).get("blocks", []),
+    )
 
 
 @exception_handler
