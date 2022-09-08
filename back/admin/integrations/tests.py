@@ -1,3 +1,4 @@
+import base64
 from unittest.mock import Mock, patch
 from datetime import timedelta
 
@@ -127,6 +128,38 @@ def test_integration_request_exceptions_invalid_url(custom_integration_factory):
 
     assert not success
     assert result == "The url is invalid"
+
+
+@pytest.mark.django_db
+def test_integration_request_basic_auth(custom_integration_factory):
+    integration = custom_integration_factory(
+        manifest={
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Basic {{ADMIN_EMAIL}}:{{TOKEN}}",
+            },
+            "initial_data_form": [
+                {
+                    "id": "ADMIN_EMAIL",
+                    "name": "The admin email here with which the token was generated.",
+                    "description": "",
+                },
+                {"id": "TOKEN", "name": "The token", "description": ""},
+            ],
+        }
+    )
+
+    integration.params = {"ADMIN_EMAIL": "test@chiefonboarding.com", "TOKEN": "123"}
+    assert (
+        base64.b64encode("test@chiefonboarding.com:123".encode("ascii")).decode("ascii")
+        == "dGVzdEBjaGllZm9uYm9hcmRpbmcuY29tOjEyMw=="
+    )
+    assert integration.headers() == {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": "Basic dGVzdEBjaGllZm9uYm9hcmRpbmcuY29tOjEyMw==",
+    }
 
 
 @pytest.mark.django_db
