@@ -139,19 +139,15 @@ class IntegrationOauthCallbackView(LoginRequiredMixin, RedirectView):
             return reverse_lazy("settings:integrations")
 
         # Check if url has parameters already
-        url = integration.manifest["oauth"]["access_token"]["url"]
+        access_obj = integration.manifest["oauth"]["access_token"]
         if not integration.manifest["oauth"].get("without_code", False):
-            parsed_url = urlparse(url)
+            parsed_url = urlparse(access_obj["url"])
             if len(parsed_url.query):
-                url += "&code=" + code
+                access_obj["url"] += "&code=" + code
             else:
-                url += "?code=" + code
+                access_obj["url"] += "?code=" + code
 
-            integration.manifest["oauth"]["access_token"]["url"] = url
-
-        success, response = integration.run_request(
-            integration.manifest["oauth"]["access_token"]
-        )
+        success, response = integration.run_request(access_obj)
 
         if not success:
             messages.error(self.request, f"Couldn't save token: {response}")

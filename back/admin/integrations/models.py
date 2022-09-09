@@ -204,7 +204,7 @@ class Integration(models.Model):
                 )
                 return success
 
-            self.extra_args["oauth"] = response.json()
+            self.extra_args["oauth"] |= response.json()
             if "expires_in" in response.json():
                 self.expiring = timezone.now() + timedelta(
                     seconds=response.json()["expires_in"]
