@@ -351,7 +351,21 @@ def test_sequence_integration_form_view(
 
     admin = admin_factory()
     client.force_login(admin)
-    integration = custom_integration_factory()
+    integration = custom_integration_factory(
+        manifest={
+            "form": [
+                {
+                    "id": "TEAM_ID",
+                    "url": "https://example.com/api/1.0/organizations/{{ORG}}/teams",
+                    "name": "Select team to add user to",
+                    "type": "choice",
+                    "data_from": "data",
+                    "choice_value": "gid",
+                    "choice_name": "name",
+                }
+            ]
+        }
+    )
 
     url = reverse("sequences:forms", args=["integration", integration.id])
     response = client.get(url)
@@ -482,7 +496,21 @@ def test_sequence_update_custom_integration_form(
     custom_integration_factory,
     integration_config_factory,
 ):
-    integration = custom_integration_factory()
+    integration = custom_integration_factory(
+        manifest={
+            "form": [
+                {
+                    "id": "TEAM_ID",
+                    "url": "https://example.com/api/1.0/organizations/{{ORG}}/teams",
+                    "name": "Select team to add user to",
+                    "type": "choice",
+                    "data_from": "data",
+                    "choice_value": "gid",
+                    "choice_name": "name",
+                }
+            ]
+        }
+    )
     integration_config = integration_config_factory(integration=integration)
     admin = admin_factory()
     sequence = sequence_factory()
@@ -519,7 +547,21 @@ def test_sequence_create_custom_integration_form(
     sequence_factory,
     custom_integration_factory,
 ):
-    integration = custom_integration_factory()
+    integration = custom_integration_factory(
+        manifest={
+            "form": [
+                {
+                    "id": "TEAM_ID",
+                    "url": "https://example.com/api/1.0/organizations/{{ORG}}/teams",
+                    "name": "Select team to add user to",
+                    "type": "choice",
+                    "data_from": "data",
+                    "choice_value": "gid",
+                    "choice_name": "name",
+                }
+            ]
+        }
+    )
     admin = admin_factory()
     sequence = sequence_factory()
     condition = sequence.conditions.all().first()
@@ -602,7 +644,21 @@ def test_integration_invalid_json_format_returned(
 def test_sequence_open_filled_custom_integration_form(
     client, admin_factory, custom_integration_factory, integration_config_factory
 ):
-    integration = custom_integration_factory()
+    integration = custom_integration_factory(
+        manifest={
+            "form": [
+                {
+                    "id": "TEAM_ID",
+                    "url": "https://example.com/api/1.0/organizations/{{ORG}}/teams",
+                    "name": "Select team to add user to",
+                    "type": "choice",
+                    "data_from": "data",
+                    "choice_value": "gid",
+                    "choice_name": "name",
+                }
+            ]
+        }
+    )
     integration_config = integration_config_factory(
         integration=integration, additional_data={"TEAM_ID": "12"}
     )
