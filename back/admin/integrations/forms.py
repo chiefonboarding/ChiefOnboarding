@@ -53,6 +53,7 @@ class IntegrationConfigForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        integration = Integration.objects.get(id=self.instance.id)
         form = self.instance.manifest["form"]
         self.helper = FormHelper()
         self.helper.form_tag = False
@@ -68,7 +69,7 @@ class IntegrationConfigForm(forms.ModelForm):
 
                 # If there is a url to fetch the items from then do so
                 if "url" in item:
-                    success, response = self.instance.run_request(item)
+                    success, response = integration.run_request(item)
                     if not success:
                         self.error = response
                         return

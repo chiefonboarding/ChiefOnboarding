@@ -355,7 +355,6 @@ class NewHireMigrateToNormalAccountView(
 
 class NewHireExtraInfoUpdateView(
     LoginRequiredMixin,
-    ManagerPermMixin,
     UpdateView,
     IsAdminOrNewHireManagerMixin,
     SuccessMessageMixin,
@@ -380,7 +379,6 @@ class NewHireExtraInfoUpdateView(
 
 class NewHireNotesView(
     LoginRequiredMixin,
-    ManagerPermMixin,
     IsAdminOrNewHireManagerMixin,
     SuccessMessageMixin,
     CreateView,
