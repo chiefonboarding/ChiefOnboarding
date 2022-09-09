@@ -995,17 +995,33 @@ def test_new_hire_course_answers_list(
 
 @pytest.mark.django_db
 def test_new_hire_reopen_todo(
-    client, settings, django_user_model, to_do_user_factory, mailoutbox
+    client, settings, manager_factory, to_do_user_factory, mailoutbox
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    manager1 = manager_factory()
+    client.force_login(manager1)
     to_do_user1 = to_do_user_factory()
 
     # not a valid template type
-    url = reverse("people:new_hire_reopen", args=["todouser1", to_do_user1.id])
+    url = reverse(
+        "people:new_hire_reopen",
+        args=[to_do_user1.user.id, "todouser1", to_do_user1.id],
+    )
     response = client.get(url, follow=True)
     assert response.status_code == 404
 
-    url = reverse("people:new_hire_reopen", args=["todouser", to_do_user1.id])
+    # not a valid user (admin or manager of new hire)
+    url = reverse(
+        "people:new_hire_reopen", args=[to_do_user1.user.id, "todouser", to_do_user1.id]
+    )
+    response = client.get(url, follow=True)
+    assert response.status_code == 403
+
+    to_do_user1.user.manager = manager1
+    to_do_user1.user.save()
+
+    url = reverse(
+        "people:new_hire_reopen", args=[to_do_user1.user.id, "todouser", to_do_user1.id]
+    )
 
     response = client.post(url, data={"message": "You forgot this one!"}, follow=True)
 
@@ -1054,7 +1070,10 @@ def test_new_hire_reopen_course(
 
     resource_user1 = resource_user_factory(resource__course=True)
 
-    url = reverse("people:new_hire_reopen", args=["resourceuser", resource_user1.id])
+    url = reverse(
+        "people:new_hire_reopen",
+        args=[resource_user1.user.id, "resourceuser", resource_user1.id],
+    )
 
     response = client.post(url, data={"message": "You forgot this one!"}, follow=True)
 
@@ -1101,11 +1120,16 @@ def test_new_hire_remind_to_do(
     to_do_user1 = to_do_user_factory()
 
     # not a valid template type
-    url = reverse("people:new_hire_remind", args=["todouser1", to_do_user1.id])
+    url = reverse(
+        "people:new_hire_remind",
+        args=[to_do_user1.user.id, "todouser1", to_do_user1.id],
+    )
     response = client.post(url, follow=True)
     assert response.status_code == 404
 
-    url = reverse("people:new_hire_remind", args=["todouser", to_do_user1.id])
+    url = reverse(
+        "people:new_hire_remind", args=[to_do_user1.user.id, "todouser", to_do_user1.id]
+    )
 
     response = client.post(url, follow=True)
 
@@ -1131,11 +1155,16 @@ def test_new_hire_remind_to_do_slack_message(
     to_do_user1 = to_do_user_factory(user__slack_user_id="slackx")
 
     # not a valid template type
-    url = reverse("people:new_hire_remind", args=["todouser1", to_do_user1.id])
+    url = reverse(
+        "people:new_hire_remind",
+        args=[to_do_user1.user.id, "todouser1", to_do_user1.id],
+    )
     response = client.post(url, follow=True)
     assert response.status_code == 404
 
-    url = reverse("people:new_hire_remind", args=["todouser", to_do_user1.id])
+    url = reverse(
+        "people:new_hire_remind", args=[to_do_user1.user.id, "todouser", to_do_user1.id]
+    )
 
     response = client.post(url, follow=True)
 
@@ -1174,7 +1203,10 @@ def test_new_hire_remind_resource(
     client.force_login(django_user_model.objects.create(role=1))
     resource_user1 = resource_user_factory()
 
-    url = reverse("people:new_hire_remind", args=["resourceuser", resource_user1.id])
+    url = reverse(
+        "people:new_hire_remind",
+        args=[resource_user1.user.id, "resourceuser", resource_user1.id],
+    )
 
     client.post(url, follow=True)
 
@@ -1195,7 +1227,10 @@ def test_new_hire_remind_resource_slack_message(
     client.force_login(django_user_model.objects.create(role=1))
     resource_user1 = resource_user_factory(user__slack_user_id="slackx")
 
-    url = reverse("people:new_hire_remind", args=["resourceuser", resource_user1.id])
+    url = reverse(
+        "people:new_hire_remind",
+        args=[resource_user1.user.id, "resourceuser", resource_user1.id],
+    )
 
     client.post(url, follow=True)
 
@@ -1393,6 +1428,14 @@ def test_new_hire_access_per_integration_config_form(
 
     new_hire1 = new_hire_factory(email="stan@example.com")
     integration1 = custom_integration_factory(name="Asana", integration=10)
+    integration1.manifest["extra_user_info"] = [
+        {
+            "id": "PERSONAL_EMAIL",
+            "name": "Personal email address",
+            "description": "Add the email address from the user",
+        }
+    ]
+    integration1.save()
 
     # New hire already has an account (email matches with return)
     url = reverse(
@@ -1402,11 +1445,87 @@ def test_new_hire_access_per_integration_config_form(
     response = client.get(url)
 
     # Check that form is present
+    assert "Personal email address" in response.content.decode()
     assert "Select team to add user to" in response.content.decode()
     assert (
         '<select name="TEAM_ID" class="select form-select" id="id_TEAM_ID"> <option value="test_team">test team</option>'  # noqa
         in response.content.decode()
     )
+
+    integration1.manifest["extra_user_info"] = []
+    integration1.manifest["form"] = []
+    integration1.save()
+
+    # Show form to admin
+    response = client.get(url)
+
+    # No form is present
+    assert (
+        "No additional data needed, please click on 'create user' to continue."
+        in response.content.decode()
+    )
+
+
+@pytest.mark.django_db
+@patch(
+    "admin.integrations.models.Integration.run_request",
+    Mock(
+        return_value=(
+            True,
+            Mock(
+                status_code=201,
+                json=lambda: {"data": [{"gid": "test_team", "name": "test team"}]},
+            ),
+        )
+    ),
+)
+def test_new_hire_access_per_integration_post(
+    client, django_user_model, new_hire_factory, custom_integration_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    new_hire1 = new_hire_factory(email="stan@example.com")
+    integration1 = custom_integration_factory(name="Asana", integration=10)
+    integration1.manifest["extra_user_info"] = [
+        {
+            "id": "PERSONAL_EMAIL",
+            "name": "Personal email address",
+            "description": "Add the email address from the user",
+        }
+    ]
+    integration1.save()
+
+    # New hire already has an account (email matches with return)
+    url = reverse(
+        "people:new_hire_give_integration", args=[new_hire1.id, integration1.id]
+    )
+    # Show form to admin
+    response = client.post(url, data={"TEAM_ID": "test_team"}, follow=True)
+
+    # Check that form is present
+    assert "This field is required" in response.content.decode()
+
+    with patch(
+        "admin.integrations.models.Integration.execute", Mock(return_value=False)
+    ):
+        response = client.post(
+            url,
+            data={"TEAM_ID": "test_team", "PERSONAL_EMAIL": "hi@chiefonboarding.com"},
+            follow=True,
+        )
+
+        assert "Account could not be created" in response.content.decode()
+
+    with patch(
+        "admin.integrations.models.Integration.execute", Mock(return_value=True)
+    ):
+        response = client.post(
+            url,
+            data={"TEAM_ID": "test_team", "PERSONAL_EMAIL": "hi@chiefonboarding.com"},
+            follow=True,
+        )
+
+        assert "Account has been created" in response.content.decode()
 
 
 @pytest.mark.django_db

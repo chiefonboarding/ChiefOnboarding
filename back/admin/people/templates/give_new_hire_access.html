@@ -9,7 +9,12 @@
       <div class="card-body">
         <form method="post">
           {% csrf_token %}
-          {{ form|crispy }}
+          {% if not integration_config_form.fields|length and not user_details_form.fields|length %}
+            {% translate "No additional data needed, please click on 'create user' to continue." %}
+            <br>
+          {% endif %}
+          {{ integration_config_form|crispy }}
+          {{ user_details_form|crispy }}
           <button class="btn btn-primary" type="submit">{% translate "Create user" %}</button>
         </form>
       </div>

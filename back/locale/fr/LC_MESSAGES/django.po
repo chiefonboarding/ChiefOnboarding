@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-06 00:28+0000\n"
+"POT-Creation-Date: 2022-09-08 14:06+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -250,7 +250,7 @@ msgid "Add comment"
 msgstr "Ajouter un commentaire"
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:43
-#: admin/sequences/templates/_item_form.html:8
+#: admin/sequences/templates/_item_form.html:12
 #: admin/settings/templates/personal_otp.html:28
 #: admin/settings/templates/token_create.html:11
 #: new_hire/templates/_content.html:123
@@ -565,8 +565,8 @@ msgstr "E-mail envoyé à la nouvelle recrue"
 #: admin/people/new_hire_views.py:428 admin/people/new_hire_views.py:440
 #: admin/people/new_hire_views.py:459 admin/people/new_hire_views.py:483
 #: admin/people/new_hire_views.py:599 admin/people/new_hire_views.py:614
-#: admin/people/new_hire_views.py:626 admin/people/new_hire_views.py:674
-#: admin/people/new_hire_views.py:693
+#: admin/people/new_hire_views.py:626 admin/people/new_hire_views.py:690
+#: admin/people/new_hire_views.py:708 admin/people/new_hire_views.py:727
 #: admin/people/templates/new_hire_detail.html:100
 #: admin/people/templates/not_triggered_conditions.html:16
 #: admin/sequences/templates/_sequence_condition.html:56
@@ -601,12 +601,20 @@ msgstr "Le rappel a été envoyé!"
 msgid "Item has been reopened"
 msgstr "L'élément a été réouvert"
 
-#: admin/people/new_hire_views.py:690
+#: admin/people/new_hire_views.py:675
+msgid "Account has been created"
+msgstr "Le compte a été créé"
+
+#: admin/people/new_hire_views.py:677
+msgid "Account could not be created"
+msgstr "Le compte n'a pas pu être créé"
+
+#: admin/people/new_hire_views.py:724
 #, python-format
 msgid "Add/Remove templates for %(name)s"
 msgstr "Ajouter/Supprimer les modèles pour %(name)s"
 
-#: admin/people/new_hire_views.py:743
+#: admin/people/new_hire_views.py:777
 msgid "New hire has been removed"
 msgstr "La nouvelle recrue a été supprimée"
 
@@ -760,6 +768,10 @@ msgid "View"
 msgstr "Voir"
 
 #: admin/people/templates/give_new_hire_access.html:13
+msgid "No additional data needed, please click on 'create user' to continue."
+msgstr "Aucune donnée supplémentaire n'est nécessaire, veuillez cliquer sur 'créer un utilisateur' pour continuer."
+
+#: admin/people/templates/give_new_hire_access.html:18
 msgid "Create user"
 msgstr "Créer l'utilisateur"
 
@@ -1368,6 +1380,10 @@ msgstr "*Félicitations, vous avez débloqué: %(item_name)s *"
 #: admin/sequences/tasks.py:108
 msgid "Here are some new items for you!"
 msgstr "Voici quelques nouveautés pour vous!"
+
+#: admin/sequences/templates/_item_form.html:8
+msgid "No additional data needed."
+msgstr "Aucune donnée supplémentaire n'est nécessaire."
 
 #: admin/sequences/templates/_sequence_condition.html:18
 #, python-format

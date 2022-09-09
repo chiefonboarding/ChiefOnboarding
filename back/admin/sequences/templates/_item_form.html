@@ -4,6 +4,10 @@
 {% csrf_token %}
 
 {% if not form.error %}
+  {% if not form.fields|length %}
+    {% translate "No additional data needed." %}
+    <br>
+  {% endif %}
   {% crispy form %}
   <button type="submit" class="btn btn-primary">{% translate "Submit" %}</button>
 {% else %}

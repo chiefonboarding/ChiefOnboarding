@@ -169,9 +169,11 @@ class IntegrationExtraArgsForm(forms.ModelForm):
 
 
 class IntegrationExtraUserInfoForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, missing_info=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        missing_info = self.instance.missing_extra_info
+        if missing_info is None:
+            missing_info = self.instance.missing_extra_info
+
         for item in missing_info:
             self.fields[item["id"]] = forms.CharField(
                 label=item["name"], help_text=item["description"]

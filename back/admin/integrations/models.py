@@ -126,10 +126,11 @@ class Integration(models.Model):
         except:  # noqa E722
             return False, "There was an unexpected error with the request"
 
-        try:
-            response.raise_for_status()
-        except Exception:
-            return False, response.text
+        if data.get("fail_when_4xx_response_code", True):
+            try:
+                response.raise_for_status()
+            except Exception:
+                return False, response.text
 
         return True, response
 
@@ -172,6 +173,11 @@ class Integration(models.Model):
 
     def user_exists(self, new_hire):
         self.new_hire = new_hire
+
+        # Renew token if necessary
+        if not self.renew_key():
+            return
+
         success, response = self.run_request(self.manifest["exists"])
 
         if not success:
@@ -179,12 +185,9 @@ class Integration(models.Model):
 
         return self._replace_vars(self.manifest["exists"]["expected"]) in response.text
 
-    def execute(self, new_hire, params):
-        self.params = params
-        self.params |= new_hire.extra_fields
-        self.new_hire = new_hire
-
-        # Renew access key if necessary
+    def renew_key(self):
+        # Oauth2 refreshing access token if needed
+        success = True
         if (
             self.has_oauth
             and "expires_in" in self.extra_args.get("oauth", {})
@@ -196,10 +199,10 @@ class Integration(models.Model):
                 Notification.objects.create(
                     notification_type="failed_integration",
                     extra_text=self.name,
-                    created_for=new_hire,
+                    created_for=self.new_hire,
                     description="Refresh url: " + str(response),
                 )
-                return
+                return success
 
             self.extra_args["oauth"] = response.json()
             if "expires_in" in response.json():
@@ -207,6 +210,16 @@ class Integration(models.Model):
                     seconds=response.json()["expires_in"]
                 )
             self.save()
+        return success
+
+    def execute(self, new_hire, params):
+        self.params = params
+        self.params |= new_hire.extra_fields
+        self.new_hire = new_hire
+
+        # Renew token if necessary
+        if not self.renew_key():
+            return False
 
         # Add generated secrets
         for item in self.manifest["initial_data_form"]:
@@ -241,7 +254,7 @@ class Integration(models.Model):
                     # Only errors when item gets added another time, so we can safely
                     # let it pass.
                     pass
-                return
+                return False
 
         # Run all post requests (notifications)
         for item in self.manifest.get("post_execute_notification", []):
@@ -252,7 +265,7 @@ class Integration(models.Model):
                     to=self._replace_vars(item["to"]),
                     notification_type="sent_email_integration_notification",
                 )
-                return
+                return True
             else:
                 try:
                     client = Client(
@@ -269,7 +282,7 @@ class Integration(models.Model):
                         extra_text=self.name,
                         created_for=new_hire,
                     )
-                    return
+                    return True
 
         # Succesfully ran integration, add notification
         Notification.objects.create(
@@ -277,6 +290,7 @@ class Integration(models.Model):
             extra_text=self.name,
             created_for=new_hire,
         )
+        return True
 
     def config_form(self, data=None):
         from .forms import IntegrationConfigForm

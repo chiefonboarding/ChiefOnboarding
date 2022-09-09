@@ -1,3 +1,4 @@
+import base64
 from unittest.mock import Mock, patch
 from datetime import timedelta
 
@@ -130,6 +131,38 @@ def test_integration_request_exceptions_invalid_url(custom_integration_factory):
 
 
 @pytest.mark.django_db
+def test_integration_request_basic_auth(custom_integration_factory):
+    integration = custom_integration_factory(
+        manifest={
+            "headers": {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Basic {{ADMIN_EMAIL}}:{{TOKEN}}",
+            },
+            "initial_data_form": [
+                {
+                    "id": "ADMIN_EMAIL",
+                    "name": "The admin email here with which the token was generated.",
+                    "description": "",
+                },
+                {"id": "TOKEN", "name": "The token", "description": ""},
+            ],
+        }
+    )
+
+    integration.params = {"ADMIN_EMAIL": "test@chiefonboarding.com", "TOKEN": "123"}
+    assert (
+        base64.b64encode("test@chiefonboarding.com:123".encode("ascii")).decode("ascii")
+        == "dGVzdEBjaGllZm9uYm9hcmRpbmcuY29tOjEyMw=="
+    )
+    assert integration.headers() == {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": "Basic dGVzdEBjaGllZm9uYm9hcmRpbmcuY29tOjEyMw==",
+    }
+
+
+@pytest.mark.django_db
 def test_integration_oauth_redirect_view(
     client, django_user_model, custom_integration_factory
 ):
@@ -223,7 +256,8 @@ def test_integration_refresh_token(
         "admin.integrations.models.Integration.run_request",
         Mock(return_value=(False, Mock(text="[{'error': 'not_found'}]"))),
     ):
-        integration.execute(new_hire, {})
+        integration.new_hire = new_hire
+        integration.renew_key()
 
         assert (
             Notification.objects.filter(notification_type="failed_integration").count()
@@ -240,15 +274,17 @@ def test_integration_refresh_token(
             )
         ),
     ):
-        integration.execute(new_hire, {})
+        integration.new_hire = new_hire
+        integration.renew_key()
 
         integration.refresh_from_db()
         assert integration.extra_args["oauth"] == {
             "access_token": "xxx",
             "expires_in": 1234,
         }
+        # Only one because of previous request
         assert (
-            Notification.objects.filter(notification_type="ran_integration").count()
+            Notification.objects.filter(notification_type="failed_integration").count()
             == 1
         )
 

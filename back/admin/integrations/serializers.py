@@ -33,6 +33,7 @@ class ManifestFormSerializer(ValidateMixin, serializers.Serializer):
 class ManifestExistSerializer(ValidateMixin, serializers.Serializer):
     url = serializers.CharField()
     expected = serializers.CharField()
+    fail_when_4xx_response_code = serializers.BooleanField(required=False)
     method = serializers.ChoiceField(
         [
             ("HEAD", "HEAD"),

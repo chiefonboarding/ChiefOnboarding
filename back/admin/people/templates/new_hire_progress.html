@@ -28,11 +28,11 @@
             </td>
             <td class="text-end">
               {% if todo.completed %}
-                <a href="{% url 'people:new_hire_reopen' 'todouser' todo.id %}" class="btn btn-white">
+                <a href="{% url 'people:new_hire_reopen' object.id 'todouser' todo.id %}" class="btn btn-white">
                   {% translate "Reopen" %}
                 </a>
               {% else %}
-              <form method="post" action="{% url 'people:new_hire_remind' 'todouser' todo.id %}">
+              <form method="post" action="{% url 'people:new_hire_remind' object.id 'todouser' todo.id %}">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-primary">
                   {% translate "Remind" %}
@@ -86,11 +86,11 @@
             </td>
             <td class="text-end">
               {% if resource.completed_course %}
-                <a href="{% url 'people:new_hire_reopen' 'resourceuser' resource.id %}" class="btn btn-white">
+                <a href="{% url 'people:new_hire_reopen' object.id 'resourceuser' resource.id %}" class="btn btn-white">
                   {% translate "Reopen" %}
                 </a>
               {% else %}
-                <form method="post" action="{% url 'people:new_hire_remind' 'resourceuser' resource.id %}">
+                <form method="post" action="{% url 'people:new_hire_remind' object.id 'resourceuser' resource.id %}">
                   {% csrf_token %}
                   <button type="submit" class="btn btn-primary">
                     {% translate "Remind" %}

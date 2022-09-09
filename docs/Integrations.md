@@ -50,6 +50,8 @@ Exists is an option to check if a user is already part of a team. If you add thi
 
 `headers`: (optionally) This will overwrite the default headers.
 
+`fail_when_4xx_response_code`: Default: True. If the server response with a 4xx status code, then that's considered a failing request. In some cases, apis will return a 404 if the user does not exist. In that case, set this to `False`, so it can check for the `expected` value.
+
 ## Execute
 These requests will be ran when this integration gets triggered.
 
