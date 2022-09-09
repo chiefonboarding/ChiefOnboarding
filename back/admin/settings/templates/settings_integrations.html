@@ -63,7 +63,7 @@
       <tr>
         <td>{{ integration.name }}</td>
         <td style="text-align: right">
-          {% if integration.has_oauth %}
+          {% if integration.has_oauth and not integration.enabled_oauth %}
             <a href="{% url 'integrations:oauth' integration.id %}" class="btn btn-{% if integration.enabled_oauth %}success{% else %}primary{% endif %}">
               {% translate "OAuth" %}
             </a>
