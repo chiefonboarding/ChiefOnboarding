@@ -121,7 +121,10 @@ class Resource(BaseItem):
 
     @property
     def first_chapter_id(self):
-        return self.chapters.all()[0].id
+        try:
+            return self.chapters.all()[0].id
+        except:
+            return 0
 
     def next_chapter(self, current_id, course):
         # We can't fetch course from the object, as the user might have already
