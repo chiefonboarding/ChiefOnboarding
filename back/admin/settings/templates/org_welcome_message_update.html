@@ -24,6 +24,7 @@
     {{ form|crispy }}
     <div class="form-footer">
       <button type="submit" class="btn btn-primary">{% translate "Update" %}</button>
+      <a href="{% url 'settings:welcome-message-test-message' view.kwargs.language view.kwargs.type %}" class="btn">{% translate "Send test message" %}</a>
     </div>
   </div>
 </form>

@@ -1,3 +1,4 @@
+{% load i18n %}
 <div class="row d-flex" style="margin-bottom: 2px">
   <div class="col-11">
 
@@ -7,14 +8,23 @@
     </div>
   </div>
   {% if not read_only %}
-  <div class="col-1" style="margin-top: -4px;">
-    <button class="btn btn-danger btn-sm" hx-delete="{% url 'sequences:template_condition' condition.pk type item.id %}" hx-target="#condition-{{condition.pk}}">
-      <svg xmlns="http://www.w3.org/2000/svg" style="margin: 0 -0.25rem 0 -.25rem" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-      </svg>
-    </button>
+  <div class="col-1">
+    <div class="dropup">
+      <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open condition options">
+       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-dots-vertical" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="#009988" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+          <circle cx="12" cy="12" r="1" />
+          <circle cx="12" cy="19" r="1" />
+          <circle cx="12" cy="5" r="1" />
+        </svg>
+      </a>
+      <div class="dropdown-menu dropdown-menu-end">
+        {% if type == "pendingemailmessage" or type == "pendingslackmessage" or type == "pendingtextmessage" %}
+          <a hx-delete="{% url 'sequences:send_test_message' condition.pk type item.id %}" hx-target="#condition-{{condition.pk}}" href="#" class="dropdown-item">{% translate "Send test message" %}</a>
+        {% endif %}
+        <a hx-delete="{% url 'sequences:template_condition' condition.pk type item.id %}" hx-target="#condition-{{condition.pk}}" href="#" class="dropdown-item">{% translate "Delete" %}</a>
+      </div>
+    </div>
   </div>
   {% endif %}
 </div>

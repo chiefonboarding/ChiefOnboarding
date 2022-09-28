@@ -17,6 +17,11 @@ urlpatterns = [
         views.WelcomeMessageUpdateView.as_view(),
         name="welcome-message",
     ),
+    path(
+        "welcome_message/<slug:language>/<int:type>/test_message/",
+        views.WelcomeMessageSendTestMessageView.as_view(),
+        name="welcome-message-test-message",
+    ),
     path("integrations/", views.IntegrationsListView.as_view(), name="integrations"),
     path(
         "integrations/slack_account/update_channels/",

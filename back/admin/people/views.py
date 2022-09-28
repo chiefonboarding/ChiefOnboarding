@@ -13,6 +13,7 @@ from django.views.generic.list import ListView
 
 from admin.integrations.models import Integration
 from admin.resources.models import Resource
+from organization.models import WelcomeMessage
 from slack_bot.utils import Slack, actions, button, paragraph
 from users.emails import email_new_admin_cred
 from users.mixins import (
@@ -177,9 +178,8 @@ class ColleagueSyncSlack(LoginRequiredMixin, ManagerPermMixin, View):
                     email=user["profile"]["email"],
                     defaults=user_info,
                 )
-            except Exception as e:
+            except Exception:
                 print(f"Could not process {user['profile']['email']}")
-                print(e)
         # Force refresh of page
         return HttpResponse(headers={"HX-Refresh": "true"})
 
@@ -214,10 +214,10 @@ class ColleagueGiveSlackAccessView(LoginRequiredMixin, ManagerPermMixin, View):
         translation.activate(user.language)
         blocks = [
             paragraph(
-                _(
-                    "Click on the button to see all the categories that are "
-                    "available to you!"
-                )
+                WelcomeMessage.objects.get(
+                    language=user.language,
+                    message_type=4
+                ).message
             ),
             actions(
                 button(

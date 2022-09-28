@@ -4,10 +4,13 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import translation
 from django.utils.translation import gettext as _
+from twilio.rest import Client
+
+from django.views import View
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
@@ -16,7 +19,8 @@ from django.views.generic.list import ListView
 from admin.integrations.models import Integration
 from organization.models import Notification, Organization, WelcomeMessage
 from slack_bot.models import SlackChannel
-from users.emails import email_new_admin_cred
+from slack_bot.utils import paragraph, Slack, actions, button
+from users.emails import email_new_admin_cred, send_new_hire_preboarding, send_new_hire_credentials
 from users.mixins import AdminPermMixin, LoginRequiredMixin, ManagerPermMixin
 
 from .forms import (
@@ -179,6 +183,63 @@ class WelcomeMessageUpdateView(
         context["title"] = _("Update welcome messages")
         context["subtitle"] = _("settings")
         return context
+
+class WelcomeMessageSendTestMessageView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, View
+):
+
+    def post(self, request, **kwargs):
+        message_type = self.kwargs.get("type")
+        language = self.kwargs.get("language")
+        we = get_object_or_404(
+            WelcomeMessage,
+            language=language,
+            message_type=message_type,
+        )
+        we = request.user.personalize(we.message)
+        translation.activate(request.user.language)
+
+        if message_type == 0:
+            send_new_hire_preboarding(request.user, email=request.user.email, language=language)
+
+        if message_type == 1:
+            send_new_hire_credentials(request.user.id, save_password=False, language=language)
+
+        if message_type == 2:
+            client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+            client.messages.create(
+                to=request.user.phone,
+                from_=settings.TWILIO_FROM_NUMBER,
+                body=request.user.personalize(we.message),
+            )
+
+        if message_type == 3:
+            Slack().send_message(blocks=[paragraph(we)], channel=request.user.slack_user_id)
+
+        if message_type == 4:
+            blocks = [
+                paragraph(we),
+                actions(
+                    button(
+                        text=_("resources"),
+                        value="show:resources",
+                        style="primary",
+                        action_id="show:resources",
+                    )
+                ),
+            ]
+
+            Slack().send_message(blocks=blocks, channel=request.user.slack_user_id)
+
+        return HttpResponseRedirect(request.path)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["languages"] = settings.LANGUAGES
+        context["types"] = WelcomeMessage.MESSAGE_TYPE
+        context["title"] = _("Update welcome messages")
+        context["subtitle"] = _("settings")
+        return self.request.path
 
 
 class PersonalLanguageUpdateView(
