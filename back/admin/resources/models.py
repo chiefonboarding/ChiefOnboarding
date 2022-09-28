@@ -123,7 +123,7 @@ class Resource(BaseItem):
     def first_chapter_id(self):
         try:
             return self.chapters.all()[0].id
-        except:
+        except:  # noqa E722
             return 0
 
     def next_chapter(self, current_id, course):
