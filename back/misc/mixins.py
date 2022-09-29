@@ -90,10 +90,10 @@ class ContentMixin:
                 item["data"]["text"] = self._prep_inner_text_for_slack(text)
             if "items" in item["data"]:
                 for list_item in item["data"]["items"]:
-                    if list_item == "":
-                        list_item = "-"
-                    text = user.personalize(list_item)
-                    item["data"]["text"] = self._prep_inner_text_for_slack(text)
+                    if list_item["content"] == "":
+                        list_item["content"] = "-"
+                    text = user.personalize(list_item["content"])
+                    list_item["content"] = self._prep_inner_text_for_slack(text)
             if "text" in item["data"]:
                 default_text = item["data"]["text"]
             else:
