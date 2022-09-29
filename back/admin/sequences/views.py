@@ -253,7 +253,7 @@ class SequenceFormUpdateView(LoginRequiredMixin, ManagerPermMixin, View):
             item_form = form(instance=template_item, data=request.POST)
 
         if item_form.is_valid():
-            obj = item_form.save(commit=False)
+            obj = item_form.save()
             obj.template = False
             obj.save()
 

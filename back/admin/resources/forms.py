@@ -2,6 +2,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Div, Field, Layout
 from django import forms
 from django.utils.translation import gettext_lazy as _
+from django.db import transaction
 
 from admin.templates.forms import (
     FieldWithExtraContext,
@@ -10,7 +11,7 @@ from admin.templates.forms import (
     TagModelForm,
 )
 
-from .models import Category, Resource
+from .models import Category, Resource, Chapter
 from .serializers import ChapterSerializer
 
 
@@ -25,6 +26,42 @@ class ResourceForm(TagModelForm):
         to_field_name="name",
         required=False,
     )
+    counter = 0
+
+    def _create_or_update_chapter(self, resource, parent, chapter):
+        if isinstance(chapter["id"], int):
+            chap = Chapter.objects.get(id=chapter["id"])
+            chap.name = chapter["name"]
+            chap.content = chapter["content"]
+            chap.resource = resource
+            chap.order = self.counter
+            chap.save()
+        else:
+            chap = Chapter.objects.create(
+                resource=resource,
+                name=chapter["name"],
+                content=chapter["content"],
+                type=chapter["type"],
+                order=self.counter,
+            )
+            if parent is not None:
+                chap.parent_chapter = Chapter.objects.get(id=parent)
+                chap.save()
+        self.counter += 1
+
+        # Return new/updated item id
+        return chap.id
+
+    def _get_child_chapters(self, resource, parent, children):
+        if len(children) == 0:
+            return
+
+        for chapter in children:
+            # Save or update item
+            parent_id = self._create_or_update_chapter(resource, parent, chapter)
+
+            # Go one level deeper - check and create chapters
+            self._get_child_chapters(resource, parent_id, chapter["children"])
 
     def __init__(self, *args, **kwargs):
         super(ResourceForm, self).__init__(*args, **kwargs)
@@ -103,3 +140,16 @@ class ResourceForm(TagModelForm):
                 "If disabled, it will turn into a normal resource after completing"
             ),
         }
+
+    @transaction.atomic
+    def save(self, commit=True):
+        chapters = self.cleaned_data.pop("chapters", [])
+        instance = super(ResourceForm, self).save(commit=commit)
+
+        Chapter.objects.filter(resource=instance).update(resource=None)
+        # Root chapters
+        for chapter in chapters:
+            parent_id = self._create_or_update_chapter(instance, None, chapter)
+
+            self._get_child_chapters(instance, parent_id, chapter["children"])
+        return instance

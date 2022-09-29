@@ -5,8 +5,10 @@
     {% include '_chapter_recursive.html' with sub_chapter_item=item extra_margin=10 %}
   {% endfor %}
 {% else %}
-  {% if object.course and sub_chapter_item.type == 2 and resource_user.completed_course %}
-    {# check if questions should be shown #}
+  {% if not object.course and sub_chapter_item.type == 2 %}
+    {# not a course, so don't show #}
+  {% elif object.course and sub_chapter_item.type == 2 and resource_user.completed_course %}
+    {# a course, but completed, so don't show #}
   {% else %}
   <div class="list-group-item" style="border-left: 0px none; ">
     <div class="row align-items-center">

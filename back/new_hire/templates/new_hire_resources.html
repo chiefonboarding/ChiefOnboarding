@@ -12,7 +12,7 @@
         <h3 class="card-title">{% translate "Resources" %}</h3>
       </div>
       <div class="list-group list-group-flush list-group-hoverable">
-        {% for  resource_user in object_list %}
+        {% for resource_user in object_list %}
           {% ifchanged resource_user.resource.category %}
             {% if resource_user.resource.category is not None %}
               <div class="list-group-header sticky-top">{{ resource_user.resource.category }}</div>
