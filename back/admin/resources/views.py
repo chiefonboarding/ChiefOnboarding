@@ -1,6 +1,5 @@
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db import transaction
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
@@ -9,8 +8,7 @@ from django.views.generic.list import ListView
 from users.mixins import LoginRequiredMixin, ManagerPermMixin
 
 from .forms import ResourceForm
-from .mixins import ResourceMixin
-from .models import Chapter, Resource
+from .models import Resource
 
 
 class ResourceListView(LoginRequiredMixin, ManagerPermMixin, ListView):
@@ -27,24 +25,12 @@ class ResourceListView(LoginRequiredMixin, ManagerPermMixin, ListView):
 
 
 class ResourceCreateView(
-    LoginRequiredMixin, ManagerPermMixin, ResourceMixin, SuccessMessageMixin, CreateView
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, CreateView
 ):
     template_name = "resource_update.html"
     form_class = ResourceForm
     success_url = reverse_lazy("resources:list")
     success_message = _("Resource item has been updated")
-
-    @transaction.atomic
-    def form_valid(self, form):
-        chapters = form.cleaned_data.pop("chapters", [])
-        resource = form.save()
-        # Root chapters
-        for chapter in chapters:
-            parent_id = self._create_or_update_chapter(resource, None, chapter)
-
-            self._get_child_chapters(resource, parent_id, chapter["children"])
-
-        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -54,27 +40,13 @@ class ResourceCreateView(
 
 
 class ResourceUpdateView(
-    LoginRequiredMixin, ManagerPermMixin, ResourceMixin, SuccessMessageMixin, UpdateView
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, UpdateView
 ):
     template_name = "resource_update.html"
     form_class = ResourceForm
     success_url = reverse_lazy("resources:list")
     queryset = Resource.templates.all()
     success_message = _("Resource item has been updated")
-
-    @transaction.atomic
-    def form_valid(self, form):
-        resource = form.instance
-        chapters = form.cleaned_data["chapters"]
-        # Detach all chapters and start rebuilding
-        Chapter.objects.filter(resource=resource).update(resource=None)
-        # Root chapters
-        for chapter in chapters:
-            parent_id = self._create_or_update_chapter(resource, None, chapter)
-
-            self._get_child_chapters(resource, parent_id, chapter["children"])
-
-        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

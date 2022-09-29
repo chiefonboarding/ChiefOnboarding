@@ -301,7 +301,6 @@ class ColleagueSearchView(LoginRequiredMixin, ListView):
 
 class ResourceListView(LoginRequiredMixin, ListView):
     template_name = "new_hire_resources.html"
-    paginate_by = 20
 
     def get_queryset(self):
         return (

@@ -2,16 +2,17 @@
 {% load settings_values %}
 {% aws_enabled as aws_active %}
 {% load i18n %}
+{% autoescape off %}
 {% with content=content|parse_to_json %}
 {% for block in content.blocks %}
   {% if block.type == 'paragraph' %}
-    <p> {{ block.data.text | safe |personalize:user}} </p>
+    <p> {{ block.data.text|safe|personalize:user}} </p>
   {% endif %}
   {% if block.type == 'header' %}
-    <h{{block.data.level}}> {{ block.data.text | safe |personalize:user}} </h{{block.data.level}}>
+    <h{{block.data.level}}> {{ block.data.text|safe|personalize:user}} </h{{block.data.level}}>
   {% endif %}
   {% if block.type == 'quote' %}
-    <blockquote>{{ block.data.text |personalize:user}}</blockquote>
+    <blockquote>{{ block.data.text|safe|personalize:user}}</blockquote>
   {% endif %}
   {% if block.type == 'list' %}
     {% if block.data.style == 'ordered' %}
@@ -21,7 +22,7 @@
       <ul>
     {% endif %}
     {% for item in block.data.items %}
-      <li>{{item.content|personalize:user}}</li>
+      <li>{{item.content|safe|personalize:user}}</li>
     {% endfor %}
     {% if block.data.style == 'unordered' %}
       </ul>
@@ -29,7 +30,7 @@
     {% if block.data.style == 'ordered' %}
       </ol>
     {% endif %}
-    <blockquote>{{ block.data.text|personalize:user }}</blockquote>
+    <blockquote>{{ block.data.text|safe|personalize:user }}</blockquote>
   {% endif %}
   {% if block.type == 'attaches' %}
     {% if block.data.file.extension == 'mp4' or block.data.file.extension == 'webm' %}
@@ -55,7 +56,7 @@
     <div class="d-block mt-2">
       <figure>
         <img src="{{ block.data.file.url }}" alt="{{block.data.caption|personalize:user}}" />
-        <figcaption>{{block.data.caption|personalize:user}}</figcaption>
+        <figcaption>{{block.data.caption|safe|personalize:user}}</figcaption>
       </figure>
     </div>
   {% endif %}
@@ -75,13 +76,13 @@
       {% endifchanged %}
       {% if block.data.type == 'input' %}
         <div class="mb-3">
-          <label class="form-label">{{ block.data.text|personalize:user }}</label>
+          <label class="form-label">{{ block.data.text|safe|personalize:user }}</label>
           <input type="text" class="form-control" name="{{ block.id }}">
         </div>
       {% endif %}
       {% if block.data.type == 'text' %}
       <div class="mb-3">
-        <label class="form-label">{{ block.data.text|personalize:user }}</label>
+        <label class="form-label">{{ block.data.text|safe|personalize:user }}</label>
         <textarea class="form-control" name="{{ block.id }}"></textarea>
       </div>
       {% endif %}
@@ -89,13 +90,13 @@
       <div class="mb-3">
         <label class="form-check form-switch">
           <input class="form-check-input" type="checkbox" name="{{ block.id }}">
-          <span class="form-check-label">{{ block.data.text|personalize:user }}</span>
+          <span class="form-check-label">{{ block.data.text|safe|personalize:user }}</span>
         </label>
       </div>
       {% endif %}
       {% if block.data.type == 'upload' %}
       <div class="upload-field mb-1">
-        <label class="form-label custom-control-label">{{ block.data.text|personalize:user }}</label>
+        <label class="form-label custom-control-label">{{ block.data.text|safe|personalize:user }}</label>
         {% if aws_active %}
           <img src="{{ file.get_url }}" style="max-width: 100px; max-height: 100px;"/>
           <input type="file" class="form-control d-none file-input">
@@ -126,3 +127,4 @@
   {% endif %}
 {% endfor %}
 {% endwith %}
+{% endautoescape %}
