@@ -59,6 +59,30 @@ def test_create_resource_with_inner_chapters(client, django_user_model):
 
 
 @pytest.mark.django_db
+def test_create_resource_with_inner_chapters_in_sequence(
+    client, django_user_model, sequence_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+    sequence = sequence_factory()
+    condition = sequence.conditions.all().first()
+    # Create a new resource in sequence
+    url = reverse("sequences:update-forms", args=["resource", 0, condition.id])
+    # Create a new to do item
+    data = {
+        "name": "Resource item 1",
+        "tags": ["hi", "whoop"],
+        "on_day": 1,
+        "chapters": '[{ "id": "tesk243", "name": "Continuing Education", "content": { "time": 0, "blocks": [{ "data": { "text": "One of our core values is “Be better today" }, "type": "paragraph" }]}, "type": 0, "children": [{ "id": "23434", "name": "Inner test", "content": { "time": 0, "blocks": [{ "data": { "text": "This is an inner one" }, "type": "paragraph" }]}, "type": 0, "children": [], "order": 1 }], "order": 0 }]',  # noqa: E501
+    }
+
+    response = client.post(url, data=data, follow=True)
+    assert response.status_code == 200
+
+    assert Resource.objects.all().count() == 1
+    assert Chapter.objects.all().count() == 2
+
+
+@pytest.mark.django_db
 def test_update_resource(client, django_user_model, resource_factory):
     client.force_login(django_user_model.objects.create(role=1))
     resource = resource_factory()
