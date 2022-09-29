@@ -487,6 +487,9 @@ def test_resource_detail_view(client, new_hire_factory, resource_user_factory):
     client.force_login(new_hire)
 
     resource_user1 = resource_user_factory(user=new_hire, resource__name="search this")
+    # make second chapter a normal page instead of questions
+    resource_user1.resource.chapters.all()[1].type = 0
+    resource_user1.resource.chapters.all()[1].save()
     url = reverse(
         "new_hire:resource-detail",
         args=[resource_user1.resource.id, resource_user1.resource.first_chapter_id],
