@@ -20,7 +20,7 @@
       </a>
       <div class="dropdown-menu dropdown-menu-end">
         {% if type == "pendingemailmessage" or type == "pendingslackmessage" or type == "pendingtextmessage" %}
-          <a hx-delete="{% url 'sequences:send_test_message' condition.pk type item.id %}" hx-target="#condition-{{condition.pk}}" href="#" class="dropdown-item">{% translate "Send test message" %}</a>
+          <a hx-post="{% url 'sequences:send_test_message' item.id %}" href="#" class="dropdown-item">{% translate "Send test message" %}</a>
         {% endif %}
         <a hx-delete="{% url 'sequences:template_condition' condition.pk type item.id %}" hx-target="#condition-{{condition.pk}}" href="#" class="dropdown-item">{% translate "Delete" %}</a>
       </div>

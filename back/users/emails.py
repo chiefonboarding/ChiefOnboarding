@@ -142,9 +142,7 @@ def send_new_hire_credentials(new_hire_id, save_password=True, language=None):
         new_hire.save()
 
     subject = f"Welcome to {org.name}!"
-    message = WelcomeMessage.objects.get(
-        language=language, message_type=1
-    ).message
+    message = WelcomeMessage.objects.get(language=language, message_type=1).message
     content = [
         {"type": "paragraph", "data": {"text": message}},
         {

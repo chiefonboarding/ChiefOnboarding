@@ -20,7 +20,11 @@ from admin.integrations.models import Integration
 from organization.models import Notification, Organization, WelcomeMessage
 from slack_bot.models import SlackChannel
 from slack_bot.utils import paragraph, Slack, actions, button
-from users.emails import email_new_admin_cred, send_new_hire_preboarding, send_new_hire_credentials
+from users.emails import (
+    email_new_admin_cred,
+    send_new_hire_preboarding,
+    send_new_hire_credentials,
+)
 from users.mixins import AdminPermMixin, LoginRequiredMixin, ManagerPermMixin
 
 from .forms import (
@@ -184,10 +188,10 @@ class WelcomeMessageUpdateView(
         context["subtitle"] = _("settings")
         return context
 
+
 class WelcomeMessageSendTestMessageView(
     LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, View
 ):
-
     def post(self, request, **kwargs):
         message_type = self.kwargs.get("type")
         language = self.kwargs.get("language")
@@ -200,10 +204,14 @@ class WelcomeMessageSendTestMessageView(
         translation.activate(request.user.language)
 
         if message_type == 0:
-            send_new_hire_preboarding(request.user, email=request.user.email, language=language)
+            send_new_hire_preboarding(
+                request.user, email=request.user.email, language=language
+            )
 
         if message_type == 1:
-            send_new_hire_credentials(request.user.id, save_password=False, language=language)
+            send_new_hire_credentials(
+                request.user.id, save_password=False, language=language
+            )
 
         if message_type == 2:
             client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
@@ -214,7 +222,9 @@ class WelcomeMessageSendTestMessageView(
             )
 
         if message_type == 3:
-            Slack().send_message(blocks=[paragraph(we)], channel=request.user.slack_user_id)
+            Slack().send_message(
+                blocks=[paragraph(we)], channel=request.user.slack_user_id
+            )
 
         if message_type == 4:
             blocks = [

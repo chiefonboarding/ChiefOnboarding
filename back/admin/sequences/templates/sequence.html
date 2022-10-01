@@ -183,6 +183,11 @@ $(document).on("reload-sequence", function(evt){
     htmx.ajax('GET', "{% url 'sequences:timeline' object.id %}", '#timeline')
 })
 
+// Reload entire page
+$(document).on("reload-page", function(evt){
+    window.location.reload();
+})
+
 $("select#id_condition_type").on('change', function() {
   // Change things to fill in when condition_type changes
   if ($(this).val() == 1){
