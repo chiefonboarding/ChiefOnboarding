@@ -46,10 +46,13 @@ jobs:
         cd back
         django-admin compilemessages 
         pytest --cov=. --cov-report=xml
-    - name: "Upload coverage to Codecov"
-      uses: codecov/codecov-action@v2
-      with:
-        fail_ci_if_error: true
+    - name: Upload to coveralls
+      run: |
+        cd back
+        python -m pip install coveralls
+        coveralls --service=github
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Check formatting flake8/black/isort
       run: |
         cd back
