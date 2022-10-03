@@ -1995,6 +1995,7 @@ def test_give_user_slack_access(settings, client, employee_factory, django_user_
     settings.FAKE_SLACK_API = True
 
     employee_with_slack = employee_factory(slack_user_id="slackx")
+    we = WelcomeMessage.objects.get(message_type=4, language="en")
     employee_without_slack = employee_factory()
     admin_user = django_user_model.objects.create(role=1)
     client.force_login(admin_user)
@@ -2023,8 +2024,7 @@ def test_give_user_slack_access(settings, client, employee_factory, django_user_
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": "Click on the button to see all the categories that "
-                "are available to you!",
+                "text": we.message
             },
         },
         {
