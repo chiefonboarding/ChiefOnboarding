@@ -49,8 +49,8 @@ jobs:
     - name: Upload to coveralls
       run: |
         cd back
-        python -m pip install python-coveralls
-        coveralls
+        python -m pip install coveralls
+        coveralls --finish
     - name: Check formatting flake8/black/isort
       run: |
         cd back
