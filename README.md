@@ -1,7 +1,7 @@
 # ChiefOnboarding
 
 [![Tests](https://github.com/chiefonboarding/ChiefOnboarding/actions/workflows/tests.yml/badge.svg)](https://github.com/chiefonboarding/ChiefOnboarding/actions/workflows/tests.yml)
-[![codecov](https://codecov.io/gh/chiefonboarding/ChiefOnboarding/branch/master/graph/badge.svg?token=J8Y441KA54)](https://codecov.io/gh/chiefonboarding/ChiefOnboarding)
+[![Coverage Status](https://coveralls.io/repos/github/chiefonboarding/ChiefOnboarding/badge.svg?branch=master)](https://coveralls.io/github/chiefonboarding/ChiefOnboarding?branch=master)
 [![CodeQL](https://github.com/chiefonboarding/ChiefOnboarding/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/chiefonboarding/ChiefOnboarding/actions/workflows/codeql-analysis.yml)
 
 ChiefOnboarding is a free and open source employee onboarding platform. You can onboarding new hires through Slack or the dashboard. 
