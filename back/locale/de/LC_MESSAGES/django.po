@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-08 14:06+0000\n"
+"POT-Creation-Date: 2022-10-04 22:58+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -84,7 +84,7 @@ msgid "Email"
 msgstr "E-Mail"
 
 #: admin/admin_tasks/models.py:16 admin/sequences/models.py:148
-#: admin/settings/views.py:71
+#: admin/settings/views.py:79
 msgid "Slack"
 msgstr "Slack"
 
@@ -231,7 +231,7 @@ msgstr "Wiedereröffnen"
 
 #: admin/admin_tasks/templates/admin_tasks_detail.html:9
 #: admin/people/templates/new_hire_progress.html:73
-#: new_hire/templates/new_hire_resource_detail.html:21 slack_bot/views.py:675
+#: new_hire/templates/new_hire_resource_detail.html:21 slack_bot/views.py:676
 msgid "Complete"
 msgstr "Abgeschlossen"
 
@@ -239,7 +239,7 @@ msgstr "Abgeschlossen"
 #: admin/integrations/views.py:59 admin/integrations/views.py:76
 #: admin/integrations/views.py:107
 #: admin/introductions/templates/intro_update.html:31 admin/people/forms.py:193
-#: admin/people/new_hire_views.py:375
+#: admin/people/new_hire_views.py:376
 #: admin/people/templates/new_hire_notes.html:19
 #: admin/resources/templates/resource_update.html:30
 #: admin/settings/templates/org_welcome_message_update.html:26
@@ -257,8 +257,8 @@ msgstr "Kommentar hinzufügen"
 #: admin/sequences/templates/_item_form.html:12
 #: admin/settings/templates/personal_otp.html:28
 #: admin/settings/templates/token_create.html:11
-#: new_hire/templates/_content.html:123
-#: new_hire/templates/_question_form.html:6 slack_bot/views.py:732
+#: new_hire/templates/_content.html:124
+#: new_hire/templates/_question_form.html:6 slack_bot/views.py:733
 msgid "Submit"
 msgstr "Abschicken"
 
@@ -338,8 +338,8 @@ msgstr "Termineinträge"
 #: admin/badges/views.py:54 admin/introductions/views.py:24
 #: admin/introductions/views.py:40 admin/introductions/views.py:68
 #: admin/preboarding/views.py:22 admin/preboarding/views.py:38
-#: admin/preboarding/views.py:54 admin/resources/views.py:24
-#: admin/resources/views.py:52 admin/resources/views.py:82
+#: admin/preboarding/views.py:54 admin/resources/views.py:22
+#: admin/resources/views.py:38 admin/resources/views.py:54
 #: admin/to_do/views.py:22 admin/to_do/views.py:38 admin/to_do/views.py:54
 msgid "templates"
 msgstr "Vorlagen"
@@ -417,12 +417,12 @@ msgstr "Neue Integration hinzufügen"
 
 #: admin/integrations/views.py:33 admin/integrations/views.py:58
 #: admin/integrations/views.py:75 admin/integrations/views.py:90
-#: admin/integrations/views.py:106 admin/settings/views.py:54
-#: admin/settings/views.py:72 admin/settings/views.py:83
-#: admin/settings/views.py:120 admin/settings/views.py:136
-#: admin/settings/views.py:180 admin/settings/views.py:209
-#: admin/settings/views.py:230 admin/settings/views.py:243
-#: admin/settings/views.py:253 admin/settings/views.py:288
+#: admin/integrations/views.py:106 admin/settings/views.py:62
+#: admin/settings/views.py:80 admin/settings/views.py:91
+#: admin/settings/views.py:128 admin/settings/views.py:144
+#: admin/settings/views.py:188 admin/settings/views.py:272
+#: admin/settings/views.py:293 admin/settings/views.py:306
+#: admin/settings/views.py:316 admin/settings/views.py:351
 msgid "settings"
 msgstr "Einstellungen"
 
@@ -444,18 +444,18 @@ msgstr "Integration löschen"
 msgid "Your config values have been updated!"
 msgstr "Deine Konfigurationswerte wurden aktualisiert!"
 
-#: admin/integrations/views.py:179
+#: admin/integrations/views.py:175
 msgid "Could not optain slack authentication code."
 msgstr "Konnte Slack-Authentifizierungscode nicht erhalten."
 
-#: admin/integrations/views.py:200
+#: admin/integrations/views.py:196
 msgid ""
 "Slack has successfully been connected. You have a new bot in your workspace."
 msgstr ""
 "Slack hat sich erfolgreich verbunden. Du hast einen neuen Bot in deiner "
 "Arbeitsumgebung."
 
-#: admin/integrations/views.py:205
+#: admin/integrations/views.py:201
 msgid "Could not get tokens from Slack"
 msgstr "Konnte keine Tokens von Slack erhalten"
 
@@ -474,6 +474,7 @@ msgstr "Duplizieren"
 #: admin/people/templates/colleague_update.html:9
 #: admin/resources/templates/_chapter_options.html:36
 #: admin/resources/templates/resource_update.html:17
+#: admin/sequences/templates/_condition_line_item.html:25
 #: admin/sequences/templates/sequence.html:16
 #: admin/settings/templates/settings_admins.html:28
 #: admin/templates/templates/template_update.html:16
@@ -513,7 +514,7 @@ msgstr "Abfolgen"
 msgid "Start date"
 msgstr "Startdatum"
 
-#: admin/people/forms.py:106 slack_bot/views.py:379
+#: admin/people/forms.py:106 slack_bot/views.py:380
 msgid "Create new hire"
 msgstr "Neuer Mitarbeiter erstellen"
 
@@ -546,7 +547,7 @@ msgid "New hires"
 msgstr "Neue Mitarbieter"
 
 #: admin/people/new_hire_views.py:67 admin/people/new_hire_views.py:85
-#: admin/people/views.py:38
+#: admin/people/views.py:39
 msgid "people"
 msgstr "Menschen"
 
@@ -562,65 +563,65 @@ msgstr "Neuer Mitarbeiter hinzufügen"
 msgid "Sequence(s) have been added to this new hire"
 msgstr "Abfolge(n) wurde(n) diesem neuen Mitarbeiter hinzugefügt"
 
-#: admin/people/new_hire_views.py:280
+#: admin/people/new_hire_views.py:278
 msgid "Sent email to new hire"
 msgstr "E-Mail an neuen Mitarbeiter senden"
 
-#: admin/people/new_hire_views.py:295 admin/people/new_hire_views.py:345
-#: admin/people/new_hire_views.py:374 admin/people/new_hire_views.py:403
-#: admin/people/new_hire_views.py:428 admin/people/new_hire_views.py:440
-#: admin/people/new_hire_views.py:459 admin/people/new_hire_views.py:483
-#: admin/people/new_hire_views.py:599 admin/people/new_hire_views.py:614
-#: admin/people/new_hire_views.py:626 admin/people/new_hire_views.py:690
-#: admin/people/new_hire_views.py:708 admin/people/new_hire_views.py:727
+#: admin/people/new_hire_views.py:291 admin/people/new_hire_views.py:341
+#: admin/people/new_hire_views.py:375 admin/people/new_hire_views.py:407
+#: admin/people/new_hire_views.py:434 admin/people/new_hire_views.py:448
+#: admin/people/new_hire_views.py:467 admin/people/new_hire_views.py:491
+#: admin/people/new_hire_views.py:609 admin/people/new_hire_views.py:624
+#: admin/people/new_hire_views.py:636 admin/people/new_hire_views.py:702
+#: admin/people/new_hire_views.py:720 admin/people/new_hire_views.py:739
 #: admin/people/templates/new_hire_detail.html:100
 #: admin/people/templates/not_triggered_conditions.html:16
 #: admin/sequences/templates/_sequence_condition.html:56
 msgid "new hire"
 msgstr "Neuer Mitarbeiter"
 
-#: admin/people/new_hire_views.py:335
+#: admin/people/new_hire_views.py:331
 msgid "New hire has been updated"
 msgstr "Neuer Mitarbeiter wurde aktualisiert"
 
-#: admin/people/new_hire_views.py:354
+#: admin/people/new_hire_views.py:352
 msgid "New hire is now a normal account."
 msgstr "Neuer Mitarbeiter ist jetzt ein normaler Account."
 
-#: admin/people/new_hire_views.py:364
+#: admin/people/new_hire_views.py:365
 msgid "Extra info has been added!"
 msgstr "Es wurden zusätzliche Informationen hinzugefügt!"
 
-#: admin/people/new_hire_views.py:387
+#: admin/people/new_hire_views.py:391
 msgid "Note has been added"
 msgstr "Notiz wurde hinzugefügt"
 
-#: admin/people/new_hire_views.py:516
+#: admin/people/new_hire_views.py:524
 msgid "Don't forget this item!"
 msgstr "Vergiss diesen Eintrag nicht!"
 
-#: admin/people/new_hire_views.py:524
+#: admin/people/new_hire_views.py:532
 msgid "Reminder has been sent!"
 msgstr "Erinnerung wurde gesendet!"
 
-#: admin/people/new_hire_views.py:582
+#: admin/people/new_hire_views.py:590
 msgid "Item has been reopened"
 msgstr "Eintrag wurde Wiedereröffnet"
 
-#: admin/people/new_hire_views.py:675
+#: admin/people/new_hire_views.py:687
 msgid "Account has been created"
 msgstr "Konto wurde erstellt"
 
-#: admin/people/new_hire_views.py:677
+#: admin/people/new_hire_views.py:689
 msgid "Account could not be created"
 msgstr "Konto konnte nicht erstellt werden"
 
-#: admin/people/new_hire_views.py:724
+#: admin/people/new_hire_views.py:736
 #, python-format
 msgid "Add/Remove templates for %(name)s"
 msgstr "Vorlagen für %(name)s hinzufügen/entfernen"
 
-#: admin/people/new_hire_views.py:777
+#: admin/people/new_hire_views.py:791
 msgid "New hire has been removed"
 msgstr "Neuer Mitarbeiter wurde entfernt"
 
@@ -638,7 +639,7 @@ msgstr "Aktiviert"
 
 #: admin/people/templates/_new_hire_access_card.html:33
 #: admin/people/templates/_toggle_colleague_access.html:20
-#: admin/people/views.py:202 admin/people/views.py:256
+#: admin/people/views.py:202 admin/people/views.py:255
 msgid "Give access"
 msgstr "Zugang gewähren"
 
@@ -715,7 +716,7 @@ msgid "Add"
 msgstr "hinzufügen"
 
 #: admin/people/templates/_toggle_colleague_access.html:22
-#: admin/people/views.py:253
+#: admin/people/views.py:252
 msgid "Revoke access"
 msgstr "Zugang wiederrufen"
 
@@ -775,7 +776,9 @@ msgstr "Anzeigen"
 
 #: admin/people/templates/give_new_hire_access.html:13
 msgid "No additional data needed, please click on 'create user' to continue."
-msgstr "Es sind keine weiteren Daten erforderlich, bitte klicken Sie auf 'Benutzer anlegen', um fortzufahren."
+msgstr ""
+"Es sind keine weiteren Daten erforderlich, bitte klicken Sie auf 'Benutzer "
+"anlegen', um fortzufahren."
 
 #: admin/people/templates/give_new_hire_access.html:18
 msgid "Create user"
@@ -1041,33 +1044,33 @@ msgstr ""
 msgid "Send preboarding notification"
 msgstr "Sende Preboarding-Benachrichtigung"
 
-#: admin/people/views.py:37 new_hire/templates/new_hire_base.html:152
+#: admin/people/views.py:38 new_hire/templates/new_hire_base.html:152
 #: new_hire/templates/new_hire_colleagues.html:20
 #: users/templates/admin_base.html:62
 msgid "Colleagues"
 msgstr "Kollegen"
 
-#: admin/people/views.py:50
+#: admin/people/views.py:51
 msgid "Colleague has been added"
 msgstr "Kollege wurde hinzugefügt"
 
-#: admin/people/views.py:60
+#: admin/people/views.py:61
 msgid "Create new colleague"
 msgstr "Neuen Kollegen anlegen"
 
-#: admin/people/views.py:61 admin/people/views.py:81 admin/people/views.py:106
+#: admin/people/views.py:62 admin/people/views.py:82 admin/people/views.py:107
 msgid "Employee"
 msgstr "Angestellter"
 
-#: admin/people/views.py:71
+#: admin/people/views.py:72
 msgid "Employee has been updated"
 msgstr "Angestellter wurde aktualisiert"
 
-#: admin/people/views.py:91
+#: admin/people/views.py:92
 msgid "Colleague has been removed"
 msgstr "Kollege wurde entfernt"
 
-#: admin/people/views.py:103
+#: admin/people/views.py:104
 #, python-format
 msgid "Add new resource for %(name)s"
 msgstr "Neue Ressource für %(name)s hinzufügen"
@@ -1076,18 +1079,11 @@ msgstr "Neue Ressource für %(name)s hinzufügen"
 msgid "Could not find user"
 msgstr "Benutzer konnte nicht gefunden werden"
 
-#: admin/people/views.py:218
-msgid ""
-"Click on the button to see all the categories that are available to you!"
-msgstr ""
-"Klicke den Button um alle Kategorien, die für dich verfügbar sind, "
-"anzuzeigen!"
-
-#: admin/people/views.py:224
+#: admin/people/views.py:223 admin/settings/views.py:234
 msgid "resources"
 msgstr "Ressourcen"
 
-#: admin/people/views.py:236
+#: admin/people/views.py:235
 msgid "Revoke Slack access"
 msgstr "Slack-Zugriff wiederrufen"
 
@@ -1112,19 +1108,19 @@ msgstr "Preboarding-Eintrag aktualisieren"
 msgid "Preboarding item has been removed"
 msgstr "Preboarding-Eintrag wurde entfernt"
 
-#: admin/resources/forms.py:23 admin/resources/models.py:59
+#: admin/resources/forms.py:24 admin/resources/models.py:59
 msgid "Category"
 msgstr "Kategorie"
 
-#: admin/resources/forms.py:58
+#: admin/resources/forms.py:95
 msgid "Do not use only numbers as a category. Always add some text."
 msgstr "Benutzte nicht nur Nummern als Kategorie. Füge immer etwas Text hinzu"
 
-#: admin/resources/forms.py:101
+#: admin/resources/forms.py:138
 msgid "When enabled, new hires will have to walk through this"
 msgstr "Wenn aktiviert, müssen neue Mitarbeiter dies durchlaufen"
 
-#: admin/resources/forms.py:103
+#: admin/resources/forms.py:140
 msgid "If disabled, it will turn into a normal resource after completing"
 msgstr ""
 "Wenn deaktiviert, wird es nach Komplettierung in eine normale Ressource "
@@ -1202,32 +1198,32 @@ msgid "Add question"
 msgstr "Frage hinzufügen"
 
 #: admin/resources/templates/resource_update.html:45
-#: admin/sequences/templates/sequence.html:269
+#: admin/sequences/templates/sequence.html:274
 msgid "Start typing here..."
 msgstr "Fange hier an zu schreiben..."
 
 #: admin/resources/templates/resource_update.html:46
-#: admin/sequences/templates/sequence.html:270
+#: admin/sequences/templates/sequence.html:275
 msgid "New item"
 msgstr "Neuer Eintrag"
 
-#: admin/resources/views.py:23
+#: admin/resources/views.py:21
 msgid "Resource items"
 msgstr "Ressource-Einträge"
 
-#: admin/resources/views.py:35 admin/resources/views.py:63
+#: admin/resources/views.py:33 admin/resources/views.py:49
 msgid "Resource item has been updated"
 msgstr "Ressource-Eintrag wurde aktualisiert"
 
-#: admin/resources/views.py:51
+#: admin/resources/views.py:37
 msgid "Create resource item"
 msgstr "Ressource-Eintrag erstellen"
 
-#: admin/resources/views.py:81
+#: admin/resources/views.py:53
 msgid "Update resource item"
 msgstr "Ressource-Eintrag aktualisieren"
 
-#: admin/resources/views.py:92
+#: admin/resources/views.py:64
 msgid "Resource item has been removed"
 msgstr "Ressource-Eintrag wurde entfernt"
 
@@ -1396,6 +1392,11 @@ msgstr "*Glückwnsch, du hast freigeschaltet: %(item_name)s *"
 msgid "Here are some new items for you!"
 msgstr "Hier sind einige neue Einträge für dich"
 
+#: admin/sequences/templates/_condition_line_item.html:23
+#: admin/settings/templates/org_welcome_message_update.html:27
+msgid "Send test message"
+msgstr "Testnachricht senden"
+
 #: admin/sequences/templates/_item_form.html:8
 msgid "No additional data needed."
 msgstr "Keine zusätzlichen Daten erforderlich."
@@ -1432,7 +1433,7 @@ msgid "Email message"
 msgstr "E-Mail Nachricht"
 
 #: admin/sequences/templates/_sequence_templates_list.html:35
-#: admin/settings/templates/settings_base.html:15 admin/settings/views.py:252
+#: admin/settings/templates/settings_base.html:15 admin/settings/views.py:315
 msgid "Integrations"
 msgstr "Integrationen"
 
@@ -1464,7 +1465,7 @@ msgstr "Abfolge-Einträge"
 msgid "Sequence"
 msgstr "Abfolge"
 
-#: admin/sequences/views.py:409
+#: admin/sequences/views.py:419
 msgid "Sequence item has been removed"
 msgstr "Abfolge-Eintrag wurde entfernt"
 
@@ -1590,7 +1591,7 @@ msgstr "Willkommensnachrichten"
 msgid "Personal"
 msgstr "Persönlich"
 
-#: admin/settings/templates/settings_base.html:16 admin/settings/views.py:82
+#: admin/settings/templates/settings_base.html:16 admin/settings/views.py:90
 msgid "Administrators"
 msgstr "Administratoren"
 
@@ -1610,7 +1611,7 @@ msgstr "Entfernen"
 
 #: admin/settings/templates/settings_integrations.html:30
 #: admin/settings/templates/settings_integrations.html:43
-#: admin/settings/views.py:289
+#: admin/settings/views.py:352
 msgid "Enable"
 msgstr "Aktivieren"
 
@@ -1644,73 +1645,73 @@ msgstr "Noch keine benutzerdefinierten Integrationen"
 msgid "Redirect URL:"
 msgstr "Umleitungs-URL:"
 
-#: admin/settings/views.py:38
+#: admin/settings/views.py:46
 msgid "Organization info has been updated"
 msgstr "Organisations-Info wurde aktualisiert"
 
-#: admin/settings/views.py:53
+#: admin/settings/views.py:61
 msgid "General Updates"
 msgstr "Allgemeine Aktualisierungen"
 
-#: admin/settings/views.py:64
+#: admin/settings/views.py:72
 msgid "Slackbot settings have been updated"
 msgstr "Slackbot-Einstellungen wurden aktualisiert"
 
-#: admin/settings/views.py:114
+#: admin/settings/views.py:122
 msgid "Admin/Manager has been created"
 msgstr "Admin/Manager wurde angelegt"
 
-#: admin/settings/views.py:119
+#: admin/settings/views.py:127
 msgid "Add Administrator"
 msgstr "Administrator hinzufügen"
 
-#: admin/settings/views.py:131
+#: admin/settings/views.py:139
 msgid "Admin/Manager has been changed"
 msgstr "Admin/Manager wurde geändert"
 
-#: admin/settings/views.py:135
+#: admin/settings/views.py:143
 msgid "Change Administrator"
 msgstr "Administrator ändern"
 
-#: admin/settings/views.py:156
+#: admin/settings/views.py:164
 msgid "Admin is now a normal user"
 msgstr "Admin ist jetzt ein normaler Benutzer"
 
-#: admin/settings/views.py:165
+#: admin/settings/views.py:173
 msgid "Message has been updated"
 msgstr "Nachricht wurde aktualisiert"
 
-#: admin/settings/views.py:179
+#: admin/settings/views.py:187
 msgid "Update welcome messages"
 msgstr "Willkommensnachricht aktualisieren"
 
-#: admin/settings/views.py:192
+#: admin/settings/views.py:255
 msgid "Your default language has been updated"
 msgstr "Deine Standardsprache wurde aktualisiert"
 
-#: admin/settings/views.py:208
+#: admin/settings/views.py:271
 msgid "Update your default language"
 msgstr "Deine Standardsprache aktualisieren"
 
-#: admin/settings/views.py:230 admin/settings/views.py:241
+#: admin/settings/views.py:293 admin/settings/views.py:304
 msgid "TOTP 2FA"
 msgstr "TOTP 2FA"
 
-#: admin/settings/views.py:241
+#: admin/settings/views.py:304
 msgid "Enable TOTP 2FA"
 msgstr "TOTP 2FA aktivieren"
 
-#: admin/settings/views.py:281
+#: admin/settings/views.py:344
 msgid "Slack has now been connected, check if you got a message from your bot!"
 msgstr ""
 "Slack hat sich jetzt verbunden, prüfe ob du eine Nachricht von deinem Bot "
 "bekommen hast"
 
-#: admin/settings/views.py:287
+#: admin/settings/views.py:350
 msgid "Slack bot setup"
 msgstr "Slack-Bot einrichten"
 
-#: admin/settings/views.py:307
+#: admin/settings/views.py:370
 msgid ""
 "Newly added channels have been added. Make sure the bot has been added to "
 "that channel too if you want it to post/get info there!"
@@ -1749,7 +1750,7 @@ msgid "Current file:"
 msgstr "Aktuelle Datei"
 
 #: admin/to_do/templates/upload_field.html:25
-#: new_hire/templates/_content.html:111
+#: new_hire/templates/_content.html:112
 msgid "Upload"
 msgstr "Hochladen"
 
@@ -1836,15 +1837,15 @@ msgstr "Letzte"
 msgid "Call"
 msgstr "Anrufen"
 
-#: new_hire/templates/_content.html:39
+#: new_hire/templates/_content.html:40
 msgid "Sorry, your browser doesn't support embedded videos."
 msgstr "Tut uns leid, dein Browser unterstützt eingebettete Videos nicht."
 
-#: new_hire/templates/_content.html:65
+#: new_hire/templates/_content.html:66
 msgid "You have already completed this form"
 msgstr "Du hast dieses Formular schon abgeschlossen"
 
-#: new_hire/templates/_content.html:115
+#: new_hire/templates/_content.html:116
 msgid "File storage has not been set up. Please ask your supervisor."
 msgstr ""
 "Dateispeicher wurde nicht eingerichtet. Bitte wende dich an deinen "
@@ -1882,7 +1883,7 @@ msgid "Answers saved successfully! Click on 'next' to continue."
 msgstr "Antworten erfolgreich gespeichert! Klicke 'Weiter' um fortzufahren."
 
 #: new_hire/templates/new_hire_resource_detail.html:54 new_hire/views.py:266
-#: slack_bot/slack_resource.py:96 slack_bot/views.py:677
+#: slack_bot/slack_resource.py:96 slack_bot/views.py:678
 msgid "Next"
 msgstr "Weiter"
 
@@ -1930,7 +1931,7 @@ msgstr "Du hast dieses Formular erfolgreich eingereicht"
 msgid "Restart"
 msgstr "Neustart"
 
-#: new_hire/views.py:376
+#: new_hire/views.py:375
 msgid "You have completed this course!"
 msgstr "Du hast diesen Kurs abgeschlossen!"
 
@@ -2266,7 +2267,7 @@ msgstr "Keine Ressourcen verfügbar"
 msgid "No category"
 msgstr "Keine Kategorie"
 
-#: slack_bot/slack_resource.py:124 slack_bot/views.py:147
+#: slack_bot/slack_resource.py:124 slack_bot/views.py:148
 msgid "Select a category:"
 msgstr "Wähle eine Kategorie aus:"
 
@@ -2300,11 +2301,11 @@ msgid "done"
 msgstr "Erledigt"
 
 #: slack_bot/slack_to_do.py:101 slack_bot/tasks.py:73 slack_bot/tasks.py:77
-#: slack_bot/views.py:171 slack_bot/views.py:560
+#: slack_bot/views.py:172 slack_bot/views.py:561
 msgid "These are the tasks you need to complete:"
 msgstr "Dies sind die Aufgaben, die du erledigen musst:"
 
-#: slack_bot/slack_to_do.py:103 slack_bot/views.py:173 slack_bot/views.py:562
+#: slack_bot/slack_to_do.py:103 slack_bot/views.py:174 slack_bot/views.py:563
 msgid "I couldn't find any tasks."
 msgstr "Ich konnte keine Aufgaben finden"
 
@@ -2366,11 +2367,11 @@ msgstr " und ist unser neuer %(position)s"
 msgid "%(first_name)s starts on %(start_day)s%(footer_extra)s."
 msgstr "%(first_name)s beginnt am %(start_day)s%(footer_extra)s."
 
-#: slack_bot/tasks.py:247 slack_bot/views.py:730
+#: slack_bot/tasks.py:247 slack_bot/views.py:731
 msgid "Welcome this new hire!"
 msgstr "Willkomen an diesen neuen Mitarbeiter!"
 
-#: slack_bot/views.py:87
+#: slack_bot/views.py:88
 msgid ""
 "Happy to help! Here are all the things you can say to me: \n"
 "\n"
@@ -2378,7 +2379,7 @@ msgstr ""
 "Ich helfe gerne! Hier sind alle Dinge, die du mir sagen kannst: \n"
 "\n"
 
-#: slack_bot/views.py:89
+#: slack_bot/views.py:90
 msgid ""
 "*What do I need to do today?*\n"
 "This will show all the tasks you need to do today. I will show you these "
@@ -2389,7 +2390,7 @@ msgstr ""
 "dir diese auch jeden Tag anzeigen, nur für den Fall, dass du sie wieder "
 "haben möchtest.\n"
 
-#: slack_bot/views.py:94
+#: slack_bot/views.py:95
 msgid ""
 "*Do I have any to do items that are overdue?*\n"
 "This will show all tasks that should have been completed. Please do those as "
@@ -2399,7 +2400,7 @@ msgstr ""
 "Das wird dir alle Aufgaben anzeigen, die erledigt sein sollten. Bitte "
 "erledige diese sobald wie möglich.\n"
 
-#: slack_bot/views.py:98
+#: slack_bot/views.py:99
 msgid ""
 "*Show me all to do items*\n"
 "This will show all tasks\n"
@@ -2407,7 +2408,7 @@ msgstr ""
 "*Zeige mir alle To-Do-Einträge*\n"
 "Das wird alle Aufgaben anzeigen\n"
 
-#: slack_bot/views.py:99
+#: slack_bot/views.py:100
 msgid ""
 "*Show me all resources*\n"
 "This will show all resources."
@@ -2415,35 +2416,35 @@ msgstr ""
 "*Zege mir alle Ressourcen*\n"
 "Das wird alle Ressourcen anzeigen."
 
-#: slack_bot/views.py:113
+#: slack_bot/views.py:114
 msgid "You don't seem to be setup yet. Please ask your supervisor for access."
 msgstr ""
 "Du scheinst noch nicht eingerichtet zu sein. Bitte frage deinen Vorgesetzten "
 "nach Zugang."
 
-#: slack_bot/views.py:163
+#: slack_bot/views.py:164
 msgid "today"
 msgstr "Heute"
 
-#: slack_bot/views.py:165
+#: slack_bot/views.py:166
 msgid "overdue"
 msgstr "überfällig"
 
-#: slack_bot/views.py:221
+#: slack_bot/views.py:222
 msgid "Please complete the form first. Click on 'View details' to complete it."
 msgstr ""
 "Bitte vervollständige zuerst das Formular. Klicke auf 'Details anzeigen' um "
 "es zu vervollständigen."
 
-#: slack_bot/views.py:272
+#: slack_bot/views.py:273
 msgid "Here is what I found: "
 msgstr "Hier ist was ich gefunden habe: "
 
-#: slack_bot/views.py:274
+#: slack_bot/views.py:275
 msgid "Unfortunately, I couldn't find anything."
 msgstr "Leider konnte ich nichts finden."
 
-#: slack_bot/views.py:342
+#: slack_bot/views.py:343
 #, python-format
 msgid ""
 "Would you like to put this new hire through onboarding?\n"
@@ -2452,40 +2453,40 @@ msgstr ""
 "Möchtest du mit diesem neuen Mitarbeiter das Onboarding durchführen?\n"
 "*Name:* %(name)s "
 
-#: slack_bot/views.py:350
+#: slack_bot/views.py:351
 msgid "Yeah!"
 msgstr "Yeah!"
 
-#: slack_bot/views.py:355
+#: slack_bot/views.py:356
 msgid "Nope"
 msgstr "Nope"
 
-#: slack_bot/views.py:377
+#: slack_bot/views.py:378
 msgid "New hire options"
 msgstr "Optionen für neuen Mitarbeiter"
 
-#: slack_bot/views.py:420
+#: slack_bot/views.py:421
 #, python-format
 msgid "You approved the request to onboard %(name)s"
 msgstr "Du hast die Anfrage %(name)s zu onboarden genehmigt"
 
-#: slack_bot/views.py:439
+#: slack_bot/views.py:440
 msgid "You denied the request to onboard this person."
 msgstr "Du hast die Anfrage diese Person zu onboarden verweigert."
 
-#: slack_bot/views.py:472 slack_bot/views.py:480
+#: slack_bot/views.py:473 slack_bot/views.py:481
 msgid "Here are your options:"
 msgstr "Hier sind deine Optionen:"
 
-#: slack_bot/views.py:705
+#: slack_bot/views.py:706
 msgid "Thanks! This has been marked as completed."
 msgstr "Danke! Es wurde als erledigt markiert."
 
-#: slack_bot/views.py:744
+#: slack_bot/views.py:745
 msgid "What would you like to say to our new hire?"
 msgstr "Was möchtest du unserem neuen Mitarbeiter sagen?"
 
-#: slack_bot/views.py:788
+#: slack_bot/views.py:789
 msgid "Message has been saved! Your message: \""
 msgstr "Nachricht wurde gespeichert! Deine Nachricht: \""
 
@@ -2564,7 +2565,7 @@ msgid ""
 msgstr ""
 "<strong>%(task_name)s</strong> <br />Gehe zum Dashboard um sie zu erledigen"
 
-#: users/emails.py:78 users/emails.py:116 users/emails.py:152
+#: users/emails.py:78 users/emails.py:116 users/emails.py:158
 msgid "Dashboard"
 msgstr "Dashboard"
 
@@ -2577,20 +2578,20 @@ msgstr "Bitte erledige diese Aufgabe"
 msgid "Hi %(name)s, Here is a quick reminder of the following task:"
 msgstr "Hi %(name)s, hier ist eine kurze Erinnerung an die folgende Aufgabe:"
 
-#: users/emails.py:146
+#: users/emails.py:152
 msgid "Username: "
 msgstr "Benutzername:"
 
-#: users/emails.py:148
+#: users/emails.py:154
 msgid "Password: "
 msgstr "Passwort:"
 
-#: users/emails.py:172
+#: users/emails.py:180
 #, python-format
 msgid "Welcome to %(name)s!"
 msgstr "Willkomen %(name)s!"
 
-#: users/emails.py:178
+#: users/emails.py:186
 msgid "See pages"
 msgstr "Seiten ansehen"
 
@@ -2758,6 +2759,12 @@ msgid ""
 msgstr ""
 "Falls du keine E-Mail erhalten hast, überprüfe bitte ob du die Adresse, mit "
 "der du registriert bist, eingegeben hast, und überprüfe deinen Spam-Ordner."
+
+#~ msgid ""
+#~ "Click on the button to see all the categories that are available to you!"
+#~ msgstr ""
+#~ "Klicke den Button um alle Kategorien, die für dich verfügbar sind, "
+#~ "anzuzeigen!"
 
 #, python-format
 #~ msgid "For %(full_name)s"
