@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import translation
@@ -241,7 +241,7 @@ class WelcomeMessageSendTestMessageView(
 
             Slack().send_message(blocks=blocks, channel=request.user.slack_user_id)
 
-        return HttpResponseRedirect(request.path)
+        return HttpResponse(headers={"HX-Trigger": "reload-page"})
 
 
 class PersonalLanguageUpdateView(

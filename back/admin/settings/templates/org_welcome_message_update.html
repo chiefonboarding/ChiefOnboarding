@@ -24,7 +24,11 @@
     {{ form|crispy }}
     <div class="form-footer">
       <button type="submit" class="btn btn-primary">{% translate "Update" %}</button>
-      <a href="{% url 'settings:welcome-message-test-message' view.kwargs.language view.kwargs.type %}" class="btn">{% translate "Send test message" %}</a>
+      <button hx-indicator="#spinner" hx-swap="none" hx-post="{% url 'settings:welcome-message-test-message' view.kwargs.language view.kwargs.type %}" class="btn">{% translate "Send test message" %}
+        <span class="requesting alsodisplay" id="spinner">
+          <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
+        </span>
+      </button>
     </div>
   </div>
 </form>
