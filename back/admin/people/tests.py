@@ -521,6 +521,9 @@ def test_send_login_email(  # after first day email
     assert settings.BASE_URL in mailoutbox[0].alternatives[0][0]
     assert new_hire1.first_name in mailoutbox[0].alternatives[0][0]
 
+    # Only used for sending test emails
+    assert "FAKEPASSWORD" not in mailoutbox[0].alternatives[0][0]
+
 
 @pytest.mark.django_db
 def test_new_hire_profile(client, new_hire_factory, admin_factory, django_user_model):
@@ -2022,10 +2025,7 @@ def test_give_user_slack_access(settings, client, employee_factory, django_user_
     assert cache.get("slack_blocks") == [
         {
             "type": "section",
-            "text": {
-                "type": "mrkdwn",
-                "text": we.message
-            },
+            "text": {"type": "mrkdwn", "text": we.message},
         },
         {
             "type": "actions",

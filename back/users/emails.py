@@ -176,9 +176,7 @@ def send_new_hire_preboarding(new_hire, email, language=None):
         language = new_hire.language
         translation.activate(new_hire.language)
 
-    message = WelcomeMessage.objects.get(
-        language=new_hire.language, message_type=0
-    ).message
+    message = WelcomeMessage.objects.get(language=language, message_type=0).message
     subject = _("Welcome to %(name)s!") % {"name": org.name}
     content = [
         {"type": "paragraph", "data": {"text": message}},

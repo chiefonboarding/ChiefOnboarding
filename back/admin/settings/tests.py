@@ -2,6 +2,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 from django.conf import settings
+from django.core.cache import cache
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
@@ -312,6 +313,111 @@ def test_language_update(client, admin_factory):
     assert "Selecteer een geldige keuze." in response.content.decode()
     assert admin_user1.language == "nl"
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_sending_test_preboarding_message(
+    client, admin_factory, mailoutbox, welcome_message_factory
+):
+    admin = admin_factory()
+    client.force_login(admin)
+
+    welcome_message_factory(
+        message_type=0, language="es", message="Spanish test message {{ first_name }}"
+    )
+    url = reverse("settings:welcome-message-test-message", args=["es", 0])
+
+    client.post(url)
+
+    # Sent the test mail to admin
+    assert len(mailoutbox) == 1
+    assert mailoutbox[0].to[0] == admin.email
+    assert admin.first_name in mailoutbox[0].alternatives[0][0]
+    assert "Spanish" in mailoutbox[0].alternatives[0][0]
+
+
+@pytest.mark.django_db
+def test_sending_test_credentials_message(
+    client, admin_factory, mailoutbox, welcome_message_factory
+):
+    admin = admin_factory()
+    client.force_login(admin)
+
+    welcome_message_factory(
+        message_type=1, language="es", message="Spanish test message {{ first_name }}"
+    )
+    url = reverse("settings:welcome-message-test-message", args=["es", 1])
+
+    client.post(url)
+
+    # Sent the test mail to admin
+    assert len(mailoutbox) == 1
+    assert mailoutbox[0].to[0] == admin.email
+    assert admin.first_name in mailoutbox[0].alternatives[0][0]
+    assert "Spanish" in mailoutbox[0].alternatives[0][0]
+    assert "FAKEPASSWORD" in mailoutbox[0].alternatives[0][0]
+
+
+@pytest.mark.django_db
+def test_sending_test_new_hire_welcome_message(
+    client, admin_factory, welcome_message_factory
+):
+    admin = admin_factory(slack_user_id="slackx")
+    client.force_login(admin)
+
+    welcome_message_factory(
+        message_type=3, language="es", message="Spanish test message {{ first_name }}"
+    )
+    url = reverse("settings:welcome-message-test-message", args=["es", 3])
+
+    client.post(url)
+
+    assert cache.get("slack_channel", "") == "slackx"
+    assert cache.get("slack_blocks") == [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Spanish test message " + admin.first_name,
+            },
+        },
+    ]
+
+
+@pytest.mark.django_db
+def test_sending_test_colleague_welcome_message(
+    client, admin_factory, welcome_message_factory
+):
+    admin = admin_factory(slack_user_id="slackx")
+    client.force_login(admin)
+
+    welcome_message_factory(
+        message_type=4, language="es", message="Spanish test message {{ first_name }}"
+    )
+    url = reverse("settings:welcome-message-test-message", args=["es", 4])
+
+    client.post(url)
+
+    assert cache.get("slack_channel", "") == "slackx"
+    assert cache.get("slack_blocks") == [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"Spanish test message {admin.first_name}",
+            },
+        },
+        {
+            "type": "actions",
+            "elements": {
+                "type": "button",
+                "text": {"type": "plain_text", "text": "recursos"},
+                "style": "primary",
+                "value": "show:resources",
+                "action_id": "show:resources",
+            },
+        },
+    ]
 
 
 @pytest.mark.django_db

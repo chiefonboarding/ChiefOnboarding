@@ -796,6 +796,33 @@ def test_sequence_default_templates_not_valid(client, admin_factory):
 
 
 @pytest.mark.django_db
+def test_sequence_item_test_message(client, admin_factory, mailoutbox):
+    admin1 = admin_factory()
+    admin2 = admin_factory()
+    client.force_login(admin1)
+
+    # Actually sending the message to admin2, not admin1
+    pending_email_message = PendingEmailMessageFactory(
+        send_to=admin2,
+        person_type=3,
+        content_json={
+            "time": 0,
+            "blocks": [{"data": {"text": "hi {{ first_name }}"}, "type": "paragraph"}],
+        },
+    )
+
+    url = reverse("sequences:send_test_message", args=[pending_email_message.id])
+
+    client.post(url)
+
+    assert len(mailoutbox) == 1
+    # Sending the test mail to admin1
+    assert mailoutbox[0].to[0] == admin1.email
+    assert admin1.first_name in mailoutbox[0].alternatives[0][0]
+    assert admin2.first_name not in mailoutbox[0].alternatives[0][0]
+
+
+@pytest.mark.django_db
 def test_sequence_default_templates_integrations(
     client, admin_factory, integration_factory
 ):

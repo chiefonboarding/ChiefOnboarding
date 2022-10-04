@@ -201,7 +201,7 @@ class WelcomeMessageSendTestMessageView(
             message_type=message_type,
         )
         we = request.user.personalize(we.message)
-        translation.activate(request.user.language)
+        translation.activate(language)
 
         if message_type == 0:
             send_new_hire_preboarding(
@@ -242,14 +242,6 @@ class WelcomeMessageSendTestMessageView(
             Slack().send_message(blocks=blocks, channel=request.user.slack_user_id)
 
         return HttpResponseRedirect(request.path)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["languages"] = settings.LANGUAGES
-        context["types"] = WelcomeMessage.MESSAGE_TYPE
-        context["title"] = _("Update welcome messages")
-        context["subtitle"] = _("settings")
-        return self.request.path
 
 
 class PersonalLanguageUpdateView(
