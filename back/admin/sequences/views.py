@@ -171,6 +171,16 @@ class SequenceTimelineDetailView(LoginRequiredMixin, ManagerPermMixin, DetailVie
         return context
 
 
+class SendTestMessageView(LoginRequiredMixin, ManagerPermMixin, View):
+    def post(self, request, template_pk, *args, **kwargs):
+        external_message = get_object_or_404(ExternalMessage, pk=template_pk)
+        external_message.person_type = 3
+        external_message.send_to = request.user
+        external_message.execute(request.user)
+
+        return HttpResponse(headers={"HX-Trigger": "reload-page"})
+
+
 class SequenceFormView(LoginRequiredMixin, ManagerPermMixin, View):
     """
     Get form when clicking on a line in a condition or dragging non-template, either

@@ -44,6 +44,11 @@ urlpatterns = [
         name="forms",
     ),
     path(
+        "send_test_message/<int:template_pk>/",
+        views.SendTestMessageView.as_view(),
+        name="send_test_message",
+    ),
+    path(
         "update_item/<slug:template_type>/<int:template_pk>/<int:condition>/",
         views.SequenceFormUpdateView.as_view(),
         name="update-forms",

@@ -397,6 +397,11 @@
           $("#div_id_days").parent().removeClass("d-none")
         }
       })
+      // Reload entire page
+      $(document).on("reload-page", function(evt){
+          window.location.reload();
+      })
+
     </script>
     {% endblock %}
     {% block extra_js %}

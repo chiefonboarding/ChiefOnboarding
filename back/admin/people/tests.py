@@ -521,6 +521,9 @@ def test_send_login_email(  # after first day email
     assert settings.BASE_URL in mailoutbox[0].alternatives[0][0]
     assert new_hire1.first_name in mailoutbox[0].alternatives[0][0]
 
+    # Only used for sending test emails
+    assert "FAKEPASSWORD" not in mailoutbox[0].alternatives[0][0]
+
 
 @pytest.mark.django_db
 def test_new_hire_profile(client, new_hire_factory, admin_factory, django_user_model):
@@ -1995,6 +1998,7 @@ def test_give_user_slack_access(settings, client, employee_factory, django_user_
     settings.FAKE_SLACK_API = True
 
     employee_with_slack = employee_factory(slack_user_id="slackx")
+    we = WelcomeMessage.objects.get(message_type=4, language="en")
     employee_without_slack = employee_factory()
     admin_user = django_user_model.objects.create(role=1)
     client.force_login(admin_user)
@@ -2021,11 +2025,7 @@ def test_give_user_slack_access(settings, client, employee_factory, django_user_
     assert cache.get("slack_blocks") == [
         {
             "type": "section",
-            "text": {
-                "type": "mrkdwn",
-                "text": "Click on the button to see all the categories that "
-                "are available to you!",
-            },
+            "text": {"type": "mrkdwn", "text": we.message},
         },
         {
             "type": "actions",

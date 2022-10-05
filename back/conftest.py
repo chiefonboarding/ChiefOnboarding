@@ -54,7 +54,7 @@ def run_around_tests(settings):
     OrganizationFactory()
 
     # Generate some welcome messages for various emails
-    for i in range(4):
+    for i in range(5):
         WelcomeMessageFactory(message_type=i, language="en")
 
     # Fix warning related to whitenoise
@@ -71,6 +71,7 @@ register(ManagerFactory)
 register(EmployeeFactory)
 register(OTPRecoveryKeyFactory)
 register(NewHireWelcomeMessageFactory)
+register(WelcomeMessageFactory)
 register(ToDoFactory)
 register(ToDoUserFactory)
 register(ResourceFactory)
