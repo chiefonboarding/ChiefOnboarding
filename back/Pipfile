@@ -12,7 +12,6 @@ django-cors-headers = "*" # Allowing cross origin requests (DRF)
 django-crispy-forms  = "*" # Making forms better
 django-environ = "*" # Getting environment variables
 django-fernet-fields = "*" # needs to be replaced when django moves to v4
-django-q = "*" # Background tasks
 djangorestframework = "*" # Needed for API endpoints
 gunicorn = "*" # Web server -- maybe replace with uvicorn as it seems to be faster
 psycopg2-binary = "*" # Database -- might remove (not needed?)
@@ -25,6 +24,7 @@ whitenoise = "*" # Serving static files by Django
 django-q-sentry = "*" # Needed for django-q error logging
 croniter = "*" # Needed for django-q scheduled tasks
 slack-bolt = "*"
+django-q2 = "*" # Background tasks
 
 [dev-packages]
 coverage = "*"
