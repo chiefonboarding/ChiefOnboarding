@@ -173,6 +173,27 @@ def first_day_reminder():
         Slack().send_message(text=text, channel="#" + send_to)
 
 
+def birthday_reminder():
+    org = Organization.object.get()
+    # If Slack doesn't exist or setting is disabled, then drop
+    if (
+        not Integration.objects.filter(integration=0).exists()
+        or not org.slack_birthday_wishes_channel
+    ):
+        return
+
+    # Getting new hires birthdays. Base on org default language.
+    translation.activate(org.language)
+    local_time_date = org.current_datetime
+    birthday_today = get_user_model().objects.filter(birthday=local_time_date)
+
+    names = ", ".join([new_hire.full_name + "'s" for new_hire in birthday_today])
+    text = _("It's %(names)s birthday today!") % {"names": names}
+
+    send_to = org.slack_birthday_wishes_channel.name
+    Slack().send_message(text=text, channel="#" + send_to)
+
+
 def introduce_new_people():
     org = Organization.object.get()
     # If Slack doesn't exist or setting is disabled, then drop

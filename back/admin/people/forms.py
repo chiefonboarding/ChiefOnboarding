@@ -216,6 +216,10 @@ class ColleagueUpdateForm(forms.ModelForm):
     department = ModelChoiceFieldWithCreate(
         queryset=Department.objects.all(), to_field_name="name", required=False
     )
+    birthday = forms.DateField(
+        widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
+        required=False,
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -232,6 +236,7 @@ class ColleagueUpdateForm(forms.ModelForm):
                 Div(Field("position"), css_class="col-12"),
                 Div(Field("department", css_class="add"), css_class="col-12"),
                 Div(Field("phone"), css_class="col-12"),
+                Div(Field("birthday"), css_class="col-12"),
                 Div(Field("message"), css_class="col-12"),
                 Div(Field("facebook"), css_class="col-12"),
                 Div(Field("linkedin"), css_class="col-12"),
@@ -252,6 +257,7 @@ class ColleagueUpdateForm(forms.ModelForm):
             "last_name",
             "position",
             "department",
+            "birthday",
             "email",
             "phone",
             "message",
