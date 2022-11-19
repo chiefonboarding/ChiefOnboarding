@@ -92,7 +92,7 @@ class User(AbstractBaseUser):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
-    birthday = models.DateTimeField(verbose_name=_("Birthday"), default=None, null=True)
+    birthday = models.DateField(verbose_name=_("Birthday"), default=None, null=True)
     position = models.CharField(
         verbose_name=_("Position"), max_length=300, default="", blank=True
     )

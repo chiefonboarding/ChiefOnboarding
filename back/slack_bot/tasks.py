@@ -187,11 +187,12 @@ def birthday_reminder():
     local_time_date = org.current_datetime
     birthday_today = get_user_model().objects.filter(birthday=local_time_date)
 
-    names = ", ".join([new_hire.full_name + "'s" for new_hire in birthday_today])
-    text = _("It's %(names)s birthday today!") % {"names": names}
+    if birthday_today.exists():
+        names = ", ".join([new_hire.full_name + "'s" for new_hire in birthday_today])
+        text = _("It's %(names)s birthday today!") % {"names": names}
 
-    send_to = org.slack_birthday_wishes_channel.name
-    Slack().send_message(text=text, channel="#" + send_to)
+        send_to = org.slack_birthday_wishes_channel.name
+        Slack().send_message(text=text, channel="#" + send_to)
 
 
 def introduce_new_people():

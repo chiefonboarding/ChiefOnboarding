@@ -14,7 +14,9 @@ from slack_bot.tasks import (
     introduce_new_people,
     link_slack_users,
     update_new_hire,
+    birthday_reminder,
 )
+from slack_bot.models import SlackChannel
 from slack_bot.views import (
     slack_add_sequences_to_new_hire,
     slack_catch_all_message_search_resources,
@@ -2194,6 +2196,37 @@ def test_first_day_reminder(new_hire_factory, integration_factory):
         cache.get("slack_text")
         == f"Just a quick reminder: It's {new_hire2.full_name}'s first day today!"
     )
+
+
+@pytest.mark.django_db
+def test_birthday_reminder(new_hire_factory, integration_factory):
+    org = Organization.object.get()
+    org.slack_birthday_wishes_channel = None
+    org.save()
+
+    # Enable Slack
+    integration_factory(integration=0)
+
+    new_hire1 = new_hire_factory(
+        start_day=datetime.now().date(),
+        slack_user_id="slackx",
+        birthday=datetime.now().date(),
+    )
+    new_hire_factory(start_day=datetime.now().date(), birthday=datetime(2022, 5, 20))
+
+    birthday_reminder()
+
+    # Will not send since `birthday_wishes` is disabled
+    assert cache.get("slack_channel", "") == ""
+
+    sc = SlackChannel.objects.create(name="general")
+    org.slack_birthday_wishes_channel = sc
+    org.save()
+
+    birthday_reminder()
+
+    assert cache.get("slack_channel") == "#general"
+    assert cache.get("slack_text") == f"It's {new_hire1.full_name}'s birthday today!"
 
 
 @pytest.mark.django_db
