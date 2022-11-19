@@ -2,6 +2,7 @@ import pyotp
 import pytz
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Div, Field, Layout, Submit
+from django_q.models import Schedule
 from django import forms
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
@@ -108,6 +109,7 @@ class SlackSettingsForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["slack_confirm_person"].required = False
+        self.fields["slack_birthday_wishes_channel"].required = False
 
         auto_create_new_hire_class = ""
         if not self.instance.auto_create_user:
@@ -133,8 +135,35 @@ class SlackSettingsForm(forms.ModelForm):
                 ),
                 css_class=auto_create_new_hire_class,
             ),
+            Field("slack_birthday_wishes_channel"),
             Submit(name="submit", value="Update"),
         )
+
+    def save(self, commit=True):
+        slack_settings = super().save(commit=commit)
+        slack_settings.save()
+
+        # Add birthday schedule if not exists but should be there (just got enabled)
+        if (
+            slack_settings.slack_birthday_wishes_channel is not None
+            and not Schedule.objects.filter(name="birthday_reminder").exists()
+        ):
+            Schedule.objects.create(
+                func="slack_bot.tasks.birthday_reminder",
+                name="birthday_reminder",
+                schedule_type=Schedule.DAILY,
+            )
+
+        # Remove birthday schedule if channel got set to None
+        if (
+            slack_settings.slack_birthday_wishes_channel is None
+            and Schedule.objects.filter(name="birthday_reminder").exists()
+        ):
+            Schedule.objects.filter(
+                name="birthday_reminder",
+            ).delete()
+
+        return slack_settings
 
     class Meta:
         model = Organization
@@ -147,6 +176,7 @@ class SlackSettingsForm(forms.ModelForm):
             "auto_create_user",
             "create_new_hire_without_confirm",
             "slack_confirm_person",
+            "slack_birthday_wishes_channel",
         ]
 
 

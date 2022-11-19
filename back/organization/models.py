@@ -124,6 +124,19 @@ class Organization(models.Model):
         ),
         null=True,
         on_delete=models.SET_NULL,
+        related_name="+",
+    )
+    slack_birthday_wishes_channel = models.ForeignKey(
+        "slack_bot.SlackChannel",
+        verbose_name=_(
+            "This is the channel where the bot will send birthday wishes in. ",
+        ),
+        help_text=_(
+            "Leave blank to disable this. Timing is based on when this was enabled."
+        ),
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
     )
     # Field to determine if there has been an outage and tasks need to be caught up
     timed_triggers_last_check = models.DateTimeField(auto_now_add=True)

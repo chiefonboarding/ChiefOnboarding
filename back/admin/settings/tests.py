@@ -1,6 +1,7 @@
 from unittest.mock import Mock, patch
 
 import pytest
+from django_q.models import Schedule
 from django.conf import settings
 from django.core.cache import cache
 from django.contrib.auth import get_user_model
@@ -107,6 +108,33 @@ def test_update_org_slack_settings(client, django_user_model):
     response = client.post(url, data=data, follow=True)
 
     assert "#FFFFFF" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_update_org_slack_birthday(client, django_user_model):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    url = reverse("settings:slack")
+
+    data = {
+        "slack_birthday_wishes_channel": 1,
+        "slack_default_channel": 1,
+        "bot_color": "#FFFFFF",
+    }
+
+    client.post(url, data=data, follow=True)
+
+    assert Schedule.objects.filter(name="birthday_reminder").exists()
+
+    data = {
+        "slack_birthday_wishes_channel": "",
+        "slack_default_channel": 1,
+        "bot_color": "#FFFFFF",
+    }
+
+    client.post(url, data=data, follow=True)
+
+    assert not Schedule.objects.filter(name="birthday_reminder").exists()
 
 
 @pytest.mark.django_db
