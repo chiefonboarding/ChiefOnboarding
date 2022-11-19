@@ -2317,7 +2317,7 @@ msgstr "新入社員が入りました！ %(names)s さんが今日からスタ�
 #: slack_bot/tasks.py:191
 #, python-format
 msgid "It's %(names)s birthday today!"
-msgstr "今日は%(name)sの誕生日です!"
+msgstr "今日は%(names)sの誕生日です!"
 
 #: slack_bot/tasks.py:217
 msgid ""
