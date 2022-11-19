@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ChiefOnboarding\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-04 22:58+0000\n"
+"POT-Creation-Date: 2022-11-17 01:40+0000\n"
 "PO-Revision-Date: 2022-06-02 11:47+0900\n"
 "Last-Translator: Jo Mio <jmworks@gmail.com>\n"
 "Language-Team: \n"
@@ -106,7 +106,7 @@ msgstr "担当者"
 #: admin/sequences/templates/sequence.html:30
 #: admin/settings/templates/settings_admins.html:10
 #: admin/to_do/templates/templates.html:12 organization/models.py:24
-#: organization/models.py:220
+#: organization/models.py:233
 msgid "Name"
 msgstr "名前"
 
@@ -303,7 +303,7 @@ msgid "Comment has been posted"
 msgstr "コメントが投稿されました"
 
 #: admin/appointments/forms.py:55 admin/appointments/forms.py:58
-#: admin/appointments/forms.py:60 admin/people/forms.py:359
+#: admin/appointments/forms.py:60 admin/people/forms.py:365
 msgid "This field is required"
 msgstr "この項目は必須です"
 
@@ -504,7 +504,7 @@ msgid "Sequences"
 msgstr "Sequences"
 
 #: admin/people/forms.py:29 admin/people/forms.py:141
-#: admin/people/templates/new_hires.html:12 users/models.py:164
+#: admin/people/templates/new_hires.html:12 users/models.py:165
 msgid "Start date"
 msgstr "開始日"
 
@@ -512,27 +512,27 @@ msgstr "開始日"
 msgid "Create new hire"
 msgstr "新規採用の作成"
 
-#: admin/people/forms.py:323
+#: admin/people/forms.py:329
 msgid "Select sequences you want to add "
 msgstr "追加したいシークエンスを選択してください "
 
-#: admin/people/forms.py:332
+#: admin/people/forms.py:338
 msgid "This task has just been reopened! "
 msgstr "このタスクは再開されました！ "
 
-#: admin/people/forms.py:335
+#: admin/people/forms.py:341
 msgid "Message that you want to leave for your new hire:"
 msgstr "新入採用者へ送りたいメッセージ："
 
-#: admin/people/forms.py:343 admin/people/forms.py:352
+#: admin/people/forms.py:349 admin/people/forms.py:358
 msgid "Send via email"
 msgstr "Eメールで送信する"
 
-#: admin/people/forms.py:343
+#: admin/people/forms.py:349
 msgid "Send via text"
 msgstr "テキストで送信する"
 
-#: admin/people/forms.py:364
+#: admin/people/forms.py:370
 msgid "Send type"
 msgstr "送信タイプ"
 
@@ -725,7 +725,7 @@ msgstr "これらのアイテムを今すぐトリガーする"
 #: admin/people/templates/add_resources.html:13
 #: admin/people/templates/new_hire_add_task.html:14
 #: admin/templates/forms.py:123 admin/to_do/templates/templates.html:13
-#: organization/models.py:222
+#: organization/models.py:235
 msgid "Tags"
 msgstr "タグ"
 
@@ -757,7 +757,7 @@ msgid "Sync with Slack"
 msgstr "Slackと同期する"
 
 #: admin/people/templates/colleagues.html:28
-#: admin/people/templates/new_hires.html:13 users/models.py:96
+#: admin/people/templates/new_hires.html:13 users/models.py:97
 msgid "Position"
 msgstr "位置"
 
@@ -1139,7 +1139,7 @@ msgid "Remove item when new hire walked through"
 msgstr "新入社員の完了時ににアイテムを削除"
 
 #: admin/resources/models.py:85 admin/sequences/models.py:58
-#: organization/models.py:249
+#: organization/models.py:262
 #, python-format
 msgid "%(name)s (duplicate)"
 msgstr "%(name)s (複製)"
@@ -1186,12 +1186,12 @@ msgid "Add question"
 msgstr "新しい質問を追加"
 
 #: admin/resources/templates/resource_update.html:45
-#: admin/sequences/templates/sequence.html:274
+#: admin/sequences/templates/sequence.html:269
 msgid "Start typing here..."
 msgstr "ここから入力..."
 
 #: admin/resources/templates/resource_update.html:46
-#: admin/sequences/templates/sequence.html:275
+#: admin/sequences/templates/sequence.html:270
 msgid "New item"
 msgstr "新規アイテム"
 
@@ -1281,13 +1281,13 @@ msgid "Due date"
 msgstr "期限"
 
 #: admin/sequences/models.py:27 admin/sequences/models.py:34
-#: admin/settings/forms.py:156 admin/settings/forms.py:169 users/models.py:31
-#: users/models.py:158
+#: admin/settings/forms.py:186 admin/settings/forms.py:199 users/models.py:31
+#: users/models.py:159
 msgid "Manager"
 msgstr "マネージャー"
 
 #: admin/sequences/models.py:28 admin/sequences/models.py:35
-#: users/models.py:151
+#: users/models.py:152
 msgid "Buddy"
 msgstr "仲間"
 
@@ -1452,27 +1452,27 @@ msgstr "シークエンス"
 msgid "Sequence item has been removed"
 msgstr "シークエンスアイテムが削除されました"
 
-#: admin/settings/forms.py:19 organization/models.py:32 users/models.py:117
+#: admin/settings/forms.py:20 organization/models.py:32 users/models.py:118
 msgid "Timezone"
 msgstr "タイムゾーン"
 
-#: admin/settings/forms.py:22
+#: admin/settings/forms.py:23
 msgid "Sequences that are preselected for all new hires:"
 msgstr "すべての新入社員が事前に選択するシークエンス :"
 
-#: admin/settings/forms.py:51
+#: admin/settings/forms.py:52
 msgid "Login options"
 msgstr "ログインオプション"
 
-#: admin/settings/forms.py:103
+#: admin/settings/forms.py:104
 msgid "You must enable at least one login option"
 msgstr "少なくとも1つのログインオプションを有効にする必要があります"
 
-#: admin/settings/forms.py:156 admin/settings/forms.py:169 users/models.py:30
+#: admin/settings/forms.py:186 admin/settings/forms.py:199 users/models.py:30
 msgid "Administrator"
 msgstr "管理者"
 
-#: admin/settings/forms.py:188 admin/to_do/templates/wysiwyg_field.html:11
+#: admin/settings/forms.py:218 admin/to_do/templates/wysiwyg_field.html:11
 #, fuzzy
 #| msgid ""
 #| "You can use &#123;&#123; first_name &#125;&#125;, &#123;&#123; last_name "
@@ -1491,20 +1491,20 @@ msgstr ""
 "&#125;&#125;,  &#123;&#123; manager &#125;&#125;, そして &#123;&#123; buddy "
 "&#125;&#125; を使用することができます。新入社員に対応した値に置き換わります。"
 
-#: admin/settings/forms.py:201
+#: admin/settings/forms.py:231
 msgid "6 digit OTP code"
 msgstr "6桁のOTPコード"
 
-#: admin/settings/forms.py:202
+#: admin/settings/forms.py:232
 msgid "This is the code that your 2FA application shows you."
 msgstr "これは、2FAアプリケーションが表示するコードです。"
 
-#: admin/settings/forms.py:218
+#: admin/settings/forms.py:248
 msgid "OTP token was not correct. Please wait 30 seconds and then try again"
 msgstr "OTPトークンが正しくありません。30秒待ってからもう一度お試しください。"
 
 #: admin/settings/templates/_personal_tabs.html:4 organization/models.py:26
-#: users/models.py:126
+#: users/models.py:127
 msgid "Language"
 msgstr "言語"
 
@@ -1544,7 +1544,7 @@ msgstr ""
 "下記のコードをお好きな2FAアプリで読み取ってください。andOTPまたはAegisをお勧"
 "めします（ただ、Google AuthenticatorまたはAuthyを使用することも可能です）。"
 
-#: admin/settings/templates/settings_admins.html:11 users/models.py:132
+#: admin/settings/templates/settings_admins.html:11 users/models.py:133
 msgid "Role"
 msgstr "権限"
 
@@ -2005,10 +2005,19 @@ msgstr ""
 "これは、ボットがメッセージを投稿するためのデフォルトのチャンネルになります"
 
 #: organization/models.py:132
+msgid "This is the channel where the bot will send birthday wishes in. "
+msgstr ""
+"これは、ボットが誕生日のお祝いを送信するチャンネルです。"
+
+#: organization/models.py:135
+msgid "Leave blank to disable this. Timing is based on when this was enabled."
+msgstr "無効の場合は空白にします。タイミングは、この機能が有効であったときに基づきます。"
+
+#: organization/models.py:145
 msgid "Base email template"
 msgstr "ベースメールテンプレート"
 
-#: organization/models.py:134
+#: organization/models.py:147
 msgid ""
 "Leave blank to use the default one. See documentation if you want to use "
 "your own."
@@ -2016,171 +2025,171 @@ msgstr ""
 "デフォルトのものを使用する場合は空白にしてください。独自のものを使いたい場合"
 "は、ドキュメントを参照してください。"
 
-#: organization/models.py:190
+#: organization/models.py:203
 msgid "pre-boarding"
 msgstr "プレボーディング"
 
-#: organization/models.py:191
+#: organization/models.py:204
 msgid "new hire welcome"
 msgstr "新入社員の歓迎"
 
-#: organization/models.py:192
+#: organization/models.py:205
 msgid "text welcome"
 msgstr "テキストの歓迎"
 
-#: organization/models.py:193
+#: organization/models.py:206
 msgid "slack welcome"
 msgstr "Slackでの歓迎"
 
-#: organization/models.py:194
+#: organization/models.py:207
 msgid "slack knowledge"
 msgstr "Slackの知識"
 
-#: organization/models.py:197 users/models.py:103
+#: organization/models.py:210 users/models.py:104
 msgid "Message"
 msgstr "メッセージ"
 
-#: organization/models.py:267
+#: organization/models.py:280
 msgid "A new to do item has been added"
 msgstr "新しいTo Do アイテムが追加されました"
 
-#: organization/models.py:268
+#: organization/models.py:281
 msgid "To do item has been marked as completed"
 msgstr "To Do アイテムが完了とマークされました"
 
-#: organization/models.py:269
+#: organization/models.py:282
 msgid "A new resource item has been added"
 msgstr "新しいリソースアイテムが追加されました"
 
-#: organization/models.py:270
+#: organization/models.py:283
 msgid "Course has been completed"
 msgstr "コースを終了しました"
 
-#: organization/models.py:271
+#: organization/models.py:284
 msgid "A new badge item has been added"
 msgstr "新しいバッジアイテムが追加されました"
 
-#: organization/models.py:272
+#: organization/models.py:285
 msgid "A new introduction item has been added"
 msgstr "新しい導入アイテムが追加されました"
 
-#: organization/models.py:273
+#: organization/models.py:286
 msgid "A new preboarding item has been added"
 msgstr "新しいプレボーディングアイテムが追加されました"
 
-#: organization/models.py:274
+#: organization/models.py:287
 msgid "A new appointment item has been added"
 msgstr "新しい予約項目が追加されました"
 
-#: organization/models.py:275
+#: organization/models.py:288
 msgid "A new hire has been added"
 msgstr "新入社員が追加されました"
 
-#: organization/models.py:276
+#: organization/models.py:289
 msgid "A new administrator has been added"
 msgstr "新しい管理者が追加されました"
 
-#: organization/models.py:277
+#: organization/models.py:290
 msgid "A new manager has been added"
 msgstr "新しいマネージャーが追加されました"
 
-#: organization/models.py:278
+#: organization/models.py:291
 msgid "A new admin task has been added"
 msgstr "新しい管理者タスクが追加されました"
 
-#: organization/models.py:279
+#: organization/models.py:292
 msgid "A new email has been sent"
 msgstr "新しいメールが送信されました"
 
-#: organization/models.py:280
+#: organization/models.py:293
 msgid "A new text message has been sent"
 msgstr "新しいテキストメッセージが送信されました"
 
-#: organization/models.py:281
+#: organization/models.py:294
 msgid "A new slack message has been sent"
 msgstr "新しいSlackメッセージが送信されました"
 
-#: organization/models.py:282
+#: organization/models.py:295
 msgid "A new slack message has been updated"
 msgstr "新しいスラックメッセージが更新されました"
 
-#: organization/models.py:283
+#: organization/models.py:296
 msgid "Login credentials have been sent"
 msgstr "ログイン情報が送信されました"
 
-#: organization/models.py:284
+#: organization/models.py:297
 msgid "Reopened task email has been sent"
 msgstr "再開したタスクのメールが送信されました"
 
-#: organization/models.py:285
+#: organization/models.py:298
 msgid "Task reminder email has been sent"
 msgstr "タスクのリマインダーメールが送信されました"
 
-#: organization/models.py:286
+#: organization/models.py:299
 msgid "Sent new hire credentials email"
 msgstr "新入社員情報のメールが送信されました"
 
-#: organization/models.py:287
+#: organization/models.py:300
 msgid "Sent new hire preboarding email"
 msgstr "新入社員のプレボーディングメールが送信されました"
 
-#: organization/models.py:288
+#: organization/models.py:301
 msgid "Sent email from sequence"
 msgstr "シークエンスからメール送信を送信しました"
 
-#: organization/models.py:289
+#: organization/models.py:302
 msgid "Sent email with updates to new hire"
 msgstr "新入社員への更新情報のメールが送信されました"
 
-#: organization/models.py:290
+#: organization/models.py:303
 msgid "Sent email to extra person in admin task"
 msgstr "管理者タスクについて追加の担当者にメールが送信されました"
 
-#: organization/models.py:293
+#: organization/models.py:306
 msgid "Sent email about new person assigned to admin task"
 msgstr "管理者タスクの新しい担当者についてのメールが送信されました"
 
-#: organization/models.py:297
+#: organization/models.py:310
 msgid "Sent email about new comment on admin task"
 msgstr "管理者タスクの新着コメントに関するメールが送信されました"
 
-#: organization/models.py:301
+#: organization/models.py:314
 msgid "Sent email about completing integration call"
 msgstr "インテグレーションコールの完了のメールが送信されました"
 
-#: organization/models.py:303
+#: organization/models.py:316
 msgid "Couldn't send text message: number is missing"
 msgstr "テキストメッセージを送信できませんでした: 番号が設定されていません"
 
-#: organization/models.py:304
+#: organization/models.py:317
 msgid "Couldn't send email message: email is missing"
 msgstr "メールを送信できませんでした: メールアドレスが設定されていません"
 
-#: organization/models.py:307
+#: organization/models.py:320
 msgid "Couldn't deliver email message: recipient refused"
 msgstr "メールを配信できませんでした: 受信者が拒否しました"
 
-#: organization/models.py:309 organization/models.py:310
+#: organization/models.py:322 organization/models.py:323
 msgid "Couldn't deliver email message: provider error"
 msgstr "メールを配信できませんでした：プロバイダーエラー"
 
-#: organization/models.py:311
+#: organization/models.py:324
 msgid "Couldn't send Slack message"
 msgstr "Slackメッセージの送信ができない"
 
-#: organization/models.py:312
+#: organization/models.py:325
 msgid "Couldn't update Slack message"
 msgstr "Slackメッセージの更新ができない"
 
-#: organization/models.py:313
+#: organization/models.py:326
 msgid "Integration has been triggered"
 msgstr "インテグレーション実行がトリガーされました"
 
-#: organization/models.py:314
+#: organization/models.py:327
 msgid "Couldn't complete integration"
 msgstr "インテグレーションを完了できませんでした"
 
-#: organization/models.py:317
+#: organization/models.py:330
 msgid "Couldn't send integration notification"
 msgstr "インテグレーション通知を送信できませんでした"
 
@@ -2305,13 +2314,18 @@ msgstr "お知らせ : 今日は %(name)s さんの初日です！"
 msgid "We got some new hires coming in! %(names)s are starting today!"
 msgstr "新入社員が入りました！ %(names)s さんが今日からスタートです！"
 
-#: slack_bot/tasks.py:196
+#: slack_bot/tasks.py:191
+#, python-format
+msgid "It's %(names)s birthday today!"
+msgstr "今日は%(name)sの誕生日です!"
+
+#: slack_bot/tasks.py:217
 msgid ""
 "We got some new hires coming in soon! Make sure to leave a welcome message "
 "for them!"
 msgstr "もうすぐ新入社員がやってきます！ 歓迎のメッセージをお願いします！"
 
-#: slack_bot/tasks.py:201
+#: slack_bot/tasks.py:222
 #, python-format
 msgid ""
 "We have a new hire coming in soon! Make sure to leave a message for "
@@ -2320,17 +2334,17 @@ msgstr ""
 "もうすぐ新入社員がやってきます！ %(first_name)s さんに歓迎のメッセージをお願"
 "いします！"
 
-#: slack_bot/tasks.py:229
+#: slack_bot/tasks.py:250
 #, python-format
 msgid " and is our new %(position)s"
 msgstr " そして私たちの新しい%(position)sです"
 
-#: slack_bot/tasks.py:234
+#: slack_bot/tasks.py:255
 #, python-format
 msgid "%(first_name)s starts on %(start_day)s%(footer_extra)s."
 msgstr "%(first_name)s さんは %(start_day)s 日で始まります。%(footer_extra)s."
 
-#: slack_bot/tasks.py:247 slack_bot/views.py:731
+#: slack_bot/tasks.py:268 slack_bot/views.py:731
 msgid "Welcome this new hire!"
 msgstr "新入社員を歓迎しましょう！"
 
@@ -2571,31 +2585,35 @@ msgstr "名"
 msgid "Last name"
 msgstr "姓"
 
-#: users/models.py:99
+#: users/models.py:95
+msgid "Birthday"
+msgstr "誕生日"
+
+#: users/models.py:100
 msgid "Phone"
 msgstr "電話"
 
-#: users/models.py:105
+#: users/models.py:106
 msgid "Profile image"
 msgstr "プロフィール画像"
 
-#: users/models.py:108
+#: users/models.py:109
 msgid "Linkedin"
 msgstr "Linkedin"
 
-#: users/models.py:111
+#: users/models.py:112
 msgid "Facebook"
 msgstr "Facebook"
 
-#: users/models.py:114
+#: users/models.py:115
 msgid "Twitter"
 msgstr "Twitter"
 
-#: users/models.py:123
+#: users/models.py:124
 msgid "Department"
 msgstr "部署"
 
-#: users/models.py:136
+#: users/models.py:137
 msgid ""
 "An administrator has access to everything. A manager has only access to "
 "their new hires and their tasks."
@@ -2603,21 +2621,21 @@ msgstr ""
 "管理者は全てにアクセスする権限があります。マネージャーのみが新入社員とそのタ"
 "スクにアクセスすることができます。"
 
-#: users/models.py:167
+#: users/models.py:168
 msgid "First working day"
 msgstr "第1営業日"
 
-#: users/models.py:464
+#: users/models.py:465
 #, python-format
 msgid "*Our new hire %(name)s just answered some questions:*"
 msgstr "*新採用の %(name)s さんが質問に答えました：*"
 
-#: users/models.py:477
+#: users/models.py:478
 #, python-format
 msgid "Our new hire %(name)s just answered some questions:"
 msgstr "新採用の %(name)s さんが質問に答えました："
 
-#: users/models.py:596
+#: users/models.py:597
 #, python-format
 msgid ""
 "%(amount_of_correct_answers)s correct answers out of %(amount_of_questions)s "
