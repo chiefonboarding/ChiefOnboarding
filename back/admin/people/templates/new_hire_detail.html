@@ -146,7 +146,6 @@
               </li>
             {% empty %}
               No items left!
-
             {% endfor %}
         </ul>
       </div>
@@ -159,16 +158,22 @@
       </div>
       <div class="card-body">
         <div class="divide-y" style="max-height: 500px; overflow-y: scroll; overflow-x: hidden;">
-          {% for object in notifications %}
+          {% for notification in notifications %}
             <div class="row">
               <div class="col">
                 <div class="text-truncate">
-                  <strong>{{ object.extra_text }}</strong>
+                  <strong>{{ notification.extra_text }}</strong>
                   <div class="text-muted">
-                    {{ object.get_notification_type_display }}
+                    {{ notification.get_notification_type_display }}
                   </div>
                 </div>
-                <div class="text-truncate text-muted">{% translate "By" %}{% if object.created_by %} {{ object.created_by.full_name }}{% else %} ChiefOnboarding{% endif %} - {{ object.created }}</div>
+                <div class="text-truncate text-muted">{% translate "By" %}{% if notification.created_by %} {{ notification.created_by.full_name }}{% else %} ChiefOnboarding{% endif %} - {{ notification.created }}</div>
+                {% if notification.can_delete %}
+                <form method="post" action="{% url 'people:remove_sequence' object.id notification.item_id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-danger mt-2" style="margin-right: 10px">Remove</a>
+                </form>
+                {% endif %}
               </div>
             </div>
           {% empty %}

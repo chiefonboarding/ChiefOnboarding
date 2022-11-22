@@ -117,6 +117,11 @@ urlpatterns = [
         name="trigger-condition",
     ),
     path(
+        "new_hire/<int:pk>/remove_sequence/<int:sequence_pk>/",
+        new_hire_views.NewHireRemoveSequenceView.as_view(),
+        name="remove_sequence",
+    ),
+    path(
         "new_hire/<int:pk>/send_preboarding_notification/",
         new_hire_views.NewHireSendPreboardingNotificationView.as_view(),
         name="send_preboarding_notification",
