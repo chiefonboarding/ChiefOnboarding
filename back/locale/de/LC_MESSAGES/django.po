@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-17 01:40+0000\n"
+"POT-Creation-Date: 2022-11-22 23:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -76,14 +76,14 @@ msgid "No"
 msgstr "Nein"
 
 #: admin/admin_tasks/models.py:16 admin/admin_tasks/models.py:48
-#: admin/sequences/models.py:147 admin/sequences/models.py:349
+#: admin/sequences/models.py:211 admin/sequences/models.py:413
 #: new_hire/templates/_colleague_intro.html:20
 #: new_hire/templates/_new_hire_colleagues_search.html:20
-#: new_hire/templates/_new_hire_colleagues_search.html:51 users/models.py:91
+#: new_hire/templates/_new_hire_colleagues_search.html:51 users/models.py:92
 msgid "Email"
 msgstr "E-Mail"
 
-#: admin/admin_tasks/models.py:16 admin/sequences/models.py:148
+#: admin/admin_tasks/models.py:16 admin/sequences/models.py:212
 #: admin/settings/views.py:79
 msgid "Slack"
 msgstr "Slack"
@@ -96,7 +96,7 @@ msgstr "Neuer Mitarbeiter"
 #: admin/admin_tasks/models.py:28
 #: admin/people/templates/new_hire_admin_tasks.html:21
 #: admin/people/templates/new_hire_admin_tasks.html:61
-#: admin/sequences/models.py:324
+#: admin/sequences/models.py:388
 msgid "Assigned to"
 msgstr "Zugewiesen zu"
 
@@ -104,11 +104,11 @@ msgstr "Zugewiesen zu"
 #: admin/people/templates/colleagues.html:27
 #: admin/people/templates/new_hire_add_task.html:13
 #: admin/people/templates/new_hires.html:11 admin/sequences/models.py:42
-#: admin/sequences/models.py:151 admin/sequences/models.py:318
+#: admin/sequences/models.py:215 admin/sequences/models.py:382
 #: admin/sequences/templates/sequence.html:30
 #: admin/settings/templates/settings_admins.html:10
-#: admin/to_do/templates/templates.html:12 organization/models.py:24
-#: organization/models.py:233
+#: admin/to_do/templates/templates.html:12 organization/models.py:25
+#: organization/models.py:234
 msgid "Name"
 msgstr "Name"
 
@@ -116,7 +116,7 @@ msgstr "Name"
 msgid "Send email or text to extra user?"
 msgstr "Sende E-Mail oder SMS an weiteren Benutzer?"
 
-#: admin/admin_tasks/models.py:41 admin/sequences/models.py:342
+#: admin/admin_tasks/models.py:41 admin/sequences/models.py:406
 msgid "Slack user"
 msgstr "Slack-Benutzer"
 
@@ -129,7 +129,7 @@ msgstr "Abgeschlossen"
 msgid "Date"
 msgstr "Datum"
 
-#: admin/admin_tasks/models.py:53 admin/sequences/models.py:353
+#: admin/admin_tasks/models.py:53 admin/sequences/models.py:417
 msgid "Priority"
 msgstr "Priorität"
 
@@ -239,7 +239,7 @@ msgstr "Abgeschlossen"
 #: admin/integrations/views.py:59 admin/integrations/views.py:76
 #: admin/integrations/views.py:107
 #: admin/introductions/templates/intro_update.html:31 admin/people/forms.py:193
-#: admin/people/new_hire_views.py:376
+#: admin/people/new_hire_views.py:390
 #: admin/people/templates/new_hire_notes.html:19
 #: admin/resources/templates/resource_update.html:30
 #: admin/settings/templates/org_welcome_message_update.html:26
@@ -312,8 +312,8 @@ msgid "This field is required"
 msgstr "Dieses Feld ist erforderlich"
 
 #: admin/appointments/models.py:11 admin/badges/models.py:15
-#: admin/preboarding/models.py:11 admin/sequences/models.py:152
-#: admin/sequences/models.py:153 admin/to_do/models.py:11
+#: admin/preboarding/models.py:11 admin/sequences/models.py:216
+#: admin/sequences/models.py:217 admin/to_do/models.py:11
 msgid "Content"
 msgstr "Inhalt"
 
@@ -510,7 +510,7 @@ msgid "Sequences"
 msgstr "Abfolgen"
 
 #: admin/people/forms.py:29 admin/people/forms.py:141
-#: admin/people/templates/new_hires.html:12 users/models.py:165
+#: admin/people/templates/new_hires.html:12 users/models.py:166
 msgid "Start date"
 msgstr "Startdatum"
 
@@ -563,65 +563,69 @@ msgstr "Neuer Mitarbeiter hinzufügen"
 msgid "Sequence(s) have been added to this new hire"
 msgstr "Abfolge(n) wurde(n) diesem neuen Mitarbeiter hinzugefügt"
 
-#: admin/people/new_hire_views.py:278
+#: admin/people/new_hire_views.py:256
+msgid "Sequence items were removed from this new hire"
+msgstr "Die Sequenzen wurden aus dieser neuen Einstellung entfernt"
+
+#: admin/people/new_hire_views.py:292
 msgid "Sent email to new hire"
 msgstr "E-Mail an neuen Mitarbeiter senden"
 
-#: admin/people/new_hire_views.py:291 admin/people/new_hire_views.py:341
-#: admin/people/new_hire_views.py:375 admin/people/new_hire_views.py:407
-#: admin/people/new_hire_views.py:434 admin/people/new_hire_views.py:448
-#: admin/people/new_hire_views.py:467 admin/people/new_hire_views.py:491
-#: admin/people/new_hire_views.py:609 admin/people/new_hire_views.py:624
-#: admin/people/new_hire_views.py:636 admin/people/new_hire_views.py:702
-#: admin/people/new_hire_views.py:720 admin/people/new_hire_views.py:739
+#: admin/people/new_hire_views.py:305 admin/people/new_hire_views.py:355
+#: admin/people/new_hire_views.py:389 admin/people/new_hire_views.py:421
+#: admin/people/new_hire_views.py:448 admin/people/new_hire_views.py:462
+#: admin/people/new_hire_views.py:481 admin/people/new_hire_views.py:505
+#: admin/people/new_hire_views.py:623 admin/people/new_hire_views.py:638
+#: admin/people/new_hire_views.py:650 admin/people/new_hire_views.py:716
+#: admin/people/new_hire_views.py:734 admin/people/new_hire_views.py:753
 #: admin/people/templates/new_hire_detail.html:100
 #: admin/people/templates/not_triggered_conditions.html:16
 #: admin/sequences/templates/_sequence_condition.html:56
 msgid "new hire"
 msgstr "Neuer Mitarbeiter"
 
-#: admin/people/new_hire_views.py:331
+#: admin/people/new_hire_views.py:345
 msgid "New hire has been updated"
 msgstr "Neuer Mitarbeiter wurde aktualisiert"
 
-#: admin/people/new_hire_views.py:352
+#: admin/people/new_hire_views.py:366
 msgid "New hire is now a normal account."
 msgstr "Neuer Mitarbeiter ist jetzt ein normaler Account."
 
-#: admin/people/new_hire_views.py:365
+#: admin/people/new_hire_views.py:379
 msgid "Extra info has been added!"
 msgstr "Es wurden zusätzliche Informationen hinzugefügt!"
 
-#: admin/people/new_hire_views.py:391
+#: admin/people/new_hire_views.py:405
 msgid "Note has been added"
 msgstr "Notiz wurde hinzugefügt"
 
-#: admin/people/new_hire_views.py:524
+#: admin/people/new_hire_views.py:538
 msgid "Don't forget this item!"
 msgstr "Vergiss diesen Eintrag nicht!"
 
-#: admin/people/new_hire_views.py:532
+#: admin/people/new_hire_views.py:546
 msgid "Reminder has been sent!"
 msgstr "Erinnerung wurde gesendet!"
 
-#: admin/people/new_hire_views.py:590
+#: admin/people/new_hire_views.py:604
 msgid "Item has been reopened"
 msgstr "Eintrag wurde Wiedereröffnet"
 
-#: admin/people/new_hire_views.py:687
+#: admin/people/new_hire_views.py:701
 msgid "Account has been created"
 msgstr "Konto wurde erstellt"
 
-#: admin/people/new_hire_views.py:689
+#: admin/people/new_hire_views.py:703
 msgid "Account could not be created"
 msgstr "Konto konnte nicht erstellt werden"
 
-#: admin/people/new_hire_views.py:736
+#: admin/people/new_hire_views.py:750
 #, python-format
 msgid "Add/Remove templates for %(name)s"
 msgstr "Vorlagen für %(name)s hinzufügen/entfernen"
 
-#: admin/people/new_hire_views.py:791
+#: admin/people/new_hire_views.py:805
 msgid "New hire has been removed"
 msgstr "Neuer Mitarbeiter wurde entfernt"
 
@@ -731,7 +735,7 @@ msgstr "Alle diese Einträge auslösen"
 #: admin/people/templates/add_resources.html:13
 #: admin/people/templates/new_hire_add_task.html:14
 #: admin/templates/forms.py:123 admin/to_do/templates/templates.html:13
-#: organization/models.py:235
+#: organization/models.py:236
 msgid "Tags"
 msgstr "Tags"
 
@@ -763,7 +767,7 @@ msgid "Sync with Slack"
 msgstr "Mit Slack synchronisieren"
 
 #: admin/people/templates/colleagues.html:28
-#: admin/people/templates/new_hires.html:13 users/models.py:97
+#: admin/people/templates/new_hires.html:13 users/models.py:98
 msgid "Position"
 msgstr "Position"
 
@@ -890,15 +894,15 @@ msgstr "Wenn diese Aufgaben abgeschlossen sind:"
 msgid "admins"
 msgstr "Admins"
 
-#: admin/people/templates/new_hire_detail.html:158
+#: admin/people/templates/new_hire_detail.html:157
 msgid "Latest activity..."
 msgstr "Neuste Aktivitäten..."
 
-#: admin/people/templates/new_hire_detail.html:171
+#: admin/people/templates/new_hire_detail.html:170
 msgid "By"
 msgstr "Von"
 
-#: admin/people/templates/new_hire_detail.html:177
+#: admin/people/templates/new_hire_detail.html:182
 msgid "No items yet"
 msgstr "Noch keine Einträge"
 
@@ -1151,7 +1155,7 @@ msgid "Remove item when new hire walked through"
 msgstr "Eintrag entfernen, wenn neuer Mitarbeiter ihn durchlaufen hat"
 
 #: admin/resources/models.py:85 admin/sequences/models.py:58
-#: organization/models.py:262
+#: organization/models.py:263
 #, python-format
 msgid "%(name)s (duplicate)"
 msgstr "%(name)s (Duplikat)"
@@ -1227,7 +1231,7 @@ msgstr "Ressource-Eintrag aktualisieren"
 msgid "Resource item has been removed"
 msgstr "Ressource-Eintrag wurde entfernt"
 
-#: admin/sequences/emails.py:27 admin/sequences/models.py:172
+#: admin/sequences/emails.py:27 admin/sequences/models.py:236
 msgid "Here is an update!"
 msgstr "Hier ist eine Aktualisierung!"
 
@@ -1290,18 +1294,18 @@ msgstr "Die Zeit und Tage müssen beide ausgefüllt werden."
 msgid "Edit block"
 msgstr "Block bearbeiten"
 
-#: admin/sequences/forms.py:147 admin/sequences/models.py:351
+#: admin/sequences/forms.py:147 admin/sequences/models.py:415
 msgid "Due date"
 msgstr "Frist-Datum"
 
 #: admin/sequences/models.py:27 admin/sequences/models.py:34
-#: admin/settings/forms.py:186 admin/settings/forms.py:199 users/models.py:31
-#: users/models.py:159
+#: admin/settings/forms.py:186 admin/settings/forms.py:199 users/models.py:32
+#: users/models.py:160
 msgid "Manager"
 msgstr "Manager"
 
 #: admin/sequences/models.py:28 admin/sequences/models.py:35
-#: users/models.py:152
+#: users/models.py:153
 msgid "Buddy"
 msgstr "Kumpel"
 
@@ -1309,72 +1313,72 @@ msgstr "Kumpel"
 msgid "Custom"
 msgstr "Benutzerdefiniert"
 
-#: admin/sequences/models.py:37 admin/sequences/models.py:164
+#: admin/sequences/models.py:37 admin/sequences/models.py:228
 #: admin/to_do/models.py:22
 msgid "Slack channel"
 msgstr "Slack-Kanal"
 
-#: admin/sequences/models.py:149
+#: admin/sequences/models.py:213
 msgid "Text"
 msgstr "Text"
 
-#: admin/sequences/models.py:154
+#: admin/sequences/models.py:218
 msgid "Send via"
 msgstr "Senden per"
 
-#: admin/sequences/models.py:157
+#: admin/sequences/models.py:221
 msgid "Send to"
 msgstr "Senden an"
 
-#: admin/sequences/models.py:170
+#: admin/sequences/models.py:234
 msgid "Subject"
 msgstr "Betreff"
 
-#: admin/sequences/models.py:176
+#: admin/sequences/models.py:240
 msgid "For"
 msgstr "Für"
 
-#: admin/sequences/models.py:320
+#: admin/sequences/models.py:384
 msgid "Comment"
 msgstr "Kommentar"
 
-#: admin/sequences/models.py:330
+#: admin/sequences/models.py:394
 msgid "Pick user"
 msgstr "Wähle Benutzter aus"
 
-#: admin/sequences/models.py:336
+#: admin/sequences/models.py:400
 msgid "Send email or Slack message to extra user?"
 msgstr "E-Mail oder Slack-Nachricht an einen weiteren Benutzter senden?"
 
-#: admin/sequences/models.py:475
+#: admin/sequences/models.py:539
 msgid "After new hire has started"
 msgstr "Nachdem neuer Mitarbeiter angefangen hat"
 
-#: admin/sequences/models.py:476
+#: admin/sequences/models.py:540
 msgid "Based on one or more to do item(s)"
 msgstr "Basierend auf einem oder mehr Einträgen"
 
-#: admin/sequences/models.py:477
+#: admin/sequences/models.py:541
 msgid "Before the new hire has started"
 msgstr "Bevor neuer Mitarbeiter angefangen hat"
 
-#: admin/sequences/models.py:478
+#: admin/sequences/models.py:542
 msgid "Without trigger"
 msgstr "Ohne Auslöser"
 
-#: admin/sequences/models.py:484
+#: admin/sequences/models.py:548
 msgid "Block type"
 msgstr "Block Typ"
 
-#: admin/sequences/models.py:487
+#: admin/sequences/models.py:551
 msgid "Amount of days before/after new hire has started"
 msgstr "Anzahl der Tage bevor/nachdem ein neuer Mitarbeiter angefangen hat"
 
-#: admin/sequences/models.py:489
+#: admin/sequences/models.py:553
 msgid "At"
 msgstr "Bei"
 
-#: admin/sequences/models.py:492
+#: admin/sequences/models.py:556
 msgid "Trigger after these to do items have been completed:"
 msgstr "Löse aus, nachdem diese To-Do-Einträge abgeschlossen wurden"
 
@@ -1469,7 +1473,7 @@ msgstr "Abfolge"
 msgid "Sequence item has been removed"
 msgstr "Abfolge-Eintrag wurde entfernt"
 
-#: admin/settings/forms.py:20 organization/models.py:32 users/models.py:118
+#: admin/settings/forms.py:20 organization/models.py:33 users/models.py:119
 msgid "Timezone"
 msgstr "Zeitzone"
 
@@ -1485,7 +1489,7 @@ msgstr "Anmeldeoptionen"
 msgid "You must enable at least one login option"
 msgstr "Du musst mindestens eine Anmeldeoption aktivieren"
 
-#: admin/settings/forms.py:186 admin/settings/forms.py:199 users/models.py:30
+#: admin/settings/forms.py:186 admin/settings/forms.py:199 users/models.py:31
 msgid "Administrator"
 msgstr "Administrator"
 
@@ -1523,8 +1527,8 @@ msgstr ""
 "OTP-Token war nicht korrekt. Bitte warte 30 Sekunden und versuche es dann "
 "nochmal"
 
-#: admin/settings/templates/_personal_tabs.html:4 organization/models.py:26
-#: users/models.py:127
+#: admin/settings/templates/_personal_tabs.html:4 organization/models.py:27
+#: users/models.py:128
 msgid "Language"
 msgstr "Sprache"
 
@@ -1567,7 +1571,7 @@ msgstr ""
 "empfehlen andOTP oder Aegis (du kannst aber auch den Google Authenticator "
 "oder Authy verwenden.)"
 
-#: admin/settings/templates/settings_admins.html:11 users/models.py:133
+#: admin/settings/templates/settings_admins.html:11 users/models.py:134
 msgid "Role"
 msgstr "Rolle"
 
@@ -1935,39 +1939,39 @@ msgstr "Neustart"
 msgid "You have completed this course!"
 msgstr "Du hast diesen Kurs abgeschlossen!"
 
-#: organization/models.py:40
+#: organization/models.py:41
 msgid "Base color"
 msgstr "Basisfarbe"
 
-#: organization/models.py:43
+#: organization/models.py:44
 msgid "Accent color"
 msgstr "Akzentfarbe"
 
-#: organization/models.py:46
+#: organization/models.py:47
 msgid "Bot color"
 msgstr "Botfarbe"
 
-#: organization/models.py:49
+#: organization/models.py:50
 msgid "Logo"
 msgstr "Logo"
 
-#: organization/models.py:54
+#: organization/models.py:55
 msgid "Allow users to login with their username and password"
 msgstr "Erlaube Benutzter sich mit ihrem Benutzername und Passwort anzumelden"
 
-#: organization/models.py:58
+#: organization/models.py:59
 msgid "Allow users to login with their Google account"
 msgstr "Erlaube Benutzter sich mit ihrem Google-Account anzumelden"
 
-#: organization/models.py:61
+#: organization/models.py:62
 msgid "Allow users to login with their Slack account"
 msgstr "Erlaube Benutzter sich mit ihrem Slack-Account anzumelden"
 
-#: organization/models.py:66
+#: organization/models.py:67
 msgid "Send email to new hire with login credentials"
 msgstr "Sende eine E-Mail mit neuen Anmeldedaten an neuen Mitarbeiter"
 
-#: organization/models.py:68
+#: organization/models.py:69
 msgid ""
 "This is essential if you want your new hires to login to the dashboard "
 "(disable if using Slack)"
@@ -1975,24 +1979,24 @@ msgstr ""
 "Dies ist essenziell, wenn du willst, dass deine neuen Mitarbeiter sich im "
 "Dashboard anmelden (deaktivieren, falls Slack verwendet wird)"
 
-#: organization/models.py:74
+#: organization/models.py:75
 msgid "Send email to new hire with updates"
 msgstr "Sende eine E-Mail mit Aktualisierungen an neuen Mitarbeiter"
 
-#: organization/models.py:75
+#: organization/models.py:76
 msgid "Think of new tasks that got assigned, new resources, badges... "
 msgstr ""
 "Überlege dir neue Aufgaben, die zugewiesen wurden, neue Ressourcen, Badges..."
 
-#: organization/models.py:79
+#: organization/models.py:80
 msgid "Send email to new hire when tasks are overdue"
 msgstr "Sende eine E-Mail an neuen Mitarbeiter, wenn Aufgaben überfällig sind"
 
-#: organization/models.py:80
+#: organization/models.py:81
 msgid "These are daily emails, until all overdue tasks are completed."
 msgstr "Dies sind tägliche E-Mails, bis die überfällige Aufgabe erledigt ist."
 
-#: organization/models.py:87
+#: organization/models.py:88
 msgid ""
 "Add 'todo' and 'resource' buttons to the first message that's being sent to "
 "the new hire."
@@ -2000,7 +2004,7 @@ msgstr ""
 "Füge 'To-Do'- und 'Ressource'-Buttons zu der ersten Nachricht, die an den "
 "neuen Mitarbeiter gesendet wird, hinzu."
 
-#: organization/models.py:94
+#: organization/models.py:95
 msgid ""
 "Send a Slack message to the team to collect personal welcome messages from "
 "colleages."
@@ -2008,47 +2012,50 @@ msgstr ""
 "Sende eine Slack-Nachricht an das Team um persönliche Willkommensnachrichten "
 "von Kollegen zu erhalten."
 
-#: organization/models.py:101
+#: organization/models.py:102
 msgid "Send a Slack message to the team on the day the new hire starts"
 msgstr ""
 "Sende eine Slack-Nachricht, an dem Tag an dem der neue Mitarbeiter anfängt, "
 "an das Team"
 
-#: organization/models.py:106
+#: organization/models.py:107
 msgid "Create a new hire when they join your Slack team"
 msgstr "Lege einen neuen Mitarbeiter an, wenn er deinem Slack-Team beitritt"
 
-#: organization/models.py:107
+#: organization/models.py:108
 msgid "If the user does not exist yet"
 msgstr "Falls der Benutzer noch nicht existiert"
 
-#: organization/models.py:111
+#: organization/models.py:112
 msgid "Create new hires without needing confirm from a user"
 msgstr ""
 "Erstelle neue Mitarbeiter, ohne einen neuen Benutzer bestätigen zu müssen"
 
-#: organization/models.py:116
+#: organization/models.py:117
 msgid "User to sent new hire account requests to"
 msgstr ""
 "Benutzer, dem Accountanfragen für neue Mitarbeiter zugesendet werden können"
 
-#: organization/models.py:123
+#: organization/models.py:124
 msgid "This is the default channel where the bot will post messages in"
 msgstr "Dies ist der Standardkanal, in dem der Bot Nachrichten posten wird"
 
-#: organization/models.py:132
+#: organization/models.py:133
 msgid "This is the channel where the bot will send birthday wishes in. "
-msgstr "Dies ist der Kanal, in dem der Bot Geburtstagsglückwünsche senden wird."
+msgstr ""
+"Dies ist der Kanal, in dem der Bot Geburtstagsglückwünsche senden wird."
 
-#: organization/models.py:135
+#: organization/models.py:136
 msgid "Leave blank to disable this. Timing is based on when this was enabled."
-msgstr "Leer lassen, um dies zu deaktivieren. Das Timing hängt davon ab, wann diese Funktion aktiviert wurde."
+msgstr ""
+"Leer lassen, um dies zu deaktivieren. Das Timing hängt davon ab, wann diese "
+"Funktion aktiviert wurde."
 
-#: organization/models.py:145
+#: organization/models.py:146
 msgid "Base email template"
 msgstr "Bais-E-Mail-Vorlage"
 
-#: organization/models.py:147
+#: organization/models.py:148
 msgid ""
 "Leave blank to use the default one. See documentation if you want to use "
 "your own."
@@ -2056,174 +2063,178 @@ msgstr ""
 "Freilassen um den Standard zu verwenden. Lies die Dokumentation wenn du "
 "deine eigene verwenden möchtest."
 
-#: organization/models.py:203
+#: organization/models.py:204
 msgid "pre-boarding"
 msgstr "Pre-boarding"
 
-#: organization/models.py:204
+#: organization/models.py:205
 msgid "new hire welcome"
 msgstr "Mitarbeiter Willkommen"
 
-#: organization/models.py:205
+#: organization/models.py:206
 msgid "text welcome"
 msgstr "Text Willkommen"
 
-#: organization/models.py:206
+#: organization/models.py:207
 msgid "slack welcome"
 msgstr "Slack Willkommen"
 
-#: organization/models.py:207
+#: organization/models.py:208
 msgid "slack knowledge"
 msgstr "Slackwissen"
 
-#: organization/models.py:210 users/models.py:104
+#: organization/models.py:211 users/models.py:105
 msgid "Message"
 msgstr "Nachricht"
 
-#: organization/models.py:280
+#: organization/models.py:281
 msgid "A new to do item has been added"
 msgstr "Ein neuer To-Do-Eintrag wurde hinzugefügt"
 
-#: organization/models.py:281
+#: organization/models.py:282
 msgid "To do item has been marked as completed"
 msgstr "To-Do-Eintrag wurde als abgeschlossen markiert"
 
-#: organization/models.py:282
+#: organization/models.py:283
 msgid "A new resource item has been added"
 msgstr "Ein neuer Ressourcen-Eintrag wurde hinzugefügt"
 
-#: organization/models.py:283
+#: organization/models.py:284
 msgid "Course has been completed"
 msgstr "Kurs wurde abgeschlossen"
 
-#: organization/models.py:284
+#: organization/models.py:285
 msgid "A new badge item has been added"
 msgstr "Ein neuer Badge-Eintrag wurde hinzugefügt"
 
-#: organization/models.py:285
+#: organization/models.py:286
 msgid "A new introduction item has been added"
 msgstr "Ein neuer Vorstellungs-Eintrag wurde hinzugefügt"
 
-#: organization/models.py:286
+#: organization/models.py:287
 msgid "A new preboarding item has been added"
 msgstr "Ein neuer Preboarding-Eintrag wurde hinzugefügt"
 
-#: organization/models.py:287
+#: organization/models.py:288
 #, fuzzy
 #| msgid "Appointment item has been updated"
 msgid "A new appointment item has been added"
 msgstr "Termineintrag wude aktualisiert"
 
-#: organization/models.py:288
+#: organization/models.py:289
 msgid "A new hire has been added"
 msgstr "Ein neuer Mitarbeiter wurde hinzugefügt"
 
-#: organization/models.py:289
+#: organization/models.py:290
 msgid "A new administrator has been added"
 msgstr "Ein neuer Administrator wurde hinzugefügt"
 
-#: organization/models.py:290
+#: organization/models.py:291
 msgid "A new manager has been added"
 msgstr "Ein neuer Manager wurde hinzugefügt"
 
-#: organization/models.py:291
+#: organization/models.py:292
 msgid "A new admin task has been added"
 msgstr "Eine neue Admin-Aufgabe wurde hinzugefügt"
 
-#: organization/models.py:292
+#: organization/models.py:293
+msgid "A new sequence has been added"
+msgstr "Es wurde eine neue Sequenz hinzugefügt"
+
+#: organization/models.py:294
 msgid "A new email has been sent"
 msgstr "Eine neue E-Mail wurde versendet"
 
-#: organization/models.py:293
+#: organization/models.py:295
 msgid "A new text message has been sent"
 msgstr "Eine neue SMS wurde versendet"
 
-#: organization/models.py:294
+#: organization/models.py:296
 msgid "A new slack message has been sent"
 msgstr "Eine neue Slack-Nachricht wurde versendet"
 
-#: organization/models.py:295
+#: organization/models.py:297
 msgid "A new slack message has been updated"
 msgstr "Eine neue Slack-Nachricht wurde aktualisiert"
 
-#: organization/models.py:296
+#: organization/models.py:298
 msgid "Login credentials have been sent"
 msgstr "Anmeldedaten wurden versendet"
 
-#: organization/models.py:297
+#: organization/models.py:299
 msgid "Reopened task email has been sent"
 msgstr "E-Mail für wiedereröffnete Aufgabe wurde versendet"
 
-#: organization/models.py:298
+#: organization/models.py:300
 msgid "Task reminder email has been sent"
 msgstr "Aufgabenerinnerungs-Mail wurde versendet"
 
-#: organization/models.py:299
+#: organization/models.py:301
 msgid "Sent new hire credentials email"
 msgstr "E-Mail mit Anmeldedaten für neuen Mitarbeiter wurde versendet"
 
-#: organization/models.py:300
+#: organization/models.py:302
 msgid "Sent new hire preboarding email"
 msgstr "Preboarding-Mail wurde an neuen Mitarbeiter versendet"
 
-#: organization/models.py:301
+#: organization/models.py:303
 msgid "Sent email from sequence"
 msgstr "E-Mail von Abfolge wurde versendet"
 
-#: organization/models.py:302
+#: organization/models.py:304
 msgid "Sent email with updates to new hire"
 msgstr "E-Mail mit Aktualisierungen wurde an neuen Mitarbeiter versendet"
 
-#: organization/models.py:303
+#: organization/models.py:305
 msgid "Sent email to extra person in admin task"
 msgstr "E-Mail wurde an weitere Person in Amdmin-Aufgabe versendet"
 
-#: organization/models.py:306
+#: organization/models.py:308
 msgid "Sent email about new person assigned to admin task"
 msgstr ""
 "E-Mail über neue Person, die der Admin-Aufgabe zugewiesen wurde, versendet"
 
-#: organization/models.py:310
+#: organization/models.py:312
 msgid "Sent email about new comment on admin task"
 msgstr "E-Mail über neuen Kommentar unter Admin-Task versendet"
 
-#: organization/models.py:314
+#: organization/models.py:316
 msgid "Sent email about completing integration call"
 msgstr "E-Mail über Abschluss des Integrations-Anruf versendet"
 
-#: organization/models.py:316
+#: organization/models.py:318
 msgid "Couldn't send text message: number is missing"
 msgstr "SMS konnte nicht versendet werden: Keine Nummer vorhanden"
 
-#: organization/models.py:317
+#: organization/models.py:319
 msgid "Couldn't send email message: email is missing"
 msgstr "E-Mail konnte nicht versendet werden: Keine E-Mailadresse vorhanden"
 
-#: organization/models.py:320
+#: organization/models.py:322
 msgid "Couldn't deliver email message: recipient refused"
 msgstr "E-Mail konnte nicht versendet werden: Empfänger abgelehnt"
 
-#: organization/models.py:322 organization/models.py:323
+#: organization/models.py:324 organization/models.py:325
 msgid "Couldn't deliver email message: provider error"
 msgstr "E-Mail konnte nicht versendet werden: Provider-Error"
 
-#: organization/models.py:324
+#: organization/models.py:326
 msgid "Couldn't send Slack message"
 msgstr "Slack-Nachricht konnte nicht gesendet werden"
 
-#: organization/models.py:325
+#: organization/models.py:327
 msgid "Couldn't update Slack message"
 msgstr "Slack-Nachricht konnte nicht aktualisiert werden"
 
-#: organization/models.py:326
+#: organization/models.py:328
 msgid "Integration has been triggered"
 msgstr "Integration wurde ausgelöst"
 
-#: organization/models.py:327
+#: organization/models.py:329
 msgid "Couldn't complete integration"
 msgstr "Integration konnte nicht abgeschlossen werden"
 
-#: organization/models.py:330
+#: organization/models.py:332
 msgid "Couldn't send integration notification"
 msgstr "Integrationsbenachrichtigung konnte nicht versendet werden:"
 
@@ -2348,12 +2359,12 @@ msgid "We got some new hires coming in! %(names)s are starting today!"
 msgstr ""
 "Wir haben einige neue Mitarbeiter eingestellt! %(names)s fangen heute an!"
 
-#: slack_bot/tasks.py:191
+#: slack_bot/tasks.py:192
 #, python-format
 msgid "It's %(names)s birthday today!"
 msgstr "Heute ist der Geburtstag von %(names)s!"
 
-#: slack_bot/tasks.py:217
+#: slack_bot/tasks.py:218
 msgid ""
 "We got some new hires coming in soon! Make sure to leave a welcome message "
 "for them!"
@@ -2361,7 +2372,7 @@ msgstr ""
 "Es werden bald neue Mitarbeiter eingestellt! Stelle sicher, dass du eine "
 "Willkommensnachricht für sie hinterlässt!"
 
-#: slack_bot/tasks.py:222
+#: slack_bot/tasks.py:223
 #, python-format
 msgid ""
 "We have a new hire coming in soon! Make sure to leave a message for "
@@ -2370,17 +2381,17 @@ msgstr ""
 "Es wird bald ein neuer Mitarbeiter eingestellt! Stelle sicher, dass du eine "
 "Nachricht für %(first_name)s hinterlässt!"
 
-#: slack_bot/tasks.py:250
+#: slack_bot/tasks.py:251
 #, python-format
 msgid " and is our new %(position)s"
 msgstr " und ist unser neuer %(position)s"
 
-#: slack_bot/tasks.py:255
+#: slack_bot/tasks.py:256
 #, python-format
 msgid "%(first_name)s starts on %(start_day)s%(footer_extra)s."
 msgstr "%(first_name)s beginnt am %(start_day)s%(footer_extra)s."
 
-#: slack_bot/tasks.py:268 slack_bot/views.py:731
+#: slack_bot/tasks.py:269 slack_bot/views.py:731
 msgid "Welcome this new hire!"
 msgstr "Willkomen an diesen neuen Mitarbeiter!"
 
@@ -2608,51 +2619,51 @@ msgstr "Willkomen %(name)s!"
 msgid "See pages"
 msgstr "Seiten ansehen"
 
-#: users/models.py:29
+#: users/models.py:30
 msgid "New Hire"
 msgstr "Neuer Mitarbeiter"
 
-#: users/models.py:32
+#: users/models.py:33
 msgid "Other"
 msgstr "Andere"
 
-#: users/models.py:89
+#: users/models.py:90
 msgid "First name"
 msgstr "Vorname"
 
-#: users/models.py:90
+#: users/models.py:91
 msgid "Last name"
 msgstr "Nachname"
 
-#: users/models.py:95
+#: users/models.py:96
 msgid "Birthday"
 msgstr "Geburtstag"
 
-#: users/models.py:100
+#: users/models.py:101
 msgid "Phone"
 msgstr "Telefon"
 
-#: users/models.py:106
+#: users/models.py:107
 msgid "Profile image"
 msgstr "Profilbild"
 
-#: users/models.py:109
+#: users/models.py:110
 msgid "Linkedin"
 msgstr "Linkedin"
 
-#: users/models.py:112
+#: users/models.py:113
 msgid "Facebook"
 msgstr "Facebook"
 
-#: users/models.py:115
+#: users/models.py:116
 msgid "Twitter"
 msgstr "Twitter"
 
-#: users/models.py:124
+#: users/models.py:125
 msgid "Department"
 msgstr "Abteilung"
 
-#: users/models.py:137
+#: users/models.py:138
 msgid ""
 "An administrator has access to everything. A manager has only access to "
 "their new hires and their tasks."
@@ -2660,22 +2671,22 @@ msgstr ""
 "Ein Administrator hat zu allem Zugang. Ein Manager hat nur Zugang zu ihren "
 "neuen Mitarbeitern und ihren Aufgaben."
 
-#: users/models.py:168
+#: users/models.py:169
 msgid "First working day"
 msgstr "Erster Arbeitstag"
 
-#: users/models.py:465
+#: users/models.py:475
 #, python-format
 msgid "*Our new hire %(name)s just answered some questions:*"
 msgstr ""
 "*Unser neuer Mitarbeiter %(name)s hat gerade einige Fragen beanwortet:*"
 
-#: users/models.py:478
+#: users/models.py:488
 #, python-format
 msgid "Our new hire %(name)s just answered some questions:"
 msgstr "Unser neuer Mitarbeiter %(name)s hat gerade einige Fragen beanwortet:"
 
-#: users/models.py:597
+#: users/models.py:607
 #, python-format
 msgid ""
 "%(amount_of_correct_answers)s correct answers out of %(amount_of_questions)s "
