@@ -1,8 +1,10 @@
+from datetime import timedelta
 import json
 
 import pytest
 from django.core.cache import cache
 from django.urls import reverse
+from django.utils import timezone
 
 from misc.models import File
 
@@ -150,6 +152,8 @@ def test_file_url(settings, client, new_hire_factory, file_factory, monkeypatch)
     url = reverse("organization:get_file", args=[file1.id, file2.uuid])
     response = client.get(url)
 
+    assert response.status_code == 404
+
     # Valid request
     url = reverse("organization:get_file", args=[file1.id, file1.uuid])
     response = client.get(url)
@@ -190,3 +194,22 @@ def test_file_delete_as_new_hire(client, new_hire_factory, file_factory):
 
     assert File.objects.all().count() == 1
     assert response.status_code == 204
+
+
+@pytest.mark.django_db
+def test_notification_can_delete(notification_factory):
+    not1 = notification_factory(notification_type="added_todo")
+
+    assert not not1.can_delete
+
+    # Correct notification type and date is within limit
+    not1.notification_type = "added_sequence"
+    not1.save()
+
+    assert not1.can_delete
+
+    # date is now outside of limit
+    not1.created = timezone.now() - timedelta(days=3)
+    not1.save()
+
+    assert not not1.can_delete

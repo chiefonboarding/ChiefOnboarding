@@ -265,7 +265,6 @@ def test_create_new_hire_add_sequence_without_manual_trigger_condition_redirect_
     new_hire_factory,
     sequence_factory,
     condition_timed_factory,
-    condition_to_do_factory,
     to_do_factory,
 ):
     client.force_login(django_user_model.objects.create(role=1))
@@ -282,6 +281,50 @@ def test_create_new_hire_add_sequence_without_manual_trigger_condition_redirect_
     assert (
         reverse("admin:new_hire", args=[new_hire1.id]) == response.redirect_chain[-1][0]
     )
+
+
+@pytest.mark.django_db
+def test_remove_sequence_from_new_hire(
+    client,
+    django_user_model,
+    new_hire_factory,
+    sequence_factory,
+    condition_timed_factory,
+    to_do_factory,
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    to_do1 = to_do_factory()
+    to_do2 = to_do_factory()
+    to_do3 = to_do_factory()
+    to_do4 = to_do_factory()
+    new_hire1 = new_hire_factory()
+    sequence1 = sequence_factory()
+    sequence2 = sequence_factory()
+    # On the same day, test it shouldn't remove everything
+    condition1 = condition_timed_factory(sequence=sequence1, days=3)
+    condition2 = condition_timed_factory(sequence=sequence2, days=3)
+    condition3 = condition_timed_factory(sequence=sequence2, days=2)
+    condition1.to_do.add(to_do1)
+    condition2.to_do.add(to_do2)
+    condition2.to_do.add(to_do3)
+    condition3.to_do.add(to_do4)
+
+    new_hire1.add_sequences([sequence1, sequence2])
+
+    assert new_hire1.conditions.count() == 2
+
+    url = reverse("people:remove_sequence", args=[new_hire1.id, sequence2.id])
+    response = client.post(url, follow=True)
+
+    new_hire1.refresh_from_db()
+
+    assert "Sequence items were removed from this new hire" in response.content.decode()
+    assert new_hire1.conditions.count() == 1
+    assert to_do1 in new_hire1.conditions.first().to_do.all()
+    assert to_do2 not in new_hire1.conditions.first().to_do.all()
+    assert to_do3 not in new_hire1.conditions.first().to_do.all()
+    assert to_do4 not in new_hire1.conditions.first().to_do.all()
 
 
 @pytest.mark.django_db

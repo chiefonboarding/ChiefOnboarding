@@ -133,6 +133,70 @@ class Sequence(models.Model):
                 # Add newly created condition back to user
                 user.conditions.add(sequence_condition)
 
+    def remove_from_user(self, new_hire):
+        from admin.admin_tasks.models import AdminTask
+
+        # get all items from all conditions
+        to_dos = ToDo.objects.none()
+        badges = Badge.objects.none()
+        resources = Resource.objects.none()
+        admin_tasks = AdminTask.objects.none()
+        external_messages = ExternalMessage.objects.none()
+        introductions = Introduction.objects.none()
+        preboarding = Preboarding.objects.none()
+        appointments = Appointment.objects.none()
+        integration_configs = IntegrationConfig.objects.none()
+
+        # TODO: this is going to make a lot of queries, should be optimized
+        for condition in self.conditions.all():
+            to_dos |= condition.to_do.all()
+            badges |= condition.badges.all()
+            resources |= condition.resources.all()
+            admin_tasks |= condition.admin_tasks.all()
+            external_messages |= condition.external_messages.all()
+            introductions |= condition.introductions.all()
+            preboarding |= condition.preboarding.all()
+            appointments |= condition.appointments.all()
+            integration_configs |= condition.integration_configs.all()
+
+        # Cycle through new hire's item and remove the ones that aren't supposed to
+        # be there
+        new_hire.to_do.remove(*to_dos)
+        new_hire.badges.remove(*badges)
+        new_hire.appointments.remove(*appointments)
+        new_hire.preboarding.remove(*preboarding)
+        new_hire.introductions.remove(*introductions)
+
+        # Do the same with the conditions
+        conditions_to_be_deleted = []
+        items = {
+            "to_do": to_dos,
+            "resources": resources,
+            "badges": badges,
+            "admin_tasks": admin_tasks,
+            "external_messages": external_messages,
+            "introductions": introductions,
+            "preboarding": preboarding,
+            "appointments": appointments,
+            "integration_configs": integration_configs,
+        }
+        for condition in new_hire.conditions.all():
+            for field in condition._meta.many_to_many:
+                # We only want to remove assigned items, not triggers
+                if field.name == "condition_to_do":
+                    continue
+                getattr(condition, field.name).remove(*items[field.name])
+
+            if condition.is_empty:
+                conditions_to_be_deleted.append(condition.id)
+
+        # Remove all empty conditions
+        Condition.objects.filter(id__in=conditions_to_be_deleted).delete()
+        # Delete sequence
+        Notification.objects.order_by("-created").filter(
+            notification_type="added_sequence"
+        ).first().delete()
+
 
 class ExternalMessageManager(models.Manager):
     def for_new_hire(self):
@@ -503,6 +567,20 @@ class Condition(models.Model):
     integration_configs = models.ManyToManyField(IntegrationConfig)
 
     objects = ConditionPrefetchManager()
+
+    @property
+    def is_empty(self):
+        return not (
+            self.to_do.exists()
+            or self.badges.exists()
+            or self.resources.exists()
+            or self.admin_tasks.exists()
+            or self.introductions.exists()
+            or self.external_messages.exists()
+            or self.preboarding.exists()
+            or self.appointments.exists()
+            or self.integration_configs.exists()
+        )
 
     def remove_item(self, model_item):
         # If any of the external messages, then get the root one

@@ -21,6 +21,7 @@ from admin.resources.models import CourseAnswer, Resource
 from admin.sequences.models import Condition
 from admin.to_do.models import ToDo
 from misc.models import File
+from organization.models import Notification
 from slack_bot.utils import Slack, paragraph
 
 from .utils import CompletedFormCheck
@@ -296,6 +297,15 @@ class User(AbstractBaseUser):
     def add_sequences(self, sequences):
         for sequence in sequences:
             sequence.assign_to_user(self)
+            Notification.objects.create(
+                notification_type="added_sequence",
+                item_id=sequence.id,
+                created_for=self,
+                extra_text=sequence.name,
+            )
+
+    def remove_sequence(self, sequence):
+        sequence.remove_from_user(self)
 
     @cached_property
     def workday(self):

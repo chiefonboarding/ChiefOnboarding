@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pytz
 from django.conf import settings
@@ -8,6 +8,7 @@ from django.db import models
 from django.template import Context, Template
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
@@ -289,6 +290,7 @@ NOTIFICATION_TYPES = [
     ("added_administrator", _("A new administrator has been added")),
     ("added_manager", _("A new manager has been added")),
     ("added_admin_task", _("A new admin task has been added")),
+    ("added_sequence", _("A new sequence has been added")),
     ("sent_email_message", _("A new email has been sent")),
     ("sent_text_message", _("A new text message has been sent")),
     ("sent_slack_message", _("A new slack message has been sent")),
@@ -375,3 +377,11 @@ class Notification(models.Model):
             return False
 
         return self.created_for.seen_updates < self.created
+
+    @property
+    def can_delete(self):
+        # Only allow delete when it's a sequence item and when it's no more then two
+        # days ago when it got added
+        return self.notification_type == "added_sequence" and self.created > (
+            timezone.now() - timedelta(days=2)
+        )

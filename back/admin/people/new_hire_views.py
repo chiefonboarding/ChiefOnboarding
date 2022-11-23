@@ -244,6 +244,20 @@ class NewHireAddSequenceView(
         return context
 
 
+class NewHireRemoveSequenceView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, View):
+    def post(self, request, pk, sequence_pk, *args, **kwargs):
+        sequence = get_object_or_404(Sequence, id=sequence_pk)
+        new_hire = get_object_or_404(get_user_model(), id=pk)
+        new_hire.remove_sequence(sequence)
+
+        # Update user amount and completed
+        new_hire.update_progress()
+
+        messages.success(request, _("Sequence items were removed from this new hire"))
+
+        return redirect("people:new_hire", pk=new_hire.id)
+
+
 class NewHireTriggerConditionView(
     LoginRequiredMixin, IsAdminOrNewHireManagerMixin, TemplateView
 ):
