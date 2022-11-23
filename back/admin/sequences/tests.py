@@ -1437,6 +1437,16 @@ def test_execute_pending_admin_task(
     assert admin_task.new_hire == new_hire
 
 
+@pytest.mark.django_db
+def test_condition_is_empty(condition_to_do_factory, to_do_factory):
+    condition = condition_to_do_factory()
+    to_do = to_do_factory()
+
+    assert condition.is_empty
+    condition.to_do.add(to_do)
+    assert not condition.is_empty
+
+
 # TASKS
 
 

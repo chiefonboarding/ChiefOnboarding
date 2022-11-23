@@ -378,7 +378,7 @@ class Notification(models.Model):
 
         return self.created_for.seen_updates < self.created
 
-    @cached_property
+    @property
     def can_delete(self):
         # Only allow delete when it's a sequence item and when it's no more then two
         # days ago when it got added

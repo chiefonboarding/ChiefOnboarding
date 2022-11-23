@@ -575,6 +575,7 @@ class Condition(models.Model):
             or self.badges.exists()
             or self.resources.exists()
             or self.admin_tasks.exists()
+            or self.introductions.exists()
             or self.external_messages.exists()
             or self.preboarding.exists()
             or self.appointments.exists()
