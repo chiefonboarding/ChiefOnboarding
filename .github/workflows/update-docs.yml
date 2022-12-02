@@ -1,24 +1,23 @@
 name: update_docs
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
     paths:
       - 'docs/**'
 jobs:
-  build:
+  publish:
+    name: Publish to retype branch
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
-      - name: Building
-        run: |
-          npm install retypeapp --location=global
-          cd docs
-          retype build
-      - name: Uploading files with rclone 
-        uses: wei/rclone@v1
-        env:
-          RCLONE_CONF: ${{ secrets.RCLONE_CONF }}
+      - uses: retypeapp/action-build@latest
         with:
-          args: sync docs/.retype/ storage:/caddy/chief_docs/
+          config: docs
+
+      - uses: retypeapp/action-github-pages@latest
+        with:
+          branch: retype
+          update-branch: true
