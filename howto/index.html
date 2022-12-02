@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.723258096099">
+
+    <!-- See retype.com -->
+    <meta name="generator" content="Retype 2.4.0">
+
+    <!-- Primary Meta Tags -->
+    <title>How to / Demo</title>
+    <meta name="title" content="How to / Demo">
+    <meta name="description" content="At ChiefOnboarding, we currently don't do demos with potential customers. Demos take a lot of time and are quite similar between potential customers." />
+
+    <!-- Canonical -->
+    <link rel="canonical" href="https://docs.chiefonboarding.com/howto/" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://docs.chiefonboarding.com/howto/">
+    <meta property="og:title" content="How to / Demo">
+    <meta property="og:description" content="At ChiefOnboarding, we currently don't do demos with potential customers. Demos take a lot of time and are quite similar between potential customers.">
+    <meta property="og:image" content="https://docs.chiefonboarding.com/static/sequence.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://docs.chiefonboarding.com/howto/">
+    <meta property="twitter:title" content="How to / Demo">
+    <meta property="twitter:description" content="At ChiefOnboarding, we currently don't do demos with potential customers. Demos take a lot of time and are quite similar between potential customers.">
+    <meta property="twitter:image" content="https://docs.chiefonboarding.com/static/sequence.png">
+
+    <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
+
+    <link href="../resources/css/retype.css?v=2.4.0.723258096099" rel="stylesheet" />
+
+    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.723258096099" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../resources/js/retype.js?v=2.4.0" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.723258096099" data-turbo-eval="false" defer></script>
+</head>
+<body>
+    <div id="docs-app" class="relative text-base antialiased text-gray-700 bg-white font-body dark:bg-dark-850 dark:text-dark-300">
+        <div class="absolute bottom-0 left-0 bg-gray-100 dark:bg-dark-800" style="top: 5rem; right: 50%"></div>
+    
+        <header id="docs-site-header" class="sticky top-0 z-30 flex w-full h-16 bg-white border-b border-gray-200 md:h-20 dark:bg-dark-850 dark:border-dark-650">
+            <div class="container relative flex items-center justify-between grow pr-6 md:justify-start">
+                <!-- Mobile menu button skeleton -->
+                <button v-cloak class="skeleton docs-mobile-menu-button flex items-center justify-center shrink-0 overflow-hidden dark:text-white focus:outline-none rounded-full w-10 h-10 ml-3.5 md:hidden"><svg xmlns="http://www.w3.org/2000/svg" class="mb-px shrink-0" width="24" height="24" viewBox="0 0 24 24" role="presentation" style="margin-bottom: 0px;"><g fill="currentColor"><path d="M2 4h20v2H2zM2 11h20v2H2zM2 18h20v2H2z"></path></g></svg></button>
+                <div v-cloak id="docs-sidebar-toggle"></div>
+        
+                <!-- Logo -->
+                <div class="flex items-center justify-between h-full py-2 md:w-75">
+                    <div class="flex items-center px-2 md:px-6">
+                        <a id="docs-site-logo" href="../" class="flex items-center leading-snug text-xl">
+                            <span class="dark:text-white font-semibold line-clamp-1 md:line-clamp-2">ChiefOnboarding</span>
+                        </a><span class="hidden px-2 py-1 ml-4 text-sm font-semibold leading-none text-root-logo-label-text bg-root-logo-label-bg rounded-sm md:inline-block">Docs</span>
+                    </div>
+        
+                    <span class="hidden h-8 border-r md:inline-block dark:border-dark-650"></span>
+                </div>
+        
+                <div class="flex justify-between md:grow">
+                    <!-- Top Nav -->
+                    <nav class="hidden md:flex">
+                        <ul class="flex flex-col mb-4 md:pl-16 md:mb-0 md:flex-row md:items-center">
+                            <li class="mr-6">
+                                <a class="py-2 md:mb-0 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://chiefonboarding.com/pricing">Support</a>
+                            </li>
+                            <li class="mr-6">
+                                <a class="py-2 md:mb-0 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://github.com/chiefonboarding/ChiefOnboarding">Github</a>
+                            </li>
+                            <li class="mr-6">
+                                <a class="py-2 md:mb-0 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://chiefonboarding.com">Website</a>
+                            </li>
+        
+                        </ul>
+                    </nav>
+        
+                    <!-- Header Right Skeleton -->
+                    <div v-cloak class="flex justify-end grow skeleton">
+        
+                        <!-- Search input mock -->
+                        <div class="relative hidden w-40 lg:block lg:max-w-sm lg:ml-auto">
+                            <div class="absolute flex items-center justify-center h-full pl-3 dark:text-dark-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon-base" width="16" height="16" viewBox="0 0 24 24" aria-labelledby="icon" role="presentation"  style="margin-bottom: 1px;"><g fill="currentColor" ><path d="M21.71 20.29l-3.68-3.68A8.963 8.963 0 0020 11c0-4.96-4.04-9-9-9s-9 4.04-9 9 4.04 9 9 9c2.12 0 4.07-.74 5.61-1.97l3.68 3.68c.2.19.45.29.71.29s.51-.1.71-.29c.39-.39.39-1.03 0-1.42zM4 11c0-3.86 3.14-7 7-7s7 3.14 7 7c0 1.92-.78 3.66-2.04 4.93-.01.01-.02.01-.02.01-.01.01-.01.01-.01.02A6.98 6.98 0 0111 18c-3.86 0-7-3.14-7-7z" ></path></g></svg>
+                            </div>
+        
+                            <input class="w-full h-10 transition-colors duration-200 ease-in bg-gray-200 border border-transparent rounded md:text-sm hover:bg-white hover:border-gray-300 focus:outline-none focus:bg-white focus:border-gray-500 dark:bg-dark-600 dark:border-dark-600 placeholder-gray-400 dark:placeholder-dark-400"
+                            style="padding: 0.625rem 0.75rem 0.625rem 2rem" type="text" placeholder="Search" />
+                        </div>
+        
+                        <!-- Mobile search button mock -->
+                        <div class="flex items-center justify-center w-10 h-10 lg:hidden">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="shrink-0 icon-base" width="20" height="20" viewBox="0 0 24 24" aria-labelledby="icon" role="presentation"  style="margin-bottom: 0px;"><g fill="currentColor" ><path d="M21.71 20.29l-3.68-3.68A8.963 8.963 0 0020 11c0-4.96-4.04-9-9-9s-9 4.04-9 9 4.04 9 9 9c2.12 0 4.07-.74 5.61-1.97l3.68 3.68c.2.19.45.29.71.29s.51-.1.71-.29c.39-.39.39-1.03 0-1.42zM4 11c0-3.86 3.14-7 7-7s7 3.14 7 7c0 1.92-.78 3.66-2.04 4.93-.01.01-.02.01-.02.01-.01.01-.01.01-.01.02A6.98 6.98 0 0111 18c-3.86 0-7-3.14-7-7z" ></path></g></svg>
+                        </div>
+        
+                        <!-- Dark mode switch placehokder -->
+                        <div class="w-10 h-10 lg:ml-2"></div>
+        
+                        <!-- History button mock -->
+                        <div class="flex items-center justify-center w-10 h-10" style="margin-right: -0.625rem;">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="shrink-0 icon-base" width="22" height="22" viewBox="0 0 24 24" aria-labelledby="icon" role="presentation"  style="margin-bottom: 0px;"><g fill="currentColor" ><g ><path d="M12.01 6.01c-.55 0-1 .45-1 1V12a1 1 0 00.4.8l3 2.22a.985.985 0 001.39-.2.996.996 0 00-.21-1.4l-2.6-1.92V7.01c.02-.55-.43-1-.98-1z"></path><path d="M12.01 1.91c-5.33 0-9.69 4.16-10.05 9.4l-.29-.26a.997.997 0 10-1.34 1.48l1.97 1.79c.19.17.43.26.67.26s.48-.09.67-.26l1.97-1.79a.997.997 0 10-1.34-1.48l-.31.28c.34-4.14 3.82-7.41 8.05-7.41 4.46 0 8.08 3.63 8.08 8.09s-3.63 8.08-8.08 8.08c-2.18 0-4.22-.85-5.75-2.4a.996.996 0 10-1.42 1.4 10.02 10.02 0 007.17 2.99c5.56 0 10.08-4.52 10.08-10.08.01-5.56-4.52-10.09-10.08-10.09z"></path></g></g></svg>
+                        </div>
+                    </div>
+        
+                    <div v-cloak class="flex justify-end grow">
+                        <div id="docs-mobile-search-button"></div>
+                        <doc-search-desktop></doc-search-desktop>
+        
+                        <doc-theme-switch class="lg:ml-2"></doc-theme-switch>
+                        <doc-history></doc-history>
+                    </div>
+                </div>
+            </div>
+        </header>
+    
+        <div class="container relative flex bg-white">
+            <!-- Sidebar Skeleton -->
+            <div v-cloak class="fixed flex flex-col shrink-0 duration-300 ease-in-out bg-gray-100 border-gray-200 sidebar top-20 w-75 border-r h-screen md:sticky transition-transform skeleton dark:bg-dark-800 dark:border-dark-650">
+            
+                <!-- Render this div, if config.showSidebarFilter is `true` -->
+                <div class="flex items-center h-16 px-6">
+                    <input class="w-full h-8 px-3 py-2 transition-colors duration-200 ease-linear bg-white border border-gray-200 rounded shadow-none text-sm focus:outline-none focus:border-gray-600 dark:bg-dark-600 dark:border-dark-600" type="text" placeholder="Filter" />
+                </div>
+            
+                <div class="pl-6 mb-4 mt-1">
+                    <div class="w-32 h-3 mb-4 bg-gray-200 rounded-full loading dark:bg-dark-600"></div>
+                    <div class="w-48 h-3 mb-4 bg-gray-200 rounded-full loading dark:bg-dark-600"></div>
+                    <div class="w-40 h-3 mb-4 bg-gray-200 rounded-full loading dark:bg-dark-600"></div>
+                    <div class="w-32 h-3 mb-4 bg-gray-200 rounded-full loading dark:bg-dark-600"></div>
+                    <div class="w-48 h-3 mb-4 bg-gray-200 rounded-full loading dark:bg-dark-600"></div>
+                    <div class="w-40 h-3 mb-4 bg-gray-200 rounded-full loading dark:bg-dark-600"></div>
+                </div>
+            
+                <div class="shrink-0 mt-auto bg-transparent dark:border-dark-650">
+                    <a class="flex items-center justify-center flex-nowrap h-16 text-gray-400 dark:text-dark-400 hover:text-gray-700 dark:hover:text-dark-300 transition-colors duration-150 ease-in docs-powered-by" target="_blank" href="https://retype.com/" rel="noopener">
+                        <span class="text-xs whitespace-nowrap">Powered by</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="ml-2" fill="currentColor" width="96" height="20" overflow="visible"><path d="M0 0v20h13.59V0H0zm11.15 17.54H2.44V2.46h8.71v15.08zM15.8 20h2.44V4.67L15.8 2.22zM20.45 6.89V20h2.44V9.34z"/><g><path d="M40.16 8.44c0 1.49-.59 2.45-1.75 2.88l2.34 3.32h-2.53l-2.04-2.96h-1.43v2.96h-2.06V5.36h3.5c1.43 0 2.46.24 3.07.73s.9 1.27.9 2.35zm-2.48 1.1c.26-.23.38-.59.38-1.09 0-.5-.13-.84-.4-1.03s-.73-.28-1.39-.28h-1.54v2.75h1.5c.72 0 1.2-.12 1.45-.35zM51.56 5.36V7.2h-4.59v1.91h4.13v1.76h-4.13v1.92h4.74v1.83h-6.79V5.36h6.64zM60.09 7.15v7.48h-2.06V7.15h-2.61V5.36h7.28v1.79h-2.61zM70.81 14.64h-2.06v-3.66l-3.19-5.61h2.23l1.99 3.45 1.99-3.45H74l-3.19 5.61v3.66zM83.99 6.19c.65.55.97 1.4.97 2.55s-.33 1.98-1 2.51-1.68.8-3.04.8h-1.23v2.59h-2.06V5.36h3.26c1.42 0 2.45.28 3.1.83zm-1.51 3.65c.25-.28.37-.69.37-1.22s-.16-.92-.48-1.14c-.32-.23-.82-.34-1.5-.34H79.7v3.12h1.38c.68 0 1.15-.14 1.4-.42zM95.85 5.36V7.2h-4.59v1.91h4.13v1.76h-4.13v1.92H96v1.83h-6.79V5.36h6.64z"/></g></svg>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Sidebar component -->
+            <doc-sidebar v-cloak>
+                <template #sidebar-footer>
+                    <div class="shrink-0 mt-auto border-t md:bg-transparent md:border-none dark:border-dark-650">
+            
+                        <div class="py-3 px-6 md:hidden border-b dark:border-dark-650">
+                            <nav>
+                                <ul class="flex flex-wrap justify-center items-center">
+                                    <li class="mr-6">
+                                        <a class="block py-1 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://chiefonboarding.com/pricing">Support</a>
+                                    </li>
+                                    <li class="mr-6">
+                                        <a class="block py-1 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://github.com/chiefonboarding/ChiefOnboarding">Github</a>
+                                    </li>
+                                    <li class="mr-6">
+                                        <a class="block py-1 inline-flex items-center text-sm whitespace-nowrap transition-colors duration-200 ease-linear md:text-blue-500 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200" href="https://chiefonboarding.com">Website</a>
+                                    </li>
+            
+                                </ul>
+                            </nav>
+                        </div>
+            
+                        <a class="flex items-center justify-center flex-nowrap h-16 text-gray-400 dark:text-dark-400 hover:text-gray-700 dark:hover:text-dark-300 transition-colors duration-150 ease-in docs-powered-by" target="_blank" href="https://retype.com/" rel="noopener">
+                            <span class="text-xs whitespace-nowrap">Powered by</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-2" fill="currentColor" width="96" height="20" overflow="visible"><path d="M0 0v20h13.59V0H0zm11.15 17.54H2.44V2.46h8.71v15.08zM15.8 20h2.44V4.67L15.8 2.22zM20.45 6.89V20h2.44V9.34z"/><g><path d="M40.16 8.44c0 1.49-.59 2.45-1.75 2.88l2.34 3.32h-2.53l-2.04-2.96h-1.43v2.96h-2.06V5.36h3.5c1.43 0 2.46.24 3.07.73s.9 1.27.9 2.35zm-2.48 1.1c.26-.23.38-.59.38-1.09 0-.5-.13-.84-.4-1.03s-.73-.28-1.39-.28h-1.54v2.75h1.5c.72 0 1.2-.12 1.45-.35zM51.56 5.36V7.2h-4.59v1.91h4.13v1.76h-4.13v1.92h4.74v1.83h-6.79V5.36h6.64zM60.09 7.15v7.48h-2.06V7.15h-2.61V5.36h7.28v1.79h-2.61zM70.81 14.64h-2.06v-3.66l-3.19-5.61h2.23l1.99 3.45 1.99-3.45H74l-3.19 5.61v3.66zM83.99 6.19c.65.55.97 1.4.97 2.55s-.33 1.98-1 2.51-1.68.8-3.04.8h-1.23v2.59h-2.06V5.36h3.26c1.42 0 2.45.28 3.1.83zm-1.51 3.65c.25-.28.37-.69.37-1.22s-.16-.92-.48-1.14c-.32-.23-.82-.34-1.5-.34H79.7v3.12h1.38c.68 0 1.15-.14 1.4-.42zM95.85 5.36V7.2h-4.59v1.91h4.13v1.76h-4.13v1.92H96v1.83h-6.79V5.36h6.64z"/></g></svg>
+                        </a>
+                    </div>
+                </template>
+            </doc-sidebar>
+    
+            <div class="grow min-w-0 dark:bg-dark-850">
+                <!-- Render "toolbar" template here on api pages --><!-- Render page content -->
+                <div class="flex">
+                    <div class="grow min-w-0 px-6 md:px-16">
+                        <main class="relative pt-6 pb-16">
+                            <div class="docs-markdown" id="docs-content">
+                                <!-- Rendered if sidebar right is enabled -->
+                                <div id="docs-sidebar-right-toggle"></div>
+                
+                                <!-- Page content  -->
+<doc-anchor-target id="how-to--demo" class="break-words">
+    <h1>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#how-to--demo">#</doc-anchor-trigger>
+        <span>How to / Demo</span>
+    </h1>
+</doc-anchor-target>
+<p>At ChiefOnboarding, we currently don&#x27;t do demos with potential customers. Demos take a lot of time and are quite similar between potential customers. You all come with the same goal, right? Improving your onboarding process.</p>
+<p>Underneath, you will basically find the transcript of a demo. You will get to see most of the features that our software provides and you can easily come back to it, if you want to look something up again. At the same time, we can keep working on features that you want.</p>
+<p>As always: if you have a question, feel free to send us an <a href="mailto:hello@chiefonboarding.com">email</a> - we are fast at replying (often within an hour).</p>
+<doc-anchor-target id="sequences">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#sequences">#</doc-anchor-trigger>
+        <span>Sequences</span>
+    </h2>
+</doc-anchor-target>
+<p>At ChiefOnboarding, we base everything around sequences. Sequences are basically timelines which will map out the new hire&#x27;s onboarding path. It looks like this:</p>
+<p><figure class="content-center">
+    <img src="../static/sequence.png" alt="sequences" />
+    <figcaption class="caption">sequences</figcaption>
+</figure>
+</p>
+<p>Let&#x27;s break it down a bit:</p>
+<p>Sequences consist of blocks. We currently have 3 types of blocks:</p>
+<ul>
+<li>General blocks
+<ul>
+<li>Block before the new hire starts</li>
+<li>Block after the new hire has started</li>
+<li>Block based on the completion of a to do item</li>
+</ul>
+</li>
+<li>Unconditioned block</li>
+</ul>
+<doc-anchor-target id="the-general-blocks">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#the-general-blocks">#</doc-anchor-trigger>
+        <span>The general blocks</span>
+    </h3>
+</doc-anchor-target>
+<p>There are three types of general blocks that you can choose from. You can create a block that triggers before the new hire starts. You could use this to create tasks (we will get to this later) for colleagues for things they need to do or send some emails/slack/text messages.</p>
+<p>The second type of general blocks are the ones that start after the new hire starts. These are marked in workdays, so it doesn&#x27;t really matter if your new hire starts on a Monday or Thursday - ChiefOnboarding will skip the weekends and not bother the new hire on those days. Example: Monday is workday 1, next week Monday is then day 6. You can add a bunch more in these types of blocks (which we will get into in a bit). We will notify the new hire of any newly added things - you can disable this if you don&#x27;t want that.</p>
+<p>All of the above blocks trigger at 8 AM in the new hire&#x27;s timezone. Yes, ChiefOnboarding is totally remote friendly, we support multiple time zones and multiple languages.</p>
+<p>The third type of general block is a special one. You can have things happen based on a to do item. We will get into to do items in a bit, but basically what this means is that you can wait for your new hire to complete a to do item and then it will trigger to create a new to do item for the new hire or perhaps send a message to a colleague. The possibilities are endless.</p>
+<doc-anchor-target id="the-unconditioned-block">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#the-unconditioned-block">#</doc-anchor-trigger>
+        <span>The unconditioned block</span>
+    </h3>
+</doc-anchor-target>
+<p>You can only add one of these and you can add things in here that are automatically added to the new hire when you add the sequence to your new hire. You could add some random stuff in here that your new hire might need or that they need right from the start. Think of some policies and some default to do items.</p>
+<p>Also often used to add preboarding pages that your new hire will be able to see BEFORE they join the company. A pre-boarding page basically looks like this:</p>
+<p><figure class="content-center">
+    <img src="../static/preboarding-edit.png" alt="preboarding edit" />
+    <figcaption class="caption">preboarding edit</figcaption>
+</figure>
+</p>
+<p>And you can preview it with the preview button, it will look like this:</p>
+<p><figure class="content-center">
+    <img src="../static/preboarding-view.png" alt="preboarding view" />
+    <figcaption class="caption">preboarding view</figcaption>
+</figure>
+</p>
+<p>You might have noticed the little part at the bottom that says &quot;Form options&quot;. You can actually build a custom form where you can allow your new hire to send some information back to you. Perhaps you want to know what their favorite snack is.</p>
+<doc-anchor-target id="templates">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#templates">#</doc-anchor-trigger>
+        <span>Templates</span>
+    </h2>
+</doc-anchor-target>
+<p>So what could we put in these blocks? We have created a few different types of templates that you could add in these. You could create those templates before you start to create the sequence, but you can also just add items as you go.</p>
+<doc-anchor-target id="to-do-items">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#to-do-items">#</doc-anchor-trigger>
+        <span>To do items</span>
+    </h3>
+</doc-anchor-target>
+<p>To do items look like this (for you):</p>
+<p><figure class="content-center">
+    <img src="../static/todo.png" alt="todo edit" />
+    <figcaption class="caption">todo edit</figcaption>
+</figure>
+</p>
+<p>Let&#x27;s break it down a bit more.</p>
+<p>I think the <strong>title</strong> speaks for itself: it will be displayed to the new hire with that.</p>
+<p>The <strong>Due on workday</strong> field will allow you to add a workday on when the tasks needs to be completed. New hire&#x27;s will get a notification of that in Slack/Webportal. Remember: this is workdays, not calendar days. If Monday is day 1, then next week Monday is day 6!</p>
+<p>Then we have the <strong>Tags</strong> part. This is just a means of identification for yourself and other staff members. Totally optionally, but just something for you to separate tasks that have the same name. New hires will never get to see the tags.</p>
+<p>The <strong>content</strong> is basically a WYSIWYG editor that allows you to add various things. Such as headers, lists, files and images. You can even create forms in these if you would like to get some info back from the new hire.</p>
+<p>At the very bottom, you have a quick check box (only available with Slack integration), which is currently checked. This means that the answers from the new hire will be sent back to the Slack channel that you specify there. It&#x27;s best to make the new hire aware of this, so they don&#x27;t add anything they wouldn&#x27;t want to share with the rest of the team. This feature is perfect for when you want to let your new hire introduce to the team with a default format.</p>
+<doc-anchor-target id="resource-items">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#resource-items">#</doc-anchor-trigger>
+        <span>Resource items</span>
+    </h3>
+</doc-anchor-target>
+<p>Resource items are meant to inform your new hire. Think of general procedures, how to use specific tools etc. Resources look like this (for you):</p>
+<p><figure class="content-center">
+    <img src="../static/resources-edit.png" alt="resources edit" />
+    <figcaption class="caption">resources edit</figcaption>
+</figure>
+</p>
+<p>We already covered the title, tags and content part - they are the same as with the todo/preboarding items. Something new here is the &#x27;Chapters&#x27; part. The name already gives it away, you can create chapters in these resources. This comes in handy when you want to split information a bit more (in the event that headers aren&#x27;t enough). By default, you can&#x27;t really check if the new hire indeed read/understood what was in the chapter. To solve that, you could turn the resource into a course (see the switch &#x27;Is a course item&#x27;). If you enable that, your new hire will have to go through the resource chapter by chapter. You could also add questions in between the chapters, so you can check their knowledge. You will be able to see the answer that they filled in on your side. The chapter with a question mark icon before it are these test. They can only consist of multiple choice questions.
+You can also pick or create a category to separate the multiple resources for your new hire.</p>
+<doc-anchor-target id="introduction-items">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#introduction-items">#</doc-anchor-trigger>
+        <span>Introduction items</span>
+    </h3>
+</doc-anchor-target>
+<p>Your new hire is new to the company and they barely know anyone. Perhaps they know a few people through the interviews, but that&#x27;s most likely it. Introduction items are items that introduce your colleagues to your new hire. They look like this for you:</p>
+<p><figure class="content-center">
+    <img src="../static/intro-edit.png" alt="introduction edit" />
+    <figcaption class="caption">introduction edit</figcaption>
+</figure>
+</p>
+<div class="v-pre"><p>On the right side, you have an example of how it looks for your new hire (in the webportal). Please note that items within the curly brackets, those will be replaced with the new hire&#x27;s first name. This goes for most fields in the software (including content and title items). You can use these placeholders (within curly brackets):</p>
+<p><code v-pre>first_name</code>: new hire&#x27;s first name</p>
+<p><code v-pre>last_name</code>: new hire&#x27;s last name</p>
+<p><code v-pre>email</code>: new hire&#x27;s email address</p>
+<p><code v-pre>position</code>: new hire&#x27;s position</p>
+<p><code v-pre>department</code>: new hire&#x27;s department (if any)</p>
+<p><code v-pre>buddy</code>: new hire&#x27;s buddy&#x27;s full name</p>
+<p><code v-pre>buddy_email</code>: new hire&#x27;s buddy&#x27;s email address</p>
+<p><code v-pre>manager</code>: new hire&#x27;s manager&#x27;s full name</p>
+<p><code v-pre>manager_email</code>: new hire&#x27;s manager&#x27;s email address</p>
+</div>
+<doc-anchor-target id="badge-items">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#badge-items">#</doc-anchor-trigger>
+        <span>Badge items</span>
+    </h3>
+</doc-anchor-target>
+<p>Badges are a way to keep your new hire motivated. You can&#x27;t really do much with a badge, it&#x27;s just there to give your new hire that extra bit of positivity between going through all the boring tasks they need to complete.</p>
+<p><figure class="content-center">
+    <img src="../static/badge-edit.png" alt="badge edit" />
+    <figcaption class="caption">badge edit</figcaption>
+</figure>
+</p>
+<doc-anchor-target id="admin-to-do-items">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#admin-to-do-items">#</doc-anchor-trigger>
+        <span>Admin to do items</span>
+    </h3>
+</doc-anchor-target>
+<p>Sometimes, you or any of your colleagues need to do something for your new hire as well. With these items, you can automatically create a to do item for someone. You can assign it to someone and you can also notify someone else of this.</p>
+<p><figure class="content-center">
+    <img src="../static/admin-todo-edit.png" alt="admin todo edit" />
+    <figcaption class="caption">admin todo edit</figcaption>
+</figure>
+</p>
+<p>They will get a notification of this through Slack or email.</p>
+<doc-anchor-target id="textslackemail-messages">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#textslackemail-messages">#</doc-anchor-trigger>
+        <span>Text/Slack/Email messages</span>
+    </h3>
+</doc-anchor-target>
+<p>I am going over those all at once as they all have the same purpose: Sending a one-off message to someone. This &#x27;someone&#x27; could be the new hire themselves, the manager or buddy assigned to the new hire or some random person that you can pick yourself (or in the case of Slack; a channel is possible as well).</p>
+<p>Here is an example of an email message:</p>
+<p><figure class="content-center">
+    <img src="../static/email-edit.png" alt="admin todo edit" />
+    <figcaption class="caption">admin todo edit</figcaption>
+</figure>
+</p>
+<p>Here is how the bottom part of our sequence looks like now. Now, this is only a really small sequence and you can make those as large as you want. You could also stack them - adding multiple sequences to one new hire.</p>
+<p><figure class="content-center">
+    <img src="../static/sequence-end.png" alt="sequence end" />
+    <figcaption class="caption">sequence end</figcaption>
+</figure>
+</p>
+<doc-anchor-target id="people">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#people">#</doc-anchor-trigger>
+        <span>People</span>
+    </h2>
+</doc-anchor-target>
+<p>Everyone that is in ChiefOnboarding is listed under &#x27;People&#x27; -&gt; &#x27;Employees&#x27;. Those include all new hires, administrators, people with no access to the dashboard and people that have limited access to the dashboard. Let&#x27;s break it down a bit more:</p>
+<doc-anchor-target id="administrators">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#administrators">#</doc-anchor-trigger>
+        <span>Administrators</span>
+    </h3>
+</doc-anchor-target>
+<p>Administrators are people that have full control over the dashboard. They can create new hires, remove them, create sequences and templates and so on. You can create as many as you would like.</p>
+<doc-anchor-target id="administrators-with-limited-access">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#administrators-with-limited-access">#</doc-anchor-trigger>
+        <span>Administrators with limited access</span>
+    </h3>
+</doc-anchor-target>
+<p>Optionally, you can add people with limited access. They have access to their new hire&#x27;s (being the manager), the templates/sequences and their admin to do items. They will NOT have access to settings items.</p>
+<doc-anchor-target id="employees">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#employees">#</doc-anchor-trigger>
+        <span>Employees</span>
+    </h3>
+</doc-anchor-target>
+<p>Employees are basically empty accounts. They don&#x27;t do much by default. They will show up on the colleagues page, but that&#x27;s basically it. You can import them from Slack to quickly have them all listed here.</p>
+<p>If you want, you can assign resources to these people and then they will be able to use the Slack bot and online webportal too look into these. Resources don&#x27;t have to be just for new hires - they can be useful for long time employees as well. The colleagues page will be accessible for them too then.</p>
+<doc-anchor-target id="new-hires">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#new-hires">#</doc-anchor-trigger>
+        <span>New hires</span>
+    </h3>
+</doc-anchor-target>
+<p>You can create new hires in three different ways:</p>
+<ul>
+<li>Filling in the form in the dashboard</li>
+<li>Using the API</li>
+<li>Automatically adding new hires when they join Slack (with or without manual approval)</li>
+</ul>
+<doc-anchor-target id="filling-in-the-form">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#filling-in-the-form">#</doc-anchor-trigger>
+        <span>Filling in the form</span>
+    </h4>
+</doc-anchor-target>
+<p><figure class="content-center">
+    <img src="../static/new-hire-new.png" alt="new new hire" />
+    <figcaption class="caption">new new hire</figcaption>
+</figure>
+</p>
+<p>Let&#x27;s look at each form field:</p>
+<p><code v-pre>First name</code>: The new hire&#x27;s first name</p>
+<p><code v-pre>Last name</code>: The new hire&#x27;s last name</p>
+<p><code v-pre>Email</code>: This is the email address from the new hire - the corporate one</p>
+<p><code v-pre>Phone number</code>: This is the new hire&#x27;s phone number (used to send sequence text messages to or preboarding page invitations)</p>
+<p><code v-pre>Position</code>: This is the new hire&#x27;s position or title. Only used for introducing the new hire</p>
+<p><code v-pre>New hire's starting date</code>: The day the new hire starts working.</p>
+<p><code v-pre>What can you share about this new hire?</code>: This is the message that will be send to the team to introduce this new hire. Colleagues will be able to leave a personal welcome message if they want to.</p>
+<p><code v-pre>New hire's timezone</code>: Mainly used by the slack bot, but also for sending some emails. No one likes getting messages in the middle of the night.</p>
+<p><code v-pre>Language</code>: We currently support English, Dutch, French, German, Turkish, Portuguese, Spanish and Japanese. Please note that language support is still under development - some parts might not be translated properly yet.</p>
+<p><code v-pre>New hire's buddy</code>: This is the new hire&#x27;s buddy, you can use this field for sending messages in the sequence.</p>
+<p><code v-pre>New hire's manager</code>: This is the new hire&#x27;s manager, you can use this field for sending messages in the sequence.</p>
+<p><code v-pre>Sequences</code>: This is the part where you can assign your pre-made sequences to the new hire. If some items won&#x27;t be triggered (because you created the new hire later than the first item in the sequence), then you will git a popup asking if you want to trigger those items immediately.</p>
+<p>Once created, you can choose to send the new hire&#x27;s preboarding email. This one is not sent automatically, as you might want to make changes before you send it (this will be implemented as part of the sequences later on though).</p>
+<doc-anchor-target id="using-the-api">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#using-the-api">#</doc-anchor-trigger>
+        <span>Using the API</span>
+    </h4>
+</doc-anchor-target>
+<p>Please go to the <a href="../api/">API doc page</a> for instructions on how to set this up.</p>
+<doc-anchor-target id="automatically-adding-new-hires-when-they-join-slack-with-or-without-manual-approval">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#automatically-adding-new-hires-when-they-join-slack-with-or-without-manual-approval">#</doc-anchor-trigger>
+        <span>Automatically adding new hires when they join Slack (with or without manual approval)</span>
+    </h4>
+</doc-anchor-target>
+<p>In the settings, there is now the option to enable &#x27;automatic new hire creation from people joining Slack&#x27;. When a new hire joins Slack, ChiefOnboarding will get notified and it will automatically create a new hire account for them. It will also assign one or more default sequences to the new hire. No manual action is needed here - everything is automated.</p>
+<p>Optionally, you can also enable another setting that sends you a message to manually allow/deny a new hire account. When a new hire joins Slack, you (or someone else) would get this message:</p>
+<p><figure class="content-center">
+    <img src="../static/automated-new-hires.png" alt="new new hire" />
+    <figcaption class="caption">new new hire</figcaption>
+</figure>
+</p>
+<p>If you click on &#x27;Yeah!&#x27;, then you will get a popup where you can choose the sequences you want to assign to them.</p>
+<doc-anchor-target id="new-hires-slack-bot">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#new-hires-slack-bot">#</doc-anchor-trigger>
+        <span>New hire&#x27;s Slack bot</span>
+    </h2>
+</doc-anchor-target>
+<p>You can customize the bot however you like. Use your own name for it and profile picture, so please ignore the current name / profile picture of the bot in the pictures below.</p>
+<p>When a new person is added, the bot will send a message to the team letting them know someone is starting soon.
+<figure class="content-center">
+    <img src="../static/introduction-new-hire.png" alt="introduction new hire" />
+    <figcaption class="caption">introduction new hire</figcaption>
+</figure>
+</p>
+<p>They will be able to leave a personalized message for the new hire. This will show up on their pre-boarding pages as an extra page with all the messages from colleagues.</p>
+<p><figure class="content-center">
+    <img src="../static/slack-welcome-message.png" alt="new new hire" />
+    <figcaption class="caption">new new hire</figcaption>
+</figure>
+</p>
+<p>This is the first welcome message that is being sent to your new hire when we found the new hire in your slack team (we check every 15 minutes if there are new people in Slack, so it could take up to 15 minutes to find your new hire). You can customize this message of course to anything you like. The buttons are also optional. Along with the message, it adds the to do items that are due for that day. These are mainly to do items that are added under the &#x27;unconditioned block&#x27; (see sequences above). Items that are added later, will be send to the new hire around 8am in the morning. The new hire will be notified for new to do items and to do items that are due (or even overdue).</p>
+<p><figure class="content-center">
+    <img src="../static/slack-daily-reminder.png" alt="slack daily reminder" />
+    <figcaption class="caption">slack daily reminder</figcaption>
+</figure>
+</p>
+<p>Forms work within Slack as well, with the exception of upload fields. When you use an upload field, we will redirect the new hire to the website to complete this (they don&#x27;t have to login for this).</p>
+<p><figure class="content-center">
+    <img src="../static/todo-form-slack.png" alt="todo form slack" />
+    <figcaption class="caption">todo form slack</figcaption>
+</figure>
+</p>
+<p>Courses will look like this:</p>
+<p><figure class="content-center">
+    <img src="../static/slack-course.png" alt="slack course" />
+    <figcaption class="caption">slack course</figcaption>
+</figure>
+</p>
+<p>They can&#x27;t skip through lessons, they will have to complete them one by one, before it&#x27;s marked as done. Once a course is done, it will turn into a resource, so new hires can look through them even after they completed it.</p>
+<p>Resources look like this:</p>
+<p><figure class="content-center">
+    <img src="../static/slack-resource.png" alt="slack resource" />
+    <figcaption class="caption">slack resource</figcaption>
+</figure>
+</p>
+<p>As you can see there, they can pick any chapter they want.</p>
+<p>An introduction in Slack will look like this:</p>
+<p><figure class="content-center">
+    <img src="../static/introduction-slack.png" alt="introduction slack" />
+    <figcaption class="caption">introduction slack</figcaption>
+</figure>
+</p>
+<doc-anchor-target id="new-hires-web-portal">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#new-hires-web-portal">#</doc-anchor-trigger>
+        <span>New hire&#x27;s web portal</span>
+    </h2>
+</doc-anchor-target>
+<p>Now, most people will use the Slack integration. The web portal is more of a fallback to when a specific team in the company isn&#x27;t using Slack. You can use the Slack integration standalone, but you can also use the web portal standalone. Both have all features. It&#x27;s not recommended to mix them up as the Slack bot might have to do items that might have been completed already in the web portal. But, ultimately, it&#x27;s up to you to decide.</p>
+<p>The to do area looks like this:</p>
+<p><figure class="content-center">
+    <img src="../static/new-hire-portal-todo.png" alt="new hire portal todo" />
+    <figcaption class="caption">new hire portal todo</figcaption>
+</figure>
+</p>
+<p>A specific resource could look like this:</p>
+<p><figure class="content-center">
+    <img src="../static/new-hire-portal-resource.png" alt="new hire portal resource" />
+    <figcaption class="caption">new hire portal resource</figcaption>
+</figure>
+</p>
+<p>Resource that are being used as courses can contain questions and that looks like this:</p>
+<p><figure class="content-center">
+    <img src="../static/new-hire-portal-questions.png" alt="new hire portal questions" />
+    <figcaption class="caption">new hire portal questions</figcaption>
+</figure>
+</p>
+<p>You are able to view the answers in your dashboard.</p>
+<p>There is a colleagues page that your new hires (and also colleagues that have been with you for longer) can visit to see everyone.</p>
+<p><figure class="content-center">
+    <img src="../static/new-hire-portal-colleagues.png" alt="new hire portal colleagues" />
+    <figcaption class="caption">new hire portal colleagues</figcaption>
+</figure>
+</p>
+
+                                
+                                <!-- Required only on API pages -->
+                                <doc-toolbar-member-filter-no-results />
+                            </div>
+                            <footer class="clear-both">
+                                <div class="flex flex-wrap items-center justify-between mt-14">
+                                    <a class="my-2.5 inline-flex items-center text-sm whitespace-nowrap text-blue-500 dark:text-blue-400 hover:text-blue-700 hover:underline" href="https://github.com/chiefonboarding/ChiefOnboarding/blob/master/docs/Howto.md" target="_blank" rel="noopener">
+                                        <svg class="mr-1.5" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M20 12c-.55 0-1 .45-1 1v7c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h7c.55 0 1-.45 1-1s-.45-1-1-1H4C2.35 3 1 4.35 1 6v14c0 1.65 1.35 3 3 3h14c1.65 0 3-1.35 3-3v-7c0-.55-.45-1-1-1z" /><path d="M22.21 1.79c-1.18-1.18-3.24-1.18-4.41 0l-9.5 9.5c-.13.13-.22.29-.26.46l-1 4c-.08.34.01.7.26.95.18.2.44.3.7.3.08 0 .16-.01.24-.03l4-1c.18-.04.34-.13.46-.26l9.5-9.5c1.22-1.22 1.22-3.2.01-4.42zm-1.42 3l-9.3 9.3-2.11.53.53-2.11 9.3-9.3c.42-.42 1.16-.42 1.59 0 .43.43.43 1.15-.01 1.58z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
+                                        <span>Edit this page</span>
+                                    </a>
+                                </div>
+                            
+                                <nav class="flex mt-14">
+                                    <div class="w-1/2">
+                                        <a class="px-5 py-4 h-full flex items-center break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-l-lg transition-colors duration-150 relative hover:z-5" href="../">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="mr-3" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M19 11H7.41l5.29-5.29a.996.996 0 10-1.41-1.41l-7 7a1 1 0 000 1.42l7 7a1.024 1.024 0 001.42-.01.996.996 0 000-1.41L7.41 13H19c.55 0 1-.45 1-1s-.45-1-1-1z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
+                                            <span>
+                                                <span class="block text-xs font-normal text-gray-400 dark:text-dark-400">Previous</span>
+                                                <span class="block mt-1">What's Chief​Onboarding?</span>
+                                            </span>
+                                        </a>
+                                    </div>
+                            
+                                    <div class="w-1/2">
+                                        <a class="px-5 py-4 -mx-px h-full flex items-center justify-end break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-r-lg transition-colors duration-150 relative hover:z-5" href="../deployment/">
+                                            <span>
+                                                <span class="block text-xs font-normal text-right text-gray-400 dark:text-dark-400">Next</span>
+                                                <span class="block mt-1">Deployment</span>
+                                            </span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-3" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M19.92 12.38a1 1 0 00-.22-1.09l-7-7a.996.996 0 10-1.41 1.41l5.3 5.3H5c-.55 0-1 .45-1 1s.45 1 1 1h11.59l-5.29 5.29a.996.996 0 000 1.41c.19.2.44.3.7.3s.51-.1.71-.29l7-7c.09-.09.16-.21.21-.33z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
+                                        </a>
+                                    </div>
+                                </nav>
+                            </footer>
+                        </main>
+                
+                        <div class="border-t dark:border-dark-650 pt-6 mb-8">
+                            <footer class="flex flex-wrap items-center justify-between">
+                                <div>
+                                    <ul class="flex flex-wrap items-center text-sm">
+                                    </ul>
+                                </div>
+                                <div class="docs-copyright py-2 text-gray-500 dark:text-dark-350 text-sm leading-relaxed"><p>© Copyright 2022. All rights reserved.</p></div>
+                            </footer>
+                        </div>
+                    </div>
+                
+                    <!-- Rendered if sidebar right is enabled -->
+                    <!-- Sidebar right skeleton-->
+                    <div v-cloak class="fixed top-0 bottom-0 right-0 translate-x-full bg-white border-gray-200 lg:sticky lg:border-l lg:shrink-0 lg:pt-6 lg:transform-none sm:w-1/2 lg:w-64 lg:z-0 md:w-104 sidebar-right skeleton dark:bg-dark-850 dark:border-dark-650">
+                        <div class="pl-5">
+                            <div class="w-32 h-3 mb-4 bg-gray-200 dark:bg-dark-600 rounded-full loading"></div>
+                            <div class="w-48 h-3 mb-4 bg-gray-200 dark:bg-dark-600 rounded-full loading"></div>
+                            <div class="w-40 h-3 mb-4 bg-gray-200 dark:bg-dark-600 rounded-full loading"></div>
+                        </div>
+                    </div>
+                
+                    <!-- User should be able to hide sidebar right -->
+                    <doc-sidebar-right v-cloak></doc-sidebar-right>
+                </div>
+
+            </div>
+        </div>
+    
+        <doc-search-mobile></doc-search-mobile>
+        <doc-back-to-top></doc-back-to-top>
+    </div>
+
+
+    <div id="docs-overlay-target"></div>
+
+    <script>window.__DOCS__ = { "title": "How to / Demo", level: 1, icon: "file", hasPrism: false, hasMermaid: false, hasMath: false }</script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+{% autoescape off %}
+{% for i in content %}
+  {% if i.type == 'paragraph' %}
+    <p>{{i.data.text|personalize:user}}</p>
+  {% endif %}
+  {% if i.type == 'header' %}
+    <h{{ i.data.level }}>{{ i.data.text|personalize:user }}</h{{ i.data.level }}>
+  {% endif %}
+  {% if i.type == 'list' %}
+    {% if i.data.style == "ordered" %}
+      <ol>
+    {% else %}
+      <ul>
+    {% endif %}
+    {% for j in i.data.items %}
+      <li>{{ j.content|personalize:user }}</li>
+    {% endfor %}
+    {% if i.data.style == "ordered" %}
+      </ol>
+    {% else %}
+      </ul>
+    {% endif %}
+  {% endif %}
+  {% if i.type == 'quote' %}
+     {{i.data.text|personalize:user}}
+  {% endif %}
+  {% if i.type == 'image' %}
+    <img src="{{ i.data.file.url }}" />
+  {% endif %}
+  {% if i.type == 'file' %}
+      <a href="{{ j.data.file.url }}">{{ i.data.file.name }}</a><br />
+  {% endif %}
+  {% if i.type == 'button' %}
+    <a href="{{ i.data.url }}">{{i.data.text|personalize:user}}</a>
+  {% endif %}
+  {% if i.type == 'hr' %}
+    <hr />
+  {% endif %}
+{% endfor %}
+{% endautoescape %}
