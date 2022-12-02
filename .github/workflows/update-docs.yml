@@ -3,9 +3,9 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - update-docs-deployment
-    # paths:
-    #   - 'docs/**'
+      - master
+    paths:
+      - 'docs/**'
 jobs:
   publish:
     name: Publish to retype branch
