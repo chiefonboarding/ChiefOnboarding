@@ -109,6 +109,7 @@
             <div class="d-flex flex-column flex-md-row flex-fill align-items-stretch align-items-md-center">
               {% if 'preboarding' not in request.path %}
               <ul class="navbar-nav">
+                {% if request.user.role == 0 %}
                 <li class="nav-item {% if 'todos' in request.path %}active{% endif %}">
                   <a class="nav-link" href="{% url 'new_hire:todos' %}">
                     <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
@@ -123,6 +124,7 @@
                     </span>
                   </a>
                 </li>
+                {% endif %}
                 <li class="nav-item {% if 'resources' in request.path %}active{% endif %}">
                   <a class="nav-link" href="{% url 'new_hire:resources' %}">
                     <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
