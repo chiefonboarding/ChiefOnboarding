@@ -22,8 +22,8 @@ Email: admin@example.com
 Password: admin
 ```
 
-## Getting better loggin
-If you want to start developing/debugging and need more verbose log messages, then you can enable debug logging with this environment setting:
+## Enable better logging
+If you want to start developing/debugging and need more verbose log messages, then you can enable debug log messages with this environment setting:
 
 ```
 DEBUG_LOGGING = True
