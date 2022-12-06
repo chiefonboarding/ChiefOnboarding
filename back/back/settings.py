@@ -378,25 +378,26 @@ LANGUAGE_SESSION_KEY = "chief-language"
 SITE_ROOT = os.path.dirname(os.path.realpath(__name__))
 LOCALE_PATHS = (os.path.join(SITE_ROOT, "locale"),)
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "simple": {"format": "%(levelname)s %(message)s"},
-    },
-    "handlers": {
-        "console": {
-            "level": "DEBUG",
-            "class": "logging.StreamHandler",
-            "formatter": "simple",
+if env.bool("DEBUG_LOGGING", default=False):
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "simple": {"format": "%(levelname)s %(message)s"},
         },
-    },
-    "loggers": {
-        "django.request": {
-            "handlers": ["console"],
-            "propagate": False,
-            "level": "DEBUG",
+        "handlers": {
+            "console": {
+                "level": "DEBUG",
+                "class": "logging.StreamHandler",
+                "formatter": "simple",
+            },
         },
-        "root": {"level": "DEBUG", "handlers": ["console"]},
-    },
-}
+        "loggers": {
+            "django.request": {
+                "handlers": ["console"],
+                "propagate": False,
+                "level": "DEBUG",
+            },
+            "root": {"level": "DEBUG", "handlers": ["console"]},
+        },
+    }

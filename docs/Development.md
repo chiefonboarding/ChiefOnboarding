@@ -22,6 +22,13 @@ Email: admin@example.com
 Password: admin
 ```
 
+## Getting better loggin
+If you want to start developing/debugging and need more verbose log messages, then you can enable debug logging with this environment setting:
+
+```
+DEBUG_LOGGING = True
+```
+
 ## Adding a new language
 
 If you want to add a new language, then you will have to follow these steps:
