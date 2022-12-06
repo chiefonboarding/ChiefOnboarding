@@ -58,6 +58,10 @@ jobs:
         cd back
         flake8 .
         black --check .
+    - name: Check migrations
+      run: |
+        cd back
+        python manage.py makemigrations --check
     - name: Test fixtures
       run: |
         cd back
