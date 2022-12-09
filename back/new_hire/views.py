@@ -35,6 +35,11 @@ class NewHireDashboard(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         new_hire = self.request.user
+
+        # Check that user is allowed to see page (only new hires)
+        if new_hire.role != 0:
+            raise Http404
+
         context = super().get_context_data(**kwargs)
 
         context["overdue_to_do_items"] = ToDoUser.objects.overdue(new_hire)

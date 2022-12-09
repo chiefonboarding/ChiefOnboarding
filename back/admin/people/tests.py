@@ -115,6 +115,69 @@ def test_create_new_hire_with_sequences(
 
 
 @pytest.mark.django_db
+def test_create_new_hire_manager_options(
+    client,
+    django_user_model,
+    admin_factory,
+    new_hire_factory,
+    manager_factory,
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    admin1 = admin_factory(slack_user_id="test")
+    admin2 = admin_factory()
+    manager1 = manager_factory()
+    manager2 = manager_factory()
+    new_hire1 = new_hire_factory()
+    new_hire2 = new_hire_factory(slack_user_id="test")
+
+    url = reverse("people:new_hire_add")
+    response = client.get(url)
+
+    assert admin1.full_name in response.content.decode()
+    assert admin2.full_name in response.content.decode()
+    assert manager1.full_name in response.content.decode()
+    assert manager2.full_name in response.content.decode()
+    assert new_hire2.full_name in response.content.decode()
+
+    # new hire 1 should not show up
+    assert new_hire1.full_name not in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_update_new_hire_manager_options(
+    client,
+    django_user_model,
+    admin_factory,
+    new_hire_factory,
+    manager_factory,
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    admin1 = admin_factory(slack_user_id="test")
+    admin2 = admin_factory()
+    manager1 = manager_factory()
+    manager2 = manager_factory()
+    new_hire1 = new_hire_factory()
+    new_hire2 = new_hire_factory(slack_user_id="test")
+    new_hire3 = new_hire_factory(manager=new_hire1)
+    new_hire4 = new_hire_factory()
+
+    url = reverse("people:new_hire_profile", args=[new_hire3.id])
+    response = client.get(url)
+
+    assert admin1.full_name in response.content.decode()
+    assert admin2.full_name in response.content.decode()
+    assert manager1.full_name in response.content.decode()
+    assert manager2.full_name in response.content.decode()
+    assert new_hire2.full_name in response.content.decode()
+    assert new_hire4.full_name not in response.content.decode()
+
+    # new hire 1 should not show up, but in this case they are already assigned
+    assert new_hire1.full_name in response.content.decode()
+
+
+@pytest.mark.django_db
 def test_create_new_hire_with_sequences_before_starting(
     client,
     django_user_model,

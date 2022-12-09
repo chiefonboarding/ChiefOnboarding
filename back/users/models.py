@@ -52,6 +52,13 @@ class CustomUserManager(BaseUserManager):
         return self.get(**{self.model.USERNAME_FIELD + "__iexact": email})
 
 
+class ManagerSlackManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(
+            role__in=[1, 2]
+        ) | super().get_queryset().exclude(slack_user_id="")
+
+
 class ManagerManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(role__in=[1, 2])
@@ -192,6 +199,7 @@ class User(AbstractBaseUser):
 
     objects = CustomUserManager()
     managers_and_admins = ManagerManager()
+    managers_and_admins_or_slack_users = ManagerSlackManager()
     new_hires = NewHireManager()
     admins = AdminManager()
     ordering = ("first_name",)

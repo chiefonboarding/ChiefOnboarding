@@ -25,6 +25,12 @@ class NewHireAddForm(forms.ModelForm):
         required=False,
         label=_("Sequences"),
     )
+    buddy = forms.ModelChoiceField(
+        queryset=get_user_model().managers_and_admins_or_slack_users.all()
+    )
+    manager = forms.ModelChoiceField(
+        queryset=get_user_model().managers_and_admins_or_slack_users.all()
+    )
     start_day = forms.DateField(
         label=_("Start date"),
         required=True,
@@ -142,14 +148,32 @@ class NewHireProfileForm(forms.ModelForm):
         required=True,
         widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
     )
+    buddy = forms.ModelChoiceField(
+        queryset=get_user_model().managers_and_admins_or_slack_users.all(),
+        required=False,
+    )
+    manager = forms.ModelChoiceField(
+        queryset=get_user_model().managers_and_admins_or_slack_users.all(),
+        required=False,
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.fields["buddy"].required = False
-        self.fields["manager"].required = False
         self.fields["department"].required = False
         self.fields["profile_image"].required = False
+        if self.instance is not None:
+            # Fallback option: we are now filtering on admins and managers, but people
+            # might have already used an old buddy/manager that is now not in the list
+            # anymore. Adding them to the list to not mess with existing data.
+            if self.instance.buddy is not None:
+                self.fields["buddy"].queryset |= get_user_model().objects.filter(
+                    id=self.instance.buddy.id
+                )
+            if self.instance.manager is not None:
+                self.fields["manager"].queryset |= get_user_model().objects.filter(
+                    id=self.instance.manager.id
+                )
         self.helper.layout = Layout(
             Div(
                 Div(
