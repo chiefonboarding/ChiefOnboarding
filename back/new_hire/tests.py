@@ -95,14 +95,9 @@ def test_404_to_do_view_for_admin(client, admin_factory, to_do_user_factory):
     admin = admin_factory()
     client.force_login(admin)
 
-    to_do_item1 = to_do_user_factory(user=admin)
+    to_do_user_factory(user=admin)
 
-    url = reverse(
-        "new_hire:to_do",
-        args=[
-            to_do_item1.id,
-        ],
-    )
+    url = reverse("new_hire:todos")
 
     response = client.get(url)
 
