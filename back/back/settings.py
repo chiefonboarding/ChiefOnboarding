@@ -318,7 +318,6 @@ AUTHENTICATION_BACKENDS = [
 ]
 AXES_ENABLED = True
 AXES_FAILURE_LIMIT = 10
-REST_FRAMEWORK_ACTIVE = True
 
 # Error tracking
 if env("SENTRY_URL", default="") != "":
