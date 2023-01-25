@@ -5,7 +5,7 @@ on:
       - v* 
 jobs:
   build:
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    if: github.repository == 'chiefonboarding/ChiefOnboarding'
     runs-on: ubuntu-latest
 
     steps:
@@ -21,6 +21,7 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Build and push
+      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
       uses: docker/build-push-action@v3
       with:
         context: .
