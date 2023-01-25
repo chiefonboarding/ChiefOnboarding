@@ -1,8 +1,8 @@
 name: Build container and push to DockerHub
 on:
-  create:
+  push:
     tags:
-      - v* 
+      - 'v*'
 jobs:
   build:
     if: github.repository == 'chiefonboarding/ChiefOnboarding'
