@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.723651444135">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.728706023520">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.4.0">
@@ -30,11 +30,11 @@
 
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
-    <link href="../resources/css/retype.css?v=2.4.0.723651444135" rel="stylesheet" />
+    <link href="../resources/css/retype.css?v=2.4.0.728706023520" rel="stylesheet" />
 
-    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.723651444135" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.728706023520" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../resources/js/retype.js?v=2.4.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.723651444135" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.728706023520" data-turbo-eval="false" defer></script>
 </head>
 <body>
     <div id="docs-app" class="relative text-base antialiased text-gray-700 bg-white font-body dark:bg-dark-850 dark:text-dark-300">
@@ -232,7 +232,7 @@
 <li>Create the new hire:</li>
 </ol>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">curl -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' -H &quot;Authorization: Token xxxxxxxxxxxxxxx&quot; -d '{&quot;first_name&quot;:&quot;James&quot;,&quot;last_name&quot;:&quot;Weller&quot;,&quot;email&quot;:&quot;james@chiefonboarding.com&quot;,&quot;phone&quot;:&quot;&quot;,&quot;position&quot;:&quot;Technical lead&quot;,&quot;language&quot;:&quot;en&quot;,&quot;message&quot;:&quot;&quot;,&quot;start_day&quot;:&quot;2020-12-04&quot;,&quot;buddy&quot;:4,&quot;timezone&quot;:&quot;UTC&quot;,&quot;sequences&quot;:[3]}' https://YOURDOMAIN/api/newhires/</code></pre>
+<pre class="language-none"><code v-pre class="language-none">curl -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' -H &quot;Authorization: Token xxxxxxxxxxxxxxx&quot; -d '{&quot;first_name&quot;:&quot;James&quot;,&quot;last_name&quot;:&quot;Weller&quot;,&quot;email&quot;:&quot;james@chiefonboarding.com&quot;,&quot;phone&quot;:&quot;&quot;,&quot;position&quot;:&quot;Technical lead&quot;,&quot;language&quot;:&quot;en&quot;,&quot;message&quot;:&quot;&quot;,&quot;start_day&quot;:&quot;2020-12-04&quot;,&quot;buddy&quot;:4,&quot;timezone&quot;:&quot;UTC&quot;,&quot;sequences&quot;:[3], &quot;role&quot;:0}' https://YOURDOMAIN/api/newhires/</code></pre>
 </doc-codeblock></div>
 <div class="flex mb-6">
     <div class="shrink-0 w-1 rounded-tl rounded-bl bg-blue-500 dark:bg-blue-400"></div>
@@ -247,10 +247,15 @@
             </svg>
         </div>
         <div class="pr-5 ml-3 w-full">
-<p><code v-pre>first_name</code>, <code v-pre>last_name</code> and <code v-pre>email</code> are required</p>
+<p><code v-pre>first_name</code>, <code v-pre>last_name</code>, <code v-pre>role</code> and <code v-pre>email</code> are required</p>
         </div>
     </div>
 </div>
+<p>Role options (note: keep an eye on updates, this will likely change soon):</p>
+<p><code v-pre>0</code>: new hire</p>
+<p><code v-pre>1</code>: administrator</p>
+<p><code v-pre>2</code>: manager</p>
+<p><code v-pre>3</code>: other (user will not get notified and does not have any meaningful permissions, no slack connection either)</p>
 <p>The data part of that query (with explanation):</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">{ 
@@ -265,7 +270,8 @@
 	&quot;buddy&quot;: 4, # the id of the employee taken from previous request
 	&quot;manager&quot;: 3, # the id of the employee taken from previous request
 	&quot;timezone&quot;: &quot;UTC&quot;, # if not provided, it will default to the organization timezone
-	&quot;sequences&quot;: [5, 3] # Array of sequence ids that should be assigned to the user
+	&quot;sequences&quot;: [5, 3], # Array of sequence ids that should be assigned to the user
+    &quot;role&quot;: 0 # role of the user (see above)
 }</code></pre>
 </doc-codeblock></div>
 <p>It will return the full new hire object including the ID of the new hire.</p>
@@ -312,7 +318,7 @@
                                     <ul class="flex flex-wrap items-center text-sm">
                                     </ul>
                                 </div>
-                                <div class="docs-copyright py-2 text-gray-500 dark:text-dark-350 text-sm leading-relaxed"><p>© Copyright 2022. All rights reserved.</p></div>
+                                <div class="docs-copyright py-2 text-gray-500 dark:text-dark-350 text-sm leading-relaxed"><p>© Copyright 2023. All rights reserved.</p></div>
                             </footer>
                         </div>
                     </div>
