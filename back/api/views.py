@@ -1,3 +1,4 @@
+from users.emails import email_new_admin_cred
 from rest_framework import generics
 from django_q.tasks import async_task
 
@@ -11,15 +12,15 @@ from .serializers import EmployeeSerializer, SequenceSerializer, UserSerializer
 
 class UserView(generics.CreateAPIView):
     """
-    API endpoint that allows new hires to be created
+    API endpoint that allows users to be created
     """
 
-    queryset = User.objects.all()
     serializer_class = UserSerializer
 
     def perform_create(self, serializer):
         sequences = serializer.validated_data.pop("sequences", None)
         # Default back to the organization timezone if not provided
+        role = serializer.validated_data["role"]
         org = Organization.object.get()
         serializer.validated_data["timezone"] = serializer.validated_data.get(
             "timezone", org.timezone
@@ -27,44 +28,57 @@ class UserView(generics.CreateAPIView):
         serializer.validated_data["language"] = serializer.validated_data.get(
             "language", org.language
         )
-        serializer.validated_data["start_day"] = serializer.validated_data.get(
-            "start_day", org.current_datetime.date()
-        )
-
-        new_hire = serializer.save(role=1)
-
-        # Add sequences to new hire
-        if sequences is not None:
-            sequences = Sequence.objects.filter(id__in=sequences)
-            new_hire.add_sequences(sequences)
-
-        # Send credentials email if the user was created after their start day
-        org = Organization.object.get()
-        new_hire_datetime = new_hire.get_local_time()
-        if (
-            new_hire_datetime.date() >= new_hire.start_day
-            and new_hire_datetime.hour >= 7
-            and new_hire_datetime.weekday() < 5
-            and org.new_hire_email
-        ):
-            async_task(
-                "users.tasks.send_new_hire_credentials",
-                new_hire.id,
-                task_name=f"Send login credentials: {new_hire.full_name}",
+        if role == 0:
+            serializer.validated_data["start_day"] = serializer.validated_data.get(
+                "start_day", org.current_datetime.date()
             )
 
-        # Linking user in Slack and sending welcome message (if exists)
-        link_slack_users([new_hire])
+        user = serializer.save()
+
+        if role == 0:
+            # Add sequences to new hire
+            if sequences is not None:
+                sequences = Sequence.objects.filter(id__in=sequences)
+                user.add_sequences(sequences)
+
+            # Send credentials email if the user was created after their start day
+            org = Organization.object.get()
+            new_hire_datetime = user.get_local_time()
+            if (
+                new_hire_datetime.date() >= user.start_day
+                and new_hire_datetime.hour >= 7
+                and new_hire_datetime.weekday() < 5
+                and org.new_hire_email
+            ):
+                async_task(
+                    "users.tasks.send_new_hire_credentials",
+                    user.id,
+                    task_name=f"Send login credentials: {user.full_name}",
+                )
+
+            # Linking user in Slack and sending welcome message (if exists)
+            link_slack_users([user])
+            # Update user total todo items
+            user.update_progress()
+
+            notification_type = "added_new_hire"
+        if role in [1, 2]:
+            async_task(
+                email_new_admin_cred,
+                user,
+                task_name=f"Send login credentials: {user.full_name}",
+            )
+            if role == 1:
+                notification_type = "added_administrator"
+            else:
+                notification_type = "added_manager"
 
         Notification.objects.create(
-            notification_type="added_new_hire",
-            extra_text=new_hire.full_name,
+            notification_type=notification_type,
+            extra_text=user.full_name,
             created_by=self.request.user,
-            created_for=new_hire,
+            created_for=user,
         )
-
-        # Update user total todo items
-        new_hire.update_progress()
 
 
 class EmployeeView(generics.ListAPIView):
