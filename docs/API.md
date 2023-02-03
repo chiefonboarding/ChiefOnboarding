@@ -45,7 +45,7 @@ curl -H "Authorization: Token xxxxxxxxxxxxxxx" https://YOURDOMAIN/api/sequences/
 2. Create the new hire:
 
 ```
-curl -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' -H "Authorization: Token xxxxxxxxxxxxxxx" -d '{"first_name":"James","last_name":"Weller","email":"james@chiefonboarding.com","phone":"","position":"Technical lead","language":"en","message":"","start_day":"2020-12-04","buddy":4,"timezone":"UTC","sequences":[3], "role":0}' https://YOURDOMAIN/api/newhires/
+curl -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' -H "Authorization: Token xxxxxxxxxxxxxxx" -d '{"first_name":"James","last_name":"Weller","email":"james@chiefonboarding.com","phone":"","position":"Technical lead","language":"en","message":"","start_day":"2020-12-04","buddy":4,"timezone":"UTC","sequences":[3], "role":0}' https://YOURDOMAIN/api/users/
 ```
 
 !!!
