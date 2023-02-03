@@ -45,12 +45,22 @@ curl -H "Authorization: Token xxxxxxxxxxxxxxx" https://YOURDOMAIN/api/sequences/
 2. Create the new hire:
 
 ```
-curl -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' -H "Authorization: Token xxxxxxxxxxxxxxx" -d '{"first_name":"James","last_name":"Weller","email":"james@chiefonboarding.com","phone":"","position":"Technical lead","language":"en","message":"","start_day":"2020-12-04","buddy":4,"timezone":"UTC","sequences":[3]}' https://YOURDOMAIN/api/newhires/
+curl -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' -H "Authorization: Token xxxxxxxxxxxxxxx" -d '{"first_name":"James","last_name":"Weller","email":"james@chiefonboarding.com","phone":"","position":"Technical lead","language":"en","message":"","start_day":"2020-12-04","buddy":4,"timezone":"UTC","sequences":[3], "role":0}' https://YOURDOMAIN/api/newhires/
 ```
 
 !!!
-`first_name`, `last_name` and `email` are required
+`first_name`, `last_name`, `role` and `email` are required
 !!!
+
+Role options (note: keep an eye on updates, this will likely change soon):
+
+`0`: new hire
+
+`1`: administrator
+
+`2`: manager 
+
+`3`: other (user will not get notified and does not have any meaningful permissions, no slack connection either)
 
 
 The data part of that query (with explanation):
@@ -68,7 +78,8 @@ The data part of that query (with explanation):
 	"buddy": 4, # the id of the employee taken from previous request
 	"manager": 3, # the id of the employee taken from previous request
 	"timezone": "UTC", # if not provided, it will default to the organization timezone
-	"sequences": [5, 3] # Array of sequence ids that should be assigned to the user
+	"sequences": [5, 3], # Array of sequence ids that should be assigned to the user
+    "role": 0 # role of the user (see above)
 }
 ```
 

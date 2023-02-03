@@ -1,3 +1,4 @@
+from freezegun.api import freeze_time
 import pytest
 from django.test import override_settings
 from django.urls import reverse
@@ -114,18 +115,20 @@ def test_create_new_hire_endpoint(setup_rest, sequence_factory):
     seq1 = sequence_factory()
 
     response = client.post(
-        reverse("api:newhires"),
+        reverse("api:users"),
         data={
             "first_name": "john",
             "last_name": "Do",
             "email": "john@chiefonboarding.com",
             "sequences": [seq1.id],
+            "role": 0,
         },
         format="json",
     )
     assert response.status_code == 201
     # We already have the user with the token + this new hire
     assert User.objects.count() == 2
+    assert User.objects.filter(role=0).count() == 1
 
 
 @pytest.mark.django_db
@@ -137,13 +140,14 @@ def test_create_new_hire_with_invalid_options(setup_rest, sequence_factory):
 
     # Buddy does not exist
     response = client.post(
-        reverse("api:newhires"),
+        reverse("api:users"),
         data={
             "first_name": "john",
             "last_name": "Do",
             "email": "john@chiefonboarding.com",
             "sequences": [seq1.id],
             "buddy": 1999999,
+            "role": 0,
         },
         format="json",
     )
@@ -156,13 +160,14 @@ def test_create_new_hire_with_invalid_options(setup_rest, sequence_factory):
 
     # Timezone does not exist
     response = client.post(
-        reverse("api:newhires"),
+        reverse("api:users"),
         data={
             "first_name": "john",
             "last_name": "Do",
             "email": "john@chiefonboarding.com",
             "sequences": [seq1.id],
             "timezone": "falsetimezone",
+            "role": 0,
         },
         format="json",
     )
@@ -173,12 +178,28 @@ def test_create_new_hire_with_invalid_options(setup_rest, sequence_factory):
 
     # Sequence does not exist
     response = client.post(
-        reverse("api:newhires"),
+        reverse("api:users"),
         data={
             "first_name": "john",
             "last_name": "Do",
             "email": "john@chiefonboarding.com",
             "sequences": [2412343434],
+            "role": 0,
+        },
+        format="json",
+    )
+    assert response.status_code == 400
+    assert User.objects.count() == 1
+
+    # Role was not provided
+    response = client.post(
+        reverse("api:users"),
+        data={
+            "first_name": "john",
+            "last_name": "Do",
+            "email": "john@chiefonboarding.com",
+            "sequences": [2412343434],
+            "role": 0,
         },
         format="json",
     )
@@ -189,27 +210,65 @@ def test_create_new_hire_with_invalid_options(setup_rest, sequence_factory):
 
 
 @pytest.mark.django_db
-def test_create_new_hire_with_buddy_and_manager(setup_rest, admin_factory):
+@freeze_time("2022-05-13 08:00:00")
+def test_create_new_hire_with_buddy_and_manager(setup_rest, admin_factory, mailoutbox):
 
     client = setup_rest
 
     admin1 = admin_factory()
     admin2 = admin_factory()
+    # No emails
+    assert len(mailoutbox) == 0
 
     response = client.post(
-        reverse("api:newhires"),
+        reverse("api:users"),
         data={
             "first_name": "john",
             "last_name": "Do",
             "email": "john@chiefonboarding.com",
             "buddy": admin1.id,
             "manager": admin2.id,
+            "role": 0,
         },
         format="json",
     )
+    assert len(mailoutbox) == 1
+    assert "Welcome to" in mailoutbox[0].subject
+    assert len(mailoutbox[0].to) == 1
+    assert mailoutbox[0].to[0] == "john@chiefonboarding.com"
+
     assert response.status_code == 201
     assert User.objects.count() == 4
 
     new_hire = User.objects.last()
     assert new_hire.buddy == admin1
-    assert new_hire.manager == admin2
+
+
+@pytest.mark.django_db
+def test_create_admin_user(setup_rest, mailoutbox):
+
+    client = setup_rest
+
+    # No emails
+    assert len(mailoutbox) == 0
+
+    response = client.post(
+        reverse("api:users"),
+        data={
+            "first_name": "john",
+            "last_name": "Do",
+            "email": "john@chiefonboarding.com",
+            "role": 1,
+        },
+        format="json",
+    )
+    assert len(mailoutbox) == 1
+    assert "Your login credentials" in mailoutbox[0].subject
+    assert len(mailoutbox[0].to) == 1
+    assert mailoutbox[0].to[0] == "john@chiefonboarding.com"
+
+    assert response.status_code == 201
+    assert User.objects.count() == 2
+
+    user = User.objects.last()
+    assert user.is_admin
