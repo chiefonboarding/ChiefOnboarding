@@ -322,8 +322,8 @@ AXES_COOLOFF_TIME = env.int("AXES_COOLOFF_TIME", default=24)
 
 if env.bool("AXES_USE_FORWARDED_FOR", True):
     AXES_META_PRECEDENCE_ORDER = [
-        'HTTP_X_FORWARDED_FOR',
-        'REMOTE_ADDR',
+        "HTTP_X_FORWARDED_FOR",
+        "REMOTE_ADDR",
     ]
 
 # Error tracking
