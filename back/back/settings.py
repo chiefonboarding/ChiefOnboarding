@@ -316,8 +316,15 @@ AUTHENTICATION_BACKENDS = [
     # Django ModelBackend is the default authentication backend.
     "django.contrib.auth.backends.ModelBackend",
 ]
-AXES_ENABLED = True
-AXES_FAILURE_LIMIT = 10
+AXES_ENABLED = env.bool("AXES_ENABLED", default=True)
+AXES_FAILURE_LIMIT = env.int("AXES_FAILURE_LIMIT", default=10)
+AXES_COOLOFF_TIME = env.int("AXES_COOLOFF_TIME", default=24)
+
+if env.bool("AXES_USE_FORWARDED_FOR", True):
+    AXES_META_PRECEDENCE_ORDER = [
+        'HTTP_X_FORWARDED_FOR',
+        'REMOTE_ADDR',
+    ]
 
 # Error tracking
 if env("SENTRY_URL", default="") != "":
