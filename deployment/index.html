@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.728706329760">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.729046704053">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.4.0">
@@ -32,12 +32,12 @@
 
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
-    <link href="../resources/css/retype.css?v=2.4.0.728706329760" rel="stylesheet" />
+    <link href="../resources/css/retype.css?v=2.4.0.729046704053" rel="stylesheet" />
 
-    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.728706329760" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.729046704053" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../resources/js/retype.js?v=2.4.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.728706329760" data-turbo-eval="false" defer></script>
-    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=2.4.0.728706329760" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.729046704053" data-turbo-eval="false" defer></script>
+    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=2.4.0.729046704053" defer></script>
 </head>
 <body>
     <div id="docs-app" class="relative text-base antialiased text-gray-700 bg-white font-body dark:bg-dark-850 dark:text-dark-300">
@@ -669,6 +669,17 @@ EMAIL_USE_SSL=True</code></pre>
 {% endautoescape %}</code></pre>
 </doc-codeblock></div>
 <p>Don&#x27;t change whatever is within the brackets. Feel free to customize everything around it however you would like!</p>
+<doc-anchor-target id="ratelimits-of-failed-login-attempts">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#ratelimits-of-failed-login-attempts">#</doc-anchor-trigger>
+        <span>Ratelimits of failed login attempts</span>
+    </h3>
+</doc-anchor-target>
+<p>By default, ChiefOnboarding uses allows users to attempt 10 times before the user gets blocked by IP. You can change the defaults:</p>
+<p><code v-pre>AXES_ENABLED</code>: Default: <code v-pre>True</code>. Set to <code v-pre>False</code> if you want to disable blocking users from trying again (not recommended).</p>
+<p><code v-pre>AXES_FAILURE_LIMIT</code>: Default: <code v-pre>10</code>. Sets the amount of attempts before user gets blocked.</p>
+<p><code v-pre>AXES_COOLOFF_TIME</code>: Default: <code v-pre>24</code> (in hours). After 24 hours the IP address gets cleared again.</p>
+<p><code v-pre>AXES_USE_FORWARDED_FOR</code>: Default: <code v-pre>True</code>. In many cases ChiefOnboarding is deployed behind a proxy (i.e. Docker or Heroku reverse proxy). This allows you to get the IP address from the refer header. Without this, it would log internal ip addresses, which means that users will share the same ip address and get locked out unintentionally.</p>
 <doc-anchor-target id="text-messages">
     <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#text-messages">#</doc-anchor-trigger>
