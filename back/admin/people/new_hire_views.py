@@ -89,7 +89,7 @@ class NewHireAddView(
         sequences = form.cleaned_data.pop("sequences")
 
         # Set new hire role
-        form.instance.role = 0
+        form.instance.role = get_user_model().Role.NEWHIRE
 
         new_hire = form.save()
 
@@ -115,7 +115,7 @@ class NewHireAddView(
         link_slack_users([new_hire])
 
         Notification.objects.create(
-            notification_type="added_new_hire",
+            notification_type=Notification.Type.ADDED_NEWHIRE,
             extra_text=new_hire.full_name,
             created_by=self.request.user,
             created_for=new_hire,
@@ -172,7 +172,8 @@ class NewHireSendPreboardingNotificationView(
                 from_=settings.TWILIO_FROM_NUMBER,
                 body=new_hire.personalize(
                     WelcomeMessage.objects.get(
-                        language=new_hire.language, message_type=2
+                        language=new_hire.language,
+                        message_type=WelcomeMessage.Type.TEXT_WELCOME,
                     ).message
                 ),
             )
@@ -360,7 +361,9 @@ class NewHireMigrateToNormalAccountView(
     LoginRequiredMixin, IsAdminOrNewHireManagerMixin, View
 ):
     def post(self, request, pk, *args, **kwargs):
-        user = get_object_or_404(get_user_model(), id=pk, role=0)
+        user = get_object_or_404(
+            get_user_model(), id=pk, role=get_user_model().Role.NEWHIRE
+        )
         user.role = 3
         user.save()
         messages.info(request, _("New hire is now a normal account."))

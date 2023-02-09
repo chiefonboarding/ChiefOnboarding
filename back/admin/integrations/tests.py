@@ -3,6 +3,7 @@ from datetime import timedelta
 from unittest.mock import Mock, patch
 
 import pytest
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
 
@@ -12,7 +13,9 @@ from organization.models import Notification
 
 @pytest.mark.django_db
 def test_create_integration(client, django_user_model):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     url = reverse("integrations:create")
     response = client.get(url)
@@ -33,7 +36,9 @@ def test_create_integration(client, django_user_model):
 
 @pytest.mark.django_db
 def test_update_integration(client, django_user_model, custom_integration_factory):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     integration = custom_integration_factory()
 
     url = reverse("integrations:update", args=[integration.id])
@@ -46,7 +51,9 @@ def test_update_integration(client, django_user_model, custom_integration_factor
 
 @pytest.mark.django_db
 def test_create_google_login_integration(client, django_user_model):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     url = reverse("integrations:create-google")
     response = client.get(url)
@@ -61,7 +68,9 @@ def test_create_google_login_integration(client, django_user_model):
 
 @pytest.mark.django_db
 def test_delete_integration(client, django_user_model, custom_integration_factory):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     integration = custom_integration_factory()
 
     assert Integration.objects.filter(integration=10).count() == 1
@@ -83,7 +92,9 @@ def test_delete_integration(client, django_user_model, custom_integration_factor
 def test_integration_extra_args_form(
     client, django_user_model, custom_integration_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     integration = custom_integration_factory()
 
     url = reverse("integrations:update-creds", args=[integration.id])
@@ -166,7 +177,9 @@ def test_integration_request_basic_auth(custom_integration_factory):
 def test_integration_oauth_redirect_view(
     client, django_user_model, custom_integration_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     integration = custom_integration_factory(
         manifest={"oauth": {"authenticate_url": "http://localhost:8000/test/{{TEST}}"}},
         extra_args={"TEST": "HI"},
@@ -192,7 +205,9 @@ def test_integration_oauth_redirect_view(
 def test_integration_user_exists(
     client, django_user_model, new_hire_factory, custom_integration_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     integration = custom_integration_factory(
         manifest={
             "exists": {
@@ -233,7 +248,9 @@ def test_integration_user_exists(
 def test_integration_refresh_token(
     client, django_user_model, new_hire_factory, custom_integration_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     integration = custom_integration_factory(
         manifest={
             "oauth": {
@@ -260,7 +277,9 @@ def test_integration_refresh_token(
         integration.renew_key()
 
         assert (
-            Notification.objects.filter(notification_type="failed_integration").count()
+            Notification.objects.filter(
+                notification_type=Notification.Type.FAILED_INTEGRATION
+            ).count()
             == 1
         )
 
@@ -284,7 +303,9 @@ def test_integration_refresh_token(
         }
         # Only one because of previous request
         assert (
-            Notification.objects.filter(notification_type="failed_integration").count()
+            Notification.objects.filter(
+                notification_type=Notification.Type.FAILED_INTEGRATION
+            ).count()
             == 1
         )
 
@@ -293,7 +314,9 @@ def test_integration_refresh_token(
 def test_integration_send_email(
     client, django_user_model, new_hire_factory, mailoutbox, custom_integration_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     integration = custom_integration_factory(
         manifest={
             "oauth": {},
@@ -325,7 +348,9 @@ def test_integration_send_email(
 def test_integration_oauth_callback_redirect_view_disabled_when_done(
     client, django_user_model, custom_integration_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     integration = custom_integration_factory(
         manifest={"oauth": {"authenticate_url": "http://localhost:8000/test/"}},
         enabled_oauth=True,
@@ -341,7 +366,9 @@ def test_integration_oauth_callback_redirect_view_disabled_when_done(
 def test_integration_oauth_callback_view_redirect_without_code(
     client, django_user_model, custom_integration_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     integration = custom_integration_factory(
         manifest={"oauth": {"authenticate_url": "http://localhost:8000/test/"}}
     )
@@ -360,7 +387,9 @@ def test_integration_oauth_callback_view_redirect_without_code(
 def test_integration_oauth_callback_view(
     client, django_user_model, custom_integration_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     integration = custom_integration_factory(
         manifest={
             "oauth": {
@@ -400,7 +429,9 @@ def test_integration_clean_error_data(custom_integration_factory):
 def test_integration_oauth_callback_failed_view(
     client, django_user_model, custom_integration_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     integration = custom_integration_factory(
         manifest={
             "oauth": {
@@ -433,7 +464,9 @@ def test_integration_oauth_callback_failed_view(
     ),
 )
 def test_slack_connect(client, django_user_model):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     # Google login is disabled, so url doesn't work
     url = reverse("integrations:slack")
     response = client.get(url, follow=True)

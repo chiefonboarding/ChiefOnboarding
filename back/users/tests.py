@@ -1,6 +1,7 @@
 import datetime
 
 import pytest
+from django.contrib.auth import get_user_model
 from freezegun import freeze_time
 
 from organization.models import Organization
@@ -18,10 +19,10 @@ def test_user_create(
     employee = employee_factory()
     manager = manager_factory()
 
-    assert new_hire.role == 0
-    assert admin.role == 1
-    assert manager.role == 2
-    assert employee.role == 3
+    assert new_hire.role == get_user_model().Role.NEWHIRE
+    assert admin.role == get_user_model().Role.ADMIN
+    assert manager.role == get_user_model().Role.MANAGER
+    assert employee.role == get_user_model().Role.OTHER
 
     assert User.objects.count() == 4
     assert User.new_hires.count() == 1

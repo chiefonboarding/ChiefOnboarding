@@ -1376,7 +1376,7 @@ def test_join_user_auto_create_without_approval(sequence_factory, to_do_factory)
     user = get_user_model().objects.first()
     # To do item from sequence
     assert user.to_do.count() == 1
-    assert user.role == 0
+    assert user.role == get_user_model().Role.NEWHIRE
     assert user.is_active
 
 
@@ -1474,7 +1474,7 @@ def test_join_user_auto_create_with_request_for_approval(admin_factory):
     assert get_user_model().objects.count() == 2
     new_hire = get_user_model().objects.last()
     # New hire is not active
-    assert new_hire.role == 3
+    assert new_hire.role == get_user_model().Role.OTHER
     assert not new_hire.is_active
 
     assert cache.get("slack_channel") == "slackx"
@@ -1882,7 +1882,9 @@ def test_link_slack_users_send_welcome_message_without_to_dos(
 
     new_hire = new_hire_factory()
     # Test personalizing message
-    wm = WelcomeMessage.objects.get(language=new_hire.language, message_type=3)
+    wm = WelcomeMessage.objects.get(
+        language=new_hire.language, message_type=WelcomeMessage.Type.SLACK_WELCOME
+    )
     wm.message += " {{first_name}}"
     wm.save()
 
@@ -1948,7 +1950,9 @@ def test_link_slack_users_send_welcome_message_with_to_dos(
 
     new_hire = new_hire_factory()
     # Test personalizing message
-    wm = WelcomeMessage.objects.get(language=new_hire.language, message_type=3)
+    wm = WelcomeMessage.objects.get(
+        language=new_hire.language, message_type=WelcomeMessage.Type.SLACK_WELCOME
+    )
     wm.message += " {{first_name}}"
     wm.save()
 

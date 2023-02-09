@@ -9,8 +9,8 @@ from admin.to_do.models import ToDo
 from users.models import User
 
 from .models import (
-    PEOPLE_CHOICES,
     Condition,
+    ExternalMessage,
     PendingAdminTask,
     PendingEmailMessage,
     PendingSlackMessage,
@@ -40,7 +40,9 @@ class ConditionCreateForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         is_time_condition = (
-            self.instance.condition_type in [0, 2] or self.instance is None
+            self.instance.condition_type
+            in [Condition.Type.AFTER, Condition.Type.BEFORE]
+            or self.instance is None
         )
         self.helper.layout = Layout(
             Field("condition_type"),
@@ -60,7 +62,7 @@ class ConditionCreateForm(forms.ModelForm):
         self.fields["condition_to_do"].required = False
         # Remove last option, which will only be one of
         self.fields["condition_type"].choices = tuple(
-            x for x in Condition.CONDITION_TYPE if x[0] != 3
+            x for x in Condition.Type.choices if x[0] != 3
         )
 
     class Meta:
@@ -78,7 +80,11 @@ class ConditionCreateForm(forms.ModelForm):
         if day is None:
             # Handled in clean() function
             return day
-        if self.cleaned_data["condition_type"] in [0, 2] and day <= 0:
+        if (
+            self.cleaned_data["condition_type"]
+            in [Condition.Type.AFTER, Condition.Type.BEFORE]
+            and day <= 0
+        ):
             raise ValidationError(
                 _(
                     "You cannot use 0 or less. The day before starting is 1 and the "
@@ -94,8 +100,8 @@ class ConditionCreateForm(forms.ModelForm):
             # Handled in clean() function
             return time
         if time.minute % 10 not in [0, 5] and self.cleaned_data["condition_type"] in [
-            0,
-            2,
+            Condition.Type.BEFORE,
+            Condition.Type.AFTER,
         ]:
             raise ValidationError(
                 _(
@@ -113,11 +119,13 @@ class ConditionCreateForm(forms.ModelForm):
         time = cleaned_data.get("time", None)
         days = cleaned_data.get("days", None)
         condition_to_do = cleaned_data.get("condition_to_do", None)
-        if condition_type == 1 and (
+        if condition_type == Condition.Type.TODO and (
             condition_to_do is None or len(condition_to_do) == 0
         ):
             raise ValidationError(_("You must add at least one to do item"))
-        if condition_type in [0, 2] and (time is None or days is None):
+        if condition_type in [Condition.Type.AFTER, Condition.Type.BEFORE] and (
+            time is None or days is None
+        ):
             raise ValidationError(_("Both the time and days have to be filled in."))
         return cleaned_data
 
@@ -151,13 +159,16 @@ class PendingAdminTaskForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["option"].initial = 0
+        self.fields["option"].initial = PendingAdminTask.Notification.NO
         self.helper = FormHelper()
         self.helper.form_tag = False
 
         # Check if assigned_to field should be hidden
         hide_assigned_to = "d-none"
-        if self.instance is not None and self.instance.person_type == 3:
+        if (
+            self.instance is not None
+            and self.instance.person_type == PendingAdminTask.PersonType.CUSTOM
+        ):
             hide_assigned_to = ""
 
         self.helper.layout = Layout(
@@ -200,11 +211,17 @@ class PendingSlackMessageForm(forms.ModelForm):
 
         # Check if send_to field should be hidden
         hide_send_to = "d-none"
-        if self.instance is not None and self.instance.person_type == 3:
+        if (
+            self.instance is not None
+            and self.instance.person_type == ExternalMessage.PersonType.CUSTOM
+        ):
             hide_send_to = ""
 
         hide_send_to_channel = "d-none"
-        if self.instance is not None and self.instance.person_type == 4:
+        if (
+            self.instance is not None
+            and self.instance.person_type == ExternalMessage.PersonType.SLACK_CHANNEL
+        ):
             hide_send_to_channel = ""
 
         self.helper.layout = Layout(
@@ -242,12 +259,15 @@ class PendingTextMessageForm(forms.ModelForm):
 
         # Check if send_to field should be hidden
         hide_send_to = "d-none"
-        if self.instance is not None and self.instance.person_type == 3:
+        if (
+            self.instance is not None
+            and self.instance.person_type == ExternalMessage.PersonType.CUSTOM
+        ):
             hide_send_to = ""
 
         # Remove the Slack channel options
-        self.fields["person_type"].choices = PEOPLE_CHOICES
-        self.fields["person_type"].widget.choices = PEOPLE_CHOICES
+        self.fields["person_type"].choices = PendingAdminTask.PersonType.choices
+        self.fields["person_type"].widget.choices = PendingAdminTask.PersonType.choices
 
         self.helper.layout = Layout(
             Div(
@@ -279,12 +299,15 @@ class PendingEmailMessageForm(forms.ModelForm):
 
         # Check if send_to field should be hidden
         hide_send_to = "d-none"
-        if self.instance is not None and self.instance.person_type == 3:
+        if (
+            self.instance is not None
+            and self.instance.person_type == ExternalMessage.PersonType.CUSTOM
+        ):
             hide_send_to = ""
 
         # Remove the Slack channel options
-        self.fields["person_type"].choices = PEOPLE_CHOICES
-        self.fields["person_type"].widget.choices = PEOPLE_CHOICES
+        self.fields["person_type"].choices = PendingAdminTask.PersonType.choices
+        self.fields["person_type"].widget.choices = PendingAdminTask.PersonType.choices
 
         self.helper.layout = Layout(
             Div(

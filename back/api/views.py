@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django_q.tasks import async_task
 from rest_framework import generics
 
@@ -28,14 +29,14 @@ class UserView(generics.CreateAPIView):
         serializer.validated_data["language"] = serializer.validated_data.get(
             "language", org.language
         )
-        if role == 0:
+        if role == get_user_model().Role.NEWHIRE:
             serializer.validated_data["start_day"] = serializer.validated_data.get(
                 "start_day", org.current_datetime.date()
             )
 
         user = serializer.save()
 
-        if role == 0:
+        if role == get_user_model().Role.NEWHIRE:
             # Add sequences to new hire
             if sequences is not None:
                 sequences = Sequence.objects.filter(id__in=sequences)
@@ -61,17 +62,17 @@ class UserView(generics.CreateAPIView):
             # Update user total todo items
             user.update_progress()
 
-            notification_type = "added_new_hire"
-        if role in [1, 2]:
+            notification_type = Notification.Type.ADDED_NEWHIRE
+        if role in [get_user_model().Role.ADMIN, get_user_model().Role.MANAGER]:
             async_task(
                 email_new_admin_cred,
                 user,
                 task_name=f"Send login credentials: {user.full_name}",
             )
-            if role == 1:
-                notification_type = "added_administrator"
+            if role == get_user_model().Role.ADMIN:
+                notification_type = Notification.Type.ADDED_ADMIN
             else:
-                notification_type = "added_manager"
+                notification_type = Notification.Type.ADDED_MANAGER
 
         Notification.objects.create(
             notification_type=notification_type,

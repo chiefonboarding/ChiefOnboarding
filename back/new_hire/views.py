@@ -37,7 +37,7 @@ class NewHireDashboard(LoginRequiredMixin, TemplateView):
         new_hire = self.request.user
 
         # Check that user is allowed to see page (only new hires)
-        if new_hire.role != 0:
+        if new_hire.role != get_user_model().Role.NEWHIRE:
             raise Http404
 
         context = super().get_context_data(**kwargs)
@@ -100,7 +100,7 @@ class ToDoCompleteView(LoginRequiredMixin, View):
         to_do_user.mark_completed()
 
         Notification.objects.create(
-            notification_type="completed_todo",
+            notification_type=Notification.Type.COMPLETED_TODO,
             extra_text=to_do_user.to_do.name,
             created_by=request.user,
         )
@@ -161,7 +161,7 @@ class SlackToDoFormView(LoginRequiredMixin, TemplateView):
         try:
             user = User.objects.get(
                 unique_url=self.request.GET.get("token", ""),
-                role=0,
+                role=get_user_model().Role.NEWHIRE,
             )
         except User.DoesNotExist:
             # Log wrong keys by ip to prevent guessing/bruteforcing
@@ -202,7 +202,7 @@ class PreboardingShortURLRedirectView(LoginRequiredMixin, RedirectView):
             user = User.objects.get(
                 unique_url=self.request.GET.get("token", ""),
                 start_day__gte=timezone.now(),
-                role=0,
+                role=get_user_model().Role.NEWHIRE,
             )
         except User.DoesNotExist:
             # Log wrong keys by ip to prevent guessing/bruteforcing
@@ -379,7 +379,7 @@ class CourseNextStepView(LoginRequiredMixin, View):
         if chapter is None:
             messages.success(request, _("You have completed this course!"))
             Notification.objects.create(
-                notification_type="completed_course",
+                notification_type=Notification.Type.COMPLETED_COURSE,
                 extra_text=resource_user.resource.name,
                 created_by=self.request.user,
             )

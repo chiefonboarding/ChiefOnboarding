@@ -212,7 +212,8 @@ class ColleagueGiveSlackAccessView(LoginRequiredMixin, ManagerPermMixin, View):
         blocks = [
             paragraph(
                 WelcomeMessage.objects.get(
-                    language=user.language, message_type=4
+                    language=user.language,
+                    message_type=WelcomeMessage.Type.SLACK_KNOWLEDGE,
                 ).message
             ),
             actions(

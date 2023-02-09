@@ -29,7 +29,7 @@ class LoginRedirectView(LoginWithMFARequiredMixin, View):
     def get(self, request, *args, **kwargs):
         if request.user.is_admin_or_manager:
             return redirect("admin:new_hires")
-        elif request.user.role == 0:
+        elif request.user.role == get_user_model().Role.NEWHIRE:
             return redirect("new_hire:todos")
         else:
             return redirect("new_hire:colleagues")

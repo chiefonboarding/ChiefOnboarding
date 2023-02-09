@@ -1,4 +1,5 @@
 import pytest
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from admin.to_do.models import ToDo
@@ -8,7 +9,9 @@ from .factories import *  # noqa
 
 @pytest.mark.django_db
 def test_create_to_do(client, django_user_model, integration_factory):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     url = reverse("todo:create")
     response = client.get(url)

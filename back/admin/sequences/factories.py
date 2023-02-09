@@ -147,7 +147,7 @@ class ConditionWithItemsFactory(factory.django.DjangoModelFactory):
 
 
 class ConditionToDoFactory(factory.django.DjangoModelFactory):
-    condition_type = 1
+    condition_type = Condition.Type.TODO
 
     class Meta:
         model = Condition
@@ -163,7 +163,7 @@ class ConditionToDoFactory(factory.django.DjangoModelFactory):
 
 
 class ConditionTimedFactory(factory.django.DjangoModelFactory):
-    condition_type = 0
+    condition_type = Condition.Type.AFTER
     time = "10:00"
     days = FuzzyInteger(1, 60)
 
@@ -184,7 +184,7 @@ class SequenceFactory(factory.django.DjangoModelFactory):
 
         if not extracted:
             # Always create the non-condition condition
-            ConditionFactory(condition_type=3, sequence=obj)
+            ConditionFactory(condition_type=Condition.Type.WITHOUT, sequence=obj)
 
 
 class IntegrationConfigFactory(factory.django.DjangoModelFactory):

@@ -1,4 +1,5 @@
 import pytest
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from admin.preboarding.factories import *  # noqa
@@ -8,7 +9,9 @@ from users.factories import *  # noqa
 
 @pytest.mark.django_db
 def test_create_preboarding(client, django_user_model):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     url = reverse("preboarding:create")
     response = client.get(url)
@@ -30,7 +33,9 @@ def test_create_preboarding(client, django_user_model):
 
 @pytest.mark.django_db
 def test_update_preboarding(client, django_user_model, preboarding_factory):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     preboarding = preboarding_factory()
 
     url = reverse("preboarding:update", args=[preboarding.id])

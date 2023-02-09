@@ -11,9 +11,7 @@ from django.utils.translation import gettext_lazy as _
 
 from misc.fields import ContentJSONField
 from misc.mixins import ContentMixin
-from organization.models import BaseItem
-
-CHAPTER_TYPE = ((0, _("page")), (1, _("folder")), (2, _("questions")))
+from organization.models import BaseItem, Notification
 
 
 class Category(models.Model):
@@ -76,7 +74,7 @@ class Resource(BaseItem):
 
     @property
     def notification_add_type(self):
-        return "added_resource"
+        return Notification.Type.ADDED_RESOURCE
 
     def duplicate(self, change_name=True):
         old_resource = Resource.objects.get(pk=self.pk)
@@ -127,9 +125,9 @@ class Resource(BaseItem):
         # We can't fetch course from the object, as the user might have already
         # passed it and it now should show as normal resource for them
         # Only used for Slack
-        chapters = self.chapters.exclude(type=1)
+        chapters = self.chapters.exclude(type=Chapter.Type.FOLDER)
         if not course:
-            chapters = self.chapters.filter(type=0)
+            chapters = self.chapters.filter(type=Chapter.Type.PAGE)
 
         chapter = chapters.first()
 
@@ -145,13 +143,18 @@ class Resource(BaseItem):
 
 
 class Chapter(ContentMixin, models.Model):
+    class Type(models.IntegerChoices):
+        PAGE = 0, _("Page")
+        FOLDER = 1, _("Folder")
+        QUESTIONS = 2, _("Questions")
+
     parent_chapter = models.ForeignKey("self", on_delete=models.CASCADE, null=True)
     resource = models.ForeignKey(
         Resource, on_delete=models.CASCADE, related_name="chapters", null=True
     )
     name = models.CharField(max_length=240)
     content = ContentJSONField(default=dict)
-    type = models.IntegerField(choices=CHAPTER_TYPE)
+    type = models.IntegerField(choices=Type.choices)
     order = models.IntegerField(default=0)
 
     def duplicate(self):

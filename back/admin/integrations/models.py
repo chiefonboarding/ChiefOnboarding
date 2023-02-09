@@ -197,7 +197,7 @@ class Integration(models.Model):
 
             if not success:
                 Notification.objects.create(
-                    notification_type="failed_integration",
+                    notification_type=Notification.Type.FAILED_INTEGRATION,
                     extra_text=self.name,
                     created_for=self.new_hire,
                     description="Refresh url: " + str(response),
@@ -233,7 +233,7 @@ class Integration(models.Model):
             if not success:
                 response = self.clean_response(response=response)
                 Notification.objects.create(
-                    notification_type="failed_integration",
+                    notification_type=Notification.Type.FAILED_INTEGRATION,
                     extra_text=self.name,
                     created_for=new_hire,
                     description=f"Execute url ({item['url']}): {response}",
@@ -264,7 +264,9 @@ class Integration(models.Model):
                     subject=self._replace_vars(item["subject"]),
                     message=self._replace_vars(item["message"]),
                     to=self._replace_vars(item["to"]),
-                    notification_type="sent_email_integration_notification",
+                    notification_type=(
+                        Notification.Type.SENT_EMAIL_INTEGRATION_NOTIFICATION
+                    ),
                 )
                 return True, None
             else:
@@ -279,7 +281,9 @@ class Integration(models.Model):
                     )
                 except Exception:
                     Notification.objects.create(
-                        notification_type="failed_text_integration_notification",
+                        notification_type=(
+                            Notification.Type.FAILED_TEXT_INTEGRATION_NOTIFICATION
+                        ),
                         extra_text=self.name,
                         created_for=new_hire,
                     )
@@ -287,7 +291,7 @@ class Integration(models.Model):
 
         # Succesfully ran integration, add notification
         Notification.objects.create(
-            notification_type="ran_integration",
+            notification_type=Notification.Type.RAN_INTEGRATION,
             extra_text=self.name,
             created_for=new_hire,
         )

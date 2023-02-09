@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from misc.fields import ContentJSONField
-from organization.models import BaseItem
+from organization.models import BaseItem, Notification
 
 
 class Preboarding(BaseItem):
@@ -28,4 +28,4 @@ class Preboarding(BaseItem):
 
     @property
     def notification_add_type(self):
-        return "added_preboarding"
+        return Notification.Type.ADDED_PREBOARDING

@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from twilio.rest import Client
 
-from admin.admin_tasks.models import NOTIFICATION_CHOICES, PRIORITY_CHOICES
+from admin.admin_tasks.models import AdminTask
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
 from admin.integrations.models import Integration
@@ -21,21 +21,6 @@ from slack_bot.models import SlackChannel
 from slack_bot.utils import Slack
 
 from .emails import send_sequence_message
-
-PEOPLE_CHOICES = (
-    (0, _("New hire")),
-    (1, _("Manager")),
-    (2, _("Buddy")),
-    (3, _("Custom")),
-)
-
-PEOPLE_CHOICES_WITH_CHANNELS = (
-    (0, _("New hire")),
-    (1, _("Manager")),
-    (2, _("Buddy")),
-    (3, _("Custom")),
-    (4, _("Slack channel")),
-)
 
 
 class Sequence(models.Model):
@@ -69,7 +54,10 @@ class Sequence(models.Model):
         # adding conditions
         for sequence_condition in self.conditions.all():
             # Check what kind of condition it is
-            if sequence_condition.condition_type in [0, 2]:
+            if sequence_condition.condition_type in [
+                Condition.Type.BEFORE,
+                Condition.Type.AFTER,
+            ]:
                 # Get the timed based condition or return None if not exist
                 user_condition = user.conditions.filter(
                     condition_type=sequence_condition.condition_type,
@@ -77,10 +65,10 @@ class Sequence(models.Model):
                     time=sequence_condition.time,
                 ).first()
 
-            elif sequence_condition.condition_type == 1:
+            elif sequence_condition.condition_type == Condition.Type.TODO:
                 # For to_do items, filter all condition items to find if one matches
                 # Both the amount and the todos itself need to match exactly
-                conditions = user.conditions.filter(condition_type=1)
+                conditions = user.conditions.filter(condition_type=Condition.Type.TODO)
                 original_condition_to_do_ids = (
                     sequence_condition.condition_to_do.all().values_list(
                         "id", flat=True
@@ -194,28 +182,39 @@ class Sequence(models.Model):
         Condition.objects.filter(id__in=conditions_to_be_deleted).delete()
         # Delete sequence
         Notification.objects.order_by("-created").filter(
-            notification_type="added_sequence"
+            notification_type=Notification.Type.ADDED_SEQUENCE
         ).first().delete()
 
 
 class ExternalMessageManager(models.Manager):
     def for_new_hire(self):
-        return self.get_queryset().filter(person_type=0)
+        return self.get_queryset().filter(
+            person_type=ExternalMessage.PersonType.NEWHIRE
+        )
 
     def for_admins(self):
-        return self.get_queryset().exclude(person_type=0)
+        return self.get_queryset().exclude(
+            person_type=ExternalMessage.PersonType.NEWHIRE
+        )
 
 
 class ExternalMessage(ContentMixin, models.Model):
-    EXTERNAL_TYPE = (
-        (0, _("Email")),
-        (1, _("Slack")),
-        (2, _("Text")),
-    )
+    class Type(models.IntegerChoices):
+        EMAIL = 0, _("Email")
+        SLACK = 1, _("Slack")
+        TEXT = 2, _("Text")
+
+    class PersonType(models.IntegerChoices):
+        NEWHIRE = 0, _("New hire")
+        MANAGER = 1, _("Manager")
+        BUDDY = 2, _("Buddy")
+        CUSTOM = 3, _("Custom")
+        SLACK_CHANNEL = 4, _("Slack channel")
+
     name = models.CharField(verbose_name=_("Name"), max_length=240)
     content_json = ContentJSONField(default=dict, verbose_name=_("Content"))
     content = models.CharField(verbose_name=_("Content"), max_length=12000, blank=True)
-    send_via = models.IntegerField(verbose_name=_("Send via"), choices=EXTERNAL_TYPE)
+    send_via = models.IntegerField(verbose_name=_("Send via"), choices=Type.choices)
     send_to = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name=_("Send to"),
@@ -237,29 +236,29 @@ class ExternalMessage(ContentMixin, models.Model):
         blank=True,
     )
     person_type = models.IntegerField(
-        verbose_name=_("For"), choices=PEOPLE_CHOICES_WITH_CHANNELS, default=1
+        verbose_name=_("For"), choices=PersonType.choices, default=1
     )
 
     @property
     def is_email_message(self):
-        return self.send_via == 0
+        return self.send_via == self.Type.EMAIL
 
     @property
     def is_slack_message(self):
-        return self.send_via == 1
+        return self.send_via == self.Type.SLACK
 
     @property
     def is_text_message(self):
-        return self.send_via == 2
+        return self.send_via == self.Type.TEXT
 
     @property
     def notification_add_type(self):
         if self.is_text_message:
-            return "sent_text_message"
+            return Notification.Type.SENT_TEXT_MESSAGE
         if self.is_email_message:
-            return "sent_email_message"
+            return Notification.Type.SENT_EMAIL_MESSAGE
         if self.is_slack_message:
-            return "sent_slack_message"
+            return Notification.Type.SENT_SLACK_MESSAGE
 
     @property
     def get_icon_template(self):
@@ -276,11 +275,11 @@ class ExternalMessage(ContentMixin, models.Model):
         return self
 
     def get_user(self, new_hire):
-        if self.person_type == 0:
+        if self.person_type == ExternalMessage.PersonType.NEWHIRE:
             return new_hire
-        elif self.person_type == 1:
+        elif self.person_type == ExternalMessage.PersonType.MANAGER:
             return new_hire.manager
-        elif self.person_type == 2:
+        elif self.person_type == ExternalMessage.PersonType.BUDDY:
             return new_hire.buddy
         else:
             return self.send_to
@@ -290,7 +289,7 @@ class ExternalMessage(ContentMixin, models.Model):
             # Make sure there is actually an email
             if self.get_user(user) is None:
                 Notification.objects.create(
-                    notification_type="failed_no_email",
+                    notification_type=Notification.Type.FAILED_NO_EMAIL,
                     extra_text=self.subject,
                     created_for=user,
                 )
@@ -306,7 +305,7 @@ class ExternalMessage(ContentMixin, models.Model):
             blocks = ToDo(content=self.content_json).to_slack_block(user)
 
             # Send to channel instead of person?
-            if self.person_type == 4:
+            if self.person_type == ExternalMessage.PersonType.SLACK_CHANNEL:
                 channel = (
                     None
                     if self.send_to_channel is None
@@ -320,7 +319,7 @@ class ExternalMessage(ContentMixin, models.Model):
             send_to = self.get_user(user)
             if send_to is None or send_to.phone == "":
                 Notification.objects.create(
-                    notification_type="failed_no_phone",
+                    notification_type=Notification.Type.FAILED_NO_PHONE,
                     extra_text=self.name,
                     created_for=user,
                 )
@@ -349,7 +348,7 @@ class PendingEmailMessage(ExternalMessage):
     # Email message model proxied from ExternalMessage
 
     def save(self, *args, **kwargs):
-        self.send_via = 0
+        self.send_via = self.Type.EMAIL
         return super(PendingEmailMessage, self).save(*args, **kwargs)
 
     class Meta:
@@ -360,7 +359,7 @@ class PendingSlackMessage(ExternalMessage):
     # Slack message model proxied from ExternalMessage
 
     def save(self, *args, **kwargs):
-        self.send_via = 1
+        self.send_via = self.Type.SLACK
         return super(PendingSlackMessage, self).save(*args, **kwargs)
 
     class Meta:
@@ -371,7 +370,7 @@ class PendingTextMessage(ExternalMessage):
     # Text message model proxied from ExternalMessage
 
     def save(self, *args, **kwargs):
-        self.send_via = 2
+        self.send_via = self.Type.TEXT
         return super(PendingTextMessage, self).save(*args, **kwargs)
 
     class Meta:
@@ -379,6 +378,17 @@ class PendingTextMessage(ExternalMessage):
 
 
 class PendingAdminTask(models.Model):
+    class PersonType(models.IntegerChoices):
+        NEWHIRE = 0, _("New hire")
+        MANAGER = 1, _("Manager")
+        BUDDY = 2, _("Buddy")
+        CUSTOM = 3, _("Custom")
+
+    class Notification(models.IntegerChoices):
+        NO = 0, _("No")
+        EMAIL = 1, _("Email")
+        SLACK = 2, _("Slack")
+
     name = models.CharField(verbose_name=_("Name"), max_length=500)
     comment = models.CharField(
         verbose_name=_("Comment"), max_length=12500, default="", blank=True
@@ -386,8 +396,8 @@ class PendingAdminTask(models.Model):
     person_type = models.IntegerField(
         # Filter out new hire. Never assign an admin task to a new hire.
         verbose_name=_("Assigned to"),
-        choices=[person for person in PEOPLE_CHOICES if person[0] != 0],
-        default=1,
+        choices=[person for person in PersonType.choices if person[0] != 0],
+        default=PersonType.MANAGER,
     )
     assigned_to = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -398,7 +408,7 @@ class PendingAdminTask(models.Model):
     )
     option = models.IntegerField(
         verbose_name=_("Send email or Slack message to extra user?"),
-        choices=NOTIFICATION_CHOICES,
+        choices=Notification.choices,
         default=0,
     )
     slack_user = models.ForeignKey(
@@ -414,15 +424,17 @@ class PendingAdminTask(models.Model):
     )
     date = models.DateField(verbose_name=_("Due date"), blank=True, null=True)
     priority = models.IntegerField(
-        verbose_name=_("Priority"), choices=PRIORITY_CHOICES, default=2
+        verbose_name=_("Priority"),
+        choices=AdminTask.Priority.choices,
+        default=AdminTask.Priority.MEDIUM,
     )
 
     def get_user(self, new_hire):
-        if self.person_type == 0:
+        if self.person_type == PendingAdminTask.PersonType.NEWHIRE:
             return new_hire
-        elif self.person_type == 1:
+        elif self.person_type == PendingAdminTask.PersonType.MANAGER:
             return new_hire.manager
-        elif self.person_type == 2:
+        elif self.person_type == PendingAdminTask.PersonType.BUDDY:
             return new_hire.buddy
         else:
             return self.assigned_to
@@ -452,7 +464,7 @@ class PendingAdminTask(models.Model):
         admin_task.send_notification_third_party()
 
         Notification.objects.create(
-            notification_type="added_admin_task",
+            notification_type=Notification.Type.ADDED_ADMIN_TASK,
             extra_text=self.name,
             created_for=self.assigned_to,
         )
@@ -524,8 +536,8 @@ class ConditionPrefetchManager(models.Manager):
             )
             .annotate(
                 days_order=Case(
-                    When(condition_type=2, then=F("days") * -1),
-                    When(condition_type=1, then=99999),
+                    When(condition_type=Condition.Type.BEFORE, then=F("days") * -1),
+                    When(condition_type=Condition.Type.AFTER, then=99999),
                     default=F("days"),
                     output_field=IntegerField(),
                 )
@@ -535,17 +547,17 @@ class ConditionPrefetchManager(models.Manager):
 
 
 class Condition(models.Model):
-    CONDITION_TYPE = (
-        (0, _("After new hire has started")),
-        (1, _("Based on one or more to do item(s)")),
-        (2, _("Before the new hire has started")),
-        (3, _("Without trigger")),
-    )
+    class Type(models.IntegerChoices):
+        AFTER = 0, _("After new hire has started")
+        TODO = 1, _("Based on one or more to do item(s)")
+        BEFORE = 2, _("Before the new hire has started")
+        WITHOUT = 3, _("Without trigger")
+
     sequence = models.ForeignKey(
         Sequence, on_delete=models.CASCADE, null=True, related_name="conditions"
     )
     condition_type = models.IntegerField(
-        verbose_name=_("Block type"), choices=CONDITION_TYPE, default=0
+        verbose_name=_("Block type"), choices=Type.choices, default=Type.AFTER
     )
     days = models.IntegerField(
         verbose_name=_("Amount of days before/after new hire has started"), default=1

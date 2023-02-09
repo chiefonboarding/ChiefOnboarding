@@ -1,7 +1,7 @@
 from django.utils import translation
 from django.utils.translation import gettext as _
 
-from organization.models import Organization
+from organization.models import Notification, Organization
 from organization.utils import send_email_with_notification
 
 
@@ -33,7 +33,7 @@ def send_email_notification_to_external_person(admin_task):
         message="",
         to=admin_task.email,
         html_message=html_message,
-        notification_type="sent_email_admin_task_extra",
+        notification_type=Notification.Type.SENT_EMAIL_ADMIN_TASK_EXTRA,
     )
 
 
@@ -71,7 +71,7 @@ def send_email_new_assigned_admin(admin_task):
         message="",
         to=admin_task.assigned_to.email,
         html_message=html_message,
-        notification_type="sent_email_admin_task_new_assigned",
+        notification_type=Notification.Type.SENT_EMAIL_ADMIN_TASK_NEW_ASSIGNED,
     )
 
 
@@ -114,5 +114,5 @@ def send_email_new_comment(comment):
         message="",
         to=comment.admin_task.assigned_to.email,
         html_message=html_message,
-        notification_type="sent_email_admin_task_new_comment",
+        notification_type=Notification.Type.SENT_EMAIL_ADMIN_TASK_NEW_COMMENT,
     )

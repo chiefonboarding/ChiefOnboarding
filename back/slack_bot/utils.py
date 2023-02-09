@@ -107,7 +107,7 @@ class Slack:
             )
         except Exception as e:
             Notification.objects.create(
-                notification_type="failed_update_slack_message",
+                notification_type=Notification.Type.FAILED_UPDATE_SLACK_MESSAGE,
                 extra_text=text,
                 created_for=User.objects.get(slack_channel_id=channel),
                 description=str(e),
@@ -135,7 +135,7 @@ class Slack:
         # if there is no channel, then drop
         if channel == "" or channel is None:
             Notification.objects.create(
-                notification_type="failed_send_slack_message",
+                notification_type=Notification.Type.FAILED_SEND_SLACK_MESSAGE,
                 extra_text=text,
                 blocks=blocks,
             )
@@ -157,7 +157,7 @@ class Slack:
             )
             if users.exists():
                 Notification.objects.create(
-                    notification_type="sent_slack_message",
+                    notification_type=Notification.Type.SENT_SLACK_MESSAGE,
                     extra_text=text,
                     created_for=users.first(),
                     description=json.dumps(blocks),
@@ -166,7 +166,7 @@ class Slack:
         except Exception as e:
             if users.exists():
                 Notification.objects.create(
-                    notification_type="failed_send_slack_message",
+                    notification_type=Notification.Type.FAILED_SEND_SLACK_MESSAGE,
                     extra_text=text,
                     created_for=users.first(),
                     description=str(e),

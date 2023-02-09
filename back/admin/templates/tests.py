@@ -1,5 +1,6 @@
 import pytest
 from django.apps import apps
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from admin.appointments.factories import AppointmentFactory  # noqa
@@ -31,7 +32,9 @@ def test_templates_crud(
     model,
 ):
     # Force admin to login
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     # Get list view of template
     url = reverse(url)
@@ -101,7 +104,9 @@ def test_sequence_duplicate(
     client, django_user_model, sequence_factory, condition_with_items_factory
 ):
     # Force admin to login
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     # Get list view of template
     url = reverse("sequences:list")

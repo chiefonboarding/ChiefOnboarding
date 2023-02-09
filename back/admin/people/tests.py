@@ -18,19 +18,21 @@ from admin.templates.utils import get_user_field
 from admin.to_do.factories import ToDoFactory
 from misc.models import File
 from organization.factories import NotificationFactory
-from organization.models import Organization, WelcomeMessage
+from organization.models import Notification, Organization, WelcomeMessage
 from users.factories import (
     AdminFactory,
     EmployeeFactory,
     ManagerFactory,
     NewHireFactory,
 )
-from users.models import CourseAnswer
+from users.models import CourseAnswer, User
 
 
 @pytest.mark.django_db
 def test_create_new_hire(client, django_user_model):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     url = reverse("people:new_hire_add")
     response = client.get(url)
@@ -65,8 +67,8 @@ def test_create_new_hire(client, django_user_model):
     assert "New hire has been created" in response.content.decode()
 
     assert get_user_model().objects.all().count() == 2
-    assert get_user_model().objects.first().role == 1
-    assert get_user_model().objects.last().role == 0
+    assert get_user_model().objects.first().role == get_user_model().Role.ADMIN
+    assert get_user_model().objects.last().role == get_user_model().Role.NEWHIRE
 
     url = reverse("people:new_hire", args=[get_user_model().objects.last().id])
     response = client.get(url)
@@ -83,7 +85,9 @@ def test_create_new_hire_with_sequences(
     condition_to_do_factory,
     to_do_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     to_do1 = to_do_factory()
     to_do2 = to_do_factory()
@@ -124,7 +128,9 @@ def test_create_new_hire_manager_options(
     new_hire_factory,
     manager_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     admin1 = admin_factory(slack_user_id="test")
     admin2 = admin_factory()
@@ -154,7 +160,9 @@ def test_update_new_hire_manager_options(
     new_hire_factory,
     manager_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     admin1 = admin_factory(slack_user_id="test")
     admin2 = admin_factory()
@@ -188,7 +196,9 @@ def test_create_new_hire_with_sequences_before_starting(
     condition_to_do_factory,
     to_do_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     to_do1 = to_do_factory()
     to_do2 = to_do_factory()
@@ -236,7 +246,9 @@ def test_create_new_hire_add_sequence_with_manual_trigger_condition(
     condition_to_do_factory,
     to_do_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     to_do1 = to_do_factory()
     to_do2 = to_do_factory()
@@ -286,7 +298,9 @@ def test_create_new_hire_add_sequence_with_manual_trigger_condition_before_start
     condition_to_do_factory,
     to_do_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     to_do1 = to_do_factory()
     to_do2 = to_do_factory()
@@ -332,7 +346,9 @@ def test_create_new_hire_add_sequence_without_manual_trigger_condition_redirect_
     condition_timed_factory,
     to_do_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     to_do1 = to_do_factory()
     new_hire1 = new_hire_factory()
@@ -357,7 +373,9 @@ def test_remove_sequence_from_new_hire(
     condition_timed_factory,
     to_do_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     to_do1 = to_do_factory()
     to_do2 = to_do_factory()
@@ -394,7 +412,9 @@ def test_remove_sequence_from_new_hire(
 
 @pytest.mark.django_db
 def test_new_hire_list_view(client, new_hire_factory, django_user_model):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     # create 20 new hires
     new_hire_factory.create_batch(20)
@@ -418,7 +438,9 @@ def test_new_hire_to_do_sequence_item(
     to_do_user_factory,
     condition_to_do_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     condition = condition_to_do_factory()
     new_hire1 = new_hire_factory()
@@ -443,7 +465,9 @@ def test_new_hire_to_do_sequence_item(
 
 @pytest.mark.django_db
 def test_new_hire_latest_activity(client, new_hire_factory, django_user_model):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory()
     new_hire2 = new_hire_factory()
@@ -457,15 +481,17 @@ def test_new_hire_latest_activity(client, new_hire_factory, django_user_model):
 
     # Let's create a few
     not1 = NotificationFactory(
-        notification_type="added_todo", created_for=new_hire1, public_to_new_hire=True
+        notification_type=Notification.Type.ADDED_TODO,
+        created_for=new_hire1,
+        public_to_new_hire=True,
     )
     not2 = NotificationFactory(
-        notification_type="completed_course",
+        notification_type=Notification.Type.COMPLETED_COURSE,
         created_for=new_hire1,
         public_to_new_hire=False,
     )
     not3 = NotificationFactory(
-        notification_type="added_introduction",
+        notification_type=Notification.Type.ADDED_INTRODUCTION,
         created_for=new_hire2,
         public_to_new_hire=True,
     )
@@ -491,7 +517,9 @@ def test_new_hire_latest_activity(client, new_hire_factory, django_user_model):
 def test_send_preboarding_send_menu_option(client, new_hire_factory, django_user_model):
     # Test if send preboarding menu option is available
     # Should only be available before start date
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     new_hire = new_hire_factory(start_day=datetime.fromisoformat("2022-05-15"))
 
     url = reverse("people:new_hire", args=[new_hire.id])
@@ -515,14 +543,18 @@ def test_send_preboarding_message_via_email(
     settings.BASE_URL = "https://chiefonboarding.com"
     settings.TWILIO_ACCOUNT_SID = ""
 
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     org = Organization.object.get()
     new_hire1 = new_hire_factory()
     url = reverse("people:send_preboarding_notification", args=[new_hire1.id])
 
     # Add personalize option to test
-    wm = WelcomeMessage.objects.get(language="en", message_type=0)
+    wm = WelcomeMessage.objects.get(
+        language="en", message_type=WelcomeMessage.Type.PREBOARDING
+    )
     wm.message += " {{ first_name }} "
     wm.save()
 
@@ -580,13 +612,17 @@ def test_send_preboarding_message_via_text(
     settings.BASE_URL = "https://chiefonboarding.com"
     settings.TWILIO_ACCOUNT_SID = "test"
 
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory()
     url = reverse("people:send_preboarding_notification", args=[new_hire1.id])
 
     # Add personalize option to test
-    wm = WelcomeMessage.objects.get(language="en", message_type=0)
+    wm = WelcomeMessage.objects.get(
+        language="en", message_type=WelcomeMessage.Type.PREBOARDING
+    )
     wm.message += " {{ first_name }} "
     wm.save()
 
@@ -607,14 +643,18 @@ def test_send_login_email(  # after first day email
 ):
     settings.BASE_URL = "https://chiefonboarding.com"
 
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     org = Organization.object.get()
     new_hire1 = new_hire_factory()
     url = reverse("people:send_login_email", args=[new_hire1.id])
 
     # Add personalize option to test
-    wm = WelcomeMessage.objects.get(language="en", message_type=1)
+    wm = WelcomeMessage.objects.get(
+        language="en", message_type=WelcomeMessage.Type.NEWHIRE_WELCOME
+    )
     wm.message += " {{ first_name }} "
     wm.save()
 
@@ -635,7 +675,9 @@ def test_send_login_email(  # after first day email
 
 @pytest.mark.django_db
 def test_new_hire_profile(client, new_hire_factory, admin_factory, django_user_model):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory()
     admin1 = admin_factory(email="jo@chiefonboarding.com")
@@ -691,7 +733,7 @@ def test_new_hire_profile(client, new_hire_factory, admin_factory, django_user_m
 def test_migrate_new_hire_to_normal_account(
     client, new_hire_factory, django_user_model
 ):
-    admin = django_user_model.objects.create(role=1)
+    admin = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin)
 
     # Doesn't work for admins
@@ -700,7 +742,7 @@ def test_migrate_new_hire_to_normal_account(
     admin.refresh_from_db()
 
     assert response.status_code == 404
-    assert admin.role == 1
+    assert admin.role == get_user_model().Role.ADMIN
 
     # Check with new hire
     new_hire1 = new_hire_factory()
@@ -712,7 +754,7 @@ def test_migrate_new_hire_to_normal_account(
 
     assert response.status_code == 200
     assert "New hire is now a normal account." in response.content.decode()
-    assert new_hire1.role == 3
+    assert new_hire1.role == get_user_model().Role.OTHER
 
     # Check if removed from new hires page
     url = reverse("people:new_hires")
@@ -723,7 +765,7 @@ def test_migrate_new_hire_to_normal_account(
 
 @pytest.mark.django_db
 def test_new_hire_delete(client, django_user_model, new_hire_factory):
-    admin = django_user_model.objects.create(role=1)
+    admin = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin)
 
     # Doesn't work for admins
@@ -746,7 +788,7 @@ def test_new_hire_delete(client, django_user_model, new_hire_factory):
 
 @pytest.mark.django_db
 def test_new_hire_notes(client, note_factory, django_user_model):
-    admin = django_user_model.objects.create(role=1)
+    admin = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin)
 
     # create two random notes
@@ -777,7 +819,7 @@ def test_new_hire_notes(client, note_factory, django_user_model):
 def test_new_hire_list_welcome_messages(
     client, new_hire_welcome_message_factory, django_user_model
 ):
-    admin = django_user_model.objects.create(role=1)
+    admin = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin)
 
     # create two random welcome messages
@@ -800,7 +842,9 @@ def test_new_hire_list_welcome_messages(
 def test_new_hire_admin_tasks(
     client, new_hire_factory, django_user_model, admin_task_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory()
 
@@ -833,7 +877,9 @@ def test_new_hire_admin_tasks(
 def test_new_hire_forms(
     client, new_hire_factory, django_user_model, to_do_user_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory()
 
@@ -894,7 +940,9 @@ def test_new_hire_forms(
 def test_new_hire_progress(
     client, new_hire_factory, django_user_model, to_do_user_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory()
 
@@ -1016,7 +1064,9 @@ def test_new_hire_course_answers_list(
     resource_with_level_deep_chapters_factory,
     chapter_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     resource = resource_with_level_deep_chapters_factory(course=True)
 
@@ -1177,7 +1227,9 @@ def test_new_hire_reopen_todo(
 def test_new_hire_reopen_course(
     client, settings, django_user_model, resource_user_factory, mailoutbox
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     resource_user1 = resource_user_factory(resource__course=True)
 
@@ -1226,7 +1278,9 @@ def test_new_hire_reopen_course(
 def test_new_hire_remind_to_do(
     client, settings, django_user_model, to_do_user_factory, mailoutbox
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     to_do_user1 = to_do_user_factory()
 
@@ -1261,7 +1315,9 @@ def test_new_hire_remind_to_do_slack_message(
 ):
     settings.FAKE_SLACK_API = True
 
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     to_do_user1 = to_do_user_factory(user__slack_user_id="slackx")
 
@@ -1311,7 +1367,9 @@ def test_new_hire_remind_to_do_slack_message(
 def test_new_hire_remind_resource(
     client, settings, django_user_model, resource_user_factory, mailoutbox
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     resource_user1 = resource_user_factory()
 
     url = reverse(
@@ -1335,7 +1393,9 @@ def test_new_hire_remind_resource_slack_message(
 ):
     settings.FAKE_SLACK_API = True
 
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     resource_user1 = resource_user_factory(user__slack_user_id="slackx")
 
     url = reverse(
@@ -1382,7 +1442,9 @@ def test_new_hire_tasks(
     preboarding_factory,
     new_hire_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory()
 
@@ -1446,7 +1508,9 @@ def test_new_hire_access_list(
     integration_factory,
     custom_integration_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory()
     # Slack integration - should not show up
@@ -1473,7 +1537,9 @@ def test_new_hire_access_list(
 def test_new_hire_access_per_integration(
     client, django_user_model, new_hire_factory, custom_integration_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory(email="stan@example.com")
     new_hire2 = new_hire_factory()
@@ -1535,7 +1601,9 @@ def test_new_hire_access_per_integration(
 def test_new_hire_access_per_integration_config_form(
     client, django_user_model, new_hire_factory, custom_integration_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory(email="stan@example.com")
     integration1 = custom_integration_factory(name="Asana", integration=10)
@@ -1593,7 +1661,9 @@ def test_new_hire_access_per_integration_config_form(
 def test_new_hire_access_per_integration_post(
     client, django_user_model, new_hire_factory, custom_integration_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory(email="stan@example.com")
     integration1 = custom_integration_factory(name="Asana", integration=10)
@@ -1655,7 +1725,9 @@ def test_new_hire_access_per_integration_post(
 def test_new_hire_tasks_list(
     client, django_user_model, new_hire_factory, factory, type, status_code
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory()
 
@@ -1692,7 +1764,9 @@ def test_new_hire_tasks_list(
 def test_new_hire_toggle_tasks(
     client, django_user_model, new_hire_factory, factory, type, status_code
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory()
 
@@ -1731,7 +1805,9 @@ def test_new_hire_extra_info_update_view(
     integration_factory,
     new_hire_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     integration = integration_factory(
         manifest={
@@ -1805,7 +1881,9 @@ def test_new_hire_extra_info_update_view(
     ],
 )
 def test_colleagues_list_all_types_of_users_show(client, django_user_model, factory):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     user = factory()
 
@@ -1818,7 +1896,7 @@ def test_colleagues_list_all_types_of_users_show(client, django_user_model, fact
 
 @pytest.mark.django_db
 def test_colleague_create(client, django_user_model, department_factory):
-    admin_user = django_user_model.objects.create(role=1)
+    admin_user = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin_user)
 
     # Generate departments to select
@@ -1895,7 +1973,7 @@ def test_colleague_update(client, django_user_model):
         email="john@chiefonboarding.com",
         language="en",
         timezone="Europe/Amsterdam",
-        role=1,
+        role=User.Role.ADMIN,
     )
     client.force_login(admin_user)
 
@@ -1959,7 +2037,7 @@ def test_colleague_update(client, django_user_model):
 
 @pytest.mark.django_db
 def test_colleague_delete(client, django_user_model, new_hire_factory):
-    admin_user = django_user_model.objects.create(role=1)
+    admin_user = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin_user)
 
     new_hire1 = new_hire_factory()
@@ -2079,7 +2157,7 @@ def test_import_users_from_slack(client, django_user_model):
     from admin.integrations.models import Integration
 
     Integration.objects.create(integration=0)
-    admin_user = django_user_model.objects.create(role=1)
+    admin_user = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin_user)
 
     url = reverse("people:sync-slack")
@@ -2104,9 +2182,11 @@ def test_give_user_slack_access(settings, client, employee_factory, django_user_
     settings.FAKE_SLACK_API = True
 
     employee_with_slack = employee_factory(slack_user_id="slackx")
-    we = WelcomeMessage.objects.get(message_type=4, language="en")
+    we = WelcomeMessage.objects.get(
+        message_type=WelcomeMessage.Type.SLACK_KNOWLEDGE, language="en"
+    )
     employee_without_slack = employee_factory()
-    admin_user = django_user_model.objects.create(role=1)
+    admin_user = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin_user)
 
     assert employee_with_slack.has_slack_account
@@ -2156,7 +2236,7 @@ def test_give_user_slack_access_does_not_exist(
     settings.FAKE_SLACK_API = True
 
     employee_without_slack = employee_factory()
-    admin_user = django_user_model.objects.create(role=1)
+    admin_user = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin_user)
 
     assert not employee_without_slack.has_slack_account
@@ -2181,7 +2261,9 @@ def test_give_user_slack_access_does_not_exist(
 def test_employee_toggle_portal_access(
     client, django_user_model, user_factory, status_code, mailoutbox
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     employee1 = user_factory()
 
@@ -2247,7 +2329,9 @@ def test_employee_can_only_login_with_access(
     assert not user.is_authenticated
 
     # Enable portal access
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     url = reverse("people:toggle-portal-access", args=[employee1.id])
     client.post(url)
     client.logout()
@@ -2272,7 +2356,9 @@ def test_employee_can_only_login_with_access(
 def test_employee_resources(
     client, django_user_model, employee_factory, resource_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     employee1 = employee_factory()
     resource1 = resource_factory()
@@ -2300,7 +2386,9 @@ def test_employee_resources(
 def test_employee_toggle_resources(
     client, django_user_model, employee_factory, resource_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     resource1 = resource_factory()
     employee1 = employee_factory()

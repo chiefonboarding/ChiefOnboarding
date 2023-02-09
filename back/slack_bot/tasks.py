@@ -40,7 +40,8 @@ def link_slack_users(users=[]):
                 paragraph(
                     user.personalize(
                         WelcomeMessage.objects.get(
-                            language=user.language, message_type=3
+                            language=user.language,
+                            message_type=WelcomeMessage.Type.SLACK_WELCOME,
                         ).message
                     ),
                 )

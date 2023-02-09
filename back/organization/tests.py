@@ -10,7 +10,7 @@ from django.utils import timezone
 
 from misc.models import File
 
-from .models import Organization
+from .models import Notification, Organization
 
 
 @pytest.mark.django_db
@@ -198,12 +198,12 @@ def test_file_delete_as_new_hire(client, new_hire_factory, file_factory):
 
 @pytest.mark.django_db
 def test_notification_can_delete(notification_factory):
-    not1 = notification_factory(notification_type="added_todo")
+    not1 = notification_factory(notification_type=Notification.Type.ADDED_TODO)
 
     assert not not1.can_delete
 
     # Correct notification type and date is within limit
-    not1.notification_type = "added_sequence"
+    not1.notification_type = Notification.Type.ADDED_SEQUENCE
     not1.save()
 
     assert not1.can_delete

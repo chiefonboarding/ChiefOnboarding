@@ -11,12 +11,18 @@ from .emails import (
     send_email_notification_to_external_person,
 )
 
-PRIORITY_CHOICES = ((1, _("Low")), (2, _("Medium")), (3, _("High")))
-
-NOTIFICATION_CHOICES = ((0, _("No")), (1, _("Email")), (2, _("Slack")))
-
 
 class AdminTask(models.Model):
+    class Priority(models.IntegerChoices):
+        EMAIL = 1, _("Low")
+        MEDIUM = 2, _("Medium")
+        HIGH = 3, _("High")
+
+    class Notification(models.IntegerChoices):
+        NO = 0, _("No")
+        EMAIL = 1, _("Email")
+        SLACK = 2, _("Slack")
+
     new_hire = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name=_("New hire"),
@@ -34,7 +40,7 @@ class AdminTask(models.Model):
     name = models.CharField(verbose_name=_("Name"), max_length=500)
     option = models.IntegerField(
         verbose_name=_("Send email or text to extra user?"),
-        choices=NOTIFICATION_CHOICES,
+        choices=Notification.choices,
     )
     slack_user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -50,7 +56,7 @@ class AdminTask(models.Model):
     completed = models.BooleanField(verbose_name=_("Completed"), default=False)
     date = models.DateField(verbose_name=_("Date"), blank=True, null=True)
     priority = models.IntegerField(
-        verbose_name=_("Priority"), choices=PRIORITY_CHOICES, default=2
+        verbose_name=_("Priority"), choices=Priority.choices, default=2
     )
 
     @property
