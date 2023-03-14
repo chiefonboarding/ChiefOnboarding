@@ -11,16 +11,8 @@ docker-compose up
 ```
 
 Please note that it could take a few seconds everything is set up. Ignore any error messages you see, this is generally because the database hasn't been migrated yet. It will do that at the end automatically.
-Once it's ready, it should also have a bunch of test data in there to get you started quickly.
 
-Once it's ready, go to [http://0.0.0.0:8000](http://0.0.0.0:8000) and you should see the login screen.
-
-The login credentials are:
-
-```
-Email: admin@example.com
-Password: admin
-```
+Once it's ready, go to [http://0.0.0.0:8000](http://0.0.0.0:8000) and you should see the setup screen. Fill in the details and you will get a bunch of dummy data as well!
 
 ## Enable better logging
 If you want to start developing/debugging and need more verbose log messages, then you can enable debug log messages with this environment setting:
