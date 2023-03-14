@@ -2,8 +2,8 @@ import json
 
 from crispy_forms.helper import FormHelper
 from django import forms
-from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 
 from .models import Integration
 from .serializers import ManifestSerializer

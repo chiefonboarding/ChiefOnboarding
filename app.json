@@ -20,14 +20,6 @@
     "heroku-postgresql"
   ],
   "env": {
-    "ACCOUNT_EMAIL": {
-      "description": "This is your email address for the first admin account. Don't worry, you can add new admin accounts and remove this one.",
-      "required": true
-    },
-    "ACCOUNT_PASSWORD": {
-      "description": "Auto generated password for your admin account. After deployment, please check the environment variables to see this password.",
-      "generator": "secret"
-    },
     "SECRET_KEY": {
       "description": "A random secret key for Django",
       "generator": "secret"

@@ -9,14 +9,14 @@ from django.utils.formats import localize
 from freezegun import freeze_time
 
 from organization.models import Organization, WelcomeMessage
+from slack_bot.models import SlackChannel
 from slack_bot.tasks import (
+    birthday_reminder,
     first_day_reminder,
     introduce_new_people,
     link_slack_users,
     update_new_hire,
-    birthday_reminder,
 )
-from slack_bot.models import SlackChannel
 from slack_bot.views import (
     slack_add_sequences_to_new_hire,
     slack_catch_all_message_search_resources,

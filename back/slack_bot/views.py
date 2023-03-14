@@ -14,7 +14,7 @@ from admin.admin_tasks.models import AdminTask
 from admin.integrations.models import Integration
 from admin.resources.models import Category, Chapter, CourseAnswer, Resource
 from admin.sequences.models import Sequence
-from organization.models import Organization, Notification
+from organization.models import Notification, Organization
 from users.models import NewHireWelcomeMessage, ResourceUser, ToDoUser
 
 from .slack_misc import get_new_hire_approve_sequence_options

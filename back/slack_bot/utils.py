@@ -1,11 +1,11 @@
 import json
 
 import slack_sdk
-from slack_bolt.adapter.socket_mode import SocketModeHandler
-from slack_bolt import App as SlackBoltApp
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
+from slack_bolt import App as SlackBoltApp
+from slack_bolt.adapter.socket_mode import SocketModeHandler
 
 from admin.integrations.models import Integration
 from organization.models import Notification

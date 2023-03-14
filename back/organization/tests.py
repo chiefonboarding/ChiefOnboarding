@@ -1,7 +1,8 @@
-from datetime import timedelta
 import json
+from datetime import timedelta
 
 import pytest
+from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.urls import reverse
 from django.utils import timezone
@@ -213,3 +214,48 @@ def test_notification_can_delete(notification_factory):
     not1.save()
 
     assert not not1.can_delete
+
+
+@pytest.mark.no_run_around_tests
+@pytest.mark.django_db
+def test_initial_setup_page(client):
+    url = reverse("setup")
+    response = client.get(url)
+
+    # page renders, no org created yet
+    assert response.status_code == 200
+    assert "Organization" in response.content.decode()
+    assert "First name" in response.content.decode()
+    assert "Last name" in response.content.decode()
+    assert "Language" in response.content.decode()
+
+    assert not Organization.objects.all().exists()
+    assert not get_user_model().objects.all().exists()
+
+    response = client.post(
+        url,
+        data={
+            "name": "test org",
+            "language": "en",
+            "timezone": "UTC",
+            "first_name": "John",
+            "last_name": "Doe",
+            "email": "john1@chiefonboarding.com",
+            "password1": "superstrongpss123",
+            "password2": "superstrongpss123",
+        },
+        follow=True,
+    )
+
+    assert response.status_code == 200
+    assert Organization.objects.all().exists()
+    assert get_user_model().objects.all().exists()
+
+
+@pytest.mark.django_db
+def test_initial_setup_page_with_org_created(client):
+    url = reverse("setup")
+    response = client.get(url)
+
+    # shows 404 as org is already there
+    assert response.status_code == 404

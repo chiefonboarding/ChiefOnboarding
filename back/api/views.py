@@ -1,10 +1,10 @@
-from users.emails import email_new_admin_cred
-from rest_framework import generics
 from django_q.tasks import async_task
+from rest_framework import generics
 
 from admin.sequences.models import Sequence
 from organization.models import Notification, Organization
 from slack_bot.tasks import link_slack_users
+from users.emails import email_new_admin_cred
 from users.models import User
 
 from .serializers import EmployeeSerializer, SequenceSerializer, UserSerializer

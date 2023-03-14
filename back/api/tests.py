@@ -1,7 +1,7 @@
-from freezegun.api import freeze_time
 import pytest
 from django.test import override_settings
 from django.urls import reverse
+from freezegun.api import freeze_time
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 

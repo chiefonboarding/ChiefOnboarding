@@ -10,6 +10,7 @@
     <!-- CSS files -->
     <link rel="icon" type="image/x-icon" href="{% static 'favicon.png' %}">
     <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+    <link rel="stylesheet" href="{% static 'css/selectize-bootstrap.min.css' %}">
     <style>
       .btn-primary, .btn-outline-primary, .btn-ghost-primary, .btn-primary:hover, .btn-outline-primary:hover, .btn-ghost-primary:hover {
         --tblr-btn-color: {{ org.base_color_rgb }};
@@ -36,5 +37,7 @@
       </div>
     </div>
     <script src="{% static 'js/tabler.js' %}"></script>
+    {% block extra_js %}
+    {% endblock %}
   </body>
 </html>

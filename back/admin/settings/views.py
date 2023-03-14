@@ -3,27 +3,26 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 from django.utils import translation
 from django.utils.translation import gettext as _
-from twilio.rest import Client
-
 from django.views import View
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
 from django.views.generic.list import ListView
+from twilio.rest import Client
 
 from admin.integrations.models import Integration
 from organization.models import Notification, Organization, WelcomeMessage
 from slack_bot.models import SlackChannel
-from slack_bot.utils import paragraph, Slack, actions, button
+from slack_bot.utils import Slack, actions, button, paragraph
 from users.emails import (
     email_new_admin_cred,
-    send_new_hire_preboarding,
     send_new_hire_credentials,
+    send_new_hire_preboarding,
 )
 from users.mixins import AdminPermMixin, LoginRequiredMixin, ManagerPermMixin
 

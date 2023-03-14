@@ -18,6 +18,7 @@ from admin.to_do import urls as to_do_urls
 from api import urls as public_api_urls
 from new_hire import urls as new_hire_urls
 from organization import urls as org_urls
+from organization import views as org_views
 from slack_bot import urls as slack_urls
 from user_auth import urls as auth_urls
 
@@ -33,6 +34,7 @@ urlpatterns = [
         name="google_login",
     ),
     path("api/org/", include(org_urls)),
+    path("setup/", org_views.InitialSetupView.as_view(), name="setup"),
     path("admin/people/", include((people_urls, "admin.people"), namespace="admin")),
     path("admin/settings/", include(settings_urls)),
     path("admin/tasks/", include(admin_tasks_urls)),
