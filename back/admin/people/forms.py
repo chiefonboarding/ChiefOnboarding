@@ -26,10 +26,12 @@ class NewHireAddForm(forms.ModelForm):
         label=_("Sequences"),
     )
     buddy = forms.ModelChoiceField(
-        queryset=get_user_model().managers_and_admins_or_slack_users.all()
+        queryset=get_user_model().managers_and_admins_or_slack_users.all(),
+        label=_("Buddy"),
     )
     manager = forms.ModelChoiceField(
-        queryset=get_user_model().managers_and_admins_or_slack_users.all()
+        queryset=get_user_model().managers_and_admins_or_slack_users.all(),
+        label=_("Manager"),
     )
     start_day = forms.DateField(
         label=_("Start date"),
@@ -150,11 +152,13 @@ class NewHireProfileForm(forms.ModelForm):
     )
     buddy = forms.ModelChoiceField(
         queryset=get_user_model().managers_and_admins_or_slack_users.all(),
+        label=_("Buddy"),
         required=False,
     )
     manager = forms.ModelChoiceField(
         queryset=get_user_model().managers_and_admins_or_slack_users.all(),
         required=False,
+        label=_("Manager"),
     )
 
     def __init__(self, *args, **kwargs):
