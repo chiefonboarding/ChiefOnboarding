@@ -128,6 +128,8 @@ def timed_triggers():
     These conditions are already assigned to new hires.
     """
     org = Organization.object.get()
+    if org is None:
+        return
 
     current_datetime = timezone.now()
     last_updated = org.timed_triggers_last_check

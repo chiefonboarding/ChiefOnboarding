@@ -145,6 +145,7 @@ def first_day_reminder():
     # If Slack doesn't exist or setting is disabled, then drop
     if (
         not Integration.objects.filter(integration=0).exists()
+        or org is None
         or not org.send_new_hire_start_reminder
     ):
         return
@@ -178,6 +179,7 @@ def birthday_reminder():
     # If Slack doesn't exist or setting is disabled, then drop
     if (
         not Integration.objects.filter(integration=0).exists()
+        or org is None
         or not org.slack_birthday_wishes_channel
     ):
         return
@@ -200,6 +202,7 @@ def introduce_new_people():
     # If Slack doesn't exist or setting is disabled, then drop
     if (
         not Integration.objects.filter(integration=0).exists()
+        or org is None
         or not org.ask_colleague_welcome_message
     ):
         return
