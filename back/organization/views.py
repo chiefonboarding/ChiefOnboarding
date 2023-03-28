@@ -118,7 +118,7 @@ class InitialSetupView(CreateView):
             email=form.cleaned_data["email"],
             language=org.language,
             timezone=org.timezone,
-            role=1,
+            role=get_user_model().Role.ADMIN,
         )
         admin_user.set_password(raw_password=form.cleaned_data["password1"])
         admin_user.save()
