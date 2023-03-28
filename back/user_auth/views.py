@@ -33,6 +33,9 @@ class AuthenticateView(LoginView):
 
     def dispatch(self, request, *args, **kwargs):
         org = Organization.object.get()
+        if org is None:
+            return redirect("setup")
+
         # Block anyone trying to login when credentials are not allowed
         if request.method == "POST" and not org.credentials_login:
             raise Http404

@@ -1,8 +1,8 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Div, Field, Layout
 from django import forms
-from django.utils.translation import gettext_lazy as _
 from django.db import transaction
+from django.utils.translation import gettext_lazy as _
 
 from admin.templates.forms import (
     FieldWithExtraContext,
@@ -11,7 +11,7 @@ from admin.templates.forms import (
     TagModelForm,
 )
 
-from .models import Category, Resource, Chapter
+from .models import Category, Chapter, Resource
 from .serializers import ChapterSerializer
 
 

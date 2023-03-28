@@ -48,10 +48,13 @@ from users.factories import (
 
 
 @pytest.fixture(autouse=True)
-def run_around_tests(settings):
+def run_around_tests(request, settings):
+    if request.node.get_closest_marker("no_run_around_tests"):
+        yield
+        return
     settings.FAKE_SLACK_API = True
     settings.SLACK_APP_TOKEN = ""
-    OrganizationFactory()
+    OrganizationFactory(id=1)
 
     # Generate some welcome messages for various emails
     for i in range(5):

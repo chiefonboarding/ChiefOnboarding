@@ -2,13 +2,13 @@ import pyotp
 import pytz
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Div, Field, Layout, Submit
-from django_q.models import Schedule
 from django import forms
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
+from django_q.models import Schedule
 
 from admin.integrations.models import Integration
 from admin.templates.forms import UploadField

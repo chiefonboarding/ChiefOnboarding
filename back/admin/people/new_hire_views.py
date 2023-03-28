@@ -8,7 +8,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Case, F, IntegerField, When
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse, reverse_lazy
 from django.utils import translation
 from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView, View

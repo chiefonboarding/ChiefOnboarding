@@ -17,7 +17,7 @@ def hourly_check_for_new_hire_send_credentials():
     org = Organization.object.get()
 
     # if sending of email credentials is disabled, then drop this task
-    if not org.new_hire_email:
+    if org is None or not org.new_hire_email:
         return
 
     for new_hire in get_user_model().new_hires.all():

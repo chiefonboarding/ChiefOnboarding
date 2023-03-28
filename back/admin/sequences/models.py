@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models
-from django.db.models import Prefetch, Case, F, IntegerField, When
+from django.db.models import Case, F, IntegerField, Prefetch, When
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -17,8 +17,8 @@ from admin.to_do.models import ToDo
 from misc.fields import ContentJSONField, EncryptedJSONField
 from misc.mixins import ContentMixin
 from organization.models import Notification
-from slack_bot.utils import Slack
 from slack_bot.models import SlackChannel
+from slack_bot.utils import Slack
 
 from .emails import send_sequence_message
 

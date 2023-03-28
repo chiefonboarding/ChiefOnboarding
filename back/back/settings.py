@@ -364,11 +364,6 @@ if env.bool("SSL_REDIRECT", default=False):
 # Storing static files compressed
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
-# Initial account creation
-ACCOUNT_EMAIL = env("ACCOUNT_EMAIL", default="")
-ACCOUNT_PASSWORD = env("ACCOUNT_PASSWORD", default="")
-
-
 # Languages
 LANGUAGES = [
     ("en", _("English")),

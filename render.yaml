@@ -15,10 +15,6 @@ services:
         fromDatabase:
           name: chiefonboardingdb
           property: connectionString
-      - key: ACCOUNT_EMAIL
-        sync: false
-      - key: ACCOUNT_PASSWORD 
-        sync: false
       - key: ALLOWED_HOSTS
         sync: false
       - key: SECRET_KEY

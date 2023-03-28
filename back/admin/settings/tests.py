@@ -1,11 +1,11 @@
 from unittest.mock import Mock, patch
 
 import pytest
-from django_q.models import Schedule
 from django.conf import settings
-from django.core.cache import cache
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.urls import reverse
+from django_q.models import Schedule
 
 from admin.integrations.models import Integration
 from organization.models import Notification, Organization

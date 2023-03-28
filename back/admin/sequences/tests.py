@@ -19,6 +19,7 @@ from admin.preboarding.factories import PreboardingFactory
 from admin.preboarding.forms import PreboardingForm
 from admin.resources.factories import ResourceFactory
 from admin.resources.forms import ResourceForm
+from admin.sequences.emails import send_sequence_message
 from admin.sequences.factories import (
     PendingAdminTaskFactory,
     PendingEmailMessageFactory,
@@ -37,8 +38,7 @@ from admin.sequences.models import (
     IntegrationConfig,
     Sequence,
 )
-from admin.sequences.emails import send_sequence_message
-from admin.sequences.tasks import timed_triggers, process_condition
+from admin.sequences.tasks import process_condition, timed_triggers
 from admin.to_do.factories import ToDoFactory
 from admin.to_do.forms import ToDoForm
 from admin.to_do.models import ToDo
@@ -1458,7 +1458,7 @@ def test_send_slack_message_after_process_condition(
     resource_factory,
     badge_factory,
 ):
-    from users.models import ToDoUser, ResourceUser
+    from users.models import ResourceUser, ToDoUser
 
     # Condition with to do item
     condition = condition_to_do_factory()

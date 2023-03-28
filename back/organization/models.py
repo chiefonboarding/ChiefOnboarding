@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.cache import cache
 from django.db import models
+from django.db.models import CheckConstraint, Q
 from django.template import Context, Template
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -152,6 +153,15 @@ class Organization(models.Model):
 
     object = ObjectManager()
     objects = models.Manager()
+
+    class Meta:
+        # a little hacky, but works fine to prevent multiple orgs
+        constraints = [
+            CheckConstraint(
+                check=Q(id=1),
+                name="only_one_allowed",
+            ),
+        ]
 
     @property
     def base_color_rgb(self):

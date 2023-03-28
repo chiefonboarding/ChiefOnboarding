@@ -4,29 +4,29 @@ import uuid
 from datetime import timedelta
 
 import requests
-from requests.exceptions import (
-    HTTPError,
-    Timeout,
-    InvalidJSONError,
-    JSONDecodeError,
-    SSLError,
-    URLRequired,
-    MissingSchema,
-    InvalidSchema,
-    InvalidURL,
-    TooManyRedirects,
-    InvalidHeader,
-)
 from django.conf import settings
 from django.db import models
 from django.template import Context, Template
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
-from django.urls import reverse_lazy
-from django_q.tasks import schedule
 from django_q.models import Schedule
+from django_q.tasks import schedule
 from fernet_fields import EncryptedTextField
+from requests.exceptions import (
+    HTTPError,
+    InvalidHeader,
+    InvalidJSONError,
+    InvalidSchema,
+    InvalidURL,
+    JSONDecodeError,
+    MissingSchema,
+    SSLError,
+    Timeout,
+    TooManyRedirects,
+    URLRequired,
+)
 from twilio.rest import Client
 
 from misc.fields import EncryptedJSONField
