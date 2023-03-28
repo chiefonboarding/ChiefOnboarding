@@ -32,10 +32,8 @@ class AuthenticateView(LoginView):
     template_name = "login.html"
 
     def dispatch(self, request, *args, **kwargs):
-        try:
-            org = Organization.object.get()
-        except Organization.DoesNotExist:
-            # there is no org yet, so let's go to the setup page
+        org = Organization.object.get()
+        if org is None:
             return redirect("setup")
 
         # Block anyone trying to login when credentials are not allowed
