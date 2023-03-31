@@ -38,6 +38,9 @@ class NewHireAddForm(forms.ModelForm):
         required=True,
         widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
     )
+    department = ModelChoiceFieldWithCreate(
+        queryset=Department.objects.all(), to_field_name="name", required=False
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -159,6 +162,9 @@ class NewHireProfileForm(forms.ModelForm):
         queryset=get_user_model().managers_and_admins_or_slack_users.all(),
         required=False,
         label=_("Manager"),
+    )
+    department = ModelChoiceFieldWithCreate(
+        queryset=Department.objects.all(), to_field_name="name", required=False
     )
 
     def __init__(self, *args, **kwargs):
