@@ -56,6 +56,8 @@ def test_create_new_hire(client, django_user_model):
             "language": "en",
             "timezone": "UTC",
             "start_day": "2022-05-06",
+            # new department
+            "department": "IT",
         },
         follow=True,
     )
