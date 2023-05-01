@@ -20,7 +20,8 @@ urlpatterns = [
         views.MFAView.as_view(),
         name="mfa",
     ),
-    path("logout/", LogoutView.as_view(), name="logout"),
+    # path("logout/", LogoutView.as_view(), name="logout"),
+    path("logout/", views.NewLogoutView.as_view(), name="logout"),
     path(
         "password/reset_request/",
         PasswordResetView.as_view(
@@ -54,4 +55,5 @@ urlpatterns = [
     path(
         "redirect/", views.LoginRedirectView.as_view(), name="logged_in_user_redirect"
     ),
+    path("api/auth/oidc_login/", views.OIDCLoginView.as_view(), name="oidc_login"),
 ]
