@@ -24,7 +24,7 @@ class ManifestFormSerializer(ValidateMixin, serializers.Serializer):
             ("generate", "Generate random text"),
         ]
     )
-    items = serializers.CharField(required=False)
+    items = serializers.JSONField(required=False)
     data_from = serializers.CharField(required=False)
     choice_value = serializers.CharField(required=False)
     choice_name = serializers.CharField(required=False)
