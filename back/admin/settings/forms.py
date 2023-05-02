@@ -51,6 +51,7 @@ class OrganizationGeneralForm(forms.ModelForm):
                     Field("default_sequences"),
                     HTML("<h3 class='card-title mt-3'>" + _("Login options") + "</h3>"),
                     Field("credentials_login"),
+                    Field("oidc_login"),
                     css_class="col-6",
                 ),
                 Div(
@@ -84,6 +85,7 @@ class OrganizationGeneralForm(forms.ModelForm):
             "accent_color",
             "logo",
             "google_login",
+            "oidc_login",
             "new_hire_email",
             "new_hire_email_reminders",
             "new_hire_email_overdue_reminders",
@@ -99,8 +101,12 @@ class OrganizationGeneralForm(forms.ModelForm):
             and Integration.objects.filter(integration=3).exists()
         ):
             google_login = self.cleaned_data["google_login"]
-
-        if not any([credentials_login, google_login]):
+        oidc_login = False
+        if (
+            "oidc_login" in self.cleaned_data
+        ):
+            oidc_login = self.cleaned_data["oidc_login"]
+        if not any([credentials_login, google_login, oidc_login]):
             raise ValidationError(_("You must enable at least one login option"))
         return self.cleaned_data
 
