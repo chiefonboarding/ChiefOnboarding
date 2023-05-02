@@ -212,8 +212,6 @@ class OIDCLoginView(View):
         return response.json()
 
     def authenticate_user(self, user_info):
-        if self.DEBUG:
-            print(user_info)
         User = get_user_model()
         user, created = User.objects.get_or_create(email=user_info["email"])
         if "email" in user_info:
