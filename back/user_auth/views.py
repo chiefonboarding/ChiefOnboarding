@@ -1,17 +1,17 @@
 import requests
+import re
 from axes.decorators import axes_dispatch
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login, signals
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView,LogoutView
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse,HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 from django.views.generic import View
 from django.views.generic.edit import FormView
-
 from admin.integrations.models import Integration
 from admin.settings.forms import OTPVerificationForm
 from organization.models import Organization
@@ -148,10 +148,8 @@ class GoogleLoginView(View):
         )
         return redirect("login")
 
-from django.http import HttpResponse, HttpResponseRedirect
-import re
+
 class OIDCLoginView(View):
-    INTEGRATION_ID = 10
     permanent = False
 
     def dispatch(self, request, *args, **kwargs):
