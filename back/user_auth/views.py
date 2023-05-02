@@ -10,6 +10,7 @@ from django.http import Http404, HttpResponse,HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
+from django.urls import reverse
 from django.views.generic import View
 from django.views.generic.edit import FormView
 from admin.integrations.models import Integration
@@ -152,21 +153,18 @@ class GoogleLoginView(View):
 class OIDCLoginView(View):
     permanent = False
 
+    @property
+    def redirect_url(self):
+        return settings.BASE_URL + reverse('oidc_login')
+
     def dispatch(self, request, *args, **kwargs):
-        # org = Organization.object.get()
-        # if not org.oidc_login:
-        #     raise Http404
-        # OIDC_INTEGRATION_ID=self.INTEGRATION_ID
-        # Make sure access token exists. Technically, it shouldn't be possible
-        # to enable `oidc_login` when this is not set, but just to be safe
         self.__init_config()
-        if not self.ENABLE:
+        if not settings.OIDC_ENABLED:
             return HttpResponse(_("OIDC login has not been set"))
         return super().dispatch(request, *args, **kwargs)
     
     def get(self, request):
         # If the request contains an authorization code, handle the callback
-        # self.__init_config()
         authorization_code = request.GET.get("code")
         if authorization_code:
             return self.handle_callback(request, authorization_code)
@@ -175,14 +173,15 @@ class OIDCLoginView(View):
         auth_url = self.generate_auth_url()
         return HttpResponseRedirect(auth_url)
 
+
     def generate_auth_url(self):
         params = {
-            "client_id": self.CLIENT_ID,
+            "client_id": settings.OIDC_CLIENT_ID,
             "response_type": "code",
-            "scope": self.SCOPES,
-            "redirect_uri": self.REDIRECT_URI,
+            "scope": settings.OIDC_SCOPES,
+            "redirect_uri": self.redirect_url,
         }
-        auth_url = self.AUTHORIZATION_URL + "?" + requests.compat.urlencode(params)
+        auth_url = settings.OIDC_AUTHORIZATION_URL + "?" + requests.compat.urlencode(params)
         return auth_url
 
     def handle_callback(self, request, authorization_code):
@@ -195,20 +194,21 @@ class OIDCLoginView(View):
         # stuck in our app having to pass MFA)
         self.request.session["passed_mfa"] = True
         return redirect("logged_in_user_redirect")
+    
     def request_tokens(self, authorization_code):
         data = {
-            "client_id": self.CLIENT_ID,
-            "client_secret": self.CLIENT_SECRET,
+            "client_id": settings.OIDC_CLIENT_ID,
+            "client_secret": settings.OIDC_CLIENT_SECRET,
             "grant_type": "authorization_code",
             "code": authorization_code,
-            "redirect_uri": self.REDIRECT_URI,
+            "redirect_uri": self.redirect_url,
         }
-        response = requests.post(self.TOKEN_URL, data=data)
+        response = requests.post(settings.OIDC_TOKEN_URL, data=data)
         return response.json()
 
     def get_user_info(self, access_token):
         headers = {"Authorization": f"Bearer {access_token}"}
-        response = requests.get(self.USERINFO_URL, headers=headers)
+        response = requests.get(settings.OIDC_USERINFO_URL, headers=headers)
         return response.json()
 
     def authenticate_user(self, user_info):
@@ -231,22 +231,6 @@ class OIDCLoginView(View):
         )
         return redirect("login")
     
-    def __init_config(self):
-        self.__load_config_from_settings()
-        # OIDC_INTEGRATION_ID=self.INTEGRATION_ID
-        # OIDC_INFO = Integration.objects.get(integration=OIDC_INTEGRATION_ID, active=True)
-        # self.CLIENT_ID = OIDC_INFO.client_id
-        # self.CLIENT_SECRET = OIDC_INFO.client_secret
-        # self.REDIRECT_URI = settings.BASE_URL + "/api/auth/oidc_login/"
-        # self.AUTHORIZATION_URL = OIDC_INFO.auth_url
-        # self.TOKEN_URL = OIDC_INFO.access_token
-        # self.USERINFO_URL = OIDC_INFO.user_profile
-        # self.SCOPES = "openid email profile"
-        # self.PERMISSION_MAP = {"admin": "^cn=Administrators.*", "manage": "^cn=PhD.*"}
-        # self.PERMISSION_ADMIN_NAME = "admin"
-        # self.PERMISSION_MANAGE_NAME = "manage"
-        # self.OIDC_GROUPS_PATH = ["zoneinfo"]
-        # self.DEFAULT_ROLE = 3
     
     def __create_user(self,user_info):
         user=self.__sync_user(user_info)
@@ -267,23 +251,23 @@ class OIDCLoginView(View):
         return user
     
     def __sync_user(self,user_info):
-        permissions = self.__check_permission(user_info)
+        role = self.__check_role(user_info)
         email=user_info["email"]
         users = get_user_model().objects.filter(email=user_info["email"])
         user=users.first()
-        user.role = permissions
+        user.role = role
         user.save()
         return user
     
-    def __check_permission(self,user_info):
-        groups=self.__get_oidc_groups(user_info)
-        if len(groups)==0:
-            return 3
-        return self.__analyze_permission(groups)
+    def __check_role(self,user_info):
+        oidc_roles=self.__get_oidc_roles(user_info)
+        if len(oidc_roles)==0:
+            return settings.OIDC_ROLE_DEFAULT
+        return self.__analyze_role(oidc_roles)
         
-    def __get_oidc_groups(self,user_info):
+    def __get_oidc_roles(self,user_info):
         tmp=user_info
-        for path in self.OIDC_GROUPS_PATH:
+        for path in settings.OIDC_ROLE_PATH_IN_RETURN:
             path=path.strip()
             if path=="":
                 continue
@@ -299,47 +283,29 @@ class OIDCLoginView(View):
         else:
             return []
     
-    def __analyze_permission(self,oidc_groups):
-        permission_map=self.PERMISSION_MAP
-        if not isinstance(permission_map,dict) or len(oidc_groups)==0:
-            return 3
-        permissions = []
-        for key in permission_map.keys():
-            map_value = permission_map[key]
-            map_value = rf"{map_value}"
-            if map_value.strip() == "":
+    def __analyze_role(self,oidc_roles):
+        ROLE_ADMIN_NAME="admin"
+        ROLE_MANAGE_NAME="manage"
+        role_map = {ROLE_ADMIN_NAME: settings.OIDC_ROLE_ADMIN_PATTEREN, ROLE_MANAGE_NAME: settings.OIDC_ROLE_MANAGE_PATTEREN}
+        roles = []
+        for key in role_map.keys():
+            role_name = role_map[key]
+            role_name = rf"{role_name}"
+            if role_name.strip() == "":
                 continue
-            for group in oidc_groups:
-                if re.search(map_value, group):
-                    permissions.append(key)
+            for oidc_role in oidc_roles:
+                if re.search(role_name, oidc_role):
+                    roles.append(key)
                     break
-        if self.PERMISSION_ADMIN_NAME in permissions:
+        if ROLE_ADMIN_NAME in roles:
             return 1
-        elif self.PERMISSION_MANAGE_NAME in permissions:
+        elif ROLE_MANAGE_NAME in roles:
             return 2
         else:
-            return self.DEFAULT_ROLE
+            return settings.OIDC_ROLE_DEFAULT
         
-        
-    def __load_config_from_settings(self):
-        self.CLIENT_ID = settings.OIDC_CLIENT_ID
-        self.CLIENT_SECRET = settings.OIDC_CLIENT_SECRET
-        self.REDIRECT_URI = settings.BASE_URL + "/api/auth/oidc_login/"
-        self.AUTHORIZATION_URL = settings.OIDC_AUTHORIZATION_URL
-        self.TOKEN_URL = settings.OIDC_TOKEN_URL
-        self.USERINFO_URL = settings.OIDC_USERINFO_URL
-        self.SCOPES = settings.OIDC_SCOPES
-        self.PERMISSION_ADMIN_NAME = "admin"
-        self.PERMISSION_MANAGE_NAME = "manage"
-        ADMIN_PATTERN=settings.OIDC_PERMISSION_ADMIN_PATTEREN
-        MANAGE_PATTERN=settings.OIDC_PERMISSION_MANAGE_PATTEREN
-        self.PERMISSION_MAP = {"admin": ADMIN_PATTERN, "manage": MANAGE_PATTERN}
-        self.OIDC_GROUPS_PATH = settings.OIDC_GROUPS_PATH
-        self.DEFAULT_ROLE = settings.OIDC_DEFAULT_ROLE
-        self.DEBUG=settings.OIDC_DEBUG
-        self.DEBUG=False
-        self.ENABLE=settings.OIDC_ENABLED
-        self.LOGOUT_URL=settings.OIDC_LOGOUT_URL
+    def __init_config(self):
+        pass
         
 class NewLogoutView(LogoutView):
     
