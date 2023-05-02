@@ -38,7 +38,7 @@ class AuthenticateView(LoginView):
         org = Organization.object.get()
         if org is None:
             return redirect("setup")
-        if settings.OIDC_FORCE_AUTHN and False:
+        if settings.OIDC_FORCE_AUTHN:
             return redirect("oidc_login")
 
         # Block anyone trying to login when credentials are not allowed
