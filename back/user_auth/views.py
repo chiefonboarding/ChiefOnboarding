@@ -314,7 +314,6 @@ class NewLogoutView(LogoutView):
     def dispatch(self, request, *args, **kwargs):
         is_oidc_login=self.request.session["login_type"]=="oidc"
         if settings.OIDC_LOGOUT_URL!="" and is_oidc_login:
-            if settings.OIDC_DEBUG:
             return redirect(settings.OIDC_LOGOUT_URL)
         return super().dispatch(request, *args, **kwargs)
     
