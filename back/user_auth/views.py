@@ -55,6 +55,9 @@ class AuthenticateView(LoginView):
             context["google_login"] = Integration.objects.get(
                 integration=3, active=True
             )
+        if Organization.object.get().oidc_login:
+            context["oidc_display"] = settings.OIDC_LOGIN_DISPLAY
+        print(context)
         return context
 
 
@@ -160,10 +163,10 @@ class OIDCLoginView(View):
         return settings.BASE_URL + reverse('oidc_login')
 
     def dispatch(self, request, *args, **kwargs):
-        self.__init_config()
         oidc_login_enable = Organization.object.get().oidc_login
         if not oidc_login_enable:
             return HttpResponse(_("OIDC login has not been set"))
+        self.__init_config()
         return super().dispatch(request, *args, **kwargs)
     
     def get(self, request):
