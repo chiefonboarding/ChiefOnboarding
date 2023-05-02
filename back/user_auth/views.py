@@ -57,7 +57,6 @@ class AuthenticateView(LoginView):
             )
         if Organization.object.get().oidc_login:
             context["oidc_display"] = settings.OIDC_LOGIN_DISPLAY
-        print(context)
         return context
 
 
@@ -282,7 +281,6 @@ class OIDCLoginView(View):
                 tmp=tmp[path]
             except:
                 return []
-        # print(tmp)
         if isinstance(tmp,list):
             return tmp
         elif isinstance(tmp,str):
@@ -316,10 +314,7 @@ class NewLogoutView(LogoutView):
     def dispatch(self, request, *args, **kwargs):
         is_oidc_login=self.request.session["login_type"]=="oidc"
         if settings.OIDC_LOGOUT_URL!="" and is_oidc_login:
-        # if settings.OIDC_LOGOUT_URL!="" and settings.OIDC_ENABLED:
             if settings.OIDC_DEBUG:
-                print("logout")
-                print("redirect to -> ",settings.OIDC_LOGOUT_URL)
             return redirect(settings.OIDC_LOGOUT_URL)
         return super().dispatch(request, *args, **kwargs)
     
