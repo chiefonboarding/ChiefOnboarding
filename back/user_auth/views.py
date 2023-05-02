@@ -34,11 +34,11 @@ class AuthenticateView(LoginView):
 
     def dispatch(self, request, *args, **kwargs):
         # add login type to session that can be used in the logout
-        self.request.session["login_type"]=None
+        self.request.session["login_type"]=""
         org = Organization.object.get()
         if org is None:
             return redirect("setup")
-        if settings.OIDC_FORCE_AUTHN:
+        if settings.OIDC_FORCE_AUTHN and False:
             return redirect("oidc_login")
 
         # Block anyone trying to login when credentials are not allowed
