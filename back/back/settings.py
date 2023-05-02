@@ -15,6 +15,7 @@ import sys
 
 import environ
 from django.utils.translation import gettext_lazy as _
+from json import loads as json_loads
 
 env = environ.Env()
 environ.Env.read_env(env.str("ENV_PATH", "back/.env"))
@@ -405,7 +406,6 @@ if env.bool("DEBUG_LOGGING", default=False):
 
 
 #OIDC
-from json import loads as json_loads
 OIDC_ENABLED = env.bool('OIDC_ENABLED', default=False)
 OIDC_CLIENT_ID = env('OIDC_CLIENT_ID', default="")
 OIDC_CLIENT_SECRET = env('OIDC_CLIENT_SECRET', default="")
