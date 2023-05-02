@@ -276,7 +276,7 @@ class OIDCLoginView(View):
     def __get_oidc_roles(self,user_info):
         tmp=user_info
         for path in settings.OIDC_ROLE_PATH_IN_RETURN:
-            path=path.strip()
+            path=path.strip(',')
             if path=="":
                 continue
             try:
