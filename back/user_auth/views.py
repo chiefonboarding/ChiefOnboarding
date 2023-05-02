@@ -166,7 +166,6 @@ class OIDCLoginView(View):
         oidc_login_enable = Organization.object.get().oidc_login
         if not oidc_login_enable:
             return HttpResponse(_("OIDC login has not been set"))
-        self.__init_config()
         return super().dispatch(request, *args, **kwargs)
     
     def get(self, request):
@@ -311,9 +310,6 @@ class OIDCLoginView(View):
             return 2
         else:
             return settings.OIDC_ROLE_DEFAULT
-        
-    def __init_config(self):
-        pass
         
 class NewLogoutView(LogoutView):
     
