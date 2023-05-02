@@ -195,7 +195,7 @@ class OIDCLoginView(View):
         login(request, user)
         # add login type to session, so we can redirect to the correct page when we logout
         self.request.session["login_type"]="oidc"
-        # Also pass MFA, since Google handles that (otherwise they would get
+        # Also pass MFA, since OIDC handles that (otherwise they would get
         # stuck in our app having to pass MFA)
         self.request.session["passed_mfa"] = True
         return redirect("logged_in_user_redirect")
