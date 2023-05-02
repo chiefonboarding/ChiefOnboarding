@@ -62,7 +62,9 @@ class Organization(models.Model):
     slack_login = models.BooleanField(
         verbose_name=_("Allow users to login with their Slack account"), default=False
     )
-
+    oidc_login = models.BooleanField(
+        verbose_name=_("Allow users to login with OIDC"), default=False
+    )
     # additional settings
     new_hire_email = models.BooleanField(
         verbose_name=_("Send email to new hire with login credentials"),
