@@ -101,11 +101,7 @@ class OrganizationGeneralForm(forms.ModelForm):
             and Integration.objects.filter(integration=3).exists()
         ):
             google_login = self.cleaned_data["google_login"]
-        oidc_login = False
-        if (
-            "oidc_login" in self.cleaned_data
-        ):
-            oidc_login = self.cleaned_data["oidc_login"]
+        oidc_login = self.cleaned_data.get("oidc_login", False)
         if not any([credentials_login, google_login, oidc_login]):
             raise ValidationError(_("You must enable at least one login option"))
         return self.cleaned_data
