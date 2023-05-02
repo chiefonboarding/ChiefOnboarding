@@ -406,6 +406,7 @@ if env.bool("DEBUG_LOGGING", default=False):
 
 
 #OIDC
+OIDC_LOGIN_DISPLAY = env("OIDC_LOGIN_DISPLAY", default="Custom-OIDC")
 OIDC_ENABLED = env.bool('OIDC_ENABLED', default=False)
 OIDC_CLIENT_ID = env('OIDC_CLIENT_ID', default="")
 OIDC_CLIENT_SECRET = env('OIDC_CLIENT_SECRET', default="")
