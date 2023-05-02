@@ -33,6 +33,8 @@ class AuthenticateView(LoginView):
     template_name = "login.html"
 
     def dispatch(self, request, *args, **kwargs):
+        # add login type to session that can be used in the logout
+        self.request.session["login_type"]=None
         org = Organization.object.get()
         if org is None:
             return redirect("setup")
@@ -190,6 +192,8 @@ class OIDCLoginView(View):
         user_info = self.get_user_info(access_token)
         user=self.authenticate_user(user_info)
         login(request, user)
+        # add login type to session, so we can redirect to the correct page when we logout
+        self.request.session["login_type"]="oidc"
         # Also pass MFA, since Google handles that (otherwise they would get
         # stuck in our app having to pass MFA)
         self.request.session["passed_mfa"] = True
@@ -310,7 +314,9 @@ class OIDCLoginView(View):
 class NewLogoutView(LogoutView):
     
     def dispatch(self, request, *args, **kwargs):
-        if settings.OIDC_LOGOUT_URL!="" and settings.OIDC_ENABLED:
+        is_oidc_login=self.request.session["login_type"]=="oidc"
+        if settings.OIDC_LOGOUT_URL!="" and is_oidc_login:
+        # if settings.OIDC_LOGOUT_URL!="" and settings.OIDC_ENABLED:
             if settings.OIDC_DEBUG:
                 print("logout")
                 print("redirect to -> ",settings.OIDC_LOGOUT_URL)
