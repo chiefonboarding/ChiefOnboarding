@@ -518,3 +518,69 @@ settings:
 8. Go back to your Slack bot and go to "App Home". Then scroll down till you see: "Show Tabs". Enable the "message tab" and check the "Allow users to send Slash commands and messages from the messages tab".
 
 That's it!
+
+### OIDC Single Sign-On (SSO)
+
+This will allow you to use the 'Log in with OIDC' button on the login page.
+
+To enable OIDC, you must enable "Allow users to login with OIDC" in the admin settings page at [https://example.com/admin/settings/general/](https://example.com/admin/settings/general/).
+
+You may need the redirect URL for your Identity Provider (IdP). The `REDIRECT_URL` should be set to [https://example.com/api/auth/oidc\_login](https://example.com/api/auth/oidc_login).
+
+If you set `OIDC_FORCE_AUTHN=True`, the login page will automatically redirect to the OIDC IdP.
+
+#### Role Mapping
+
+In this example, we use CAS as the IdP and modify the `zoneinfo` field to display group information. You can see `OIDC_ROLE_PATH_IN_RETURN='zoneinfo'` is set accordingly.
+
+If your groups (roles) are stored deeper in the JSON structure, like:
+
+json
+
+```json
+{
+    "A": "A",
+    "B": {
+        "roles": [
+            "ROLE_A",
+            "ROLE_B"
+        ]
+    }
+}
+```
+
+You can set `OIDC_ROLE_PATH_IN_RETURN='A,B,roles'` using commas.
+
+There are two patterns to map CheifOnboarding's role with `OIDC_ROLE`:
+
+1.  For `Admin`, apply `OIDC_ROLE_ADMIN_PATTEREN` to `OIDC_ROLE`
+2.  For `Manager`, apply `OIDC_ROLE_MANAGE_PATTEREN` to `OIDC_ROLE`
+
+`OIDC_ROLE_DEFAULT` is used to set other users' roles; you likely don't need to change it. If you don't want to use role mapping, simply leave it as a space.
+
+#### Logout
+
+Since this is an SSO implementation, we recommend setting `OIDC_LOGOUT_URL`. When you log out, it will redirect to the `OIDC_LOGOUT_URL`.
+
+Here's the updated configuration example:
+
+ini
+
+```ini
+OIDC_LOGIN_DISPLAY="Custom-OIDC"
+OIDC_CLIENT_ID=XXXXX
+OIDC_CLIENT_SECRET=XXXXXX
+OIDC_AUTHORIZATION_URL=https://example.com/oidc/authorize
+OIDC_TOKEN_URL=https://example.com/oidc/accessToken
+OIDC_USERINFO_URL=https://example.com/oidc/profile
+OIDC_LOGOUT_URL=https://example.com/cas/logout
+OIDC_SCOPES='openid email profile'
+OIDC_FORCE_AUTHN=True
+OIDC_DEBUG=True
+OIDC_ROLE_ADMIN_PATTEREN='^cn=Administrators.*'
+OIDC_ROLE_MANAGE_PATTEREN='^cn=Manage.*'
+OIDC_ROLE_DEFAULT=3
+OIDC_ROLE_PATH_IN_RETURN='zoneinfo'
+```
+
+With these changes, your README should be clearer and more informative.
