@@ -20,7 +20,6 @@ urlpatterns = [
         views.MFAView.as_view(),
         name="mfa",
     ),
-    # path("logout/", LogoutView.as_view(), name="logout"),
     path("logout/", views.NewLogoutView.as_view(), name="logout"),
     path(
         "password/reset_request/",
