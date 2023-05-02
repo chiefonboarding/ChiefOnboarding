@@ -521,6 +521,12 @@ That's it!
 
 ### OIDC Single Sign-On (SSO)
 
+For upgrades, you may need to run the following shell commands in your container:
+```shell
+python manage.py makemigrations && python manage.py migrate
+```
+This will create new migrations based on the changes you made to your models and apply them to the database.
+
 This will allow you to use the 'Log in with OIDC' button on the login page.
 
 To enable OIDC, you must enable "Allow users to login with OIDC" in the admin settings page at [https://example.com/admin/settings/general/](https://example.com/admin/settings/general/).
