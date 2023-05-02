@@ -52,11 +52,6 @@ class AuthenticateView(LoginView):
             context["google_login"] = Integration.objects.get(
                 integration=3, active=True
             )
-        if Integration.objects.filter(integration=10, active=True).exists():
-            context["oidc_login"] = Integration.objects.get(
-                integration=10, active=True
-            )
-        # raise(context)
         return context
 
 
