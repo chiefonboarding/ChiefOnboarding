@@ -233,7 +233,7 @@ class OIDCLoginView(View):
                 request,
                 _("Something went wrong with reaching OIDC. Please try again."),
             )
-            return redirect("login")
+            return redirect("login_form")
 
     def request_tokens(self, authorization_code):
         data = {
