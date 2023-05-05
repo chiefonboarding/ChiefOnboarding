@@ -425,11 +425,10 @@ def test_google_login_user_not_exists(client, new_hire_factory, integration_fact
     "requests.get",
     Mock(
         return_value=Mock(
-            status_code=200, json=lambda: {"email": "hello@chiefonboarding.com"}
+            status_code=200, json=lambda: {"sub":"test","email": "hello@chiefonboarding.com","name":"given_name family_name"}
         )
     ),
 )
-
 def test_oidc_login(client, new_hire_factory):
     # Start with credentials enabled
     org = Organization.object.get()
@@ -483,8 +482,11 @@ def test_oidc_login_error(client, new_hire_factory, integration_factory):
 
     new_hire_factory(email="hello@chiefonboarding.com")
     new_hire_factory(email="stan@chiefonboarding.com")
-
-    response = client.get(url)
+    settings.OIDC_CLIENT_ID="test"
+    settings.OIDC_CLIENT_SECRET="test"
+    settings.OIDC_AUTHORIZATION_URL="http://test.com/authorize"
+    settings.OIDC_TOKEN_URL="http://test.com/token"
+    settings.OIDC_USERINFO_URL="http://test.com/userinfo"
 
     # Try logging in with account, getting back an empty json from Google
     response = client.get(url, follow=True)
@@ -507,7 +509,7 @@ def test_oidc_login_error(client, new_hire_factory, integration_factory):
     "requests.get",
     Mock(
         return_value=Mock(
-            status_code=200, json=lambda: {"email": "hello123@chiefonboarding.com"}
+            status_code=200, json=lambda: {"name": "given_name family_name"}
         )
     ),
 )
@@ -519,10 +521,11 @@ def test_oidc_login_user_not_exists(client, new_hire_factory, integration_factor
 
     url = reverse("oidc_login")
 
-    new_hire_factory(email="hello@chiefonboarding.com")
-    new_hire_factory(email="stan@chiefonboarding.com")
-
-    response = client.get(url)
+    settings.OIDC_CLIENT_ID="test"
+    settings.OIDC_CLIENT_SECRET="test"
+    settings.OIDC_AUTHORIZATION_URL="http://test.com/authorize"
+    settings.OIDC_TOKEN_URL="http://test.com/token"
+    settings.OIDC_USERINFO_URL="http://test.com/userinfo"
 
     # Try logging in with account, getting back an empty json from OIDC
     response = client.get(url, follow=True)
