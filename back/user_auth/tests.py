@@ -15,7 +15,7 @@ WHITELISTED_URLS = [
     "logout/",
     "google/",
     "api/auth/google_login",
-    "api/auth/oicd/",
+    "api/auth/oidc_login/",
     "password/reset_request/",
     "password/reset_request/done/",
     "password/reset_change/<uidb64>/<token>/",
