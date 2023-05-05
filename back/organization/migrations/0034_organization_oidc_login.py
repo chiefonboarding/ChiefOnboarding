@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('organization', '0033_organization_only_one_allowed'),
+        ("organization", "0033_organization_only_one_allowed"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='organization',
-            name='oidc_login',
-            field=models.BooleanField(default=False, verbose_name='Allow users to login with OIDC'),
+            model_name="organization",
+            name="oidc_login",
+            field=models.BooleanField(
+                default=False, verbose_name="Allow users to login with OIDC"
+            ),
         ),
     ]
