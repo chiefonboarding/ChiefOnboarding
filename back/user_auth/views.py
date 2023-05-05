@@ -164,11 +164,19 @@ class OIDCLoginView(View):
         return settings.BASE_URL + reverse("oidc_login")
 
     def dispatch(self, request, *args, **kwargs):
-        oidc_login_enable = Organization.object.get().oidc_login
-        if not oidc_login_enable:
+        # Make sure these configd exists. Technically, it shouldn't be possible
+        # to enable `oidc_login` when this is not set, but just to be safe
+        OIDC_CLIENT_ID_VALID=settings.OIDC_CLIENT_ID.strip()!=""
+        OIDC_CLIENT_SECRET_VALID=settings.OIDC_CLIENT_SECRET.strip()!=""
+        OIDC_AUTHORIZATION_URL_VALID=settings.OIDC_AUTHORIZATION_URL.strip()!=""
+        OIDC_TOKEN_URL_VALID=settings.OIDC_TOKEN_URL.strip()!=""
+        OIDC_USERINFO_URL_VALID=settings.OIDC_USERINFO_URL.strip()!=""
+        is_oidc_config_valid=OIDC_CLIENT_ID_VALID and OIDC_CLIENT_SECRET_VALID and OIDC_AUTHORIZATION_URL_VALID and OIDC_TOKEN_URL_VALID and OIDC_USERINFO_URL_VALID
+        if not is_oidc_config_valid:
             return HttpResponse(_("OIDC login has not been set"))
         return super().dispatch(request, *args, **kwargs)
 
+        
     def get(self, request):
         # If the request contains an authorization code, handle the callback
         authorization_code = request.GET.get("code")
