@@ -41,6 +41,11 @@ class NewHireAddForm(forms.ModelForm):
     department = ModelChoiceFieldWithCreate(
         queryset=Department.objects.all(), to_field_name="name", required=False
     )
+    username = forms.DateField(
+        label=_("Username"),
+        required=True,
+        widget=forms.TextInput(attrs={'placeholder': 'Enter uid for login'})
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -48,6 +53,7 @@ class NewHireAddForm(forms.ModelForm):
         self.fields["manager"].required = False
         self.fields["department"].required = False
         self.fields["profile_image"].required = False
+        self.fields["username"].required = True
         self.fields["language"].initial = Organization.object.get().language
         self.fields["timezone"].initial = Organization.object.get().timezone
         self.fields["start_day"].initial = timezone.now().date()
@@ -60,6 +66,13 @@ class NewHireAddForm(forms.ModelForm):
                 ),
                 Div(
                     Field("last_name"),
+                    css_class="col-6",
+                ),
+                css_class="row",
+            ),
+            Div(
+                Div(
+                    Field("username"),
                     css_class="col-6",
                 ),
                 css_class="row",
@@ -144,6 +157,7 @@ class NewHireAddForm(forms.ModelForm):
             "manager",
             "department",
             "profile_image",
+            "username",
         )
 
 
@@ -165,6 +179,11 @@ class NewHireProfileForm(forms.ModelForm):
     )
     department = ModelChoiceFieldWithCreate(
         queryset=Department.objects.all(), to_field_name="name", required=False
+    )
+    username = forms.DateField(
+        label=_("Username"),
+        required=True,
+        widget=forms.TextInput(attrs={'placeholder': 'Enter uid for login'})
     )
 
     def __init__(self, *args, **kwargs):
@@ -188,6 +207,7 @@ class NewHireProfileForm(forms.ModelForm):
             Div(
                 Div(
                     Field("first_name"),
+                    Field("username"),
                     Field("email"),
                     Field("position"),
                     css_class="col-6",
@@ -243,6 +263,7 @@ class NewHireProfileForm(forms.ModelForm):
             "manager",
             "department",
             "profile_image",
+            "username",
         )
 
 
@@ -254,6 +275,11 @@ class ColleagueUpdateForm(forms.ModelForm):
         widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
         required=False,
     )
+    username = forms.DateField(
+        label=_("Username"),
+        required=True,
+        widget=forms.TextInput(attrs={'placeholder': 'Enter uid for login'})
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -261,8 +287,9 @@ class ColleagueUpdateForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
-                Div(Field("first_name"), css_class="col-6"),
-                Div(Field("last_name"), css_class="col-6"),
+                Div(Field("username"), css_class="col-4"),
+                Div(Field("first_name"), css_class="col-4"),
+                Div(Field("last_name"), css_class="col-4"),
                 css_class="row",
             ),
             Div(
@@ -301,12 +328,18 @@ class ColleagueUpdateForm(forms.ModelForm):
             "timezone",
             "language",
             "profile_image",
+            "username",
         )
 
 
 class ColleagueCreateForm(forms.ModelForm):
     department = ModelChoiceFieldWithCreate(
         queryset=Department.objects.all(), to_field_name="name", required=False
+    )
+    username = forms.DateField(
+        label=_("Username"),
+        required=True,
+        widget=forms.TextInput(attrs={'placeholder': 'Enter uid for login'})
     )
 
     def __init__(self, *args, **kwargs):
@@ -317,8 +350,9 @@ class ColleagueCreateForm(forms.ModelForm):
         self.fields["language"].initial = Organization.objects.get().language
         self.helper.layout = Layout(
             Div(
-                Div(Field("first_name"), css_class="col-6"),
-                Div(Field("last_name"), css_class="col-6"),
+                Div(Field("username"), css_class="col-4"),
+                Div(Field("first_name"), css_class="col-4"),
+                Div(Field("last_name"), css_class="col-4"),
                 css_class="row",
             ),
             Div(
@@ -355,6 +389,7 @@ class ColleagueCreateForm(forms.ModelForm):
             "timezone",
             "language",
             "profile_image",
+            "username",
         )
 
 
