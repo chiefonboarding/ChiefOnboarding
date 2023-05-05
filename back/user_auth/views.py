@@ -268,7 +268,7 @@ class OIDCLoginView(View):
                 " log in with the correct account?"
             ),
         )
-        return redirect("login")
+        return redirect("login_form")
 
     def __create_user(self, user_info):
         user = self.__sync_user(user_info)
