@@ -184,7 +184,7 @@ class OIDCLoginView(View):
         oidc_login = Organization.object.get().oidc_login
         if not oidc_login:
             self.request.session["force_auth"] = False
-            return HttpResponse(_("OIDC login has not been enabled"))
+            return HttpResponse(_("OIDC login has not been enabled."))
         # Make sure these configd exists. Technically, it shouldn't be possible
         # to enable `oidc_login` when this is not set, but just to be safe
         OIDC_CLIENT_ID_VALID=settings.OIDC_CLIENT_ID.strip()!=""
