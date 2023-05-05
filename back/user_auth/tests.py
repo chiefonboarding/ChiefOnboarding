@@ -24,6 +24,7 @@ WHITELISTED_URLS = [
     "new_hire/preboarding/",
     "new_hire/slackform/<int:pk>/",
     "setup/",
+    "login/",
 ]
 
 POST_URLS = [
