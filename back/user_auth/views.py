@@ -201,18 +201,25 @@ class OIDCLoginView(View):
         return auth_url
 
     def handle_callback(self, request, authorization_code):
-        tokens = self.request_tokens(authorization_code)
-        access_token = tokens["access_token"]
-        user_info = self.get_user_info(access_token)
-        user = self.authenticate_user(user_info)
-        login(request, user)
-        # add login type to session, so we can redirect to the correct page when we
-        # logout
-        self.request.session["login_type"] = "oidc"
-        # Also pass MFA, since OIDC handles that (otherwise they would get
-        # stuck in our app having to pass MFA)
-        self.request.session["passed_mfa"] = True
-        return redirect("logged_in_user_redirect")
+        try:
+            tokens = self.request_tokens(authorization_code)
+            access_token = tokens["access_token"]
+            user_info = self.get_user_info(access_token)
+            user = self.authenticate_user(user_info)
+            login(request, user)
+            # add login type to session, so we can redirect to the correct page when we
+            # logout
+            self.request.session["login_type"] = "oidc"
+            # Also pass MFA, since OIDC handles that (otherwise they would get
+            # stuck in our app having to pass MFA)
+            self.request.session["passed_mfa"] = True
+            return redirect("logged_in_user_redirect")
+        except Exception:
+            messages.error(
+                request,
+                _("Something went wrong with reaching OIDC. Please try again."),
+            )
+            return redirect("login")
 
     def request_tokens(self, authorization_code):
         data = {
