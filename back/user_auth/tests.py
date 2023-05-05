@@ -3,6 +3,7 @@ from unittest.mock import Mock, patch
 import pytest
 from django.contrib import auth
 from django.urls import reverse
+from django.conf import settings
 
 from organization.models import Organization
 
