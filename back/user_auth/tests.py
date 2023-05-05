@@ -443,16 +443,20 @@ def test_oidc_login(client, new_hire_factory):
     url = reverse("oidc_login")
     response = client.get(url)
 
-    assert response.status_code == 404
-
+    assert response.status_code == 200
+    assert (
+        "OIDC login has not been enabled."
+        in response.content.decode()
+    )
     # Enable OIDC login
     org.oidc_login = True
     org.save()
 
     response = client.get(url)
-
+    
     assert response.status_code == 200
     assert "OIDC login has not been set" in response.content.decode()
+    
     settings.OIDC_CLIENT_ID="test"
     settings.OIDC_CLIENT_SECRET="test"
     settings.OIDC_AUTHORIZATION_URL="http://test.com/authorize"
