@@ -31,7 +31,7 @@ class LoginRedirectView(LoginWithMFARequiredMixin, View):
             return redirect("new_hire:colleagues")
 
 
-class AuthenticateView(LoginView):
+class PureAuthenticateView(LoginView):
     template_name = "login.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -40,8 +40,6 @@ class AuthenticateView(LoginView):
         org = Organization.object.get()
         if org is None:
             return redirect("setup")
-        if settings.OIDC_FORCE_AUTHN:
-            return redirect("oidc_login")
 
         # Block anyone trying to login when credentials are not allowed
         if request.method == "POST" and not org.credentials_login:
@@ -61,6 +59,22 @@ class AuthenticateView(LoginView):
             context["oidc_display"] = settings.OIDC_LOGIN_DISPLAY
         return context
 
+class AuthenticateView(PureAuthenticateView):
+    
+    def dispatch(self, request, *args, **kwargs):
+        # add login type to session that can be used in the logout
+        self.request.session["login_type"] = ""
+        org = Organization.object.get()
+        if org is None:
+            return redirect("setup")
+        if settings.OIDC_FORCE_AUTHN:
+            return redirect("oidc_login")
+
+        # Block anyone trying to login when credentials are not allowed
+        if request.method == "POST" and not org.credentials_login:
+            raise Http404
+
+        return super().dispatch(request, *args, **kwargs)
 
 @method_decorator(axes_dispatch, name="dispatch")
 class MFAView(LoginRequiredMixin, FormView):
