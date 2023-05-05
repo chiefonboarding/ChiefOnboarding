@@ -44,7 +44,6 @@ class PureAuthenticateView(LoginView):
         # Block anyone trying to login when credentials are not allowed
         if request.method == "POST" and not org.credentials_login:
             raise Http404
-
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -67,9 +66,12 @@ class AuthenticateView(PureAuthenticateView):
         org = Organization.object.get()
         if org is None:
             return redirect("setup")
-        if settings.OIDC_FORCE_AUTHN:
+        
+        if "force_auth" not in self.request.session.keys():
+            self.request.session["force_auth"] = settings.OIDC_FORCE_AUTHN
+        if self.request.session["force_auth"]:
+            self.request.session["force_auth"] = True
             return redirect("oidc_login")
-
         # Block anyone trying to login when credentials are not allowed
         if request.method == "POST" and not org.credentials_login:
             raise Http404
@@ -178,6 +180,11 @@ class OIDCLoginView(View):
         return settings.BASE_URL + reverse("oidc_login")
 
     def dispatch(self, request, *args, **kwargs):
+        # Check if OIDC is enabled
+        oidc_login = Organization.object.get().oidc_login
+        if not oidc_login:
+            self.request.session["force_auth"] = False
+            return HttpResponse(_("OIDC login has not been enabled"))
         # Make sure these configd exists. Technically, it shouldn't be possible
         # to enable `oidc_login` when this is not set, but just to be safe
         OIDC_CLIENT_ID_VALID=settings.OIDC_CLIENT_ID.strip()!=""
