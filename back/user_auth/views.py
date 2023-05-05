@@ -279,19 +279,20 @@ class OIDCLoginView(View):
 
     def __create_user(self, user_info):
         user = self.__sync_user(user_info)
-        name = user_info["name"].split(" ")
-        size = len(name)
-        if size == 0:
-            first_name = "user"
-            second_name = ""
-        elif len(name) == 1:
-            first_name = name[0]
-            second_name = ""
-        else:
-            first_name = name[0]
-            second_name = name[1]
-        user.first_name = first_name
-        user.last_name = second_name
+        if "name" in user_info:
+            name = user_info["name"].split(" ")
+            size = len(name)
+            if size == 0:
+                first_name = "user"
+                second_name = ""
+            elif len(name) == 1:
+                first_name = name[0]
+                second_name = ""
+            else:
+                first_name = name[0]
+                second_name = name[1]
+            user.first_name = first_name
+            user.last_name = second_name
         user.save()
         return user
 
