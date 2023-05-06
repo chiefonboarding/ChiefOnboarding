@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
+from django.db.models import CheckConstraint, Q
 from django.template import Context, Template
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
@@ -175,7 +176,7 @@ class User(AbstractBaseUser):
         blank=True,
         help_text=_("First working day"),
     )
-    unique_url = models.CharField(max_length=250, null=True, unique=True, blank=True)
+    unique_url = models.CharField(max_length=250, unique=True)
     extra_fields = models.JSONField(default=dict)
 
     to_do = models.ManyToManyField(ToDo, through="ToDoUser", related_name="user_todos")
@@ -203,6 +204,14 @@ class User(AbstractBaseUser):
     new_hires = NewHireManager()
     admins = AdminManager()
     ordering = ("first_name",)
+
+    class Meta:
+        constraints = [
+            CheckConstraint(
+                check=~Q(unique_url=""),
+                name="unique_url_not_empty",
+            )
+        ]
 
     @cached_property
     def full_name(self):
