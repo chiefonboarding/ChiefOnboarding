@@ -271,7 +271,7 @@ class OIDCLoginView(View):
         messages.error(
             self.request,
             _(
-                "There is no account associated with your email address. Did you try to"
+                "Cannot get your email address. Did you try to"
                 " log in with the correct account?"
             ),
         )
