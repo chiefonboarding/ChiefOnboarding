@@ -70,7 +70,6 @@ class AuthenticateView(PureAuthenticateView):
         if "force_auth" not in self.request.session.keys():
             self.request.session["force_auth"] = settings.OIDC_FORCE_AUTHN
         if self.request.session["force_auth"]:
-            self.request.session["force_auth"] = True
             return redirect("oidc_login")
         # Block anyone trying to login when credentials are not allowed
         if request.method == "POST" and not org.credentials_login:
