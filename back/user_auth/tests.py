@@ -462,7 +462,7 @@ def test_oidc_login(client, new_hire_factory):
     settings.OIDC_TOKEN_URL="http://localhost"
     settings.OIDC_USERINFO_URL="http://localhost"
     # Logging in with account
-    response = client.get(url, follow=True)
+    response = client.get(url)
 
     user = auth.get_user(client)
     # User is logged in
@@ -489,7 +489,7 @@ def test_oidc_login_error(client, new_hire_factory, integration_factory):
     settings.OIDC_USERINFO_URL="http://localhost"
 
     # Try logging in with account, getting back an empty json from Google
-    response = client.get(url, follow=True)
+    response = client.get(url)
 
     user = auth.get_user(client)
     # User is not logged in
@@ -528,7 +528,7 @@ def test_oidc_login_user_not_exists(client, new_hire_factory, integration_factor
     settings.OIDC_USERINFO_URL="http://localhost"
 
     # Try logging in with account, getting back an empty(no email address) json from OIDC
-    response = client.get(url, follow=True)
+    response = client.get(url)
 
     user = auth.get_user(client)
     # User is not logged in - does not exist
