@@ -527,13 +527,13 @@ def test_oidc_login_user_not_exists(client, new_hire_factory, integration_factor
     settings.OIDC_TOKEN_URL="http://test.com/token"
     settings.OIDC_USERINFO_URL="http://test.com/userinfo"
 
-    # Try logging in with account, getting back an empty json from OIDC
+    # Try logging in with account, getting back an empty(no email address) json from OIDC
     response = client.get(url, follow=True)
 
     user = auth.get_user(client)
     # User is not logged in - does not exist
     assert not user.is_authenticated
     assert (
-        "There is no account associated with your email address."
+        "Cannot get your email address."
         in response.content.decode()
     )
