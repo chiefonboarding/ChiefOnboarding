@@ -150,7 +150,33 @@ class LdapSync:
         default=settings.LDAP_DEFAULT_GROUPS.strip()
         if default=='' or default is None:
             return []
-        return default.split(' ')
+        groups=default.split(' ')
+        groups_from_file=cls.get_default_groups_from_file()
+        groups.extend(groups_from_file)
+        return list(set(groups))
+
+    @classmethod
+    def get_default_groups_filename(cls,filename:str) -> str:
+        return settings.LDAP_DEFAULT_GROUPS_FILENAME.strip()
+    
+    @classmethod
+    def get_default_groups_from_file(cls) -> list[str]:
+        filename=cls.get_default_groups_filename()
+        if filename=='' or filename is None:
+            return []
+        groups=[]
+        try:
+            with open(filename,'r') as f:
+                for line in f.readlines():
+                    line=line.strip()
+                    if line=='':
+                        continue
+                    groups.append(line)
+            return groups
+        except:
+            pass
+        return []
+
 
 def ldap_add_user(user,password:str=None,need_hash_pw:bool=True,algorithm:str='SSHA'):
     # Drop if LDAP is not enabled

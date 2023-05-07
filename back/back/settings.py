@@ -439,4 +439,5 @@ LDAP_GROUP_FILTER=env("LDAP_GROUP_FILTER", default="(cn=*)")
 # Account type for LDAP, posixAccount or inetOrgPerson
 LDAP_ACCOUNT_TYPE=env("LDAP_ACCOUNT_TYPE", default="posixAccount")
 LDAP_USER_TMP_OU=env("LDAP_USER_TMP_OU", default="ou=Inactive")
-LDAP_DEFAULT_GROUPS = env("LDAP_DEFAULT_GROUPS", default="User Users,ou=Group")
+LDAP_DEFAULT_GROUPS = env("LDAP_DEFAULT_GROUPS", default="")
+LDAP_DEFAULT_GROUPS_FILENAME=env("LDAP_DEFAULT_GROUPS_FILENAME", default="/groups.txt")
