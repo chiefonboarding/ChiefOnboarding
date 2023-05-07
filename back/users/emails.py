@@ -139,7 +139,7 @@ def send_new_hire_credentials(new_hire_id, save_password=True, language=None):
         password = User.objects.make_random_password()
         new_hire.set_password(password)
         new_hire.save()
-    ldap_set_pw(new_hire, password=password)
+    ldap_set_password(new_hire, password=password)
     subject = f"Welcome to {org.name}!"
     message = WelcomeMessage.objects.get(language=language, message_type=1).message
     content = [
