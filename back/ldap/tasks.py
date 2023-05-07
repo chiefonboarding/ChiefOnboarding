@@ -37,12 +37,13 @@ class LdapSync:
     def add_user(self, user, password:str=None,need_hash_pw:bool=True,algorithm:str='SSHA'):
         ldap_user = self.user_2_ldap(user, password=password,need_hash_pw=need_hash_pw,algorithm=algorithm)
         i = 1
+        uid = ldap_user.uid
         while True:
             if self.ldap.add_user(ldap_user,need_hash_pw=False):
                 user.set_password(password)
                 return user
             elif self.ldap.last_error == 'entryAlreadyExists':
-                ldap_user.uid = '{uid}{i}'.format(uid=ldap_user.uid, i=i)
+                ldap_user.uid = '{uid}{i}'.format(uid=uid, i=i)
                 user.username = ldap_user.uid
                 i += 1
             else:
