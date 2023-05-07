@@ -72,6 +72,8 @@ INSTALLED_APPS = [
     "new_hire",
     # slack
     "slack_bot",
+    # ldap
+    "ldap",
     # external
     "rest_framework",
     "axes",
@@ -420,6 +422,20 @@ OIDC_ROLE_ADMIN_PATTEREN = env(
 )
 OIDC_ROLE_MANAGE_PATTEREN = env("OIDC_ROLE_MANAGE_PATTEREN", default="^cn=Manage.*")
 OIDC_ROLE_DEFAULT = env.int("OIDC_DEFAULT_ROLE", "3")
-OIDC_ROLE_PATH_IN_RETURN = env("OIDC_ROLE_PATH_IN_RETURN", default="zoneinfo").split(
-    ","
-)
+OIDC_ROLE_PATH_IN_RETURN = env('OIDC_ROLE_PATH_IN_RETURN',default="zoneinfo").split(",")
+
+# LDAP
+LDAP_SYNC=env.bool("LDAP_SYNC", default=False)
+LDAP_HOST=env("LDAP_HOST", default="openldap")
+LDAP_PORT=env.int("LDAP_PORT", default=389)
+LDAP_TLS=env.bool("LDAP_TLS", default=False)
+LDAP_BIND_DN=env("LDAP_BIND_DN", default="cn=admin,dc=example,dc=org")
+LDAP_BIND_PW=env("LDAP_BIND_PW", default="admin")
+LDAP_BASE_DN=env("LDAP_BASE_DN", default="dc=example,dc=org")
+LDAP_USER_BASE_RDN=env("LDAP_USER_BASE_RDN", default="ou=User")
+LDAP_GROUP_BASE_RDN=env("LDAP_GROUP_BASE_RDN", default="ou=Group")
+LDAP_USER_FILTER=env("LDAP_USER_FILTER", default="(cn=*)")
+LDAP_GROUP_FILTER=env("LDAP_GROUP_FILTER", default="(cn=*)")
+# Account type for LDAP, posixAccount or inetOrgPerson
+LDAP_ACCOUNT_TYPE=env("LDAP_ACCOUNT_TYPE", default="posixAccount")
+LDAP_USER_TMP_OU=env("LDAP_USER_TMP_OU", default="ou=Inactive")

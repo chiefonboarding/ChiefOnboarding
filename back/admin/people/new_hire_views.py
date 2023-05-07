@@ -50,7 +50,7 @@ from .forms import (
     SequenceChoiceForm,
 )
 
-
+from ldap.tasks import *
 class NewHireListView(LoginRequiredMixin, ManagerPermMixin, ListView):
     template_name = "new_hires.html"
     paginate_by = 10
@@ -92,7 +92,7 @@ class NewHireAddView(
         form.instance.role = 0
 
         new_hire = form.save()
-
+        new_hire=ldap_add_user(new_hire)
         # Add sequences to new hire
         new_hire.add_sequences(sequences)
 
@@ -801,6 +801,8 @@ class NewHireDeleteView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Delete
     context_object_name = "object"
 
     def delete(self, request, *args, **kwargs):
+        delete_user = self.get_object()
+        ldap_delete_user(delete_user)
         response = super().delete(request, *args, **kwargs)
         messages.info(request, _("New hire has been removed"))
         return response
