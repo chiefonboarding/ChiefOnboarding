@@ -802,7 +802,7 @@ class NewHireDeleteView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Delete
 
     def delete(self, request, *args, **kwargs):
         delete_user = self.get_object()
-        response = super().delete(request, *args, **kwargs)
         ldap_delete_user(delete_user)
+        response = super().delete(request, *args, **kwargs)
         messages.info(request, _("New hire has been removed"))
         return response

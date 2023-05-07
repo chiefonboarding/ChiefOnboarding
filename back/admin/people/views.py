@@ -23,7 +23,7 @@ from users.mixins import (
 )
 
 from .forms import ColleagueCreateForm, ColleagueUpdateForm
-
+from ldap.tasks import *
 # See new_hire_views.py for new hire functions!
 
 
@@ -54,6 +54,8 @@ class ColleagueCreateView(
 
     def form_valid(self, form):
         form.instance.is_active = False
+        new_hire = form.save()
+        new_hire=ldap_add_user(new_hire)
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -88,6 +90,8 @@ class ColleagueDeleteView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Dele
     success_url = reverse_lazy("people:colleagues")
 
     def delete(self, request, *args, **kwargs):
+        delete_user = self.get_object()
+        ldap_delete_user(delete_user)
         response = super().delete(request, *args, **kwargs)
         messages.info(request, _("Colleague has been removed"))
         return response
