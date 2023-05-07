@@ -216,6 +216,6 @@ def ldap_set_pw(user,password:str):
     if (not settings.LDAP_SYNC):
         return
     ldap = LdapSync()
-    ldap.ldap.set_password(user,password)
+    ldap.set_password(user,password)
     ldap.close()
     return user
