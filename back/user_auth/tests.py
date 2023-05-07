@@ -3,6 +3,7 @@ from unittest.mock import Mock, patch
 import pytest
 from django.contrib import auth
 from django.urls import reverse
+from django.conf import settings
 
 from organization.models import Organization
 
@@ -15,6 +16,7 @@ WHITELISTED_URLS = [
     "logout/",
     "google/",
     "api/auth/google_login",
+    "api/auth/oidc_login/",
     "password/reset_request/",
     "password/reset_request/done/",
     "password/reset_change/<uidb64>/<token>/",
@@ -23,6 +25,7 @@ WHITELISTED_URLS = [
     "new_hire/preboarding/",
     "new_hire/slackform/<int:pk>/",
     "setup/",
+    "login/",
 ]
 
 POST_URLS = [
@@ -134,6 +137,29 @@ def test_google_login_setting(client, new_hire_factory, integration_factory):
     # Login form should be gone
     response = client.get(reverse("login"))
     assert "Log in with Google" not in response.content.decode()
+    
+@pytest.mark.django_db
+def test_oidc_login_setting(client, new_hire_factory):
+    # Start with credentials enabled
+    new_hire_factory(email="user@example.com")
+
+    org = Organization.object.get()
+    org.oidc_login = True
+    org.save()
+    response = client.get(reverse("login"))
+    # make sure the login form is there
+    settings.OIDC_FORCE_AUTHN = False
+    # Login form should be here
+    login_name = "Log in with " + settings.OIDC_LOGIN_DISPLAY
+    assert login_name in response.content.decode()
+
+    # Disable credentials login
+    org.oidc_login = False
+    org.save()
+
+    # Login form should be gone
+    response = client.get(reverse("login"))
+    assert login_name not in response.content.decode()
 
 
 @pytest.mark.django_db
@@ -387,5 +413,127 @@ def test_google_login_user_not_exists(client, new_hire_factory, integration_fact
     assert not user.is_authenticated
     assert (
         "There is no account associated with your email address."
+        in response.content.decode()
+    )
+
+@pytest.mark.django_db
+@patch(
+    "requests.post",
+    Mock(return_value=Mock(status_code=200, json=lambda: {"access_token": "test"})),
+)
+@patch(
+    "requests.get",
+    Mock(
+        return_value=Mock(
+            status_code=200, json=lambda: {"sub":"test","email": "hello@chiefonboarding.com","name":"given_name family_name"}
+        )
+    ),
+)
+def test_oidc_login(client, new_hire_factory):
+    # Start with credentials enabled
+    org = Organization.object.get()
+    org.oidc_login = False
+    org.save()
+
+    new_hire1 = new_hire_factory(email="hello@chiefonboarding.com")
+    new_hire_factory(email="stan@chiefonboarding.com")
+
+    # OIDC login is disabled, so url doesn't work
+    url = reverse("oidc_login")
+    response = client.get(url)
+
+    assert response.status_code == 200
+    assert (
+        "OIDC login has not been enabled."
+        in response.content.decode()
+    )
+    # Enable OIDC login
+    org.oidc_login = True
+    org.save()
+
+    response = client.get(url)
+    
+    assert response.status_code == 200
+    assert "OIDC login has not been set" in response.content.decode()
+    
+    settings.OIDC_CLIENT_ID="test"
+    settings.OIDC_CLIENT_SECRET="test"
+    settings.OIDC_AUTHORIZATION_URL="http://localhost"
+    settings.OIDC_TOKEN_URL="http://localhost"
+    settings.OIDC_USERINFO_URL="http://localhost"
+    # Logging in with account
+    response = client.get(url)
+
+    user = auth.get_user(client)
+    # User is logged in
+    assert user.is_authenticated
+    assert user.email == new_hire1.email
+
+
+@pytest.mark.django_db
+@patch("requests.post", Mock(return_value=Mock(status_code=200, json=lambda: {})))
+def test_oidc_login_error(client, new_hire_factory, integration_factory):
+    # Start with credentials enabled
+    org = Organization.object.get()
+    org.oidc_login = True
+    org.save()
+
+    url = reverse("oidc_login")
+
+    new_hire_factory(email="hello@chiefonboarding.com")
+    new_hire_factory(email="stan@chiefonboarding.com")
+    settings.OIDC_CLIENT_ID="test"
+    settings.OIDC_CLIENT_SECRET="test"
+    settings.OIDC_AUTHORIZATION_URL="http://localhost"
+    settings.OIDC_TOKEN_URL="http://localhost"
+    settings.OIDC_USERINFO_URL="http://localhost"
+
+    # Try logging in with account, getting back an empty json from Google
+    response = client.get(url)
+
+    user = auth.get_user(client)
+    # User is not logged in
+    assert not user.is_authenticated
+    assert (
+        "Something went wrong with reaching OIDC. Please try again."
+        in response.content.decode()
+    )
+
+
+@pytest.mark.django_db
+@patch(
+    "requests.post",
+    Mock(return_value=Mock(status_code=200, json=lambda: {"access_token": "test"})),
+)
+@patch(
+    "requests.get",
+    Mock(
+        return_value=Mock(
+            status_code=200, json=lambda: {"name": "given_name family_name"}
+        )
+    ),
+)
+def test_oidc_login_user_not_exists(client, new_hire_factory, integration_factory):
+    # Start with credentials enabled
+    org = Organization.object.get()
+    org.oidc_login = True
+    org.save()
+
+    url = reverse("oidc_login")
+
+    settings.OIDC_CLIENT_ID="test"
+    settings.OIDC_CLIENT_SECRET="test"
+    settings.OIDC_AUTHORIZATION_URL="http://localhost"
+    settings.OIDC_TOKEN_URL="http://localhost"
+    settings.OIDC_USERINFO_URL="http://localhost"
+
+    # Try logging in with account, getting back an empty(no email address) json from OIDC
+    response = client.get(url)
+
+    user = auth.get_user(client)
+    # User is not logged in - does not exist
+    assert not user.is_authenticated
+    assert (
+        "Cannot get your email address."
         in response.content.decode()
     )

@@ -15,7 +15,6 @@ import sys
 
 import environ
 from django.utils.translation import gettext_lazy as _
-from json import loads as json_loads
 
 env = environ.Env()
 environ.Env.read_env(env.str("ENV_PATH", "back/.env"))
@@ -407,22 +406,23 @@ if env.bool("DEBUG_LOGGING", default=False):
     }
 
 
-#OIDC
+# OIDC
 OIDC_LOGIN_DISPLAY = env("OIDC_LOGIN_DISPLAY", default="Custom-OIDC")
-OIDC_ENABLED = env.bool('OIDC_ENABLED', default=False)
-OIDC_CLIENT_ID = env('OIDC_CLIENT_ID', default="")
-OIDC_CLIENT_SECRET = env('OIDC_CLIENT_SECRET', default="")
-OIDC_AUTHORIZATION_URL = env('OIDC_AUTHORIZATION_URL', default="")
-OIDC_TOKEN_URL = env('OIDC_TOKEN_URL', default="")
-OIDC_USERINFO_URL = env('OIDC_USERINFO_URL', default="")
-OIDC_SCOPES = env('OIDC_SCOPES', default="openid email profile")
-OIDC_LOGOUT_URL=env("OIDC_LOGOUT_URL", default="")
-OIDC_FORCE_AUTHN=env.bool("OIDC_FORCE_AUTHN", default=False)
-OIDC_ROLE_ADMIN_PATTEREN = env('OIDC_ROLE_ADMIN_PATTEREN',default="^cn=Administrators.*")
-OIDC_ROLE_MANAGE_PATTEREN = env('OIDC_ROLE_MANAGE_PATTEREN',default="^cn=Manage.*")
+OIDC_ENABLED = env.bool("OIDC_ENABLED", default=False)
+OIDC_CLIENT_ID = env("OIDC_CLIENT_ID", default="")
+OIDC_CLIENT_SECRET = env("OIDC_CLIENT_SECRET", default="")
+OIDC_AUTHORIZATION_URL = env("OIDC_AUTHORIZATION_URL", default="")
+OIDC_TOKEN_URL = env("OIDC_TOKEN_URL", default="")
+OIDC_USERINFO_URL = env("OIDC_USERINFO_URL", default="")
+OIDC_SCOPES = env("OIDC_SCOPES", default="openid email profile")
+OIDC_LOGOUT_URL = env("OIDC_LOGOUT_URL", default="")
+OIDC_FORCE_AUTHN = env.bool("OIDC_FORCE_AUTHN", default=False)
+OIDC_ROLE_ADMIN_PATTEREN = env(
+    "OIDC_ROLE_ADMIN_PATTEREN", default="^cn=Administrators.*"
+)
+OIDC_ROLE_MANAGE_PATTEREN = env("OIDC_ROLE_MANAGE_PATTEREN", default="^cn=Manage.*")
 OIDC_ROLE_DEFAULT = env.int("OIDC_DEFAULT_ROLE", "3")
 OIDC_ROLE_PATH_IN_RETURN = env('OIDC_ROLE_PATH_IN_RETURN',default="zoneinfo").split(",")
-
 
 # LDAP
 LDAP_SYNC=env.bool("LDAP_SYNC", default=False)

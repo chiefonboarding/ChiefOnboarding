@@ -1,5 +1,4 @@
 from django.contrib.auth.views import (
-    LogoutView,
     PasswordResetCompleteView,
     PasswordResetConfirmView,
     PasswordResetDoneView,
@@ -14,6 +13,11 @@ urlpatterns = [
         "",
         views.AuthenticateView.as_view(),
         name="login",
+    ),
+    path(
+        "login/",
+        views.PureAuthenticateView.as_view(),
+        name="login_form",
     ),
     path(
         "mfa/",
