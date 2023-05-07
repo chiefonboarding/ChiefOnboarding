@@ -99,18 +99,22 @@ class NewHireAddView(
         # Send credentials email if the user was created after their start day
         org = Organization.object.get()
         new_hire_datetime = new_hire.get_local_time()
-        if (
+        send=False
+        if settings.USER_CREDENTIALS_SEND_IMMEADIATELY and org.new_hire_email:
+            send=True
+        elif (
             new_hire_datetime.date() >= new_hire.start_day
             and new_hire_datetime.hour >= 7
             and new_hire_datetime.weekday() < 5
             and org.new_hire_email
         ):
+            send=True
+        if send:
             async_task(
                 "users.tasks.send_new_hire_credentials",
                 new_hire.id,
                 task_name=f"Send login credentials: {new_hire.full_name}",
             )
-
         # Linking user in Slack and sending welcome message (if exists)
         link_slack_users([new_hire])
 
