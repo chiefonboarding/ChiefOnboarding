@@ -10,6 +10,7 @@ from users.models import ResourceUser, ToDoUser
 from .ldap import LdapConfig, inetOrgPerson, posixAccount, LDAP_OP
 import re
 
+__all__=['LdapSync','ldap_add_user','ldap_del_user','ldap_sync_role_from_ldap','ldap_set_password','LdapConfig', 'inetOrgPerson', 'posixAccount']
 
 class LdapSync:
     def __init__(self):
