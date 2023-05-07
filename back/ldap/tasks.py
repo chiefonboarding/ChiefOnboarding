@@ -78,8 +78,7 @@ class LdapSync:
 
     def set_password(self, user,new_password:str):
         uid = user.username
-        password = user.password
-        self.ldap.modify_passwd(uid, password)
+        self.ldap.modify_passwd(uid, new_password)
         user.set_password(new_password)
         return user
     
