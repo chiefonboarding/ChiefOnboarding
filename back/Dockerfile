@@ -10,7 +10,7 @@ RUN mkdir -p /app
 WORKDIR /app
 COPY ./back/ .
 COPY ./back/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-RUN pipenv install --system
+RUN pipenv install --system && pip install ldap3 passlib
 RUN django-admin compilemessages 
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
