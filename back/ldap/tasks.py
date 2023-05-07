@@ -7,161 +7,174 @@ from django.utils.translation import gettext as _
 from admin.integrations.models import Integration
 from organization.models import Organization, WelcomeMessage
 from users.models import ResourceUser, ToDoUser
-from .ldap import LdapConfig, inetOrgPerson, posixAccount,LDAP_OP
+from .ldap import LdapConfig, inetOrgPerson, posixAccount, LDAP_OP
+import re
 
 
-def ldap_init():
-    ldap_config = LdapConfig()
-    ldap_config.HOST = settings.LDAP_HOST
-    ldap_config.PORT=settings.LDAP_PORT
-    ldap_config.TLS=settings.TLS
-    ldap_config.BASE_DN = settings.LDAP_BASE_DN
-    ldap_config.BIND_DN = settings.LDAP_BIND_DN
-    ldap_config.BIND_PW = settings.LDAP_BIND_PW
-    ldap_config.USER_BASE_RDN = settings.LDAP_USER_BASE_RDN
-    ldap_config.GROUP_BASE_RDN = settings.LDAP_GROUP_BASE_RDN
-    ldap_config.USER_FILTER = settings.LDAP_USER_FILTER
-    ldap_config.GROUP_FILTER = settings.LDAP_GROUP_FILTER
-    return ldap_config
+class LdapSync:
+    def __init__(self):
+        self.__ldap: LDAP_OP = None
+        self.init()
 
+    def init(self):
+        ldap_config = self.get_ldap_config()
+        ldap = LDAP_OP(ldap_config)
+        self.ldap = ldap
 
-def user_2_ldap(user):
-    ldap_user=inetOrgPerson(
-        uid=user.username,
-        sn=user.last_name,
-        givenName=user.first_name,
-        mail=user.email,
-        telephoneNumber=user.phone_number,
-    )
-    if settings.LDAP_ACCOUNT_TYPE == "inetOrgPerson":
-        return ldap_user
-    else:
-        ldap_user2=posixAccount(uid="",sn="",givenName="",mail="",telephoneNumber="")
-        ldap_user2.copy_from(ldap_user)
-        return ldap_user2
+    @property
+    def ldap(self):
+        return self.__ldap
 
-def ldap_add_user(users=[]):
+    @ldap.setter
+    def ldap(self, ldap: LDAP_OP):
+        self.__ldap = ldap
+        self.ldap.connect()
+
+    def close(self):
+        self.ldap.disconnect()
+
+    def add_user(self, user, password:str=None,need_hash_pw:bool=True,algorithm:str='SSHA'):
+        ldap_user = self.user_2_ldap(user, password=password,need_hash_pw=need_hash_pw,algorithm=algorithm)
+        i = 1
+        while True:
+            if self.ldap.add_user(ldap_user,need_hash_pw=False):
+                user.set_password(password)
+                return user
+            elif self.ldap.last_error is 'entryAlreadyExists':
+                ldap_user.uid = '{uid}{i}'.format(uid=ldap_user.uid, i=i)
+                user.username = ldap_user.uid
+                i += 1
+            else:
+                return user
+
+    def del_user(self, user):
+        uid = user.username
+        user_tmp_ou=self.get_user_tmp_ou()
+        self.ldap.del_uid_tmp(uid=uid,tmp_user_ou=user_tmp_ou)
+        return user
+        
+    def sync_role_from_ldap(self, user):
+        uid = user.username
+        entry = self.ldap.search_user(uid)
+        if 'memberOf' in entry:
+            group = entry['memberOf']
+            role_map, default_role = self.get_role_map()
+            role = self.analyze_role(
+                group_list=group, role_map=role_map, default_role=default_role)
+            user.role = role
+        return user
+
+    def sync(self):
+        self.sync_user()
+        self.sync_group()
+        self.sync_role()
+
+    def set_password(self, user,new_password:str):
+        uid = user.username
+        password = user.password
+        self.ldap.modify_passwd(uid, password)
+        user.set_password(new_password)
+        return user
+    
+    @classmethod
+    def analyze_role(cls, group_list: list[str], role_map: dict[int, str] = {1: r'^cn=Administrators.*', 2: r'^cn=Manage.*'}, default_role: int = 3) -> int:
+        role_list: list[int] = []
+        for role, pattern in role_map.items():
+            for group in group_list:
+                if re.search(pattern, group):
+                    role_list.append(role)
+                    break
+        if len(role_list) == 0:
+            return default_role
+        else:
+            return min(role_list)
+
+    @classmethod
+    def get_ldap_config(cls) -> LdapConfig:
+        ldap_config = LdapConfig()
+        ldap_config.HOST = settings.LDAP_HOST
+        ldap_config.PORT = settings.LDAP_PORT
+        ldap_config.TLS = settings.LDAP_TLS
+        ldap_config.BASE_DN = settings.LDAP_BASE_DN
+        ldap_config.BIND_DN = settings.LDAP_BIND_DN
+        ldap_config.BIND_PW = settings.LDAP_BIND_PW
+        ldap_config.USER_BASE_RDN = settings.LDAP_USER_BASE_RDN
+        ldap_config.GROUP_BASE_RDN = settings.LDAP_GROUP_BASE_RDN
+        ldap_config.USER_FILTER = settings.LDAP_USER_FILTER
+        ldap_config.GROUP_FILTER = settings.LDAP_GROUP_FILTER
+        return ldap_config
+
+    @classmethod
+    def user_2_ldap(cls, user,password:str=None,need_hash_pw:bool=True,algorithm:str='SSHA'):
+        ldap_user = inetOrgPerson(
+            uid=user.username,
+            sn=user.last_name,
+            givenName=user.first_name,
+            mail=user.email,
+            telephoneNumber=user.phone,
+        )
+        if password is not None:
+            if need_hash_pw:
+                ps=LDAP_OP.hash(password,algorithm=algorithm)
+            else:
+                ps=password
+            ldap_user.userPassword = ps
+        if settings.LDAP_ACCOUNT_TYPE == "inetOrgPerson":
+            return ldap_user
+        else:
+            ldap_user2 = posixAccount(
+                uid="", sn="", givenName="", mail="", telephoneNumber="")
+            ldap_user2.copy_from(ldap_user)
+            return ldap_user2
+
+    @classmethod
+    def get_role_map(cls) -> tuple[dict[int, str], int]:
+        admin_pattern = settings.LDAP_ROLE_ADMIN_PATTERN
+        manage_pattern = settings.LDAP_ROLE_MANAGE_PATTERN
+        role_map = {1: admin_pattern, 2: manage_pattern}
+        default_role = settings.LDAP_ROLE_DEFAULT
+        return role_map, default_role
+
+    @classmethod
+    def get_user_tmp_ou(cls) -> str:
+        return settings.LDAP_USER_TMP_OU
+
+def ldap_add_user(user,password:str=None,need_hash_pw:bool=True,algorithm:str='SSHA'):
     # Drop if LDAP is not enabled
     if (not settings.LDAP_SYNC):
         return
+    ldap = LdapSync()
+    user=ldap.add_user(user,password=password,need_hash_pw=need_hash_pw,algorithm=algorithm)
+    user.ldap = True
+    ldap.close()
+    user.save()
+    return user
 
-    ldap = LDAP_OP(ldap_init())
-    org = Organization.object.get()
-
-    if len(users) == 0:
-        users = get_user_model().new_hires.without_ldap()
-
-    for user in users:
-        ldap_user=user_2_ldap(user)
-        response = slack.find_by_email(email=user.email.lower())
-        if response:
-            translation.activate(user.language)
-            user.slack_user_id = response["user"]["id"]
-            user.save()
-
-            # Personalized message for user (slack welcome message)
-            blocks = [
-                paragraph(
-                    user.personalize(
-                        WelcomeMessage.objects.get(
-                            language=user.language, message_type=3
-                        ).message
-                    ),
-                )
-            ]
-
-            # Check if extra buttons need to be send with it as well
-            if org.slack_buttons:
-                blocks.extend(get_new_hire_first_message_buttons())
-
-            # Adding introduction items
-            blocks.extend(
-                [
-                    SlackIntro(intro, user).format_block()
-                    for intro in user.introductions.all()
-                ]
-            )
-
-            res = Slack().send_message(
-                blocks=blocks, text=_("Welcome!"), channel=user.slack_user_id
-            )
-            user.slack_channel_id = res["channel"]
-            user.save()
-
-            # Send user to do items for that day (and perhaps overdue ones)
-            tasks = ToDoUser.objects.overdue(user) | ToDoUser.objects.due_today(user)
-
-            if tasks.exists():
-                blocks = SlackToDoManager(user).get_blocks(
-                    tasks.values_list("id", flat=True),
-                    text=_("These are the tasks you need to complete:"),
-                )
-                Slack().send_message(
-                    blocks=blocks,
-                    text=_("These are the tasks you need to complete:"),
-                    channel=user.slack_user_id,
-                )
-
-
-def ldap_update_user():
-    if (
-        not Integration.objects.filter(integration=0).exists()
-        and settings.SLACK_APP_TOKEN == ""
-    ):
+def ldap_delete_user(user):
+    # Drop if LDAP is not enabled
+    if (not settings.LDAP_SYNC):
         return
+    ldap = LdapSync()
+    user=ldap.del_user(user)
+    ldap.close()
+    user.save()
+    return user
 
-    for user in get_user_model().new_hires.with_slack():
-        local_datetime = user.get_local_time()
-
-        if not (
-            local_datetime.hour == 8
-            and local_datetime.weekday() < 5
-            and local_datetime.date() >= user.start_day
-        ):
-            continue
-
-        translation.activate(user.language)
-
-        overdue_items = ToDoUser.objects.overdue(user)
-        tasks = ToDoUser.objects.due_today(user) | overdue_items
-
-        courses_due = ResourceUser.objects.filter(
-            user=user, resource__on_day__lte=user.workday
-        )
-        # Filter out completed courses
-        course_blocks = [
-            SlackResource(course, user).get_block()
-            for course in courses_due
-            if course.is_course
-        ]
-
-        if len(course_blocks):
-            course_blocks.insert(
-                0, paragraph(_("Here are some courses that you need to complete"))
-            )
-            Slack().send_message(
-                blocks=course_blocks,
-                text=_("Here are some courses that you need to complete"),
-                channel=user.slack_user_id,
-            )
-
-        # If any overdue tasks exist, then notify the user
-        if tasks.exists():
-            if overdue_items.exists():
-                text = _(
-                    "Good morning! These are the tasks you need to complete. Some to "
-                    "do items are overdue. Please complete those as soon as possible!"
-                )
-            else:
-                text = _(
-                    "Good morning! These are the tasks you need to complete today:"
-                )
-
-            blocks = SlackToDoManager(user).get_blocks(
-                tasks.values_list("id", flat=True),
-                text=text,
-            )
-            Slack().send_message(blocks=blocks, text=text, channel=user.slack_user_id)
-
-def ldap_delete_user():
-    pass
+def ldap_sync_role(users=[]):
+    # Drop if LDAP is not enabled
+    if (not settings.LDAP_SYNC):
+        return
+    ldap = LdapSync()
+    for user in users:
+        user=ldap.sync_role_from_ldap(user)
+        user.save()
+        ldap.close()
+    return users
+def ldap_set_pw(user,password:str):
+    # Drop if LDAP is not enabled
+    if (not settings.LDAP_SYNC):
+        return
+    ldap = LdapSync()
+    ldap.ldap.set_password(user,password)
+    ldap.close()
+    return user
