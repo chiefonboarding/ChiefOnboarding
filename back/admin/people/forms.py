@@ -41,7 +41,7 @@ class NewHireAddForm(forms.ModelForm):
     department = ModelChoiceFieldWithCreate(
         queryset=Department.objects.all(), to_field_name="name", required=False
     )
-    username = forms.DateField(
+    username = forms.CharField(
         label=_("Username"),
         required=True,
         widget=forms.TextInput(attrs={'placeholder': 'Enter uid for login'})
@@ -180,10 +180,15 @@ class NewHireProfileForm(forms.ModelForm):
     department = ModelChoiceFieldWithCreate(
         queryset=Department.objects.all(), to_field_name="name", required=False
     )
-    username = forms.DateField(
+    username = forms.CharField(
         label=_("Username"),
         required=True,
-        widget=forms.TextInput(attrs={'placeholder': 'Enter uid for login'})
+        widget=forms.TextInput(attrs={'placeholder': 'Enter uid for login','readonly': True})
+    )
+    email = forms.EmailField(
+        label=_("Email"),
+        required=True,
+        widget=forms.TextInput(attrs={'readonly': True})
     )
 
     def __init__(self, *args, **kwargs):
@@ -275,12 +280,16 @@ class ColleagueUpdateForm(forms.ModelForm):
         widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
         required=False,
     )
-    username = forms.DateField(
+    username = forms.CharField(
         label=_("Username"),
         required=True,
-        widget=forms.TextInput(attrs={'placeholder': 'Enter uid for login'})
+        widget=forms.TextInput(attrs={'placeholder': 'Enter uid for login','readonly': True})
     )
-
+    email = forms.EmailField(
+        label=_("Email"),
+        required=True,
+        widget=forms.TextInput(attrs={'readonly': True})
+    )
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["profile_image"].required = False
@@ -336,12 +345,11 @@ class ColleagueCreateForm(forms.ModelForm):
     department = ModelChoiceFieldWithCreate(
         queryset=Department.objects.all(), to_field_name="name", required=False
     )
-    username = forms.DateField(
+    username = forms.CharField(
         label=_("Username"),
         required=True,
         widget=forms.TextInput(attrs={'placeholder': 'Enter uid for login'})
     )
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
