@@ -99,17 +99,17 @@ class NewHireAddView(
         # Send credentials email if the user was created after their start day
         org = Organization.object.get()
         new_hire_datetime = new_hire.get_local_time()
-        send=False
         if settings.USER_CREDENTIALS_SEND_IMMEADIATELY and org.new_hire_email:
-            send=True
+            try:
+                send_new_hire_credentials(new_hire.id)
+            except:
+                pass
         elif (
             new_hire_datetime.date() >= new_hire.start_day
             and new_hire_datetime.hour >= 7
             and new_hire_datetime.weekday() < 5
             and org.new_hire_email
         ):
-            send=True
-        if send:
             async_task(
                 "users.tasks.send_new_hire_credentials",
                 new_hire.id,

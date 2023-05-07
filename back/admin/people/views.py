@@ -10,6 +10,7 @@ from django.views.generic.base import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
+from django.conf import settings
 
 from admin.integrations.models import Integration
 from admin.resources.models import Resource
@@ -24,6 +25,12 @@ from users.mixins import (
 
 from .forms import ColleagueCreateForm, ColleagueUpdateForm
 from ldap.tasks import *
+from users.emails import (
+    email_reopen_task,
+    send_new_hire_credentials,
+    send_new_hire_preboarding,
+    send_reminder_email,
+)
 # See new_hire_views.py for new hire functions!
 
 
@@ -54,8 +61,14 @@ class ColleagueCreateView(
 
     def form_valid(self, form):
         form.instance.is_active = False
-        new_hire = form.save()
-        new_hire=ldap_add_user(new_hire)
+        new_colleague = form.save()
+        new_colleague=ldap_add_user(new_colleague)
+        new_colleague.save()
+        if settings.USER_CREDENTIALS_SEND_IMMEADIATELY:
+            try:
+                send_new_hire_credentials(new_colleague.id)
+            except:
+                pass
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
