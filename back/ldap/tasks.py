@@ -36,10 +36,14 @@ class LdapSync:
 
     def add_user(self, user, password:str=None,need_hash_pw:bool=True,algorithm:str='SSHA'):
         ldap_user = self.user_2_ldap(user, password=password,need_hash_pw=need_hash_pw,algorithm=algorithm)
+        groups = self.get_default_groups()
+        if user.department is not None:
+            groups.append(user.department.name)
+        groups=list(set(groups))
         i = 1
         uid = ldap_user.uid
         while True:
-            if self.ldap.add_user(ldap_user,need_hash_pw=False):
+            if self.ldap.add_user(ldap_user,groups=groups,need_hash_pw=False):
                 user.set_password(password)
                 return user
             elif self.ldap.last_error == 'entryAlreadyExists':
@@ -140,6 +144,16 @@ class LdapSync:
     @classmethod
     def get_user_tmp_ou(cls) -> str:
         return settings.LDAP_USER_TMP_OU
+    
+    @classmethod
+    def get_default_groups(cls) -> list[str]:
+        default=settings.LDAP_DEFAULT_GROUPS
+        if isinstance(default,str):
+            return [default]
+        elif isinstance(default,list):
+            return default
+        else:
+            return []
 
 def ldap_add_user(user,password:str=None,need_hash_pw:bool=True,algorithm:str='SSHA'):
     # Drop if LDAP is not enabled

@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass, asdict,fields
-from ldap3 import Server, Connection, ALL, MODIFY_REPLACE, SUBTREE,MODIFY_DELETE
+from ldap3 import Server, Connection, ALL, MODIFY_REPLACE, SUBTREE,MODIFY_DELETE,MODIFY_ADD
 from typing import Any
 import inspect
 from datetime import datetime
@@ -254,7 +254,7 @@ class LDAP_OP:
         entry=result[0]
         return entry.entry_dn,entry.entry_attributes_as_dict
 
-    def add_user(self, user: posixAccount | inetOrgPerson,need_hash_pw:bool=True,algorithm:str='SSHA') -> bool:
+    def add_user(self, user: posixAccount | inetOrgPerson,groups:list[str]=None,need_hash_pw:bool=True,algorithm:str='SSHA') -> bool:
         class_list = ['top', 'inetOrgPerson']
         if isinstance(user,posixAccount):
             user.uidNumber = self.get_next_uid_number()
@@ -269,7 +269,11 @@ class LDAP_OP:
         attributes = user.asdict()
         attributes = {k: v for k, v in attributes.items() if v is not None}
         user_dn = self.ldap_config.get_user_dn(user.uid)
-        return self.add(DN=user_dn, object_class=class_list, attributes=attributes)
+        if self.add(DN=user_dn, object_class=class_list, attributes=attributes):
+            if groups is not None:
+                self.add_user_to_groups(user.uid,groups)
+            return True
+        return False
 
     def del_uid(self, uid: str) -> bool:
         USER_DN = self.ldap_config.get_user_dn(uid)
@@ -301,6 +305,45 @@ class LDAP_OP:
             return True
         except:
             return False
+
+    def get_member_attr_from_group(self,group_name:str)->str:
+        if not self.check_conn():
+            return []
+        group_dn=self.ldap_config.get_group_dn(group_name)
+        attr_name='objectClass'
+        results= self.search(group_dn, '(objectClass=*)', attributes=[attr_name])
+        if len(results)==0:
+            return ''
+        entry=results[0]
+        class_names=entry.entry_attributes_as_dict[attr_name]
+        if 'groupOfNames' in class_names:
+            return 'member'
+        elif 'groupOfUniqueNames' in class_names:
+            return 'uniqueMember'
+        else:
+            return ''
+
+    def add_user_to_group(self, uid: str, group_name:str) -> bool:
+        if not self.check_conn():
+            return False
+        member_attr_name=self.get_member_attr_from_group(group_name)
+        if member_attr_name=='':
+            return False
+        group_dn = self.ldap_config.get_group_dn(group_name)
+        user_dn = self.ldap_config.get_user_dn(uid)
+        if self.conn.modify(group_dn, {member_attr_name: [(MODIFY_ADD, [user_dn])]}):
+            return True
+        return self.check_error()
+
+    def add_user_to_groups(self, uid: str, group_names:list[str],ignore_error:bool=True) -> bool:
+        if not self.check_conn():
+            return False
+        for group_name in group_names:
+            if not self.add_user_to_group(uid, group_name) and not ignore_error:
+                return False
+        return True
+
+
 
     def connect(self) -> bool:
         try:
