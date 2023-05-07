@@ -25,6 +25,8 @@ django-q-sentry = "*" # Needed for django-q error logging
 croniter = "*" # Needed for django-q scheduled tasks
 slack-bolt = "*"
 django-q2 = "*" # Background tasks
+ldap3 = "*" # LDAP sync
+passlib= "*"
 
 [dev-packages]
 coverage = "*"
@@ -37,6 +39,8 @@ isort = "*"
 pytest-factoryboy = "*"
 freezegun = "*"
 django-debug-toolbar = "*"
+ldap3 = "*"
+passlib= "*"
 
 [requires]
 python_version = "3.9.7"
