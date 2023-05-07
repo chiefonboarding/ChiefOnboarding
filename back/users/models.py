@@ -102,7 +102,7 @@ class AdminManager(models.Manager):
 class User(AbstractBaseUser):
     first_name = models.CharField(verbose_name=_("First name"), max_length=200)
     last_name = models.CharField(verbose_name=_("Last name"), max_length=200)
-    username = models.CharField(verbose_name=_("Last name"), max_length=200)
+    username = models.CharField(verbose_name=_("Username"), max_length=200)
     email = models.EmailField(verbose_name=_("Email"), max_length=200, unique=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
