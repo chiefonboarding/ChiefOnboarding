@@ -156,7 +156,7 @@ class LdapSync:
         return list(set(groups))
 
     @classmethod
-    def get_default_groups_filename(cls,filename:str) -> str:
+    def get_default_groups_filename(cls) -> str:
         return settings.LDAP_DEFAULT_GROUPS_FILENAME.strip()
     
     @classmethod
