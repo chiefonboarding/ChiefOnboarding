@@ -147,13 +147,10 @@ class LdapSync:
     
     @classmethod
     def get_default_groups(cls) -> list[str]:
-        default=settings.LDAP_DEFAULT_GROUPS
-        if isinstance(default,str):
-            return [default]
-        elif isinstance(default,list):
-            return default
-        else:
+        default=settings.LDAP_DEFAULT_GROUPS.strip()
+        if default=='' or default is None:
             return []
+        return default.split(' ')
 
 def ldap_add_user(user,password:str=None,need_hash_pw:bool=True,algorithm:str='SSHA'):
     # Drop if LDAP is not enabled
