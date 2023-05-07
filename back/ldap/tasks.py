@@ -150,8 +150,9 @@ class LdapSync:
     def get_default_groups(cls) -> list[str]:
         default=settings.LDAP_DEFAULT_GROUPS.strip()
         if default=='' or default is None:
-            return []
-        groups=default.split(' ')
+            groups=[]
+        else:
+            groups=default.split(' ')
         groups_from_file=cls.get_default_groups_from_file()
         groups.extend(groups_from_file)
         return list(set(groups))
@@ -209,6 +210,7 @@ def ldap_sync_role(users=[]):
         user.save()
         ldap.close()
     return users
+
 def ldap_set_pw(user,password:str):
     # Drop if LDAP is not enabled
     if (not settings.LDAP_SYNC):
