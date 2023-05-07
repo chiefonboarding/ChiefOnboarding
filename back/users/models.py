@@ -87,7 +87,13 @@ class NewHireManager(models.Manager):
             is_introduced_to_colleagues=False, start_day__gte=datetime.now().date()
         )
 
-
+    def with_ldap(self):
+        return self.get_queryset().exclude(ldap='False')
+    
+    def without_ldap(self):
+        return self.get_queryset().filter(ldap='False')
+    
+    
 class AdminManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(role=1)
@@ -96,6 +102,7 @@ class AdminManager(models.Manager):
 class User(AbstractBaseUser):
     first_name = models.CharField(verbose_name=_("First name"), max_length=200)
     last_name = models.CharField(verbose_name=_("Last name"), max_length=200)
+    username = models.CharField(verbose_name=_("Last name"), max_length=200)
     email = models.EmailField(verbose_name=_("Email"), max_length=200, unique=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
@@ -203,7 +210,9 @@ class User(AbstractBaseUser):
     new_hires = NewHireManager()
     admins = AdminManager()
     ordering = ("first_name",)
-
+    is_ldap = models.BooleanField(default=False)
+    
+    
     @cached_property
     def full_name(self):
         return f"{self.first_name} {self.last_name}".strip()
@@ -391,6 +400,7 @@ class User(AbstractBaseUser):
             "position": self.position,
             "last_name": self.last_name,
             "first_name": self.first_name,
+            "username": self.username,
             "email": self.email,
             "start": self.start_day,
             "buddy_email": buddy_email,
