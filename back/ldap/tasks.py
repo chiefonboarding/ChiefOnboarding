@@ -11,7 +11,7 @@ from .ldap import LdapConfig, inetOrgPerson, posixAccount, LDAP_OP
 import re
 from os import path
 
-__all__=['LdapSync','ldap_add_user','ldap_delete_user','ldap_sync_role','ldap_set_pw','LdapConfig', 'inetOrgPerson', 'posixAccount']
+__all__=['LdapSync','ldap_add_user','ldap_delete_user','ldap_sync_role','ldap_set_password','LdapConfig', 'inetOrgPerson', 'posixAccount']
 
 class LdapSync:
     def __init__(self):
@@ -210,7 +210,7 @@ def ldap_sync_role(users=[]):
         ldap.close()
     return users
 
-def ldap_set_pw(user,password:str):
+def ldap_set_password(user,password:str):
     # Drop if LDAP is not enabled
     if (not settings.LDAP_SYNC):
         return
