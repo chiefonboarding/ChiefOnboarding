@@ -10,7 +10,7 @@ from users.models import ResourceUser, ToDoUser
 from .ldap import LdapConfig, inetOrgPerson, posixAccount, LDAP_OP
 import re
 
-__all__=['LdapSync','ldap_add_user','ldap_del_user','ldap_sync_role_from_ldap','ldap_set_password','LdapConfig', 'inetOrgPerson', 'posixAccount']
+__all__=['LdapSync','ldap_add_user','ldap_delete_user','ldap_sync_role','ldap_set_pw','LdapConfig', 'inetOrgPerson', 'posixAccount']
 
 class LdapSync:
     def __init__(self):
@@ -41,7 +41,7 @@ class LdapSync:
             if self.ldap.add_user(ldap_user,need_hash_pw=False):
                 user.set_password(password)
                 return user
-            elif self.ldap.last_error is 'entryAlreadyExists':
+            elif self.ldap.last_error == 'entryAlreadyExists':
                 ldap_user.uid = '{uid}{i}'.format(uid=ldap_user.uid, i=i)
                 user.username = ldap_user.uid
                 i += 1
