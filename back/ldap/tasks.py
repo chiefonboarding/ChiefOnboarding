@@ -9,6 +9,7 @@ from organization.models import Organization, WelcomeMessage
 from users.models import ResourceUser, ToDoUser
 from .ldap import LdapConfig, inetOrgPerson, posixAccount, LDAP_OP
 import re
+from os import path
 
 __all__=['LdapSync','ldap_add_user','ldap_delete_user','ldap_sync_role','ldap_set_pw','LdapConfig', 'inetOrgPerson', 'posixAccount']
 
@@ -162,7 +163,7 @@ class LdapSync:
     @classmethod
     def get_default_groups_from_file(cls) -> list[str]:
         filename=cls.get_default_groups_filename()
-        if filename=='' or filename is None:
+        if filename is None or not path.exists(filename):
             return []
         groups=[]
         try:
@@ -172,10 +173,9 @@ class LdapSync:
                     if line=='':
                         continue
                     groups.append(line)
-            return groups
         except:
             pass
-        return []
+        return groups
 
 
 def ldap_add_user(user,password:str=None,need_hash_pw:bool=True,algorithm:str='SSHA'):
