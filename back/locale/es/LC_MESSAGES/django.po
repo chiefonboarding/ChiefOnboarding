@@ -474,7 +474,7 @@ msgstr "Duplicar"
 #: admin/settings/templates/settings_admins.html:28
 #: admin/templates/templates/template_update.html:16
 msgid "Delete"
-msgstr "Eliminanr"
+msgstr "Eliminar"
 
 #: admin/introductions/templates/intro_update.html:35
 msgid "Preview"
@@ -725,7 +725,7 @@ msgstr "¡Listo!"
 
 #: admin/people/templates/_trigger_sequence_items.html:6
 msgid "Trigger all these items now"
-msgstr "Detonar todos estos elementos ahora"
+msgstr "Activar todos estos elementos ahora"
 
 #: admin/people/templates/add_resources.html:13
 #: admin/people/templates/new_hire_add_task.html:14
