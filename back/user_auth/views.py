@@ -258,13 +258,13 @@ class OIDCLoginView(View):
         return response.json()
 
     def authenticate_user(self, user_info):
-        User = get_user_model()
-        user, created = User.objects.get_or_create(email=user_info["email"])
         if "email" in user_info:
-            if created:
-                user = self.__sync_user(user_info)
-            else:
-                user = self.__create_user(user_info)
+            User = get_user_model()
+            user, created = User.objects.get_or_create(email=user_info["email"])
+            user = self.__user_id_sync(user,user_info)
+            if created or settings.OIDC_USERINFO_SYNC:
+                user = self.__user_info_sync(user,user_info)
+            user.save()
             user.backend = "django.contrib.auth.backends.ModelBackend"
             return user
         messages.error(
@@ -276,8 +276,7 @@ class OIDCLoginView(View):
         )
         return redirect("login_form")
 
-    def __create_user(self, user_info):
-        user = self.__sync_user(user_info)
+    def __user_info_sync(self,user,user_info):
         if "name" in user_info:
             name = user_info["name"].split(" ")
             size = len(name)
@@ -295,10 +294,8 @@ class OIDCLoginView(View):
         user.save()
         return user
 
-    def __sync_user(self, user_info):
+    def __user_id_sync(self,user, user_info):
         role = self.__check_role(user_info)
-        users = get_user_model().objects.filter(email=user_info["email"])
-        user = users.first()
         user.role = role
         try:
             user.username = user_info["sub"]

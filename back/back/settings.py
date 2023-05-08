@@ -423,6 +423,7 @@ OIDC_ROLE_ADMIN_PATTEREN = env(
 OIDC_ROLE_MANAGE_PATTEREN = env("OIDC_ROLE_MANAGE_PATTEREN", default="^cn=Manage.*")
 OIDC_ROLE_DEFAULT = env.int("OIDC_DEFAULT_ROLE", "3")
 OIDC_ROLE_PATH_IN_RETURN = env('OIDC_ROLE_PATH_IN_RETURN',default="zoneinfo").split(",")
+OIDC_USERINFO_SYNC = env.bool("OIDC_USERINFO_SYNC", default=False)
 
 # LDAP
 LDAP_SYNC=env.bool("LDAP_SYNC", default=False)
