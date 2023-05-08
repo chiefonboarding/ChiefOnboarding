@@ -169,7 +169,7 @@ class LdapSync:
         try:
             with open(filename,'r') as f:
                 for line in f.readlines():
-                    line=line.strip()
+                    line=line.split('#')[0].strip()
                     if line=='':
                         continue
                     groups.append(line)
