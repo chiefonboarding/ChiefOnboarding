@@ -292,10 +292,6 @@ class OIDCLoginView(View):
                 second_name = name[1]
             user.first_name = first_name
             user.last_name = second_name
-            try:
-                user.username = user_info["sub"]
-            except:
-                pass
         user.save()
         return user
 
@@ -304,6 +300,10 @@ class OIDCLoginView(View):
         users = get_user_model().objects.filter(email=user_info["email"])
         user = users.first()
         user.role = role
+        try:
+            user.username = user_info["sub"]
+        except:
+            pass
         user.save()
         return user
 
