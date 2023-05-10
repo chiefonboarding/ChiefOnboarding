@@ -18,6 +18,7 @@ class LdapConfig:
     BIND_DN: str = None
     USER_BASE_RDN: str = None
     GROUP_BASE_RDN: str = None
+    POSIX_GROUP_RDN: str = None
     USER_FILTER: str = '(cn=*)'
     GROUP_FILTER: str = '(cn=*)'
     TLS = False
@@ -35,6 +36,12 @@ class LdapConfig:
     def USER_BASE_DN(self) -> str:
         return self.get_dn_by_rdn(self.USER_BASE_RDN)
 
+    @property
+    def POSIX_GROUP_DN(self) -> str:
+        if self.POSIX_GROUP_RDN is None or self.POSIX_GROUP_RDN.strip() == '':
+            return self.GROUP_BASE_DN
+        return self.get_dn_by_rdn(self.POSIX_GROUP_RDN)
+
 
     @property
     def GROUP_BASE_DN(self) -> str:
@@ -51,6 +58,9 @@ class LdapConfig:
 
     def get_group_dn(self, cn: str) -> str:
         return self.get_group_dn_ou(cn, self.GROUP_BASE_DN)
+
+    def get_posix_group_dn(self, cn: str) -> str:
+        return self.get_group_dn_ou(cn, self.POSIX_GROUP_DN)
 
     def get_user_filter(self, uid: str) -> str:
         if self.USER_FILTER is None or self.USER_FILTER.strip() == '':
@@ -111,7 +121,7 @@ class posixAccount(inetOrgPerson):
     homeDirectory: str = '/home'
     loginShell: str = '/bin/bash'
     uidNumber: int = None
-    gidNumber: int = 500
+    gidNumber: int = 1000
     
 
 class LDAP_OP:
@@ -164,10 +174,17 @@ class LDAP_OP:
         search_filter = '(objectClass=inetOrgPerson)'
 
         if self.conn.search(self.ldap_config.USER_BASE_DN, search_filter, search_scope=SUBTREE, attributes=['uidNumber']):
-            uid_list = [int(entry['uidNumber'].value)
-                        for entry in self.conn.entries]
-            return max(uid_list)+1
-        return int(self.check_error())-1
+            u0=1000
+            for entry in self.conn.entries:
+                uidNumber =int(entry['uidNumber'].value)
+                if uidNumber<1000:
+                    continue
+                print('uidNumber',uidNumber)
+                if uidNumber-u0>1:
+                    return u0+1
+                u0=uidNumber
+            return u0+1
+        return 1000
 
     def add(self, DN: str, object_class: list[str], attributes: dict[str, Any]) -> bool:
         if not self.check_conn():
@@ -254,10 +271,12 @@ class LDAP_OP:
         entry=result[0]
         return entry.entry_dn,entry.entry_attributes_as_dict
 
-    def add_user(self, user: posixAccount | inetOrgPerson,groups:list[str]=None,need_hash_pw:bool=True,algorithm:str='SSHA') -> bool:
+    def add_user(self, user: posixAccount | inetOrgPerson,groups:list[str]=None,group_is_dn:bool=False,need_hash_pw:bool=True,algorithm:str='SSHA') -> bool:
         class_list = ['top', 'inetOrgPerson']
         if isinstance(user,posixAccount):
             user.uidNumber = self.get_next_uid_number()
+            if user.uidNumber<0:
+                return False
             class_list += ['posixAccount']
         elif isinstance(user,inetOrgPerson):
             pass
@@ -271,9 +290,10 @@ class LDAP_OP:
         user_dn = self.ldap_config.get_user_dn(user.uid)
         if self.add(DN=user_dn, object_class=class_list, attributes=attributes):
             if groups is not None:
-                self.add_user_to_groups(user.uid,groups)
+                self.add_user_to_groups(uid=user.uid,group_name=groups,group_is_dn=group_is_dn)
             return True
         return False
+
 
     def del_uid(self, uid: str) -> bool:
         USER_DN = self.ldap_config.get_user_dn(uid)
@@ -287,6 +307,40 @@ class LDAP_OP:
         current_time=datetime.now().strftime('%Y%m%d%H%M%S%f')[:-4]
         tmp_user_dn = 'uid={uid}_{time},{ou}'.format(uid=uid,time=current_time,ou=tmp_ou_dn)
         return self.move(user_dn, tmp_user_dn,attr_exclude=['uid'])
+    
+    def create_group(self,name:str,objectClass:str='groupOfUniqueNames',members:list[str]=None,is_dn:bool=False,description:str=None,attr=None)->bool:
+        group_dn=name
+        if not is_dn:
+            if objectClass=='posixGroup':
+                group_dn=self.ldap_config.get_posix_group_dn(name)
+            else:
+                group_dn=self.ldap_config.get_group_dn(name)
+                try:
+                    members=[self.ldap_config.get_user_dn(uid) for uid in members]
+                except:
+                    members=None
+        if self.check_dn(group_dn):
+            return True
+        attributes={}
+        member_attr=self.get_attr_name_by_objectClass(objectClass=objectClass)
+        if member_attr is not None and member_attr.strip()!='' and isinstance(members,list) and len(members)>0:
+            attributes[member_attr]=members
+        objectClass=['top',objectClass]
+        if description is not None:
+            attributes['description']=description
+        if isinstance(attr,dict):
+            for key,value in attr.items():
+                if value is not None and key not in attributes:
+                    attributes[key]=value
+        return self.add(group_dn,object_class=objectClass,attributes=attributes)
+    
+    def create_posix_group(self,name:str,gidNumber:int,members:list[str]=None,is_dn:bool=False,description:str=None,attr=None)->bool:
+        attributes={'gidNumber':gidNumber}
+        if isinstance(attr,dict):
+            for key,value in attr.items():
+                if value is not None and key not in attributes:
+                    attributes[key]=value
+        return self.create_group(name=name,objectClass='posixGroup',members=members,is_dn=is_dn,description=description,attr=attributes)
     
     def modify_passwd(self, uid: str, new_passwd: str, algorithm: str = 'SSHA') -> bool:
         USER_DN = self.ldap_config.get_user_dn(uid)
@@ -306,40 +360,46 @@ class LDAP_OP:
         except:
             return False
 
-    def get_member_attr_from_group(self,group_name:str)->str:
+    def get_member_attr_from_group(self,group_name:str,is_dn:bool=False)->str:
         if not self.check_conn():
             return []
-        group_dn=self.ldap_config.get_group_dn(group_name)
+        group_dn=group_name
+        if not is_dn:
+            group_dn=self.ldap_config.get_group_dn(group_dn)
         attr_name='objectClass'
         results= self.search(group_dn, '(objectClass=*)', attributes=[attr_name])
         if len(results)==0:
             return ''
         entry=results[0]
         class_names=entry.entry_attributes_as_dict[attr_name]
-        if 'groupOfNames' in class_names:
-            return 'member'
-        elif 'groupOfUniqueNames' in class_names:
-            return 'uniqueMember'
-        else:
-            return ''
+        return self.get_attr_name_by_objectClass(class_names)
 
-    def add_user_to_group(self, uid: str, group_name:str) -> bool:
+
+    def add_user_to_group(self, uid: str, group_name:str,group_is_dn:bool=False,is_posix:bool=False) -> bool:
         if not self.check_conn():
             return False
-        member_attr_name=self.get_member_attr_from_group(group_name)
-        if member_attr_name=='':
-            return False
-        group_dn = self.ldap_config.get_group_dn(group_name)
-        user_dn = self.ldap_config.get_user_dn(uid)
+        group_dn=group_name
+        if not is_posix:
+            if not group_is_dn:
+                group_dn = self.ldap_config.get_group_dn(group_dn)
+            member_attr_name=self.get_member_attr_from_group(group_dn,is_dn=True)
+            if member_attr_name=='':
+                return False
+            user_dn = self.ldap_config.get_user_dn(uid)
+        else:
+            member_attr_name='memberUid'
+            user_dn = uid
+            if not group_is_dn:
+                group_dn = self.ldap_config.get_posix_group_dn(group_dn)      
         if self.conn.modify(group_dn, {member_attr_name: [(MODIFY_ADD, [user_dn])]}):
             return True
         return self.check_error()
 
-    def add_user_to_groups(self, uid: str, group_names:list[str],ignore_error:bool=True) -> bool:
+    def add_user_to_groups(self, uid: str, group_names:list[str],group_is_dn:bool=False,ignore_error:bool=True) -> bool:
         if not self.check_conn():
             return False
         for group_name in group_names:
-            if not self.add_user_to_group(uid, group_name) and not ignore_error:
+            if not self.add_user_to_group(uid, group_name,group_is_dn=group_is_dn) and not ignore_error:
                 return False
         return True
 
@@ -400,3 +460,20 @@ class LDAP_OP:
         if algorithm=='SSHA':
             return ldap_salted_sha1.hash(value)
         return hashed(algorithm, value)
+
+    @classmethod
+    def get_attr_name_by_objectClass(cls,objectClass:str|list[str])->str:
+        if isinstance(objectClass,str):
+            objectClass=[objectClass]
+        elif isinstance(objectClass,list):
+            pass
+        else:
+            return ''
+        if 'groupOfNames' in objectClass:
+            return 'member'
+        elif 'groupOfUniqueNames' in objectClass:
+            return 'uniqueMember'
+        elif 'posixGroup' in objectClass:
+            return 'memberUid'
+        else:
+            return ''

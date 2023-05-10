@@ -1,25 +1,23 @@
-from django.conf import settings
-from django.contrib.auth import get_user_model
-from django.utils import translation
-from django.utils.formats import localize
-from django.utils.translation import gettext as _
 
-from admin.integrations.models import Integration
-from organization.models import Organization, WelcomeMessage
-from users.models import ResourceUser, ToDoUser
 from .ldap import LdapConfig, inetOrgPerson, posixAccount, LDAP_OP
+from .toLdapGroup import *
 import re
 from os import path
+
+from django.conf import settings
+# from django.utils.translation import gettext as _
+
 
 __all__=['LdapSync','ldap_add_user','ldap_delete_user','ldap_sync_role','ldap_set_password','LdapConfig', 'inetOrgPerson', 'posixAccount']
 
 class LdapSync:
-    def __init__(self):
+    def __init__(self,ldap_config: LdapConfig = None):
         self.__ldap: LDAP_OP = None
-        self.init()
+        self.init(ldap_config=ldap_config)
 
-    def init(self):
-        ldap_config = self.get_ldap_config()
+    def init(self, ldap_config: LdapConfig = None):
+        if ldap_config is None:
+            ldap_config = self.get_ldap_config()
         ldap = LDAP_OP(ldap_config)
         self.ldap = ldap
 
@@ -36,26 +34,45 @@ class LdapSync:
         self.ldap.disconnect()
 
     def add_user(self, user, password:str=None,need_hash_pw:bool=True,algorithm:str='SSHA'):
-        ldap_user = self.user_2_ldap(user, password=password,need_hash_pw=need_hash_pw,algorithm=algorithm)
-        groups = self.get_default_groups()
-        if user.department is not None:
-            groups.append(user.department.name)
-        groups=list(set(groups))
+        ldap_user = self.user_2_ldap(user, password=password,need_hash_pw=need_hash_pw,algorithm=algorithm)        
         i = 1
         uid = ldap_user.uid
         while True:
-            if self.ldap.add_user(ldap_user,groups=groups,need_hash_pw=False):
+            if self.ldap.add_user(ldap_user,need_hash_pw=False):
                 user.set_password(password)
-                return user
+                user.save()
+                break
             elif self.ldap.last_error == 'entryAlreadyExists':
                 ldap_user.uid = '{uid}{i}'.format(uid=uid, i=i)
                 user.username = ldap_user.uid
                 i += 1
             else:
-                return user
+                break
+        department_name=None
+        if user.department is not None:
+            department_name = user.department.name
+        groups_info=self.get_default_groups_from_file(department_name=department_name)
+        self.create_group(groups_info=groups_info,member=user.username)
+        self.add_user_to_group(uid=user.username,groups_info=groups_info)
+        return user
+
+
+    def add_user_to_group(self, uid:str, groups_info:GroupsInfo):
+        for group in groups_info.ldap_groups:
+            self.ldap.add_user_to_group(uid=uid,group_name=group.dn)
+        for group in groups_info.posixGroups:
+            self.ldap.add_user_to_group(uid=uid,group_name=group.dn,is_posix=True)
+
+    def create_group(self, groups_info:GroupsInfo,member:str):
+        for group in groups_info.ldap_groups:
+            self.ldap.create_group(group.dn,objectClass=group.objectClass,members=[member])
+        for group in groups_info.posixGroups:
+            self.ldap.create_posix_group(group.dn,gidNumber=group.gidNumber,members=[member])
 
     def del_user(self, user):
         uid = user.username
+        if uid is None or uid.strip() == '':
+            return user
         user_tmp_ou=self.get_user_tmp_ou()
         self.ldap.del_uid_tmp(uid=uid,tmp_user_ou=user_tmp_ou)
         return user
@@ -108,6 +125,7 @@ class LdapSync:
         ldap_config.GROUP_BASE_RDN = settings.LDAP_GROUP_BASE_RDN
         ldap_config.USER_FILTER = settings.LDAP_USER_FILTER
         ldap_config.GROUP_FILTER = settings.LDAP_GROUP_FILTER
+        ldap_config.POSIX_GROUP_RDN=settings.LDAP_POSIX_GROUP_RDN
         return ldap_config
 
     @classmethod
@@ -119,19 +137,23 @@ class LdapSync:
             mail=user.email,
             telephoneNumber=user.phone,
         )
+        if user.department is not None:
+            ldap_user.title = user.department.name
         if password is not None:
             if need_hash_pw:
                 ps=LDAP_OP.hash(password,algorithm=algorithm)
             else:
                 ps=password
             ldap_user.userPassword = ps
-        if settings.LDAP_ACCOUNT_TYPE == "inetOrgPerson":
-            return ldap_user
-        else:
-            ldap_user2 = posixAccount(
-                uid="", sn="", givenName="", mail="", telephoneNumber="")
-            ldap_user2.copy_from(ldap_user)
-            return ldap_user2
+        try:
+            if settings.LDAP_ACCOUNT_TYPE == "inetOrgPerson":
+                return ldap_user
+        except:
+            pass
+        ldap_user2 = posixAccount(
+            uid="", sn="", givenName="", mail="", telephoneNumber="")
+        ldap_user2.copy_from(ldap_user)
+        return ldap_user2
 
     @classmethod
     def get_role_map(cls) -> tuple[dict[int, str], int]:
@@ -146,38 +168,33 @@ class LdapSync:
         return settings.LDAP_USER_TMP_OU
     
     @classmethod
-    def get_default_groups(cls) -> list[str]:
+    def get_default_groups_from_env(cls) -> GroupsInfo:
         default=settings.LDAP_DEFAULT_GROUPS.strip()
         if default=='' or default is None:
             groups=[]
         else:
             groups=default.split(' ')
-        groups_from_file=cls.get_default_groups_from_file()
-        groups.extend(groups_from_file)
-        return list(set(groups))
+        output=GroupsInfo()
+        for group in list(set(groups)):
+            output.ldap_groups.append(Group(name=group))
+        return output
 
     @classmethod
     def get_default_groups_filename(cls) -> str:
+        # return 'department.yaml'
         return settings.LDAP_DEFAULT_GROUPS_FILENAME.strip()
     
     @classmethod
-    def get_default_groups_from_file(cls) -> list[str]:
+    def get_default_groups_from_file(cls,department_name:str) -> GroupsInfo:
         filename=cls.get_default_groups_filename()
+        output=GroupsInfo()
         if filename is None or not path.exists(filename):
-            return []
-        groups=[]
-        try:
-            with open(filename,'r') as f:
-                for line in f.readlines():
-                    line=line.split('#')[0].strip()
-                    if line=='':
-                        continue
-                    groups.append(line)
-        except:
-            pass
-        return groups
-
-
+            return cls.get_default_groups_from_env()
+        config=toLdapGroup()
+        config.load_from_yaml(filename)
+        output=config.get_groups(department_name)
+        return output
+    
 def ldap_add_user(user,password:str=None,need_hash_pw:bool=True,algorithm:str='SSHA'):
     # Drop if LDAP is not enabled
     if (not settings.LDAP_SYNC):
