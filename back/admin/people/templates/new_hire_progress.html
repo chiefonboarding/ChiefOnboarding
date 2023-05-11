@@ -69,8 +69,8 @@
             </td>
             <td style="width: 100px">
               <div class="progress">
-                <div class="progress-bar" style="width: {{resource.percentage_completed}}%" role="progressbar" aria-valuenow="{{resource.percentage_completed}}" aria-valuemin="0" aria-valuemax="100">
-                  <span class="visually-hidden">{{ resource.percentage_completed }}% {% translate "Complete" %}</span>
+                <div class="progress-bar" style="width: {{resource.percentage_completed|floatformat:"0" }}%" role="progressbar" aria-valuenow="{{resource.percentage_completed|floatformat:"0" }}" aria-valuemin="0" aria-valuemax="100">
+                  <span class="visually-hidden">{{ resource.percentage_completed|floatformat:"0" }}% {% translate "Complete" %}</span>
                 </div>
               </div>
             </td>
