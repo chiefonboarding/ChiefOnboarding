@@ -456,7 +456,7 @@ def test_oidc_login(client, new_hire_factory, settings):
     response = client.get(url)
     assert (
         response["location"]
-        == "https://example.org?client_id=test&response_type=code&scope=openid+email+profile&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fauth%2Foidc_login%2F"
+        == "https://example.org?client_id=test&response_type=code&scope=openid+email+profile&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fauth%2Foidc_login%2F"  # noqa
     )
     assert response.status_code == 302
 
@@ -543,7 +543,8 @@ def test_oidc_login_user_not_exists(client, settings):
     settings.OIDC_TOKEN_URL = "http://localhost"
     settings.OIDC_USERINFO_URL = "http://localhost"
 
-    # Try logging in with account, getting back an empty(no email address) json from OIDC
+    # Try logging in with account, getting back an empty(no email address) json from
+    # OIDC
     response = client.get(url + "?code=test", follow=True)
 
     user = auth.get_user(client)
