@@ -3,7 +3,6 @@ from unittest.mock import Mock, patch
 import pytest
 from django.contrib import auth
 from django.urls import reverse
-from django.conf import settings
 
 from organization.models import Organization
 
@@ -137,9 +136,10 @@ def test_google_login_setting(client, new_hire_factory, integration_factory):
     # Login form should be gone
     response = client.get(reverse("login"))
     assert "Log in with Google" not in response.content.decode()
-    
+
+
 @pytest.mark.django_db
-def test_oidc_login_setting(client, new_hire_factory):
+def test_oidc_login_setting(client, new_hire_factory, settings):
     # Start with credentials enabled
     new_hire_factory(email="user@example.com")
 
@@ -416,20 +416,13 @@ def test_google_login_user_not_exists(client, new_hire_factory, integration_fact
         in response.content.decode()
     )
 
+
 @pytest.mark.django_db
 @patch(
     "requests.post",
     Mock(return_value=Mock(status_code=200, json=lambda: {"access_token": "test"})),
 )
-@patch(
-    "requests.get",
-    Mock(
-        return_value=Mock(
-            status_code=200, json=lambda: {"sub":"test","email": "hello@chiefonboarding.com","name":"given_name family_name"}
-        )
-    ),
-)
-def test_oidc_login(client, new_hire_factory):
+def test_oidc_login(client, new_hire_factory, settings):
     # Start with credentials enabled
     org = Organization.object.get()
     org.oidc_login = False
@@ -443,26 +436,45 @@ def test_oidc_login(client, new_hire_factory):
     response = client.get(url)
 
     assert response.status_code == 200
-    assert (
-        "OIDC login has not been enabled."
-        in response.content.decode()
-    )
+    assert "OIDC login has not been enabled." in response.content.decode()
     # Enable OIDC login
     org.oidc_login = True
     org.save()
 
     response = client.get(url)
-    
+
     assert response.status_code == 200
     assert "OIDC login has not been set" in response.content.decode()
-    
-    settings.OIDC_CLIENT_ID="test"
-    settings.OIDC_CLIENT_SECRET="test"
-    settings.OIDC_AUTHORIZATION_URL="http://localhost"
-    settings.OIDC_TOKEN_URL="http://localhost"
-    settings.OIDC_USERINFO_URL="http://localhost"
-    # Logging in with account
+
+    settings.OIDC_CLIENT_ID = "test"
+    settings.OIDC_CLIENT_SECRET = "test"
+    settings.OIDC_AUTHORIZATION_URL = "https://example.org"
+    settings.OIDC_TOKEN_URL = "http://localhost:8000"
+    settings.OIDC_USERINFO_URL = "http://localhost:8000"
+    settings.BASE_URL = "http://localhost:8000"
+    # Get the url to the OIDC server
     response = client.get(url)
+    assert (
+        response["location"]
+        == "https://example.org?client_id=test&response_type=code&scope=openid+email+profile&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fauth%2Foidc_login%2F"
+    )
+    assert response.status_code == 302
+
+    # The OIDC returns a code to authorize with, we use it to log the user in
+    with patch(
+        "requests.get",
+        Mock(
+            return_value=Mock(
+                status_code=200,
+                json=lambda: {
+                    "sub": "test",
+                    "email": "hello@chiefonboarding.com",
+                    "name": "given_name family_name",
+                },
+            )
+        ),
+    ):
+        response = client.get(url + "?code=test")
 
     user = auth.get_user(client)
     # User is logged in
@@ -472,7 +484,11 @@ def test_oidc_login(client, new_hire_factory):
 
 @pytest.mark.django_db
 @patch("requests.post", Mock(return_value=Mock(status_code=200, json=lambda: {})))
-def test_oidc_login_error(client, new_hire_factory, integration_factory):
+@patch(
+    "requests.get",
+    Mock(return_value=Mock(status_code=500)),
+)
+def test_oidc_login_error(client, new_hire_factory, settings):
     # Start with credentials enabled
     org = Organization.object.get()
     org.oidc_login = True
@@ -482,14 +498,14 @@ def test_oidc_login_error(client, new_hire_factory, integration_factory):
 
     new_hire_factory(email="hello@chiefonboarding.com")
     new_hire_factory(email="stan@chiefonboarding.com")
-    settings.OIDC_CLIENT_ID="test"
-    settings.OIDC_CLIENT_SECRET="test"
-    settings.OIDC_AUTHORIZATION_URL="http://localhost"
-    settings.OIDC_TOKEN_URL="http://localhost"
-    settings.OIDC_USERINFO_URL="http://localhost"
+    settings.OIDC_CLIENT_ID = "test"
+    settings.OIDC_CLIENT_SECRET = "test"
+    settings.OIDC_AUTHORIZATION_URL = "http://localhost"
+    settings.OIDC_TOKEN_URL = "http://localhost"
+    settings.OIDC_USERINFO_URL = "http://localhost"
 
-    # Try logging in with account, getting back an empty json from Google
-    response = client.get(url)
+    # Try logging in with account, getting back an empty json from OIDC
+    response = client.get(url + "?code=test", follow=True)
 
     user = auth.get_user(client)
     # User is not logged in
@@ -513,7 +529,7 @@ def test_oidc_login_error(client, new_hire_factory, integration_factory):
         )
     ),
 )
-def test_oidc_login_user_not_exists(client, new_hire_factory, integration_factory):
+def test_oidc_login_user_not_exists(client, settings):
     # Start with credentials enabled
     org = Organization.object.get()
     org.oidc_login = True
@@ -521,19 +537,16 @@ def test_oidc_login_user_not_exists(client, new_hire_factory, integration_factor
 
     url = reverse("oidc_login")
 
-    settings.OIDC_CLIENT_ID="test"
-    settings.OIDC_CLIENT_SECRET="test"
-    settings.OIDC_AUTHORIZATION_URL="http://localhost"
-    settings.OIDC_TOKEN_URL="http://localhost"
-    settings.OIDC_USERINFO_URL="http://localhost"
+    settings.OIDC_CLIENT_ID = "test"
+    settings.OIDC_CLIENT_SECRET = "test"
+    settings.OIDC_AUTHORIZATION_URL = "http://localhost"
+    settings.OIDC_TOKEN_URL = "http://localhost"
+    settings.OIDC_USERINFO_URL = "http://localhost"
 
     # Try logging in with account, getting back an empty(no email address) json from OIDC
-    response = client.get(url)
+    response = client.get(url + "?code=test", follow=True)
 
     user = auth.get_user(client)
     # User is not logged in - does not exist
     assert not user.is_authenticated
-    assert (
-        "Cannot get your email address."
-        in response.content.decode()
-    )
+    assert "Cannot get your email address." in response.content.decode()

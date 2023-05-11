@@ -58,15 +58,15 @@ class PureAuthenticateView(LoginView):
             context["oidc_display"] = settings.OIDC_LOGIN_DISPLAY
         return context
 
+
 class AuthenticateView(PureAuthenticateView):
-    
     def dispatch(self, request, *args, **kwargs):
         # add login type to session that can be used in the logout
         self.request.session["login_type"] = ""
         org = Organization.object.get()
         if org is None:
             return redirect("setup")
-        
+
         if "force_auth" not in self.request.session.keys():
             self.request.session["force_auth"] = settings.OIDC_FORCE_AUTHN
         if self.request.session["force_auth"]:
@@ -76,6 +76,7 @@ class AuthenticateView(PureAuthenticateView):
             raise Http404
 
         return super().dispatch(request, *args, **kwargs)
+
 
 @method_decorator(axes_dispatch, name="dispatch")
 class MFAView(LoginRequiredMixin, FormView):
@@ -186,17 +187,22 @@ class OIDCLoginView(View):
             return HttpResponse(_("OIDC login has not been enabled."))
         # Make sure these configd exists. Technically, it shouldn't be possible
         # to enable `oidc_login` when this is not set, but just to be safe
-        OIDC_CLIENT_ID_VALID=settings.OIDC_CLIENT_ID.strip()!=""
-        OIDC_CLIENT_SECRET_VALID=settings.OIDC_CLIENT_SECRET.strip()!=""
-        OIDC_AUTHORIZATION_URL_VALID=settings.OIDC_AUTHORIZATION_URL.strip()!=""
-        OIDC_TOKEN_URL_VALID=settings.OIDC_TOKEN_URL.strip()!=""
-        OIDC_USERINFO_URL_VALID=settings.OIDC_USERINFO_URL.strip()!=""
-        is_oidc_config_valid=OIDC_CLIENT_ID_VALID and OIDC_CLIENT_SECRET_VALID and OIDC_AUTHORIZATION_URL_VALID and OIDC_TOKEN_URL_VALID and OIDC_USERINFO_URL_VALID
+        OIDC_CLIENT_ID_VALID = settings.OIDC_CLIENT_ID.strip() != ""
+        OIDC_CLIENT_SECRET_VALID = settings.OIDC_CLIENT_SECRET.strip() != ""
+        OIDC_AUTHORIZATION_URL_VALID = settings.OIDC_AUTHORIZATION_URL.strip() != ""
+        OIDC_TOKEN_URL_VALID = settings.OIDC_TOKEN_URL.strip() != ""
+        OIDC_USERINFO_URL_VALID = settings.OIDC_USERINFO_URL.strip() != ""
+        is_oidc_config_valid = (
+            OIDC_CLIENT_ID_VALID
+            and OIDC_CLIENT_SECRET_VALID
+            and OIDC_AUTHORIZATION_URL_VALID
+            and OIDC_TOKEN_URL_VALID
+            and OIDC_USERINFO_URL_VALID
+        )
         if not is_oidc_config_valid:
             return HttpResponse(_("OIDC login has not been set"))
         return super().dispatch(request, *args, **kwargs)
 
-        
     def get(self, request):
         # If the request contains an authorization code, handle the callback
         authorization_code = request.GET.get("code")
@@ -226,6 +232,16 @@ class OIDCLoginView(View):
             access_token = tokens["access_token"]
             user_info = self.get_user_info(access_token)
             user = self.authenticate_user(user_info)
+            if user is None:
+                messages.error(
+                    self.request,
+                    _(
+                        "Cannot get your email address. Did you try to"
+                        " log in with the correct account?"
+                    ),
+                )
+                return redirect("login_form")
+
             login(request, user)
             # add login type to session, so we can redirect to the correct page when we
             # logout
@@ -258,23 +274,16 @@ class OIDCLoginView(View):
         return response.json()
 
     def authenticate_user(self, user_info):
-        User = get_user_model()
-        user, created = User.objects.get_or_create(email=user_info["email"])
         if "email" in user_info:
+            user, created = get_user_model().objects.get_or_create(
+                email=user_info["email"]
+            )
             if created:
                 user = self.__sync_user(user_info)
             else:
                 user = self.__create_user(user_info)
             user.backend = "django.contrib.auth.backends.ModelBackend"
             return user
-        messages.error(
-            self.request,
-            _(
-                "Cannot get your email address. Did you try to"
-                " log in with the correct account?"
-            ),
-        )
-        return redirect("login_form")
 
     def __create_user(self, user_info):
         user = self.__sync_user(user_info)
