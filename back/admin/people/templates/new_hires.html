@@ -29,7 +29,7 @@
             </td>
             <td>
               <div class="progress mb-2">
-                <div class="progress-bar" style="width: {{new_hire.progress}}%" role="progressbar" aria-valuenow="{{ new_hire.completed_tasks }}" aria-valuemin="0" aria-valuemax="{{ new_hire.total_tasks }}">
+                <div class="progress-bar" style="width: {{new_hire.progress|floatformat:"0" }}%" role="progressbar" aria-valuenow="{{ new_hire.completed_tasks }}" aria-valuemin="0" aria-valuemax="{{ new_hire.total_tasks }}">
                 </div>
               </div>
             </td>
