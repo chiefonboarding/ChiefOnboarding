@@ -533,8 +533,6 @@ In this example, we use CAS as the IdP and modify the `zoneinfo` field to displa
 
 If your groups (roles) are stored deeper in the JSON structure, like:
 
-json
-
 ```json
 {
     "A": "A",
@@ -547,7 +545,7 @@ json
 }
 ```
 
-You can set `OIDC_ROLE_PATH_IN_RETURN='A,B,roles'` using commas.
+You can set `OIDC_ROLE_PATH_IN_RETURN='B,roles'` using commas.
 
 There are three patterns to map CheifOnboarding's role with `OIDC_ROLE`:
 
@@ -573,7 +571,7 @@ OIDC_AUTHORIZATION_URL=https://example.com/oidc/authorize
 OIDC_TOKEN_URL=https://example.com/oidc/accessToken
 OIDC_USERINFO_URL=https://example.com/oidc/profile
 OIDC_LOGOUT_URL=https://example.com/cas/logout
-OIDC_SCOPES='openid email profile'
+OIDC_SCOPES='openid email name profile'
 OIDC_FORCE_AUTHN=True
 OIDC_ROLE_UPDATING=True
 OIDC_ROLE_NEW_HIRE_PATTERN='^cn=Newhires.*'
