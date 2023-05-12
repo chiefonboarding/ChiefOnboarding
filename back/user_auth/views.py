@@ -47,10 +47,9 @@ class AuthenticateView(LoginView):
 
         # redirect visitor to OIDC if this has been forced and `disable_force` is
         # not in the url as a query parameter
-        if (
-            self.request.session.get("force_auth", settings.OIDC_FORCE_AUTHN) and
-            not self.request.GET.get("disable_force", False)
-        ):
+        if self.request.session.get(
+            "force_auth", settings.OIDC_FORCE_AUTHN
+        ) and not self.request.GET.get("disable_force", False):
             return redirect("oidc_login")
 
         # Block anyone trying to login when credentials are not allowed
@@ -179,9 +178,7 @@ class OIDCLoginView(View):
             self.request.session["force_auth"] = False
             messages.error(
                 self.request,
-                _(
-                    "OIDC login has not been enabled."
-                ),
+                _("OIDC login has not been enabled."),
             )
             return redirect("login")
         # Make sure these configd exists. Technically, it shouldn't be possible
