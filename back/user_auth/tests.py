@@ -456,7 +456,7 @@ def test_oidc_login(client, new_hire_factory, settings):
     response = client.get(url)
     assert (
         response["location"]
-        == "https://example.org?client_id=test&response_type=code&scope=openid+email+profile&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fauth%2Foidc_login%2F"  # noqa
+        == "https://example.org?client_id=test&response_type=code&scope=openid+email+name+profile&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fauth%2Foidc_login%2F"  # noqa
     )
     assert response.status_code == 302
 
