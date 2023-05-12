@@ -549,20 +549,21 @@ json
 
 You can set `OIDC_ROLE_PATH_IN_RETURN='A,B,roles'` using commas.
 
-There are two patterns to map CheifOnboarding's role with `OIDC_ROLE`:
+There are three patterns to map CheifOnboarding's role with `OIDC_ROLE`:
 
-1.  For `Admin`, apply `OIDC_ROLE_ADMIN_PATTEREN` to `OIDC_ROLE`
-2.  For `Manager`, apply `OIDC_ROLE_MANAGE_PATTEREN` to `OIDC_ROLE`
+1.  For `Admin`, apply `OIDC_ROLE_ADMIN_PATTERN` to `OIDC_ROLE`
+2.  For `Manager`, apply `OIDC_ROLE_MANAGER_PATTERN` to `OIDC_ROLE`
+2.  For `Newhire`, apply `OIDC_ROLE_NEW_HIRE_PATTERN` to `OIDC_ROLE`
 
 `OIDC_ROLE_DEFAULT` is used to set other users' roles; you likely don't need to change it. If you don't want to use role mapping, simply leave it as a space.
+
+If you do not want the OIDC provider to update roles, then you can disable it by setting `OIDC_ROLE_UPDATING` to `False`.
 
 #### Logout
 
 Since this is an SSO implementation, we recommend setting `OIDC_LOGOUT_URL`. When you log out, it will redirect to the `OIDC_LOGOUT_URL`.
 
 Here's the updated configuration example:
-
-ini
 
 ```ini
 OIDC_LOGIN_DISPLAY="Custom-OIDC"
@@ -574,11 +575,10 @@ OIDC_USERINFO_URL=https://example.com/oidc/profile
 OIDC_LOGOUT_URL=https://example.com/cas/logout
 OIDC_SCOPES='openid email profile'
 OIDC_FORCE_AUTHN=True
-OIDC_DEBUG=True
-OIDC_ROLE_ADMIN_PATTEREN='^cn=Administrators.*'
-OIDC_ROLE_MANAGE_PATTEREN='^cn=Manage.*'
+OIDC_ROLE_UPDATING=True
+OIDC_ROLE_NEW_HIRE_PATTERN='^cn=Newhires.*'
+OIDC_ROLE_ADMIN_PATTERN='^cn=Administrators.*'
+OIDC_ROLE_MANAGER_PATTERN='^cn=Managers.*'
 OIDC_ROLE_DEFAULT=3
 OIDC_ROLE_PATH_IN_RETURN='zoneinfo'
 ```
-
-With these changes, your README should be clearer and more informative.

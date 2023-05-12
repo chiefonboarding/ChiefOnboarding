@@ -31,7 +31,7 @@ class LoginRedirectView(LoginWithMFARequiredMixin, View):
             return redirect("new_hire:colleagues")
 
 
-class PureAuthenticateView(LoginView):
+class AuthenticateView(LoginView):
     template_name = "login.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -40,6 +40,18 @@ class PureAuthenticateView(LoginView):
         org = Organization.object.get()
         if org is None:
             return redirect("setup")
+
+        # redirect user if they are already logged in
+        if request.user.is_authenticated:
+            return redirect("logged_in_user_redirect")
+
+        # redirect visitor to OIDC if this has been forced and `disable_force` is
+        # not in the url as a query parameter
+        if (
+            self.request.session.get("force_auth", settings.OIDC_FORCE_AUTHN) and
+            not self.request.GET.get("disable_force", False)
+        ):
+            return redirect("oidc_login")
 
         # Block anyone trying to login when credentials are not allowed
         if request.method == "POST" and not org.credentials_login:
@@ -57,25 +69,6 @@ class PureAuthenticateView(LoginView):
         if Organization.object.get().oidc_login:
             context["oidc_display"] = settings.OIDC_LOGIN_DISPLAY
         return context
-
-
-class AuthenticateView(PureAuthenticateView):
-    def dispatch(self, request, *args, **kwargs):
-        # add login type to session that can be used in the logout
-        self.request.session["login_type"] = ""
-        org = Organization.object.get()
-        if org is None:
-            return redirect("setup")
-
-        if "force_auth" not in self.request.session.keys():
-            self.request.session["force_auth"] = settings.OIDC_FORCE_AUTHN
-        if self.request.session["force_auth"]:
-            return redirect("oidc_login")
-        # Block anyone trying to login when credentials are not allowed
-        if request.method == "POST" and not org.credentials_login:
-            raise Http404
-
-        return super().dispatch(request, *args, **kwargs)
 
 
 @method_decorator(axes_dispatch, name="dispatch")
@@ -184,7 +177,13 @@ class OIDCLoginView(View):
         oidc_login = Organization.object.get().oidc_login
         if not oidc_login:
             self.request.session["force_auth"] = False
-            return HttpResponse(_("OIDC login has not been enabled."))
+            messages.error(
+                self.request,
+                _(
+                    "OIDC login has not been enabled."
+                ),
+            )
+            return redirect("login")
         # Make sure these configd exists. Technically, it shouldn't be possible
         # to enable `oidc_login` when this is not set, but just to be safe
         OIDC_CLIENT_ID_VALID = settings.OIDC_CLIENT_ID.strip() != ""
@@ -233,6 +232,7 @@ class OIDCLoginView(View):
             user_info = self.get_user_info(access_token)
             user = self.authenticate_user(user_info)
             if user is None:
+                self.request.session["force_auth"] = False
                 messages.error(
                     self.request,
                     _(
@@ -240,7 +240,7 @@ class OIDCLoginView(View):
                         " log in with the correct account?"
                     ),
                 )
-                return redirect("login_form")
+                return redirect("login")
 
             login(request, user)
             # add login type to session, so we can redirect to the correct page when we
@@ -251,11 +251,12 @@ class OIDCLoginView(View):
             self.request.session["passed_mfa"] = True
             return redirect("logged_in_user_redirect")
         except Exception:
+            self.request.session["force_auth"] = False
             messages.error(
                 request,
                 _("Something went wrong with reaching OIDC. Please try again."),
             )
-            return redirect("login_form")
+            return redirect("login")
 
     def request_tokens(self, authorization_code):
         data = {
@@ -305,11 +306,11 @@ class OIDCLoginView(View):
         return user
 
     def __sync_user(self, user_info):
-        role = self.__check_role(user_info)
-        users = get_user_model().objects.filter(email=user_info["email"])
-        user = users.first()
-        user.role = role
-        user.save()
+        user = get_user_model().objects.get(email=user_info["email"])
+        if settings.OIDC_ROLE_UPDATING:
+            role = self.__check_role(user_info)
+            user.role = role
+            user.save()
         return user
 
     def __check_role(self, user_info):
@@ -336,11 +337,13 @@ class OIDCLoginView(View):
             return []
 
     def __analyze_role(self, oidc_roles):
+        ROLE_NEW_HIRE_NAME = "newhire"
         ROLE_ADMIN_NAME = "admin"
-        ROLE_MANAGE_NAME = "manage"
+        ROLE_MANAGER_NAME = "manager"
         role_map = {
-            ROLE_ADMIN_NAME: settings.OIDC_ROLE_ADMIN_PATTEREN,
-            ROLE_MANAGE_NAME: settings.OIDC_ROLE_MANAGE_PATTEREN,
+            ROLE_NEW_HIRE_NAME: settings.OIDC_ROLE_NEW_HIRE_PATTERN,
+            ROLE_ADMIN_NAME: settings.OIDC_ROLE_ADMIN_PATTERN,
+            ROLE_MANAGER_NAME: settings.OIDC_ROLE_MANAGER_PATTERN,
         }
         roles = []
         for key in role_map.keys():
@@ -354,8 +357,10 @@ class OIDCLoginView(View):
                     break
         if ROLE_ADMIN_NAME in roles:
             return 1
-        elif ROLE_MANAGE_NAME in roles:
+        elif ROLE_MANAGER_NAME in roles:
             return 2
+        if ROLE_ADMIN_NAME in roles:
+            return 0
         else:
             return settings.OIDC_ROLE_DEFAULT
 

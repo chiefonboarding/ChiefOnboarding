@@ -15,11 +15,6 @@ urlpatterns = [
         name="login",
     ),
     path(
-        "login/",
-        views.PureAuthenticateView.as_view(),
-        name="login_form",
-    ),
-    path(
         "mfa/",
         views.MFAView.as_view(),
         name="mfa",
