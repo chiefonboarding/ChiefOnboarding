@@ -1011,7 +1011,7 @@ msgstr "Aún no se han creado mensajes. Esto se debe hacer en Slack."
 
 #: admin/people/templates/not_triggered_conditions.html:9
 msgid "Items that will never be triggered"
-msgstr "Elementos que nunca se detonarán"
+msgstr "Elementos que nunca se activarán"
 
 #: admin/people/templates/not_triggered_conditions.html:69
 msgid "Condition"
@@ -1354,7 +1354,7 @@ msgstr "Antes que una nueva contratación inicie"
 
 #: admin/sequences/models.py:542
 msgid "Without trigger"
-msgstr "Sin detonador"
+msgstr "Sin activador"
 
 #: admin/sequences/models.py:548
 msgid "Block type"
@@ -1370,7 +1370,7 @@ msgstr "En"
 
 #: admin/sequences/models.py:556
 msgid "Trigger after these to do items have been completed:"
-msgstr "Detonar cuando se completen estos pendientes:"
+msgstr "Activar cuando se completen estos pendientes:"
 
 #: admin/sequences/tasks.py:67
 #, python-format
@@ -1404,7 +1404,7 @@ msgstr "%(days)s días antes de iniciar, a las %(time)s"
 
 #: admin/sequences/templates/_sequence_condition.html:29
 msgid "Without any trigger - assign directly"
-msgstr "Sin detonador - asignar directamente"
+msgstr "Sin activador - asignar directamente"
 
 #: admin/sequences/templates/_sequence_templates_list.html:3
 #: users/templates/admin_base.html:72
@@ -2213,7 +2213,7 @@ msgstr "No se ha podido actualizar el mensaje de Slack"
 
 #: organization/models.py:328
 msgid "Integration has been triggered"
-msgstr "La integración se ha detonado"
+msgstr "La integración se ha activado"
 
 #: organization/models.py:329
 msgid "Couldn't complete integration"
