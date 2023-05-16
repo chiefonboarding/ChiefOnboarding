@@ -32,11 +32,19 @@
     {% endif %}
     <blockquote>{{ block.data.text|safe|personalize:user }}</blockquote>
   {% endif %}
+  {% if block.type == 'embed' %}
+    {% if 'youtube' in block.data.embed  %}
+      <iframe width="560" height="315" src="{{ block.data.embed|safe|personalize:user }}" title="{{ block.data.height }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    {% elif 'vimeo' in block.data.embed  %}
+      <iframe src="{{ block.data.embed|safe|personalize:user }}" width="640" height="360" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+    {% endif %}
+    <h3>{{ block.data.caption }}</h3>
+  {% endif %}
   {% if block.type == 'attaches' %}
-    {% if block.data.file.extension == 'mp4' or block.data.file.extension == 'webm' %}
+    {% if block.data.file.ext == 'mp4' or block.data.file.ext == 'webm' %}
       <video controls width="800" class="mt-2">
           <source src="{{ block.data.file.url }}"
-                  type="video/{{ block.data.file.extension }}">
+                  type="video/{{ block.data.file.ext }}">
           {% translate "Sorry, your browser doesn't support embedded videos." %}
       </video>
     {% else %}
