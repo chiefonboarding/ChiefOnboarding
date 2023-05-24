@@ -113,8 +113,6 @@ class InitialSetupView(CreateView):
         )
         admin_user = get_user_model().objects.create(
             # TODO: switch to script with factory boy instead of json files
-            # id needs to be one as fixtures depend on it
-            id=1,
             first_name=form.cleaned_data["first_name"],
             last_name=form.cleaned_data["last_name"],
             email=form.cleaned_data["email"],
