@@ -26,12 +26,7 @@ class FieldWithExtraContext(Field):
         super().__init__(*args, **kwargs)
 
     def render(
-        self,
-        form,
-        context,
-        template_pack=TEMPLATE_PACK,
-        extra_context=None,
-        **kwargs
+        self, form, context, template_pack=TEMPLATE_PACK, extra_context=None, **kwargs
     ):
         if self.extra_context:
             extra_context = (
@@ -39,9 +34,7 @@ class FieldWithExtraContext(Field):
                 if extra_context
                 else self.extra_context
             )
-        return super().render(
-            form, context, template_pack, extra_context, **kwargs
-        )
+        return super().render(form, context, template_pack, extra_context, **kwargs)
 
 
 class UploadField(FieldWithExtraContext):
