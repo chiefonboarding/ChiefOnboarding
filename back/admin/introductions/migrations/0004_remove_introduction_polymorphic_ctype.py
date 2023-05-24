@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("introductions", "0003_introduction_polymorphic_ctype"),
     ]

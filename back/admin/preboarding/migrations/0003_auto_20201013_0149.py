@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("preboarding", "0002_remove_preboarding_to_do"),
     ]

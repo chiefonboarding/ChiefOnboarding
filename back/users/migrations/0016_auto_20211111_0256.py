@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("introductions", "0004_remove_introduction_polymorphic_ctype"),
         ("resources", "0006_alter_resource_managers"),

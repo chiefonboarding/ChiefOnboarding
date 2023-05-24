@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("slack_bot", "0001_initial"),
         ("organization", "0006_auto_20220126_0004"),

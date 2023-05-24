@@ -9,7 +9,6 @@ from misc.migration_scripts.content_migrations import (
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("preboarding", "0007_preboarding_content_json"),
     ]

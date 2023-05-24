@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("misc", "0004_auto_20210511_1242"),
         ("badges", "0006_remove_badge_content"),

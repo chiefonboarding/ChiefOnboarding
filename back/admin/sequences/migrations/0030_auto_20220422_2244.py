@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("sequences", "0029_alter_pendingadmintask_person_type"),
     ]

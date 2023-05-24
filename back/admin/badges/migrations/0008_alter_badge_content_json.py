@@ -6,7 +6,6 @@ import misc.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("badges", "0007_alter_badge_image"),
     ]

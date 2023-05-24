@@ -6,7 +6,6 @@ import misc.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("sequences", "0035_remove_integrationconfig_additional_data"),
     ]

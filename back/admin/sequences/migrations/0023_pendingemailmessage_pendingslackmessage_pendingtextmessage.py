@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("sequences", "0022_rename_content_no_json_externalmessage_content"),
     ]

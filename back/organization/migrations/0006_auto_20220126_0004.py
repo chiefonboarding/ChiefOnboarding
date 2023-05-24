@@ -4,13 +4,11 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     # This migration is needed due to folder structure changes.
     # If this is not migrated, then Django Q will show NoneType errors
     # as it can't find the correct functions then.
 
     def edit_schedules(apps, schema_editor):
-
         from django_q.models import Schedule
 
         schedule = Schedule.objects.get(func="sequences.tasks.timed_triggers")

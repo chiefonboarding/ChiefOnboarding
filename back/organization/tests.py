@@ -48,7 +48,6 @@ def test_icon(
 
 @pytest.mark.django_db
 def test_str(introduction_factory, appointment_factory, preboarding_factory):
-
     intro = introduction_factory()
     appointment = appointment_factory()
     preboarding = preboarding_factory()
@@ -92,7 +91,6 @@ def test_use_custom_email_template(new_hire_factory):
 
 @pytest.mark.django_db
 def test_cache_logo_url(settings, file_factory, monkeypatch):
-
     settings.AWS_ACCESS_KEY_ID = "xxx"
     settings.AWS_STORAGE_BUCKET_NAME = "xxx"
 

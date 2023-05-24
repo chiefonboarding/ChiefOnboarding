@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("integrations", "0015_rename_accesstoken_integration"),
         ("sequences", "0026_alter_pendingadmintask_option"),

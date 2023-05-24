@@ -197,7 +197,6 @@ def slack_open_todo_dialog(payload, body):
 
     # Avoid race condition. If item is completed, then don't allow to try again
     if to_do_user.to_do.inline_slack_form and to_do_user.completed:
-
         # Get updated blocks (without completed one, but with text)
         blocks = SlackToDoManager(to_do_user.user).get_blocks(
             [block["block_id"] for block in body["message"]["blocks"]][1:],
@@ -297,7 +296,6 @@ def slack_create_new_hire_or_ask_perm(event):
     )
 
     if joined_user is None:
-
         profile = event["user"]["profile"]
         if "real_name" in profile:
             # This is the fallback option. Not recommended due to names with more than

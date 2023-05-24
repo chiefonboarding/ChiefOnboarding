@@ -6,7 +6,6 @@ import misc.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("preboarding", "0010_rename_content_json_preboarding_content"),
     ]

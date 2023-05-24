@@ -9,7 +9,6 @@ from misc.migration_scripts.content_migrations import (
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("sequences", "0019_rename_content_json_externalmessage_content"),
     ]

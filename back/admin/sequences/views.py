@@ -190,7 +190,6 @@ class SequenceFormView(LoginRequiredMixin, ManagerPermMixin, View):
     """
 
     def get(self, request, template_type, template_pk, *args, **kwargs):
-
         # Get a filled custom form based on integration config model
         if template_type == "integrationconfig":
             template_item = get_object_or_404(IntegrationConfig, id=template_pk)
@@ -240,7 +239,6 @@ class SequenceFormUpdateView(LoginRequiredMixin, ManagerPermMixin, View):
     """
 
     def post(self, request, template_type, template_pk, condition, *args, **kwargs):
-
         # Get form, if it doesn't exist, then 404
         form = get_sequence_model_form(template_type)
         if form is None:
@@ -314,7 +312,6 @@ class SequenceFormUpdateIntegrationConfigView(
     def post(
         self, request, template_type, template_pk, condition, exists, *args, **kwargs
     ):
-
         condition = get_object_or_404(Condition, id=condition)
         if exists == 0:
             # If this provision item does not exist yet, then create one

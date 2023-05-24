@@ -8,7 +8,6 @@ import misc.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("misc", "0004_auto_20210511_1242"),
         ("badges", "0009_rename_content_json_badge_content"),

@@ -94,7 +94,6 @@ def test_employees_endpoint(setup_rest, new_hire_factory):
 
 @pytest.mark.django_db
 def test_sequences_endpoint(setup_rest, sequence_factory):
-
     client = setup_rest
 
     seq1 = sequence_factory()
@@ -109,7 +108,6 @@ def test_sequences_endpoint(setup_rest, sequence_factory):
 
 @pytest.mark.django_db
 def test_create_new_hire_endpoint(setup_rest, sequence_factory):
-
     client = setup_rest
 
     seq1 = sequence_factory()
@@ -133,7 +131,6 @@ def test_create_new_hire_endpoint(setup_rest, sequence_factory):
 
 @pytest.mark.django_db
 def test_create_new_hire_with_invalid_options(setup_rest, sequence_factory):
-
     client = setup_rest
 
     seq1 = sequence_factory()
@@ -212,7 +209,6 @@ def test_create_new_hire_with_invalid_options(setup_rest, sequence_factory):
 @pytest.mark.django_db
 @freeze_time("2022-05-13 08:00:00")
 def test_create_new_hire_with_buddy_and_manager(setup_rest, admin_factory, mailoutbox):
-
     client = setup_rest
 
     admin1 = admin_factory()
@@ -246,7 +242,6 @@ def test_create_new_hire_with_buddy_and_manager(setup_rest, admin_factory, mailo
 
 @pytest.mark.django_db
 def test_create_admin_user(setup_rest, mailoutbox):
-
     client = setup_rest
 
     # No emails

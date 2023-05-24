@@ -89,7 +89,6 @@ class SlackToDoManager:
         self.user = user
 
     def get_blocks(self, ids, remove_id=None, text=""):
-
         if remove_id is not None:
             ids.remove(str(remove_id))
 
