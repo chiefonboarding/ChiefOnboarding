@@ -28,7 +28,6 @@ class FieldWithExtraContext(Field):
     def render(
         self,
         form,
-        form_style,
         context,
         template_pack=TEMPLATE_PACK,
         extra_context=None,
@@ -41,7 +40,7 @@ class FieldWithExtraContext(Field):
                 else self.extra_context
             )
         return super().render(
-            form, form_style, context, template_pack, extra_context, **kwargs
+            form, context, template_pack, extra_context, **kwargs
         )
 
 

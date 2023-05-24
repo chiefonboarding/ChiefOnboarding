@@ -321,7 +321,7 @@ def test_preboarding_redirect_block(client, settings, new_hire_factory):
     assert response.status_code == 404
 
     response = client.get(url + "?token=test123")
-    assert response.status_code == 403
+    assert response.status_code == 429
     assert "Account locked: too many login attempts." in response.content.decode()
 
 
@@ -743,7 +743,7 @@ def test_slack_to_do_webpage_block(client, settings, new_hire_factory, to_do_fac
     assert response.status_code == 404
 
     response = client.get(url + "?token=test123")
-    assert response.status_code == 403
+    assert response.status_code == 429
     assert "Account locked: too many login attempts." in response.content.decode()
 
 
