@@ -631,7 +631,6 @@ class Condition(models.Model):
         # This function is not being used except for duplicating sequences
         # It can't be triggered standalone (for now)
         for field in old_condition._meta.many_to_many:
-
             if field.name not in [
                 "admin_tasks",
                 "external_messages",

@@ -5,7 +5,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("preboarding", "0004_preboarding_polymorphic_ctype"),
     ]

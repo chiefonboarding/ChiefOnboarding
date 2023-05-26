@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("misc", "0004_auto_20210511_1242"),
         ("users", "0021_alter_preboardinguser_form"),

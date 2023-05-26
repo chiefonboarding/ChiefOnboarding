@@ -12,7 +12,6 @@ class Migration(migrations.Migration):
         # since it's just a one-off task, let's not make it more complex than it needs
         # to be
         for user in User.objects.all():
-
             # Skip all items that have no department
             if user.department == "":
                 continue

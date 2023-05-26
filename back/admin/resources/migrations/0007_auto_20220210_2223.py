@@ -10,7 +10,6 @@ from misc.migration_scripts.content_migrations import (
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("resources", "0006_alter_resource_managers"),
     ]

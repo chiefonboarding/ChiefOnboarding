@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("preboarding", "0006_alter_preboarding_managers"),
     ]

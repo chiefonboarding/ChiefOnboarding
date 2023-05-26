@@ -10,7 +10,6 @@ from misc.migration_scripts.content_migrations import (
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("appointments", "0004_alter_appointment_managers"),
     ]

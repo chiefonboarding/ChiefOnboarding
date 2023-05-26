@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("sequences", "0032_pendingadmintask_slack_user"),
     ]

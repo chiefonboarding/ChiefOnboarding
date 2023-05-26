@@ -6,7 +6,6 @@ import misc.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("sequences", "0016_rename_content_externalmessage_content_no_json"),
     ]
