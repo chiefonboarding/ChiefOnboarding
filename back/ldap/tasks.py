@@ -159,8 +159,6 @@ class LdapSync:
         ldap_user2.copy_from(ldap_user)
         homeDirectory = settings.LDAP_USER_HOME_DIRECTORY+'/{uid}'.format(uid=ldap_user2.uid)
         ldap_user2.homeDirectory = homeDirectory
-        print('=======================')
-        print(ldap_user2)
         return ldap_user2
 
     @classmethod
