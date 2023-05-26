@@ -122,7 +122,6 @@ class posixAccount(inetOrgPerson):
     loginShell: str = '/bin/bash'
     uidNumber: int = None
     gidNumber: int = 1000
-    
 
 class LDAP_OP:
 
@@ -179,7 +178,7 @@ class LDAP_OP:
                 uidNumber =int(entry['uidNumber'].value)
                 if uidNumber<1000:
                     continue
-                print('uidNumber',uidNumber)
+                # print('uidNumber',uidNumber)
                 if uidNumber-u0>1:
                     return u0+1
                 u0=uidNumber
@@ -288,6 +287,10 @@ class LDAP_OP:
         attributes = user.asdict()
         attributes = {k: v for k, v in attributes.items() if v is not None}
         user_dn = self.ldap_config.get_user_dn(user.uid)
+        if self.is_log:
+            print(f'attributes: {attributes}')
+            print(f'class_list: {class_list}')
+            print(f'user_info: {user}')
         if self.add(DN=user_dn, object_class=class_list, attributes=attributes):
             if groups is not None:
                 self.add_user_to_groups(uid=user.uid,group_name=groups,group_is_dn=group_is_dn)

@@ -18,7 +18,9 @@ class LdapSync:
     def init(self, ldap_config: LdapConfig = None):
         if ldap_config is None:
             ldap_config = self.get_ldap_config()
-        ldap = LDAP_OP(ldap_config)
+        is_log=settings.LDAP_LOG
+        is_log=True
+        ldap = LDAP_OP(ldap_config,is_log=is_log)
         self.ldap = ldap
 
     @property
@@ -137,6 +139,8 @@ class LdapSync:
             mail=user.email,
             telephoneNumber=user.phone,
         )
+        if ldap_user.telephoneNumber is not None and ldap_user.telephoneNumber.strip() == '':
+            ldap_user.telephoneNumber = None
         if user.department is not None:
             ldap_user.title = user.department.name
         if password is not None:
@@ -151,8 +155,12 @@ class LdapSync:
         except:
             pass
         ldap_user2 = posixAccount(
-            uid="", sn="", givenName="", mail="", telephoneNumber="")
+            uid="", sn="", givenName="", mail="", telephoneNumber=None)
         ldap_user2.copy_from(ldap_user)
+        homeDirectory = settings.LDAP_USER_HOME_DIRECTORY+'/{uid}'.format(uid=ldap_user2.uid)
+        ldap_user2.homeDirectory = homeDirectory
+        print('=======================')
+        print(ldap_user2)
         return ldap_user2
 
     @classmethod

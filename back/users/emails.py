@@ -142,6 +142,9 @@ def send_new_hire_credentials(new_hire_id, save_password=True, language=None):
     ldap_set_password(new_hire, password=password)
     subject = f"Welcome to {org.name}!"
     message = WelcomeMessage.objects.get(language=language, message_type=1).message
+    Dashboard_URL = settings.BASE_URL
+    if settings.WELCOME_URL is not None:
+        Dashboard_URL=settings.WELCOME_URL
     content = [
         {"type": "paragraph", "data": {"text": message}},
         {
@@ -154,7 +157,7 @@ def send_new_hire_credentials(new_hire_id, save_password=True, language=None):
                 + f"</strong>{password}",
             },
         },
-        {"type": "button", "data": {"text": _("Dashboard"), "url": settings.BASE_URL}},
+        {"type": "button", "data": {"text": _("Dashboard"), "url": Dashboard_URL}},
     ]
     html_message = org.create_email({"org": org, "content": content, "user": new_hire})
     message = ""
