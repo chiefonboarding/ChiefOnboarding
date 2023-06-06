@@ -5,7 +5,6 @@ from django.db import migrations
 
 # Ignore - used to be a custom migration, but got stuck in the middle.
 class Migration(migrations.Migration):
-
     dependencies = [
         ("to_do", "0013_alter_todo_form"),
     ]

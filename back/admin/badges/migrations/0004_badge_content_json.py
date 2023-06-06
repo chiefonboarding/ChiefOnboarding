@@ -9,7 +9,6 @@ from misc.migration_scripts.content_migrations import (
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("badges", "0003_remove_badge_polymorphic_ctype"),
     ]

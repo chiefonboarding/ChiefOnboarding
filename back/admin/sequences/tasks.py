@@ -156,7 +156,6 @@ def timed_triggers():
         org.save()
 
         for user in get_user_model().new_hires.all():
-
             amount_days = user.workday
             amount_days_before = user.days_before_starting
             current_time = user.get_local_time(last_updated).time()

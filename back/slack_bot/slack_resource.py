@@ -103,7 +103,6 @@ class SlackResourceCategory:
         self.user = user
 
     def category_buttons(self):
-
         categories = (
             Category.objects.annotate(resource_amount=Count("resource"))
             .exclude(resource_amount=0)

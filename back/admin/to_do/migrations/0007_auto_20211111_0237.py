@@ -5,7 +5,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("to_do", "0006_todo_polymorphic_ctype"),
     ]

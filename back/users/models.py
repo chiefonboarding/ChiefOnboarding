@@ -516,7 +516,6 @@ class ToDoUser(CompletedFormCheck, models.Model):
             )
 
         for condition in conditions:
-
             condition_to_do_ids = condition.condition_to_do.values_list("id", flat=True)
 
             # Check if all to do items already have been added to new hire and are

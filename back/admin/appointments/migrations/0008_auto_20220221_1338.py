@@ -7,7 +7,6 @@ import misc.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("appointments", "0007_rename_content_json_appointment_content"),
     ]

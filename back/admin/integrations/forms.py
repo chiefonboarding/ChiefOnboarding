@@ -66,7 +66,6 @@ class IntegrationConfigForm(forms.ModelForm):
                 )
 
             if item["type"] in ["choice", "multiple_choice"]:
-
                 # If there is a url to fetch the items from then do so
                 if "url" in item:
                     success, response = integration.run_request(item)
