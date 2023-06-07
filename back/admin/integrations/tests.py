@@ -379,14 +379,7 @@ def test_integration_oauth_callback_view(
 
 
 @pytest.mark.django_db
-@patch(
-    "admin.integrations.models.Integration.run_request",
-    Mock(return_value=(True, Mock(json=lambda: {"access_token": "test"}))),
-)
-def test_integration_clean_error_data(
-    client, django_user_model, custom_integration_factory
-):
-    client.force_login(django_user_model.objects.create(role=1))
+def test_integration_clean_error_data(custom_integration_factory):
     integration = custom_integration_factory(
         extra_args={
             "SECRET_KEY": "123",
