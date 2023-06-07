@@ -255,7 +255,7 @@ class Integration(models.Model):
                     # Only errors when item gets added another time, so we can safely
                     # let it pass.
                     pass
-                return (False, response)
+                return False, response
 
         # Run all post requests (notifications)
         for item in self.manifest.get("post_execute_notification", []):
