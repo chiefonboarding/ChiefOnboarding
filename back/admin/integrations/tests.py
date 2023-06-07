@@ -379,6 +379,19 @@ def test_integration_oauth_callback_view(
 
 
 @pytest.mark.django_db
+def test_integration_clean_error_data(custom_integration_factory):
+    integration = custom_integration_factory(
+        extra_args={
+            "SECRET_KEY": "123",
+        }
+    )
+    assert (
+        integration.clean_response("test 123 error")
+        == "test ***Secret value for SECRET_KEY*** error"
+    )
+
+
+@pytest.mark.django_db
 # Returns text instead of request object
 @patch(
     "admin.integrations.models.Integration.run_request",

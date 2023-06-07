@@ -693,7 +693,7 @@ class NewHireGiveAccessView(
             new_hire.extra_fields |= user_details_form.cleaned_data
             new_hire.save()
 
-            success = integration.execute(
+            success, error = integration.execute(
                 new_hire, integration_config_form.cleaned_data
             )
 
@@ -701,6 +701,7 @@ class NewHireGiveAccessView(
                 messages.success(request, _("Account has been created"))
             else:
                 messages.error(request, _("Account could not be created"))
+                messages.error(request, error)
 
             return redirect("people:new_hire_access", pk=new_hire.id)
 
