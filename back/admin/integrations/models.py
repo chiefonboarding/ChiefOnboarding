@@ -231,6 +231,7 @@ class Integration(models.Model):
             success, response = self.run_request(item)
 
             if not success:
+                response = self.clean_response(response=response)
                 Notification.objects.create(
                     notification_type="failed_integration",
                     extra_text=self.name,
@@ -254,7 +255,7 @@ class Integration(models.Model):
                     # Only errors when item gets added another time, so we can safely
                     # let it pass.
                     pass
-                return False
+                return (False, response)
 
         # Run all post requests (notifications)
         for item in self.manifest.get("post_execute_notification", []):
@@ -265,7 +266,7 @@ class Integration(models.Model):
                     to=self._replace_vars(item["to"]),
                     notification_type="sent_email_integration_notification",
                 )
-                return True
+                return True, None
             else:
                 try:
                     client = Client(
@@ -282,7 +283,7 @@ class Integration(models.Model):
                         extra_text=self.name,
                         created_for=new_hire,
                     )
-                    return True
+                    return True, None
 
         # Succesfully ran integration, add notification
         Notification.objects.create(
@@ -290,11 +291,19 @@ class Integration(models.Model):
             extra_text=self.name,
             created_for=new_hire,
         )
-        return True
+        return True, None
 
     def config_form(self, data=None):
         from .forms import IntegrationConfigForm
 
         return IntegrationConfigForm(instance=self, data=data)
+
+    def clean_response(self, response):
+        # if json, then convert to string to make it easier to replace values
+        response = str(response)
+        for name, value in self.extra_args.items():
+            response = response.replace(str(value), f"***Secret value for {name}***")
+
+        return response
 
     objects = IntegrationManager()

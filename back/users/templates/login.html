@@ -5,7 +5,7 @@
 {% block content %}
 <form class="card card-md" method="post">
   {% for message in messages %}
-  <div class="alert alert-success">
+  <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %}">
     <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
   </div>
   {% endfor %}
