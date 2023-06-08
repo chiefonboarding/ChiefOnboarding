@@ -1617,7 +1617,8 @@ def test_new_hire_access_per_integration_post(
     assert "This field is required" in response.content.decode()
 
     with patch(
-        "admin.integrations.models.Integration.execute", Mock(return_value=False)
+        "admin.integrations.models.Integration.execute",
+        Mock(return_value=(False, "secret key is invalid")),
     ):
         response = client.post(
             url,
@@ -1628,7 +1629,7 @@ def test_new_hire_access_per_integration_post(
         assert "Account could not be created" in response.content.decode()
 
     with patch(
-        "admin.integrations.models.Integration.execute", Mock(return_value=True)
+        "admin.integrations.models.Integration.execute", Mock(return_value=(True, None))
     ):
         response = client.post(
             url,
