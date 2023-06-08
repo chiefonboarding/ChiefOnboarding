@@ -15,6 +15,10 @@ def text_to_content(text):
     content = [{'type': 'paragraph', 'data': {'text': p}} for p in paragraphs if p]
     return content
 
+def button_with_url(url,name):
+    data={"type": "button","data": {"text": _(name),"url": url}}
+    return data
+
 def email_new_admin_cred(user):
     password = User.objects.make_random_password()
     user.set_password(password)
@@ -187,19 +191,10 @@ def send_new_hire_preboarding(new_hire, email, language=None):
 
     message = WelcomeMessage.objects.get(language=language, message_type=0).message
     subject = _("Welcome to %(name)s!") % {"name": org.name}
-    content = [
-        {"type": "paragraph", "data": {"text": message}},
-        {
-            "type": "button",
-            "data": {
-                "text": _("See pages"),
-                "url": settings.BASE_URL
-                + reverse("new_hire:preboarding-url")
-                + "?token="
-                + new_hire.unique_url,
-            },
-        },
-    ]
+    content = text_to_content(message)
+    url=settings.BASE_URL+reverse("new_hire:preboarding-url")+ "?token="+new_hire.unique_url,
+    butto n= button_with_url(url=url,name='See pages')
+    content.append(button)
     html_message = org.create_email({"org": org, "content": content, "user": new_hire})
     message = ""
     send_email_with_notification(
