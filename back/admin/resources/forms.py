@@ -74,6 +74,14 @@ class ResourceForm(TagModelForm):
         ):
             none_class = ""
 
+        if self.instance.pk is None:
+            chapters = []
+        else:
+            chapters = ChapterSerializer(
+                self.instance.chapters.filter(parent_chapter__isnull=True),
+                many=True,
+            ).data
+
         self.helper.layout = Layout(
             Div(
                 Div(
@@ -117,14 +125,7 @@ class ResourceForm(TagModelForm):
                 Div(
                     ChapterField(
                         "chapters",
-                        extra_context={
-                            "chapters": ChapterSerializer(
-                                self.instance.chapters.filter(
-                                    parent_chapter__isnull=True
-                                ),
-                                many=True,
-                            ).data
-                        },
+                        extra_context={"chapters": chapters},
                     ),
                     css_class="col-12",
                 ),

@@ -1,4 +1,3 @@
-from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
@@ -55,11 +54,9 @@ class BadgeUpdateView(
         return context
 
 
-class BadgeDeleteView(LoginRequiredMixin, ManagerPermMixin, DeleteView):
+class BadgeDeleteView(
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, DeleteView
+):
     queryset = Badge.objects.all()
     success_url = reverse_lazy("badges:list")
-
-    def delete(self, request, *args, **kwargs):
-        response = super().delete(request, *args, **kwargs)
-        messages.info(request, _("badge item has been removed"))
-        return response
+    success_message = _("badge item has been removed")

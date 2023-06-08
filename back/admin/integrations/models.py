@@ -13,7 +13,6 @@ from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
 from django_q.models import Schedule
 from django_q.tasks import schedule
-from fernet_fields import EncryptedTextField
 from requests.exceptions import (
     HTTPError,
     InvalidHeader,
@@ -29,6 +28,7 @@ from requests.exceptions import (
 )
 from twilio.rest import Client
 
+from misc.fernet_fields import EncryptedTextField
 from misc.fields import EncryptedJSONField
 from organization.models import Notification
 from organization.utils import send_email_with_notification

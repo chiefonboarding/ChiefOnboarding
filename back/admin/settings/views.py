@@ -144,23 +144,25 @@ class AdministratorUpdateView(
         return context
 
 
-class AdministratorDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
+class AdministratorDeleteView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, DeleteView
+):
     """
     Doesn't actually delete the administrator, it just migrates them to a normal user
     account.
     """
 
     success_url = reverse_lazy("settings:administrators")
+    success_message = _("Admin is now a normal user")
 
     def get_queryset(self):
         return get_user_model().managers_and_admins.exclude(id=self.request.user.id)
 
-    def delete(self, request, *args, **kwargs):
+    def form_valid(self, form):
         self.object = self.get_object()
         success_url = self.get_success_url()
         self.object.role = 3
         self.object.save()
-        messages.info(request, _("Admin is now a normal user"))
         return HttpResponseRedirect(success_url)
 
 

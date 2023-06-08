@@ -3,9 +3,10 @@
 import uuid
 
 import django.db.models.deletion
-import fernet_fields.fields
 from django.conf import settings
 from django.db import migrations, models
+
+from misc import fernet_fields
 
 
 class Migration(migrations.Migration):
@@ -21,8 +22,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="user",
             name="totp_secret",
-            field=fernet_fields.fields.EncryptedTextField(
-                default="7OBYIHJ4MVEH54FVTEK4XBMO5IILQFFM"
+            field=fernet_fields.EncryptedTextField(
+                default="7OBYIHJ4MVEH54FVTEK4XBMO5IILQFFM"  # gets replaced in 0012
             ),
         ),
         migrations.CreateModel(
@@ -37,7 +38,7 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("key", fernet_fields.fields.EncryptedTextField(default=uuid.uuid4)),
+                ("key", fernet_fields.EncryptedTextField(default=uuid.uuid4)),
                 ("is_used", models.BooleanField(default=False)),
                 (
                     "user",

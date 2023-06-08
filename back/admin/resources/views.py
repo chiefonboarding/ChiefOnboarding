@@ -1,4 +1,3 @@
-from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
@@ -55,11 +54,9 @@ class ResourceUpdateView(
         return context
 
 
-class ResourceDeleteView(LoginRequiredMixin, ManagerPermMixin, DeleteView):
+class ResourceDeleteView(
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, DeleteView
+):
     queryset = Resource.objects.all()
     success_url = reverse_lazy("resources:list")
-
-    def delete(self, request, *args, **kwargs):
-        response = super().delete(request, *args, **kwargs)
-        messages.info(request, _("Resource item has been removed"))
-        return response
+    success_message = _("Resource item has been removed")

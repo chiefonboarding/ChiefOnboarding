@@ -12,7 +12,6 @@ from django.template import Context, Template
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
-from fernet_fields import EncryptedTextField
 
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
@@ -21,6 +20,7 @@ from admin.preboarding.models import Preboarding
 from admin.resources.models import CourseAnswer, Resource
 from admin.sequences.models import Condition
 from admin.to_do.models import ToDo
+from misc.fernet_fields import EncryptedTextField
 from misc.models import File
 from organization.models import Notification
 from slack_bot.utils import Slack, paragraph

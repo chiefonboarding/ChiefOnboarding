@@ -1,4 +1,4 @@
-from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
@@ -401,7 +401,9 @@ class SequenceConditionDeleteView(LoginRequiredMixin, ManagerPermMixin, View):
         return HttpResponse()
 
 
-class SequenceDeleteView(LoginRequiredMixin, ManagerPermMixin, DeleteView):
+class SequenceDeleteView(
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, DeleteView
+):
     """
     Delete an entire sequence
 
@@ -410,11 +412,7 @@ class SequenceDeleteView(LoginRequiredMixin, ManagerPermMixin, DeleteView):
 
     queryset = Sequence.objects.all()
     success_url = reverse_lazy("sequences:list")
-
-    def delete(self, request, *args, **kwargs):
-        response = super().delete(request, *args, **kwargs)
-        messages.info(request, _("Sequence item has been removed"))
-        return response
+    success_message = _("Sequence item has been removed")
 
 
 class SequenceDefaultTemplatesView(LoginRequiredMixin, ManagerPermMixin, ListView):
