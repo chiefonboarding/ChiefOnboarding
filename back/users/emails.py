@@ -192,8 +192,11 @@ def send_new_hire_preboarding(new_hire, email, language=None):
     message = WelcomeMessage.objects.get(language=language, message_type=0).message
     subject = _("Welcome to %(name)s!") % {"name": org.name}
     content = text_to_content(message)
-    url=settings.BASE_URL+reverse("new_hire:preboarding-url")+ "?token="+new_hire.unique_url,
-    butto n= button_with_url(url=url,name='See pages')
+    if settings.PREBOARDING_URL is None:
+        url=settings.BASE_URL+reverse("new_hire:preboarding-url")+ "?token="+new_hire.unique_url_token
+    else:
+        url=settings.PREBOARDING_URL
+    button= button_with_url(url=url,name='See pages')
     content.append(button)
     html_message = org.create_email({"org": org, "content": content, "user": new_hire})
     message = ""
