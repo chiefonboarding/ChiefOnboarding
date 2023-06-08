@@ -20,7 +20,7 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /app
 COPY . .
 # COPY ./back/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-RUN cp ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf \
+RUN cp ./supervisord-dev.conf /etc/supervisor/conf.d/supervisord.conf \
     && pipenv install --system --dev && pip install --no-cache-dir ldap3 passlib PyYAML \
     && django-admin compilemessages 
 
