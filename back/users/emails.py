@@ -8,6 +8,13 @@ from organization.utils import send_email_with_notification
 from users.models import User
 from ldap.tasks import *
 
+def text_to_content(text):
+    # Split the text into multiple paragraphs using \r\n as separator
+    paragraphs = text.split('\r\n')
+    # Create a 'paragraph' type element for each paragraph
+    content = [{'type': 'paragraph', 'data': {'text': p}} for p in paragraphs if p]
+    return content
+
 def email_new_admin_cred(user):
     password = User.objects.make_random_password()
     user.set_password(password)
@@ -20,7 +27,7 @@ def email_new_admin_cred(user):
             "type": "paragraph",
             "data": {
                 "text": _(
-                    "Someone in your organisation invited you to join ChiefOnboarding."
+                    "Someone in your organisation invited you to join EQE."
                     "Here are your login details:"
                 ),
             },
