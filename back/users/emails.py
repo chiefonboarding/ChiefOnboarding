@@ -8,13 +8,6 @@ from organization.utils import send_email_with_notification
 from users.models import User
 from ldap.tasks import *
 
-def text_to_content(text):
-    # Split the text into multiple paragraphs using \r\n as separator
-    paragraphs = text.split('\r\n')
-    # Create a 'paragraph' type element for each paragraph
-    content = [{'type': 'paragraph', 'data': {'text': p}} for p in paragraphs if p]
-    return content
-
 def button_with_url(url,name):
     data={"type": "button","data": {"text": _(name),"url": url}}
     return data
@@ -191,9 +184,9 @@ def send_new_hire_preboarding(new_hire, email, language=None):
 
     message = WelcomeMessage.objects.get(language=language, message_type=0).message
     subject = _("Welcome to %(name)s!") % {"name": org.name}
-    content = text_to_content(message)
+    content = [{"type": "paragraph", "data": {"text": message}}]
     if settings.PREBOARDING_URL is None:
-        url=settings.BASE_URL+reverse("new_hire:preboarding-url")+ "?token="+new_hire.unique_url_token
+        url=settings.BASE_URL+reverse("new_hire:preboarding-url")+ "?token="+new_hire.unique_url
     else:
         url=settings.PREBOARDING_URL
     button= button_with_url(url=url,name='See pages')
