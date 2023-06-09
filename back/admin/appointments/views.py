@@ -1,4 +1,3 @@
-from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
@@ -55,11 +54,9 @@ class AppointmentUpdateView(
         return context
 
 
-class AppointmentDeleteView(LoginRequiredMixin, ManagerPermMixin, DeleteView):
+class AppointmentDeleteView(
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, DeleteView
+):
     queryset = Appointment.objects.all()
     success_url = reverse_lazy("appointments:list")
-
-    def delete(self, request, *args, **kwargs):
-        response = super().delete(request, *args, **kwargs)
-        messages.info(request, _("Appointment item has been removed"))
-        return response
+    success_message = _("Appointment item has been removed")

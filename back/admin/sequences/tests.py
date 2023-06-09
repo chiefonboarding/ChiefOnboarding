@@ -748,7 +748,7 @@ def test_delete_sequence(client, admin_factory, sequence_factory):
     sequence = sequence_factory()
     client.force_login(admin)
     url = reverse("sequences:delete", args=[sequence.id])
-    response = client.delete(url, follow=True)
+    response = client.post(url, follow=True)
 
     assert response.status_code == 200
 

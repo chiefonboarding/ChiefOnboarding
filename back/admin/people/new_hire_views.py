@@ -795,13 +795,11 @@ class NewHireToggleTaskView(
         return self.render_to_response(context)
 
 
-class NewHireDeleteView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DeleteView):
+class NewHireDeleteView(
+    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, SuccessMessageMixin, DeleteView
+):
     template_name = "new_hire_delete.html"
     queryset = get_user_model().new_hires.all()
     success_url = reverse_lazy("people:new_hires")
     context_object_name = "object"
-
-    def delete(self, request, *args, **kwargs):
-        response = super().delete(request, *args, **kwargs)
-        messages.info(request, _("New hire has been removed"))
-        return response
+    success_message = _("New hire has been removed")

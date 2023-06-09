@@ -5,16 +5,15 @@ name = "pypi"
 
 [packages]
 boto3 = "*" # Uploading files to AWS compatible endpoints -- might remove (only used once)
-Django = "<4" # Sticking to 3.2 while 4.x doesn't have lts yet
+cryptography = "*" # Necessary for fernet fields
+Django = "*"
 django-anymail = "*" # Sending mails through multiple providers
 django-axes = "*" # Blocking bots/bruteforce
 django-cors-headers = "*" # Allowing cross origin requests (DRF)
 django-crispy-forms  = "*" # Making forms better
 django-environ = "*" # Getting environment variables
-django-fernet-fields = "*" # needs to be replaced when django moves to v4
 djangorestframework = "*" # Needed for API endpoints
 gunicorn = "*" # Web server -- maybe replace with uvicorn as it seems to be faster
-psycopg2-binary = "*" # Database -- might remove (not needed?)
 pyotp = "*" # TOTP 2FA authentication
 requests = "*" # API calls
 sentry-sdk = "*" # Error logging
@@ -25,6 +24,7 @@ django-q-sentry = "*" # Needed for django-q error logging
 croniter = "*" # Needed for django-q scheduled tasks
 slack-bolt = "*"
 django-q2 = "*" # Background tasks
+psycopg = {extras = ["binary"], version = "*"}
 
 [dev-packages]
 coverage = "*"
@@ -39,4 +39,4 @@ freezegun = "*"
 django-debug-toolbar = "*"
 
 [requires]
-python_version = "3.9.7"
+python_version = "3.11.4"
