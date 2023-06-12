@@ -294,7 +294,7 @@ AWS_S3_ENDPOINT_URL = env(
 AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default="")
 AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default="")
 AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME", default="")
-# fall back for old environment variable, AWS_DEFAULT_REGION should be prefered
+# fallback for old environment variable, AWS_DEFAULT_REGION should be prefered
 AWS_REGION = env("AWS_REGION", default="eu-west-1")
 AWS_DEFAULT_REGION = env("AWS_DEFAULT_REGION", default=AWS_REGION)
 
