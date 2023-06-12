@@ -7,7 +7,7 @@ class S3:
     def __init__(self):
         self.client = boto3.client(
             "s3",
-            settings.AWS_REGION,
+            settings.AWS_DEFAULT_REGION,
             endpoint_url=settings.AWS_S3_ENDPOINT_URL,
             config=Config(signature_version="s3v4"),
         )
