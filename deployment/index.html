@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.733279065224">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.0.3.739912694220">
 
     <!-- See retype.com -->
-    <meta name="generator" content="Retype 2.4.0">
+    <meta name="generator" content="Retype 3.0.3">
 
     <!-- Primary Meta Tags -->
     <title>Deployment</title>
@@ -32,12 +32,12 @@
 
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
-    <link href="../resources/css/retype.css?v=2.4.0.733279065224" rel="stylesheet" />
+    <link href="../resources/css/retype.css?v=3.0.3.739912694220" rel="stylesheet" />
 
-    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.733279065224" data-turbo-eval="false" defer></script>
-    <script type="text/javascript" src="../resources/js/retype.js?v=2.4.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.733279065224" data-turbo-eval="false" defer></script>
-    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=2.4.0.733279065224" defer></script>
+    <script type="text/javascript" src="../resources/js/config.js?v=3.0.3.739912694220" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../resources/js/retype.js?v=3.0.3" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=3.0.3.739912694220" data-turbo-eval="false" defer></script>
+    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=3.0.3.739912694220" defer></script>
 </head>
 <body>
     <div id="docs-app" class="relative text-base antialiased text-gray-700 bg-white font-body dark:bg-dark-850 dark:text-dark-300">
@@ -174,8 +174,8 @@
             <div class="grow min-w-0 dark:bg-dark-850">
                 <!-- Render "toolbar" template here on api pages --><!-- Render page content -->
                 <div class="flex">
-                    <div class="grow min-w-0 px-6 md:px-16">
-                        <main class="relative pt-6 pb-16">
+                    <div class="min-w-0 p-4 grow md:px-16">
+                        <main class="relative pb-12 lg:pt-2">
                             <div class="docs-markdown" id="docs-content">
                                 <!-- Rendered if sidebar right is enabled -->
                                 <div id="docs-sidebar-right-toggle"></div>
@@ -405,6 +405,8 @@ Heroku will then ask you for some details. Please be careful to put them in corr
     </h3>
 </doc-anchor-target>
 <p>You can use AWS S3 for this, but you are also free to use any other provider who provides the same API. For example: Wasabi, Vultr, Digital Ocean, or Fuga cloud.</p>
+<p>The instructions below will set everything up by using client/secret token. You can also use a profile/role if you prefer. Under the hood, ChiefOnboarding uses <code v-pre>boto3</code>, which means that it will search for credentials by itself as well. Please see the documentation for those boto3 environment variables here: <a href="https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html">https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html</a></p>
+<p>Note that you might still need to set some of the environment variables below (such as the bucket).</p>
 <p>Here is a step-by-step for AWS:</p>
 <ol>
 <li>Go to <a href="https://s3.console.aws.amazon.com/s3/home">https://s3.console.aws.amazon.com/s3/home</a> and click on &#x27;Create bucket&#x27;.</li>
@@ -457,7 +459,7 @@ Heroku will then ask you for some details. Please be careful to put them in corr
 AWS_ACCESS_KEY_ID=AKIAXXXXXXXX
 AWS_SECRET_ACCESS_KEY=XXXXXXXXXXXXX
 AWS_STORAGE_BUCKET_NAME=bucket-name
-AWS_REGION=eu-west-1</code></pre>
+AWS_DEFAULT_REGION=eu-west-1</code></pre>
 </doc-codeblock></div>
 <p>If you want to use Minio (self-hosted), then you could use something like this as an example for both ChiefOnboarding and Minio:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
@@ -492,7 +494,7 @@ services:
       - AWS_ACCESS_KEY_ID=chief
       - AWS_SECRET_ACCESS_KEY=chiefpass
       - AWS_STORAGE_BUCKET_NAME=test-bucket
-      - AWS_REGION=us-east-1
+      - AWS_DEFAULT_REGION=us-east-1
     depends_on:                                      
       - db                                                                                                         
     networks:
