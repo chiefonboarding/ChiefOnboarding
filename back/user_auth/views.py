@@ -1,4 +1,6 @@
 import re
+import uuid
+import logging
 
 import requests
 from axes.decorators import axes_dispatch
@@ -20,6 +22,8 @@ from admin.settings.forms import OTPVerificationForm
 from organization.models import Organization
 from users.mixins import LoginRequiredMixin as LoginWithMFARequiredMixin
 
+
+logger = logging.getLogger(__name__)
 
 class LoginRedirectView(LoginWithMFARequiredMixin, View):
     def get(self, request, *args, **kwargs):
@@ -226,10 +230,11 @@ class OIDCLoginView(View):
         try:
             tokens = self.request_tokens(authorization_code)
             access_token = tokens["access_token"]
+            request.session["id_token"] = tokens["id_token"]
             user_info = self.get_user_info(access_token)
             user = self.authenticate_user(user_info)
             if user is None:
-                self.request.session["force_auth"] = False
+                request.session["force_auth"] = False
                 messages.error(
                     self.request,
                     _(
@@ -247,7 +252,8 @@ class OIDCLoginView(View):
             # stuck in our app having to pass MFA)
             self.request.session["passed_mfa"] = True
             return redirect("logged_in_user_redirect")
-        except Exception:
+        except Exception as e:
+            logger.error(e)
             self.request.session["force_auth"] = False
             messages.error(
                 request,
@@ -319,12 +325,13 @@ class OIDCLoginView(View):
     def __get_oidc_roles(self, user_info):
         tmp = user_info
         for path in settings.OIDC_ROLE_PATH_IN_RETURN:
-            path = path.strip(",")
+            path = path.strip(".")
             if path == "":
                 continue
             try:
                 tmp = tmp[path]
             except KeyError:
+                logger.info("OIDC: Path does not exist in user info")
                 return []
         if isinstance(tmp, list):
             return tmp
@@ -351,20 +358,34 @@ class OIDCLoginView(View):
             for oidc_role in oidc_roles:
                 if re.search(role_name, oidc_role):
                     roles.append(key)
-                    break
         if ROLE_ADMIN_NAME in roles:
             return 1
         elif ROLE_MANAGER_NAME in roles:
             return 2
-        if ROLE_ADMIN_NAME in roles:
+        elif ROLE_NEW_HIRE_NAME in roles:
             return 0
         else:
             return settings.OIDC_ROLE_DEFAULT
 
 
-class NewLogoutView(LogoutView):
+class LogoutView(LogoutView):
     def dispatch(self, request, *args, **kwargs):
-        is_oidc_login = self.request.session["login_type"] == "oidc"
+
+        logout_state = request.GET.get("state", False)
+        if logout_state and logout_state == self.request.session.get("logout_uuid", False):
+            # we have logged out of the OIDC, now reset to follow normal logout of Django
+            request.session.pop("login_type")
+            request.session.pop("id_token")
+            request.session.pop("logout_uuid")
+
+        # first logout of OIDC, then return back to follow normal Django logout
+        is_oidc_login = request.session.get("login_type", "") == "oidc"
         if settings.OIDC_LOGOUT_URL != "" and is_oidc_login:
-            return redirect(settings.OIDC_LOGOUT_URL)
+            id_token_hint = request.session.get("id_token")
+            # upon redirect to Django add state token to check if have indeed logged out of OIDC
+            state = str(uuid.uuid4())
+            request.session["logout_uuid"] = state
+            url = settings.OIDC_LOGOUT_URL + f"?id_token_hint={id_token_hint}&state={state}&post_logout_redirect_uri=" + settings.BASE_URL + reverse("logout")
+            return redirect(url)
+
         return super().dispatch(request, *args, **kwargs)

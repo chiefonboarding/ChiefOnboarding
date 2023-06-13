@@ -415,7 +415,7 @@ OIDC_LOGOUT_URL = env("OIDC_LOGOUT_URL", default="")
 OIDC_FORCE_AUTHN = env.bool("OIDC_FORCE_AUTHN", default=False)
 OIDC_ROLE_ADMIN_PATTERN = env("OIDC_ROLE_ADMIN_PATTERN", default="^cn=Administrators.*")
 OIDC_ROLE_MANAGER_PATTERN = env("OIDC_ROLE_MANAGER_PATTERN", default="^cn=Managers.*")
-OIDC_ROLE_ADMIN_PATTERN = env("OIDC_ROLE_NEW_HIRE_PATTERN", default="^cn=Newhires.*")
+OIDC_ROLE_NEW_HIRE_PATTERN = env("OIDC_ROLE_NEW_HIRE_PATTERN", default="^cn=Newhires.*")
 OIDC_ROLE_DEFAULT = env.int("OIDC_DEFAULT_ROLE", "3")
 OIDC_ROLE_UPDATING = env.bool("OIDC_ROLE_UPDATING", True)
 OIDC_ROLE_PATH_IN_RETURN = env("OIDC_ROLE_PATH_IN_RETURN", default="zoneinfo").split(

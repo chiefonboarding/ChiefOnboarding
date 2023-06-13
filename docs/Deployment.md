@@ -545,9 +545,9 @@ If your groups (roles) are stored deeper in the JSON structure, like:
 }
 ```
 
-You can set `OIDC_ROLE_PATH_IN_RETURN='B,roles'` using commas.
+You can set `OIDC_ROLE_PATH_IN_RETURN='B.roles'` using dots.
 
-There are three patterns to map CheifOnboarding's role with `OIDC_ROLE`:
+There are three patterns to map ChiefOnboarding's role with `OIDC_ROLE`:
 
 1.  For `Admin`, apply `OIDC_ROLE_ADMIN_PATTERN` to `OIDC_ROLE`
 2.  For `Manager`, apply `OIDC_ROLE_MANAGER_PATTERN` to `OIDC_ROLE`
@@ -578,5 +578,5 @@ OIDC_ROLE_NEW_HIRE_PATTERN='^cn=Newhires.*'
 OIDC_ROLE_ADMIN_PATTERN='^cn=Administrators.*'
 OIDC_ROLE_MANAGER_PATTERN='^cn=Managers.*'
 OIDC_ROLE_DEFAULT=3
-OIDC_ROLE_PATH_IN_RETURN='zoneinfo'
+OIDC_ROLE_PATH_IN_RETURN='groups'
 ```
