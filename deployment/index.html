@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.0.3.739912694220">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.0.3.740001291643">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.0.3">
@@ -32,12 +32,12 @@
 
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
-    <link href="../resources/css/retype.css?v=3.0.3.739912694220" rel="stylesheet" />
+    <link href="../resources/css/retype.css?v=3.0.3.740001291643" rel="stylesheet" />
 
-    <script type="text/javascript" src="../resources/js/config.js?v=3.0.3.739912694220" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../resources/js/config.js?v=3.0.3.740001291643" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../resources/js/retype.js?v=3.0.3" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=3.0.3.739912694220" data-turbo-eval="false" defer></script>
-    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=3.0.3.739912694220" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=3.0.3.740001291643" data-turbo-eval="false" defer></script>
+    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=3.0.3.740001291643" defer></script>
 </head>
 <body>
     <div id="docs-app" class="relative text-base antialiased text-gray-700 bg-white font-body dark:bg-dark-850 dark:text-dark-300">
@@ -791,6 +791,68 @@ settings:
 <li>Go back to your Slack bot and go to &quot;App Home&quot;. Then scroll down till you see: &quot;Show Tabs&quot;. Enable the &quot;message tab&quot; and check the &quot;Allow users to send Slash commands and messages from the messages tab&quot;.</li>
 </ol>
 <p>That&#x27;s it!</p>
+<doc-anchor-target id="oidc-single-sign-on-sso">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#oidc-single-sign-on-sso">#</doc-anchor-trigger>
+        <span>OIDC Single Sign-On (SSO)</span>
+    </h3>
+</doc-anchor-target>
+<p>To enable OIDC, you must enable &quot;Allow users to login with OIDC&quot; in the admin settings page at <a href="https://example.com/admin/settings/general/">https://example.com/admin/settings/general/</a>.</p>
+<p>You may need the redirect URL for your Identity Provider (IdP). The <code v-pre>REDIRECT_URL</code> should be set to <a href="https://example.com/api/auth/oidc_login">https://example.com/api/auth/oidc_login</a>.</p>
+<p>If you set <code v-pre>OIDC_FORCE_AUTHN=True</code>, the login page will automatically redirect to the OIDC IdP.</p>
+<doc-anchor-target id="role-mapping">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#role-mapping">#</doc-anchor-trigger>
+        <span>Role Mapping</span>
+    </h4>
+</doc-anchor-target>
+<p>In this example, we use CAS as the IdP and modify the <code v-pre>zoneinfo</code> field to display group information. You can see <code v-pre>OIDC_ROLE_PATH_IN_RETURN='zoneinfo'</code> is set accordingly.</p>
+<p>If your groups (roles) are stored deeper in the JSON structure, like:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-json"><code v-pre class="language-json">{
+    &quot;A&quot;: &quot;A&quot;,
+    &quot;B&quot;: {
+        &quot;roles&quot;: [
+            &quot;ROLE_A&quot;,
+            &quot;ROLE_B&quot;
+        ]
+    }
+}</code></pre>
+</doc-codeblock></div>
+<p>You can set <code v-pre>OIDC_ROLE_PATH_IN_RETURN='B.roles'</code> using dots.</p>
+<p>There are three patterns to map ChiefOnboarding&#x27;s role with <code v-pre>OIDC_ROLE</code>:</p>
+<ol>
+<li>For <code v-pre>Admin</code>, apply <code v-pre>OIDC_ROLE_ADMIN_PATTERN</code> to <code v-pre>OIDC_ROLE</code></li>
+<li>For <code v-pre>Manager</code>, apply <code v-pre>OIDC_ROLE_MANAGER_PATTERN</code> to <code v-pre>OIDC_ROLE</code></li>
+<li>For <code v-pre>Newhire</code>, apply <code v-pre>OIDC_ROLE_NEW_HIRE_PATTERN</code> to <code v-pre>OIDC_ROLE</code></li>
+</ol>
+<p><code v-pre>OIDC_ROLE_DEFAULT</code> is used to set other users&#x27; roles; you likely don&#x27;t need to change it. If you don&#x27;t want to use role mapping, simply leave it as a space.</p>
+<p>If you do not want the OIDC provider to update roles, then you can disable it by setting <code v-pre>OIDC_ROLE_UPDATING</code> to <code v-pre>False</code>.</p>
+<doc-anchor-target id="logout">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#logout">#</doc-anchor-trigger>
+        <span>Logout</span>
+    </h4>
+</doc-anchor-target>
+<p>Since this is an SSO implementation, we recommend setting <code v-pre>OIDC_LOGOUT_URL</code>. When you log out, it will redirect to the <code v-pre>OIDC_LOGOUT_URL</code>.</p>
+<p>Here&#x27;s the updated configuration example:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-ini"><code v-pre class="language-ini">OIDC_LOGIN_DISPLAY=&quot;Custom-OIDC&quot;
+OIDC_CLIENT_ID=XXXXX
+OIDC_CLIENT_SECRET=XXXXXX
+OIDC_AUTHORIZATION_URL=https://example.com/oidc/authorize
+OIDC_TOKEN_URL=https://example.com/oidc/accessToken
+OIDC_USERINFO_URL=https://example.com/oidc/profile
+OIDC_LOGOUT_URL=https://example.com/cas/logout
+OIDC_SCOPES='openid email name profile'
+OIDC_FORCE_AUTHN=True
+OIDC_ROLE_UPDATING=True
+OIDC_ROLE_NEW_HIRE_PATTERN='^cn=Newhires.*'
+OIDC_ROLE_ADMIN_PATTERN='^cn=Administrators.*'
+OIDC_ROLE_MANAGER_PATTERN='^cn=Managers.*'
+OIDC_ROLE_DEFAULT=3
+OIDC_ROLE_PATH_IN_RETURN='groups'</code></pre>
+</doc-codeblock></div>
 
                                 
                                 <!-- Required only on API pages -->
