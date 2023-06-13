@@ -419,5 +419,5 @@ OIDC_ROLE_NEW_HIRE_PATTERN = env("OIDC_ROLE_NEW_HIRE_PATTERN", default="^cn=Newh
 OIDC_ROLE_DEFAULT = env.int("OIDC_DEFAULT_ROLE", "3")
 OIDC_ROLE_UPDATING = env.bool("OIDC_ROLE_UPDATING", True)
 OIDC_ROLE_PATH_IN_RETURN = env("OIDC_ROLE_PATH_IN_RETURN", default="zoneinfo").split(
-    ","
+    "."
 )
