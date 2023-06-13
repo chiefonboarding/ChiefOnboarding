@@ -420,7 +420,11 @@ def test_google_login_user_not_exists(client, new_hire_factory, integration_fact
 @pytest.mark.django_db
 @patch(
     "requests.post",
-    Mock(return_value=Mock(status_code=200, json=lambda: {"access_token": "test"})),
+    Mock(
+        return_value=Mock(
+            status_code=200, json=lambda: {"access_token": "test", "id_token": "test"}
+        )
+    ),
 )
 def test_oidc_login(client, new_hire_factory, settings):
     # Start with credentials enabled
@@ -519,7 +523,11 @@ def test_oidc_login_error(client, new_hire_factory, settings):
 @pytest.mark.django_db
 @patch(
     "requests.post",
-    Mock(return_value=Mock(status_code=200, json=lambda: {"access_token": "test"})),
+    Mock(
+        return_value=Mock(
+            status_code=200, json=lambda: {"access_token": "test", "id_token": "test"}
+        )
+    ),
 )
 @patch(
     "requests.get",

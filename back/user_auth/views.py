@@ -25,6 +25,7 @@ from users.mixins import LoginRequiredMixin as LoginWithMFARequiredMixin
 
 logger = logging.getLogger(__name__)
 
+
 class LoginRedirectView(LoginWithMFARequiredMixin, View):
     def get(self, request, *args, **kwargs):
         if request.user.is_admin_or_manager:
@@ -372,10 +373,12 @@ class OIDCLoginView(View):
 
 class LogoutView(LogoutView):
     def dispatch(self, request, *args, **kwargs):
-
         logout_state = request.GET.get("state", False)
-        if logout_state and logout_state == self.request.session.get("logout_uuid", False):
-            # we have logged out of the OIDC, now reset to follow normal logout of Django
+        if logout_state and logout_state == self.request.session.get(
+            "logout_uuid", False
+        ):
+            # we have logged out of the OIDC, now reset to follow normal logout of
+            # Django
             request.session.pop("login_type")
             request.session.pop("id_token")
             request.session.pop("logout_uuid")
@@ -384,10 +387,17 @@ class LogoutView(LogoutView):
         is_oidc_login = request.session.get("login_type", "") == "oidc"
         if settings.OIDC_LOGOUT_URL != "" and is_oidc_login:
             id_token_hint = request.session.get("id_token")
-            # upon redirect to Django add state token to check if have indeed logged out of OIDC
+            # upon redirect to Django add state token to check if have indeed logged
+            # out of OIDC
             state = str(uuid.uuid4())
             request.session["logout_uuid"] = state
-            url = settings.OIDC_LOGOUT_URL + f"?id_token_hint={id_token_hint}&state={state}&post_logout_redirect_uri=" + settings.BASE_URL + reverse("logout")
+            url = (
+                settings.OIDC_LOGOUT_URL
+                + f"?id_token_hint={id_token_hint}&state={state}"
+                + "&post_logout_redirect_uri="
+                + settings.BASE_URL
+                + reverse("logout")
+            )
             return redirect(url)
 
         return super().dispatch(request, *args, **kwargs)
