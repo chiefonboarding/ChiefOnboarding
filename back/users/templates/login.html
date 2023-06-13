@@ -20,7 +20,7 @@
       </div>
     </div>
   {% endif %}
-  {% if org.credentials_login and org.google_login %}
+  {% if org.credentials_login and org.google_login or org.oidc_login %}
   <div class="hr-text">{% translate "or" %}</div>
   {% endif %}
   {% if org.google_login and google_login %}
@@ -36,7 +36,18 @@
     </div>
   </div>
   {% endif %}
+  {% if org.oidc_login %}
+    <div class="card-body">
+        <div class="row">
+          <div class="col"><a href="{% url 'oidc_login' %}" class="btn btn-white w-100">
+              Log in with {{ oidc_display }}
+            </a></div>
+        </div>
+      </div>
+{% endif %}
 </form>
+
+
 {% if org.credentials_login %}
 <div class="text-center text-muted mt-3">
   <a href="{% url 'password-reset' %}" tabindex="-1">{% translate "Forgot password?" %}</a>

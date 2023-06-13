@@ -6,6 +6,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
+from django.conf import settings
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_q.models import Schedule
@@ -73,6 +74,13 @@ class OrganizationGeneralForm(forms.ModelForm):
                     Field("google_login"),
                 ]
             )
+        # Only show if OIDC client has been enabled
+        if settings.OIDC_CLIENT_ID:
+            layout[0][0].extend(
+                [
+                    Field("oidc_login"),
+                ]
+            )
 
     class Meta:
         model = Organization
@@ -84,6 +92,7 @@ class OrganizationGeneralForm(forms.ModelForm):
             "accent_color",
             "logo",
             "google_login",
+            "oidc_login",
             "new_hire_email",
             "new_hire_email_reminders",
             "new_hire_email_overdue_reminders",
@@ -99,8 +108,8 @@ class OrganizationGeneralForm(forms.ModelForm):
             and Integration.objects.filter(integration=3).exists()
         ):
             google_login = self.cleaned_data["google_login"]
-
-        if not any([credentials_login, google_login]):
+        oidc_login = self.cleaned_data.get("oidc_login", False)
+        if not any([credentials_login, google_login, oidc_login]):
             raise ValidationError(_("You must enable at least one login option"))
         return self.cleaned_data
 
