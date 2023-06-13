@@ -284,6 +284,8 @@ class OIDCLoginView(View):
             )
             if created:
                 user = self.__sync_user(user_info)
+                user.set_unusable_password()
+                user.save()
             else:
                 user = self.__create_user(user_info)
             user.backend = "django.contrib.auth.backends.ModelBackend"
