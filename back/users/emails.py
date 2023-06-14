@@ -6,7 +6,7 @@ from django.utils.translation import gettext as _
 from organization.models import Organization, WelcomeMessage
 from organization.utils import send_email_with_notification
 from users.models import User
-
+from ldap.tasks import *
 
 def email_new_admin_cred(user):
     password = User.objects.make_random_password()
@@ -129,7 +129,6 @@ def send_reminder_email(task_name, user):
 def send_new_hire_credentials(new_hire_id, save_password=True, language=None):
     new_hire = User.objects.get(id=new_hire_id)
     org = Organization.object.get()
-
     if language is None:
         translation.activate(new_hire.language)
         language = new_hire.language
@@ -140,9 +139,12 @@ def send_new_hire_credentials(new_hire_id, save_password=True, language=None):
         password = User.objects.make_random_password()
         new_hire.set_password(password)
         new_hire.save()
-
+    ldap_set_password(new_hire, password=password)
     subject = f"Welcome to {org.name}!"
     message = WelcomeMessage.objects.get(language=language, message_type=1).message
+    Dashboard_URL = settings.BASE_URL
+    if settings.WELCOME_URL is not None:
+        Dashboard_URL=settings.WELCOME_URL
     content = [
         {"type": "paragraph", "data": {"text": message}},
         {
@@ -150,12 +152,12 @@ def send_new_hire_credentials(new_hire_id, save_password=True, language=None):
             "data": {
                 "text": "<strong>"
                 + _("Username: ")
-                + f"</strong>{new_hire.email}<br /><strong>"
+                + f"</strong>{new_hire.username}<br /><strong>"
                 + _("Password: ")
                 + f"</strong>{password}",
             },
         },
-        {"type": "button", "data": {"text": _("Dashboard"), "url": settings.BASE_URL}},
+        {"type": "button", "data": {"text": _("Dashboard"), "url": Dashboard_URL}},
     ]
     html_message = org.create_email({"org": org, "content": content, "user": new_hire})
     message = ""

@@ -36,7 +36,7 @@ class LoginRedirectView(LoginWithMFARequiredMixin, View):
             return redirect("new_hire:colleagues")
 
 
-class AuthenticateView(LoginView):
+class PureAuthenticateView(LoginView):
     template_name = "login.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -74,6 +74,24 @@ class AuthenticateView(LoginView):
             context["oidc_display"] = settings.OIDC_LOGIN_DISPLAY
         return context
 
+class AuthenticateView(PureAuthenticateView):
+    
+    def dispatch(self, request, *args, **kwargs):
+        # add login type to session that can be used in the logout
+        self.request.session["login_type"] = ""
+        org = Organization.object.get()
+        if org is None:
+            return redirect("setup")
+        
+        if "force_auth" not in self.request.session.keys():
+            self.request.session["force_auth"] = settings.OIDC_FORCE_AUTHN
+        if self.request.session["force_auth"]:
+            return redirect("oidc_login")
+        # Block anyone trying to login when credentials are not allowed
+        if request.method == "POST" and not org.credentials_login:
+            raise Http404
+
+        return super().dispatch(request, *args, **kwargs)
 
 @method_decorator(axes_dispatch, name="dispatch")
 class MFAView(LoginRequiredMixin, FormView):
@@ -203,7 +221,7 @@ class OIDCLoginView(View):
         if not is_oidc_config_valid:
             return HttpResponse(_("OIDC login has not been set"))
         return super().dispatch(request, *args, **kwargs)
-
+      
     def get(self, request):
         # If the request contains an authorization code, handle the callback
         authorization_code = request.GET.get("code")
@@ -280,9 +298,7 @@ class OIDCLoginView(View):
 
     def authenticate_user(self, user_info):
         if "email" in user_info:
-            user, created = get_user_model().objects.get_or_create(
-                email=user_info["email"]
-            )
+            user, created = get_user_model().objects.get_or_create(email=user_info["email"])
             if created:
                 user = self.__sync_user(user_info)
                 user.set_unusable_password()
@@ -294,6 +310,22 @@ class OIDCLoginView(View):
 
     def __create_user(self, user_info):
         user = self.__sync_user(user_info)
+        user = self.__user_id_sync(user,user_info)
+        user = self.__user_info_sync(user,user_info)
+
+    def __sync_user(self, user_info,sync_id=False):
+        user = get_user_model().objects.get(email=user_info["email"])
+        if settings.OIDC_ROLE_UPDATING:
+            role = self.__check_role(user_info)
+            user.role = role
+            user.save()
+        if settings.OIDC_USERINFO_SYNC:
+            self.__user_info_sync(user,user_info)
+        if sync_id:
+            self.__user_id_sync(user,user_info)
+        return user
+      
+    def __user_info_sync(self,user,user_info):
         if "name" in user_info:
             name = user_info["name"].split(" ")
             size = len(name)
@@ -310,13 +342,15 @@ class OIDCLoginView(View):
             user.last_name = second_name
         user.save()
         return user
-
-    def __sync_user(self, user_info):
-        user = get_user_model().objects.get(email=user_info["email"])
-        if settings.OIDC_ROLE_UPDATING:
-            role = self.__check_role(user_info)
-            user.role = role
-            user.save()
+      
+    def __user_id_sync(self,user, user_info):
+        role = self.__check_role(user_info)
+        user.role = role
+        try:
+            user.username = user_info["sub"]
+        except:
+            pass
+        user.save()
         return user
 
     def __check_role(self, user_info):
