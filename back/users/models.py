@@ -88,11 +88,11 @@ class NewHireManager(models.Manager):
             is_introduced_to_colleagues=False, start_day__gte=datetime.now().date()
         )
 
-    def with_ldap(self):
-        return self.get_queryset().exclude(ldap='False')
+    # def with_ldap(self):
+    #     return self.get_queryset().exclude(ldap='False')
     
-    def without_ldap(self):
-        return self.get_queryset().filter(ldap='False')
+    # def without_ldap(self):
+    #     return self.get_queryset().filter(ldap='False')
     
     
 class AdminManager(models.Manager):
@@ -211,7 +211,7 @@ class User(AbstractBaseUser):
     new_hires = NewHireManager()
     admins = AdminManager()
     ordering = ("first_name",)
-    is_ldap = models.BooleanField(default=False)
+    # is_ldap = models.BooleanField(default=False)
     class Meta:
         constraints = [
             CheckConstraint(
