@@ -25,9 +25,6 @@ croniter = "*" # Needed for django-q scheduled tasks
 slack-bolt = "*"
 django-q2 = "*" # Background tasks
 psycopg = {extras = ["binary"], version = "*"}
-ldap3 = "*" # LDAP sync
-passlib= "*"
-
 
 [dev-packages]
 coverage = "*"
@@ -40,8 +37,6 @@ isort = "*"
 pytest-factoryboy = "*"
 freezegun = "*"
 django-debug-toolbar = "*"
-ldap3 = "*"
-passlib= "*"
 
 [requires]
 python_version = "3.11.4"
