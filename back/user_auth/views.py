@@ -312,6 +312,7 @@ class OIDCLoginView(View):
         user = self.__sync_user(user_info)
         user = self.__user_id_sync(user,user_info)
         user = self.__user_info_sync(user,user_info)
+        return user
 
     def __sync_user(self, user_info,sync_id=False):
         user = get_user_model().objects.get(email=user_info["email"])
@@ -340,7 +341,7 @@ class OIDCLoginView(View):
                 second_name = name[1]
             user.first_name = first_name
             user.last_name = second_name
-        user.save()
+            user.save()
         return user
       
     def __user_id_sync(self,user, user_info):
