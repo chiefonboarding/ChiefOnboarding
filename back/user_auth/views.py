@@ -348,7 +348,8 @@ class OIDCLoginView(View):
         role = self.__check_role(user_info)
         user.role = role
         try:
-            user.username = user_info["sub"]
+            username_key = settings.OIDC_USERNAME_KEY
+            user.username = user_info[username_key]
         except:
             pass
         user.save()

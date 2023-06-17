@@ -424,7 +424,7 @@ OIDC_ROLE_DEFAULT = env.int("OIDC_DEFAULT_ROLE", "3")
 OIDC_ROLE_UPDATING = env.bool("OIDC_ROLE_UPDATING", True)
 OIDC_ROLE_PATH_IN_RETURN = env("OIDC_ROLE_PATH_IN_RETURN", default="zoneinfo").split(".")
 OIDC_USERINFO_SYNC = env.bool("OIDC_USERINFO_SYNC", default=False)
-
+OIDC_USERNAME_KEY  = env("OIDC_USERNAME_KEY", default="sub")
 # LDAP
 LDAP_SYNC=env.bool("LDAP_SYNC", default=False)
 LDAP_HOST=env("LDAP_HOST", default="openldap")
