@@ -458,3 +458,9 @@ if env.str("WELCOME_URL", "") == "":
     WELCOME_URL = BASE_URL
 else:
     WELCOME_URL = env("WELCOME_URL")
+
+PREBOARDING_URL = None
+if env.str("PREBOARDING_URL","")=="":    
+    PREBOARDING_URL = None
+else:
+    PREBOARDING_URL = env("PREBOARDING_URL")

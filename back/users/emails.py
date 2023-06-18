@@ -8,6 +8,10 @@ from organization.utils import send_email_with_notification
 from users.models import User
 from ldap.tasks import *
 
+def button_with_url(url,name):
+    data={"type": "button","data": {"text": _(name),"url": url}}
+    return data
+
 def email_new_admin_cred(user):
     password = User.objects.make_random_password()
     user.set_password(password)
@@ -20,7 +24,7 @@ def email_new_admin_cred(user):
             "type": "paragraph",
             "data": {
                 "text": _(
-                    "Someone in your organisation invited you to join ChiefOnboarding."
+                    "Someone in your organisation invited you to join EQE."
                     "Here are your login details:"
                 ),
             },
@@ -177,19 +181,13 @@ def send_new_hire_preboarding(new_hire, email, language=None):
 
     message = WelcomeMessage.objects.get(language=language, message_type=0).message
     subject = _("Welcome to %(name)s!") % {"name": org.name}
-    content = [
-        {"type": "paragraph", "data": {"text": message}},
-        {
-            "type": "button",
-            "data": {
-                "text": _("See pages"),
-                "url": settings.BASE_URL
-                + reverse("new_hire:preboarding-url")
-                + "?token="
-                + new_hire.unique_url,
-            },
-        },
-    ]
+    content = [{"type": "paragraph", "data": {"text": message}}]
+    if settings.PREBOARDING_URL is None:
+        url=settings.BASE_URL+reverse("new_hire:preboarding-url")+ "?token="+new_hire.unique_url
+    else:
+        url=settings.PREBOARDING_URL
+    button= button_with_url(url=url,name='See pages')
+    content.append(button)
     html_message = org.create_email({"org": org, "content": content, "user": new_hire})
     message = ""
     send_email_with_notification(
