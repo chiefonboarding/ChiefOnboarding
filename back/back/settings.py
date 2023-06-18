@@ -39,6 +39,8 @@ else:
         env("ALLOWED_HOST", default="0.0.0.0"),
     ]
 
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
+
 if DEBUG:
     ALLOWED_HOSTS = ["*"]
 
