@@ -537,6 +537,7 @@ In this example, we use CAS as the IdP and modify the `zoneinfo` field to displa
 
 If your groups (roles) are stored deeper in the JSON structure, like:
 
+
 ```json
 {
     "A": "A",

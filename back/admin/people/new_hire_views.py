@@ -50,7 +50,7 @@ from .forms import (
     SequenceChoiceForm,
 )
 
-
+from ldap.tasks import *
 class NewHireListView(LoginRequiredMixin, ManagerPermMixin, ListView):
     template_name = "new_hires.html"
     paginate_by = 10
@@ -92,14 +92,19 @@ class NewHireAddView(
         form.instance.role = 0
 
         new_hire = form.save()
-
+        new_hire=ldap_add_user(new_hire)
         # Add sequences to new hire
         new_hire.add_sequences(sequences)
 
         # Send credentials email if the user was created after their start day
         org = Organization.object.get()
         new_hire_datetime = new_hire.get_local_time()
-        if (
+        if settings.USER_CREDENTIALS_SEND_IMMEADIATELY and org.new_hire_email:
+            try:
+                send_new_hire_credentials(new_hire.id)
+            except:
+                pass
+        elif (
             new_hire_datetime.date() >= new_hire.start_day
             and new_hire_datetime.hour >= 7
             and new_hire_datetime.weekday() < 5
@@ -110,7 +115,6 @@ class NewHireAddView(
                 new_hire.id,
                 task_name=f"Send login credentials: {new_hire.full_name}",
             )
-
         # Linking user in Slack and sending welcome message (if exists)
         link_slack_users([new_hire])
 
@@ -803,3 +807,11 @@ class NewHireDeleteView(
     success_url = reverse_lazy("people:new_hires")
     context_object_name = "object"
     success_message = _("New hire has been removed")
+
+    def form_valid(self, form):
+        delete_user = self.get_object()
+        ldap_delete_user(delete_user)
+        messages.info(self.request, _("New hire has been removed"))
+        return super().form_valid(form)
+
+

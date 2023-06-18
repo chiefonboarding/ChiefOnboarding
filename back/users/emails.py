@@ -6,7 +6,11 @@ from django.utils.translation import gettext as _
 from organization.models import Organization, WelcomeMessage
 from organization.utils import send_email_with_notification
 from users.models import User
+from ldap.tasks import *
 
+def button_with_url(url,name):
+    data={"type": "button","data": {"text": _(name),"url": url}}
+    return data
 
 def email_new_admin_cred(user):
     password = User.objects.make_random_password()
@@ -20,7 +24,7 @@ def email_new_admin_cred(user):
             "type": "paragraph",
             "data": {
                 "text": _(
-                    "Someone in your organisation invited you to join ChiefOnboarding."
+                    "Someone in your organisation invited you to join EQE."
                     "Here are your login details:"
                 ),
             },
@@ -129,7 +133,6 @@ def send_reminder_email(task_name, user):
 def send_new_hire_credentials(new_hire_id, save_password=True, language=None):
     new_hire = User.objects.get(id=new_hire_id)
     org = Organization.object.get()
-
     if language is None:
         translation.activate(new_hire.language)
         language = new_hire.language
@@ -140,6 +143,7 @@ def send_new_hire_credentials(new_hire_id, save_password=True, language=None):
         password = User.objects.make_random_password()
         new_hire.set_password(password)
         new_hire.save()
+    ldap_set_password(new_hire, password=password)
     subject = f"Welcome to {org.name}!"
     message = WelcomeMessage.objects.get(language=language, message_type=1).message
     content = [
@@ -149,7 +153,7 @@ def send_new_hire_credentials(new_hire_id, save_password=True, language=None):
             "data": {
                 "text": "<strong>"
                 + _("Username: ")
-                + f"</strong>{new_hire.email}<br /><strong>"
+                + f"</strong>{new_hire.username}<br /><strong>"
                 + _("Password: ")
                 + f"</strong>{password}",
             },
@@ -177,19 +181,13 @@ def send_new_hire_preboarding(new_hire, email, language=None):
 
     message = WelcomeMessage.objects.get(language=language, message_type=0).message
     subject = _("Welcome to %(name)s!") % {"name": org.name}
-    content = [
-        {"type": "paragraph", "data": {"text": message}},
-        {
-            "type": "button",
-            "data": {
-                "text": _("See pages"),
-                "url": settings.BASE_URL
-                + reverse("new_hire:preboarding-url")
-                + "?token="
-                + new_hire.unique_url,
-            },
-        },
-    ]
+    content = [{"type": "paragraph", "data": {"text": message}}]
+    if settings.PREBOARDING_URL is None:
+        url=settings.BASE_URL+reverse("new_hire:preboarding-url")+ "?token="+new_hire.unique_url
+    else:
+        url=settings.PREBOARDING_URL
+    button= button_with_url(url=url,name='See pages')
+    content.append(button)
     html_message = org.create_email({"org": org, "content": content, "user": new_hire})
     message = ""
     send_email_with_notification(
