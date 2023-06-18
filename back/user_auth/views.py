@@ -1,4 +1,6 @@
 import re
+import uuid
+import logging
 
 import requests
 from axes.decorators import axes_dispatch
@@ -21,6 +23,9 @@ from organization.models import Organization
 from users.mixins import LoginRequiredMixin as LoginWithMFARequiredMixin
 
 
+logger = logging.getLogger(__name__)
+
+
 class LoginRedirectView(LoginWithMFARequiredMixin, View):
     def get(self, request, *args, **kwargs):
         if request.user.is_admin_or_manager:
@@ -40,6 +45,17 @@ class PureAuthenticateView(LoginView):
         org = Organization.object.get()
         if org is None:
             return redirect("setup")
+
+        # redirect user if they are already logged in
+        if request.user.is_authenticated:
+            return redirect("logged_in_user_redirect")
+
+        # redirect visitor to OIDC if this has been forced and `disable_force` is
+        # not in the url as a query parameter
+        if self.request.session.get(
+            "force_auth", settings.OIDC_FORCE_AUTHN
+        ) and not self.request.GET.get("disable_force", False):
+            return redirect("oidc_login")
 
         # Block anyone trying to login when credentials are not allowed
         if request.method == "POST" and not org.credentials_login:
@@ -183,20 +199,29 @@ class OIDCLoginView(View):
         oidc_login = Organization.object.get().oidc_login
         if not oidc_login:
             self.request.session["force_auth"] = False
-            return HttpResponse(_("OIDC login has not been enabled."))
+            messages.error(
+                self.request,
+                _("OIDC login has not been enabled."),
+            )
+            return redirect("login")
         # Make sure these configd exists. Technically, it shouldn't be possible
         # to enable `oidc_login` when this is not set, but just to be safe
-        OIDC_CLIENT_ID_VALID=settings.OIDC_CLIENT_ID.strip()!=""
-        OIDC_CLIENT_SECRET_VALID=settings.OIDC_CLIENT_SECRET.strip()!=""
-        OIDC_AUTHORIZATION_URL_VALID=settings.OIDC_AUTHORIZATION_URL.strip()!=""
-        OIDC_TOKEN_URL_VALID=settings.OIDC_TOKEN_URL.strip()!=""
-        OIDC_USERINFO_URL_VALID=settings.OIDC_USERINFO_URL.strip()!=""
-        is_oidc_config_valid=OIDC_CLIENT_ID_VALID and OIDC_CLIENT_SECRET_VALID and OIDC_AUTHORIZATION_URL_VALID and OIDC_TOKEN_URL_VALID and OIDC_USERINFO_URL_VALID
+        OIDC_CLIENT_ID_VALID = settings.OIDC_CLIENT_ID.strip() != ""
+        OIDC_CLIENT_SECRET_VALID = settings.OIDC_CLIENT_SECRET.strip() != ""
+        OIDC_AUTHORIZATION_URL_VALID = settings.OIDC_AUTHORIZATION_URL.strip() != ""
+        OIDC_TOKEN_URL_VALID = settings.OIDC_TOKEN_URL.strip() != ""
+        OIDC_USERINFO_URL_VALID = settings.OIDC_USERINFO_URL.strip() != ""
+        is_oidc_config_valid = (
+            OIDC_CLIENT_ID_VALID
+            and OIDC_CLIENT_SECRET_VALID
+            and OIDC_AUTHORIZATION_URL_VALID
+            and OIDC_TOKEN_URL_VALID
+            and OIDC_USERINFO_URL_VALID
+        )
         if not is_oidc_config_valid:
             return HttpResponse(_("OIDC login has not been set"))
         return super().dispatch(request, *args, **kwargs)
-
-        
+      
     def get(self, request):
         # If the request contains an authorization code, handle the callback
         authorization_code = request.GET.get("code")
@@ -224,8 +249,20 @@ class OIDCLoginView(View):
         try:
             tokens = self.request_tokens(authorization_code)
             access_token = tokens["access_token"]
+            request.session["id_token"] = tokens["id_token"]
             user_info = self.get_user_info(access_token)
             user = self.authenticate_user(user_info)
+            if user is None:
+                request.session["force_auth"] = False
+                messages.error(
+                    self.request,
+                    _(
+                        "Cannot get your email address. Did you try to"
+                        " log in with the correct account?"
+                    ),
+                )
+                return redirect("login")
+
             login(request, user)
             # add login type to session, so we can redirect to the correct page when we
             # logout
@@ -234,12 +271,14 @@ class OIDCLoginView(View):
             # stuck in our app having to pass MFA)
             self.request.session["passed_mfa"] = True
             return redirect("logged_in_user_redirect")
-        except Exception:
+        except Exception as e:
+            logger.error(e)
+            self.request.session["force_auth"] = False
             messages.error(
                 request,
                 _("Something went wrong with reaching OIDC. Please try again."),
             )
-            return redirect("login_form")
+            return redirect("login")
 
     def request_tokens(self, authorization_code):
         data = {
@@ -259,23 +298,34 @@ class OIDCLoginView(View):
 
     def authenticate_user(self, user_info):
         if "email" in user_info:
-            User = get_user_model()
-            user, created = User.objects.get_or_create(email=user_info["email"])
-            user = self.__user_id_sync(user,user_info)
-            if created or settings.OIDC_USERINFO_SYNC:
-                user = self.__user_info_sync(user,user_info)
-            user.save()
+            user, created = get_user_model().objects.get_or_create(email=user_info["email"])
+            if created:
+                user = self.__sync_user(user_info)
+                user.set_unusable_password()
+                user.save()
+            else:
+                user = self.__create_user(user_info)
             user.backend = "django.contrib.auth.backends.ModelBackend"
             return user
-        messages.error(
-            self.request,
-            _(
-                "Cannot get your email address. Did you try to"
-                " log in with the correct account?"
-            ),
-        )
-        return redirect("login_form")
 
+    def __create_user(self, user_info):
+        user = self.__sync_user(user_info)
+        user = self.__user_id_sync(user,user_info)
+        user = self.__user_info_sync(user,user_info)
+        return user
+
+    def __sync_user(self, user_info,sync_id=False):
+        user = get_user_model().objects.get(email=user_info["email"])
+        if settings.OIDC_ROLE_UPDATING:
+            role = self.__check_role(user_info)
+            user.role = role
+            user.save()
+        if settings.OIDC_USERINFO_SYNC:
+            self.__user_info_sync(user,user_info)
+        if sync_id:
+            self.__user_id_sync(user,user_info)
+        return user
+      
     def __user_info_sync(self,user,user_info):
         if "name" in user_info:
             name = user_info["name"].split(" ")
@@ -291,14 +341,15 @@ class OIDCLoginView(View):
                 second_name = name[1]
             user.first_name = first_name
             user.last_name = second_name
-        user.save()
+            user.save()
         return user
-
+      
     def __user_id_sync(self,user, user_info):
         role = self.__check_role(user_info)
         user.role = role
         try:
-            user.username = user_info["sub"]
+            username_key = settings.OIDC_USERNAME_KEY
+            user.username = user_info[username_key]
         except:
             pass
         user.save()
@@ -313,12 +364,13 @@ class OIDCLoginView(View):
     def __get_oidc_roles(self, user_info):
         tmp = user_info
         for path in settings.OIDC_ROLE_PATH_IN_RETURN:
-            path = path.strip(",")
+            path = path.strip(".")
             if path == "":
                 continue
             try:
                 tmp = tmp[path]
             except KeyError:
+                logger.info("OIDC: Path does not exist in user info")
                 return []
         if isinstance(tmp, list):
             return tmp
@@ -328,11 +380,13 @@ class OIDCLoginView(View):
             return []
 
     def __analyze_role(self, oidc_roles):
+        ROLE_NEW_HIRE_NAME = "newhire"
         ROLE_ADMIN_NAME = "admin"
-        ROLE_MANAGE_NAME = "manage"
+        ROLE_MANAGER_NAME = "manager"
         role_map = {
-            ROLE_ADMIN_NAME: settings.OIDC_ROLE_ADMIN_PATTEREN,
-            ROLE_MANAGE_NAME: settings.OIDC_ROLE_MANAGE_PATTEREN,
+            ROLE_NEW_HIRE_NAME: settings.OIDC_ROLE_NEW_HIRE_PATTERN,
+            ROLE_ADMIN_NAME: settings.OIDC_ROLE_ADMIN_PATTERN,
+            ROLE_MANAGER_NAME: settings.OIDC_ROLE_MANAGER_PATTERN,
         }
         roles = []
         for key in role_map.keys():
@@ -343,18 +397,43 @@ class OIDCLoginView(View):
             for oidc_role in oidc_roles:
                 if re.search(role_name, oidc_role):
                     roles.append(key)
-                    break
         if ROLE_ADMIN_NAME in roles:
             return 1
-        elif ROLE_MANAGE_NAME in roles:
+        elif ROLE_MANAGER_NAME in roles:
             return 2
+        elif ROLE_NEW_HIRE_NAME in roles:
+            return 0
         else:
             return settings.OIDC_ROLE_DEFAULT
 
 
-class NewLogoutView(LogoutView):
+class LogoutView(LogoutView):
     def dispatch(self, request, *args, **kwargs):
-        is_oidc_login = self.request.session["login_type"] == "oidc"
+        logout_state = request.GET.get("state", False)
+        if logout_state and logout_state == self.request.session.get(
+            "logout_uuid", False
+        ):
+            # we have logged out of the OIDC, now reset to follow normal logout of
+            # Django
+            request.session.pop("login_type")
+            request.session.pop("id_token")
+            request.session.pop("logout_uuid")
+
+        # first logout of OIDC, then return back to follow normal Django logout
+        is_oidc_login = request.session.get("login_type", "") == "oidc"
         if settings.OIDC_LOGOUT_URL != "" and is_oidc_login:
-            return redirect(settings.OIDC_LOGOUT_URL)
+            id_token_hint = request.session.get("id_token")
+            # upon redirect to Django add state token to check if have indeed logged
+            # out of OIDC
+            state = str(uuid.uuid4())
+            request.session["logout_uuid"] = state
+            url = (
+                settings.OIDC_LOGOUT_URL
+                + f"?id_token_hint={id_token_hint}&state={state}"
+                + "&post_logout_redirect_uri="
+                + settings.BASE_URL
+                + reverse("logout")
+            )
+            return redirect(url)
+
         return super().dispatch(request, *args, **kwargs)

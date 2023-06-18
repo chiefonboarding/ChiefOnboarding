@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("misc", "0004_auto_20210511_1242"),
         ("to_do", "0004_todo_content_json"),

@@ -1,4 +1,3 @@
-from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
@@ -55,11 +54,9 @@ class ToDoUpdateView(
         return context
 
 
-class ToDoDeleteView(LoginRequiredMixin, ManagerPermMixin, DeleteView):
+class ToDoDeleteView(
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, DeleteView
+):
     queryset = ToDo.objects.all()
     success_url = reverse_lazy("todo:list")
-
-    def delete(self, request, *args, **kwargs):
-        response = super().delete(request, *args, **kwargs)
-        messages.info(request, _("To do item has been removed"))
-        return response
+    success_message = _("To do item has been removed")

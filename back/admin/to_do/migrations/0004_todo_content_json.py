@@ -9,7 +9,6 @@ from misc.migration_scripts.content_migrations import (
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("to_do", "0003_auto_20201013_0149"),
     ]

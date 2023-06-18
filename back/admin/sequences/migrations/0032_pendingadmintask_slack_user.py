@@ -7,7 +7,6 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     def migrate_slack_user_fields(apps, schema_editor):
-
         PendingAdminTask = apps.get_model("sequences", "PendingAdminTask")
         User = apps.get_model("users", "User")
         for admin_task in PendingAdminTask.objects.filter(

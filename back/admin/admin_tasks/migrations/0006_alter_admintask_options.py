@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("admin_tasks", "0005_alter_admintaskcomment_options"),
     ]

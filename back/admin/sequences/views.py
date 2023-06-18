@@ -1,4 +1,4 @@
-from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
@@ -190,7 +190,6 @@ class SequenceFormView(LoginRequiredMixin, ManagerPermMixin, View):
     """
 
     def get(self, request, template_type, template_pk, *args, **kwargs):
-
         # Get a filled custom form based on integration config model
         if template_type == "integrationconfig":
             template_item = get_object_or_404(IntegrationConfig, id=template_pk)
@@ -240,7 +239,6 @@ class SequenceFormUpdateView(LoginRequiredMixin, ManagerPermMixin, View):
     """
 
     def post(self, request, template_type, template_pk, condition, *args, **kwargs):
-
         # Get form, if it doesn't exist, then 404
         form = get_sequence_model_form(template_type)
         if form is None:
@@ -314,7 +312,6 @@ class SequenceFormUpdateIntegrationConfigView(
     def post(
         self, request, template_type, template_pk, condition, exists, *args, **kwargs
     ):
-
         condition = get_object_or_404(Condition, id=condition)
         if exists == 0:
             # If this provision item does not exist yet, then create one
@@ -404,7 +401,9 @@ class SequenceConditionDeleteView(LoginRequiredMixin, ManagerPermMixin, View):
         return HttpResponse()
 
 
-class SequenceDeleteView(LoginRequiredMixin, ManagerPermMixin, DeleteView):
+class SequenceDeleteView(
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, DeleteView
+):
     """
     Delete an entire sequence
 
@@ -413,11 +412,7 @@ class SequenceDeleteView(LoginRequiredMixin, ManagerPermMixin, DeleteView):
 
     queryset = Sequence.objects.all()
     success_url = reverse_lazy("sequences:list")
-
-    def delete(self, request, *args, **kwargs):
-        response = super().delete(request, *args, **kwargs)
-        messages.info(request, _("Sequence item has been removed"))
-        return response
+    success_message = _("Sequence item has been removed")
 
 
 class SequenceDefaultTemplatesView(LoginRequiredMixin, ManagerPermMixin, ListView):

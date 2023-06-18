@@ -189,6 +189,10 @@ As of right now, your ChiefOnboarding instance will be up and running. Though, i
 ### Object storage (up/downloading files)
 You can use AWS S3 for this, but you are also free to use any other provider who provides the same API. For example: Wasabi, Vultr, Digital Ocean, or Fuga cloud.
 
+The instructions below will set everything up by using client/secret token. You can also use a profile/role if you prefer. Under the hood, ChiefOnboarding uses `boto3`, which means that it will search for credentials by itself as well. Please see the documentation for those boto3 environment variables here: https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html
+
+Note that you might still need to set some of the environment variables below (such as the bucket).
+
 Here is a step-by-step for AWS:
 
 1. Go to [https://s3.console.aws.amazon.com/s3/home](https://s3.console.aws.amazon.com/s3/home) and click on 'Create bucket'.
@@ -243,7 +247,7 @@ AWS_S3_ENDPOINT_URL=https://s3.eu-west-1.amazonaws.com
 AWS_ACCESS_KEY_ID=AKIAXXXXXXXX
 AWS_SECRET_ACCESS_KEY=XXXXXXXXXXXXX
 AWS_STORAGE_BUCKET_NAME=bucket-name
-AWS_REGION=eu-west-1
+AWS_DEFAULT_REGION=eu-west-1
 ```
 
 If you want to use Minio (self-hosted), then you could use something like this as an example for both ChiefOnboarding and Minio:
@@ -280,7 +284,7 @@ services:
       - AWS_ACCESS_KEY_ID=chief
       - AWS_SECRET_ACCESS_KEY=chiefpass
       - AWS_STORAGE_BUCKET_NAME=test-bucket
-      - AWS_REGION=us-east-1
+      - AWS_DEFAULT_REGION=us-east-1
     depends_on:                                      
       - db                                                                                                         
     networks:
@@ -533,7 +537,6 @@ In this example, we use CAS as the IdP and modify the `zoneinfo` field to displa
 
 If your groups (roles) are stored deeper in the JSON structure, like:
 
-json
 
 ```json
 {
@@ -547,22 +550,23 @@ json
 }
 ```
 
-You can set `OIDC_ROLE_PATH_IN_RETURN='A,B,roles'` using commas.
+You can set `OIDC_ROLE_PATH_IN_RETURN='B.roles'` using dots.
 
-There are two patterns to map CheifOnboarding's role with `OIDC_ROLE`:
+There are three patterns to map ChiefOnboarding's role with `OIDC_ROLE`:
 
-1.  For `Admin`, apply `OIDC_ROLE_ADMIN_PATTEREN` to `OIDC_ROLE`
-2.  For `Manager`, apply `OIDC_ROLE_MANAGE_PATTEREN` to `OIDC_ROLE`
+1.  For `Admin`, apply `OIDC_ROLE_ADMIN_PATTERN` to `OIDC_ROLE`
+2.  For `Manager`, apply `OIDC_ROLE_MANAGER_PATTERN` to `OIDC_ROLE`
+2.  For `Newhire`, apply `OIDC_ROLE_NEW_HIRE_PATTERN` to `OIDC_ROLE`
 
 `OIDC_ROLE_DEFAULT` is used to set other users' roles; you likely don't need to change it. If you don't want to use role mapping, simply leave it as a space.
+
+If you do not want the OIDC provider to update roles, then you can disable it by setting `OIDC_ROLE_UPDATING` to `False`.
 
 #### Logout
 
 Since this is an SSO implementation, we recommend setting `OIDC_LOGOUT_URL`. When you log out, it will redirect to the `OIDC_LOGOUT_URL`.
 
 Here's the updated configuration example:
-
-ini
 
 ```ini
 OIDC_LOGIN_DISPLAY="Custom-OIDC"
@@ -572,13 +576,12 @@ OIDC_AUTHORIZATION_URL=https://example.com/oidc/authorize
 OIDC_TOKEN_URL=https://example.com/oidc/accessToken
 OIDC_USERINFO_URL=https://example.com/oidc/profile
 OIDC_LOGOUT_URL=https://example.com/cas/logout
-OIDC_SCOPES='openid email profile'
+OIDC_SCOPES='openid email name profile'
 OIDC_FORCE_AUTHN=True
-OIDC_DEBUG=True
-OIDC_ROLE_ADMIN_PATTEREN='^cn=Administrators.*'
-OIDC_ROLE_MANAGE_PATTEREN='^cn=Manage.*'
+OIDC_ROLE_UPDATING=True
+OIDC_ROLE_NEW_HIRE_PATTERN='^cn=Newhires.*'
+OIDC_ROLE_ADMIN_PATTERN='^cn=Administrators.*'
+OIDC_ROLE_MANAGER_PATTERN='^cn=Managers.*'
 OIDC_ROLE_DEFAULT=3
-OIDC_ROLE_PATH_IN_RETURN='zoneinfo'
+OIDC_ROLE_PATH_IN_RETURN='groups'
 ```
-
-With these changes, your README should be clearer and more informative.

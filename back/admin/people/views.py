@@ -1,5 +1,5 @@
-from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -98,16 +98,18 @@ class ColleagueUpdateView(
         return context
 
 
-class ColleagueDeleteView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DeleteView):
+class ColleagueDeleteView(
+    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, SuccessMessageMixin, DeleteView
+):
     queryset = get_user_model().objects.all()
     success_url = reverse_lazy("people:colleagues")
+    success_message = _("Colleague has been removed")
 
-    def delete(self, request, *args, **kwargs):
+    def form_valid(self, form):
         delete_user = self.get_object()
         ldap_delete_user(delete_user)
-        response = super().delete(request, *args, **kwargs)
-        messages.info(request, _("Colleague has been removed"))
-        return response
+        messages.info(self.request, _("Colleague has been removed"))
+        return super().form_valid(form)
 
 
 class ColleagueResourceView(LoginRequiredMixin, ManagerPermMixin, DetailView):

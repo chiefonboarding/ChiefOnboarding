@@ -6,7 +6,6 @@ import misc.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("to_do", "0009_alter_todo_form"),
     ]

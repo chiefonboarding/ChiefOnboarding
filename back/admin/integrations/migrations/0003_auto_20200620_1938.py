@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("integrations", "0002_scheduledaccess_new_hire"),
     ]

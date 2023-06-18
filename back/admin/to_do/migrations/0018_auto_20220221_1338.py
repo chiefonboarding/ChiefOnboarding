@@ -8,7 +8,6 @@ import misc.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("slack_bot", "0001_initial"),
         ("to_do", "0017_auto_20220209_0122"),

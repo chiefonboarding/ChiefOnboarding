@@ -1,4 +1,3 @@
-from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
@@ -69,11 +68,9 @@ class IntroductionUpdateView(
         return context
 
 
-class IntroductionDeleteView(LoginRequiredMixin, ManagerPermMixin, DeleteView):
+class IntroductionDeleteView(
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, DeleteView
+):
     queryset = Introduction.objects.all()
     success_url = reverse_lazy("introductions:list")
-
-    def delete(self, request, *args, **kwargs):
-        response = super().delete(request, *args, **kwargs)
-        messages.info(request, _("Introduction item has been removed"))
-        return response
+    success_message = _("Introduction item has been removed")

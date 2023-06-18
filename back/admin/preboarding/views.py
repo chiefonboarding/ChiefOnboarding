@@ -1,4 +1,3 @@
-from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
@@ -55,11 +54,9 @@ class PreboardingUpdateView(
         return context
 
 
-class PreboardingDeleteView(LoginRequiredMixin, ManagerPermMixin, DeleteView):
+class PreboardingDeleteView(
+    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, DeleteView
+):
     queryset = Preboarding.objects.all()
     success_url = reverse_lazy("preboarding:list")
-
-    def delete(self, request, *args, **kwargs):
-        response = super().delete(request, *args, **kwargs)
-        messages.info(request, _("Preboarding item has been removed"))
-        return response
+    success_message = _("Sequence item has been removed")

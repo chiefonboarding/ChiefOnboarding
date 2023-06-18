@@ -322,7 +322,6 @@ def test_sequence_form_view(client, admin_factory, template_type, form, factory)
 
 @pytest.mark.django_db
 def test_sequence_unknown_form_view(client, admin_factory):
-
     admin = admin_factory()
     client.force_login(admin)
 
@@ -348,7 +347,6 @@ def test_sequence_unknown_form_view(client, admin_factory):
 def test_sequence_integration_form_view(
     client, admin_factory, custom_integration_factory
 ):
-
     admin = admin_factory()
     client.force_login(admin)
     integration = custom_integration_factory(
@@ -750,7 +748,7 @@ def test_delete_sequence(client, admin_factory, sequence_factory):
     sequence = sequence_factory()
     client.force_login(admin)
     url = reverse("sequences:delete", args=[sequence.id])
-    response = client.delete(url, follow=True)
+    response = client.post(url, follow=True)
 
     assert response.status_code == 200
 

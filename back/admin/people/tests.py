@@ -1617,7 +1617,8 @@ def test_new_hire_access_per_integration_post(
     assert "This field is required" in response.content.decode()
 
     with patch(
-        "admin.integrations.models.Integration.execute", Mock(return_value=False)
+        "admin.integrations.models.Integration.execute",
+        Mock(return_value=(False, "secret key is invalid")),
     ):
         response = client.post(
             url,
@@ -1628,7 +1629,7 @@ def test_new_hire_access_per_integration_post(
         assert "Account could not be created" in response.content.decode()
 
     with patch(
-        "admin.integrations.models.Integration.execute", Mock(return_value=True)
+        "admin.integrations.models.Integration.execute", Mock(return_value=(True, None))
     ):
         response = client.post(
             url,
@@ -1670,7 +1671,6 @@ def test_new_hire_tasks_list(
     assert response.status_code == status_code
 
     if status_code == 200:
-
         assert item1.name in response.content.decode()
 
         # only template items are displayed
@@ -1706,7 +1706,6 @@ def test_new_hire_toggle_tasks(
     assert response.status_code == status_code
 
     if status_code == 200:
-
         # Get items in specific field for user
         user_items = getattr(new_hire1, get_user_field(type))
 
@@ -1718,7 +1717,6 @@ def test_new_hire_toggle_tasks(
     response = client.post(url, follow=True)
 
     if status_code == 200:
-
         # Should be removed now
         assert user_items.all().count() == 0
         assert "Add" in response.content.decode()
@@ -2202,7 +2200,6 @@ def test_employee_toggle_portal_access(
 
     # Skip the 404's
     if status_code == 200:
-
         # Get the object again
         employee1.refresh_from_db()
 

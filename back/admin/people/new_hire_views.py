@@ -697,7 +697,7 @@ class NewHireGiveAccessView(
             new_hire.extra_fields |= user_details_form.cleaned_data
             new_hire.save()
 
-            success = integration.execute(
+            success, error = integration.execute(
                 new_hire, integration_config_form.cleaned_data
             )
 
@@ -705,6 +705,7 @@ class NewHireGiveAccessView(
                 messages.success(request, _("Account has been created"))
             else:
                 messages.error(request, _("Account could not be created"))
+                messages.error(request, error)
 
             return redirect("people:new_hire_access", pk=new_hire.id)
 
@@ -798,15 +799,19 @@ class NewHireToggleTaskView(
         return self.render_to_response(context)
 
 
-class NewHireDeleteView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DeleteView):
+class NewHireDeleteView(
+    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, SuccessMessageMixin, DeleteView
+):
     template_name = "new_hire_delete.html"
     queryset = get_user_model().new_hires.all()
     success_url = reverse_lazy("people:new_hires")
     context_object_name = "object"
+    success_message = _("New hire has been removed")
 
-    def delete(self, request, *args, **kwargs):
+    def form_valid(self, form):
         delete_user = self.get_object()
         ldap_delete_user(delete_user)
-        response = super().delete(request, *args, **kwargs)
-        messages.info(request, _("New hire has been removed"))
-        return response
+        messages.info(self.request, _("New hire has been removed"))
+        return super().form_valid(form)
+
+

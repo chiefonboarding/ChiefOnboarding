@@ -1,12 +1,9 @@
-FROM python:3.9
-RUN mkdir -p /var/run/supervisord \
-    && mkdir -p /var/log/supervisord \
-    && mkdir -p /app \
-    && apt-get update \
-    && apt-get install -y supervisor gettext \
-    && apt-get clean \
-    && python -m pip install pipenv \
-    && python -m pip cache purge
+FROM python:3.11
+RUN apt-get update
+RUN mkdir /var/run/supervisord
+RUN mkdir /var/log/supervisord
+RUN apt-get install -y supervisor gettext
+RUN python -m pip install pipenv 
 
 ENV PYTHONUNBUFFERED 1
 WORKDIR /app

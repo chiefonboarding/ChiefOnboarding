@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("slack_bot", "0001_initial"),
         ("organization", "0027_alter_notification_notification_type"),

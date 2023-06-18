@@ -169,7 +169,7 @@
         <div class="page-body">
           <div class="container-xl">
             {% for message in messages %}
-            <div class="alert alert-success">
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %}">
               <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
             </div>
             {% endfor %}

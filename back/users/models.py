@@ -12,7 +12,6 @@ from django.template import Context, Template
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
-from fernet_fields import EncryptedTextField
 
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
@@ -21,6 +20,7 @@ from admin.preboarding.models import Preboarding
 from admin.resources.models import CourseAnswer, Resource
 from admin.sequences.models import Condition
 from admin.to_do.models import ToDo
+from misc.fernet_fields import EncryptedTextField
 from misc.models import File
 from organization.models import Notification
 from slack_bot.utils import Slack, paragraph
@@ -88,11 +88,11 @@ class NewHireManager(models.Manager):
             is_introduced_to_colleagues=False, start_day__gte=datetime.now().date()
         )
 
-    def with_ldap(self):
-        return self.get_queryset().exclude(ldap='False')
+    # def with_ldap(self):
+    #     return self.get_queryset().exclude(ldap='False')
     
-    def without_ldap(self):
-        return self.get_queryset().filter(ldap='False')
+    # def without_ldap(self):
+    #     return self.get_queryset().filter(ldap='False')
     
     
 class AdminManager(models.Manager):
@@ -211,7 +211,7 @@ class User(AbstractBaseUser):
     new_hires = NewHireManager()
     admins = AdminManager()
     ordering = ("first_name",)
-    is_ldap = models.BooleanField(default=False)
+    # is_ldap = models.BooleanField(default=False)
     class Meta:
         constraints = [
             CheckConstraint(
@@ -516,7 +516,6 @@ class ToDoUser(CompletedFormCheck, models.Model):
             )
 
         for condition in conditions:
-
             condition_to_do_ids = condition.condition_to_do.values_list("id", flat=True)
 
             # Check if all to do items already have been added to new hire and are

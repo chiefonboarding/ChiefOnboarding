@@ -7,7 +7,6 @@ import misc.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("preboarding", "0012_auto_20220209_0052"),
     ]

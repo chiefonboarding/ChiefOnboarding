@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("admin_tasks", "0003_auto_20211023_0204"),
     ]
