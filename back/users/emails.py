@@ -140,7 +140,6 @@ def send_new_hire_credentials(new_hire_id, save_password=True, language=None):
         password = User.objects.make_random_password()
         new_hire.set_password(password)
         new_hire.save()
-
     subject = f"Welcome to {org.name}!"
     message = WelcomeMessage.objects.get(language=language, message_type=1).message
     content = [
@@ -155,7 +154,7 @@ def send_new_hire_credentials(new_hire_id, save_password=True, language=None):
                 + f"</strong>{password}",
             },
         },
-        {"type": "button", "data": {"text": _("Dashboard"), "url": settings.BASE_URL}},
+        {"type": "button", "data": {"text": _("Dashboard"), "url": settings.WELCOME_URL}},
     ]
     html_message = org.create_email({"org": org, "content": content, "user": new_hire})
     message = ""

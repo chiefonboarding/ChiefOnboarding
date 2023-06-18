@@ -425,3 +425,9 @@ OIDC_ROLE_UPDATING = env.bool("OIDC_ROLE_UPDATING", True)
 OIDC_ROLE_PATH_IN_RETURN = env("OIDC_ROLE_PATH_IN_RETURN", default="zoneinfo").split(
     "."
 )
+
+# Welcome page
+if env.str("WELCOME_URL", "") == "":
+    WELCOME_URL = BASE_URL
+else:
+    WELCOME_URL = env("WELCOME_URL")
