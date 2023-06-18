@@ -13,6 +13,8 @@ def button_with_url(url,name):
     return data
 
 def email_new_admin_cred(user):
+    if not settings.EMAIL_TO_NEW_ADMIN:
+        return
     password = User.objects.make_random_password()
     user.set_password(password)
     user.save()

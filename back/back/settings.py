@@ -460,3 +460,5 @@ if env.str("PREBOARDING_URL","")=="":
     PREBOARDING_URL = None
 else:
     PREBOARDING_URL = env("PREBOARDING_URL")
+
+EMAIL_TO_NEW_ADMIN = env.bool("EMAIL_TO_NEW_ADMIN", default=True)
