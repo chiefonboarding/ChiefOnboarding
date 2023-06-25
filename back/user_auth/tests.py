@@ -1,10 +1,9 @@
 from unittest.mock import Mock, patch
 
-import pytest
 import jwt
+import pytest
 from django.contrib import auth
 from django.urls import reverse
-
 from organization.models import Organization
 
 from .utils import get_all_urls
@@ -563,7 +562,7 @@ def test_oidc_login_user_not_exists(client, settings):
 
 
 @pytest.mark.django_db
-def test_access_token_jwt_claims_role_mapping(client,settings):
+def test_access_token_jwt_claims_role_mapping(client, settings):
     # Start with credentials enabled
     org = Organization.object.get()
     org.oidc_login = True
@@ -580,12 +579,22 @@ def test_access_token_jwt_claims_role_mapping(client,settings):
     settings.OIDC_ROLE_MANAGER_PATTERN = "Manager"
 
     # The OIDC returns a code to authorize with, we use it to log the user in
-    with patch("requests.post",
-               Mock(
-        return_value=Mock(
-            status_code=200, json=lambda: {"access_token": "test", "id_token": jwt.encode(payload={"content": {"roles": ["Admin"]}},key="secret",algorithm="HS256")}
-        )
-    )):
+    with patch(
+        "requests.post",
+        Mock(
+            return_value=Mock(
+                status_code=200,
+                json=lambda: {
+                    "access_token": "test",
+                    "id_token": jwt.encode(
+                        payload={"content": {"roles": ["Admin"]}},
+                        key="secret",
+                        algorithm="HS256",
+                    ),
+                },
+            )
+        ),
+    ):
         with patch(
             "requests.get",
             Mock(
@@ -599,21 +608,30 @@ def test_access_token_jwt_claims_role_mapping(client,settings):
                 )
             ),
         ):
-
             # Try logging in with account, getting back an empty json from OIDC
-            response = client.get(url + "?code=test", follow=True)
-    
+            client.get(url + "?code=test", follow=True)
+
     user = auth.get_user(client)
     # User is logged in
     assert user.is_admin
 
     # The OIDC returns a code to authorize with, we use it to log the user in
-    with patch("requests.post",
-               Mock(
-        return_value=Mock(
-            status_code=200, json=lambda: {"access_token": "test", "id_token": jwt.encode(payload={"content": {"roles": ["Manager"]}},key="secret",algorithm="HS256")}
-        )
-    )):
+    with patch(
+        "requests.post",
+        Mock(
+            return_value=Mock(
+                status_code=200,
+                json=lambda: {
+                    "access_token": "test",
+                    "id_token": jwt.encode(
+                        payload={"content": {"roles": ["Manager"]}},
+                        key="secret",
+                        algorithm="HS256",
+                    ),
+                },
+            )
+        ),
+    ):
         with patch(
             "requests.get",
             Mock(
@@ -627,12 +645,10 @@ def test_access_token_jwt_claims_role_mapping(client,settings):
                 )
             ),
         ):
-
             # Try logging in with account, getting back an empty json from OIDC
-            response = client.get(url + "?code=test", follow=True)
-    
+            client.get(url + "?code=test", follow=True)
+
     user = auth.get_user(client)
     # User is logged in
     assert not user.is_admin
     assert user.is_admin_or_manager
-    

@@ -1,9 +1,11 @@
+import logging
 import re
 import uuid
-import logging
 
 import jwt
 import requests
+from admin.integrations.models import Integration
+from admin.settings.forms import OTPVerificationForm
 from axes.decorators import axes_dispatch
 from django.conf import settings
 from django.contrib import messages
@@ -17,12 +19,8 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 from django.views.generic import View
 from django.views.generic.edit import FormView
-
-from admin.integrations.models import Integration
-from admin.settings.forms import OTPVerificationForm
 from organization.models import Organization
 from users.mixins import LoginRequiredMixin as LoginWithMFARequiredMixin
-
 
 logger = logging.getLogger(__name__)
 
@@ -350,18 +348,18 @@ class OIDCLoginView(View):
             return [tmp]
         else:
             return []
-        
+
     def __extract_claims_from_id_token(self):
         id_token = self.request.session["id_token"]
         if not id_token:
             logger.info("OIDC: could not find ID Token to extract claims")
             return {}
-        
+
         try:
-            claims = jwt.decode(id_token,key='secret',algorithms=["HS256"])
+            claims = jwt.decode(id_token, options={"verify_signature": False})
             return claims
         except Exception as e:
-            logger.error("The provided ID Token is not in a valid format or expired")
+            logger.error(e)
             return {}
 
     def __analyze_role(self, oidc_roles):
