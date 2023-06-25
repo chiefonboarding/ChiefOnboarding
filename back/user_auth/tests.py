@@ -1,9 +1,9 @@
 from unittest.mock import Mock, patch
 
+import jwt
 import pytest
 from django.contrib import auth
 from django.urls import reverse
-
 from organization.models import Organization
 
 from .utils import get_all_urls
@@ -559,3 +559,96 @@ def test_oidc_login_user_not_exists(client, settings):
     # User is not logged in - does not exist
     assert not user.is_authenticated
     assert "Cannot get your email address." in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_access_token_jwt_claims_role_mapping(client, settings):
+    # Start with credentials enabled
+    org = Organization.object.get()
+    org.oidc_login = True
+    org.save()
+
+    url = reverse("oidc_login")
+    settings.OIDC_CLIENT_ID = "test"
+    settings.OIDC_CLIENT_SECRET = "test"
+    settings.OIDC_AUTHORIZATION_URL = "http://localhost"
+    settings.OIDC_TOKEN_URL = "http://localhost"
+    settings.OIDC_USERINFO_URL = "http://localhost"
+    settings.OIDC_ROLE_PATH_IN_RETURN = "content.roles".split(".")
+    settings.OIDC_ROLE_ADMIN_PATTERN = "Admin"
+    settings.OIDC_ROLE_MANAGER_PATTERN = "Manager"
+
+    # The OIDC returns a code to authorize with, we use it to log the user in
+    with patch(
+        "requests.post",
+        Mock(
+            return_value=Mock(
+                status_code=200,
+                json=lambda: {
+                    "access_token": "test",
+                    "id_token": jwt.encode(
+                        payload={"content": {"roles": ["Admin"]}},
+                        key="secret",
+                        algorithm="HS256",
+                    ),
+                },
+            )
+        ),
+    ):
+        with patch(
+            "requests.get",
+            Mock(
+                return_value=Mock(
+                    status_code=200,
+                    json=lambda: {
+                        "sub": "test",
+                        "email": "admin@chiefonboarding.com",
+                        "name": "given_name family_name",
+                    },
+                )
+            ),
+        ):
+            # Try logging in with account, getting back an empty json from OIDC
+            client.get(url + "?code=test", follow=True)
+
+    user = auth.get_user(client)
+    # User is logged in
+    assert user.is_admin
+
+    # The OIDC returns a code to authorize with, we use it to log the user in
+    with patch(
+        "requests.post",
+        Mock(
+            return_value=Mock(
+                status_code=200,
+                json=lambda: {
+                    "access_token": "test",
+                    "id_token": jwt.encode(
+                        payload={"content": {"roles": ["Manager"]}},
+                        key="secret",
+                        algorithm="HS256",
+                    ),
+                },
+            )
+        ),
+    ):
+        with patch(
+            "requests.get",
+            Mock(
+                return_value=Mock(
+                    status_code=200,
+                    json=lambda: {
+                        "sub": "test",
+                        "email": "admin@chiefonboarding.com",
+                        "name": "given_name family_name",
+                    },
+                )
+            ),
+        ):
+            # Try logging in with account, getting back an empty json from OIDC
+            client.get(url + "?code=test", follow=True)
+
+    user = auth.get_user(client)
+    # User is logged in
+    assert not user.is_admin
+    assert user.is_admin_or_manager

@@ -1,8 +1,11 @@
+import logging
 import re
 import uuid
-import logging
 
+import jwt
 import requests
+from admin.integrations.models import Integration
+from admin.settings.forms import OTPVerificationForm
 from axes.decorators import axes_dispatch
 from django.conf import settings
 from django.contrib import messages
@@ -16,12 +19,8 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 from django.views.generic import View
 from django.views.generic.edit import FormView
-
-from admin.integrations.models import Integration
-from admin.settings.forms import OTPVerificationForm
 from organization.models import Organization
 from users.mixins import LoginRequiredMixin as LoginWithMFARequiredMixin
-
 
 logger = logging.getLogger(__name__)
 
@@ -322,11 +321,18 @@ class OIDCLoginView(View):
     def __check_role(self, user_info):
         oidc_roles = self.__get_oidc_roles(user_info)
         if len(oidc_roles) == 0:
-            return settings.OIDC_ROLE_DEFAULT
+            logger.info("ODIC: couldn't find roles in user info, fallback to ID Token")
+            claim_roles = self.__extract_claims_from_id_token()
+            if claim_roles:
+                oidc_roles = self.__get_oidc_roles(claim_roles)
+                if len(oidc_roles) == 0:
+                    return settings.OIDC_ROLE_DEFAULT
+            else:
+                return settings.OIDC_ROLE_DEFAULT
         return self.__analyze_role(oidc_roles)
 
-    def __get_oidc_roles(self, user_info):
-        tmp = user_info
+    def __get_oidc_roles(self, json_info):
+        tmp = json_info
         for path in settings.OIDC_ROLE_PATH_IN_RETURN:
             path = path.strip(".")
             if path == "":
@@ -334,7 +340,7 @@ class OIDCLoginView(View):
             try:
                 tmp = tmp[path]
             except KeyError:
-                logger.info("OIDC: Path does not exist in user info")
+                logger.info("OIDC: Path does not exist in the given json")
                 return []
         if isinstance(tmp, list):
             return tmp
@@ -342,6 +348,19 @@ class OIDCLoginView(View):
             return [tmp]
         else:
             return []
+
+    def __extract_claims_from_id_token(self):
+        id_token = self.request.session["id_token"]
+        if not id_token:
+            logger.info("OIDC: could not find ID Token to extract claims")
+            return {}
+
+        try:
+            claims = jwt.decode(id_token, options={"verify_signature": False})
+            return claims
+        except Exception as e:
+            logger.error(e)
+            return {}
 
     def __analyze_role(self, oidc_roles):
         ROLE_NEW_HIRE_NAME = "newhire"
