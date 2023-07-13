@@ -586,13 +586,7 @@ def test_sequence_create_custom_integration_form_input_field(
 ):
     integration = custom_integration_factory(
         manifest={
-            "form": [
-                {
-                  "id": "USERNAME",
-                  "name": "Enter the username",
-                  "type": "input"
-                }
-            ]
+            "form": [{"id": "USERNAME", "name": "Enter the username", "type": "input"}]
         }
     )
     admin = admin_factory()
@@ -610,7 +604,6 @@ def test_sequence_create_custom_integration_form_input_field(
     assert IntegrationConfig.objects.all().count() == 1
     integration_config = IntegrationConfig.objects.first()
     assert integration_config.additional_data == {"USERNAME": "test"}
-
 
 
 @pytest.mark.django_db
