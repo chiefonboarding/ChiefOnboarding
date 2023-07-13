@@ -578,6 +578,42 @@ def test_sequence_create_custom_integration_form(
 
 
 @pytest.mark.django_db
+def test_sequence_create_custom_integration_form_input_field(
+    client,
+    admin_factory,
+    sequence_factory,
+    custom_integration_factory,
+):
+    integration = custom_integration_factory(
+        manifest={
+            "form": [
+                {
+                  "id": "USERNAME",
+                  "name": "Enter the username",
+                  "type": "input"
+                }
+            ]
+        }
+    )
+    admin = admin_factory()
+    sequence = sequence_factory()
+    condition = sequence.conditions.all().first()
+    client.force_login(admin)
+
+    url = reverse(
+        "sequences:update-integration-config",
+        args=["integrationconfig", integration.id, condition.id, 0],
+    )
+    # Create a new to do item
+    client.post(url, data={"USERNAME": "test"})
+
+    assert IntegrationConfig.objects.all().count() == 1
+    integration_config = IntegrationConfig.objects.first()
+    assert integration_config.additional_data == {"USERNAME": "test"}
+
+
+
+@pytest.mark.django_db
 @patch(
     "admin.integrations.models.Integration.run_request",
     Mock(return_value=(True, Mock(json=lambda: [{"user": ""}]))),
