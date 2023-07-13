@@ -60,7 +60,7 @@ class IntegrationConfigForm(forms.ModelForm):
         self.error = None
         for item in form:
             if item["type"] == "input":
-                self.fields[item["id"]] = forms.TextField(
+                self.fields[item["id"]] = forms.CharField(
                     label=item["name"],
                     required=False,
                 )
