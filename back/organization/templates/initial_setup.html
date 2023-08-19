@@ -1,6 +1,15 @@
 {% extends 'no_login_base.html' %}
 {% load i18n static %}
 {% load crispy_forms_tags %}
+{% block extra_head %}
+<style>
+  /* the button would be blank without this as the org (which defines the color) is not created yet */
+  .btn-primary, .btn-outline-primary, .btn-ghost-primary, .btn-primary:hover, .btn-outline-primary:hover, .btn-ghost-primary:hover {
+    --tblr-btn-color: 153, 131, 92;
+    --tblr-btn-color-darker: 153, 131, 92;
+  }
+</style>
+{% endblock %}
 
 {% block content %}
 <form class="card card-md" method="post">
