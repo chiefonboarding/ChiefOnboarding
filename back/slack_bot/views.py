@@ -289,6 +289,14 @@ def slack_create_new_hire_or_ask_perm(event):
     if not org.auto_create_user:
         return
 
+    if "email" not in event["user"]["profile"]:
+        # likely a bot user - skipping
+        logger.warning(
+            "[team_join] Could not find email address from user: "
+            f"{event['user']['name']}"
+        )
+        return
+
     joined_user = (
         get_user_model()
         .objects.filter(email__iexact=event["user"]["profile"]["email"])
