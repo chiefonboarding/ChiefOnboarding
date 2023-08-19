@@ -1381,6 +1381,38 @@ def test_join_user_auto_create_without_approval(sequence_factory, to_do_factory)
 
 
 @pytest.mark.django_db
+def test_join_user_auto_create_without_approval_bot_user():
+    # Enable both create user and automatically add as a new hire
+    org = Organization.object.get()
+    org.auto_create_user = True
+    org.create_new_hire_without_confirm = True
+    org.save()
+
+    event = {
+        "type": "team_join",
+        "user": {
+            "id": "xxx",
+            "team_id": "xxx",
+            "name": "hi",
+            "profile": {
+                "title": "",
+                "real_name": "NewBot",
+                "real_name_normalized": "NewBot",
+                "display_name": "NewBot",
+                "display_name_normalized": "NewBot",
+                "fields": None,
+                "team": "T7R4ZPZ1C",
+            },
+        },
+        "cache_ts": 1653440565,
+        "event_ts": "1653440565.001100",
+    }
+    slack_create_new_hire_or_ask_perm(event)
+    # no users created
+    assert get_user_model().objects.count() == 0
+
+
+@pytest.mark.django_db
 def test_join_user_auto_create_with_request_for_approval(admin_factory):
     # Enable both create user and automatically add as a new hire
     admin = admin_factory(slack_user_id="slackx")
