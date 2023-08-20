@@ -134,12 +134,6 @@ def message_changed(body):
 
 
 @exception_handler
-@app.action("show:resources")
-def show_all_resources_categories_button_click(message):
-    slack_show_all_resources_categories(message)
-
-
-@exception_handler
 @app.message(re.compile("(resource)"), matchers=[no_bot_messages])
 def show_all_resources_categories(message):
     slack_show_all_resources_categories(message)

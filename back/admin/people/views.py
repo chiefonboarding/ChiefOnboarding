@@ -219,9 +219,9 @@ class ColleagueGiveSlackAccessView(LoginRequiredMixin, ManagerPermMixin, View):
                 [
                     button(
                         text=_("resources"),
-                        value="show:resources",
+                        value="show_resource_items",
                         style="primary",
-                        action_id="show:resources",
+                        action_id="show_resource_items",
                     )
                 ]
             ),
