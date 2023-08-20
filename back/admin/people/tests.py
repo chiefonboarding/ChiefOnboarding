@@ -2135,13 +2135,15 @@ def test_give_user_slack_access(settings, client, employee_factory, django_user_
         },
         {
             "type": "actions",
-            "elements": {
-                "type": "button",
-                "text": {"type": "plain_text", "text": "resources"},
-                "style": "primary",
-                "value": "show:resources",
-                "action_id": "show:resources",
-            },
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "resources"},
+                    "style": "primary",
+                    "value": "show_resource_items",
+                    "action_id": "show_resource_items",
+                },
+            ],
         },
     ]
 
