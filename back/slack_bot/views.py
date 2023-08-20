@@ -444,6 +444,7 @@ def slack_deny_new_hire(body):
 @app.action("show_resource_items")
 def show_resource_items(ack, body):
     ack()
+    print(body)
     slack_show_all_resources_categories({"user": body["user"]["id"]})
 
 
