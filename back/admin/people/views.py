@@ -216,12 +216,14 @@ class ColleagueGiveSlackAccessView(LoginRequiredMixin, ManagerPermMixin, View):
                 ).message
             ),
             actions(
-                button(
-                    text=_("resources"),
-                    value="show:resources",
-                    style="primary",
-                    action_id="show:resources",
-                )
+                [
+                    button(
+                        text=_("resources"),
+                        value="show:resources",
+                        style="primary",
+                        action_id="show:resources",
+                    )
+                ]
             ),
         ]
 

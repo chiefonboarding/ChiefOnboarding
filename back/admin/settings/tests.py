@@ -437,13 +437,15 @@ def test_sending_test_colleague_welcome_message(
         },
         {
             "type": "actions",
-            "elements": {
-                "type": "button",
-                "text": {"type": "plain_text", "text": "recursos"},
-                "style": "primary",
-                "value": "show:resources",
-                "action_id": "show:resources",
-            },
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "recursos"},
+                    "style": "primary",
+                    "value": "show:resources",
+                    "action_id": "show:resources",
+                },
+            ],
         },
     ]
 
