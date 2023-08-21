@@ -131,7 +131,7 @@ class NewHireAddView(
                 # User has not started yet, so we only need the items before they new
                 # hire started that passed
                 conditions |= seq.conditions.filter(
-                    condition_type=2, days__lte=new_hire.days_before_starting
+                    condition_type=2, days__gte=new_hire.days_before_starting
                 )
             else:
                 # user has already started, check both before start day and after for
@@ -209,7 +209,7 @@ class NewHireAddSequenceView(
                 # User has not started yet, so we only need the items before they new
                 # hire started that passed
                 conditions |= seq.conditions.filter(
-                    condition_type=2, days__lte=new_hire.days_before_starting
+                    condition_type=2, days__gte=new_hire.days_before_starting
                 )
             else:
                 # user has already started, check both before start day and after for
