@@ -280,7 +280,7 @@ class OIDCLoginView(View):
     def authenticate_user(self, user_info):
         if "email" in user_info:
             user, created = get_user_model().objects.get_or_create(
-                email=user_info["email"]
+                email=user_info["email"].lower()
             )
             if created:
                 user = self.__sync_user(user_info)
