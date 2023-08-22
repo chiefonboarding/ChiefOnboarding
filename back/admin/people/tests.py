@@ -194,7 +194,7 @@ def test_create_new_hire_with_sequences_before_starting(
     to_do1 = to_do_factory()
     to_do2 = to_do_factory()
     to_do3 = to_do_factory()
-    
+
     sequence = sequence_factory()
     # before starting
     condition0 = condition_timed_factory(sequence=sequence, days=8, condition_type=2)
