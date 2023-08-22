@@ -202,7 +202,7 @@ def test_create_new_hire_with_sequences_before_starting(
     condition2 = condition_to_do_factory(sequence=sequence)
     # after starting
     condition3 = condition_timed_factory(sequence=sequence, days=1)
-    condition1.to_do.add(to_do0)
+    condition0.to_do.add(to_do0)
     condition1.to_do.add(to_do1)
     condition2.to_do.add(to_do2)
     condition3.to_do.add(to_do3)
