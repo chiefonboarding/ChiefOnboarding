@@ -163,4 +163,14 @@ urlpatterns = [
         views.ColleagueToggleResourceView.as_view(),
         name="toggle_resource",
     ),
+    path(
+        "colleagues/<int:pk>/import/",
+        views.ColleagueImportView.as_view(),
+        name="import",
+    ),
+    path(
+        "colleagues/<int:pk>/import/users",
+        views.ColleagueImportFetchUsersHX.as_view(),
+        name="import-users-hx",
+    ),
 ]

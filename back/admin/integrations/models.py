@@ -32,6 +32,9 @@ from misc.fernet_fields import EncryptedTextField
 from misc.fields import EncryptedJSONField
 from organization.models import Notification
 from organization.utils import send_email_with_notification
+from admin.integrations.exceptions import GettingUsersError, KeyIsNotInDataError
+from admin.integrations.utils import get_value_from_notation
+
 
 
 class IntegrationManager(models.Manager):
@@ -44,8 +47,12 @@ class IntegrationManager(models.Manager):
     def account_provision_options(self):
         return self.get_queryset().filter(
             integration=Integration.Type.CUSTOM, manifest__exists__isnull=False
-        )
+        ).exclude(manifest__type="import_users")
 
+    def import_users_options(self):
+        return self.get_queryset().filter(
+            integration=10, manifest__type="import_users"
+        )
 
 class Integration(models.Model):
     class Type(models.IntegerChoices):
@@ -151,6 +158,10 @@ class Integration(models.Model):
     def has_oauth(self):
         return "oauth" in self.manifest
 
+    @property
+    def is_import_user_action(self):
+        return "import_user" in self.manifest
+
     def headers(self, headers={}):
         headers = (
             self.manifest.get("headers", {}).items()
@@ -214,8 +225,9 @@ class Integration(models.Model):
 
     def execute(self, new_hire, params):
         self.params = params
-        self.params |= new_hire.extra_fields
-        self.new_hire = new_hire
+        if not self.is_import_user_action:
+            self.params |= new_hire.extra_fields
+            self.new_hire = new_hire
 
         # Renew token if necessary
         if not self.renew_key():
@@ -230,7 +242,8 @@ class Integration(models.Model):
         for item in self.manifest["execute"]:
             success, response = self.run_request(item)
 
-            if not success:
+            # No need to retry or log when we are importing users
+            if not success and not self.is_import_user_action:
                 response = self.clean_response(response=response)
                 Notification.objects.create(
                     notification_type=Notification.Type.FAILED_INTEGRATION,
@@ -289,13 +302,14 @@ class Integration(models.Model):
                     )
                     return True, None
 
-        # Succesfully ran integration, add notification
-        Notification.objects.create(
-            notification_type=Notification.Type.RAN_INTEGRATION,
-            extra_text=self.name,
-            created_for=new_hire,
-        )
-        return True, None
+        # Succesfully ran integration, add notification only when we are provisioning access
+        if not self.is_import_user_action:
+            Notification.objects.create(
+                notification_type=Notification.Type.RAN_INTEGRATION,
+                extra_text=self.name,
+                created_for=new_hire,
+            )
+        return True, response
 
     def config_form(self, data=None):
         from .forms import IntegrationConfigForm
@@ -309,5 +323,26 @@ class Integration(models.Model):
             response = response.replace(str(value), f"***Secret value for {name}***")
 
         return response
+
+    def get_import_user_candidates(self, user):
+        success, response = self.execute(user, {})
+        if not success:
+            raise GettingUsersError(self.clean_response(response))
+
+        # building list of users from response
+        data_structure = self.manifest["data_structure"]
+        users = get_value_from_notation(data_structure, response)
+
+        user_details = []
+        for user_data in users:
+            user = {}
+            for prop, notation in data_structure.items():
+                try:
+                    user[prop] = get_value_from_notation(notation, user_data)
+                except KeyError:
+                    # this is unlikely to go wrong - only when api changes or when configs are being setup
+                    raise KeyIsNotInDataError(f"Notation {notation} not in {self.clean_repsonse(user_data)}")
+            user_details.append(user)
+        return user_details
 
     objects = IntegrationManager()

@@ -1,0 +1,35 @@
+{% load i18n %}
+{% for user in users %}
+  <tr>
+    <td class="w-1 pe-0">
+      <input type="checkbox" class="form-check-input m-0 align-middle" aria-label="Select user" checked="">
+    </td>
+    <td>
+      {{ user.first_name }}
+    </td>
+    <td>
+      {{ user.last_name }}
+    </td>
+    <td>
+      {{ user.email }}
+    </td>
+    <td>
+    </td>
+    <td class="text-end">
+      <a href="{% url 'people:new_hire' new_hire.id %}" class="btn btn-white">
+        {% translate "Ignore" %}
+      </a>
+    </td>
+  </tr>
+{% empty %}
+  {% if not error %}
+    <tr>
+      <td colspan="5">{% translate "No users found" %}</td>
+    </tr>
+  {% endif %}
+{% endfor %}
+{% if error %}
+  <tr clas="table-danger">
+    <td colspan="5" style="white-space: normal;">{{ error }}</td>
+  </tr>
+{% endif %}

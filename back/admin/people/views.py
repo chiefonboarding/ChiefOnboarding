@@ -11,6 +11,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
 from admin.integrations.models import Integration
+from admin.integrations.exceptions import KeyIsNotInDataError, GettingUsersError
 from admin.resources.models import Resource
 from organization.models import WelcomeMessage
 from slack_bot.utils import Slack, actions, button, paragraph
@@ -39,6 +40,7 @@ class ColleagueListView(LoginRequiredMixin, ManagerPermMixin, ListView):
         context["slack_active"] = Integration.objects.filter(
             integration=Integration.Type.SLACK_BOT
         ).exists()
+        context["import_users_options"] = Integration.objects.import_users_options()
         context["add_action"] = reverse_lazy("people:colleague_create")
         return context
 
@@ -259,3 +261,34 @@ class ColleagueTogglePortalAccessView(LoginRequiredMixin, ManagerPermMixin, View
         context["button_name"] = button_name
         context["exists"] = user.is_active
         return render(request, self.template_name, context)
+
+
+class ColleagueImportView(LoginRequiredMixin, ManagerPermMixin, DetailView):
+    """Generic view to start showing the options based on what it fetched from the server"""
+
+    template_name = "colleague_import.html"
+    context_object_name = "integration"
+
+    def get_queryset(self):
+        return Integration.objects.import_users_options()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["subtitle"] = _("Import new users from a third party")
+        context["title"] = _("Import people")
+        return context
+
+
+class ColleagueImportFetchUsersHX(LoginRequiredMixin, ManagerPermMixin, View):
+    """HTMLX view to get all users and return a table"""
+
+    def post(self, request, pk, *args, **kwargs):
+        integration = get_object_or_404(Integration.objects.import_users_options(), id=pk)
+        # we are passing in the user who is requesting it, but we likely don't need them.
+        users = {}
+        try:
+            users = integration.get_import_user_candidates(self.request.user)
+        except (KeyIsNotInDataError, GettingUsersError) as e:
+            return render(request, "_import_user_table.html", {"error": e})
+
+        return render(request, "_import_user_table.html", {"users": users})

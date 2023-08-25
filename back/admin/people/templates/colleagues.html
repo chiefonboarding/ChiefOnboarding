@@ -15,6 +15,12 @@
   <span class="requesting alsodisplay spinner-border spinner-border-sm me-2" id="spinner-slack" role="status"></span>
 </a>
 {% endif %}
+{% for import_user_option in import_users_options %}
+<a href="{% url "people:import" import_user_option.id %}" class="btn btn-primary d-none d-sm-inline-block">
+  {% blocktranslate with service=import_user_option.name %}Import users with {{ service }}{% endblocktranslate %}
+</a>
+
+{% endfor %}
 {% endblock %}
 
 {% block content %}

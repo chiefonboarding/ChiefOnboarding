@@ -1,0 +1,31 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card mt-3">
+      <div class="card-body">
+        <table class="table card-table table-vcenter text-nowrap">
+          <thead>
+            <tr>
+              <th></th>
+              <th>{% translate "First name" %}</th>
+              <th>{% translate "Last name" %}</th>
+              <th>{% translate "Email" %}</th>
+              <th>{% translate "Position" %}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="results">
+          </tbody>
+        </table>
+        <div class="d-grid col-4 offset-4 mx-auto mt-2">
+          <a class="btn btn-primary" hx-target="#results" hx-swap="innerHTML" hx-post="{% url 'people:import-users-hx' integration.id %}">Get all users from {{ integration.name }}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

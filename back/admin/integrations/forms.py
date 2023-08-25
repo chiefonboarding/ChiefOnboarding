@@ -5,21 +5,12 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 
+from admin.integrations.utils import get_value_from_notation
 from .models import Integration
 from .serializers import ManifestSerializer
 
 
 class IntegrationConfigForm(forms.ModelForm):
-    def _get_result(self, notation, value):
-        # if we don't need to go into props, then just return the value
-        if notation == "":
-            return value
-
-        notations = notation.split(".")
-        for notation in notations:
-            value = value[notation]
-        return value
-
     def _expected_example(self, form_item):
         def _add_items(form_item):
             items = []
@@ -92,10 +83,10 @@ class IntegrationConfigForm(forms.ModelForm):
                         else forms.Select,
                         choices=[
                             (
-                                self._get_result(item.get("choice_value", "id"), x),
-                                self._get_result(item.get("choice_name", "name"), x),
+                                get_value_from_notation(item.get("choice_value", "id"), x),
+                                get_value_from_notation(item.get("choice_name", "name"), x),
                             )
-                            for x in self._get_result(
+                            for x in get_value_from_notation(
                                 item.get("data_from", ""), option_data
                             )
                         ],
