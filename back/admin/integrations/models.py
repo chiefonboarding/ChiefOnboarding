@@ -45,14 +45,15 @@ class IntegrationManager(models.Manager):
         return self.get_queryset().filter(integration=Integration.Type.CUSTOM)
 
     def account_provision_options(self):
-        return self.get_queryset().filter(
-            integration=Integration.Type.CUSTOM, manifest__exists__isnull=False
-        ).exclude(manifest__type="import_users")
+        return (
+            self.get_queryset()
+            .filter(integration=Integration.Type.CUSTOM, manifest__exists__isnull=False)
+            .exclude(manifest__type="import_users")
+        )
 
     def import_users_options(self):
-        return self.get_queryset().filter(
-            integration=10, manifest__type="import_users"
-        )
+        return self.get_queryset().filter(integration=10, manifest__type="import_users")
+
 
 class Integration(models.Model):
     class Type(models.IntegerChoices):
@@ -302,7 +303,8 @@ class Integration(models.Model):
                     )
                     return True, None
 
-        # Succesfully ran integration, add notification only when we are provisioning access
+        # Succesfully ran integration, add notification only when we are provisioning
+        # access
         if not self.is_import_user_action:
             Notification.objects.create(
                 notification_type=Notification.Type.RAN_INTEGRATION,
@@ -329,10 +331,11 @@ class Integration(models.Model):
         if not success:
             raise GettingUsersError(self.clean_response(response))
 
-        # building list of users from response
-        data_structure = self.manifest["data_structure"]
-        users = get_value_from_notation(data_structure, response)
+        # Building list of users from response. Dig into response to get to the users.
+        data_from = self.manifest["data_from"]
+        users = get_value_from_notation(data_from, response.json())
 
+        data_structure = self.manifest["data_structure"]
         user_details = []
         for user_data in users:
             user = {}
@@ -340,8 +343,11 @@ class Integration(models.Model):
                 try:
                     user[prop] = get_value_from_notation(notation, user_data)
                 except KeyError:
-                    # this is unlikely to go wrong - only when api changes or when configs are being setup
-                    raise KeyIsNotInDataError(f"Notation {notation} not in {self.clean_repsonse(user_data)}")
+                    # This is unlikely to go wrong - only when api changes or when
+                    # configs are being setup
+                    raise KeyIsNotInDataError(
+                        f"Notation '{notation}' not in {self.clean_response(user_data)}"
+                    )
             user_details.append(user)
         return user_details
 

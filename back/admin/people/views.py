@@ -13,7 +13,7 @@ from django.views.generic.list import ListView
 from admin.integrations.models import Integration
 from admin.integrations.exceptions import KeyIsNotInDataError, GettingUsersError
 from admin.resources.models import Resource
-from organization.models import WelcomeMessage
+from organization.models import WelcomeMessage, Organization
 from slack_bot.utils import Slack, actions, button, paragraph
 from users.emails import email_new_admin_cred
 from users.mixins import (
@@ -22,7 +22,12 @@ from users.mixins import (
     ManagerPermMixin,
 )
 
-from .forms import ColleagueCreateForm, ColleagueUpdateForm
+from .forms import (
+    ColleagueCreateForm,
+    ColleagueUpdateForm,
+    EmailIgnoreForm,
+    UserRoleForm,
+)
 
 # See new_hire_views.py for new hire functions!
 
@@ -264,7 +269,9 @@ class ColleagueTogglePortalAccessView(LoginRequiredMixin, ManagerPermMixin, View
 
 
 class ColleagueImportView(LoginRequiredMixin, ManagerPermMixin, DetailView):
-    """Generic view to start showing the options based on what it fetched from the server"""
+    """Generic view to start showing the options based on what it fetched from the
+    server
+    """
 
     template_name = "colleague_import.html"
     context_object_name = "integration"
@@ -282,13 +289,50 @@ class ColleagueImportView(LoginRequiredMixin, ManagerPermMixin, DetailView):
 class ColleagueImportFetchUsersHX(LoginRequiredMixin, ManagerPermMixin, View):
     """HTMLX view to get all users and return a table"""
 
-    def post(self, request, pk, *args, **kwargs):
-        integration = get_object_or_404(Integration.objects.import_users_options(), id=pk)
-        # we are passing in the user who is requesting it, but we likely don't need them.
-        users = {}
+    def get(self, request, pk, *args, **kwargs):
+        integration = get_object_or_404(
+            Integration.objects.import_users_options(), id=pk
+        )
+        users = []
         try:
+            # we are passing in the user who is requesting it, but we likely don't need
+            # them.
             users = integration.get_import_user_candidates(self.request.user)
         except (KeyIsNotInDataError, GettingUsersError) as e:
             return render(request, "_import_user_table.html", {"error": e})
 
-        return render(request, "_import_user_table.html", {"users": users})
+        # Remove users that are already in the system or have been ignored
+        existing_user_emails = list(
+            get_user_model().objects.all().values_list("email", flat=True)
+        )
+        ignored_user_emails = Organization.objects.get().ignored_user_emails
+        excluded_emails = (
+            existing_user_emails + ignored_user_emails + ["", None]
+        )  # also add blank emails to ignore
+
+        user_candidates = [
+            user_data
+            for user_data in users
+            if user_data.get("email", "") not in excluded_emails
+        ]
+
+        return render(
+            request,
+            "_import_user_table.html",
+            {"users": user_candidates, "role_form": UserRoleForm},
+        )
+
+
+class ColleagueIgnoreUserHX(LoginRequiredMixin, ManagerPermMixin, View):
+    """HTMLX view to put someone on the ignore list"""
+
+    def post(self, request, *args, **kwargs):
+        form = EmailIgnoreForm(request.POST)
+        # We always expect an email here, if it's not, then all data is likely incorrect
+        # as we specifically call "email" from the API
+        if form.is_valid():
+            org = Organization.objects.get()
+            org.ignored_user_emails += [form.cleaned_data["email"]]
+            org.save()
+
+        return HttpResponse()

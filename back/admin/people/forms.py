@@ -14,7 +14,7 @@ from admin.templates.forms import (
     UploadField,
 )
 from organization.models import Organization
-from users.models import Department
+from users.models import Department, ROLE_CHOICES
 
 
 class NewHireAddForm(forms.ModelForm):
@@ -403,3 +403,19 @@ class PreboardingSendForm(forms.Form):
         labels = {
             "send_type": _("Send type"),
         }
+
+
+class EmailIgnoreForm(forms.Form):
+    email = forms.EmailField()
+
+
+class UserRoleForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["role"].label = ""
+        self.fields["role"].help_text = ""
+        self.fields["role"].choices = tuple(x for x in ROLE_CHOICES if x[0] != 0)
+
+    class Meta:
+        model = get_user_model()
+        fields = ("role",)

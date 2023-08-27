@@ -83,8 +83,12 @@ class IntegrationConfigForm(forms.ModelForm):
                         else forms.Select,
                         choices=[
                             (
-                                get_value_from_notation(item.get("choice_value", "id"), x),
-                                get_value_from_notation(item.get("choice_name", "name"), x),
+                                get_value_from_notation(
+                                    item.get("choice_value", "id"), x
+                                ),
+                                get_value_from_notation(
+                                    item.get("choice_name", "name"), x
+                                ),
                             )
                             for x in get_value_from_notation(
                                 item.get("data_from", ""), option_data

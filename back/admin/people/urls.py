@@ -173,4 +173,9 @@ urlpatterns = [
         views.ColleagueImportFetchUsersHX.as_view(),
         name="import-users-hx",
     ),
+    path(
+        "colleagues/import/ignore",
+        views.ColleagueIgnoreUserHX.as_view(),
+        name="import-ignore-hx",
+    ),
 ]

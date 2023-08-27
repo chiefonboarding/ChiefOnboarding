@@ -6,26 +6,21 @@
 <div class="row">
   <div class="col-12">
     <div class="card mt-3">
-      <div class="card-body">
-        <table class="table card-table table-vcenter text-nowrap">
-          <thead>
-            <tr>
-              <th></th>
-              <th>{% translate "First name" %}</th>
-              <th>{% translate "Last name" %}</th>
-              <th>{% translate "Email" %}</th>
-              <th>{% translate "Position" %}</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="results">
-          </tbody>
-        </table>
-        <div class="d-grid col-4 offset-4 mx-auto mt-2">
-          <a class="btn btn-primary" hx-target="#results" hx-swap="innerHTML" hx-post="{% url 'people:import-users-hx' integration.id %}">Get all users from {{ integration.name }}</a>
-        </div>
+      <div class="card-body" hx-get="{% url 'people:import-users-hx' integration.id %}" hx-trigger="load">
+        <div class="spinner-border"></div>
+        <span style="margin-left: 10px;" class="ml-2"> Getting users... </span>
       </div>
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    document.addEventListener('htmx:afterRequest', function(evt) {
+      // initialize the select button
+      $('select').selectize()
+      $('.role > div').removeClass("mb-3").css("margin-top", "5px")
+    })
+  </script>
 {% endblock %}
