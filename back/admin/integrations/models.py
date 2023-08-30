@@ -41,7 +41,11 @@ class IntegrationManager(models.Manager):
         return super().get_queryset()
 
     def sequence_integration_options(self):
-        return self.get_queryset().filter(integration=Integration.Type.CUSTOM)
+        return (
+            self.get_queryset()
+            .filter(integration=Integration.Type.CUSTOM)
+            .exclude(manifest__type__isnull=False, manifest__type="import_users")
+        )
 
     def account_provision_options(self):
         return (
