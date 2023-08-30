@@ -153,7 +153,7 @@ class Organization(models.Model):
         ),
     )
     # Emails that get ignored by the importer
-    ignored_user_emails = ArrayField(models.EmailField())
+    ignored_user_emails = ArrayField(models.EmailField(), default=list)
 
     object = ObjectManager()
     objects = models.Manager()

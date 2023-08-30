@@ -106,6 +106,9 @@ class ManifestSerializer(ValidateMixin, serializers.Serializer):
     data_structure = serializers.JSONField(required=False)
     exists = ManifestExistSerializer(required=False)
     execute = ManifestExecuteSerializer(many=True)
+    next_page_token_from = serializers.CharField(required=False)
+    next_page = serializers.CharField(required=False)
+    next_page_from = serializers.CharField(required=False)
     post_execute_notification = ManifestPostExecuteNotificationSerializer(
         many=True, required=False
     )

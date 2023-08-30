@@ -14,7 +14,7 @@ from admin.templates.forms import (
     UploadField,
 )
 from organization.models import Organization
-from users.models import Department, ROLE_CHOICES
+from users.models import ROLE_CHOICES, Department
 
 
 class NewHireAddForm(forms.ModelForm):

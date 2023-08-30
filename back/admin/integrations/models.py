@@ -28,13 +28,12 @@ from requests.exceptions import (
 )
 from twilio.rest import Client
 
+from admin.integrations.exceptions import GettingUsersError, KeyIsNotInDataError
+from admin.integrations.utils import get_value_from_notation
 from misc.fernet_fields import EncryptedTextField
 from misc.fields import EncryptedJSONField
 from organization.models import Notification
 from organization.utils import send_email_with_notification
-from admin.integrations.exceptions import GettingUsersError, KeyIsNotInDataError
-from admin.integrations.utils import get_value_from_notation
-
 
 
 class IntegrationManager(models.Manager):
@@ -326,11 +325,7 @@ class Integration(models.Model):
 
         return response
 
-    def get_import_user_candidates(self, user):
-        success, response = self.execute(user, {})
-        if not success:
-            raise GettingUsersError(self.clean_response(response))
-
+    def extract_users_from_list_response(self, response):
         # Building list of users from response. Dig into response to get to the users.
         data_from = self.manifest["data_from"]
         users = get_value_from_notation(data_from, response.json())
@@ -350,5 +345,73 @@ class Integration(models.Model):
                     )
             user_details.append(user)
         return user_details
+
+    def get_next_page(self, response):
+        # Some apis give us back a full URL, others just a token. If we get a full URL,
+        # follow that, if we get a token, then also specify the next_page. The token
+        # gets placed through the NEXT_PAGE_TOKEN variable.
+
+        # taken from response - full url including params for next page
+        next_page_from = self.manifest.get("next_page_from")
+
+        # build up url ourself based on hardcoded url + token for next part
+        next_page_token_from = self.manifest.get("next_page_token_from")
+        # hardcoded in manifest
+        next_page = self.manifest.get("next_page")
+
+        # skip if none provided
+        if not next_page_from and not (next_page_token_from and next_page):
+            return
+
+        if next_page_from:
+            try:
+                return get_value_from_notation(next_page_from, response)
+            except KeyError:
+                # next page was not provided anymore, so we are done
+                return
+
+        # Build next url from next_page and next_page_token_from
+        try:
+            token = get_value_from_notation(next_page_token_from, response)
+        except KeyError:
+            # next page token was not provided anymore, so we are done
+            return
+
+        # Replace token variable with real token
+        self.params["NEXT_PAGE_TOKEN"] = token
+        return self._replace_vars(next_page)
+
+    def get_import_user_candidates(self, user):
+        success, response = self.execute(user, {})
+        if not success:
+            raise GettingUsersError(self.clean_response(response))
+
+        # It's fine if this fails, the exception is caught in function that calls this
+        # function
+        users = self.extract_users_from_list_response(response)
+
+        # If we don't care about next pages, then just return the users
+        if self.get_next_page(response) is None:
+            return users
+
+        amount_pages_to_fetch = self.manifest.get("amount_pages_to_fetch", 5)
+        fetched_pages = 1
+        while amount_pages_to_fetch != fetched_pages:
+            # End everything if next page does not exist
+            if next_page_url := self.get_next_page(response) is None:
+                break
+
+            success, response = self.run_request(
+                {"method": "GET", "url": next_page_url}
+            )
+            if not success:
+                raise GettingUsersError(
+                    "Paginated URL fetch: " + self.clean_response(response)
+                )
+
+            users += self.extract_users_from_list_response(response)
+            fetched_pages += 1
+
+        return users
 
     objects = IntegrationManager()

@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 
 from admin.integrations.utils import get_value_from_notation
+
 from .models import Integration
 from .serializers import ManifestSerializer
 

@@ -9,14 +9,20 @@ from django.views.generic.base import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
+from django_q.tasks import async_task
+from rest_framework import generics
+from rest_framework.authentication import SessionAuthentication
 
+from admin.integrations.exceptions import GettingUsersError, KeyIsNotInDataError
 from admin.integrations.models import Integration
-from admin.integrations.exceptions import KeyIsNotInDataError, GettingUsersError
+from admin.people.serializers import UserImportSerializer
 from admin.resources.models import Resource
-from organization.models import WelcomeMessage, Organization
+from api.permissions import AdminPermission
+from organization.models import Organization, WelcomeMessage
 from slack_bot.utils import Slack, actions, button, paragraph
 from users.emails import email_new_admin_cred
 from users.mixins import (
+    AdminPermMixin,
     IsAdminOrNewHireManagerMixin,
     LoginRequiredMixin,
     ManagerPermMixin,
@@ -268,7 +274,7 @@ class ColleagueTogglePortalAccessView(LoginRequiredMixin, ManagerPermMixin, View
         return render(request, self.template_name, context)
 
 
-class ColleagueImportView(LoginRequiredMixin, ManagerPermMixin, DetailView):
+class ColleagueImportView(LoginRequiredMixin, AdminPermMixin, DetailView):
     """Generic view to start showing the options based on what it fetched from the
     server
     """
@@ -286,7 +292,7 @@ class ColleagueImportView(LoginRequiredMixin, ManagerPermMixin, DetailView):
         return context
 
 
-class ColleagueImportFetchUsersHX(LoginRequiredMixin, ManagerPermMixin, View):
+class ColleagueImportFetchUsersHX(LoginRequiredMixin, AdminPermMixin, View):
     """HTMLX view to get all users and return a table"""
 
     def get(self, request, pk, *args, **kwargs):
@@ -323,8 +329,8 @@ class ColleagueImportFetchUsersHX(LoginRequiredMixin, ManagerPermMixin, View):
         )
 
 
-class ColleagueIgnoreUserHX(LoginRequiredMixin, ManagerPermMixin, View):
-    """HTMLX view to put someone on the ignore list"""
+class ColleagueImportIgnoreUserHX(LoginRequiredMixin, AdminPermMixin, View):
+    """HTMLX view to put people on the ignore list"""
 
     def post(self, request, *args, **kwargs):
         form = EmailIgnoreForm(request.POST)
@@ -336,3 +342,29 @@ class ColleagueIgnoreUserHX(LoginRequiredMixin, ManagerPermMixin, View):
             org.save()
 
         return HttpResponse()
+
+
+class ColleagueImportAddUsersView(generics.CreateAPIView):
+    permission_classes = (AdminPermission,)
+    authentication_classes = [
+        SessionAuthentication,
+    ]
+    serializer_class = UserImportSerializer
+
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+        users = serializer.save()
+
+        # users is list, so manually checking instead of filter queryset
+        for user in users:
+            if user.role in [1, 2]:
+                async_task(email_new_admin_cred, user)
+
+        success_message = _(
+            "Users got imported succesfully. "
+            "Admins and managers will receive an email shortly."
+        )
+        return HttpResponse(
+            f"<div class='alert alert-success'><p>{success_message}</p></div>"
+        )
