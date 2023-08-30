@@ -47,7 +47,7 @@ class IntegrationManager(models.Manager):
         return (
             self.get_queryset()
             .filter(integration=Integration.Type.CUSTOM, manifest__exists__isnull=False)
-            .exclude(manifest__type="import_users")
+            .exclude(manifest__type__isnull=False, manifest__type="import_users")
         )
 
     def import_users_options(self):

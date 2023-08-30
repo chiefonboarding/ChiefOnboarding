@@ -430,7 +430,7 @@ class SequenceDefaultTemplatesView(LoginRequiredMixin, ManagerPermMixin, ListVie
     def get_queryset(self):
         template_type = self.request.GET.get("type", "")
         if template_type == "integration":
-            return Integration.objects.sequence_integration_options()
+            return Integration.objects.account_provision_options()
 
         if get_templates_model(template_type) is None:
             # if type does not exist, then return empty queryset

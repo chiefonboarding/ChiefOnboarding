@@ -100,6 +100,7 @@ class ManifestSerializer(ValidateMixin, serializers.Serializer):
         [
             ("import_users", "imports users from endpoint"),
         ],
+        required=False,
     )
     form = ManifestFormSerializer(required=False, many=True)
     data_from = serializers.CharField(required=False)
