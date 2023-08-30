@@ -856,7 +856,7 @@ def test_sequence_item_test_message(client, admin_factory, mailoutbox):
 
 @pytest.mark.django_db
 def test_sequence_default_templates_integrations(
-    client, admin_factory, integration_factory
+    client, admin_factory, integration_factory, custom_integration_factory
 ):
     admin = admin_factory()
     client.force_login(admin)
