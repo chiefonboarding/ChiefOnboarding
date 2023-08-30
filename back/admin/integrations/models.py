@@ -220,7 +220,7 @@ class Integration(models.Model):
                 self.expiring = timezone.now() + timedelta(
                     seconds=response.json()["expires_in"]
                 )
-            self.save()
+            self.save(update_fields=["expiring", "extra_args"])
         return success
 
     def execute(self, new_hire, params):
@@ -365,14 +365,14 @@ class Integration(models.Model):
 
         if next_page_from:
             try:
-                return get_value_from_notation(next_page_from, response)
+                return get_value_from_notation(next_page_from, response.json())
             except KeyError:
                 # next page was not provided anymore, so we are done
                 return
 
         # Build next url from next_page and next_page_token_from
         try:
-            token = get_value_from_notation(next_page_token_from, response)
+            token = get_value_from_notation(next_page_token_from, response.json())
         except KeyError:
             # next page token was not provided anymore, so we are done
             return
@@ -398,7 +398,8 @@ class Integration(models.Model):
         fetched_pages = 1
         while amount_pages_to_fetch != fetched_pages:
             # End everything if next page does not exist
-            if next_page_url := self.get_next_page(response) is None:
+            next_page_url = self.get_next_page(response)
+            if next_page_url is None:
                 break
 
             success, response = self.run_request(
@@ -408,6 +409,13 @@ class Integration(models.Model):
                 raise GettingUsersError(
                     "Paginated URL fetch: " + self.clean_response(response)
                 )
+
+            # Check if there are any new results. Google could send no users back
+            try:
+                data_from = self.manifest["data_from"]
+                get_value_from_notation(data_from, response.json())
+            except KeyError:
+                break
 
             users += self.extract_users_from_list_response(response)
             fetched_pages += 1

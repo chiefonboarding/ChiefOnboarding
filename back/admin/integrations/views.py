@@ -158,10 +158,9 @@ class IntegrationOauthCallbackView(LoginRequiredMixin, RedirectView):
             integration.expiring = timezone.now() + timedelta(
                 seconds=response.json()["expires_in"]
             )
-            integration.save()
 
         integration.enabled_oauth = True
-        integration.save()
+        integration.save(update_fields=["enabled_oauth", "extra_args", "expiring"])
 
         return reverse_lazy("settings:integrations")
 
