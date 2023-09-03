@@ -325,7 +325,9 @@ class Integration(models.Model):
         # if json, then convert to string to make it easier to replace values
         response = str(response)
         for name, value in self.extra_args.items():
-            response = response.replace(str(value), f"***Secret value for {name}***")
+            response = response.replace(
+                str(value), _("***Secret value for %(name)s***") % {"name": name}
+            )
 
         return response
 
@@ -339,7 +341,11 @@ class Integration(models.Model):
             # This is unlikely to go wrong - only when api changes or when
             # configs are being setup
             raise KeyIsNotInDataError(
-                f"Notation '{data_from}' not in {self.clean_response(response.json())}"
+                _("Notation '%(notation)s' not in %(response))s")
+                % {
+                    "notation": data_from,
+                    "response": self.clean_response(response.json()),
+                }
             )
         data_structure = self.manifest["data_structure"]
         user_details = []
@@ -352,7 +358,11 @@ class Integration(models.Model):
                     # This is unlikely to go wrong - only when api changes or when
                     # configs are being setup
                     raise KeyIsNotInDataError(
-                        f"Notation '{notation}' not in {self.clean_response(user_data)}"
+                        _("Notation '%(notation)s' not in %(response))s")
+                        % {
+                            "notation": notation,
+                            "response": self.clean_response(user_data),
+                        }
                     )
             user_details.append(user)
         return user_details
@@ -416,7 +426,8 @@ class Integration(models.Model):
             )
             if not success:
                 raise GettingUsersError(
-                    "Paginated URL fetch: " + self.clean_response(response)
+                    _("Paginated URL fetch: %(response)s")
+                    % {"response": self.clean_response(response)}
                 )
 
             # Check if there are any new results. Google could send no users back
