@@ -341,7 +341,7 @@ class Integration(models.Model):
             # This is unlikely to go wrong - only when api changes or when
             # configs are being setup
             raise KeyIsNotInDataError(
-                _("Notation '%(notation)s' not in %(response))s")
+                _("Notation '%(notation)s' not in %(response)s")
                 % {
                     "notation": data_from,
                     "response": self.clean_response(response.json()),
