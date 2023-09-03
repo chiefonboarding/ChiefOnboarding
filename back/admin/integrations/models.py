@@ -332,8 +332,15 @@ class Integration(models.Model):
     def extract_users_from_list_response(self, response):
         # Building list of users from response. Dig into response to get to the users.
         data_from = self.manifest["data_from"]
-        users = get_value_from_notation(data_from, response.json())
 
+        try:
+            users = get_value_from_notation(data_from, response.json())
+        except KeyError:
+            # This is unlikely to go wrong - only when api changes or when
+            # configs are being setup
+            raise KeyIsNotInDataError(
+                f"Notation '{data_from}' not in {self.clean_response(response.json())}"
+            )
         data_structure = self.manifest["data_structure"]
         user_details = []
         for user_data in users:
@@ -390,8 +397,6 @@ class Integration(models.Model):
         if not success:
             raise GettingUsersError(self.clean_response(response))
 
-        # It's fine if this fails, the exception is caught in function that calls this
-        # function
         users = self.extract_users_from_list_response(response)
 
         # If we don't care about next pages, then just return the users

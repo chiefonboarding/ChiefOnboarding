@@ -110,6 +110,7 @@ class ManifestSerializer(ValidateMixin, serializers.Serializer):
     next_page_token_from = serializers.CharField(required=False)
     next_page = serializers.CharField(required=False)
     next_page_from = serializers.CharField(required=False)
+    amount_pages_to_fetch = serializers.IntegerField(required=False)
     post_execute_notification = ManifestPostExecuteNotificationSerializer(
         many=True, required=False
     )

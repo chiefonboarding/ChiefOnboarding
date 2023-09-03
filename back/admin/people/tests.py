@@ -8,6 +8,7 @@ from django.core.cache import cache
 from django.urls import reverse
 from django.utils import timezone
 from freezegun import freeze_time
+from rest_framework.test import APIClient
 
 from admin.appointments.factories import AppointmentFactory
 from admin.integrations.models import Integration
@@ -2420,3 +2421,338 @@ def test_employee_toggle_resources(
 
     assert "Add" in response.content.decode()
     assert not employee1.resources.filter(id=resource1.id).exists()
+
+
+@pytest.mark.django_db
+def test_visibility_import_employees_button(
+    client, django_user_model, custom_integration_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    custom_integration_factory(manifest={"type": "import_users"}, name="Google import")
+
+    url = reverse("people:colleagues")
+    response = client.get(url, follow=True)
+
+    assert "Import users with Google import" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_importing_employees(client, django_user_model, custom_integration_factory):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    integration = custom_integration_factory(
+        manifest={"type": "import_users"}, name="Google import"
+    )
+
+    url = reverse("people:import", args=[integration.id])
+    response = client.get(url, follow=True)
+
+    assert "Import people" in response.content.decode()
+    # shows it's loading items
+    assert "Getting users" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_ignore_user_from_importing_employees(
+    client, django_user_model, custom_integration_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+    org = Organization.objects.get()
+    assert org.ignored_user_emails == []
+
+    custom_integration_factory(manifest={"type": "import_users"}, name="Google import")
+
+    url = reverse("people:import-ignore-hx")
+    client.post(url, data={"email": "stan@chiefonboarding.com"}, follow=True)
+
+    org.refresh_from_db()
+    assert org.ignored_user_emails == ["stan@chiefonboarding.com"]
+
+
+@pytest.mark.django_db
+# first two will be ignored. Last two will show
+@patch(
+    "admin.integrations.models.Integration.run_request",
+    Mock(
+        return_value=(
+            True,
+            Mock(
+                json=lambda: {
+                    "directory": {
+                        "employees": [
+                            {
+                                "detail": {
+                                    "workEmail": "stan@chiefonboarding.com",
+                                    "firstName": "stan",
+                                    "lastName": "Do",
+                                }
+                            },
+                            {
+                                "detail": {
+                                    "workEmail": "test@chiefonboarding.com",
+                                    "firstName": "stan",
+                                    "lastName": "Do",
+                                }
+                            },
+                            {
+                                "detail": {
+                                    "workEmail": "jake@chiefonboarding.com",
+                                    "firstName": "Jake",
+                                    "lastName": "Weller",
+                                }
+                            },
+                            {
+                                "detail": {
+                                    "workEmail": "brian@chiefonboarding.com",
+                                    "firstName": "Brian",
+                                    "lastName": "Boss",
+                                }
+                            },
+                        ]
+                    }
+                }
+            ),
+        )
+    ),
+)
+def test_fetching_employees(
+    client, django_user_model, custom_integration_factory, employee_factory
+):
+    # create two users who are already in the system (should not show up)
+    employee_factory(email="stan@chiefonboarding.com")
+    employee_factory(email="john@chiefonboarding.com")
+    org = Organization.objects.get()
+
+    # two emails who have been ignored by the user
+    org.ignored_user_emails = ["test@chiefonboarding.com", "bla@chiefonboarding.com"]
+    org.save()
+
+    client.force_login(django_user_model.objects.create(role=1))
+
+    integration = custom_integration_factory(
+        manifest={
+            "type": "import_users",
+            "execute": [
+                {"url": "http://localhost:8000/test_api/users", "method": "GET"}
+            ],
+            "data_from": "directory.employees",
+            "data_structure": {
+                "email": "detail.workEmail",
+                "last_name": "detail.lastName",
+                "first_name": "detail.firstName",
+            },
+            "initial_data_form": [],
+        },
+        name="Google import",
+    )
+
+    url = reverse("people:import-users-hx", args=[integration.id])
+    response = client.get(url, follow=True)
+
+    print(response.content.decode())
+    assert "brian@chiefonboarding.com" in response.content.decode()
+    assert "jake@chiefonboarding.com" in response.content.decode()
+    # ignored due to already exist or on ignore list
+    assert "stan@chiefonboarding.com" not in response.content.decode()
+    assert "bla@chiefonboarding" not in response.content.decode()
+
+
+@pytest.mark.django_db
+@patch(
+    "admin.integrations.models.Integration.run_request",
+    Mock(
+        side_effect=(
+            [
+                True,
+                Mock(
+                    json=lambda: {
+                        "directory": {
+                            "employees": [
+                                {
+                                    "detail": {
+                                        "workEmail": "stan@chiefonboarding.com",
+                                        "firstName": "stan",
+                                        "lastName": "Do",
+                                    }
+                                },
+                                {
+                                    "detail": {
+                                        "workEmail": "test@chiefonboarding.com",
+                                        "firstName": "stan",
+                                        "lastName": "Do",
+                                    }
+                                },
+                                {
+                                    "detail": {
+                                        "workEmail": "jake@chiefonboarding.com",
+                                        "firstName": "Jake",
+                                        "lastName": "Weller",
+                                    }
+                                },
+                                {
+                                    "detail": {
+                                        "workEmail": "brian@chiefonboarding.com",
+                                        "firstName": "Brian",
+                                        "lastName": "Boss",
+                                    }
+                                },
+                            ]
+                        },
+                        "nextPageToken": "244",
+                    }
+                ),
+            ],
+            # second call
+            [
+                True,
+                Mock(
+                    json=lambda: {
+                        "directory": {
+                            "employees": [
+                                {
+                                    "detail": {
+                                        "workEmail": "chris@chiefonboarding.com",
+                                        "firstName": "chris",
+                                        "lastName": "Do",
+                                    }
+                                },
+                                {
+                                    "detail": {
+                                        "workEmail": "emma@chiefonboarding.com",
+                                        "firstName": "emma",
+                                        "lastName": "Do",
+                                    }
+                                },
+                            ]
+                        }
+                    }
+                ),
+            ],
+        )
+    ),
+)
+def test_fetching_employees_paginated_response(
+    client, django_user_model, custom_integration_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    integration = custom_integration_factory(
+        manifest={
+            "type": "import_users",
+            "execute": [{"url": "http://localhost/test_api/users", "method": "GET"}],
+            "data_from": "directory.employees",
+            "data_structure": {
+                "email": "detail.workEmail",
+                "last_name": "detail.lastName",
+                "first_name": "detail.firstName",
+            },
+            "initial_data_form": [],
+            "next_page_token_from": "nextPageToken",
+            "next_page": "https://localhost/test_api/users?pt={{ NEXT_PAGE_TOKEN }}",
+        },
+        name="Google import",
+    )
+
+    url = reverse("people:import-users-hx", args=[integration.id])
+    response = client.get(url, follow=True)
+
+    print(response.content.decode())
+    assert "brian@chiefonboarding.com" in response.content.decode()
+    assert "jake@chiefonboarding.com" in response.content.decode()
+    assert "stan@chiefonboarding.com" in response.content.decode()
+    assert "test@chiefonboarding" in response.content.decode()
+    assert "emma@chiefonboarding" in response.content.decode()
+    assert "chris@chiefonboarding" in response.content.decode()
+
+
+@pytest.mark.django_db
+@patch(
+    "admin.integrations.models.Integration.run_request",
+    Mock(return_value=(True, Mock(json=lambda: {"directory": {"users": []}}))),
+)
+def test_fetching_employees_incorrect_notation(
+    client, django_user_model, custom_integration_factory
+):
+    # create two users who are already in the system (should not show up)
+    client.force_login(django_user_model.objects.create(role=1))
+
+    integration = custom_integration_factory(
+        manifest={
+            "type": "import_users",
+            "execute": [
+                {"url": "http://localhost:8000/test_api/users", "method": "GET"}
+            ],
+            "data_from": "directory.employees",
+            "data_structure": {
+                "email": "detail.workEmail",
+                "last_name": "detail.lastName",
+                "first_name": "detail.firstName",
+            },
+            "initial_data_form": [],
+        },
+        name="Google import",
+    )
+
+    # directory.employees should have been directory.users based on the mock data
+
+    url = reverse("people:import-users-hx", args=[integration.id])
+    response = client.get(url, follow=True)
+    assert (
+        "Notation &#x27;directory.employees&#x27; not in" in response.content.decode()
+    )
+
+
+@pytest.mark.django_db
+def test_import_users_create_users(
+    django_user_model, custom_integration_factory, mailoutbox
+):
+    client = APIClient()
+    client.force_login(django_user_model.objects.create(role=1))
+
+    assert django_user_model.objects.all().count() == 1
+
+    custom_integration_factory(manifest={"type": "import_users"}, name="Google import")
+
+    url = reverse("people:import-create")
+    client.post(
+        url,
+        data=[
+            {
+                "first_name": "stan",
+                "last_name": "Do",
+                "email": "stan@chiefonboarding.com",
+                "role": 1,
+            },
+            {
+                "first_name": "Peter",
+                "last_name": "Bla",
+                "email": "bla@chiefonboarding.com",
+                "role": 1,
+            },
+            {
+                "first_name": "Jane",
+                "last_name": "Do",
+                "email": "jane@chiefonboarding.com",
+                "role": 3,
+            },
+        ],
+        format="json",
+        follow=True,
+    )
+
+    # 4 users: 3 imported users + 1 admin user who created the users
+    assert django_user_model.objects.all().count() == 4
+
+    # 2 emails are send out because only two are role 1 (or 2)
+    assert len(mailoutbox) == 2
+
+    assert len(mailoutbox[0].to) == 1
+    assert "stan@chiefonboarding.com" in mailoutbox[0].to[0]
+    assert len(mailoutbox[1].to) == 1
+    assert "bla@chiefonboarding.com" in mailoutbox[1].to[0]
+
+    # has a unique link - make sure we are not calling bulk_create as that would ignore
+    # the `save` method
+    user = django_user_model.objects.get(email="stan@chiefonboarding.com")
+    assert len(user.unique_url) == 8

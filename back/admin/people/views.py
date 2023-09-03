@@ -358,7 +358,7 @@ class ColleagueImportAddUsersView(generics.CreateAPIView):
 
         # users is list, so manually checking instead of filter queryset
         for user in users:
-            if user.role in [1, 2]:
+            if user.is_admin_or_manager:
                 async_task(email_new_admin_cred, user)
 
         success_message = _(
