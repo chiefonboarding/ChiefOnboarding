@@ -4,6 +4,7 @@ import jwt
 import pytest
 from django.contrib import auth
 from django.urls import reverse
+
 from organization.models import Organization
 
 from .utils import get_all_urls
