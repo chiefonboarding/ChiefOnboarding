@@ -6177,8 +6177,8 @@
 	const DATA_API_KEY$3 = '.data-api';
 	const ESCAPE_KEY$1 = 'Escape';
 	const Default$5 = {
-	  backdrop: true,
-	  keyboard: true,
+	  backdrop: 'static',
+	  keyboard: false,
 	  focus: true
 	};
 	const DefaultType$5 = {
