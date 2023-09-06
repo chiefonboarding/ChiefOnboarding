@@ -1,4 +1,4 @@
-from admin.users.models import User
+from users.models import User
 from django.conf import settings
 
 from admin.sequences.models import Condition, ExternalMessage
