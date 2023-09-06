@@ -132,7 +132,7 @@ class NewHireAddView(
                 # hire started that passed
                 conditions |= seq.conditions.filter(
                     condition_type=Condition.Type.BEFORE,
-                    days__lte=new_hire.days_before_starting,
+                    days__gte=new_hire.days_before_starting,
                 )
             else:
                 # user has already started, check both before start day and after for
@@ -214,7 +214,7 @@ class NewHireAddSequenceView(
                 # hire started that passed
                 conditions |= seq.conditions.filter(
                     condition_type=Condition.Type.BEFORE,
-                    days__lte=new_hire.days_before_starting,
+                    days__gte=new_hire.days_before_starting,
                 )
             else:
                 # user has already started, check both before start day and after for

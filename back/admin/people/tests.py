@@ -201,15 +201,19 @@ def test_create_new_hire_with_sequences_before_starting(
         django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     )
 
+    to_do0 = to_do_factory()
     to_do1 = to_do_factory()
     to_do2 = to_do_factory()
     to_do3 = to_do_factory()
+
     sequence = sequence_factory()
     # before starting
+    condition0 = condition_timed_factory(sequence=sequence, days=8, condition_type=2)
     condition1 = condition_timed_factory(sequence=sequence, days=1, condition_type=2)
     condition2 = condition_to_do_factory(sequence=sequence)
     # after starting
     condition3 = condition_timed_factory(sequence=sequence, days=1)
+    condition0.to_do.add(to_do0)
     condition1.to_do.add(to_do1)
     condition2.to_do.add(to_do2)
     condition3.to_do.add(to_do3)
@@ -231,7 +235,8 @@ def test_create_new_hire_with_sequences_before_starting(
 
     # To do item in condition is passed time, so we should notify user of that
     assert "Items that will never be triggered" in response.content.decode()
-    assert to_do1.name in response.content.decode()
+    assert to_do0.name in response.content.decode()
+    assert to_do1.name not in response.content.decode()
     assert to_do3.name not in response.content.decode()
     # Second to do will not show up as triggers based on to do items are not shown there
     assert to_do2.name not in response.content.decode()
