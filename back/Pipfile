@@ -30,12 +30,11 @@ coverage = "*"
 pytest = "*"
 pytest-cov = "*"
 pytest-django = "*"
-flake8 = "*"
 black = "*"
-isort = "*"
 pytest-factoryboy = "*"
 freezegun = "*"
 django-debug-toolbar = "*"
+ruff = "*"
 
 [requires]
 python_version = "3.11.4"
