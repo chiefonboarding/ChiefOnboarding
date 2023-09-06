@@ -84,7 +84,7 @@ def test_sequence_create_view(client, admin_factory):
     assert Condition.objects.all().count() == 1
     sequence = Sequence.objects.first()
     # Check that condition without actual condition was created
-    assert sequence.conditions.all().first().condition_type == 3
+    assert sequence.conditions.all().first().condition_type == Condition.Type.WITHOUT
     assert sequence.update_url == reverse("sequences:update", args=[sequence.id])
     assert sequence.class_name() == "Sequence"
     assert response.redirect_chain[-1][0] == reverse(
@@ -133,7 +133,7 @@ def test_sequence_create_condition_success_view(
     assert response.status_code == 200
     assert Condition.objects.all().count() == 2
     assert to_do1 in Condition.objects.last().condition_to_do.all()
-    assert Condition.objects.last().condition_type == 1
+    assert Condition.objects.last().condition_type == Condition.Type.TODO
 
     # Create block based on day/time
     url = reverse("sequences:condition-create", args=[sequence1.id])
