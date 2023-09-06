@@ -8,7 +8,7 @@ from django.core.cache import cache
 from django.utils.formats import localize
 from freezegun import freeze_time
 
-from back.integrations.models import Integration
+from admin.integrations.models import Integration
 from organization.models import Organization, WelcomeMessage
 from slack_bot.models import SlackChannel
 from slack_bot.tasks import (
