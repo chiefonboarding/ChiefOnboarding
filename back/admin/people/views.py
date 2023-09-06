@@ -36,7 +36,9 @@ class ColleagueListView(LoginRequiredMixin, ManagerPermMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["title"] = _("Colleagues")
         context["subtitle"] = _("people")
-        context["slack_active"] = Integration.objects.filter(integration=0).exists()
+        context["slack_active"] = Integration.objects.filter(
+            integration=Integration.Type.SLACK_BOT
+        ).exists()
         context["add_action"] = reverse_lazy("people:colleague_create")
         return context
 
@@ -212,7 +214,8 @@ class ColleagueGiveSlackAccessView(LoginRequiredMixin, ManagerPermMixin, View):
         blocks = [
             paragraph(
                 WelcomeMessage.objects.get(
-                    language=user.language, message_type=4
+                    language=user.language,
+                    message_type=WelcomeMessage.Type.SLACK_KNOWLEDGE,
                 ).message
             ),
             actions(

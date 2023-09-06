@@ -6,6 +6,7 @@ from django.urls import reverse
 from freezegun import freeze_time
 
 from admin.admin_tasks.models import AdminTask
+from admin.sequences.models import Condition
 from organization.models import Notification
 from users.models import ToDoUser
 
@@ -194,7 +195,9 @@ def test_complete_to_do_item_view_with_trigger(
     client.force_login(new_hire)
 
     sequence = sequence_factory()
-    con = condition_with_items_factory(condition_type=1, sequence=sequence)
+    con = condition_with_items_factory(
+        condition_type=Condition.Type.TODO, sequence=sequence
+    )
 
     new_hire.add_sequences([sequence])
     # Add to do item from sequence to new hire. Once we have triggered this, all
@@ -212,7 +215,12 @@ def test_complete_to_do_item_view_with_trigger(
     # Completed todo + sequence added + 9 from condition
     assert Notification.objects.all().count() == 11
     # One failed because of no email
-    assert Notification.objects.filter(notification_type="failed_no_email").count() == 1
+    assert (
+        Notification.objects.filter(
+            notification_type=Notification.Type.FAILED_NO_EMAIL
+        ).count()
+        == 1
+    )
 
     # Check if we got all items
     assert new_hire.to_do.all().count() == 2

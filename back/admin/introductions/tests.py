@@ -1,4 +1,5 @@
 import pytest
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from admin.introductions.models import Introduction
@@ -9,7 +10,9 @@ from .factories import *  # noqa
 
 @pytest.mark.django_db
 def test_create_introduction(client, django_user_model, employee_factory):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     employee = employee_factory()
 
     url = reverse("introductions:create")
@@ -48,7 +51,9 @@ def test_create_introduction(client, django_user_model, employee_factory):
 def test_update_introduction(
     client, django_user_model, employee_factory, introduction_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     introduction = introduction_factory()
     initial_selected_colleague = introduction.intro_person
     employee = employee_factory()

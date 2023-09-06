@@ -1,6 +1,7 @@
 import datetime
 
 import factory
+from django.contrib.auth import get_user_model
 from factory.fuzzy import FuzzyText
 
 from admin.preboarding.factories import PreboardingFactory
@@ -28,7 +29,7 @@ class DepartmentFactory(factory.django.DjangoModelFactory):
 class NewHireFactory(factory.django.DjangoModelFactory):
     first_name = FuzzyText()
     last_name = FuzzyText()
-    role = 0
+    role = get_user_model().Role.NEWHIRE
     start_day = factory.LazyFunction(lambda: datetime.datetime.now().date())
     email = factory.Sequence(lambda n: "fake_new_hire_{}@example.com".format(n))
 
@@ -37,7 +38,7 @@ class NewHireFactory(factory.django.DjangoModelFactory):
 
 
 class AdminFactory(factory.django.DjangoModelFactory):
-    role = 1
+    role = get_user_model().Role.ADMIN
     first_name = FuzzyText()
     last_name = FuzzyText()
     email = factory.Sequence(lambda n: "fake_admin_{}@example.com".format(n))
@@ -49,7 +50,7 @@ class AdminFactory(factory.django.DjangoModelFactory):
 class ManagerFactory(factory.django.DjangoModelFactory):
     first_name = FuzzyText()
     last_name = FuzzyText()
-    role = 2
+    role = get_user_model().Role.MANAGER
     email = factory.Sequence(lambda n: "fake_manager_{}@example.com".format(n))
 
     class Meta:
@@ -60,7 +61,7 @@ class EmployeeFactory(factory.django.DjangoModelFactory):
     first_name = FuzzyText()
     last_name = FuzzyText()
     is_active = False
-    role = 3
+    role = get_user_model().Role.OTHER
     message = "Hi {{ first_name }}, how is it going? Great to have you with us!"
     position = "CEO"
     email = factory.Sequence(lambda n: "fake_employee_{}@example.com".format(n))

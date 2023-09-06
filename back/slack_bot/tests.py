@@ -8,6 +8,7 @@ from django.core.cache import cache
 from django.utils.formats import localize
 from freezegun import freeze_time
 
+from admin.integrations.models import Integration
 from organization.models import Organization, WelcomeMessage
 from slack_bot.models import SlackChannel
 from slack_bot.tasks import (
@@ -1376,7 +1377,7 @@ def test_join_user_auto_create_without_approval(sequence_factory, to_do_factory)
     user = get_user_model().objects.first()
     # To do item from sequence
     assert user.to_do.count() == 1
-    assert user.role == 0
+    assert user.role == get_user_model().Role.NEWHIRE
     assert user.is_active
 
 
@@ -1474,7 +1475,7 @@ def test_join_user_auto_create_with_request_for_approval(admin_factory):
     assert get_user_model().objects.count() == 2
     new_hire = get_user_model().objects.last()
     # New hire is not active
-    assert new_hire.role == 3
+    assert new_hire.role == get_user_model().Role.OTHER
     assert not new_hire.is_active
 
     assert cache.get("slack_channel") == "slackx"
@@ -1848,7 +1849,7 @@ def test_link_slack_users_slack_not_enabled(new_hire_factory, integration_factor
     assert new_hire.slack_user_id == ""
 
     # Add integration
-    integration_factory(integration=0)
+    integration_factory(integration=Integration.Type.SLACK_BOT)
 
     link_slack_users()
 
@@ -1860,7 +1861,7 @@ def test_link_slack_users_slack_not_enabled(new_hire_factory, integration_factor
 @patch("slack_bot.utils.Slack.find_by_email", Mock(return_value=False))
 def test_link_slack_users_not_found(new_hire_factory, integration_factory):
     # Enable Slack
-    integration_factory(integration=0)
+    integration_factory(integration=Integration.Type.SLACK_BOT)
 
     new_hire = new_hire_factory()
 
@@ -1878,11 +1879,13 @@ def test_link_slack_users_send_welcome_message_without_to_dos(
     new_hire_factory, integration_factory, introduction_factory
 ):
     # Enable Slack
-    integration_factory(integration=0)
+    integration_factory(integration=Integration.Type.SLACK_BOT)
 
     new_hire = new_hire_factory()
     # Test personalizing message
-    wm = WelcomeMessage.objects.get(language=new_hire.language, message_type=3)
+    wm = WelcomeMessage.objects.get(
+        language=new_hire.language, message_type=WelcomeMessage.Type.SLACK_WELCOME
+    )
     wm.message += " {{first_name}}"
     wm.save()
 
@@ -1944,11 +1947,13 @@ def test_link_slack_users_send_welcome_message_with_to_dos(
     new_hire_factory, integration_factory, introduction_factory, to_do_user_factory
 ):
     # Enable Slack
-    integration_factory(integration=0)
+    integration_factory(integration=Integration.Type.SLACK_BOT)
 
     new_hire = new_hire_factory()
     # Test personalizing message
-    wm = WelcomeMessage.objects.get(language=new_hire.language, message_type=3)
+    wm = WelcomeMessage.objects.get(
+        language=new_hire.language, message_type=WelcomeMessage.Type.SLACK_WELCOME
+    )
     wm.message += " {{first_name}}"
     wm.save()
 
@@ -1994,7 +1999,7 @@ def test_link_slack_users_send_welcome_message_with_to_dos(
 )
 def test_link_slack_users_only_send_once(new_hire_factory, integration_factory):
     # Enable Slack
-    integration_factory(integration=0)
+    integration_factory(integration=Integration.Type.SLACK_BOT)
 
     new_hire_factory(slack_user_id="slackx")
     link_slack_users()
@@ -2025,7 +2030,7 @@ def test_update_new_hire_not_valid_time(
     new_hire_factory, integration_factory, to_do_user_factory
 ):
     # Enable Slack
-    integration_factory(integration=0)
+    integration_factory(integration=Integration.Type.SLACK_BOT)
 
     new_hire = new_hire_factory(
         start_day=datetime.now().date() - timedelta(days=2), slack_user_id="slackx"
@@ -2045,7 +2050,7 @@ def test_update_new_hire_with_to_do_updates(
     new_hire_factory, integration_factory, to_do_user_factory
 ):
     # Enable Slack
-    integration_factory(integration=0)
+    integration_factory(integration=Integration.Type.SLACK_BOT)
 
     new_hire = new_hire_factory(
         start_day=datetime.now().date() - timedelta(days=2), slack_user_id="slackx"
@@ -2097,7 +2102,7 @@ def test_update_new_hire_with_to_do_updates_outside_8am(
     new_hire_factory, integration_factory, to_do_user_factory
 ):
     # Enable Slack
-    integration_factory(integration=0)
+    integration_factory(integration=Integration.Type.SLACK_BOT)
 
     new_hire = new_hire_factory(
         start_day=datetime.now().date() - timedelta(days=2), slack_user_id="slackx"
@@ -2121,7 +2126,7 @@ def test_update_new_hire_with_to_do_updates_overdue(
     new_hire_factory, integration_factory, to_do_user_factory
 ):
     # Enable Slack
-    integration_factory(integration=0)
+    integration_factory(integration=Integration.Type.SLACK_BOT)
 
     new_hire = new_hire_factory(
         start_day=datetime.now().date() - timedelta(days=2), slack_user_id="slackx"
@@ -2190,7 +2195,7 @@ def test_first_day_reminder(new_hire_factory, integration_factory):
     org.save()
 
     # Enable Slack
-    integration_factory(integration=0)
+    integration_factory(integration=Integration.Type.SLACK_BOT)
 
     new_hire1 = new_hire_factory(
         start_day=datetime.now().date(), slack_user_id="slackx"
@@ -2237,7 +2242,7 @@ def test_birthday_reminder(new_hire_factory, integration_factory):
     org.save()
 
     # Enable Slack
-    integration_factory(integration=0)
+    integration_factory(integration=Integration.Type.SLACK_BOT)
 
     new_hire1 = new_hire_factory(
         start_day=datetime.now().date(),
@@ -2269,7 +2274,7 @@ def test_introduce_new_hire(new_hire_factory, integration_factory):
     org.save()
 
     # Enable Slack
-    integration_factory(integration=0)
+    integration_factory(integration=Integration.Type.SLACK_BOT)
 
     # Will not send since `ask_colleague_welcome_message` is disabled
     introduce_new_people()

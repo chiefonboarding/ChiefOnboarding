@@ -1,4 +1,5 @@
 import pytest
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from admin.badges.models import Badge
@@ -9,7 +10,9 @@ from .factories import *  # noqa
 
 @pytest.mark.django_db
 def test_create_badge(client, django_user_model):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     url = reverse("badges:create")
     response = client.get(url)
@@ -31,7 +34,9 @@ def test_create_badge(client, django_user_model):
 
 @pytest.mark.django_db
 def test_update_badge(client, django_user_model, badge_factory):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     badge = badge_factory()
 
     url = reverse("badges:update", args=[badge.id])

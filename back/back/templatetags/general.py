@@ -4,6 +4,7 @@ from datetime import timedelta
 from django import template
 from django.utils import timezone
 
+from admin.sequences.models import Condition
 from organization.models import File
 
 register = template.Library()
@@ -51,7 +52,7 @@ def new_hire_trigger_date(condition, new_hire):
     Shows the actual date that the conditio will trigger
     """
 
-    if condition.condition_type == 2:
+    if condition.condition_type == Condition.Type.BEFORE:
         return new_hire.start_day - timedelta(days=condition.days)
     else:
         return new_hire.workday_to_datetime(condition.days)
@@ -77,10 +78,13 @@ def show_start_card(conditions, idx, new_hire):
     except Exception:
         prev_condition = None
 
-    if (prev_condition is None and current_condition.condition_type == 0) or (
+    if (
+        prev_condition is None
+        and current_condition.condition_type == Condition.Type.AFTER
+    ) or (
         prev_condition is not None
-        and prev_condition.condition_type == 2
-        and current_condition.condition_type == 0
+        and prev_condition.condition_type == Condition.Type.BEFORE
+        and current_condition.condition_type == Condition.Type.AFTER
     ):
         return True
 

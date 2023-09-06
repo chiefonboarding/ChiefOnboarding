@@ -29,7 +29,7 @@ class LoginRequiredMixin(AccessMixin):
 
 class ManagerPermMixin(UserPassesTestMixin):
     def test_func(self):
-        return self.request.user.role in [1, 2]
+        return self.request.user.is_admin_or_manager
 
 
 class AdminPermMixin(UserPassesTestMixin):

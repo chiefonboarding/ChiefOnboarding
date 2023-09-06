@@ -1,6 +1,7 @@
-from organization.models import Organization
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+
+from organization.models import Organization
 
 
 class Command(BaseCommand):

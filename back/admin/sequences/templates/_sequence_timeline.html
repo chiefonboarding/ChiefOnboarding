@@ -5,7 +5,7 @@
     <div class="list-timeline-icon bg-twitter">
     </div>
     {% for condition in conditions %}
-      {% if condition.condition_type == 3 %}
+      {% if condition.condition_type == ConditionType.WITHOUT %}
       <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
         {% include '_sequence_condition.html' with condition=condition disable_delete=True %}
       </div>
@@ -15,7 +15,7 @@
 
   {# before start day #}
   {% for condition in conditions %}
-    {% if condition.condition_type == 2 %}
+    {% if condition.condition_type == ConditionType.BEFORE %}
       <li>
         <div class="list-timeline-icon">
         </div>
@@ -27,7 +27,7 @@
   {% endfor %}
 
   {% for condition in conditions %}
-    {% if condition.condition_type == 0 %}
+    {% if condition.condition_type == ConditionType.AFTER %}
       <li>
         <div class="list-timeline-icon">
         </div>
@@ -39,7 +39,7 @@
   {% endfor %}
 
   {% for condition in conditions %}
-    {% if condition.condition_type == 1 %}
+    {% if condition.condition_type == ConditionType.TODO %}
       <li style="z-index:{{ 100|add:forloop.revcounter }}">
         <div class="list-timeline-icon">
         </div>

@@ -37,7 +37,7 @@ class ToDoForm(TagModelForm):
             ),
         )
         # Only show if the slack bot has been enabled
-        if Integration.objects.filter(integration=0).exists():
+        if Integration.objects.filter(integration=Integration.Type.SLACK_BOT).exists():
             layout[0][1].extend(
                 [
                     Field("send_back"),

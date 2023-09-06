@@ -33,31 +33,31 @@ from misc.fields import EncryptedJSONField
 from organization.models import Notification
 from organization.utils import send_email_with_notification
 
-INTEGRATION_OPTIONS = (
-    (0, _("Slack bot")),
-    (1, _("Slack account creation")),
-    (2, _("Google account creation")),
-    (3, _("Google Login")),
-    (4, _("Asana")),
-)
-
 
 class IntegrationManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset()
 
     def sequence_integration_options(self):
-        return self.get_queryset().filter(integration=10)
+        return self.get_queryset().filter(integration=Integration.Type.CUSTOM)
 
     def account_provision_options(self):
         return self.get_queryset().filter(
-            integration=10, manifest__exists__isnull=False
+            integration=Integration.Type.CUSTOM, manifest__exists__isnull=False
         )
 
 
 class Integration(models.Model):
+    class Type(models.IntegerChoices):
+        SLACK_BOT = 0, _("Slack bot")
+        SLACK_ACCOUNT_CREATION = 1, _("Slack account creation")  # legacy
+        GOOGLE_ACCOUNT_CREATION = 2, _("Google account creation")  # legacy
+        GOOGLE_LOGIN = 3, _("Google Login")
+        ASANA = 4, _("Asana")  # legacy
+        CUSTOM = 10, _("Custom")
+
     name = models.CharField(max_length=300, default="", blank=True)
-    integration = models.IntegerField(choices=INTEGRATION_OPTIONS)
+    integration = models.IntegerField(choices=Type.choices)
     token = EncryptedTextField(max_length=10000, default="", blank=True)
     refresh_token = EncryptedTextField(max_length=10000, default="", blank=True)
     base_url = models.CharField(max_length=22300, default="", blank=True)
@@ -197,7 +197,7 @@ class Integration(models.Model):
 
             if not success:
                 Notification.objects.create(
-                    notification_type="failed_integration",
+                    notification_type=Notification.Type.FAILED_INTEGRATION,
                     extra_text=self.name,
                     created_for=self.new_hire,
                     description="Refresh url: " + str(response),
@@ -233,7 +233,7 @@ class Integration(models.Model):
             if not success:
                 response = self.clean_response(response=response)
                 Notification.objects.create(
-                    notification_type="failed_integration",
+                    notification_type=Notification.Type.FAILED_INTEGRATION,
                     extra_text=self.name,
                     created_for=new_hire,
                     description=f"Execute url ({item['url']}): {response}",
@@ -264,7 +264,9 @@ class Integration(models.Model):
                     subject=self._replace_vars(item["subject"]),
                     message=self._replace_vars(item["message"]),
                     to=self._replace_vars(item["to"]),
-                    notification_type="sent_email_integration_notification",
+                    notification_type=(
+                        Notification.Type.SENT_EMAIL_INTEGRATION_NOTIFICATION
+                    ),
                 )
                 return True, None
             else:
@@ -279,7 +281,9 @@ class Integration(models.Model):
                     )
                 except Exception:
                     Notification.objects.create(
-                        notification_type="failed_text_integration_notification",
+                        notification_type=(
+                            Notification.Type.FAILED_TEXT_INTEGRATION_NOTIFICATION
+                        ),
                         extra_text=self.name,
                         created_for=new_hire,
                     )
@@ -287,7 +291,7 @@ class Integration(models.Model):
 
         # Succesfully ran integration, add notification
         Notification.objects.create(
-            notification_type="ran_integration",
+            notification_type=Notification.Type.RAN_INTEGRATION,
             extra_text=self.name,
             created_for=new_hire,
         )

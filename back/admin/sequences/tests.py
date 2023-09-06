@@ -13,6 +13,7 @@ from admin.appointments.factories import AppointmentFactory
 from admin.appointments.forms import AppointmentForm
 from admin.badges.factories import BadgeFactory
 from admin.badges.forms import BadgeForm
+from admin.integrations.models import Integration
 from admin.introductions.factories import IntroductionFactory
 from admin.introductions.forms import IntroductionForm
 from admin.preboarding.factories import PreboardingFactory
@@ -36,6 +37,10 @@ from admin.sequences.models import (
     Condition,
     ExternalMessage,
     IntegrationConfig,
+    PendingAdminTask,
+    PendingEmailMessage,
+    PendingSlackMessage,
+    PendingTextMessage,
     Sequence,
 )
 from admin.sequences.tasks import process_condition, timed_triggers
@@ -79,7 +84,7 @@ def test_sequence_create_view(client, admin_factory):
     assert Condition.objects.all().count() == 1
     sequence = Sequence.objects.first()
     # Check that condition without actual condition was created
-    assert sequence.conditions.all().first().condition_type == 3
+    assert sequence.conditions.all().first().condition_type == Condition.Type.WITHOUT
     assert sequence.update_url == reverse("sequences:update", args=[sequence.id])
     assert sequence.class_name() == "Sequence"
     assert response.redirect_chain[-1][0] == reverse(
@@ -128,7 +133,7 @@ def test_sequence_create_condition_success_view(
     assert response.status_code == 200
     assert Condition.objects.all().count() == 2
     assert to_do1 in Condition.objects.last().condition_to_do.all()
-    assert Condition.objects.last().condition_type == 1
+    assert Condition.objects.last().condition_type == Condition.Type.TODO
 
     # Create block based on day/time
     url = reverse("sequences:condition-create", args=[sequence1.id])
@@ -831,7 +836,7 @@ def test_sequence_item_test_message(client, admin_factory, mailoutbox):
     # Actually sending the message to admin2, not admin1
     pending_email_message = PendingEmailMessageFactory(
         send_to=admin2,
-        person_type=3,
+        person_type=PendingEmailMessage.PersonType.CUSTOM,
         content_json={
             "time": 0,
             "blocks": [{"data": {"text": "hi {{ first_name }}"}, "type": "paragraph"}],
@@ -856,14 +861,15 @@ def test_sequence_default_templates_integrations(
     admin = admin_factory()
     client.force_login(admin)
     url = reverse("sequences:template_list")
-    integration_factory(integration=10)
-    integration_factory(integration=10)
-    integration_factory(integration=1)
-    integration_factory(integration=3)
+    integration_factory(integration=Integration.Type.CUSTOM)
+    integration_factory(integration=Integration.Type.CUSTOM)
+    integration_factory(integration=Integration.Type.SLACK_ACCOUNT_CREATION)
+    integration_factory(integration=Integration.Type.GOOGLE_LOGIN)
 
     response = client.get(url + "?type=integration")
 
     assert response.status_code == 200
+    # only shows the custom ones
     assert len(response.context["object_list"]) == 2
 
 
@@ -1234,7 +1240,10 @@ def test_pending_email_message_item(
     assert not pending_email_message.is_slack_message
     assert not pending_email_message.is_text_message
 
-    assert pending_email_message.notification_add_type == "sent_email_message"
+    assert (
+        pending_email_message.notification_add_type
+        == Notification.Type.SENT_EMAIL_MESSAGE
+    )
     assert "mail" in pending_email_message.get_icon_template
 
     # Test variable swapping
@@ -1264,7 +1273,10 @@ def test_pending_text_message_item(pending_text_message_factory):
     assert not pending_text_message.is_slack_message
     assert pending_text_message.is_text_message
 
-    assert pending_text_message.notification_add_type == "sent_text_message"
+    assert (
+        pending_text_message.notification_add_type
+        == Notification.Type.SENT_TEXT_MESSAGE
+    )
     assert "message" in pending_text_message.get_icon_template
 
 
@@ -1275,7 +1287,10 @@ def test_pending_slack_message_item(pending_slack_message_factory):
     assert pending_slack_message.is_slack_message
     assert not pending_slack_message.is_text_message
 
-    assert pending_slack_message.notification_add_type == "sent_slack_message"
+    assert (
+        pending_slack_message.notification_add_type
+        == Notification.Type.SENT_SLACK_MESSAGE
+    )
     assert "slack" in pending_slack_message.get_icon_template
 
 
@@ -1304,10 +1319,17 @@ def test_execute_external_message_phone_no_number(
 ):
     new_hire = new_hire_factory()
     # Send text message to new hire
-    pending_text_message = pending_text_message_factory(person_type=0)
+    pending_text_message = pending_text_message_factory(
+        person_type=PendingTextMessage.PersonType.NEWHIRE
+    )
     pending_text_message.execute(new_hire)
     # New hire does not have a phone number
-    assert Notification.objects.filter(notification_type="failed_no_phone").count() == 1
+    assert (
+        Notification.objects.filter(
+            notification_type=Notification.Type.FAILED_NO_PHONE
+        ).count()
+        == 1
+    )
 
 
 @pytest.mark.django_db
@@ -1328,7 +1350,7 @@ def test_execute_external_message_slack(
                 }
             ],
         },
-        person_type=0,
+        person_type=PendingSlackMessage.PersonType.NEWHIRE,
     )
     pending_slack_message.execute(new_hire)
 
@@ -1362,7 +1384,7 @@ def test_execute_external_message_slack_to_slack_channel(
                 }
             ],
         },
-        person_type=4,
+        person_type=PendingSlackMessage.PersonType.SLACK_CHANNEL,
         send_to_channel=SlackChannel.objects.first(),
     )
     pending_slack_message.execute(new_hire)
@@ -1398,14 +1420,14 @@ def test_execute_external_message_slack_to_slack_channel_invalid_channel(
                 }
             ],
         },
-        person_type=4,
+        person_type=PendingSlackMessage.PersonType.SLACK_CHANNEL,
     )
     pending_slack_message.execute(new_hire)
 
     assert cache.get("slack_channel", "") == ""
     assert (
         Notification.objects.filter(
-            notification_type="failed_send_slack_message"
+            notification_type=Notification.Type.FAILED_SEND_SLACK_MESSAGE
         ).count()
         == 1
     )
@@ -1420,7 +1442,7 @@ def test_execute_external_message_slack_to_slack_channel_invalid_channel(
     ],
 )
 def test_get_user_function(new_hire_factory, employee_factory, factory):
-    item = factory(person_type=0)
+    item = factory(person_type=PendingEmailMessage.PersonType.NEWHIRE)
     manager = employee_factory()
     buddy = employee_factory()
     new_hire = new_hire_factory(
@@ -1429,15 +1451,15 @@ def test_get_user_function(new_hire_factory, employee_factory, factory):
     )
     assert item.get_user(new_hire) == new_hire
 
-    item = factory(person_type=1)
+    item = factory(person_type=PendingEmailMessage.PersonType.MANAGER)
 
     assert item.get_user(new_hire) == manager
 
-    item = factory(person_type=2)
+    item = factory(person_type=PendingEmailMessage.PersonType.BUDDY)
 
     assert item.get_user(new_hire) == buddy
 
-    item = factory(person_type=3)
+    item = factory(person_type=PendingEmailMessage.PersonType.CUSTOM)
 
     if isinstance(item, ExternalMessage):
         assert item.get_user(new_hire) == item.send_to
@@ -1453,7 +1475,7 @@ def test_execute_pending_admin_task(
     new_hire = new_hire_factory(manager=manager)
     pending_admin_task = pending_admin_task_factory(
         comment="test",
-        person_type=1,
+        person_type=PendingAdminTask.PersonType.MANAGER,
     )
     pending_admin_task.execute(new_hire)
     admin_task = AdminTask.objects.first()

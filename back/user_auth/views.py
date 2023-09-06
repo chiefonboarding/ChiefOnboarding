@@ -4,8 +4,6 @@ import uuid
 
 import jwt
 import requests
-from admin.integrations.models import Integration
-from admin.settings.forms import OTPVerificationForm
 from axes.decorators import axes_dispatch
 from django.conf import settings
 from django.contrib import messages
@@ -19,6 +17,9 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 from django.views.generic import View
 from django.views.generic.edit import FormView
+
+from admin.integrations.models import Integration
+from admin.settings.forms import OTPVerificationForm
 from organization.models import Organization
 from users.mixins import LoginRequiredMixin as LoginWithMFARequiredMixin
 
@@ -29,7 +30,7 @@ class LoginRedirectView(LoginWithMFARequiredMixin, View):
     def get(self, request, *args, **kwargs):
         if request.user.is_admin_or_manager:
             return redirect("admin:new_hires")
-        elif request.user.role == 0:
+        elif request.user.role == get_user_model().Role.NEWHIRE:
             return redirect("new_hire:todos")
         else:
             return redirect("new_hire:colleagues")
@@ -65,9 +66,11 @@ class AuthenticateView(LoginView):
         context = super().get_context_data(**kwargs)
         context["organization"] = Organization.object.get()
         context["base_url"] = settings.BASE_URL
-        if Integration.objects.filter(integration=3, active=True).exists():
+        if Integration.objects.filter(
+            integration=Integration.Type.GOOGLE_LOGIN, active=True
+        ).exists():
             context["google_login"] = Integration.objects.get(
-                integration=3, active=True
+                integration=Integration.Type.GOOGLE_LOGIN, active=True
             )
         if Organization.object.get().oidc_login:
             context["oidc_display"] = settings.OIDC_LOGIN_DISPLAY
@@ -117,13 +120,17 @@ class GoogleLoginView(View):
 
         # Make sure access token exists. Technically, it shouldn't be possible
         # to enable `google_login` when this is not set, but just to be safe
-        if not Integration.objects.filter(integration=3, active=True).exists():
+        if not Integration.objects.filter(
+            integration=Integration.Type.GOOGLE_LOGIN, active=True
+        ).exists():
             return HttpResponse(_("Google login access token has not been set"))
 
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
-        access_code = Integration.objects.get(integration=3, active=True)
+        access_code = Integration.objects.get(
+            integration=Integration.Type.GOOGLE_LOGIN, active=True
+        )
         try:
             r = requests.post(
                 "https://oauth2.googleapis.com/token",
