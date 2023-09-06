@@ -55,7 +55,9 @@ class IntegrationManager(models.Manager):
         )
 
     def import_users_options(self):
-        return self.get_queryset().filter(integration=10, manifest__type="import_users")
+        return self.get_queryset().filter(
+            integration=Integration.Type.CUSTOM, manifest__type="import_users"
+        )
 
 
 class Integration(models.Model):

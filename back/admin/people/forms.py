@@ -14,7 +14,7 @@ from admin.templates.forms import (
     UploadField,
 )
 from organization.models import Organization
-from users.models import ROLE_CHOICES, Department
+from users.models import Department
 
 
 class NewHireAddForm(forms.ModelForm):
@@ -414,7 +414,9 @@ class UserRoleForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["role"].label = ""
         self.fields["role"].help_text = ""
-        self.fields["role"].choices = tuple(x for x in ROLE_CHOICES if x[0] != 0)
+        self.fields["role"].choices = tuple(
+            x for x in get_user_model().Role.choices if x[0] != 0
+        )
 
     class Meta:
         model = get_user_model()
