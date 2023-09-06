@@ -13,6 +13,7 @@ from admin.appointments.factories import AppointmentFactory
 from admin.appointments.forms import AppointmentForm
 from admin.badges.factories import BadgeFactory
 from admin.badges.forms import BadgeForm
+from admin.integrations.models import Integration
 from admin.introductions.factories import IntroductionFactory
 from admin.introductions.forms import IntroductionForm
 from admin.preboarding.factories import PreboardingFactory
@@ -128,7 +129,6 @@ def test_sequence_create_condition_success_view(
         },
         follow=True,
     )
-    print(response.content.decode())
 
     assert response.status_code == 200
     assert Condition.objects.all().count() == 2
@@ -861,14 +861,15 @@ def test_sequence_default_templates_integrations(
     admin = admin_factory()
     client.force_login(admin)
     url = reverse("sequences:template_list")
-    integration_factory(integration=10)
-    integration_factory(integration=10)
-    integration_factory(integration=1)
-    integration_factory(integration=3)
+    integration_factory(integration=Integration.Type.CUSTOM)
+    integration_factory(integration=Integration.Type.CUSTOM)
+    integration_factory(integration=Integration.Type.SLACK_ACCOUNT_CREATION)
+    integration_factory(integration=Integration.Type.GOOGLE_LOGIN)
 
     response = client.get(url + "?type=integration")
 
     assert response.status_code == 200
+    # only shows the custom ones
     assert len(response.context["object_list"]) == 2
 
 

@@ -68,7 +68,9 @@ class OrganizationGeneralForm(forms.ModelForm):
         self.helper.layout = layout
 
         # Only show if google login has been enabled
-        if Integration.objects.filter(integration=3).exists():
+        if Integration.objects.filter(
+            integration=Integration.Type.GOOGLE_LOGIN
+        ).exists():
             layout[0][0].extend(
                 [
                     Field("google_login"),
@@ -105,7 +107,9 @@ class OrganizationGeneralForm(forms.ModelForm):
         google_login = False
         if (
             "google_login" in self.cleaned_data
-            and Integration.objects.filter(integration=3).exists()
+            and Integration.objects.filter(
+                integration=Integration.Type.GOOGLE_LOGIN
+            ).exists()
         ):
             google_login = self.cleaned_data["google_login"]
         oidc_login = self.cleaned_data.get("oidc_login", False)

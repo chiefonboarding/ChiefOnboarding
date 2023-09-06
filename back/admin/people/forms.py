@@ -117,7 +117,7 @@ class NewHireAddForm(forms.ModelForm):
             Submit(name="submit", value=_("Create new hire")),
         )
         # Only show if the slack bot has been enabled
-        if Integration.objects.filter(integration=0).exists():
+        if Integration.objects.filter(integration=Integration.Type.SLACK_BOT).exists():
             layout[2].extend(
                 [
                     Div(

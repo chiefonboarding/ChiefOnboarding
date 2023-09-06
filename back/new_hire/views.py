@@ -362,7 +362,7 @@ class ResourceDetailView(LoginRequiredMixin, DetailView):
         context["title"] = context["resource_user"].resource.name
         # If chapter is a questions type, then add form if not filled in yet
         if (
-            context["chapter"].type == 2
+            context["chapter"].type == Chapter.Type.QUESTIONS
             and not context["resource_user"]
             .answers.filter(chapter=context["chapter"])
             .exists()

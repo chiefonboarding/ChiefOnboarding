@@ -322,15 +322,17 @@ class IntegrationsListView(LoginRequiredMixin, AdminPermMixin, TemplateView):
         context["title"] = _("Integrations")
         context["subtitle"] = _("settings")
         context["slack_bot"] = Integration.objects.filter(
-            integration=0, active=True
+            integration=Integration.Type.SLACK_BOT, active=True
         ).first()
         context["google_login"] = Integration.objects.filter(
-            integration=3, active=True
+            integration=Integration.Type.GOOGLE_LOGIN, active=True
         ).first()
         context["slack_bot_environ"] = settings.SLACK_APP_TOKEN != ""
         context["base_url"] = settings.BASE_URL
 
-        context["custom_integrations"] = Integration.objects.filter(integration=10)
+        context["custom_integrations"] = Integration.objects.filter(
+            integration=Integration.Type.CUSTOM
+        )
         context["add_action"] = reverse_lazy("integrations:create")
         return context
 
@@ -360,7 +362,7 @@ class SlackBotSetupView(
         return context
 
     def form_valid(self, form):
-        Integration.objects.filter(integration=0).delete()
+        Integration.objects.filter(integration=Integration.Type.SLACK_BOT).delete()
         form.instance.integration = 0
         return super().form_valid(form)
 

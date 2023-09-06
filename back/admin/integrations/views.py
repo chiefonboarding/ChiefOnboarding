@@ -35,7 +35,7 @@ class IntegrationCreateView(
         return context
 
     def form_valid(self, form):
-        form.instance.integration = 10
+        form.instance.integration = Integration.Type.CUSTOM
         return super().form_valid(form)
 
 
@@ -44,12 +44,12 @@ class IntegrationCreateGoogleLoginView(
 ):
     template_name = "token_create.html"
     fields = ["client_id", "client_secret"]
-    queryset = Integration.objects.filter(integration=3)
+    queryset = Integration.objects.filter(integration=Integration.Type.GOOGLE_LOGIN)
     success_message = _("Integration has been updated!")
     success_url = reverse_lazy("settings:integrations")
 
     def form_valid(self, form):
-        form.instance.integration = 3
+        form.instance.integration = Integration.Type.GOOGLE_LOGIN
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -65,7 +65,7 @@ class IntegrationUpdateView(
 ):
     template_name = "token_create.html"
     form_class = IntegrationForm
-    queryset = Integration.objects.filter(integration=10)
+    queryset = Integration.objects.filter(integration=Integration.Type.CUSTOM)
     success_message = _("Integration has been updated!")
     success_url = reverse_lazy("settings:integrations")
 
@@ -96,7 +96,7 @@ class IntegrationUpdateExtraArgsView(
 ):
     template_name = "token_create.html"
     form_class = IntegrationExtraArgsForm
-    queryset = Integration.objects.filter(integration=10)
+    queryset = Integration.objects.filter(integration=Integration.Type.CUSTOM)
     success_message = _("Your config values have been updated!")
     success_url = reverse_lazy("settings:integrations")
 
@@ -168,7 +168,9 @@ class IntegrationOauthCallbackView(LoginRequiredMixin, RedirectView):
 
 class SlackOAuthView(LoginRequiredMixin, View):
     def get(self, request):
-        access_token, _dummy = Integration.objects.get_or_create(integration=0)
+        access_token, _dummy = Integration.objects.get_or_create(
+            integration=Integration.Type.SLACK_BOT
+        )
         if "code" not in request.GET:
             messages.error(
                 request,

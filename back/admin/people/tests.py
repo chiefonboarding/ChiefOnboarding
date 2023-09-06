@@ -10,6 +10,7 @@ from django.utils import timezone
 from freezegun import freeze_time
 
 from admin.appointments.factories import AppointmentFactory
+from admin.integrations.models import Integration
 from admin.introductions.factories import IntroductionFactory
 from admin.notes.models import Note
 from admin.preboarding.factories import PreboardingFactory
@@ -1514,11 +1515,15 @@ def test_new_hire_access_list(
 
     new_hire1 = new_hire_factory()
     # Slack integration - should not show up
-    integration1 = integration_factory(integration=0)
+    integration1 = integration_factory(integration=Integration.Type.SLACK_BOT)
     # Should show up
-    integration2 = custom_integration_factory(name="Asana", integration=10)
+    integration2 = custom_integration_factory(
+        name="Asana", integration=Integration.Type.CUSTOM
+    )
 
-    integration3 = custom_integration_factory(name="Google", integration=10)
+    integration3 = custom_integration_factory(
+        name="Google", integration=Integration.Type.CUSTOM
+    )
     # Remove exists, so should not show up
     integration3.manifest = {}
     integration3.save()
@@ -1543,7 +1548,9 @@ def test_new_hire_access_per_integration(
 
     new_hire1 = new_hire_factory(email="stan@example.com")
     new_hire2 = new_hire_factory()
-    integration1 = custom_integration_factory(name="Asana", integration=10)
+    integration1 = custom_integration_factory(
+        name="Asana", integration=Integration.Type.CUSTOM
+    )
 
     with patch(
         "admin.integrations.models.Integration.user_exists", Mock(return_value=True)
@@ -1606,7 +1613,9 @@ def test_new_hire_access_per_integration_config_form(
     )
 
     new_hire1 = new_hire_factory(email="stan@example.com")
-    integration1 = custom_integration_factory(name="Asana", integration=10)
+    integration1 = custom_integration_factory(
+        name="Asana", integration=Integration.Type.CUSTOM
+    )
     integration1.manifest["extra_user_info"] = [
         {
             "id": "PERSONAL_EMAIL",
@@ -1666,7 +1675,9 @@ def test_new_hire_access_per_integration_post(
     )
 
     new_hire1 = new_hire_factory(email="stan@example.com")
-    integration1 = custom_integration_factory(name="Asana", integration=10)
+    integration1 = custom_integration_factory(
+        name="Asana", integration=Integration.Type.CUSTOM
+    )
     integration1.manifest["extra_user_info"] = [
         {
             "id": "PERSONAL_EMAIL",
@@ -2156,7 +2167,7 @@ def test_colleague_delete(client, django_user_model, new_hire_factory):
 def test_import_users_from_slack(client, django_user_model):
     from admin.integrations.models import Integration
 
-    Integration.objects.create(integration=0)
+    Integration.objects.create(integration=Integration.Type.SLACK_BOT)
     admin_user = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin_user)
 

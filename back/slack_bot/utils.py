@@ -15,7 +15,7 @@ class Slack:
     def __init__(self):
         if not settings.FAKE_SLACK_API:
             if not settings.SLACK_USE_SOCKET:
-                team = Integration.objects.get(integration=0)
+                team = Integration.objects.get(integration=Integration.Type.SLACK_BOT)
                 self.client = slack_sdk.WebClient(token=team.token)
             else:
                 if settings.SLACK_BOT_TOKEN != "":

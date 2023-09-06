@@ -31,7 +31,7 @@ def test_create_integration(client, django_user_model):
     response = client.post(url, {"name": "test", "manifest": '{"execute": []}'})
 
     assert "Enter a valid JSON." not in response.content.decode()
-    assert Integration.objects.filter(integration=10).count() == 1
+    assert Integration.objects.filter(integration=Integration.Type.CUSTOM).count() == 1
 
 
 @pytest.mark.django_db
@@ -63,7 +63,10 @@ def test_create_google_login_integration(client, django_user_model):
 
     response = client.post(url, data={"client_id": "12", "client_secret": "233"})
 
-    assert Integration.objects.filter(integration=3).count() == 1
+    assert (
+        Integration.objects.filter(integration=Integration.Type.GOOGLE_LOGIN).count()
+        == 1
+    )
 
 
 @pytest.mark.django_db
@@ -73,7 +76,7 @@ def test_delete_integration(client, django_user_model, custom_integration_factor
     )
     integration = custom_integration_factory()
 
-    assert Integration.objects.filter(integration=10).count() == 1
+    assert Integration.objects.filter(integration=Integration.Type.CUSTOM).count() == 1
 
     url = reverse("integrations:delete", args=[integration.id])
     response = client.get(url, follow=True)
@@ -85,7 +88,7 @@ def test_delete_integration(client, django_user_model, custom_integration_factor
     response = client.delete(url, follow=True)
 
     assert reverse("settings:integrations") in response.redirect_chain[-1][0]
-    assert Integration.objects.filter(integration=10).count() == 0
+    assert Integration.objects.filter(integration=Integration.Type.CUSTOM).count() == 0
 
 
 @pytest.mark.django_db
@@ -479,5 +482,5 @@ def test_slack_connect(client, django_user_model):
 
     assert response.status_code == 200
 
-    assert Integration.objects.filter(integration=0).exists()
+    assert Integration.objects.filter(integration=Integration.Type.SLACK_BOT).exists()
     assert "Slack has successfully been connected." in response.content.decode()

@@ -2,6 +2,7 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
+from admin.integrations.models import Integration
 from admin.to_do.models import ToDo
 
 from .factories import *  # noqa
@@ -53,7 +54,7 @@ def test_create_to_do(client, django_user_model, integration_factory):
     assert "select a channel" not in response.content.decode()
 
     # Create the slack bot now
-    integration_factory(integration=0)
+    integration_factory(integration=Integration.Type.SLACK_BOT)
 
     response = client.post(url, data, follow=True)
 

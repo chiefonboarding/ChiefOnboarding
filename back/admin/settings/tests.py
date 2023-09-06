@@ -72,7 +72,7 @@ def test_update_org_settings_min_one_login_method(client, django_user_model):
     assert "You must enable at least one login option" in response.content.decode()
 
     # Create Google login integration
-    Integration.objects.create(integration=3)
+    Integration.objects.create(integration=Integration.Type.GOOGLE_LOGIN)
 
     response = client.get(url)
     # Google login is  available
@@ -539,14 +539,16 @@ def test_integration_list(client, admin_factory):
     assert "Remove" not in response.content.decode()
     assert "Update Slack channels list" not in response.content.decode()
 
-    Integration.objects.create(integration=0)
+    Integration.objects.create(integration=Integration.Type.SLACK_BOT)
 
     response = client.get(url)
 
     assert "Remove" in response.content.decode()
     assert "Update Slack channels list" in response.content.decode()
 
-    integration = Integration.objects.create(integration=10, name="Test integration")
+    integration = Integration.objects.create(
+        integration=Integration.Type.CUSTOM, name="Test integration"
+    )
 
     response = client.get(url)
 
@@ -568,7 +570,7 @@ def test_integration_list(client, admin_factory):
 def test_slack_channels_update_view(client, admin_factory):
     admin_user1 = admin_factory()
     client.force_login(admin_user1)
-    Integration.objects.create(integration=0)
+    Integration.objects.create(integration=Integration.Type.SLACK_BOT)
 
     url = reverse("settings:slack-account-update-channels")
     response = client.get(url)

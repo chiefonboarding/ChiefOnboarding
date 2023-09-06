@@ -66,9 +66,11 @@ class AuthenticateView(LoginView):
         context = super().get_context_data(**kwargs)
         context["organization"] = Organization.object.get()
         context["base_url"] = settings.BASE_URL
-        if Integration.objects.filter(integration=3, active=True).exists():
+        if Integration.objects.filter(
+            integration=Integration.Type.GOOGLE_LOGIN, active=True
+        ).exists():
             context["google_login"] = Integration.objects.get(
-                integration=3, active=True
+                integration=Integration.Type.GOOGLE_LOGIN, active=True
             )
         if Organization.object.get().oidc_login:
             context["oidc_display"] = settings.OIDC_LOGIN_DISPLAY
@@ -118,13 +120,17 @@ class GoogleLoginView(View):
 
         # Make sure access token exists. Technically, it shouldn't be possible
         # to enable `google_login` when this is not set, but just to be safe
-        if not Integration.objects.filter(integration=3, active=True).exists():
+        if not Integration.objects.filter(
+            integration=Integration.Type.GOOGLE_LOGIN, active=True
+        ).exists():
             return HttpResponse(_("Google login access token has not been set"))
 
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
-        access_code = Integration.objects.get(integration=3, active=True)
+        access_code = Integration.objects.get(
+            integration=Integration.Type.GOOGLE_LOGIN, active=True
+        )
         try:
             r = requests.post(
                 "https://oauth2.googleapis.com/token",

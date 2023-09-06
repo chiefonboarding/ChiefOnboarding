@@ -5,6 +5,7 @@ import pytest
 from django.contrib import auth
 from django.urls import reverse
 
+from admin.integrations.models import Integration
 from organization.models import Organization
 
 from .utils import get_all_urls
@@ -120,7 +121,7 @@ def test_credentials_setting(client, new_hire_factory):
 def test_google_login_setting(client, new_hire_factory, integration_factory):
     # Start with credentials enabled
     new_hire_factory(email="user@example.com")
-    integration_factory(integration=3)
+    integration_factory(integration=Integration.Type.GOOGLE_LOGIN)
 
     org = Organization.object.get()
     org.google_login = True
@@ -340,7 +341,7 @@ def test_google_login(client, new_hire_factory, integration_factory):
     assert response.status_code == 200
     assert "Google login access token has not been set" in response.content.decode()
 
-    integration_factory(integration=3)
+    integration_factory(integration=Integration.Type.GOOGLE_LOGIN)
 
     # Logging in with account
     response = client.get(url, follow=True)
@@ -359,7 +360,7 @@ def test_google_login_error(client, new_hire_factory, integration_factory):
     org.google_login = True
     org.save()
 
-    integration_factory(integration=3)
+    integration_factory(integration=Integration.Type.GOOGLE_LOGIN)
     url = reverse("google_login")
 
     new_hire_factory(email="hello@chiefonboarding.com")
@@ -398,7 +399,7 @@ def test_google_login_user_not_exists(client, new_hire_factory, integration_fact
     org.google_login = True
     org.save()
 
-    integration_factory(integration=3)
+    integration_factory(integration=Integration.Type.GOOGLE_LOGIN)
     url = reverse("google_login")
 
     new_hire_factory(email="hello@chiefonboarding.com")

@@ -39,7 +39,9 @@ else:
         slack_handler = SocketModeHandler(app, settings.SLACK_APP_TOKEN)
         slack_handler.connect()
     else:
-        integration = Integration.objects.filter(integration=0).first()
+        integration = Integration.objects.filter(
+            integration=Integration.Type.SLACK_BOT
+        ).first()
         app = SlackBoltApp(
             token=integration.token, signing_secret=integration.signing_secret
         )

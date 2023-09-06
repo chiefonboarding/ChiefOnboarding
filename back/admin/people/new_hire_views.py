@@ -131,14 +131,17 @@ class NewHireAddView(
                 # User has not started yet, so we only need the items before they new
                 # hire started that passed
                 conditions |= seq.conditions.filter(
-                    condition_type=2, days__lte=new_hire.days_before_starting
+                    condition_type=Condition.Type.BEFORE,
+                    days__lte=new_hire.days_before_starting,
                 )
             else:
                 # user has already started, check both before start day and after for
                 # conditions that are not triggered
                 conditions |= seq.conditions.filter(
-                    condition_type=2
-                ) | seq.conditions.filter(condition_type=0, days__lte=new_hire.workday)
+                    condition_type=Condition.Type.BEFORE
+                ) | seq.conditions.filter(
+                    condition_type=Condition.Type.AFTER, days__lte=new_hire.workday
+                )
 
         if conditions.count():
             return render(
@@ -210,14 +213,17 @@ class NewHireAddSequenceView(
                 # User has not started yet, so we only need the items before they new
                 # hire started that passed
                 conditions |= seq.conditions.filter(
-                    condition_type=2, days__lte=new_hire.days_before_starting
+                    condition_type=Condition.Type.BEFORE,
+                    days__lte=new_hire.days_before_starting,
                 )
             else:
                 # user has already started, check both before start day and after for
                 # conditions that are not triggered
                 conditions |= seq.conditions.filter(
-                    condition_type=2
-                ) | seq.conditions.filter(condition_type=0, days__lte=new_hire.workday)
+                    condition_type=Condition.Type.BEFORE
+                ) | seq.conditions.filter(
+                    condition_type=Condition.Type.AFTER, days__lte=new_hire.workday
+                )
 
         if conditions.count():
             # Prefetch records to avoid a massive amount of queries
@@ -313,13 +319,15 @@ class NewHireSequenceView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Deta
                 conditions.filter(
                     condition_type=2, days__lte=new_hire.days_before_starting
                 )
-                | conditions.filter(condition_type=0, days__gte=new_hire.workday)
-                | conditions.filter(condition_type=1)
+                | conditions.filter(
+                    condition_type=Condition.Type.AFTER, days__gte=new_hire.workday
+                )
+                | conditions.filter(condition_type=Condition.Type.TODO)
             )
             .annotate(
                 days_order=Case(
-                    When(condition_type=2, then=F("days") * -1),
-                    When(condition_type=1, then=99999),
+                    When(condition_type=Condition.Type.BEFORE, then=F("days") * -1),
+                    When(condition_type=Condition.Type.TODO, then=99999),
                     default=F("days"),
                     output_field=IntegerField(),
                 )
