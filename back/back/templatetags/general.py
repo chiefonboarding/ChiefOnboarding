@@ -78,7 +78,10 @@ def show_start_card(conditions, idx, new_hire):
     except Exception:
         prev_condition = None
 
-    if (prev_condition is None and current_condition.condition_type == Condition.Type.AFTER) or (
+    if (
+        prev_condition is None
+        and current_condition.condition_type == Condition.Type.AFTER
+    ) or (
         prev_condition is not None
         and prev_condition.condition_type == Condition.Type.BEFORE
         and current_condition.condition_type == Condition.Type.AFTER
