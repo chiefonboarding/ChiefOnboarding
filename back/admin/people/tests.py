@@ -1524,11 +1524,11 @@ def test_new_hire_access_list(
     integration1 = integration_factory(integration=Integration.Type.SLACK_BOT)
     # Should show up
     integration2 = custom_integration_factory(
-        name="Asana", integration=Integration.Type.CUSTOM
+        name="Asana",
     )
 
     integration3 = custom_integration_factory(
-        name="Google", integration=Integration.Type.CUSTOM
+        name="Google",
     )
     # Remove exists, so should not show up
     integration3.manifest = {}
@@ -1555,7 +1555,7 @@ def test_new_hire_access_per_integration(
     new_hire1 = new_hire_factory(email="stan@example.com")
     new_hire2 = new_hire_factory()
     integration1 = custom_integration_factory(
-        name="Asana", integration=Integration.Type.CUSTOM
+        name="Asana"
     )
 
     with patch(
@@ -1620,7 +1620,7 @@ def test_new_hire_access_per_integration_config_form(
 
     new_hire1 = new_hire_factory(email="stan@example.com")
     integration1 = custom_integration_factory(
-        name="Asana", integration=Integration.Type.CUSTOM
+        name="Asana"
     )
     integration1.manifest["extra_user_info"] = [
         {
@@ -2425,24 +2425,26 @@ def test_employee_toggle_resources(
 
 @pytest.mark.django_db
 def test_visibility_import_employees_button(
-    client, django_user_model, custom_integration_factory
+    client, django_user_model, custom_user_import_integration_factory, custom_integration_factory
 ):
     client.force_login(django_user_model.objects.create(role=1))
 
-    custom_integration_factory(manifest={"type": "import_users"}, name="Google import")
+    custom_integration_factory(name="Asana")
+    custom_user_import_integration_factory(name="Google import")
 
     url = reverse("people:colleagues")
     response = client.get(url, follow=True)
 
     assert "Import users with Google import" in response.content.decode()
+    assert "Asana" not in response.content.decode()
 
 
 @pytest.mark.django_db
-def test_importing_employees(client, django_user_model, custom_integration_factory):
+def test_importing_employees(client, django_user_model, custom_user_import_integration_factory):
     client.force_login(django_user_model.objects.create(role=1))
 
-    integration = custom_integration_factory(
-        manifest={"type": "import_users"}, name="Google import"
+    integration = custom_user_import_integration_factory(
+        name="Google import"
     )
 
     url = reverse("people:import", args=[integration.id])
@@ -2455,13 +2457,13 @@ def test_importing_employees(client, django_user_model, custom_integration_facto
 
 @pytest.mark.django_db
 def test_ignore_user_from_importing_employees(
-    client, django_user_model, custom_integration_factory
+    client, django_user_model, custom_user_import_integration_factory
 ):
     client.force_login(django_user_model.objects.create(role=1))
     org = Organization.objects.get()
     assert org.ignored_user_emails == []
 
-    custom_integration_factory(manifest={"type": "import_users"}, name="Google import")
+    custom_user_import_integration_factory(name="Google import")
 
     url = reverse("people:import-ignore-hx")
     client.post(url, data={"email": "stan@chiefonboarding.com"}, follow=True)
@@ -2517,7 +2519,7 @@ def test_ignore_user_from_importing_employees(
     ),
 )
 def test_fetching_employees(
-    client, django_user_model, custom_integration_factory, employee_factory
+    client, django_user_model, custom_user_import_integration_factory, employee_factory
 ):
     # create two users who are already in the system (should not show up)
     employee_factory(email="stan@chiefonboarding.com")
@@ -2530,7 +2532,7 @@ def test_fetching_employees(
 
     client.force_login(django_user_model.objects.create(role=1))
 
-    integration = custom_integration_factory(
+    integration = custom_user_import_integration_factory(
         manifest={
             "type": "import_users",
             "execute": [
@@ -2550,7 +2552,6 @@ def test_fetching_employees(
     url = reverse("people:import-users-hx", args=[integration.id])
     response = client.get(url, follow=True)
 
-    print(response.content.decode())
     assert "brian@chiefonboarding.com" in response.content.decode()
     assert "jake@chiefonboarding.com" in response.content.decode()
     # ignored due to already exist or on ignore list
@@ -2633,11 +2634,11 @@ def test_fetching_employees(
     ),
 )
 def test_fetching_employees_paginated_response(
-    client, django_user_model, custom_integration_factory
+    client, django_user_model, custom_user_import_integration_factory
 ):
     client.force_login(django_user_model.objects.create(role=1))
 
-    integration = custom_integration_factory(
+    integration = custom_user_import_integration_factory(
         manifest={
             "type": "import_users",
             "execute": [{"url": "http://localhost/test_api/users", "method": "GET"}],
@@ -2657,7 +2658,6 @@ def test_fetching_employees_paginated_response(
     url = reverse("people:import-users-hx", args=[integration.id])
     response = client.get(url, follow=True)
 
-    print(response.content.decode())
     assert "brian@chiefonboarding.com" in response.content.decode()
     assert "jake@chiefonboarding.com" in response.content.decode()
     assert "stan@chiefonboarding.com" in response.content.decode()
@@ -2672,12 +2672,12 @@ def test_fetching_employees_paginated_response(
     Mock(return_value=(True, Mock(json=lambda: {"directory": {"users": []}}))),
 )
 def test_fetching_employees_incorrect_notation(
-    client, django_user_model, custom_integration_factory
+    client, django_user_model, custom_user_import_integration_factory
 ):
     # create two users who are already in the system (should not show up)
     client.force_login(django_user_model.objects.create(role=1))
 
-    integration = custom_integration_factory(
+    integration = custom_user_import_integration_factory(
         manifest={
             "type": "import_users",
             "execute": [
@@ -2705,14 +2705,14 @@ def test_fetching_employees_incorrect_notation(
 
 @pytest.mark.django_db
 def test_import_users_create_users(
-    django_user_model, custom_integration_factory, mailoutbox
+    django_user_model, custom_user_import_integration_factory, mailoutbox
 ):
     client = APIClient()
     client.force_login(django_user_model.objects.create(role=1))
 
     assert django_user_model.objects.all().count() == 1
 
-    custom_integration_factory(manifest={"type": "import_users"}, name="Google import")
+    custom_user_import_integration_factory(name="Google import")
 
     url = reverse("people:import-create")
     client.post(

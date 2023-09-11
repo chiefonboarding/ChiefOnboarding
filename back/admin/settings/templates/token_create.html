@@ -8,7 +8,7 @@
     <form method="post">
       {% csrf_token %}
       {{ form|crispy }}
-      <button type="submit" class="btn btn-primary">{% translate "Submit" %}</button>
+      <button type="submit" class="btn btn-primary">{% if button_text %}{{ button_text }}{% else %}{% translate "Submit" %}{% endif %}</button>
     </form>
     {% if object.has_oauth and not object.enabled_oauth %}
       {% translate "Redirect URL:" %} {{ request.scheme }}://{{ request.get_host }}{% url 'integrations:oauth-callback' object.id %}

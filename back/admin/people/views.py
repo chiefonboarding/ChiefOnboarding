@@ -15,6 +15,7 @@ from rest_framework.authentication import SessionAuthentication
 
 from admin.integrations.exceptions import GettingUsersError, KeyIsNotInDataError
 from admin.integrations.models import Integration
+from admin.integrations.import_users import ImportUser
 from admin.people.serializers import UserImportSerializer
 from admin.resources.models import Resource
 from api.permissions import AdminPermission
@@ -292,44 +293,30 @@ class ColleagueImportView(LoginRequiredMixin, AdminPermMixin, DetailView):
         return context
 
 
-class ColleagueImportFetchUsersHX(LoginRequiredMixin, AdminPermMixin, View):
+class ColleagueImportFetchUsersHXView(LoginRequiredMixin, AdminPermMixin, View):
     """HTMLX view to get all users and return a table"""
 
     def get(self, request, pk, *args, **kwargs):
         integration = get_object_or_404(
             Integration.objects.import_users_options(), id=pk
         )
-        users = []
         try:
             # we are passing in the user who is requesting it, but we likely don't need
             # them.
-            users = integration.get_import_user_candidates(self.request.user)
+            users = ImportUser(integration).get_import_user_candidates(
+                self.request.user
+            )
         except (KeyIsNotInDataError, GettingUsersError) as e:
             return render(request, "_import_user_table.html", {"error": e})
-
-        # Remove users that are already in the system or have been ignored
-        existing_user_emails = list(
-            get_user_model().objects.all().values_list("email", flat=True)
-        )
-        ignored_user_emails = Organization.objects.get().ignored_user_emails
-        excluded_emails = (
-            existing_user_emails + ignored_user_emails + ["", None]
-        )  # also add blank emails to ignore
-
-        user_candidates = [
-            user_data
-            for user_data in users
-            if user_data.get("email", "") not in excluded_emails
-        ]
 
         return render(
             request,
             "_import_user_table.html",
-            {"users": user_candidates, "role_form": UserRoleForm},
+            {"users": users, "role_form": UserRoleForm},
         )
 
 
-class ColleagueImportIgnoreUserHX(LoginRequiredMixin, AdminPermMixin, View):
+class ColleagueImportIgnoreUserHXView(LoginRequiredMixin, AdminPermMixin, View):
     """HTMLX view to put people on the ignore list"""
 
     def post(self, request, *args, **kwargs):
@@ -351,12 +338,12 @@ class ColleagueImportAddUsersView(generics.CreateAPIView):
     ]
     serializer_class = UserImportSerializer
 
-    def create(self, request):
+    def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
         users = serializer.save()
 
-        # users is list, so manually checking instead of filter queryset
+        # users is a list, so manually checking instead of filter queryset
         for user in users:
             if user.is_admin_or_manager:
                 async_task(email_new_admin_cred, user)

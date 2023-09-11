@@ -414,6 +414,8 @@ class UserRoleForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["role"].label = ""
         self.fields["role"].help_text = ""
+        # new hires are excluded as those should be created through a normal new hire
+        # create form or through the API to set all options (sequences, start day etc)
         self.fields["role"].choices = tuple(
             x for x in get_user_model().Role.choices if x[0] != 0
         )

@@ -71,7 +71,7 @@ class IntegrationUpdateView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = _("Add new integration")
+        context["title"] = _("Update existing integration")
         context["subtitle"] = _("settings")
         context["button_text"] = _("Update")
         return context

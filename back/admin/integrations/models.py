@@ -28,8 +28,6 @@ from requests.exceptions import (
 )
 from twilio.rest import Client
 
-from admin.integrations.exceptions import GettingUsersError, KeyIsNotInDataError
-from admin.integrations.utils import get_value_from_notation
 from misc.fernet_fields import EncryptedTextField
 from misc.fields import EncryptedJSONField
 from organization.models import Notification
@@ -41,22 +39,25 @@ class IntegrationManager(models.Manager):
         return super().get_queryset()
 
     def sequence_integration_options(self):
-        return (
-            self.get_queryset()
-            .filter(integration=Integration.Type.CUSTOM)
-            .exclude(manifest__type__isnull=False, manifest__type="import_users")
+        # any webhooks and account provisioning
+        return self.get_queryset().filter(
+            integration=Integration.Type.CUSTOM,
+            manifest_type=Integration.ManifestType.WEBHOOK,
         )
 
     def account_provision_options(self):
-        return (
-            self.get_queryset()
-            .filter(integration=Integration.Type.CUSTOM, manifest__exists__isnull=False)
-            .exclude(manifest__type__isnull=False, manifest__type="import_users")
+        # only account provisioning (no general webhooks)
+        return self.get_queryset().filter(
+            integration=Integration.Type.CUSTOM,
+            manifest_type=Integration.ManifestType.WEBHOOK,
+            manifest__exists__isnull=False,
         )
 
     def import_users_options(self):
+        # only import user items
         return self.get_queryset().filter(
-            integration=Integration.Type.CUSTOM, manifest__type="import_users"
+            integration=Integration.Type.CUSTOM,
+            manifest_type=Integration.ManifestType.USER_IMPORT,
         )
 
 
@@ -69,8 +70,15 @@ class Integration(models.Model):
         ASANA = 4, _("Asana")  # legacy
         CUSTOM = 10, _("Custom")
 
+    class ManifestType(models.IntegerChoices):
+        WEBHOOK = 0, _("Provision user accounts or trigger webhooks")
+        USER_IMPORT = 1, _("Import users")
+
     name = models.CharField(max_length=300, default="", blank=True)
     integration = models.IntegerField(choices=Type.choices)
+    manifest_type = models.IntegerField(
+        choices=ManifestType.choices, null=True, blank=True
+    )
     token = EncryptedTextField(max_length=10000, default="", blank=True)
     refresh_token = EncryptedTextField(max_length=10000, default="", blank=True)
     base_url = models.CharField(max_length=22300, default="", blank=True)
@@ -95,6 +103,10 @@ class Integration(models.Model):
     verification_token = models.CharField(max_length=100, default="")
     bot_token = EncryptedTextField(max_length=10000, default="", blank=True)
     bot_id = models.CharField(max_length=100, default="")
+
+    @property
+    def has_user_context(self):
+        return self.manifest_type == Integration.ManifestType.WEBHOOK
 
     def run_request(self, data):
         url = self._replace_vars(data["url"])
@@ -164,11 +176,10 @@ class Integration(models.Model):
     def has_oauth(self):
         return "oauth" in self.manifest
 
-    @property
-    def is_import_user_action(self):
-        return "import_user" in self.manifest
+    def headers(self, headers=None):
+        if headers is None:
+            headers = {}
 
-    def headers(self, headers={}):
         headers = (
             self.manifest.get("headers", {}).items()
             if len(headers) == 0
@@ -231,16 +242,16 @@ class Integration(models.Model):
 
     def execute(self, new_hire, params):
         self.params = params
-        if not self.is_import_user_action:
+        if self.has_user_context:
             self.params |= new_hire.extra_fields
             self.new_hire = new_hire
 
         # Renew token if necessary
         if not self.renew_key():
-            return False
+            return False, None
 
         # Add generated secrets
-        for item in self.manifest["initial_data_form"]:
+        for item in self.manifest.get("initial_data_form", []):
             if "name" in item and item["name"] == "generate":
                 self.extra_args[item["id"]] = get_random_string(length=10)
 
@@ -249,7 +260,7 @@ class Integration(models.Model):
             success, response = self.run_request(item)
 
             # No need to retry or log when we are importing users
-            if not success and not self.is_import_user_action:
+            if not success and not self.has_user_context:
                 response = self.clean_response(response=response)
                 Notification.objects.create(
                     notification_type=Notification.Type.FAILED_INTEGRATION,
@@ -310,7 +321,7 @@ class Integration(models.Model):
 
         # Succesfully ran integration, add notification only when we are provisioning
         # access
-        if not self.is_import_user_action:
+        if self.has_user_context:
             Notification.objects.create(
                 notification_type=Notification.Type.RAN_INTEGRATION,
                 extra_text=self.name,
@@ -332,116 +343,5 @@ class Integration(models.Model):
             )
 
         return response
-
-    def extract_users_from_list_response(self, response):
-        # Building list of users from response. Dig into response to get to the users.
-        data_from = self.manifest["data_from"]
-
-        try:
-            users = get_value_from_notation(data_from, response.json())
-        except KeyError:
-            # This is unlikely to go wrong - only when api changes or when
-            # configs are being setup
-            raise KeyIsNotInDataError(
-                _("Notation '%(notation)s' not in %(response)s")
-                % {
-                    "notation": data_from,
-                    "response": self.clean_response(response.json()),
-                }
-            )
-        data_structure = self.manifest["data_structure"]
-        user_details = []
-        for user_data in users:
-            user = {}
-            for prop, notation in data_structure.items():
-                try:
-                    user[prop] = get_value_from_notation(notation, user_data)
-                except KeyError:
-                    # This is unlikely to go wrong - only when api changes or when
-                    # configs are being setup
-                    raise KeyIsNotInDataError(
-                        _("Notation '%(notation)s' not in %(response))s")
-                        % {
-                            "notation": notation,
-                            "response": self.clean_response(user_data),
-                        }
-                    )
-            user_details.append(user)
-        return user_details
-
-    def get_next_page(self, response):
-        # Some apis give us back a full URL, others just a token. If we get a full URL,
-        # follow that, if we get a token, then also specify the next_page. The token
-        # gets placed through the NEXT_PAGE_TOKEN variable.
-
-        # taken from response - full url including params for next page
-        next_page_from = self.manifest.get("next_page_from")
-
-        # build up url ourself based on hardcoded url + token for next part
-        next_page_token_from = self.manifest.get("next_page_token_from")
-        # hardcoded in manifest
-        next_page = self.manifest.get("next_page")
-
-        # skip if none provided
-        if not next_page_from and not (next_page_token_from and next_page):
-            return
-
-        if next_page_from:
-            try:
-                return get_value_from_notation(next_page_from, response.json())
-            except KeyError:
-                # next page was not provided anymore, so we are done
-                return
-
-        # Build next url from next_page and next_page_token_from
-        try:
-            token = get_value_from_notation(next_page_token_from, response.json())
-        except KeyError:
-            # next page token was not provided anymore, so we are done
-            return
-
-        # Replace token variable with real token
-        self.params["NEXT_PAGE_TOKEN"] = token
-        return self._replace_vars(next_page)
-
-    def get_import_user_candidates(self, user):
-        success, response = self.execute(user, {})
-        if not success:
-            raise GettingUsersError(self.clean_response(response))
-
-        users = self.extract_users_from_list_response(response)
-
-        # If we don't care about next pages, then just return the users
-        if self.get_next_page(response) is None:
-            return users
-
-        amount_pages_to_fetch = self.manifest.get("amount_pages_to_fetch", 5)
-        fetched_pages = 1
-        while amount_pages_to_fetch != fetched_pages:
-            # End everything if next page does not exist
-            next_page_url = self.get_next_page(response)
-            if next_page_url is None:
-                break
-
-            success, response = self.run_request(
-                {"method": "GET", "url": next_page_url}
-            )
-            if not success:
-                raise GettingUsersError(
-                    _("Paginated URL fetch: %(response)s")
-                    % {"response": self.clean_response(response)}
-                )
-
-            # Check if there are any new results. Google could send no users back
-            try:
-                data_from = self.manifest["data_from"]
-                get_value_from_notation(data_from, response.json())
-            except KeyError:
-                break
-
-            users += self.extract_users_from_list_response(response)
-            fetched_pages += 1
-
-        return users
 
     objects = IntegrationManager()

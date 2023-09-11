@@ -170,12 +170,12 @@ So for the current config, we expect a JSON response from the third party like t
         {
             "firstName: "John",
             "lastName: "Do",
-            "email": "john@do.com"
+            "workEmail": "john@do.com"
         },
         {
             "firstName: "Jane",
             "lastName: "Do",
-            "email": "jane@do.com"
+            "workEmail": "jane@do.com"
         }
     ]
 }

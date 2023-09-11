@@ -126,7 +126,11 @@ class IntegrationForm(forms.ModelForm):
 
     class Meta:
         model = Integration
-        fields = ("name", "manifest")
+        fields = ("name", "manifest_type", "manifest")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["manifest_type"].required = True
 
     def clean_manifest(self):
         manifest = self.cleaned_data["manifest"]
