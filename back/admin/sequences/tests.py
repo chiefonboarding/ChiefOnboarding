@@ -861,8 +861,8 @@ def test_sequence_default_templates_integrations(
     admin = admin_factory()
     client.force_login(admin)
     url = reverse("sequences:template_list")
-    integration_factory(integration=Integration.Type.CUSTOM)
-    integration_factory(integration=Integration.Type.CUSTOM)
+    custom_integration_factory()
+    custom_integration_factory()
     integration_factory(integration=Integration.Type.SLACK_ACCOUNT_CREATION)
     integration_factory(integration=Integration.Type.GOOGLE_LOGIN)
 

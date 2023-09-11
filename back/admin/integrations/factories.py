@@ -83,6 +83,7 @@ class CustomIntegrationFactory(IntegrationFactory):
         ],
     }
 
+
 class CustomUserImportIntegrationFactory(IntegrationFactory):
     integration = Integration.Type.CUSTOM
     manifest_type = Integration.ManifestType.USER_IMPORT
@@ -92,35 +93,35 @@ class CustomUserImportIntegrationFactory(IntegrationFactory):
         "execute": [
             {
                 "url": "http://localhost/api/gateway.php/{{COMPANY_ID}}/v1/reports/{{REPORT_ID}}",
-                "method": "GET"
+                "method": "GET",
             }
         ],
         "headers": {
             "Accept": "application/json",
             "Content-Type": "application/json",
-            "Authorization": "Basic {{KEY}}:x"
+            "Authorization": "Basic {{KEY}}:x",
         },
         "data_from": "employees",
         "data_structure": {
             "email": "workEmail",
             "last_name": "lastName",
-            "first_name": "firstName"
+            "first_name": "firstName",
         },
         "initial_data_form": [
             {
                 "id": "KEY",
                 "name": "The BambooHR api key",
-                "description": "Go to: https://<yourdomain>.bamboohr.com/settings/permissions/api.php to get one"
+                "description": "Go to get one",
             },
             {
                 "id": "REPORT_ID",
                 "name": "The id of the report",
-                "description": "Go to: https://<yourdomain>.bamboohr.com/app/reports/ to find the id of the report. click on the report and then look at the url. There is a number that will represent the ID of the report."
+                "description": "There is a number that will represent the ID.",
             },
             {
                 "id": "COMPANY_ID",
                 "name": "The id of the company",
-                "description": "When you login you get a domain like this: https://<yourdomain>.bamboohr.com/. The '<yourdomain>' is your domain name. "
-            }
-        ]
+                "description": "The '<yourdomain>' is your domain name. ",
+            },
+        ],
     }

@@ -28,7 +28,14 @@ def test_create_integration(client, django_user_model):
     assert "Enter a valid JSON." in response.content.decode()
 
     # Post with valid JSON
-    response = client.post(url, {"name": "test", "manifest": '{"execute": []}'})
+    response = client.post(
+        url,
+        {
+            "name": "test",
+            "manifest": '{"execute": []}',
+            "manifest_type": Integration.ManifestType.WEBHOOK,
+        },
+    )
 
     assert "Enter a valid JSON." not in response.content.decode()
     assert Integration.objects.filter(integration=Integration.Type.CUSTOM).count() == 1
@@ -44,7 +51,7 @@ def test_update_integration(client, django_user_model, custom_integration_factor
     url = reverse("integrations:update", args=[integration.id])
     response = client.get(url)
 
-    assert "Add new integration" in response.content.decode()
+    assert "Update existing integration" in response.content.decode()
     assert "TEAM_ID" in response.content.decode()
     assert integration.name in response.content.decode()
 

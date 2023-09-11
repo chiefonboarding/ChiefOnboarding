@@ -1554,9 +1554,7 @@ def test_new_hire_access_per_integration(
 
     new_hire1 = new_hire_factory(email="stan@example.com")
     new_hire2 = new_hire_factory()
-    integration1 = custom_integration_factory(
-        name="Asana"
-    )
+    integration1 = custom_integration_factory(name="Asana")
 
     with patch(
         "admin.integrations.models.Integration.user_exists", Mock(return_value=True)
@@ -1619,9 +1617,7 @@ def test_new_hire_access_per_integration_config_form(
     )
 
     new_hire1 = new_hire_factory(email="stan@example.com")
-    integration1 = custom_integration_factory(
-        name="Asana"
-    )
+    integration1 = custom_integration_factory(name="Asana")
     integration1.manifest["extra_user_info"] = [
         {
             "id": "PERSONAL_EMAIL",
@@ -2425,7 +2421,10 @@ def test_employee_toggle_resources(
 
 @pytest.mark.django_db
 def test_visibility_import_employees_button(
-    client, django_user_model, custom_user_import_integration_factory, custom_integration_factory
+    client,
+    django_user_model,
+    custom_user_import_integration_factory,
+    custom_integration_factory,
 ):
     client.force_login(django_user_model.objects.create(role=1))
 
@@ -2440,12 +2439,12 @@ def test_visibility_import_employees_button(
 
 
 @pytest.mark.django_db
-def test_importing_employees(client, django_user_model, custom_user_import_integration_factory):
+def test_importing_employees(
+    client, django_user_model, custom_user_import_integration_factory
+):
     client.force_login(django_user_model.objects.create(role=1))
 
-    integration = custom_user_import_integration_factory(
-        name="Google import"
-    )
+    integration = custom_user_import_integration_factory(name="Google import")
 
     url = reverse("people:import", args=[integration.id])
     response = client.get(url, follow=True)
