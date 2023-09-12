@@ -59,8 +59,8 @@
             // get new users
             htmx.ajax("GET", "{% url 'people:import-users-hx' integration.id %}", '.card-body').then(() => {
               doStyleModifications()
+              $("#creating-users").removeClass("btn-loading")
             })
-            $("#creating-users").removeClass("btn-loading")
           },
           error: function( data ) {
             data = data.responseJSON
