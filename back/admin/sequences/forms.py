@@ -160,6 +160,7 @@ class PendingAdminTaskForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["option"].initial = PendingAdminTask.Notification.NO
+        self.fields["comment"].required = True
         self.helper = FormHelper()
         self.helper.form_tag = False
 
@@ -201,6 +202,14 @@ class PendingAdminTaskForm(forms.ModelForm):
             "slack_user",
             "email",
         ]
+
+    def clean(self):
+        cleaned_data = super().clean()
+        assigned_to = cleaned_data.get("assigned_to", None)
+        person_type = cleaned_data["person_type"]
+        if person_type == PendingAdminTask.PersonType.CUSTOM and assigned_to is None:
+            self.add_error("assigned_to", _("This field is required"))
+        return cleaned_data
 
 
 class PendingSlackMessageForm(forms.ModelForm):
