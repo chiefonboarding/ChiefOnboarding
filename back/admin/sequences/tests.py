@@ -856,13 +856,13 @@ def test_sequence_item_test_message(client, admin_factory, mailoutbox):
 
 @pytest.mark.django_db
 def test_sequence_default_templates_integrations(
-    client, admin_factory, integration_factory
+    client, admin_factory, integration_factory, custom_integration_factory
 ):
     admin = admin_factory()
     client.force_login(admin)
     url = reverse("sequences:template_list")
-    integration_factory(integration=Integration.Type.CUSTOM)
-    integration_factory(integration=Integration.Type.CUSTOM)
+    custom_integration_factory()
+    custom_integration_factory()
     integration_factory(integration=Integration.Type.SLACK_ACCOUNT_CREATION)
     integration_factory(integration=Integration.Type.GOOGLE_LOGIN)
 

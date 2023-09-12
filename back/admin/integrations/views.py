@@ -71,7 +71,7 @@ class IntegrationUpdateView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = _("Add new integration")
+        context["title"] = _("Update existing integration")
         context["subtitle"] = _("settings")
         context["button_text"] = _("Update")
         return context
@@ -158,10 +158,9 @@ class IntegrationOauthCallbackView(LoginRequiredMixin, RedirectView):
             integration.expiring = timezone.now() + timedelta(
                 seconds=response.json()["expires_in"]
             )
-            integration.save()
 
         integration.enabled_oauth = True
-        integration.save()
+        integration.save(update_fields=["enabled_oauth", "extra_args", "expiring"])
 
         return reverse_lazy("settings:integrations")
 

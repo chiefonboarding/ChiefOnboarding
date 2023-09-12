@@ -6,7 +6,11 @@ from pytest_factoryboy import register
 from admin.admin_tasks.factories import AdminTaskFactory
 from admin.appointments.factories import AppointmentFactory
 from admin.badges.factories import BadgeFactory
-from admin.integrations.factories import CustomIntegrationFactory, IntegrationFactory
+from admin.integrations.factories import (
+    CustomIntegrationFactory,
+    CustomUserImportIntegrationFactory,
+    IntegrationFactory,
+)
 from admin.introductions.factories import IntroductionFactory
 from admin.notes.factories import NoteFactory
 from admin.preboarding.factories import PreboardingFactory
@@ -95,8 +99,9 @@ register(PendingEmailMessageFactory)
 register(PendingSlackMessageFactory)
 register(PendingTextMessageFactory)
 register(BadgeFactory)
-register(CustomIntegrationFactory)
 register(IntegrationFactory)
+register(CustomIntegrationFactory)
+register(CustomUserImportIntegrationFactory)
 register(IntegrationConfigFactory)
 register(ConditionWithItemsFactory)
 register(FileFactory)

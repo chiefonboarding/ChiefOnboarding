@@ -96,9 +96,21 @@ class ManifestOauthSerializer(ValidateMixin, serializers.Serializer):
 
 
 class ManifestSerializer(ValidateMixin, serializers.Serializer):
+    type = serializers.ChoiceField(
+        [
+            ("import_users", "imports users from endpoint"),
+        ],
+        required=False,
+    )
     form = ManifestFormSerializer(required=False, many=True)
+    data_from = serializers.CharField(required=False)
+    data_structure = serializers.JSONField(required=False)
     exists = ManifestExistSerializer(required=False)
     execute = ManifestExecuteSerializer(many=True)
+    next_page_token_from = serializers.CharField(required=False)
+    next_page = serializers.CharField(required=False)
+    next_page_from = serializers.CharField(required=False)
+    amount_pages_to_fetch = serializers.IntegerField(required=False)
     post_execute_notification = ManifestPostExecuteNotificationSerializer(
         many=True, required=False
     )

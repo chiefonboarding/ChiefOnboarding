@@ -1,3 +1,4 @@
+import hashlib
 import json
 from datetime import timedelta
 
@@ -89,3 +90,12 @@ def show_start_card(conditions, idx, new_hire):
         return True
 
     return False
+
+
+@register.filter(name="hash")
+def hash(text):
+    """
+    Hashes the value. Could be used to get uuids (for data that is unique).
+    """
+    text = text.encode()
+    return hashlib.sha256(text).hexdigest()

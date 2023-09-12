@@ -9,19 +9,32 @@ from django.views.generic.base import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
+from django_q.tasks import async_task
+from rest_framework import generics
+from rest_framework.authentication import SessionAuthentication
 
+from admin.integrations.exceptions import GettingUsersError, KeyIsNotInDataError
 from admin.integrations.models import Integration
+from admin.integrations.import_users import ImportUser
+from admin.people.serializers import UserImportSerializer
 from admin.resources.models import Resource
-from organization.models import WelcomeMessage
+from api.permissions import AdminPermission
+from organization.models import Organization, WelcomeMessage
 from slack_bot.utils import Slack, actions, button, paragraph
 from users.emails import email_new_admin_cred
 from users.mixins import (
+    AdminPermMixin,
     IsAdminOrNewHireManagerMixin,
     LoginRequiredMixin,
     ManagerPermMixin,
 )
 
-from .forms import ColleagueCreateForm, ColleagueUpdateForm
+from .forms import (
+    ColleagueCreateForm,
+    ColleagueUpdateForm,
+    EmailIgnoreForm,
+    UserRoleForm,
+)
 
 # See new_hire_views.py for new hire functions!
 
@@ -39,6 +52,7 @@ class ColleagueListView(LoginRequiredMixin, ManagerPermMixin, ListView):
         context["slack_active"] = Integration.objects.filter(
             integration=Integration.Type.SLACK_BOT
         ).exists()
+        context["import_users_options"] = Integration.objects.import_users_options()
         context["add_action"] = reverse_lazy("people:colleague_create")
         return context
 
@@ -259,3 +273,85 @@ class ColleagueTogglePortalAccessView(LoginRequiredMixin, ManagerPermMixin, View
         context["button_name"] = button_name
         context["exists"] = user.is_active
         return render(request, self.template_name, context)
+
+
+class ColleagueImportView(LoginRequiredMixin, AdminPermMixin, DetailView):
+    """Generic view to start showing the options based on what it fetched from the
+    server
+    """
+
+    template_name = "colleague_import.html"
+    context_object_name = "integration"
+
+    def get_queryset(self):
+        return Integration.objects.import_users_options()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["subtitle"] = _("Import new users from a third party")
+        context["title"] = _("Import people")
+        return context
+
+
+class ColleagueImportFetchUsersHXView(LoginRequiredMixin, AdminPermMixin, View):
+    """HTMLX view to get all users and return a table"""
+
+    def get(self, request, pk, *args, **kwargs):
+        integration = get_object_or_404(
+            Integration.objects.import_users_options(), id=pk
+        )
+        try:
+            # we are passing in the user who is requesting it, but we likely don't need
+            # them.
+            users = ImportUser(integration).get_import_user_candidates(
+                self.request.user
+            )
+        except (KeyIsNotInDataError, GettingUsersError) as e:
+            return render(request, "_import_user_table.html", {"error": e})
+
+        return render(
+            request,
+            "_import_user_table.html",
+            {"users": users, "role_form": UserRoleForm},
+        )
+
+
+class ColleagueImportIgnoreUserHXView(LoginRequiredMixin, AdminPermMixin, View):
+    """HTMLX view to put people on the ignore list"""
+
+    def post(self, request, *args, **kwargs):
+        form = EmailIgnoreForm(request.POST)
+        # We always expect an email here, if it's not, then all data is likely incorrect
+        # as we specifically call "email" from the API
+        if form.is_valid():
+            org = Organization.objects.get()
+            org.ignored_user_emails += [form.cleaned_data["email"]]
+            org.save()
+
+        return HttpResponse()
+
+
+class ColleagueImportAddUsersView(LoginRequiredMixin, generics.CreateAPIView):
+    permission_classes = (AdminPermission,)
+    authentication_classes = [
+        SessionAuthentication,
+    ]
+    serializer_class = UserImportSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+        users = serializer.save()
+
+        # users is a list, so manually checking instead of filter queryset
+        for user in users:
+            if user.is_admin_or_manager:
+                async_task(email_new_admin_cred, user)
+
+        success_message = _(
+            "Users got imported succesfully. "
+            "Admins and managers will receive an email shortly."
+        )
+        return HttpResponse(
+            f"<div class='alert alert-success'><p>{success_message}</p></div>"
+        )

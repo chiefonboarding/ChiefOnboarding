@@ -39,11 +39,25 @@ class IntegrationManager(models.Manager):
         return super().get_queryset()
 
     def sequence_integration_options(self):
-        return self.get_queryset().filter(integration=Integration.Type.CUSTOM)
+        # any webhooks and account provisioning
+        return self.get_queryset().filter(
+            integration=Integration.Type.CUSTOM,
+            manifest_type=Integration.ManifestType.WEBHOOK,
+        )
 
     def account_provision_options(self):
+        # only account provisioning (no general webhooks)
         return self.get_queryset().filter(
-            integration=Integration.Type.CUSTOM, manifest__exists__isnull=False
+            integration=Integration.Type.CUSTOM,
+            manifest_type=Integration.ManifestType.WEBHOOK,
+            manifest__exists__isnull=False,
+        )
+
+    def import_users_options(self):
+        # only import user items
+        return self.get_queryset().filter(
+            integration=Integration.Type.CUSTOM,
+            manifest_type=Integration.ManifestType.USER_IMPORT,
         )
 
 
@@ -56,8 +70,15 @@ class Integration(models.Model):
         ASANA = 4, _("Asana")  # legacy
         CUSTOM = 10, _("Custom")
 
+    class ManifestType(models.IntegerChoices):
+        WEBHOOK = 0, _("Provision user accounts or trigger webhooks")
+        USER_IMPORT = 1, _("Import users")
+
     name = models.CharField(max_length=300, default="", blank=True)
     integration = models.IntegerField(choices=Type.choices)
+    manifest_type = models.IntegerField(
+        choices=ManifestType.choices, null=True, blank=True
+    )
     token = EncryptedTextField(max_length=10000, default="", blank=True)
     refresh_token = EncryptedTextField(max_length=10000, default="", blank=True)
     base_url = models.CharField(max_length=22300, default="", blank=True)
@@ -82,6 +103,10 @@ class Integration(models.Model):
     verification_token = models.CharField(max_length=100, default="")
     bot_token = EncryptedTextField(max_length=10000, default="", blank=True)
     bot_id = models.CharField(max_length=100, default="")
+
+    @property
+    def has_user_context(self):
+        return self.manifest_type == Integration.ManifestType.WEBHOOK
 
     def run_request(self, data):
         url = self._replace_vars(data["url"])
@@ -151,7 +176,10 @@ class Integration(models.Model):
     def has_oauth(self):
         return "oauth" in self.manifest
 
-    def headers(self, headers={}):
+    def headers(self, headers=None):
+        if headers is None:
+            headers = {}
+
         headers = (
             self.manifest.get("headers", {}).items()
             if len(headers) == 0
@@ -209,20 +237,21 @@ class Integration(models.Model):
                 self.expiring = timezone.now() + timedelta(
                     seconds=response.json()["expires_in"]
                 )
-            self.save()
+            self.save(update_fields=["expiring", "extra_args"])
         return success
 
     def execute(self, new_hire, params):
         self.params = params
-        self.params |= new_hire.extra_fields
-        self.new_hire = new_hire
+        if self.has_user_context:
+            self.params |= new_hire.extra_fields
+            self.new_hire = new_hire
 
         # Renew token if necessary
         if not self.renew_key():
-            return False
+            return False, None
 
         # Add generated secrets
-        for item in self.manifest["initial_data_form"]:
+        for item in self.manifest.get("initial_data_form", []):
             if "name" in item and item["name"] == "generate":
                 self.extra_args[item["id"]] = get_random_string(length=10)
 
@@ -230,7 +259,8 @@ class Integration(models.Model):
         for item in self.manifest["execute"]:
             success, response = self.run_request(item)
 
-            if not success:
+            # No need to retry or log when we are importing users
+            if not success and not self.has_user_context:
                 response = self.clean_response(response=response)
                 Notification.objects.create(
                     notification_type=Notification.Type.FAILED_INTEGRATION,
@@ -289,13 +319,15 @@ class Integration(models.Model):
                     )
                     return True, None
 
-        # Succesfully ran integration, add notification
-        Notification.objects.create(
-            notification_type=Notification.Type.RAN_INTEGRATION,
-            extra_text=self.name,
-            created_for=new_hire,
-        )
-        return True, None
+        # Succesfully ran integration, add notification only when we are provisioning
+        # access
+        if self.has_user_context:
+            Notification.objects.create(
+                notification_type=Notification.Type.RAN_INTEGRATION,
+                extra_text=self.name,
+                created_for=new_hire,
+            )
+        return True, response
 
     def config_form(self, data=None):
         from .forms import IntegrationConfigForm
@@ -306,7 +338,9 @@ class Integration(models.Model):
         # if json, then convert to string to make it easier to replace values
         response = str(response)
         for name, value in self.extra_args.items():
-            response = response.replace(str(value), f"***Secret value for {name}***")
+            response = response.replace(
+                str(value), _("***Secret value for %(name)s***") % {"name": name}
+            )
 
         return response
 
