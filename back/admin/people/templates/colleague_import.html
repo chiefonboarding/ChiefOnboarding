@@ -47,6 +47,7 @@
         });
 
 
+        $("#creating-users").addClass("btn-loading")
         $.ajax({
           url: "{% url 'people:import-create' %}",
           type: 'post',
@@ -56,14 +57,17 @@
           success: function( data ) {
             $("#message-header").html(data)
             // get new users
-            htmx.ajax("GET", "{% url 'people:import-users-hx' integration.id %}", '.card-body')
-            doStyleModifications()
+            htmx.ajax("GET", "{% url 'people:import-users-hx' integration.id %}", '.card-body').then(() => {
+              doStyleModifications()
+            }
+            $("#creating-users").removeClass("btn-loading")
           },
           error: function( data ) {
             data = data.responseJSON
             counter = 0
             // reset previous errors
             $(".invalid-feedback").remove()
+            $("#creating-users").removeClass("btn-loading")
 
             $('#results tr').each(function (index, tr) {
               // skip over any rows which were not sent to the backend
