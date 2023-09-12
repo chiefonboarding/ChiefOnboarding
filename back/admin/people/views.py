@@ -331,7 +331,7 @@ class ColleagueImportIgnoreUserHXView(LoginRequiredMixin, AdminPermMixin, View):
         return HttpResponse()
 
 
-class ColleagueImportAddUsersView(generics.CreateAPIView):
+class ColleagueImportAddUsersView(LoginRequiredMixin, generics.CreateAPIView):
     permission_classes = (AdminPermission,)
     authentication_classes = [
         SessionAuthentication,
