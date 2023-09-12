@@ -3,46 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.0.3.740001291643">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.4.1.747839998953">
 
     <!-- See retype.com -->
-    <meta name="generator" content="Retype 3.0.3">
+    <meta name="generator" content="Retype 3.4.1">
 
     <!-- Primary Meta Tags -->
     <title>Integrations / Webhooks (Beta)</title>
     <meta name="title" content="Integrations / Webhooks (Beta)">
-    <meta name="description" content="ChiefOnboarding allows you to create integrations or webhooks that can be triggered either manually or through a sequence." />
+    <meta name="description" content="ChiefOnboarding allows you to create integrations or trigger webhooks that can be triggered either manually or through a sequence.">
 
     <!-- Canonical -->
-    <link rel="canonical" href="https://docs.chiefonboarding.com/integrations/" />
+    <link rel="canonical" href="https://docs.chiefonboarding.com/integrations/">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://docs.chiefonboarding.com/integrations/">
     <meta property="og:title" content="Integrations / Webhooks (Beta)">
-    <meta property="og:description" content="ChiefOnboarding allows you to create integrations or webhooks that can be triggered either manually or through a sequence.">
+    <meta property="og:description" content="ChiefOnboarding allows you to create integrations or trigger webhooks that can be triggered either manually or through a sequence.">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://docs.chiefonboarding.com/integrations/">
     <meta property="twitter:title" content="Integrations / Webhooks (Beta)">
-    <meta property="twitter:description" content="ChiefOnboarding allows you to create integrations or webhooks that can be triggered either manually or through a sequence.">
+    <meta property="twitter:description" content="ChiefOnboarding allows you to create integrations or trigger webhooks that can be triggered either manually or through a sequence.">
 
-    <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
+    <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
-    <link href="../resources/css/retype.css?v=3.0.3.740001291643" rel="stylesheet" />
+    <link href="../resources/css/retype.css?v=3.4.1.747839998953" rel="stylesheet">
 
-    <script type="text/javascript" src="../resources/js/config.js?v=3.0.3.740001291643" data-turbo-eval="false" defer></script>
-    <script type="text/javascript" src="../resources/js/retype.js?v=3.0.3" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=3.0.3.740001291643" data-turbo-eval="false" defer></script>
-    <script id="prism-js" type="text/javascript" src="../resources/js/prism.js?v=3.0.3.740001291643" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.4.1.747839998953" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/retype.js?v=3.4.1" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.4.1.747839998953" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.4.1.747839998953" defer></script>
 </head>
 <body>
     <div id="docs-app" class="relative text-base antialiased text-gray-700 bg-white font-body dark:bg-dark-850 dark:text-dark-300">
         <div class="absolute bottom-0 left-0 bg-gray-100 dark:bg-dark-800" style="top: 5rem; right: 50%"></div>
     
         <header id="docs-site-header" class="sticky top-0 z-30 flex w-full h-16 bg-white border-b border-gray-200 md:h-20 dark:bg-dark-850 dark:border-dark-650">
-            <div class="container relative flex items-center justify-between grow pr-6 md:justify-start">
+            <div class="container relative flex items-center justify-between pr-6 grow md:justify-start">
                 <!-- Mobile menu button skeleton -->
                 <button v-cloak class="skeleton docs-mobile-menu-button flex items-center justify-center shrink-0 overflow-hidden dark:text-white focus:outline-none rounded-full w-10 h-10 ml-3.5 md:hidden"><svg xmlns="http://www.w3.org/2000/svg" class="mb-px shrink-0" width="24" height="24" viewBox="0 0 24 24" role="presentation" style="margin-bottom: 0px;"><g fill="currentColor"><path d="M2 4h20v2H2zM2 11h20v2H2zM2 18h20v2H2z"></path></g></svg></button>
                 <div v-cloak id="docs-sidebar-toggle"></div>
@@ -81,24 +81,22 @@
                         <!-- Search input mock -->
                         <div class="relative hidden w-40 lg:block lg:max-w-sm lg:ml-auto">
                             <div class="absolute flex items-center justify-center h-full pl-3 dark:text-dark-300">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon-base" width="16" height="16" viewBox="0 0 24 24" aria-labelledby="icon" role="presentation"  style="margin-bottom: 1px;"><g fill="currentColor" ><path d="M21.71 20.29l-3.68-3.68A8.963 8.963 0 0020 11c0-4.96-4.04-9-9-9s-9 4.04-9 9 4.04 9 9 9c2.12 0 4.07-.74 5.61-1.97l3.68 3.68c.2.19.45.29.71.29s.51-.1.71-.29c.39-.39.39-1.03 0-1.42zM4 11c0-3.86 3.14-7 7-7s7 3.14 7 7c0 1.92-.78 3.66-2.04 4.93-.01.01-.02.01-.02.01-.01.01-.01.01-.01.02A6.98 6.98 0 0111 18c-3.86 0-7-3.14-7-7z" ></path></g></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon-base" width="16" height="16" viewBox="0 0 24 24" aria-labelledby="icon" role="presentation" style="margin-bottom: 1px;"><g fill="currentColor" ><path d="M21.71 20.29l-3.68-3.68A8.963 8.963 0 0020 11c0-4.96-4.04-9-9-9s-9 4.04-9 9 4.04 9 9 9c2.12 0 4.07-.74 5.61-1.97l3.68 3.68c.2.19.45.29.71.29s.51-.1.71-.29c.39-.39.39-1.03 0-1.42zM4 11c0-3.86 3.14-7 7-7s7 3.14 7 7c0 1.92-.78 3.66-2.04 4.93-.01.01-.02.01-.02.01-.01.01-.01.01-.01.02A6.98 6.98 0 0111 18c-3.86 0-7-3.14-7-7z" ></path></g></svg>
                             </div>
-        
-                            <input class="w-full h-10 transition-colors duration-200 ease-in bg-gray-200 border border-transparent rounded md:text-sm hover:bg-white hover:border-gray-300 focus:outline-none focus:bg-white focus:border-gray-500 dark:bg-dark-600 dark:border-dark-600 placeholder-gray-400 dark:placeholder-dark-400"
-                            style="padding: 0.625rem 0.75rem 0.625rem 2rem" type="text" placeholder="Search" />
+                            <input class="w-full h-10 placeholder-gray-400 transition-colors duration-200 ease-in bg-gray-200 border border-transparent rounded md:text-sm hover:bg-white hover:border-gray-300 focus:outline-none focus:bg-white focus:border-gray-500 dark:bg-dark-600 dark:border-dark-600 dark:placeholder-dark-400" style="padding: 0.625rem 0.75rem 0.625rem 2rem" type="text" placeholder="Search">
                         </div>
         
-                        <!-- Mobile search button mock -->
+                        <!-- Mobile search button -->
                         <div class="flex items-center justify-center w-10 h-10 lg:hidden">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="shrink-0 icon-base" width="20" height="20" viewBox="0 0 24 24" aria-labelledby="icon" role="presentation"  style="margin-bottom: 0px;"><g fill="currentColor" ><path d="M21.71 20.29l-3.68-3.68A8.963 8.963 0 0020 11c0-4.96-4.04-9-9-9s-9 4.04-9 9 4.04 9 9 9c2.12 0 4.07-.74 5.61-1.97l3.68 3.68c.2.19.45.29.71.29s.51-.1.71-.29c.39-.39.39-1.03 0-1.42zM4 11c0-3.86 3.14-7 7-7s7 3.14 7 7c0 1.92-.78 3.66-2.04 4.93-.01.01-.02.01-.02.01-.01.01-.01.01-.01.02A6.98 6.98 0 0111 18c-3.86 0-7-3.14-7-7z" ></path></g></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="shrink-0 icon-base" width="20" height="20" viewBox="0 0 24 24" aria-labelledby="icon" role="presentation" style="margin-bottom: 0px;"><g fill="currentColor" ><path d="M21.71 20.29l-3.68-3.68A8.963 8.963 0 0020 11c0-4.96-4.04-9-9-9s-9 4.04-9 9 4.04 9 9 9c2.12 0 4.07-.74 5.61-1.97l3.68 3.68c.2.19.45.29.71.29s.51-.1.71-.29c.39-.39.39-1.03 0-1.42zM4 11c0-3.86 3.14-7 7-7s7 3.14 7 7c0 1.92-.78 3.66-2.04 4.93-.01.01-.02.01-.02.01-.01.01-.01.01-.01.02A6.98 6.98 0 0111 18c-3.86 0-7-3.14-7-7z" ></path></g></svg>
                         </div>
         
-                        <!-- Dark mode switch placehokder -->
+                        <!-- Dark mode switch placeholder -->
                         <div class="w-10 h-10 lg:ml-2"></div>
         
-                        <!-- History button mock -->
+                        <!-- History button -->
                         <div class="flex items-center justify-center w-10 h-10" style="margin-right: -0.625rem;">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="shrink-0 icon-base" width="22" height="22" viewBox="0 0 24 24" aria-labelledby="icon" role="presentation"  style="margin-bottom: 0px;"><g fill="currentColor" ><g ><path d="M12.01 6.01c-.55 0-1 .45-1 1V12a1 1 0 00.4.8l3 2.22a.985.985 0 001.39-.2.996.996 0 00-.21-1.4l-2.6-1.92V7.01c.02-.55-.43-1-.98-1z"></path><path d="M12.01 1.91c-5.33 0-9.69 4.16-10.05 9.4l-.29-.26a.997.997 0 10-1.34 1.48l1.97 1.79c.19.17.43.26.67.26s.48-.09.67-.26l1.97-1.79a.997.997 0 10-1.34-1.48l-.31.28c.34-4.14 3.82-7.41 8.05-7.41 4.46 0 8.08 3.63 8.08 8.09s-3.63 8.08-8.08 8.08c-2.18 0-4.22-.85-5.75-2.4a.996.996 0 10-1.42 1.4 10.02 10.02 0 007.17 2.99c5.56 0 10.08-4.52 10.08-10.08.01-5.56-4.52-10.09-10.08-10.09z"></path></g></g></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="shrink-0 icon-base" width="22" height="22" viewBox="0 0 24 24" aria-labelledby="icon" role="presentation" style="margin-bottom: 0px;"><g fill="currentColor" ><g ><path d="M12.01 6.01c-.55 0-1 .45-1 1V12a1 1 0 00.4.8l3 2.22a.985.985 0 001.39-.2.996.996 0 00-.21-1.4l-2.6-1.92V7.01c.02-.55-.43-1-.98-1z"></path><path d="M12.01 1.91c-5.33 0-9.69 4.16-10.05 9.4l-.29-.26a.997.997 0 10-1.34 1.48l1.97 1.79c.19.17.43.26.67.26s.48-.09.67-.26l1.97-1.79a.997.997 0 10-1.34-1.48l-.31.28c.34-4.14 3.82-7.41 8.05-7.41 4.46 0 8.08 3.63 8.08 8.09s-3.63 8.08-8.08 8.08c-2.18 0-4.22-.85-5.75-2.4a.996.996 0 10-1.42 1.4 10.02 10.02 0 007.17 2.99c5.56 0 10.08-4.52 10.08-10.08.01-5.56-4.52-10.09-10.08-10.09z"></path></g></g></svg>
                         </div>
                     </div>
         
@@ -119,10 +117,10 @@
             
                 <!-- Render this div, if config.showSidebarFilter is `true` -->
                 <div class="flex items-center h-16 px-6">
-                    <input class="w-full h-8 px-3 py-2 transition-colors duration-200 ease-linear bg-white border border-gray-200 rounded shadow-none text-sm focus:outline-none focus:border-gray-600 dark:bg-dark-600 dark:border-dark-600" type="text" placeholder="Filter" />
+                    <input class="w-full h-8 px-3 py-2 transition-colors duration-200 ease-linear bg-white border border-gray-200 rounded shadow-none text-sm focus:outline-none focus:border-gray-600 dark:bg-dark-600 dark:border-dark-600" type="text" placeholder="Filter">
                 </div>
             
-                <div class="pl-6 mb-4 mt-1">
+                <div class="pl-6 mt-1 mb-4">
                     <div class="w-32 h-3 mb-4 bg-gray-200 rounded-full loading dark:bg-dark-600"></div>
                     <div class="w-48 h-3 mb-4 bg-gray-200 rounded-full loading dark:bg-dark-600"></div>
                     <div class="w-40 h-3 mb-4 bg-gray-200 rounded-full loading dark:bg-dark-600"></div>
@@ -177,7 +175,6 @@
                             <div class="docs-markdown" id="docs-content">
                                 <!-- Rendered if sidebar right is enabled -->
                                 <div id="docs-sidebar-right-toggle"></div>
-                
                                 <!-- Page content  -->
 <doc-anchor-target id="integrations--webhooks-beta" class="break-words">
     <h1>
@@ -185,7 +182,18 @@
         <span>Integrations / Webhooks (Beta)</span>
     </h1>
 </doc-anchor-target>
-<p>ChiefOnboarding allows you to create integrations or webhooks that can be triggered either manually or through a sequence. You can view some examples at <a href="https://integrations.chiefonboarding.com">https://integrations.chiefonboarding.com</a>. You are free to copy them. If you created a cool new integrations, then please post it there. That way we can help eachother out by not re-inventing the wheel! Thanks a lot!</p>
+<p>ChiefOnboarding allows you to create integrations or trigger webhooks that can be triggered either manually or through a sequence. You can view some examples at <a href="https://integrations.chiefonboarding.com">https://integrations.chiefonboarding.com</a>. You are free to copy them. If you created a cool new integrations, then please post it there. That way we can help eachother out by not re-inventing the wheel! Thanks a lot!</p>
+<p>There are two types of integrations:</p>
+<ol>
+<li>An integration to trigger a URL on an third party service</li>
+<li>An &quot;import users&quot; integration, which allows you to import users from a third party to ChiefOnboarding (manually)</li>
+</ol>
+<doc-anchor-target id="integration-to-trigger-a-third-party-url">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#integration-to-trigger-a-third-party-url">#</doc-anchor-trigger>
+        <span>Integration to trigger a third party url</span>
+    </h2>
+</doc-anchor-target>
 <p>Here is an example of a manifest of an integration (in this case to add a user to an Asana team):</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-json"><code v-pre class="language-json">{
@@ -242,10 +250,10 @@
 </doc-codeblock></div>
 <p>Let&#x27;s go over the items:</p>
 <doc-anchor-target id="form">
-    <h2>
+    <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#form">#</doc-anchor-trigger>
         <span>Form</span>
-    </h2>
+    </h3>
 </doc-anchor-target>
 <p>This is the form that is shown to you when you add this to a sequence. The form should consist of items that you would like to have different for different type of people. In the example above, the form allows you to pick a specific team to add the user to. For example: you probably don&#x27;t want to add a developer to the HR team in Asana. So, the team is what you can customize every time you add the integration to a user or in a sequence.</p>
 <p>You can customize where we get the info from and what an admin should fill in. The <code v-pre>form</code> should always be an array and allows the following properties:</p>
@@ -261,10 +269,10 @@
 <p><code v-pre>choice_name</code>: The name that should be displayed to the admin as an option. Default: <code v-pre>name</code>.</p>
 <p><code v-pre>items</code>: (if you are not fetching items from a url) You can add an array here with objects in them with the props: <code v-pre>id</code> and <code v-pre>name</code>. For example: <code v-pre>[{&quot;id&quot;: &quot;233&quot;, &quot;name&quot;: &quot;option 1&quot;}, {&quot;id&quot;: &quot;234&quot;, &quot;name&quot;: &quot;option 2&quot;}]</code>.</p>
 <doc-anchor-target id="exists">
-    <h2>
+    <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#exists">#</doc-anchor-trigger>
         <span>Exists</span>
-    </h2>
+    </h3>
 </doc-anchor-target>
 <p>Exists is an option to check if a user is already part of a team. If you add this property to your manifest then it will show up under new hire -&gt; access. From there, you will be able to manaully enable/disable an account for them. Generally, you should skip this option if you are making any calls not related to account provisioning.</p>
 <p><code v-pre>url</code>: The url to check if the user exists. Everything that comes back is parsed to a string and then checked against.</p>
@@ -273,10 +281,10 @@
 <p><code v-pre>headers</code>: (optionally) This will overwrite the default headers.</p>
 <p><code v-pre>fail_when_4xx_response_code</code>: Default: True. If the server response with a 4xx status code, then that&#x27;s considered a failing request. In some cases, apis will return a 404 if the user does not exist. In that case, set this to <code v-pre>False</code>, so it can check for the <code v-pre>expected</code> value.</p>
 <doc-anchor-target id="execute">
-    <h2>
+    <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#execute">#</doc-anchor-trigger>
         <span>Execute</span>
-    </h2>
+    </h3>
 </doc-anchor-target>
 <p>These requests will be ran when this integration gets triggered.</p>
 <p><code v-pre>url</code>: The url where the request will be made to.</p>
@@ -284,17 +292,17 @@
 <p><code v-pre>method</code>: The request method. E.g. <code v-pre>POST</code> or <code v-pre>GET</code>.</p>
 <p><code v-pre>headers</code>: (optionally) This will overwrite the default headers.</p>
 <doc-anchor-target id="headers">
-    <h2>
+    <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#headers">#</doc-anchor-trigger>
         <span>Headers</span>
-    </h2>
+    </h3>
 </doc-anchor-target>
 <p>These headers will be send with every request. These could include some sort of token variable for authentication.</p>
 <doc-anchor-target id="oauth">
-    <h2>
+    <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#oauth">#</doc-anchor-trigger>
         <span>Oauth</span>
-    </h2>
+    </h3>
 </doc-anchor-target>
 <p>If you need to use OAuth2 to get a token, then you will need to use this. Just create a prop called <code v-pre>oauth</code> and then in that use these properties:</p>
 <p><code v-pre>authenticate_url</code>: This is the url that is used to send the user to the login/authorize the connection (this should be a url to the third party). This is always a <code v-pre>GET</code> request. It expects an url here.</p>
@@ -302,10 +310,10 @@
 <p><code v-pre>refresh</code>: Used to refresh the token to get a new one, if this is not added, then it will assume that the token is permanent. Format is an object like the <code v-pre>execute</code> part.</p>
 <p><code v-pre>without_code</code>: Default: <code v-pre>False</code>. Enable this is a valid callback won&#x27;t return a <code v-pre>code</code> query in the url. In some cases, we don&#x27;t get it and also not need it.</p>
 <doc-anchor-target id="initial-data-form">
-    <h2>
+    <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#initial-data-form">#</doc-anchor-trigger>
         <span>Initial data form</span>
-    </h2>
+    </h3>
 </doc-anchor-target>
 <p>This is a form that you can create to fill in when you add this integration to your instance. Any sensitive info should be filled in here, instead of in the manifest itself. Data that gets filled in here will be saved encrypted in the database. The manifest itself does not get encrypted. So, again, any tokens, authentication, sensitive info should be filled in through this form and not hardcoded!</p>
 <p>You can obviously add as many as you want. You can use these variables by using the <code v-pre>id</code> in any of the other parts of the manifest.</p>
@@ -313,10 +321,10 @@
 <p><code v-pre>name</code>: The label of the field. Please do not use spaces or weird characters. A single word is prefered. Use <code v-pre>generate</code> to generate a secret value, use this for i.e. one-time password.</p>
 <p><code v-pre>description</code>: Any other info you want to leave to make it clear where to find this value. Mainly used for documentation and/or sharing.</p>
 <doc-anchor-target id="post-execute-notification">
-    <h2>
+    <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#post-execute-notification">#</doc-anchor-trigger>
         <span>Post execute notification</span>
-    </h2>
+    </h3>
 </doc-anchor-target>
 <p>Defined as <code v-pre>post_execute_notification</code>. Gives you the ability to send a text message or email to someone after this integration has been completed.</p>
 <p><code v-pre>type</code>: Either <code v-pre>email</code>, or <code v-pre>text</code>. Depends if you want to send an email or text message.</p>
@@ -324,10 +332,10 @@
 <p><code v-pre>subject</code>: In case of an email, define the subject header.</p>
 <p><code v-pre>message</code>: The message that should be send (plain text).</p>
 <doc-anchor-target id="variables">
-    <h2>
+    <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#variables">#</doc-anchor-trigger>
         <span>Variables</span>
-    </h2>
+    </h3>
 </doc-anchor-target>
 <p>Throughout the manifest you can use the variables that you have defined in the <code v-pre>initial_data_form</code> or the <code v-pre>form</code> wrapped around in double curly brackets. On top of that, you can also use new hire values. You can use:</p>
 <p><code v-pre>email</code>: New hire&#x27;s email address</p>
@@ -365,13 +373,113 @@
 </doc-anchor-target>
 <ul>
 <li>If triggering an integration fails, then it will retry the entire integration again one hour after failing. If it fails again, it will not retry.</li>
-<li>Integrations/Webhooks are currently in beta. Features will be added to it (OAuth support soon!).</li>
 <li>If you are using any of the integrations from the repo at: <a href="https://integrations.chiefonboarding.com">https://integrations.chiefonboarding.com</a> then you have to validate them yourself. This is a user repository and we do not actively moderate the submissions there. Please always validate the urls where requests are going to make sure it&#x27;s legit.</li>
 </ul>
+<doc-anchor-target id="import-user-integration">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#import-user-integration">#</doc-anchor-trigger>
+        <span>Import user integration</span>
+    </h2>
+</doc-anchor-target>
+<p>You can create custom import integrations to pull users from a third party and put them in ChiefOnboarding. This is fairly universal and will work with most APIs. A sample integration config will look like this:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-json"><code v-pre class="language-json">{
+    &quot;form&quot;: [],
+    &quot;type&quot;: &quot;import_users&quot;,
+    &quot;execute&quot;: [
+        {
+            &quot;url&quot;: &quot;https://api.bamboohr.com/api/gateway.php/{{COMPANY_ID}}/v1/reports/{{REPORT_ID}}&quot;,
+            &quot;method&quot;: &quot;GET&quot;
+        }
+    ],
+    &quot;headers&quot;: {
+        &quot;Accept&quot;: &quot;application/json&quot;,
+        &quot;Content-Type&quot;: &quot;application/json&quot;,
+        &quot;Authorization&quot;: &quot;Basic {{KEY}}:x&quot;
+    },
+    &quot;data_from&quot;: &quot;employees&quot;,
+    &quot;data_structure&quot;: {
+        &quot;email&quot;: &quot;workEmail&quot;,
+        &quot;last_name&quot;: &quot;lastName&quot;,
+        &quot;first_name&quot;: &quot;firstName&quot;
+    },
+    &quot;initial_data_form&quot;: [
+        {
+            &quot;id&quot;: &quot;KEY&quot;,
+            &quot;name&quot;: &quot;The BambooHR api key&quot;,
+            &quot;description&quot;: &quot;Go to: https://&lt;yourdomain&gt;.bamboohr.com/settings/permissions/api.php to get one&quot;
+        },
+        {
+            &quot;id&quot;: &quot;REPORT_ID&quot;,
+            &quot;name&quot;: &quot;The id of the report&quot;,
+            &quot;description&quot;: &quot;Go to: https://&lt;yourdomain&gt;.bamboohr.com/app/reports/ to find the id of the report. click on the report and then look at the url. There is a number that will represent the ID of the report.&quot;
+        },
+        {
+            &quot;id&quot;: &quot;COMPANY_ID&quot;,
+            &quot;name&quot;: &quot;The id of the company&quot;,
+            &quot;description&quot;: &quot;When you login you get a domain like this: https://&lt;yourdomain&gt;.bamboohr.com/. The '&lt;yourdomain&gt;' is your domain name. &quot;
+        }
+    ]
+}</code></pre>
+</doc-codeblock></div>
+<p>The setup is very similar to what we have for other integrations to trigger a webhook. The most notable differences are:</p>
+<p><code v-pre>&quot;type&quot;: &quot;import_users&quot;</code>: this is to indicate that this integration is only used to import users into ChiefOnboarding.</p>
+<p><code v-pre>data_from</code>: this is to indicate where the users are located in the response. You can use a dot notation if need to go deep into the json to get the data.</p>
+<p>We then also need to define where the data is stored in the users array (for each object). We can do that with <code v-pre>data_structure</code>. In there, you can define the values you want to copy.
+Please note that only <code v-pre>email</code>, <code v-pre>first_name</code> and <code v-pre>last_name</code> can be used for now.</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">&quot;data_structure&quot;: {
+    &quot;email&quot;: &quot;workEmail&quot;,
+    &quot;last_name&quot;: &quot;lastName&quot;,
+    &quot;first_name&quot;: &quot;firstName&quot;
+},</code></pre>
+</doc-codeblock></div>
+<p>So for the current config, we expect a JSON response from the third party like this:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">{
+    employees: [
+        {
+            &quot;firstName: &quot;John&quot;,
+            &quot;lastName: &quot;Do&quot;,
+            &quot;workEmail&quot;: &quot;john@do.com&quot;
+        },
+        {
+            &quot;firstName: &quot;Jane&quot;,
+            &quot;lastName: &quot;Do&quot;,
+            &quot;workEmail&quot;: &quot;jane@do.com&quot;
+        }
+    ]
+}</code></pre>
+</doc-codeblock></div>
+<p>Other values in the JSON will be ignored.</p>
+<doc-anchor-target id="paginated-response">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#paginated-response">#</doc-anchor-trigger>
+        <span>Paginated response</span>
+    </h3>
+</doc-anchor-target>
+<p>Sometimes, we might not get all items at once. We have something to cover that too.</p>
+<p><code v-pre>amount_pages_to_fetch</code>: Default: 5. Maximum amount of page to fetch. It will stop earlier if there are no users found anymore. There is a limit to this number. Please see the note below.</p>
+<p>There are two ways of fetching a new page:</p>
+<ol>
+<li>Sometimes an API will only return a token and we will have to build the url ourselves. (Google does this for example)</li>
+<li>In most cases, you will get a full url that you can use to fetch the new page of users.</li>
+</ol>
+<p>For case 1, you will need to provide two items (the url and where the token is):</p>
+<p><code v-pre>next_page_token_from</code>: the place to look for the next page token. You can use the dot notation to do go deeper into the JSON. If it&#x27;s not found, it will stop.
+<code v-pre>next_page</code>: This should be a fixed url that you should put here. You can use &#x60;&#x60; as the variable to include the previously found <code v-pre>next_page_token_from</code> value.</p>
+<p>For example, this is necessary for Google:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">&quot;next_page&quot;: &quot;https://admin.googleapis.com/admin/directory/v1/users?customer=my_customer&amp;maxResults=500&amp;pageToken=&quot;,
+&quot;next_page_token_from&quot;: &quot;nextPageToken&quot;</code></pre>
+</doc-codeblock></div>
+<p>For case 2, you will only need to provide the place where we need to look for the URL with this item:</p>
+<p><code v-pre>next_page_from</code>: the place to look for the next page url. You can use the dot notation to do go deeper into the JSON. If it&#x27;s not found, it will stop.</p>
+<p>Note: fetching users is being done live when you visit the page. If you set a high amount of pages to be fetched, then this might cause a timeout on the server. It makes rendering all users on the client also very sluggish. We recommend to not load more than 5000 users or not more than 10 pages (if a timeout of 30 seconds is set on your server (like Heroku for example)), whichever comes first. If you do need more, then we recommend going for an alternative method of importing users.</p>
 
                                 
                                 <!-- Required only on API pages -->
-                                <doc-toolbar-member-filter-no-results />
+                                <doc-toolbar-member-filter-no-results></doc-toolbar-member-filter-no-results>
                             </div>
                             <footer class="clear-both">
                                 <div class="flex flex-wrap items-center justify-between mt-14">
@@ -440,6 +548,6 @@
 
     <div id="docs-overlay-target"></div>
 
-    <script>window.__DOCS__ = { "title": "Integrations / Webhooks (Beta)", level: 1, icon: "file", hasPrism: true, hasMermaid: false, hasMath: false }</script>
+    <script data-cfasync="false">window.__DOCS__ = { "title": "Integrations / Webhooks (Beta)", level: 1, icon: "file", hasPrism: true, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
 </body>
 </html>
