@@ -257,7 +257,9 @@ class ColleagueTogglePortalAccessView(LoginRequiredMixin, ManagerPermMixin, View
 
     def post(self, request, pk, *args, **kwargs):
         context = {}
-        user = get_object_or_404(get_user_model(), pk=pk, role=get_user_model().UserRole.OTHER)
+        user = get_object_or_404(
+            get_user_model(), pk=pk, role=get_user_model().UserRole.OTHER
+        )
         context["colleague"] = user
         context["url_name"] = "people:toggle-portal-access"
 
