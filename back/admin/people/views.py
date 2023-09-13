@@ -257,7 +257,9 @@ class ColleagueTogglePortalAccessView(LoginRequiredMixin, ManagerPermMixin, View
 
     def post(self, request, pk, *args, **kwargs):
         context = {}
-        user = get_object_or_404(get_user_model(), pk=pk, role=3)
+        user = get_object_or_404(
+            get_user_model(), pk=pk, role=get_user_model().Role.OTHER
+        )
         context["colleague"] = user
         context["url_name"] = "people:toggle-portal-access"
 
@@ -347,6 +349,11 @@ class ColleagueImportAddUsersView(LoginRequiredMixin, generics.CreateAPIView):
         for user in users:
             if user.is_admin_or_manager:
                 async_task(email_new_admin_cred, user)
+            else:
+                # if they are not admin or manager, then they are a normal user
+                # don't allow them to login
+                user.is_active = False
+                user.save()
 
         success_message = _(
             "Users got imported succesfully. "
