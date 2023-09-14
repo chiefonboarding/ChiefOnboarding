@@ -224,10 +224,11 @@ class Integration(models.Model):
             success, response = self.run_request(self.manifest["oauth"]["refresh"])
 
             if not success:
+                user = self.new_hire if self.has_user_context else None
                 Notification.objects.create(
                     notification_type=Notification.Type.FAILED_INTEGRATION,
                     extra_text=self.name,
-                    created_for=self.new_hire,
+                    created_for=user,
                     description="Refresh url: " + str(response),
                 )
                 return success
@@ -260,7 +261,7 @@ class Integration(models.Model):
             success, response = self.run_request(item)
 
             # No need to retry or log when we are importing users
-            if not success and not self.has_user_context:
+            if not success and self.has_user_context:
                 response = self.clean_response(response=response)
                 Notification.objects.create(
                     notification_type=Notification.Type.FAILED_INTEGRATION,
