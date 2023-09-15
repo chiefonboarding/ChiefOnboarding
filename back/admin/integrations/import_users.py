@@ -94,7 +94,6 @@ class ImportUser:
             raise GettingUsersError(self.integration.clean_response(response))
 
         users = self.extract_users_from_list_response(response)
-        print(users)
 
         amount_pages_to_fetch = self.integration.manifest.get(
             "amount_pages_to_fetch", 5
@@ -123,7 +122,6 @@ class ImportUser:
                 break
 
             users += self.extract_users_from_list_response(response)
-            print(users)
             fetched_pages += 1
 
         # Remove users that are already in the system or have been ignored
