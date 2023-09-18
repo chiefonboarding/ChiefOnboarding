@@ -66,7 +66,17 @@ These requests will be ran when this integration gets triggered.
 
 `method`: The request method. E.g. `POST` or `GET`.
 
-`headers`: (optionally) This will overwrite the default headers.
+`headers`: (optional) This will overwrite the default headers.
+
+`store_data`: (optional) This can be used to store data to the new hire. Let's say you create a document through an API and you need to store the document ID that is relevant to the new hire, then you can do that with this. You can put a dictionary here with a key and value of the new hire prop name and the notation of where to get the data. You can use a dot notation to go deeper in the json.
+
+Example:
+```
+{
+    "FORM_ID": "data.id",
+    "DOCUMENT_HASH": "document_hash"
+}
+```
 
 ### Headers
 These headers will be send with every request. These could include some sort of token variable for authentication.
