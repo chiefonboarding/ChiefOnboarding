@@ -491,3 +491,31 @@ def test_slack_connect(client, django_user_model):
 
     assert Integration.objects.filter(integration=Integration.Type.SLACK_BOT).exists()
     assert "Slack has successfully been connected." in response.content.decode()
+
+
+@pytest.mark.django_db
+@patch(
+    "admin.integrations.models.Integration.run_request",
+    Mock(return_value=(True, Mock(return_value.read.side_effect=b"test"))),
+)
+def test_integration_save_data_to_user(new_hire_factory, custom_integration_factory):
+    new_hire = new_hire_factory()
+
+    assert new_hire.extra_fields == {}
+
+    integration = custom_integration_factory(
+        manifest={
+            "execute": [
+                {
+                    "url": "http://localhost/",
+                    "store_data": {"FORM_ID": "user_data.user_id"},
+                }
+            ]
+        }
+    )
+
+    integration.execute(new_hire, {})
+
+    new_hire.refresh_from_db()
+
+    assert new_hire.extra_fields == {"FORM_ID": 123}

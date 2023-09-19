@@ -1,4 +1,5 @@
 import base64
+import io
 import json
 import uuid
 from datetime import timedelta
@@ -108,7 +109,7 @@ class Integration(models.Model):
     def has_user_context(self):
         return self.manifest_type == Integration.ManifestType.WEBHOOK
 
-    def run_request(self, data):
+    def run_request(self, data, file=None):
         url = self._replace_vars(data["url"])
         if "data" in data:
             post_data = self._replace_vars(json.dumps(data["data"]))
@@ -119,12 +120,14 @@ class Integration(models.Model):
                 post_data = json.loads(post_data)
             except Exception:
                 pass
+
         try:
             response = requests.request(
                 data.get("method", "POST"),
                 url,
                 headers=self.headers(data.get("headers", {})),
                 data=post_data,
+                files={data.get("send_file_as"): file} if data.get("send_file_as", False) and file is not None else None,
                 timeout=120,
             )
         except (InvalidJSONError, JSONDecodeError):
@@ -242,6 +245,9 @@ class Integration(models.Model):
         return success
 
     def execute(self, new_hire, params):
+        # Only one file can be used per integration
+        file = None
+
         self.params = params
         if self.has_user_context:
             self.params |= new_hire.extra_fields
@@ -258,7 +264,7 @@ class Integration(models.Model):
 
         # Run all requests
         for item in self.manifest["execute"]:
-            success, response = self.run_request(item)
+            success, response = self.run_request(item, file=file)
 
             # No need to retry or log when we are importing users
             if not success and self.has_user_context:
@@ -287,6 +293,13 @@ class Integration(models.Model):
                     # let it pass.
                     pass
                 return False, response
+
+            # save if file, so we can reuse later
+            return_type = item.get("type", "JSON")
+            if return_type == "file":
+                file = io.BytesIO()
+                file.write(response.content)
+
 
         # Run all post requests (notifications)
         for item in self.manifest.get("post_execute_notification", []):

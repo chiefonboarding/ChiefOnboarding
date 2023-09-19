@@ -68,6 +68,10 @@ These requests will be ran when this integration gets triggered.
 
 `headers`: (optionally) This will overwrite the default headers.
 
+`type`: (optional) Default: `JSON`. If you want to **download** a file, then you should specify: `file`. The file should be a bytes object (no string).
+
+`send_file_as`: (optional) if you have previously stored a file (a request with the `type` set to `file`). Then you can reuse that same file within the same integration by setting this to what the name the file should be. Example: `"send_file_as": "filefield"`.
+
 ### Headers
 These headers will be send with every request. These could include some sort of token variable for authentication.
 
