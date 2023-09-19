@@ -243,6 +243,7 @@ class Integration(models.Model):
 
     def execute(self, new_hire, params):
         self.params = params
+        self.params["responses"] = []
         if self.has_user_context:
             self.params |= new_hire.extra_fields
             self.new_hire = new_hire
@@ -287,6 +288,9 @@ class Integration(models.Model):
                     # let it pass.
                     pass
                 return False, response
+
+            # save json response temporarily to be reused in other parts
+            self.params["responses"].append(response)
 
         # Run all post requests (notifications)
         for item in self.manifest.get("post_execute_notification", []):
