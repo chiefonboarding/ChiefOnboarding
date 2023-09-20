@@ -78,6 +78,22 @@ Example:
 }
 ```
 
+`polling`: (optional) You can use this to poll a url if you are waiting for a background (async) task to be completed. It will retry fetching the url for as many times as you specify at the interval you want. Here is an example config:
+```
+{
+    "interval": 5,
+    "amount": 60,
+    "until": {
+        "first_argument": "status",
+        "second_argument": "done",
+        "condition": "=="
+    }
+}
+```
+This config will try to fetch the same url for 60 times and wait 5 seconds between each call (so max 300 seconds) and will keep going until the `status` of the response is `done`.
+The `first_argument` should be a dot notation from the response.
+
+
 ### Headers
 These headers will be send with every request. These could include some sort of token variable for authentication.
 
