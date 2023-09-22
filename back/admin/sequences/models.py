@@ -199,7 +199,7 @@ class Sequence(models.Model):
         for condition in new_hire.conditions.all():
             for field in condition._meta.many_to_many:
                 # We only want to remove assigned items, not triggers
-                if field.name in ("condition_to_do" and "condition_admin_tasks"):
+                if field.name in ("condition_to_do", "condition_admin_tasks"):
                     continue
                 getattr(condition, field.name).remove(*items[field.name])
 
