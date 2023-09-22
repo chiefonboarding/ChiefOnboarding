@@ -110,7 +110,8 @@ class SequenceConditionCreateView(LoginRequiredMixin, ManagerPermMixin, CreateVi
     success_url = "/health"
 
     def dispatch(self, *args, **kwargs):
-        self.sequence = get_object_or_404(Sequence, pk=self.kwargs.get("pk", -1))
+        if self.request.user.is_authenticated:
+            self.sequence = get_object_or_404(Sequence, pk=self.kwargs.get("pk", -1))
         return super().dispatch(*args, **kwargs)
 
     def get_form_kwargs(self):
@@ -148,9 +149,10 @@ class SequenceConditionUpdateView(LoginRequiredMixin, ManagerPermMixin, UpdateVi
     success_url = "/health"
 
     def dispatch(self, *args, **kwargs):
-        self.sequence = get_object_or_404(
-            Sequence, pk=self.kwargs.get("sequence_pk", -1)
-        )
+        if self.request.user.is_authenticated:
+            self.sequence = get_object_or_404(
+                Sequence, pk=self.kwargs.get("sequence_pk", -1)
+            )
         return super().dispatch(*args, **kwargs)
 
     def get_form_kwargs(self):

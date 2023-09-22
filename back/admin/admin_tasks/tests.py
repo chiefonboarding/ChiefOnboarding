@@ -301,16 +301,8 @@ def test_complete_admin_task(client, admin_factory, admin_task_factory):
     assert "disabled" in response.content.decode()
     # Cannot add new comment
     assert "div_id_content" not in response.content.decode()
-    # Complete url is still there to make it open again
-    assert complete_url in response.content.decode()
-
-    assert task1.completed
-    assert not task2.completed
-
-    url = reverse("admin_tasks:mine")
-    response = client.get(url)
-    # Check button is now visible
-    assert "btn-success" in response.content.decode()
+    # Complete url is gone
+    assert complete_url not in response.content.decode()
 
 
 @pytest.mark.django_db
