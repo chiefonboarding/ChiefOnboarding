@@ -50,12 +50,16 @@ class ConditionCreateForm(forms.ModelForm):
             in [Condition.Type.AFTER, Condition.Type.BEFORE]
             or self.instance is None
         )
-        is_condition_admin_task = self.instance.condition_type == Condition.Type.ADMIN_TASK
+        is_condition_admin_task = (
+            self.instance.condition_type == Condition.Type.ADMIN_TASK
+        )
         self.helper.layout = Layout(
             Field("condition_type"),
             Div(
                 MultiSelectField("condition_to_do"),
-                css_class="d-none" if is_time_condition or is_condition_admin_task else "",
+                css_class="d-none"
+                if is_time_condition or is_condition_admin_task
+                else "",
             ),
             Div(
                 Field("days"),
@@ -80,7 +84,13 @@ class ConditionCreateForm(forms.ModelForm):
 
     class Meta:
         model = Condition
-        fields = ["condition_type", "days", "time", "condition_to_do", "condition_admin_tasks"]
+        fields = [
+            "condition_type",
+            "days",
+            "time",
+            "condition_to_do",
+            "condition_admin_tasks",
+        ]
         widgets = {
             "time": forms.TimeInput(attrs={"type": "time", "step": 300}),
         }

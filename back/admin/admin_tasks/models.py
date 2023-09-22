@@ -62,7 +62,7 @@ class AdminTask(models.Model):
         "sequences.PendingAdminTask",
         null=True,
         on_delete=models.SET_NULL,
-        help_text="If generated through a sequence, then this will be filled"
+        help_text="If generated through a sequence, then this will be filled",
     )
 
     @property
@@ -148,10 +148,14 @@ class AdminTask(models.Model):
         self.save()
 
         # Get conditions with this to do item as (part of the) condition
-        conditions = self.new_hire.conditions.filter(condition_admin_tasks=self.based_on)
+        conditions = self.new_hire.conditions.filter(
+            condition_admin_tasks=self.based_on
+        )
 
         for condition in conditions:
-            condition_admin_tasks_id = condition.condition_admin_tasks.values_list("based_on", flat=True)
+            condition_admin_tasks_id = condition.condition_admin_tasks.values_list(
+                "based_on", flat=True
+            )
 
             # Check if all to do items already have been added to new hire and are
             # completed. If not, then we know it should not be triggered yet
@@ -165,7 +169,6 @@ class AdminTask(models.Model):
                 process_condition(
                     condition.id, self.new_hire.id, self.new_hire.has_slack_account
                 )
-
 
     class Meta:
         ordering = ["completed", "date"]

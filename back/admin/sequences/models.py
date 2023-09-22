@@ -94,7 +94,9 @@ class Sequence(models.Model):
             elif sequence_condition.condition_type == Condition.Type.ADMIN_TASK:
                 # For to_do items, filter all condition items to find if one matches
                 # Both the amount and the todos itself need to match exactly
-                conditions = user.conditions.filter(condition_type=Condition.Type.ADMIN_TASK)
+                conditions = user.conditions.filter(
+                    condition_type=Condition.Type.ADMIN_TASK
+                )
                 original_condition_admin_tasks_ids = (
                     sequence_condition.condition_to_do.all().values_list(
                         "id", flat=True
@@ -103,7 +105,7 @@ class Sequence(models.Model):
 
                 for condition in conditions:
                     # Quickly check if the amount of items match - if not match, drop
-                    if original_condition_admin_tasks_ids.condition_admin_tasks.all().count() != len(
+                    if original_condition_admin_tasks_ids.condition_admin_tasks.all().count() != len(  # noqa
                         original_condition_admin_tasks_ids
                     ):
                         continue
@@ -454,7 +456,13 @@ class PendingAdminTask(models.Model):
         choices=AdminTask.Priority.choices,
         default=AdminTask.Priority.MEDIUM,
     )
-    template = models.BooleanField(default=False, help_text="Should always be False, for now it's just here to comply with other functions (like duplicate)")
+    template = models.BooleanField(
+        default=False,
+        help_text=(
+            "Should always be False, for now it's just here to comply with other "
+            "functions (like duplicate)"
+        ),
+    )
 
     def __str__(self):
         return self.name
@@ -471,6 +479,7 @@ class PendingAdminTask(models.Model):
 
     def execute(self, user):
         from admin.admin_tasks.models import AdminTask, AdminTaskComment
+
         if AdminTask.objects.filter(new_hire=user, based_on=self).exists():
             # if a task already exists, then skip
             return
@@ -484,7 +493,7 @@ class PendingAdminTask(models.Model):
             email=self.email,
             date=self.date,
             priority=self.priority,
-            based_on=self
+            based_on=self,
         )
         AdminTaskComment.objects.create(
             content=self.comment,
