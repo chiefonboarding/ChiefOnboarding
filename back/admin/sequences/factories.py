@@ -24,6 +24,7 @@ from .models import (
 class PendingAdminTaskFactory(factory.django.DjangoModelFactory):
     assigned_to = factory.SubFactory(AdminFactory)
     slack_user = factory.SubFactory(EmployeeFactory)
+    person_type = PendingAdminTask.PersonType.CUSTOM
 
     class Meta:
         model = PendingAdminTask

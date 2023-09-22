@@ -51,8 +51,7 @@ class AdminTaskToggleDoneView(LoginRequiredMixin, ManagerPermMixin, BaseDetailVi
 
     def post(self, request, *args, **kwargs):
         admin_task = self.get_object()
-        admin_task.completed = not admin_task.completed
-        admin_task.save()
+        admin_task.mark_completed()
         return redirect("admin_tasks:detail", pk=admin_task.id)
 
 

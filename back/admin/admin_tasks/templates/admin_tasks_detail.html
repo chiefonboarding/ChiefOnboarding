@@ -5,9 +5,7 @@
 <form method="post" action="{% url 'admin_tasks:completed' object.id %}">
   {% csrf_token %}
   <button type="submit" class="btn btn-primary">
-    {% if object.completed %}
-      {% translate "Reopen" %}
-    {% else %}
+    {% if not object.completed %}
       {% translate "Complete" %}
     {% endif %}
   </button>

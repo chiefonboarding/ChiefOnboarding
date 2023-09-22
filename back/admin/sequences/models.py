@@ -90,6 +90,32 @@ class Sequence(models.Model):
                         # We found our match. Amount matches AND the todos match
                         user_condition = condition
                         break
+
+            elif sequence_condition.condition_type == Condition.Type.ADMIN_TASK:
+                # For to_do items, filter all condition items to find if one matches
+                # Both the amount and the todos itself need to match exactly
+                conditions = user.conditions.filter(condition_type=Condition.Type.ADMIN_TASK)
+                original_condition_admin_tasks_ids = (
+                    sequence_condition.condition_to_do.all().values_list(
+                        "id", flat=True
+                    )
+                )
+
+                for condition in conditions:
+                    # Quickly check if the amount of items match - if not match, drop
+                    if original_condition_admin_tasks_ids.condition_admin_tasks.all().count() != len(
+                        original_condition_admin_tasks_ids
+                    ):
+                        continue
+
+                    found_to_do_items = condition.condition_admin_tasks.filter(
+                        id__in=original_condition_admin_tasks_ids
+                    ).count()
+
+                    if found_to_do_items == len(original_condition_admin_tasks_ids):
+                        # We found our match. Amount matches AND the todos match
+                        user_condition = condition
+                        break
             else:
                 # Condition (always just one) that will be assigned directly (type == 3)
                 # Just run the condition with the new hire
@@ -428,6 +454,10 @@ class PendingAdminTask(models.Model):
         choices=AdminTask.Priority.choices,
         default=AdminTask.Priority.MEDIUM,
     )
+    template = models.BooleanField(default=False, help_text="Should always be False, for now it's just here to comply with other functions (like duplicate)")
+
+    def __str__(self):
+        return self.name
 
     def get_user(self, new_hire):
         if self.person_type == PendingAdminTask.PersonType.NEWHIRE:
@@ -441,25 +471,26 @@ class PendingAdminTask(models.Model):
 
     def execute(self, user):
         from admin.admin_tasks.models import AdminTask, AdminTaskComment
+        if AdminTask.objects.filter(new_hire=user, based_on=self).exists():
+            # if a task already exists, then skip
+            return
 
-        admin_task, created = AdminTask.objects.get_or_create(
+        admin_task = AdminTask.objects.create(
             new_hire=user,
             assigned_to=self.get_user(user),
             name=self.name,
-            defaults={
-                "option": self.option,
-                "slack_user": self.slack_user,
-                "email": self.email,
-                "date": self.date,
-                "priority": self.priority,
-            },
+            option=self.option,
+            slack_user=self.slack_user,
+            email=self.email,
+            date=self.date,
+            priority=self.priority,
+            based_on=self
         )
-        if created and self.comment != "":
-            AdminTaskComment.objects.create(
-                content=self.comment,
-                comment_by=admin_task.assigned_to,
-                admin_task=admin_task,
-            )
+        AdminTaskComment.objects.create(
+            content=self.comment,
+            comment_by=admin_task.assigned_to,
+            admin_task=admin_task,
+        )
         admin_task.send_notification_new_assigned()
         admin_task.send_notification_third_party()
 
@@ -552,6 +583,7 @@ class Condition(models.Model):
         TODO = 1, _("Based on one or more to do item(s)")
         BEFORE = 2, _("Before the new hire has started")
         WITHOUT = 3, _("Without trigger")
+        ADMIN_TASK = 4, _("Based on one or more admin tasks")
 
     sequence = models.ForeignKey(
         Sequence, on_delete=models.CASCADE, null=True, related_name="conditions"
@@ -567,6 +599,11 @@ class Condition(models.Model):
         ToDo,
         verbose_name=_("Trigger after these to do items have been completed:"),
         related_name="condition_to_do",
+    )
+    condition_admin_tasks = models.ManyToManyField(
+        PendingAdminTask,
+        verbose_name=_("Trigger after these admin todo items have been completed:"),
+        related_name="condition_triggers",
     )
     to_do = models.ManyToManyField(ToDo)
     badges = models.ManyToManyField(Badge)
@@ -605,7 +642,7 @@ class Condition(models.Model):
         # model_item is a template item. I.e. a ToDo object.
         for field in self._meta.many_to_many:
             # We only want to remove assigned items, not triggers
-            if field.name == "condition_to_do":
+            if field.name in ("condition_to_do", "condition_admin_tasks"):
                 continue
             if (
                 field.related_model._meta.model_name
@@ -617,7 +654,7 @@ class Condition(models.Model):
         # model_item is a template item. I.e. a ToDo object.
         for field in self._meta.many_to_many:
             # We only want to add assigned items, not triggers
-            if field.name == "condition_to_do":
+            if field.name in ("condition_to_do", "condition_admin_tasks"):
                 continue
             if (
                 field.related_model._meta.model_name
@@ -629,7 +666,7 @@ class Condition(models.Model):
         # this will put another condition into this one
         for field in self._meta.many_to_many:
             # We only want to add assigned items, not triggers
-            if field.name == "condition_to_do":
+            if field.name in ("condition_to_do", "condition_admin_tasks"):
                 continue
 
             condition_field = getattr(condition, field.name)

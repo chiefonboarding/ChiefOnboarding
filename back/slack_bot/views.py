@@ -706,7 +706,7 @@ def slack_complete_admin_task(body, payload):
         return
 
     admin_task = AdminTask.objects.get(id=payload["value"])
-    admin_task.completed = True
+    admin_task.mark_completed()
     admin_task.save()
     Slack().update_message(
         channel=body["container"]["channel_id"],

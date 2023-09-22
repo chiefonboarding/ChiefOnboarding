@@ -183,16 +183,6 @@ $(document).on("reload-sequence", function(evt){
     htmx.ajax('GET', "{% url 'sequences:timeline' object.id %}", '#timeline')
 })
 
-$("select#id_condition_type").on('change', function() {
-  // Change things to fill in when condition_type changes
-  if ($(this).val() == 1){
-    $("#add-condition-form #div_id_condition_to_do").parent().removeClass("d-none")
-    $("#div_id_days").parent().addClass("d-none")
-  } else {
-    $("#add-condition-form #div_id_condition_to_do").parent().addClass("d-none")
-    $("#div_id_days").parent().removeClass("d-none")
-  }
-})
 function editCondition(id) {
   htmx.ajax('GET', `/admin/sequences/{{ object.id }}/condition/${id}/`, `#condition_form`)
   $('#modal-block').modal('show')
@@ -201,6 +191,7 @@ function editCondition(id) {
 document.getElementById("condition_form").addEventListener('htmx:load', function(evt) {
   $("#id_condition_to_do").selectize()
   $("#id_condition_type").selectize()
+  $("#id_condition_admin_tasks").selectize()
 });
 </script>
 <script>
