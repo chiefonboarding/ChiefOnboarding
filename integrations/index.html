@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.4.1.747839998953">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.749052183596">
 
     <!-- See retype.com -->
-    <meta name="generator" content="Retype 3.4.1">
+    <meta name="generator" content="Retype 3.5.0">
 
     <!-- Primary Meta Tags -->
     <title>Integrations / Webhooks (Beta)</title>
@@ -30,12 +30,12 @@
 
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
-    <link href="../resources/css/retype.css?v=3.4.1.747839998953" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.5.0.749052183596" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.4.1.747839998953" data-turbo-eval="false" defer></script>
-    <script data-cfasync="false" src="../resources/js/retype.js?v=3.4.1" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.4.1.747839998953" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.4.1.747839998953" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.749052183596" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.749052183596" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.5.0.749052183596" defer></script>
 </head>
 <body>
     <div id="docs-app" class="relative text-base antialiased text-gray-700 bg-white font-body dark:bg-dark-850 dark:text-dark-300">
@@ -290,7 +290,15 @@
 <p><code v-pre>url</code>: The url where the request will be made to.</p>
 <p><code v-pre>data</code>: This is the data that will be send with it.</p>
 <p><code v-pre>method</code>: The request method. E.g. <code v-pre>POST</code> or <code v-pre>GET</code>.</p>
-<p><code v-pre>headers</code>: (optionally) This will overwrite the default headers.</p>
+<p><code v-pre>headers</code>: (optional) This will overwrite the default headers.</p>
+<p><code v-pre>store_data</code>: (optional) This can be used to store data to the new hire. Let&#x27;s say you create a document through an API and you need to store the document ID that is relevant to the new hire, then you can do that with this. You can put a dictionary here with a key and value of the new hire prop name and the notation of where to get the data. You can use a dot notation to go deeper in the json. This data is only available in items assigned to this new hire and can be used anywhere (in both content items (todo, resources etc) and integrations that get triggered later).</p>
+<p>Example:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">{
+    &quot;FORM_ID&quot;: &quot;data.id&quot;,
+    &quot;DOCUMENT_HASH&quot;: &quot;document_hash&quot;
+}</code></pre>
+</doc-codeblock></div>
 <doc-anchor-target id="headers">
     <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#headers">#</doc-anchor-trigger>
