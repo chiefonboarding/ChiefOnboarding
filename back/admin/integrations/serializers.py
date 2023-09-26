@@ -48,7 +48,7 @@ class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):
     url = serializers.CharField()
     data = serializers.JSONField(required=False, default=dict)
     headers = serializers.JSONField(required=False, default=dict)
-    store_data = serializers.JSONField(required=False, default=dict)
+    store_data = serializers.DictField(child=serializers.CharField(), default=dict)
     method = serializers.ChoiceField(
         [
             ("HEAD", "HEAD"),

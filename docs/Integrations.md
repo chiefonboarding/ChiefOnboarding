@@ -68,7 +68,7 @@ These requests will be ran when this integration gets triggered.
 
 `headers`: (optional) This will overwrite the default headers.
 
-`store_data`: (optional) This can be used to store data to the new hire. Let's say you create a document through an API and you need to store the document ID that is relevant to the new hire, then you can do that with this. You can put a dictionary here with a key and value of the new hire prop name and the notation of where to get the data. You can use a dot notation to go deeper in the json.
+`store_data`: (optional) This can be used to store data to the new hire. Let's say you create a document through an API and you need to store the document ID that is relevant to the new hire, then you can do that with this. You can put a dictionary here with a key and value of the new hire prop name and the notation of where to get the data. You can use a dot notation to go deeper in the json. This data is only available in items assigned to this new hire and can be used anywhere (in both content items (todo, resources etc) and integrations that get triggered later).
 
 Example:
 ```
