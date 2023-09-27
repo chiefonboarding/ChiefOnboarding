@@ -555,3 +555,109 @@ def test_integration_save_data_to_user_invalid_lookup(
     new_hire.refresh_from_db()
 
     assert new_hire.extra_fields == {}
+
+
+@pytest.mark.django_db
+@patch(
+    "admin.integrations.models.Integration.run_request",
+    Mock(
+        side_effect=(
+            # first call
+            [
+                True,
+                Mock(json=lambda: {"status": "not_done"}),
+            ],
+            # second call
+            [
+                True,
+                Mock(json=lambda: {"status": "not_done"}),
+            ],
+            # third call
+            [
+                True,
+                Mock(json=lambda: {"status": "not_done"}),
+            ],
+            # fourth call (will never reach this)
+            [
+                True,
+                Mock(json=lambda: {"status": "done"}),
+            ],
+        )
+    ),
+)
+def test_polling_not_getting_correct_state(
+    new_hire_factory, custom_integration_factory
+):
+    new_hire = new_hire_factory()
+
+    assert new_hire.extra_fields == {}
+
+    integration = custom_integration_factory(
+        manifest={
+            "execute": [
+                {
+                    "url": "http://localhost/",
+                    "polling": {
+                        # very small number to not let task hang too long
+                        "interval": 0.1,
+                        "amount": 3,
+                        "until": {
+                            "first_argument": "status",
+                            "second_argument": "done",
+                        },
+                    },
+                }
+            ]
+        }
+    )
+
+    success, _response = integration.execute(new_hire, {})
+
+    assert success is False
+
+
+@pytest.mark.django_db
+@patch(
+    "admin.integrations.models.Integration.run_request",
+    Mock(
+        side_effect=(
+            # first call
+            [
+                True,
+                Mock(json=lambda: {"status": "not_done"}),
+            ],
+            # second call
+            [
+                True,
+                Mock(json=lambda: {"status": "done"}),
+            ],
+        )
+    ),
+)
+def test_polling_getting_correct_state(new_hire_factory, custom_integration_factory):
+    new_hire = new_hire_factory()
+
+    assert new_hire.extra_fields == {}
+
+    integration = custom_integration_factory(
+        manifest={
+            "execute": [
+                {
+                    "url": "http://localhost/",
+                    "polling": {
+                        # very small number to not let task hang too long
+                        "interval": 0.1,
+                        "amount": 3,
+                        "until": {
+                            "first_argument": "status",
+                            "second_argument": "done",
+                        },
+                    },
+                }
+            ]
+        }
+    )
+
+    success, _response = integration.execute(new_hire, {})
+
+    assert success is True

@@ -244,18 +244,17 @@ class Integration(models.Model):
         return success
 
     def _check_condition(self, response, condition):
-        first_argument = self._replace_vars(condition.get("first_argument"))
         second_argument = self._replace_vars(condition.get("second_argument"))
-        condition = condition.get("condition")
         try:
             # first argument will be taken from the response
-            first_argument = get_value_from_notation(first_argument, response.json())
+            first_argument = get_value_from_notation(
+                condition.get("first_argument"), response.json()
+            )
         except KeyError:
             # we know that the result might not be in the response yet, as we are
             # waiting for the correct response, so just respond with an empty string
             first_argument = ""
-        condition = condition.get("condition")
-        return eval(f"{first_argument} {condition} {second_argument}")
+        return first_argument == second_argument
 
     def _polling(self, item, response):
         polling = item.get("polling")
@@ -267,13 +266,14 @@ class Integration(models.Model):
         if got_expected_result:
             return True, response
 
-        counter = 0
-        while amount > counter:
+        tried = 1
+        while amount > tried:
             time.sleep(interval)
             success, response = self.run_request(item)
             got_expected_result = self._check_condition(response, until)
             if got_expected_result:
                 return True, response
+            tried += 1
         # if exceeding the max amounts, then fail
         return False, response
 

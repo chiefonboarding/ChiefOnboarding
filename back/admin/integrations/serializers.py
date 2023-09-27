@@ -30,6 +30,17 @@ class ManifestFormSerializer(ValidateMixin, serializers.Serializer):
     choice_name = serializers.CharField(required=False)
 
 
+class ManifestPollingUntilSerializer(ValidateMixin, serializers.Serializer):
+    first_argument = serializers.CharField()
+    second_argument = serializers.CharField()
+
+
+class ManifestPollingSerializer(ValidateMixin, serializers.Serializer):
+    interval = serializers.IntegerField(required=False)
+    amount = serializers.IntegerField(required=False)
+    until = ManifestPollingUntilSerializer()
+
+
 class ManifestExistSerializer(ValidateMixin, serializers.Serializer):
     url = serializers.CharField()
     expected = serializers.CharField()
@@ -42,6 +53,7 @@ class ManifestExistSerializer(ValidateMixin, serializers.Serializer):
             ("PUT", "PUT"),
         ]
     )
+    polling = ManifestPollingSerializer(required=False)
 
 
 class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):

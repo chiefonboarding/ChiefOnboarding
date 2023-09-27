@@ -86,12 +86,11 @@ Example:
     "until": {
         "first_argument": "status",
         "second_argument": "done",
-        "condition": "=="
     }
 }
 ```
-This config will try to fetch the same url for 60 times and wait 5 seconds between each call (so max 300 seconds) and will keep going until the `status` of the response is `done`.
-The `first_argument` should be a dot notation from the response.
+This config will try to fetch the same url for 60 times and wait 5 seconds between each call (so max 300 seconds) and will keep going until the `status` of the response is `done`. If it exceeds the 300 seconds, then the integration will fail.
+The `first_argument` should be a dot notation from the response. It will compare the first argument to the second argument. When both are equal, it will stop polling and go to the next step.
 
 
 ### Headers
