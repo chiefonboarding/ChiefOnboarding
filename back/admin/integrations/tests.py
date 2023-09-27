@@ -674,7 +674,7 @@ def test_block_integration_on_condition(new_hire_factory, custom_integration_fac
                     "url": "http://localhost/",
                     "continue_if": {
                         "first_argument": "status",
-                        "second_argument": "done"
+                        "second_argument": "done",
                     },
                 }
             ]

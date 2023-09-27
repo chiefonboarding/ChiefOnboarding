@@ -378,7 +378,9 @@ class Notification(models.Model):
         )
         RAN_INTEGRATION = "ran_integration", _("Integration has been triggered")
         FAILED_INTEGRATION = "failed_integration", _("Couldn't complete integration")
-        BLOCKED_INTEGRATION = "blocked_integration", _("Integration was blocked due to condition")
+        BLOCKED_INTEGRATION = "blocked_integration", _(
+            "Integration was blocked due to condition"
+        )
         FAILED_TEXT_INTEGRATION_NOTIFICATION = (
             "failed_text_integration_notification",
             _("Couldn't send integration notification"),
