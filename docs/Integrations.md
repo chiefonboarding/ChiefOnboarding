@@ -85,7 +85,7 @@ Example:
     "amount": 60,
     "until": {
         "first_argument": "status",
-        "second_argument": "done",
+        "second_argument": "done"
     }
 }
 ```
