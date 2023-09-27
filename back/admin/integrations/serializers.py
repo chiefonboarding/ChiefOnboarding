@@ -30,7 +30,7 @@ class ManifestFormSerializer(ValidateMixin, serializers.Serializer):
     choice_name = serializers.CharField(required=False)
 
 
-class ManifestPollingUntilSerializer(ValidateMixin, serializers.Serializer):
+class ManifestConditionSerializer(ValidateMixin, serializers.Serializer):
     first_argument = serializers.CharField()
     second_argument = serializers.CharField()
 
@@ -38,7 +38,7 @@ class ManifestPollingUntilSerializer(ValidateMixin, serializers.Serializer):
 class ManifestPollingSerializer(ValidateMixin, serializers.Serializer):
     interval = serializers.IntegerField(required=False)
     amount = serializers.IntegerField(required=False)
-    until = ManifestPollingUntilSerializer()
+    until = ManifestConditionSerializer()
 
 
 class ManifestExistSerializer(ValidateMixin, serializers.Serializer):
@@ -54,6 +54,7 @@ class ManifestExistSerializer(ValidateMixin, serializers.Serializer):
         ]
     )
     polling = ManifestPollingSerializer(required=False)
+    continue_if = ManifestConditionSerializer(required=False)
 
 
 class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):

@@ -590,8 +590,6 @@ def test_polling_not_getting_correct_state(
 ):
     new_hire = new_hire_factory()
 
-    assert new_hire.extra_fields == {}
-
     integration = custom_integration_factory(
         manifest={
             "execute": [
@@ -637,8 +635,6 @@ def test_polling_not_getting_correct_state(
 def test_polling_getting_correct_state(new_hire_factory, custom_integration_factory):
     new_hire = new_hire_factory()
 
-    assert new_hire.extra_fields == {}
-
     integration = custom_integration_factory(
         manifest={
             "execute": [
@@ -661,3 +657,30 @@ def test_polling_getting_correct_state(new_hire_factory, custom_integration_fact
     success, _response = integration.execute(new_hire, {})
 
     assert success is True
+
+
+@pytest.mark.django_db
+@patch(
+    "admin.integrations.models.Integration.run_request",
+    Mock(return_value=(True, Mock(json=lambda: {"status": "not_done"}))),
+)
+def test_block_integration_on_condition(new_hire_factory, custom_integration_factory):
+    new_hire = new_hire_factory()
+
+    integration = custom_integration_factory(
+        manifest={
+            "execute": [
+                {
+                    "url": "http://localhost/",
+                    "continue_if": {
+                        "first_argument": "status",
+                        "second_argument": "done"
+                    },
+                }
+            ]
+        }
+    )
+
+    success, _response = integration.execute(new_hire, {})
+
+    assert success is False

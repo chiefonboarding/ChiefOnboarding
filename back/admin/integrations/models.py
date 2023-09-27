@@ -300,6 +300,19 @@ class Integration(models.Model):
             if polling := item.get("polling", False):
                 success, response = self._polling(item, response)
 
+            # check if we need to block this integration based on condition
+            if continue_if := item.get("continue_if", False):
+                got_expected_result = self._check_condition(response, continue_if)
+                if not got_expected_result:
+                    response = self.clean_response(response=response)
+                    Notification.objects.create(
+                        notification_type=Notification.Type.BLOCKED_INTEGRATION,
+                        extra_text=self.name,
+                        created_for=new_hire,
+                        description=f"Execute url ({item['url']}): {response}",
+                    )
+                    return False, response
+
             # No need to retry or log when we are importing users
             if not success and self.has_user_context:
                 response = self.clean_response(response=response)
