@@ -250,6 +250,7 @@ class Integration(models.Model):
         file = None
 
         self.params = params
+        self.params["responses"] = []
         if self.has_user_context:
             self.params |= new_hire.extra_fields
             self.new_hire = new_hire
@@ -300,6 +301,9 @@ class Integration(models.Model):
             if return_type == "file":
                 file = io.BytesIO()
                 file.write(response.content)
+
+            # save json response temporarily to be reused in other parts
+            self.params["responses"].append(response)
 
             # store data coming back from response to the user, so we can reuse in other
             # integrations

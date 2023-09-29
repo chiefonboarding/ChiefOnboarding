@@ -5,5 +5,23 @@ def get_value_from_notation(notation, value):
 
     notations = notation.split(".")
     for notation in notations:
-        value = value[notation]
+        try:
+            value = value[notation]
+        except TypeError:
+            # check if array
+            if not isinstance(value, list):
+                raise
+
+            try:
+                index = int(notation)
+            except TypeError:
+                # keep errors consistent, we are only expecting a KeyError
+                raise KeyError
+
+            try:
+                value = value[index]
+            except IndexError:
+                # keep errors consistent, we are only expecting a KeyError
+                raise KeyError
+
     return value
