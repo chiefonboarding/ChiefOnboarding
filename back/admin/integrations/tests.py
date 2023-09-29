@@ -523,6 +523,7 @@ def test_get_value_from_notation():
         get_value_from_notation("two", test_data)
 
 
+@pytest.mark.django_db
 @patch(
     "admin.integrations.models.Integration.run_request",
     Mock(return_value=(True, Mock(json=lambda: {"user_data": {"user_id": 123}}))),
@@ -549,7 +550,7 @@ def test_integration_save_data_to_user(new_hire_factory, custom_integration_fact
 
     assert new_hire.extra_fields == {"FORM_ID": 123}
 
-    
+
 @pytest.mark.django_db
 @patch(
     "admin.integrations.models.Integration.run_request",
