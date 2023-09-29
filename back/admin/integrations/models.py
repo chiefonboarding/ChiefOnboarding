@@ -1,3 +1,4 @@
+import time
 import base64
 import json
 import uuid
@@ -242,6 +243,40 @@ class Integration(models.Model):
             self.save(update_fields=["expiring", "extra_args"])
         return success
 
+    def _check_condition(self, response, condition):
+        value = self._replace_vars(condition.get("value"))
+        try:
+            # first argument will be taken from the response
+            response_value = get_value_from_notation(
+                condition.get("response_notation"), response.json()
+            )
+        except KeyError:
+            # we know that the result might not be in the response yet, as we are
+            # waiting for the correct response, so just respond with an empty string
+            response_value = ""
+        return value == response_value
+
+    def _polling(self, item, response):
+        polling = item.get("polling")
+        continue_if = item.get("continue_if")
+        interval = polling.get("interval")
+        amount = polling.get("amount")
+
+        got_expected_result = self._check_condition(response, continue_if)
+        if got_expected_result:
+            return True, response
+
+        tried = 1
+        while amount > tried:
+            time.sleep(interval)
+            success, response = self.run_request(item)
+            got_expected_result = self._check_condition(response, continue_if)
+            if got_expected_result:
+                return True, response
+            tried += 1
+        # if exceeding the max amounts, then fail
+        return False, response
+
     def execute(self, new_hire, params):
         self.params = params
         self.params["responses"] = []
@@ -262,9 +297,28 @@ class Integration(models.Model):
         for item in self.manifest["execute"]:
             success, response = self.run_request(item)
 
+            # check if we need to poll before continuing
+            if polling := item.get("polling", False):
+                success, response = self._polling(item, response)
+
+            # check if we need to block this integration based on condition
+            if continue_if := item.get("continue_if", False):
+                got_expected_result = self._check_condition(response, continue_if)
+                if not got_expected_result:
+                    response = self.clean_response(response=response)
+                    Notification.objects.create(
+                        notification_type=Notification.Type.BLOCKED_INTEGRATION,
+                        extra_text=self.name,
+                        created_for=new_hire,
+                        description=f"Execute url ({item['url']}): {response}",
+                    )
+                    return False, response
+
             # No need to retry or log when we are importing users
             if not success and self.has_user_context:
                 response = self.clean_response(response=response)
+                if polling:
+                    response = "Polling timed out: " + response
                 Notification.objects.create(
                     notification_type=Notification.Type.FAILED_INTEGRATION,
                     extra_text=self.name,

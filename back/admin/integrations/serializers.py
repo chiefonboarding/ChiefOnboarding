@@ -30,6 +30,16 @@ class ManifestFormSerializer(ValidateMixin, serializers.Serializer):
     choice_name = serializers.CharField(required=False)
 
 
+class ManifestConditionSerializer(ValidateMixin, serializers.Serializer):
+    response_notation = serializers.CharField()
+    value = serializers.CharField()
+
+
+class ManifestPollingSerializer(ValidateMixin, serializers.Serializer):
+    interval = serializers.IntegerField(min_value=1, max_value=3600)
+    amount = serializers.IntegerField(min_value=1, max_value=100)
+
+
 class ManifestExistSerializer(ValidateMixin, serializers.Serializer):
     url = serializers.CharField()
     expected = serializers.CharField()
@@ -57,6 +67,18 @@ class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):
             ("PUT", "PUT"),
         ]
     )
+    polling = ManifestPollingSerializer(required=False)
+    continue_if = ManifestConditionSerializer(required=False)
+
+    def validate(self, data):
+        # Check that if polling has been filled, that continue_if is also filled
+        polling = data.get("polling", False)
+        continue_if = data.get("continue_if", False)
+        if polling and not continue_if:
+            raise serializers.ValidationError(
+                "continue_if must be filled if you use polling"
+            )
+        return data
 
 
 class ManifestPostExecuteNotificationSerializer(ValidateMixin, serializers.Serializer):
