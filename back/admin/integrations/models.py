@@ -29,6 +29,7 @@ from requests.exceptions import (
 )
 from twilio.rest import Client
 
+from admin.integrations.utils import get_value_from_notation
 from misc.fernet_fields import EncryptedTextField
 from misc.fields import EncryptedJSONField
 from organization.models import Notification
@@ -300,6 +301,26 @@ class Integration(models.Model):
                 file = io.BytesIO()
                 file.write(response.content)
 
+            # store data coming back from response to the user, so we can reuse in other
+            # integrations
+            if store_data := item.get("store_data", {}):
+                for new_hire_prop, notation_for_response in store_data.items():
+                    try:
+                        value = get_value_from_notation(
+                            notation_for_response, response.json()
+                        )
+                    except KeyError:
+                        return (
+                            False,
+                            f"Could not store data to new hire: {notation_for_response}"
+                            f" not found in {self.clean_response(response.json())}",
+                        )
+
+                    # save to new hire and to temp var `params` on this model for use in
+                    # the same integration
+                    new_hire.extra_fields[new_hire_prop] = value
+                    self.params[new_hire_prop] = value
+                new_hire.save()
 
         # Run all post requests (notifications)
         for item in self.manifest.get("post_execute_notification", []):

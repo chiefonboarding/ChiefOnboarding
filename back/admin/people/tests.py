@@ -2668,6 +2668,143 @@ def test_fetching_employees_paginated_response(
 @pytest.mark.django_db
 @patch(
     "admin.integrations.models.Integration.run_request",
+    Mock(
+        side_effect=(
+            # first call
+            [
+                True,
+                Mock(
+                    json=lambda: {
+                        "employees": [
+                            {
+                                "workEmail": "stan1@chiefonboarding.com",
+                                "firstName": "stan",
+                                "lastName": "Do",
+                            },
+                        ],
+                        "nextPageToken": "244",
+                    }
+                ),
+            ],
+            # second call
+            [
+                True,
+                Mock(
+                    json=lambda: {
+                        "employees": [
+                            {
+                                "workEmail": "stan2@chiefonboarding.com",
+                                "firstName": "stan",
+                                "lastName": "Do",
+                            },
+                        ],
+                        "nextPageToken": "244",
+                    }
+                ),
+            ],
+            # third call
+            [
+                True,
+                Mock(
+                    json=lambda: {
+                        "employees": [
+                            {
+                                "workEmail": "stan3@chiefonboarding.com",
+                                "firstName": "stan",
+                                "lastName": "Do",
+                            },
+                        ],
+                        "nextPageToken": "244",
+                    }
+                ),
+            ],
+            # fourth call
+            [
+                True,
+                Mock(
+                    json=lambda: {
+                        "employees": [
+                            {
+                                "workEmail": "stan4@chiefonboarding.com",
+                                "firstName": "stan",
+                                "lastName": "Do",
+                            },
+                        ],
+                        "nextPageToken": "244",
+                    }
+                ),
+            ],
+            # fith call
+            [
+                True,
+                Mock(
+                    json=lambda: {
+                        "employees": [
+                            {
+                                "workEmail": "stan5@chiefonboarding.com",
+                                "firstName": "stan",
+                                "lastName": "Do",
+                            },
+                        ],
+                        "nextPageToken": "244",
+                    }
+                ),
+            ],
+            # sixth call (doesn't exist)
+            [
+                True,
+                Mock(
+                    json=lambda: {
+                        "employees": [
+                            {
+                                "workEmail": "stan6@chiefonboarding.com",
+                                "firstName": "stan",
+                                "lastName": "Do",
+                            },
+                        ],
+                        "nextPageToken": "244",
+                    }
+                ),
+            ],
+        )
+    ),
+)
+def test_fetching_employees_paginated_response_max_pages(
+    client, django_user_model, custom_user_import_integration_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    integration = custom_user_import_integration_factory(
+        manifest={
+            "type": "import_users",
+            "execute": [{"url": "http://localhost/test_api/users", "method": "GET"}],
+            "data_from": "employees",
+            "data_structure": {
+                "email": "workEmail",
+                "last_name": "lastName",
+                "first_name": "firstName",
+            },
+            "initial_data_form": [],
+            "next_page_token_from": "nextPageToken",
+            "next_page": "https://localhost/test_api/users?pt={{ NEXT_PAGE_TOKEN }}",
+        },
+        name="Google import",
+    )
+
+    url = reverse("people:import-users-hx", args=[integration.id])
+    response = client.get(url, follow=True)
+
+    assert "stan1@chiefonboarding.com" in response.content.decode()
+    assert "stan2@chiefonboarding.com" in response.content.decode()
+    assert "stan3@chiefonboarding.com" in response.content.decode()
+    assert "stan4@chiefonboarding.com" in response.content.decode()
+    assert "stan5@chiefonboarding.com" in response.content.decode()
+    assert "stan6@chiefonboarding.com" not in response.content.decode()
+
+
+@pytest.mark.django_db
+@patch(
+    "admin.integrations.models.Integration.run_request",
     Mock(return_value=(True, Mock(json=lambda: {"directory": {"users": []}}))),
 )
 def test_fetching_employees_incorrect_notation(

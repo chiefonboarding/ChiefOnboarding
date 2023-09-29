@@ -496,7 +496,7 @@ def test_slack_connect(client, django_user_model):
 @pytest.mark.django_db
 @patch(
     "admin.integrations.models.Integration.run_request",
-    Mock(return_value=(True, Mock(return_value.read.side_effect=b"test"))),
+    Mock(return_value=(True, Mock(json=lambda: {"user_data": {"user_id": 123}}))),
 )
 def test_integration_save_data_to_user(new_hire_factory, custom_integration_factory):
     new_hire = new_hire_factory()
@@ -519,3 +519,39 @@ def test_integration_save_data_to_user(new_hire_factory, custom_integration_fact
     new_hire.refresh_from_db()
 
     assert new_hire.extra_fields == {"FORM_ID": 123}
+
+
+@pytest.mark.django_db
+@patch(
+    "admin.integrations.models.Integration.run_request",
+    Mock(return_value=(True, Mock(json=lambda: {"user": {"user_id": 123}}))),
+)
+def test_integration_save_data_to_user_invalid_lookup(
+    new_hire_factory, custom_integration_factory
+):
+    new_hire = new_hire_factory()
+
+    assert new_hire.extra_fields == {}
+
+    integration = custom_integration_factory(
+        manifest={
+            "execute": [
+                {
+                    "url": "http://localhost/",
+                    "store_data": {"FORM_ID": "user_data.user_id"},
+                }
+            ]
+        }
+    )
+
+    result = integration.execute(new_hire, {})
+
+    assert result == (
+        False,
+        "Could not store data to new hire: "
+        "user_data.user_id not found in {'user': {'user_id': 123}}",
+    )
+
+    new_hire.refresh_from_db()
+
+    assert new_hire.extra_fields == {}
