@@ -717,6 +717,7 @@ def test_block_integration_on_condition(new_hire_factory, custom_integration_fac
     assert success is False
 
 
+@pytest.mark.django_db
 @patch(
     "admin.integrations.models.Integration.run_request",
     Mock(return_value=(True, {"details": "DOSOMETHING#"})),

@@ -81,7 +81,6 @@ class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):
         return data
 
 
-
 class ManifestPostExecuteNotificationSerializer(ValidateMixin, serializers.Serializer):
     type = serializers.ChoiceField(
         [
