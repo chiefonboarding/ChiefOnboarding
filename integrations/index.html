@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.749300522099">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.749341420550">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -30,12 +30,12 @@
 
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
-    <link href="../resources/css/retype.css?v=3.5.0.749300522099" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.5.0.749341420550" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.749300522099" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.749341420550" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.749300522099" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.5.0.749300522099" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.749341420550" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.5.0.749341420550" defer></script>
 </head>
 <body>
     <div id="docs-app" class="relative text-base antialiased text-gray-700 bg-white font-body dark:bg-dark-850 dark:text-dark-300">
@@ -299,6 +299,23 @@
     &quot;DOCUMENT_HASH&quot;: &quot;document_hash&quot;
 }</code></pre>
 </doc-codeblock></div>
+<p><code v-pre>continue_if</code>: (optional) This can be used as a blocked. If you want to block an integration if a response is not what you expect, then you can do that with this. If you need to wait for a response to come back (waiting for a background task for example), then you can use polling and continue with the call with the response changes. It will check every response and stop polling when it matches.</p>
+<p>Example:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">{
+    &quot;response_notation&quot;: &quot;detail.status&quot;,
+    &quot;value&quot;: &quot;done&quot;
+}</code></pre>
+</doc-codeblock></div>
+<p>With this config, it will check the response for the <code v-pre>status</code> property in the <code v-pre>detail</code> property (so for example: <code v-pre>{&quot;detail&quot;: {&quot;status&quot;: &quot;done&quot;}}</code>). It will check for the value <code v-pre>done</code>, which would be valid in this case and therefore continue with the integration.</p>
+<p><code v-pre>polling</code>: (optional) You can use this to poll a url if you are waiting for a background (async) task to be completed. It will retry fetching the url for as many times as you specify at the interval you want. Here is an example config:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">{
+    &quot;interval&quot;: 5,
+    &quot;amount&quot;: 60,
+}</code></pre>
+</doc-codeblock></div>
+<p>This config will try to fetch the same url for 60 times and wait 5 seconds between each call (so max 300 seconds) and will keep going until the <code v-pre>status</code> of the response is <code v-pre>done</code>. If it exceeds the 300 seconds, then the integration will fail.</p>
 <doc-anchor-target id="headers">
     <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#headers">#</doc-anchor-trigger>
