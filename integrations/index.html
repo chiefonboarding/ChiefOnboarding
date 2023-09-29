@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.749052183596">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.749300522099">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -30,12 +30,12 @@
 
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
-    <link href="../resources/css/retype.css?v=3.5.0.749052183596" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.5.0.749300522099" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.749052183596" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.749300522099" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.749052183596" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.5.0.749052183596" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.749300522099" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.5.0.749300522099" defer></script>
 </head>
 <body>
     <div id="docs-app" class="relative text-base antialiased text-gray-700 bg-white font-body dark:bg-dark-850 dark:text-dark-300">
@@ -373,6 +373,13 @@
         </div>
     </div>
 </div>
+<p>You can also use data from previous requests. If you have an integration with 3 requests, you can use the data from the request 1 in request 2 and the data from request 1 and 2 in request 3. You can do that by using: <code v-pre>{{ responses.&lt;index&gt;.the_data_you_need }}</code> (index starts at 0). So for example, you get this response from the first request:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">{
+    &quot;form_id&quot;: 134
+}</code></pre>
+</doc-codeblock></div>
+<p>You can then use <code v-pre>{{ responses.0.form_id }}</code> in any of the following requests in the same integration.</p>
 <doc-anchor-target id="notes">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#notes">#</doc-anchor-trigger>
@@ -475,10 +482,10 @@ Please note that only <code v-pre>email</code>, <code v-pre>first_name</code> an
 </ol>
 <p>For case 1, you will need to provide two items (the url and where the token is):</p>
 <p><code v-pre>next_page_token_from</code>: the place to look for the next page token. You can use the dot notation to do go deeper into the JSON. If it&#x27;s not found, it will stop.
-<code v-pre>next_page</code>: This should be a fixed url that you should put here. You can use &#x60;&#x60; as the variable to include the previously found <code v-pre>next_page_token_from</code> value.</p>
+<code v-pre>next_page</code>: This should be a fixed url that you should put here. You can use <code v-pre>{{ NEXT_PAGE_TOKEN }}</code> as the variable to include the previously found <code v-pre>next_page_token_from</code> value.</p>
 <p>For example, this is necessary for Google:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">&quot;next_page&quot;: &quot;https://admin.googleapis.com/admin/directory/v1/users?customer=my_customer&amp;maxResults=500&amp;pageToken=&quot;,
+<pre class="language-none"><code v-pre class="language-none">&quot;next_page&quot;: &quot;https://admin.googleapis.com/admin/directory/v1/users?customer=my_customer&amp;maxResults=500&amp;pageToken={{ NEXT_PAGE_TOKEN }}&quot;,
 &quot;next_page_token_from&quot;: &quot;nextPageToken&quot;</code></pre>
 </doc-codeblock></div>
 <p>For case 2, you will only need to provide the place where we need to look for the URL with this item:</p>
