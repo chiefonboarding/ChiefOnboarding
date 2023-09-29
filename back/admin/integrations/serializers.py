@@ -57,6 +57,12 @@ class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):
             ("PUT", "PUT"),
         ]
     )
+    type = serializers.ChoiceField(
+        [
+            ("JSON", "JSON"),
+            ("file", "file"),
+        ]
+    )
 
 
 class ManifestPostExecuteNotificationSerializer(ValidateMixin, serializers.Serializer):
