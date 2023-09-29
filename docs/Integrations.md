@@ -145,6 +145,14 @@ Throughout the manifest you can use the variables that you have defined in the `
 Please do not overwrite these with your own ids
 !!!
 
+You can also use data from previous requests. If you have an integration with 3 requests, you can use the data from the request 1 in request 2 and the data from request 1 and 2 in request 3. You can do that by using: `{{ responses.<index>.the_data_you_need }}` (index starts at 0). So for example, you get this response from the first request:
+```
+{
+    "form_id": 134
+}
+```
+You can then use `{{ responses.0.form_id }}` in any of the following requests in the same integration.
+
 
 ## Notes
 * If triggering an integration fails, then it will retry the entire integration again one hour after failing. If it fails again, it will not retry.
