@@ -128,7 +128,7 @@ class Integration(models.Model):
                 url,
                 headers=self.headers(data.get("headers", {})),
                 data=post_data,
-                files={data.get("send_file_as"): file}
+                files={data.get("send_file_as"): file.read()}
                 if data.get("send_file_as", False) and file is not None
                 else None,
                 timeout=120,
