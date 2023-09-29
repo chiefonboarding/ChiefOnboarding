@@ -244,25 +244,25 @@ class Integration(models.Model):
         return success
 
     def _check_condition(self, response, condition):
-        second_argument = self._replace_vars(condition.get("second_argument"))
+        value = self._replace_vars(condition.get("value"))
         try:
             # first argument will be taken from the response
-            first_argument = get_value_from_notation(
-                condition.get("first_argument"), response.json()
+            response_value = get_value_from_notation(
+                condition.get("response_notation"), response.json()
             )
         except KeyError:
             # we know that the result might not be in the response yet, as we are
             # waiting for the correct response, so just respond with an empty string
-            first_argument = ""
-        return first_argument == second_argument
+            response_value = ""
+        return value == response_value
 
     def _polling(self, item, response):
         polling = item.get("polling")
-        interval = polling.get("interval", 5)
-        amount = polling.get("amount", 60)
-        until = polling.get("until")
+        continue_if = item.get("continue_if")
+        interval = polling.get("interval")
+        amount = polling.get("amount")
 
-        got_expected_result = self._check_condition(response, until)
+        got_expected_result = self._check_condition(response, continue_if)
         if got_expected_result:
             return True, response
 
@@ -270,7 +270,7 @@ class Integration(models.Model):
         while amount > tried:
             time.sleep(interval)
             success, response = self.run_request(item)
-            got_expected_result = self._check_condition(response, until)
+            got_expected_result = self._check_condition(response, continue_if)
             if got_expected_result:
                 return True, response
             tried += 1

@@ -78,19 +78,25 @@ Example:
 }
 ```
 
+`continue_if`: (optional) This can be used as a blocked. If you want to block an integration if a response is not what you expect, then you can do that with this. If you need to wait for a response to come back (waiting for a background task for example), then you can use polling and continue with the call with the response changes. It will check every response and stop polling when it matches. 
+
+Example:
+```
+{
+    "response_notation": "detail.status",
+    "value": "done"
+}
+```
+With this config, it will check the response for the `status` property in the `detail` property (so for example: `{"detail": {"status": "done"}}`). It will check for the value `done`, which would be valid in this case and therefore continue with the integration.
+
 `polling`: (optional) You can use this to poll a url if you are waiting for a background (async) task to be completed. It will retry fetching the url for as many times as you specify at the interval you want. Here is an example config:
 ```
 {
     "interval": 5,
     "amount": 60,
-    "until": {
-        "first_argument": "status",
-        "second_argument": "done"
-    }
 }
 ```
 This config will try to fetch the same url for 60 times and wait 5 seconds between each call (so max 300 seconds) and will keep going until the `status` of the response is `done`. If it exceeds the 300 seconds, then the integration will fail.
-The `first_argument` should be a dot notation from the response. It will compare the first argument to the second argument. When both are equal, it will stop polling and go to the next step.
 
 
 ### Headers

@@ -558,35 +558,8 @@ def test_integration_save_data_to_user_invalid_lookup(
 
 
 @pytest.mark.django_db
-@patch(
-    "admin.integrations.models.Integration.run_request",
-    Mock(
-        side_effect=(
-            # first call
-            [
-                True,
-                Mock(json=lambda: {"status": "not_done"}),
-            ],
-            # second call
-            [
-                True,
-                Mock(json=lambda: {"status": "not_done"}),
-            ],
-            # third call
-            [
-                True,
-                Mock(json=lambda: {"status": "not_done"}),
-            ],
-            # fourth call (will never reach this)
-            [
-                True,
-                Mock(json=lambda: {"status": "done"}),
-            ],
-        )
-    ),
-)
 def test_polling_not_getting_correct_state(
-    new_hire_factory, custom_integration_factory
+    monkeypatch, new_hire_factory, custom_integration_factory
 ):
     new_hire = new_hire_factory()
 
@@ -599,18 +572,46 @@ def test_polling_not_getting_correct_state(
                         # very small number to not let task hang too long
                         "interval": 0.1,
                         "amount": 3,
-                        "until": {
-                            "first_argument": "status",
-                            "second_argument": "done",
-                        },
+                    },
+                    "continue_if": {
+                        "response_notation": "status",
+                        "value": "done",
                     },
                 }
             ]
         }
     )
 
-    success, _response = integration.execute(new_hire, {})
+    with patch(
+        "admin.integrations.models.Integration.run_request",
+        Mock(
+            side_effect=(
+                # first call
+                [
+                    True,
+                    Mock(json=lambda: {"status": "not_done"}),
+                ],
+                # second call
+                [
+                    True,
+                    Mock(json=lambda: {"status": "not_done"}),
+                ],
+                # third call
+                [
+                    True,
+                    Mock(json=lambda: {"status": "not_done"}),
+                ],
+                # fourth call (will never reach this)
+                [
+                    True,
+                    Mock(json=lambda: {"status": "done"}),
+                ],
+            )
+        ),
+    ) as request_mock:
+        success, _response = integration.execute(new_hire, {})
 
+    assert request_mock.call_count == 3
     assert success is False
 
 
@@ -644,10 +645,10 @@ def test_polling_getting_correct_state(new_hire_factory, custom_integration_fact
                         # very small number to not let task hang too long
                         "interval": 0.1,
                         "amount": 3,
-                        "until": {
-                            "first_argument": "status",
-                            "second_argument": "done",
-                        },
+                    },
+                    "continue_if": {
+                        "response_notation": "status",
+                        "value": "done",
                     },
                 }
             ]
@@ -673,8 +674,8 @@ def test_block_integration_on_condition(new_hire_factory, custom_integration_fac
                 {
                     "url": "http://localhost/",
                     "continue_if": {
-                        "first_argument": "status",
-                        "second_argument": "done",
+                        "response_notation": "status",
+                        "value": "done",
                     },
                 }
             ]
