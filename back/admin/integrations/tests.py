@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
 
+from admin.integrations.utils import get_value_from_notation
 from admin.integrations.models import Integration
 from organization.models import Notification
 
@@ -494,6 +495,35 @@ def test_slack_connect(client, django_user_model):
 
 
 @pytest.mark.django_db
+def test_get_value_from_notation():
+    # test deep lookup through dictionaries
+    test_data = {"one": {"0": {"deep": "yes"}}}
+
+    # the 0 gets used as a prop
+    result = get_value_from_notation("one.0.deep", test_data)
+    assert result == "yes"
+
+    # test lookup with array inbetween
+    test_data = {"one": [{"deep": "yes"}]}
+
+    # the 0 gets used as the index for the array
+    result = get_value_from_notation("one.0.deep", test_data)
+    assert result == "yes"
+
+    # test invalid lookup with array inbetween
+    test_data = {"one": [{"deep": "yes"}]}
+
+    # the 1 gets used as the index for the array, but we don't have it, so raise error
+    with pytest.raises(KeyError):
+        get_value_from_notation("one.1.deep", test_data)
+
+    # test normal invalid lookup
+    test_data = {"one": "yes"}
+    with pytest.raises(KeyError):
+        get_value_from_notation("two", test_data)
+
+
+@pytest.mark.django_db
 @patch(
     "admin.integrations.models.Integration.run_request",
     Mock(return_value=(True, Mock(json=lambda: {"user_data": {"user_id": 123}}))),
@@ -685,3 +715,27 @@ def test_block_integration_on_condition(new_hire_factory, custom_integration_fac
     success, _response = integration.execute(new_hire, {})
 
     assert success is False
+
+
+@patch(
+    "admin.integrations.models.Integration.run_request",
+    Mock(return_value=(True, {"details": "DOSOMETHING#"})),
+)
+def test_integration_reuse_data_from_previous_request(
+    client, django_user_model, new_hire_factory, custom_integration_factory
+):
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
+    integration = custom_integration_factory(
+        manifest={
+            "execute": [{"url": "http://localhost/", "method": "POST"}],
+        },
+    )
+    new_hire = new_hire_factory()
+    integration.execute(new_hire, {})
+    assert integration.params["responses"] == [{"details": "DOSOMETHING#"}]
+
+    assert (
+        integration._replace_vars("test {{responses.0.details}}") == "test DOSOMETHING#"
+    )
