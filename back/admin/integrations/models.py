@@ -155,10 +155,13 @@ class Integration(models.Model):
         except InvalidHeader:
             return False, "The header is invalid"
 
-        except:  # noqa E722
+        except Exception as e:  # noqa E722
+            print(e)
+
             return False, "There was an unexpected error with the request"
 
         if data.get("fail_when_4xx_response_code", True):
+            print(response.status_code)
             try:
                 response.raise_for_status()
             except Exception:
@@ -355,7 +358,6 @@ class Integration(models.Model):
             # save if file, so we can reuse later
             return_type = item.get("type", "JSON")
             if return_type == "file":
-                print(response.content)
                 file = io.BytesIO(response.content)
 
             # save json response temporarily to be reused in other parts
