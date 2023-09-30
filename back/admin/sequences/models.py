@@ -92,8 +92,9 @@ class Sequence(models.Model):
                         break
 
             elif sequence_condition.condition_type == Condition.Type.ADMIN_TASK:
-                # For to_do items, filter all condition items to find if one matches
-                # Both the amount and the todos itself need to match exactly
+                # For admin to do items, filter all condition items to find if one
+                # matches. Both the amount and the admin to do itself need to match
+                # exactly
                 conditions = user.conditions.filter(
                     condition_type=Condition.Type.ADMIN_TASK
                 )
@@ -110,11 +111,11 @@ class Sequence(models.Model):
                     ):
                         continue
 
-                    found_to_do_items = condition.condition_admin_tasks.filter(
+                    found_admin_tasks = condition.condition_admin_tasks.filter(
                         id__in=original_condition_admin_tasks_ids
                     ).count()
 
-                    if found_to_do_items == len(original_condition_admin_tasks_ids):
+                    if found_admin_tasks == len(original_condition_admin_tasks_ids):
                         # We found our match. Amount matches AND the todos match
                         user_condition = condition
                         break
@@ -639,6 +640,18 @@ class Condition(models.Model):
             or self.appointments.exists()
             or self.integration_configs.exists()
         )
+
+    @property
+    def based_on_to_do(self):
+        return self.condition_type == Condition.Type.TODO
+
+    @property
+    def based_on_admin_task(self):
+        return self.condition_type == Condition.Type.ADMIN_TASK
+
+    @property
+    def based_on_time(self):
+        return self.condition_type in [Condition.Type.AFTER, Condition.Type.BEFORE]
 
     def remove_item(self, model_item):
         # If any of the external messages, then get the root one

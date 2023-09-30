@@ -154,13 +154,15 @@ class AdminTask(models.Model):
 
         for condition in conditions:
             condition_admin_tasks_id = condition.condition_admin_tasks.values_list(
-                "based_on", flat=True
+                "id", flat=True
             )
 
-            # Check if all to do items already have been added to new hire and are
+            # Check if all admin to do items have been added to new hire and are
             # completed. If not, then we know it should not be triggered yet
             completed_tasks = AdminTask.objects.filter(
-                id__in=condition_admin_tasks_id, user=self.new_hire, completed=True
+                based_on_id__in=condition_admin_tasks_id,
+                user=self.new_hire,
+                completed=True,
             )
 
             # If the amount matches, then we should process it

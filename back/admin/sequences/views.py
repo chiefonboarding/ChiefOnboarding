@@ -68,13 +68,12 @@ class SequenceView(LoginRequiredMixin, ManagerPermMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        obj = self.get_object()
         context["title"] = _("Sequence")
         context["subtitle"] = ""
         context["object_list"] = ToDo.templates.all().defer("content")
-        context["condition_form"] = ConditionCreateForm(sequence=obj)
+        context["condition_form"] = ConditionCreateForm(sequence=self.object)
         context["todos"] = ToDo.templates.all().defer("content")
-        context["conditions"] = obj.conditions.prefetched()
+        context["conditions"] = self.object.conditions.prefetched()
         return context
 
 
@@ -184,8 +183,7 @@ class SequenceTimelineDetailView(LoginRequiredMixin, ManagerPermMixin, DetailVie
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        obj = self.get_object()
-        context["conditions"] = obj.conditions.prefetched()
+        context["conditions"] = self.object.conditions.prefetched()
         context["todos"] = ToDo.templates.all().defer("content")
         return context
 

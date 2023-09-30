@@ -391,7 +391,6 @@
       $(document).on('change', "select#id_condition_type", function() {
       // Change things to fill in when condition_type changes
        let option = $(this).val()
-        console.log(option)
         if (option == 1){
           $("#add-condition-form #div_id_condition_to_do").parent().removeClass("d-none")
           $("#div_id_condition_admin_tasks").parent().addClass("d-none")

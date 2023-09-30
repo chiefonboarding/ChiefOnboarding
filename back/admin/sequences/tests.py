@@ -125,7 +125,7 @@ def test_sequence_create_condition_success_view(
             "condition_to_do": [
                 to_do1.id,
             ],
-            "condition_type": 1,
+            "condition_type": Condition.Type.TODO,
         },
         follow=True,
     )
@@ -146,9 +146,26 @@ def test_sequence_create_condition_success_view(
     assert Condition.objects.last().condition_to_do.all().count() == 0
     assert Condition.objects.last().condition_type == 0
 
+    pending_admin_task = PendingAdminTaskFactory()
+    # Create block based on day/time
+    url = reverse("sequences:condition-create", args=[sequence1.id])
+    response = client.post(
+        url,
+        {
+            "condition_type": Condition.Type.ADMIN_TASK,
+            "condition_admin_tasks": [pending_admin_task.id],
+        },
+        follow=True,
+    )
+
+    assert response.status_code == 200
+    assert Condition.objects.all().count() == 4
+    assert Condition.objects.last().condition_admin_tasks.count() == 1
+    assert Condition.objects.last().condition_type == Condition.Type.ADMIN_TASK
+
     sequence1.refresh_from_db()
     # All are assinged to this sequence
-    assert sequence1.conditions.all().count() == 3
+    assert sequence1.conditions.all().count() == 4
 
 
 @pytest.mark.django_db
@@ -162,10 +179,32 @@ def test_sequence_create_condition_missing_to_do_item_view(
 
     # Create block based on to do items
     url = reverse("sequences:condition-create", args=[sequence1.id])
-    response = client.post(url, {"condition_type": 1}, follow=True)
+    response = client.post(url, {"condition_type": Condition.Type.TODO}, follow=True)
 
     assert response.status_code == 200
     assert "You must add at least one to do item" in response.content.decode()
+    # This one is already created by the sequence factory, but no extra has been
+    # created due to the call above
+    assert Condition.objects.all().count() == 1
+
+
+@pytest.mark.django_db
+def test_sequence_create_condition_missing_admin_task_item_view(
+    client, admin_factory, sequence_factory
+):
+    admin = admin_factory()
+    client.force_login(admin)
+
+    sequence1 = sequence_factory()
+
+    # Create block based on to do items
+    url = reverse("sequences:condition-create", args=[sequence1.id])
+    response = client.post(
+        url, {"condition_type": Condition.Type.ADMIN_TASK}, follow=True
+    )
+
+    assert response.status_code == 200
+    assert "You must add at least one admin task" in response.content.decode()
     # This one is already created by the sequence factory, but no extra has been
     # created due to the call above
     assert Condition.objects.all().count() == 1
