@@ -129,7 +129,7 @@ class Integration(models.Model):
                 url,
                 headers=self.headers(data.get("headers", {})),
                 data=post_data,
-                files={data.get("send_file_as"): file.read()}
+                files={data.get("send_file_as"): file.getvalue()}
                 if data.get("send_file_as", False) and file is not None
                 else None,
                 timeout=120,
@@ -355,11 +355,14 @@ class Integration(models.Model):
             # save if file, so we can reuse later
             return_type = item.get("type", "JSON")
             if return_type == "file":
-                file = io.BytesIO()
-                file.write(response.content)
+                print(response.content)
+                file = io.BytesIO(response.content)
 
             # save json response temporarily to be reused in other parts
-            self.params["responses"].append(response)
+            if return_type == "JSON":
+                self.params["responses"].append(response)
+            else:
+                self.params["responses"].append({})
 
             # store data coming back from response to the user, so we can reuse in other
             # integrations

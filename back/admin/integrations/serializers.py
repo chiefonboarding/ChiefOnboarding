@@ -71,7 +71,8 @@ class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):
         [
             ("JSON", "JSON"),
             ("file", "file"),
-        ]
+        ],
+        required=False,
     )
     polling = ManifestPollingSerializer(required=False)
     continue_if = ManifestConditionSerializer(required=False)
