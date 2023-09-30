@@ -669,7 +669,7 @@ def test_receiving_and_sending_file(new_hire_factory, custom_integration_factory
                 {
                     "url": "http://localhost/",
                     "method": "POST",
-                    "send_file_as": "image/png",
+                    "send_file_as": "test.png",
                 },
             ]
         }
