@@ -155,13 +155,10 @@ class Integration(models.Model):
         except InvalidHeader:
             return False, "The header is invalid"
 
-        except Exception as e:  # noqa E722
-            print(e)
-
+        except:  # noqa E722
             return False, "There was an unexpected error with the request"
 
         if data.get("fail_when_4xx_response_code", True):
-            print(response.status_code)
             try:
                 response.raise_for_status()
             except Exception:
