@@ -292,7 +292,7 @@ def test_complete_admin_task(client, admin_factory, admin_task_factory):
     assert "Complete" in response.content.decode()
     assert complete_url in response.content.decode()
 
-    response = client.get(complete_url, follow=True)
+    response = client.post(complete_url, follow=True)
     task1.refresh_from_db()
     task2.refresh_from_db()
 
