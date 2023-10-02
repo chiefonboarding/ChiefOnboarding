@@ -1,9 +1,10 @@
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext as _
-from django.views.generic.base import RedirectView
+
+from django.views.generic.detail import BaseDetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
@@ -45,16 +46,14 @@ class AllAdminTasksListView(LoginRequiredMixin, ManagerPermMixin, ListView):
         return context
 
 
-class AdminTaskToggleDoneView(LoginRequiredMixin, ManagerPermMixin, RedirectView):
-    permanent = False
-    pattern_name = "admin_tasks:detail"
+class AdminTaskToggleDoneView(LoginRequiredMixin, ManagerPermMixin, BaseDetailView):
+    model = AdminTask
 
-    def get(self, request, *args, **kwargs):
-        task_id = self.kwargs.get("pk", -1)
-        admin_task = get_object_or_404(AdminTask, id=task_id)
+    def post(self, request, *args, **kwargs):
+        admin_task = self.get_object()
         admin_task.completed = not admin_task.completed
         admin_task.save()
-        return super().get(request, *args, **kwargs)
+        return redirect("admin_tasks:detail", pk=admin_task.id)
 
 
 class AdminTasksCreateView(
