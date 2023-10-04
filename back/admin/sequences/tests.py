@@ -1626,3 +1626,4 @@ def test_send_slack_message_after_process_condition(
             },
         },
     ]
+
