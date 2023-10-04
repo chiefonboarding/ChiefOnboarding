@@ -99,7 +99,7 @@ class Sequence(models.Model):
                     condition_type=Condition.Type.ADMIN_TASK
                 )
                 original_condition_admin_tasks_ids = (
-                    sequence_condition.condition_to_do.all().values_list(
+                    sequence_condition.condition_admin_tasks.all().values_list(
                         "id", flat=True
                     )
                 )
@@ -144,6 +144,8 @@ class Sequence(models.Model):
                 for condition_to_do in old_condition.condition_to_do.all():
                     sequence_condition.condition_to_do.add(condition_to_do)
 
+                for condition_admin_task in old_condition.condition_admin_tasks.all():
+                    sequence_condition.condition_admin_tasks.add(condition_admin_task)
                 # Add all the things that get triggered
                 sequence_condition.include_other_condition(old_condition)
 

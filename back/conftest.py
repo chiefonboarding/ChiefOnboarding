@@ -20,6 +20,7 @@ from admin.resources.factories import (
     ResourceWithLevelDeepChaptersFactory,
 )
 from admin.sequences.factories import (
+    ConditionAdminTaskFactory,
     ConditionTimedFactory,
     ConditionToDoFactory,
     ConditionWithItemsFactory,
@@ -94,6 +95,7 @@ register(PreboardingUserFactory)
 register(SequenceFactory)
 register(ConditionTimedFactory)
 register(ConditionToDoFactory)
+register(ConditionAdminTaskFactory)
 register(PendingAdminTaskFactory)
 register(PendingEmailMessageFactory)
 register(PendingSlackMessageFactory)

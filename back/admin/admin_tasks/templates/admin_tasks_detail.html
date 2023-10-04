@@ -2,14 +2,14 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 {% block actions %}
-<form method="post" action="{% url 'admin_tasks:completed' object.id %}">
-  {% csrf_token %}
-  <button type="submit" class="btn btn-primary">
-    {% if not object.completed %}
+{% if not object.completed %}
+  <form method="post" action="{% url 'admin_tasks:completed' object.id %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary">
       {% translate "Complete" %}
-    {% endif %}
-  </button>
-</form>
+    </button>
+  </form>
+{% endif %}
 {% endblock %}
 
 {% block content %}

@@ -163,6 +163,13 @@ class ConditionToDoFactory(factory.django.DjangoModelFactory):
             obj.condition_to_do.add(ToDoFactory())
 
 
+class ConditionAdminTaskFactory(factory.django.DjangoModelFactory):
+    condition_type = Condition.Type.ADMIN_TASK
+
+    class Meta:
+        model = Condition
+
+
 class ConditionTimedFactory(factory.django.DjangoModelFactory):
     condition_type = Condition.Type.AFTER
     time = "10:00"

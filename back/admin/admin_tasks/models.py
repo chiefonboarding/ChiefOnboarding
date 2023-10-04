@@ -161,7 +161,7 @@ class AdminTask(models.Model):
             # completed. If not, then we know it should not be triggered yet
             completed_tasks = AdminTask.objects.filter(
                 based_on_id__in=condition_admin_tasks_id,
-                user=self.new_hire,
+                new_hire=self.new_hire,
                 completed=True,
             )
 

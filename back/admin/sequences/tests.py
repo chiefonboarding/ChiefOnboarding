@@ -146,8 +146,12 @@ def test_sequence_create_condition_success_view(
     assert Condition.objects.last().condition_to_do.all().count() == 0
     assert Condition.objects.last().condition_type == 0
 
+    # add admin_task to any of the blocks
+    condition = Condition.objects.first()
     pending_admin_task = PendingAdminTaskFactory()
-    # Create block based on day/time
+    condition.admin_tasks.add(pending_admin_task)
+
+    # Create block based on admin task
     url = reverse("sequences:condition-create", args=[sequence1.id])
     response = client.post(
         url,

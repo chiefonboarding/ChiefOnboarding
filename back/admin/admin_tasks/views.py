@@ -46,7 +46,7 @@ class AllAdminTasksListView(LoginRequiredMixin, ManagerPermMixin, ListView):
         return context
 
 
-class AdminTaskToggleDoneView(LoginRequiredMixin, ManagerPermMixin, BaseDetailView):
+class AdminTaskCompleteView(LoginRequiredMixin, ManagerPermMixin, BaseDetailView):
     model = AdminTask
 
     def post(self, request, *args, **kwargs):
