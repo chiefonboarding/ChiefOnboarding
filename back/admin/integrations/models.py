@@ -345,7 +345,7 @@ class Integration(models.Model):
                 return False, response
 
             # save json response temporarily to be reused in other parts
-            self.params["responses"].append(response)
+            self.params["responses"].append(response.json())
 
             # store data coming back from response to the user, so we can reuse in other
             # integrations
