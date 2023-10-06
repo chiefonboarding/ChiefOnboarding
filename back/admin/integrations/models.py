@@ -359,7 +359,7 @@ class Integration(models.Model):
 
             # save json response temporarily to be reused in other parts
             if return_type == "JSON":
-                self.params["responses"].append(response)
+                self.params["responses"].append(response.json())
             else:
                 self.params["responses"].append({})
 

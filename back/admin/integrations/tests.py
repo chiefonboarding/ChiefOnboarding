@@ -755,7 +755,7 @@ def test_block_integration_on_condition(new_hire_factory, custom_integration_fac
 @pytest.mark.django_db
 @patch(
     "admin.integrations.models.Integration.run_request",
-    Mock(return_value=(True, {"details": "DOSOMETHING#"})),
+    Mock(return_value=(True, Mock(json=lambda: {"details": "DOSOMETHING#"}))),
 )
 def test_integration_reuse_data_from_previous_request(
     client, django_user_model, new_hire_factory, custom_integration_factory

@@ -49,10 +49,10 @@ class Sequence(models.Model):
         return self
 
     def assign_to_user(self, user):
-        user_condition = None
-
         # adding conditions
         for sequence_condition in self.conditions.all():
+            user_condition = None
+
             # Check what kind of condition it is
             if sequence_condition.condition_type in [
                 Condition.Type.BEFORE,
