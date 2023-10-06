@@ -43,8 +43,10 @@ class Sequence(models.Model):
         self.name = _("%(name)s (duplicate)") % {"name": self.name}
         self.auto_add = False
         self.save()
+
+        admin_tasks = {}
         for condition in old_sequence.conditions.all():
-            new_condition = condition.duplicate()
+            new_condition, admin_tasks = condition.duplicate(admin_tasks=admin_tasks)
             self.conditions.add(new_condition)
         return self
 
@@ -116,7 +118,7 @@ class Sequence(models.Model):
                     ).count()
 
                     if found_admin_tasks == len(original_condition_admin_tasks_ids):
-                        # We found our match. Amount matches AND the todos match
+                        # We found our match. Amount matches AND the admin_tasks match
                         user_condition = condition
                         break
             else:
@@ -141,8 +143,9 @@ class Sequence(models.Model):
                 sequence_condition.save()
 
                 # Add condition to_dos
-                for condition_to_do in old_condition.condition_to_do.all():
-                    sequence_condition.condition_to_do.add(condition_to_do)
+                sequence_condition.condition_to_do.set(
+                    old_condition.condition_to_do.all()
+                )
 
                 for condition_admin_task in old_condition.condition_admin_tasks.all():
                     sequence_condition.condition_admin_tasks.add(condition_admin_task)
@@ -697,19 +700,22 @@ class Condition(models.Model):
             for item in condition_field.all():
                 getattr(self, field.name).add(item)
 
-    def duplicate(self):
+    def duplicate(self, admin_tasks):
         old_condition = Condition.objects.get(id=self.id)
         self.pk = None
         self.save()
+
         # This function is not being used except for duplicating sequences
         # It can't be triggered standalone (for now)
         for field in old_condition._meta.many_to_many:
             if field.name not in [
                 "admin_tasks",
+                "condition_admin_tasks",
                 "external_messages",
                 "integration_configs",
             ]:
-                # Duplicate old ones
+                # Duplicate template items that have been customized. Those should be
+                # unique again. (only items that have a `template` flag on the model)
                 items = []
                 old_custom_templates = getattr(old_condition, field.name).filter(
                     template=False
@@ -718,8 +724,8 @@ class Condition(models.Model):
                     dup = old.duplicate(change_name=False)
                     items.append(dup)
 
-                # Only using set() for template items. The other ones need to be
-                # duplicated as they are unique to the condition
+                # Reassign items that are still unchanged templates, they should connect
+                # to the same item
                 old_templates = getattr(old_condition, field.name).filter(template=True)
                 getattr(self, field.name).add(*old_templates, *items)
 
@@ -727,13 +733,26 @@ class Condition(models.Model):
                 # For items that do not have templates, just duplicate them
                 items = []
                 old_custom_templates = getattr(old_condition, field.name).all()
-                for old in old_custom_templates:
-                    dup = old.duplicate(change_name=False)
-                    items.append(dup)
+                # exception for condition_admin_tasks, those should be linked to
+                # previously created items, so link old id to new object, for
+                # future lookup
+                if field.name == "condition_admin_tasks":
+                    for item in old_custom_templates:
+                        items.append(admin_tasks[item.id])
+
+                else:
+                    for old in old_custom_templates:
+                        old_id = old.id
+                        dup = old.duplicate(change_name=False)
+                        items.append(dup)
+                        if field.name == "admin_tasks":
+                            # lookup old id to get newly created object
+                            admin_tasks[old_id] = dup
+
                 getattr(self, field.name).add(*items)
 
         # returning the new item
-        return self
+        return self, admin_tasks
 
     def process_condition(self, user, skip_notification=False):
         # Loop over all m2m fields and add the ones that can be easily added

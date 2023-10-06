@@ -1049,7 +1049,7 @@ def test_sequence_duplicate(sequence_factory, condition_to_do_factory, to_do_fac
     sequence.duplicate()
 
     assert Sequence.objects.all().count() == 2
-    # It's 4 because the condition creates one as well
+    # It's 4 because the sequence creates one as well
     assert Condition.objects.all().count() == 4
     # Not dulicate the template one
     assert ToDo.objects.all().count() == 4
@@ -1059,6 +1059,51 @@ def test_sequence_duplicate(sequence_factory, condition_to_do_factory, to_do_fac
     # assert Condition.objects.last().to_do.all().count() == 2
 
     assert "duplicate" in Sequence.objects.last().name
+
+
+@pytest.mark.django_db
+def test_sequence_duplicate_with_admin_task_triggers(
+    sequence_factory, condition_admin_task_factory, pending_admin_task_factory
+):
+    sequence = sequence_factory()
+    pending_admin_task1 = pending_admin_task_factory()
+    pending_admin_task2 = pending_admin_task_factory()
+
+    original_unconditioned_condition = sequence.conditions.first()
+    original_unconditioned_condition.admin_tasks.set(
+        [pending_admin_task1, pending_admin_task2]
+    )
+
+    # create second condition based on the two that are being created
+    condition = condition_admin_task_factory(sequence=sequence)
+    condition.condition_admin_tasks.set([pending_admin_task1, pending_admin_task2])
+
+    sequence.duplicate()
+
+    assert Sequence.objects.all().count() == 2
+    # It's 4 because the sequence creates one as well
+    assert Condition.objects.all().count() == 4
+    # And now we have 4 admin tasks, as they should all have been duplicated
+    assert PendingAdminTask.objects.all().count() == 4
+
+    second_sequence = Sequence.objects.last()
+    unconditioned = second_sequence.conditions.first()
+    admin_task_pks = unconditioned.admin_tasks.all().values_list("pk", flat=True)
+
+    # admin task conditioned one
+    unconditioned = second_sequence.conditions.last()
+    # make sure ids match
+    assert (
+        unconditioned.condition_admin_tasks.filter(id__in=admin_task_pks).count() == 2
+    )
+
+    # but don't match with original one (so they are unique)
+    assert (
+        original_unconditioned_condition.condition_admin_tasks.filter(
+            id__in=admin_task_pks
+        ).count()
+        == 0
+    )
 
 
 @pytest.mark.django_db
@@ -1626,4 +1671,3 @@ def test_send_slack_message_after_process_condition(
             },
         },
     ]
-
