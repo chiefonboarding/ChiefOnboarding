@@ -46,13 +46,12 @@ class AllAdminTasksListView(LoginRequiredMixin, ManagerPermMixin, ListView):
         return context
 
 
-class AdminTaskToggleDoneView(LoginRequiredMixin, ManagerPermMixin, BaseDetailView):
+class AdminTaskCompleteView(LoginRequiredMixin, ManagerPermMixin, BaseDetailView):
     model = AdminTask
 
     def post(self, request, *args, **kwargs):
         admin_task = self.get_object()
-        admin_task.completed = not admin_task.completed
-        admin_task.save()
+        admin_task.mark_completed()
         return redirect("admin_tasks:detail", pk=admin_task.id)
 
 

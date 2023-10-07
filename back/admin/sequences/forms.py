@@ -24,6 +24,11 @@ class ConditionCreateForm(forms.ModelForm):
         to_field_name="id",
         required=False,
     )
+    condition_admin_tasks = forms.ModelMultipleChoiceField(
+        queryset=PendingAdminTask.objects.all(),
+        to_field_name="id",
+        required=False,
+    )
 
     def _get_save_button(self):
         return (
@@ -37,29 +42,31 @@ class ConditionCreateForm(forms.ModelForm):
         )
 
     def __init__(self, *args, **kwargs):
+        sequence = kwargs.pop("sequence")
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        is_time_condition = (
-            self.instance.condition_type
-            in [Condition.Type.AFTER, Condition.Type.BEFORE]
-            or self.instance is None
-        )
         self.helper.layout = Layout(
             Field("condition_type"),
             Div(
                 MultiSelectField("condition_to_do"),
-                css_class="d-none" if is_time_condition else "",
+                css_class="" if self.instance.based_on_to_do else "d-none",
             ),
             Div(
                 Field("days"),
                 Field("time"),
-                css_class="" if is_time_condition else "d-none",
+                css_class="" if self.instance.based_on_time else "d-none",
+            ),
+            Div(
+                Field("condition_admin_tasks"),
+                css_class="" if self.instance.based_on_admin_task else "d-none",
             ),
             HTML(self._get_save_button()),
         )
         self.fields["time"].required = False
         self.fields["days"].required = False
         self.fields["condition_to_do"].required = False
+        pending_tasks = PendingAdminTask.objects.filter(condition__sequence=sequence)
+        self.fields["condition_admin_tasks"].queryset = pending_tasks
         # Remove last option, which will only be one of
         self.fields["condition_type"].choices = tuple(
             x for x in Condition.Type.choices if x[0] != 3
@@ -67,7 +74,13 @@ class ConditionCreateForm(forms.ModelForm):
 
     class Meta:
         model = Condition
-        fields = ["condition_type", "days", "time", "condition_to_do"]
+        fields = [
+            "condition_type",
+            "days",
+            "time",
+            "condition_to_do",
+            "condition_admin_tasks",
+        ]
         widgets = {
             "time": forms.TimeInput(attrs={"type": "time", "step": 300}),
         }
@@ -119,10 +132,15 @@ class ConditionCreateForm(forms.ModelForm):
         time = cleaned_data.get("time", None)
         days = cleaned_data.get("days", None)
         condition_to_do = cleaned_data.get("condition_to_do", None)
+        condition_admin_tasks = cleaned_data.get("condition_admin_tasks", None)
         if condition_type == Condition.Type.TODO and (
             condition_to_do is None or len(condition_to_do) == 0
         ):
             raise ValidationError(_("You must add at least one to do item"))
+        if condition_type == Condition.Type.ADMIN_TASK and (
+            condition_admin_tasks is None or len(condition_admin_tasks) == 0
+        ):
+            raise ValidationError(_("You must add at least one admin task"))
         if condition_type in [Condition.Type.AFTER, Condition.Type.BEFORE] and (
             time is None or days is None
         ):
