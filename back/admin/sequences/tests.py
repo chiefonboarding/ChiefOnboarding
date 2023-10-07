@@ -1091,11 +1091,10 @@ def test_sequence_duplicate_with_admin_task_triggers(
     admin_task_pks = unconditioned.admin_tasks.all().values_list("pk", flat=True)
 
     # admin task conditioned one
-    unconditioned = second_sequence.conditions.last()
+    conditioned = second_sequence.conditions.last()
+    assert conditioned.based_on_admin_task
     # make sure ids match
-    assert (
-        unconditioned.condition_admin_tasks.filter(id__in=admin_task_pks).count() == 2
-    )
+    assert conditioned.condition_admin_tasks.filter(id__in=admin_task_pks).count() == 2
 
     # but don't match with original one (so they are unique)
     assert (
@@ -1138,7 +1137,6 @@ def test_sequence_assign_to_user(
 def test_sequence_assign_to_user_conditions_on_same_day(
     sequence_factory,
     new_hire_factory,
-    condition_to_do_factory,
     condition_timed_factory,
     to_do_factory,
 ):
@@ -1263,6 +1261,64 @@ def test_sequence_assign_to_user_merge_time_condition(
     # add a new to_do item to trigger to the condition
     to_do4 = to_do_factory()
     condition.to_do.add(to_do4)
+
+    # Add again to new hire
+    new_hire.add_sequences([sequence])
+
+    # new condition has been added (not merged)
+    assert new_hire.conditions.all().count() == 2
+
+
+@pytest.mark.django_db
+def test_sequence_assign_to_user_merge_admin_task_condition(
+    sequence_factory,
+    new_hire_factory,
+    condition_admin_task_factory,
+    to_do_factory,
+    pending_admin_task_factory,
+):
+    # Condition should merge as the condition admin_tasks match with an existing one
+
+    new_hire = new_hire_factory()
+    sequence = sequence_factory()
+    condition = condition_admin_task_factory(sequence=sequence)
+
+    # Condition has two admin task items and will trigger one todo task
+    pending_admin_task1 = pending_admin_task_factory()
+    pending_admin_task2 = pending_admin_task_factory()
+    condition.condition_admin_tasks.set([pending_admin_task1, pending_admin_task2])
+    to_do1 = to_do_factory()
+    condition.to_do.add(to_do1)
+
+    # Add to new hire
+    new_hire.add_sequences([sequence])
+
+    # there is now one condition (based on admin task item)
+    assert new_hire.conditions.all().count() == 1
+    new_hire_condition = new_hire.conditions.first()
+    assert new_hire_condition.based_on_admin_task
+
+    to_do2 = to_do_factory(template=False)
+    to_do3 = to_do_factory()
+
+    condition.to_do.add(to_do2)
+    condition.to_do.add(to_do3)
+
+    # Add again to new hire
+    new_hire.add_sequences([sequence])
+
+    # Condition item was updated and not a new one created
+    assert new_hire.conditions.all().count() == 1
+    assert new_hire.conditions.all().first().to_do.count() == 3
+
+    # Let's try with a sequence that has a condition slightly different
+    sequence = sequence_factory()
+    # The generated one will be with only the first admin task from the previous seq
+    # in real life, this will never happen as admin tasks will be unique to sequences
+    condition = condition_admin_task_factory(sequence=sequence)
+    condition.condition_admin_tasks.set([pending_admin_task1])
+    to_do3 = to_do_factory()
+    condition.to_do.add(to_do3)
 
     # Add again to new hire
     new_hire.add_sequences([sequence])

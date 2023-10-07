@@ -108,7 +108,7 @@ class Sequence(models.Model):
 
                 for condition in conditions:
                     # Quickly check if the amount of items match - if not match, drop
-                    if original_condition_admin_tasks_ids.condition_admin_tasks.all().count() != len(  # noqa
+                    if condition.condition_admin_tasks.all().count() != len(  # noqa
                         original_condition_admin_tasks_ids
                     ):
                         continue
