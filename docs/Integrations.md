@@ -5,9 +5,10 @@ order: 65
 # Integrations / Webhooks (Beta)
 ChiefOnboarding allows you to create integrations or trigger webhooks that can be triggered either manually or through a sequence. You can view some examples at https://integrations.chiefonboarding.com. You are free to copy them. If you created a cool new integrations, then please post it there. That way we can help eachother out by not re-inventing the wheel! Thanks a lot!
 
-There are two types of integrations:
+There are three types of integrations:
 1. An integration to trigger a URL on an third party service
 2. An "import users" integration, which allows you to import users from a third party to ChiefOnboarding (manually)
+3. An "sycn user info" integration, which allows you to sync information from a third party back to your new hires
 
 ## Integration to trigger a third party url
 Here is an example of a manifest of an integration (in this case to add a user to an Asana team):
@@ -187,8 +188,6 @@ You can create custom import integrations to pull users from a third party and p
 
 The setup is very similar to what we have for other integrations to trigger a webhook. The most notable differences are:
 
-`"type": "import_users"`: this is to indicate that this integration is only used to import users into ChiefOnboarding.
-
 `data_from`: this is to indicate where the users are located in the response. You can use a dot notation if need to go deep into the json to get the data.
 
 We then also need to define where the data is stored in the users array (for each object). We can do that with `data_structure`. In there, you can define the values you want to copy.
@@ -222,8 +221,45 @@ So for the current config, we expect a JSON response from the third party like t
 
 Other values in the JSON will be ignored.
 
-### Paginated response
-Sometimes, we might not get all items at once. We have something to cover that too.
+
+## Sync user info
+You can create custom sync integrations to pull user info from a third party and then add those items to your new hires. This expects a list of users and it will then get the data from each user and add it to their `custom_fields` field. A sample integration config will look like this:
+
+:::code source="static/sync_user_manifest.json" :::
+
+The setup is very similar to what we have for other integrations to import users. The most notable differences is:
+
+`sync_data` is used to get the data from the user info and then assign it to the user. This works very similiarly to `store_data`, except this is put in the root in the manifest, instead of on an execute item.
+
+example:
+
+```
+"sync_data": {
+    "EXT_ID": "id",
+},
+```
+
+So for the current config, we expect a JSON response from the third party like this:
+```
+[
+    {
+        "email: "hi@chiefonboarding.com",
+        "id: "123",
+    },
+    {
+        "email: "hello@chiefonboarding.com",
+        "id: "124",
+    }
+]
+```
+
+Other values in the JSON will be ignored.
+
+Syncing will run once per day.
+
+
+## Paginated response
+Sometimes, we might not get all items at once. We have something to cover that too. This only works for syncing users and importing users.
 
 `amount_pages_to_fetch`: Default: 5. Maximum amount of page to fetch. It will stop earlier if there are no users found anymore. There is a limit to this number. Please see the note below.
 

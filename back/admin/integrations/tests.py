@@ -6,7 +6,9 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
+from django_q.models import Schedule
 
+from admin.integrations.sync_userinfo import SyncUsers
 from admin.integrations.utils import get_value_from_notation
 from admin.integrations.models import Integration
 from organization.models import Notification
@@ -40,6 +42,43 @@ def test_create_integration(client, django_user_model):
 
     assert "Enter a valid JSON." not in response.content.decode()
     assert Integration.objects.filter(integration=Integration.Type.CUSTOM).count() == 1
+
+
+@pytest.mark.django_db
+def test_create_sync_integration(client, django_user_model):
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
+
+    url = reverse("integrations:create")
+    client.post(
+        url,
+        {
+            "name": "test",
+            "manifest": '{"execute": []}',
+            "manifest_type": Integration.ManifestType.SYNC_INFO,
+        },
+    )
+
+    integration = Integration.objects.first()
+
+    assert (
+        Integration.objects.filter(
+            manifest_type=Integration.ManifestType.SYNC_INFO
+        ).count()
+        == 1
+    )
+    assert Schedule.objects.filter(
+        name=f"User sync for integration: {integration.name}"
+    ).exists()
+
+    # delete to test if schedule is gone
+    url = reverse("integrations:delete", args=[integration.id])
+    client.post(url, follow=True)
+
+    assert not Schedule.objects.filter(
+        name=f"User sync for integration: {integration.name}"
+    ).exists()
 
 
 @pytest.mark.django_db
@@ -285,6 +324,7 @@ def test_integration_refresh_token(
         Mock(return_value=(False, Mock(text="[{'error': 'not_found'}]"))),
     ):
         integration.new_hire = new_hire
+        integration.has_user_context = True
         integration.renew_key()
 
         assert (
@@ -740,3 +780,62 @@ def test_integration_reuse_data_from_previous_request(
     assert (
         integration._replace_vars("test {{responses.0.details}}") == "test DOSOMETHING#"
     )
+
+
+@pytest.mark.django_db
+@patch(
+    "admin.integrations.models.Integration.run_request",
+    Mock(
+        return_value=(
+            True,
+            Mock(
+                json=lambda: [
+                    {"email": "test1@chiefonboarding.com", "external_id": 123},
+                    {"email": "test2@chiefonboarding.com", "external_id": 344},
+                    {"email": "test3@chiefonboarding.com", "external_id": 334},
+                    {"email": "test4@chiefonboarding.com", "external_id": 335},
+                    {"email": "test5@chiefonboarding.com"},
+                ]
+            ),
+        )
+    ),
+)
+def test_integration_sync_data(new_hire_factory, custom_integration_factory):
+    new_hire1 = new_hire_factory(email="test1@chiefonboarding.com")
+    new_hire2 = new_hire_factory(email="test2@chiefonboarding.com")
+    new_hire3 = new_hire_factory(email="test5@chiefonboarding.com")
+    new_hire4 = new_hire_factory(email="test6@chiefonboarding.com")
+
+    assert new_hire1.extra_fields == {}
+    assert new_hire2.extra_fields == {}
+    assert new_hire3.extra_fields == {}
+    assert new_hire4.extra_fields == {}
+
+    integration = custom_integration_factory(
+        manifest_type=Integration.ManifestType.SYNC_INFO,
+        manifest={
+            "execute": [
+                {
+                    "url": "http://localhost/",
+                }
+            ],
+            "data_from": "",
+            "sync_data": {"EXT_ID": "external_id"},
+        },
+    )
+
+    SyncUsers(integration).sync_user_info()
+
+    new_hire1.refresh_from_db()
+    assert new_hire1.extra_fields == {"EXT_ID": 123}
+
+    new_hire2.refresh_from_db()
+    assert new_hire2.extra_fields == {"EXT_ID": 344}
+
+    # no `external_id` data, so blank
+    new_hire3.refresh_from_db()
+    assert new_hire3.extra_fields == {}
+
+    # not in dataset from the API
+    new_hire4.refresh_from_db()
+    assert new_hire4.extra_fields == {}

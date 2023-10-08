@@ -131,6 +131,9 @@ class IntegrationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["manifest_type"].required = True
+        if self.instance.id:
+            # disable manifest_type when updating field
+            self.fields["manifest_type"].disabled = True
 
     def clean_manifest(self):
         manifest = self.cleaned_data["manifest"]

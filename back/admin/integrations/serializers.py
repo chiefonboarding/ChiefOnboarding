@@ -119,12 +119,6 @@ class ManifestOauthSerializer(ValidateMixin, serializers.Serializer):
 
 
 class ManifestSerializer(ValidateMixin, serializers.Serializer):
-    type = serializers.ChoiceField(
-        [
-            ("import_users", "imports users from endpoint"),
-        ],
-        required=False,
-    )
     form = ManifestFormSerializer(required=False, many=True)
     data_from = serializers.CharField(required=False)
     data_structure = serializers.JSONField(required=False)

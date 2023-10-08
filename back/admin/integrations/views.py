@@ -14,9 +14,12 @@ from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from users.mixins import AdminPermMixin, LoginRequiredMixin
+from django_q.tasks import schedule
+from django_q.models import Schedule
 
 from .forms import IntegrationExtraArgsForm, IntegrationForm
 from .models import Integration
+from admin.integrations.tasks import sync_user_info
 
 
 class IntegrationCreateView(
@@ -36,6 +39,14 @@ class IntegrationCreateView(
 
     def form_valid(self, form):
         form.instance.integration = Integration.Type.CUSTOM
+        integration = form.save()
+        if integration.manifest_type == Integration.ManifestType.SYNC_INFO:
+            schedule(
+                sync_user_info,
+                integration,
+                schedule_type=Schedule.DAILY,
+                name=f"User sync for integration: {integration.name}",
+            )
         return super().form_valid(form)
 
 
@@ -89,6 +100,17 @@ class IntegrationDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
         context["title"] = _("Delete integration")
         context["subtitle"] = _("settings")
         return context
+
+    def form_valid(self, form):
+        integration = self.object
+        if integration.manifest_type == Integration.ManifestType.SYNC_INFO:
+            # delete schedule for this integration, so we stop syncing. Old info will
+            # be retained
+            Schedule.objects.filter(
+                name=f"User sync for integration: {integration.name}"
+            ).delete()
+
+        return super().form_valid(form)
 
 
 class IntegrationUpdateExtraArgsView(

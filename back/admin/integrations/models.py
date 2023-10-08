@@ -75,6 +75,7 @@ class Integration(models.Model):
     class ManifestType(models.IntegerChoices):
         WEBHOOK = 0, _("Provision user accounts or trigger webhooks")
         USER_IMPORT = 1, _("Import users")
+        SYNC_INFO = 2, _("Sync information to new hires")
 
     name = models.CharField(max_length=300, default="", blank=True)
     integration = models.IntegerField(choices=Type.choices)
@@ -105,10 +106,6 @@ class Integration(models.Model):
     verification_token = models.CharField(max_length=100, default="")
     bot_token = EncryptedTextField(max_length=10000, default="", blank=True)
     bot_id = models.CharField(max_length=100, default="")
-
-    @property
-    def has_user_context(self):
-        return self.manifest_type == Integration.ManifestType.WEBHOOK
 
     def run_request(self, data):
         url = self._replace_vars(data["url"])
@@ -277,9 +274,11 @@ class Integration(models.Model):
         # if exceeding the max amounts, then fail
         return False, response
 
-    def execute(self, new_hire, params):
-        self.params = params
+    def execute(self, new_hire=None, params=None):
+        self.params = params or {}
         self.params["responses"] = []
+        self.new_hire = new_hire
+        self.has_user_context = new_hire is not None
         if self.has_user_context:
             self.params |= new_hire.extra_fields
             self.new_hire = new_hire
