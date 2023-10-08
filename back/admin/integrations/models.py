@@ -75,7 +75,7 @@ class Integration(models.Model):
     class ManifestType(models.IntegerChoices):
         WEBHOOK = 0, _("Provision user accounts or trigger webhooks")
         USER_IMPORT = 1, _("Import users")
-        SYNC_INFO = 2, _("Sync information to new hires")
+        SYNC_INFO = 2, _("Sync information to users")
 
     name = models.CharField(max_length=300, default="", blank=True)
     integration = models.IntegerField(choices=Type.choices)
