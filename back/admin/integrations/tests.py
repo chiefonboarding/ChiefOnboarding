@@ -56,7 +56,7 @@ def test_create_sync_integration(client, django_user_model):
         create_url,
         {
             "name": "test",
-            "manifest": '{"action": "create","execute": [],"data_structure": {"first_name": "first_name" }}',   # noqa
+            "manifest": '{"action": "create","execute": [],"data_structure": {"first_name": "first_name" }}',  # noqa
             "manifest_type": Integration.ManifestType.SYNC_USERS,
         },
     )
