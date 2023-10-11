@@ -19,12 +19,11 @@ class SyncUsers(PaginatedResponse):
     These two options can be available through the same manifest and can be scheduled.
     Paginated response is supported.
     """
-    def run(self):
-        try:
-            self.users = self.get_data_from_paginated_response()
-        except KeyIsNotInDataError as e:
-            logger.error(e)
+    def __init__(self, integration):
+        super().__init__(integration)
+        self.users = self.get_data_from_paginated_response()
 
+    def run(self):
         action = self.integration.manifest.get("action", "create")
         if action == "create":
             new_users = self.get_import_user_candidates()

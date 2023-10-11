@@ -5,7 +5,7 @@ order: 65
 # Integrations / Webhooks (Beta)
 ChiefOnboarding allows you to create integrations or trigger webhooks that can be triggered either manually or through a sequence. You can view some examples at https://integrations.chiefonboarding.com. You are free to copy them. If you created a cool new integrations, then please post it there. That way we can help eachother out by not re-inventing the wheel! Thanks a lot!
 
-There are three types of integrations:
+There are two types of integrations:
 1. An integration to trigger a URL on an third party service
 2. An "sync users" integration, which allows you to import users from a third party to ChiefOnboarding (manually or through a background cron job) or update specific information to the user (for example, save an external ID per user)
 
@@ -237,6 +237,7 @@ An example integration to save the bambooHR user id to the user in ChiefOnboardi
 :::code source="static/sync_user_manifest.json" :::
 
 The schedule prop is mandatory here as it would otherwise never run, you cannot trigger this manually. The other main difference with the import option is the "action". It's "update" in this case.
+You will also have to provide the `email` key in the `data_structure`, so ChiefOnboarding knows how to match the user. If no user can be found with the provided `email`, then it will get skipped.
 
 
 ## Paginated response

@@ -857,7 +857,7 @@ def test_integration_sync_data(new_hire_factory, custom_integration_factory):
             ],
             "data_from": "",
             "action": "update",
-            "data_structure": {"EXT_ID": "external_id"},
+            "data_structure": {"email": "email", "EXT_ID": "external_id"},
         },
     )
 

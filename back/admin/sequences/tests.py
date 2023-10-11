@@ -511,7 +511,8 @@ def test_sequence_update_custom_integration_form(
                     "choice_value": "gid",
                     "choice_name": "name",
                 }
-            ]
+            ],
+            "execute": []
         }
     )
     integration_config = integration_config_factory(integration=integration)
@@ -562,7 +563,8 @@ def test_sequence_create_custom_integration_form(
                     "choice_value": "gid",
                     "choice_name": "name",
                 }
-            ]
+            ],
+            "execute": []
         }
     )
     admin = admin_factory()
@@ -591,7 +593,8 @@ def test_sequence_create_custom_integration_form_input_field(
 ):
     integration = custom_integration_factory(
         manifest={
-            "form": [{"id": "USERNAME", "name": "Enter the username", "type": "input"}]
+            "form": [{"id": "USERNAME", "name": "Enter the username", "type": "input"}],
+            "execute": []
         }
     )
     admin = admin_factory()
@@ -688,7 +691,8 @@ def test_sequence_open_filled_custom_integration_form(
                     "choice_value": "gid",
                     "choice_name": "name",
                 }
-            ]
+            ],
+            "execute": []
         }
     )
     integration_config = integration_config_factory(

@@ -37,16 +37,10 @@ class PaginatedResponse:
                     "response": self.integration.clean_response(response.json()),
                 }
             )
-        data_structure = self.integration.manifest.get("data_structure", {})
-        if not data_structure:
-            return users
+        data_structure = self.integration.manifest.get("data_structure")
         user_details = []
         for user_data in users:
-            if "email" not in user_data:
-                logger.info(f"Couldn't find email in {user_data}")
-                continue
-
-            user = {"email": user_data.get("email")}
+            user = {}
             for prop, notation in data_structure.items():
                 try:
                     user[prop] = get_value_from_notation(notation, user_data)
