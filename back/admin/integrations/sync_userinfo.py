@@ -1,7 +1,5 @@
 from django.contrib.auth import get_user_model
 
-from admin.integrations.exceptions import KeyIsNotInDataError
-from admin.integrations.utils import get_value_from_notation
 from admin.integrations.mixins import PaginatedResponse
 from admin.people.serializers import UserImportSerializer
 from organization.models import Organization
@@ -19,6 +17,7 @@ class SyncUsers(PaginatedResponse):
     These two options can be available through the same manifest and can be scheduled.
     Paginated response is supported.
     """
+
     def __init__(self, integration):
         super().__init__(integration)
         self.users = self.get_data_from_paginated_response()
@@ -58,7 +57,9 @@ class SyncUsers(PaginatedResponse):
                 if not len(error):
                     valid_ones.append(new_users[idx])
                 else:
-                    logger.info(f"Couldn't save {new_users[idx]['email']} due to {error}")
+                    logger.info(
+                        f"Couldn't save {new_users[idx]['email']} due to {error}"
+                    )
 
         # push them again through the function to save the users
         if len(valid_ones):

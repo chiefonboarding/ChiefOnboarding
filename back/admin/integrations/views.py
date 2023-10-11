@@ -14,12 +14,10 @@ from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from users.mixins import AdminPermMixin, LoginRequiredMixin
-from django_q.tasks import schedule
 from django_q.models import Schedule
 
 from .forms import IntegrationExtraArgsForm, IntegrationForm
 from .models import Integration
-from admin.integrations.tasks import sync_user_info
 
 
 class IntegrationCreateView(

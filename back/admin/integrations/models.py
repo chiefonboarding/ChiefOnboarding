@@ -31,7 +31,10 @@ from requests.exceptions import (
 from twilio.rest import Client
 
 from admin.integrations.utils import get_value_from_notation
-from admin.integrations.serializers import WebhookManifestSerializer, SyncUsersManifestSerializer
+from admin.integrations.serializers import (
+    WebhookManifestSerializer,
+    SyncUsersManifestSerializer,
+)
 from misc.fernet_fields import EncryptedTextField
 from misc.fields import EncryptedJSONField
 from organization.models import Notification
@@ -59,10 +62,14 @@ class IntegrationManager(models.Manager):
 
     def import_users_options(self):
         # only import user items
-        return self.get_queryset().filter(
-            integration=Integration.Type.CUSTOM,
-            manifest_type=Integration.ManifestType.SYNC_USERS,
-        ).exclude(manifest__schedule__isnull=False)
+        return (
+            self.get_queryset()
+            .filter(
+                integration=Integration.Type.CUSTOM,
+                manifest_type=Integration.ManifestType.SYNC_USERS,
+            )
+            .exclude(manifest__schedule__isnull=False)
+        )
 
 
 class Integration(models.Model):
@@ -113,7 +120,7 @@ class Integration(models.Model):
         return f"User sync for integration: {self.id}"
 
     def clean(self):
-        if not getattr(self, 'manifest', False):
+        if not getattr(self, "manifest", False):
             # ignore field if form doesn't have it
             return
 
@@ -124,10 +131,10 @@ class Integration(models.Model):
         if not manifest_serializer.is_valid():
             raise ValidationError({"manifest": json.dumps(manifest_serializer.errors)})
 
-
     def save(self, *args, **kwargs):
         # avoid circular import
         from admin.integrations.tasks import sync_user_info
+
         super().save(*args, **kwargs)
         # update the background job based on the manifest
         schedule_cron = self.manifest.get("schedule", False)

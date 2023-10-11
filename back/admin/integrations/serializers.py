@@ -141,12 +141,7 @@ class SyncUsersManifestSerializer(ValidateMixin, serializers.Serializer):
     next_page = serializers.CharField(required=False)
     next_page_from = serializers.CharField(required=False)
     schedule = serializers.CharField(required=False, validators=[validate_cron])
-    action = serializers.ChoiceField(
-        [
-            ("create", "create"),
-            ("update", "update")
-        ]
-    )
+    action = serializers.ChoiceField([("create", "create"), ("update", "update")])
     amount_pages_to_fetch = serializers.IntegerField(required=False)
     initial_data_form = ManifestInitialDataFormSerializer(many=True, required=False)
     headers = serializers.DictField(child=serializers.CharField(), default=dict)

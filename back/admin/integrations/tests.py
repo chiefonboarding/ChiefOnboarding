@@ -56,7 +56,7 @@ def test_create_sync_integration(client, django_user_model):
         create_url,
         {
             "name": "test",
-            "manifest": '{"action": "create","execute": [],"data_structure": {"first_name": "first_name" }}',
+            "manifest": '{"action": "create","execute": [],"data_structure": {"first_name": "first_name" }}',   # noqa
             "manifest_type": Integration.ManifestType.SYNC_USERS,
         },
     )
@@ -83,7 +83,7 @@ def test_create_sync_integration(client, django_user_model):
         update_url,
         {
             "name": "test",
-            "manifest": '{"action": "create","execute": [],"data_structure": {"first_name": "first_name" }, "schedule": "* * * * *"}',
+            "manifest": '{"action": "create","execute": [],"data_structure": {"first_name": "first_name" }, "schedule": "* * * * *"}',  # noqa
             "manifest_type": Integration.ManifestType.SYNC_USERS,
         },
     )
@@ -99,7 +99,7 @@ def test_create_sync_integration(client, django_user_model):
         update_url,
         {
             "name": "test",
-            "manifest": '{"action": "create","execute": [],"data_structure": {"first_name": "first_name" }, "schedule": "* 1 * * *"}',
+            "manifest": '{"action": "create","execute": [],"data_structure": {"first_name": "first_name" }, "schedule": "* 1 * * *"}',  # noqa
             "manifest_type": Integration.ManifestType.SYNC_USERS,
         },
     )
@@ -886,17 +886,35 @@ def test_integration_sync_data(new_hire_factory, custom_integration_factory):
             True,
             Mock(
                 json=lambda: [
-                    {"email": "test1@chiefonboarding.com", "firstName": "test1", "lastName": "1"},
-                    {"email": "test2@chiefonboarding.com", "firstName": "test2", "lastName": "2"},
-                    {"email": "test3@chiefonboarding.com", "firstName": "test3", "lastName": "3"},
-                    {"email": "test4@chiefonboarding.com", "firstName": "test4", "lastName": "4"},
+                    {
+                        "email": "test1@chiefonboarding.com",
+                        "firstName": "test1",
+                        "lastName": "1",
+                    },
+                    {
+                        "email": "test2@chiefonboarding.com",
+                        "firstName": "test2",
+                        "lastName": "2",
+                    },
+                    {
+                        "email": "test3@chiefonboarding.com",
+                        "firstName": "test3",
+                        "lastName": "3",
+                    },
+                    {
+                        "email": "test4@chiefonboarding.com",
+                        "firstName": "test4",
+                        "lastName": "4",
+                    },
                     {"email": "test5@chiefonboarding.com"},
                 ]
             ),
         )
     ),
 )
-def test_integration_sync_data_create_users(new_hire_factory, custom_integration_factory):
+def test_integration_sync_data_create_users(
+    new_hire_factory, custom_integration_factory
+):
     new_hire1 = new_hire_factory(email="test1@chiefonboarding.com")
 
     assert new_hire1.extra_fields == {}
@@ -911,7 +929,11 @@ def test_integration_sync_data_create_users(new_hire_factory, custom_integration
             ],
             "data_from": "",
             "action": "create",
-            "data_structure": {"first_name": "firstName", "last_name": "lastName", "email": "email"},
+            "data_structure": {
+                "first_name": "firstName",
+                "last_name": "lastName",
+                "email": "email",
+            },
         },
     )
 
@@ -924,6 +946,13 @@ def test_integration_sync_data_create_users(new_hire_factory, custom_integration
     assert get_user_model().objects.all().count() == 4
     # randomly checking users to make sure their data is correct
     assert get_user_model().objects.filter(email="test2@chiefonboarding.com").exists()
-    assert get_user_model().objects.get(email="test3@chiefonboarding.com").first_name == "test3"
-    assert get_user_model().objects.get(email="test4@chiefonboarding.com").last_name == "4"
-    assert not get_user_model().objects.filter(email="test5@chiefonboarding.com").exists()
+    assert (
+        get_user_model().objects.get(email="test3@chiefonboarding.com").first_name
+        == "test3"
+    )
+    assert (
+        get_user_model().objects.get(email="test4@chiefonboarding.com").last_name == "4"
+    )
+    assert (
+        not get_user_model().objects.filter(email="test5@chiefonboarding.com").exists()
+    )

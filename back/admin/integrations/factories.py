@@ -88,8 +88,6 @@ class CustomUserImportIntegrationFactory(IntegrationFactory):
     integration = Integration.Type.CUSTOM
     manifest_type = Integration.ManifestType.SYNC_USERS
     manifest = {
-        "form": [],
-        "type": "import_users",
         "execute": [
             {
                 "url": "http://localhost/api/gateway.php/{{COMPANY_ID}}/v1/reports/{{REPORT_ID}}",
