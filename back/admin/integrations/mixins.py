@@ -6,8 +6,12 @@ from admin.integrations.exceptions import (
 from admin.integrations.utils import get_value_from_notation
 from django.utils.translation import gettext_lazy as _
 
+import logging
 
-class PaginatedResponseMixin:
+logger = logging.getLogger(__name__)
+
+
+class PaginatedResponse:
     """
     Extension of the `Integration` model. Generic mixin used for extracting data
     from a third party API endpoint and format them in a way that we can proccess
@@ -38,14 +42,18 @@ class PaginatedResponseMixin:
             return users
         user_details = []
         for user_data in users:
-            user = {}
+            if "email" not in user_data:
+                logger.info(f"Couldn't find email in {user_data}")
+                continue
+
+            user = {"email": user_data.get("email")}
             for prop, notation in data_structure.items():
                 try:
                     user[prop] = get_value_from_notation(notation, user_data)
                 except KeyError:
                     # This is unlikely to go wrong - only when api changes or when
                     # configs are being setup
-                    raise KeyIsNotInDataError(
+                    logger.info(
                         _("Notation '%(notation)s' not in %(response)s")
                         % {
                             "notation": notation,

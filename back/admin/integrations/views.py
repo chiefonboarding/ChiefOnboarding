@@ -39,14 +39,6 @@ class IntegrationCreateView(
 
     def form_valid(self, form):
         form.instance.integration = Integration.Type.CUSTOM
-        integration = form.save()
-        if integration.manifest_type == Integration.ManifestType.SYNC_INFO:
-            schedule(
-                sync_user_info,
-                integration,
-                schedule_type=Schedule.DAILY,
-                name=f"User sync for integration: {integration.name}",
-            )
         return super().form_valid(form)
 
 
@@ -103,13 +95,8 @@ class IntegrationDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
 
     def form_valid(self, form):
         integration = self.object
-        if integration.manifest_type == Integration.ManifestType.SYNC_INFO:
-            # delete schedule for this integration, so we stop syncing. Old info will
-            # be retained
-            Schedule.objects.filter(
-                name=f"User sync for integration: {integration.name}"
-            ).delete()
-
+        # delete background worker schedule if it exists
+        Schedule.objects.filter(name=integration.schedule_name).delete()
         return super().form_valid(form)
 
 

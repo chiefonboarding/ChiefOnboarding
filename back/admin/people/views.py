@@ -18,7 +18,7 @@ from admin.integrations.exceptions import (
     KeyIsNotInDataError,
 )
 from admin.integrations.models import Integration
-from admin.integrations.import_users import ImportUser
+from admin.integrations.sync_userinfo import SyncUsers
 from admin.people.serializers import UserImportSerializer
 from admin.resources.models import Resource
 from api.permissions import AdminPermission
@@ -308,7 +308,7 @@ class ColleagueImportFetchUsersHXView(LoginRequiredMixin, AdminPermMixin, View):
         try:
             # we are passing in the user who is requesting it, but we likely don't need
             # them.
-            users = ImportUser(integration).get_import_user_candidates()
+            users = SyncUsers(integration).get_import_user_candidates()
         except (KeyIsNotInDataError, FailedPaginatedResponseError) as e:
             return render(request, "_import_user_table.html", {"error": e})
 

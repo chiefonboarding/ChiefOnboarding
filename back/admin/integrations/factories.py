@@ -86,7 +86,7 @@ class CustomIntegrationFactory(IntegrationFactory):
 
 class CustomUserImportIntegrationFactory(IntegrationFactory):
     integration = Integration.Type.CUSTOM
-    manifest_type = Integration.ManifestType.USER_IMPORT
+    manifest_type = Integration.ManifestType.SYNC_USERS
     manifest = {
         "form": [],
         "type": "import_users",

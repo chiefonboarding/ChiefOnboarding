@@ -7,8 +7,7 @@ ChiefOnboarding allows you to create integrations or trigger webhooks that can b
 
 There are three types of integrations:
 1. An integration to trigger a URL on an third party service
-2. An "import users" integration, which allows you to import users from a third party to ChiefOnboarding (manually)
-3. An "sycn user info" integration, which allows you to sync information from a third party back to your new hires
+2. An "sync users" integration, which allows you to import users from a third party to ChiefOnboarding (manually or through a background cron job) or update specific information to the user (for example, save an external ID per user)
 
 ## Integration to trigger a third party url
 Here is an example of a manifest of an integration (in this case to add a user to an Asana team):
@@ -181,7 +180,8 @@ You can then use `{{ responses.0.form_id }}` in any of the following requests in
 * If you are using any of the integrations from the repo at: https://integrations.chiefonboarding.com then you have to validate them yourself. This is a user repository and we do not actively moderate the submissions there. Please always validate the urls where requests are going to make sure it's legit. 
 
 
-## Import user integration
+## Sync users integration
+### Creating users
 You can create custom import integrations to pull users from a third party and put them in ChiefOnboarding. This is fairly universal and will work with most APIs. A sample integration config will look like this:
 
 :::code source="static/import_user_manifest.json" :::
@@ -221,41 +221,22 @@ So for the current config, we expect a JSON response from the third party like t
 
 Other values in the JSON will be ignored.
 
+You can run this integration manually (by going to people -> colleagues -> import... ". If you provide a "schedule" prop (cron notation), then it will run this in the background. It will create the users automatically (default role is "other"). 
 
-## Sync user info
-You can create custom sync integrations to pull user info from a third party and then add those items to your new hires. This expects a list of users and it will then get the data from each user and add it to their `custom_fields` field. A sample integration config will look like this:
+```
+{
+    "schedule": "* 1 * * * *"
+}
+```
+
+### Updating users
+This will allow you to save additional data from a third party to your user. This can be helpful in case you need a specific ID in an integration that is tied to this user for example. You cannot update core attributes of a user (such as their email or first name). You can only save extra information to the user, which can then be used in integrations or content boxes. 
+
+An example integration to save the bambooHR user id to the user in ChiefOnboarding:
 
 :::code source="static/sync_user_manifest.json" :::
 
-The setup is very similar to what we have for other integrations to import users. The most notable differences is:
-
-`sync_data` is used to get the data from the user info and then assign it to the user. This works very similiarly to `store_data`, except this is put in the root in the manifest, instead of on an execute item.
-
-example:
-
-```
-"sync_data": {
-    "EXT_ID": "id",
-},
-```
-
-So for the current config, we expect a JSON response from the third party like this:
-```
-[
-    {
-        "email: "hi@chiefonboarding.com",
-        "id: "123",
-    },
-    {
-        "email: "hello@chiefonboarding.com",
-        "id: "124",
-    }
-]
-```
-
-Other values in the JSON will be ignored.
-
-Syncing will run once per day.
+The schedule prop is mandatory here as it would otherwise never run, you cannot trigger this manually. The other main difference with the import option is the "action". It's "update" in this case.
 
 
 ## Paginated response

@@ -1,6 +1,4 @@
 {
-    "form": [],
-    "type": "import_users",
     "execute": [
         {
             "url": "https://api.bamboohr.com/api/gateway.php/{{COMPANY_ID}}/v1/reports/{{REPORT_ID}}",
@@ -13,9 +11,11 @@
         "Authorization": "Basic {{KEY}}:x"
     },
     "data_from": "employees",
-    "sync_data": {
+    "data_structure": {
         "bamboohr_id": "id"
     },
+    "action": "update",
+    "schedule": "0 * * * *",
     "initial_data_form": [
         {
             "id": "KEY",

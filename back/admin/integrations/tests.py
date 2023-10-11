@@ -35,7 +35,7 @@ def test_create_integration(client, django_user_model):
         url,
         {
             "name": "test",
-            "manifest": '{"execute": []}',
+            "manifest": '{"form": [],"execute": []}',
             "manifest_type": Integration.ManifestType.WEBHOOK,
         },
     )
@@ -46,38 +46,74 @@ def test_create_integration(client, django_user_model):
 
 @pytest.mark.django_db
 def test_create_sync_integration(client, django_user_model):
+    create_url = reverse("integrations:create")
+
     client.force_login(
         django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     )
 
-    url = reverse("integrations:create")
     client.post(
-        url,
+        create_url,
         {
             "name": "test",
-            "manifest": '{"execute": []}',
-            "manifest_type": Integration.ManifestType.SYNC_INFO,
+            "manifest": '{"action": "create","execute": [],"data_structure": {"first_name": "first_name" }}',
+            "manifest_type": Integration.ManifestType.SYNC_USERS,
         },
     )
 
     integration = Integration.objects.first()
 
+    update_url = reverse("integrations:update", args=[integration.id])
+
     assert (
         Integration.objects.filter(
-            manifest_type=Integration.ManifestType.SYNC_INFO
+            manifest_type=Integration.ManifestType.SYNC_USERS
         ).count()
         == 1
     )
-    assert Schedule.objects.filter(
-        name=f"User sync for integration: {integration.name}"
-    ).exists()
+    schedule = Schedule.objects.filter(
+        name=f"User sync for integration: {integration.id}"
+    ).first()
+
+    # schedule is not there, since there was no schedule provided
+    assert schedule is None
+
+    # add schedule
+    client.post(
+        update_url,
+        {
+            "name": "test",
+            "manifest": '{"action": "create","execute": [],"data_structure": {"first_name": "first_name" }, "schedule": "* * * * *"}',
+            "manifest_type": Integration.ManifestType.SYNC_USERS,
+        },
+    )
+
+    schedule = Schedule.objects.filter(
+        name=f"User sync for integration: {integration.id}"
+    ).first()
+    assert schedule is not None
+    assert schedule.cron == "* * * * *"
+
+    # update to change cron
+    client.post(
+        update_url,
+        {
+            "name": "test",
+            "manifest": '{"action": "create","execute": [],"data_structure": {"first_name": "first_name" }, "schedule": "* 1 * * *"}',
+            "manifest_type": Integration.ManifestType.SYNC_USERS,
+        },
+    )
+
+    schedule.refresh_from_db()
+    assert schedule is not None
+    assert schedule.cron == "* 1 * * *"
 
     # delete to test if schedule is gone
     url = reverse("integrations:delete", args=[integration.id])
     client.post(url, follow=True)
 
     assert not Schedule.objects.filter(
-        name=f"User sync for integration: {integration.name}"
+        name=f"User sync for integration: {integration.id}"
     ).exists()
 
 
@@ -812,7 +848,7 @@ def test_integration_sync_data(new_hire_factory, custom_integration_factory):
     assert new_hire4.extra_fields == {}
 
     integration = custom_integration_factory(
-        manifest_type=Integration.ManifestType.SYNC_INFO,
+        manifest_type=Integration.ManifestType.SYNC_USERS,
         manifest={
             "execute": [
                 {
@@ -820,11 +856,12 @@ def test_integration_sync_data(new_hire_factory, custom_integration_factory):
                 }
             ],
             "data_from": "",
-            "sync_data": {"EXT_ID": "external_id"},
+            "action": "update",
+            "data_structure": {"EXT_ID": "external_id"},
         },
     )
 
-    SyncUsers(integration).sync_user_info()
+    SyncUsers(integration).run()
 
     new_hire1.refresh_from_db()
     assert new_hire1.extra_fields == {"EXT_ID": 123}
@@ -839,3 +876,54 @@ def test_integration_sync_data(new_hire_factory, custom_integration_factory):
     # not in dataset from the API
     new_hire4.refresh_from_db()
     assert new_hire4.extra_fields == {}
+
+
+@pytest.mark.django_db
+@patch(
+    "admin.integrations.models.Integration.run_request",
+    Mock(
+        return_value=(
+            True,
+            Mock(
+                json=lambda: [
+                    {"email": "test1@chiefonboarding.com", "firstName": "test1", "lastName": "1"},
+                    {"email": "test2@chiefonboarding.com", "firstName": "test2", "lastName": "2"},
+                    {"email": "test3@chiefonboarding.com", "firstName": "test3", "lastName": "3"},
+                    {"email": "test4@chiefonboarding.com", "firstName": "test4", "lastName": "4"},
+                    {"email": "test5@chiefonboarding.com"},
+                ]
+            ),
+        )
+    ),
+)
+def test_integration_sync_data_create_users(new_hire_factory, custom_integration_factory):
+    new_hire1 = new_hire_factory(email="test1@chiefonboarding.com")
+
+    assert new_hire1.extra_fields == {}
+
+    integration = custom_integration_factory(
+        manifest_type=Integration.ManifestType.SYNC_USERS,
+        manifest={
+            "execute": [
+                {
+                    "url": "http://localhost/",
+                }
+            ],
+            "data_from": "",
+            "action": "create",
+            "data_structure": {"first_name": "firstName", "last_name": "lastName", "email": "email"},
+        },
+    )
+
+    SyncUsers(integration).run()
+
+    new_hire1.refresh_from_db()
+    # didn't do anything with newhire1 as it only creates users
+    assert new_hire1.extra_fields == {}
+
+    assert get_user_model().objects.all().count() == 4
+    # randomly checking users to make sure their data is correct
+    assert get_user_model().objects.filter(email="test2@chiefonboarding.com").exists()
+    assert get_user_model().objects.get(email="test3@chiefonboarding.com").first_name == "test3"
+    assert get_user_model().objects.get(email="test4@chiefonboarding.com").last_name == "4"
+    assert not get_user_model().objects.filter(email="test5@chiefonboarding.com").exists()

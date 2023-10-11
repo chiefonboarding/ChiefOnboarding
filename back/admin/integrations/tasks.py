@@ -10,11 +10,8 @@ def retry_integration(new_hire_id, integration_id, params):
     integration.execute(new_hire, params)
 
 
-def sync_user_info(integration):
-    # this will sync the information from a third party to the new hires only used
-    # when we need info from the new hire that is only available in list view
-    # for example, some apis only allow lookups based on their internal ID of a
-    # user. We do not have that ID yet, but we need it so we can sync it with this.
-
-    # user is not relevant here, so just pick any
-    SyncUsers(integration).sync_user_info()
+def sync_user_info(integration_id):
+    # Depending on the manifest, we wil either sync specific info with the current
+    # users or we will add new users. This is done in the background.
+    integration = Integration.objects.get(id=integration_id)
+    SyncUsers(integration).run()

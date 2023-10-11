@@ -6,6 +6,7 @@ from datetime import timedelta
 
 import requests
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.template import Context, Template
 from django.urls import reverse_lazy
@@ -30,6 +31,7 @@ from requests.exceptions import (
 from twilio.rest import Client
 
 from admin.integrations.utils import get_value_from_notation
+from admin.integrations.serializers import WebhookManifestSerializer, SyncUsersManifestSerializer
 from misc.fernet_fields import EncryptedTextField
 from misc.fields import EncryptedJSONField
 from organization.models import Notification
@@ -59,8 +61,8 @@ class IntegrationManager(models.Manager):
         # only import user items
         return self.get_queryset().filter(
             integration=Integration.Type.CUSTOM,
-            manifest_type=Integration.ManifestType.USER_IMPORT,
-        )
+            manifest_type=Integration.ManifestType.SYNC_USERS,
+        ).exclude(manifest__schedule__isnull=False)
 
 
 class Integration(models.Model):
@@ -74,8 +76,7 @@ class Integration(models.Model):
 
     class ManifestType(models.IntegerChoices):
         WEBHOOK = 0, _("Provision user accounts or trigger webhooks")
-        USER_IMPORT = 1, _("Import users")
-        SYNC_INFO = 2, _("Sync information to users")
+        SYNC_USERS = 1, _("Sync users")
 
     name = models.CharField(max_length=300, default="", blank=True)
     integration = models.IntegerField(choices=Type.choices)
@@ -106,6 +107,54 @@ class Integration(models.Model):
     verification_token = models.CharField(max_length=100, default="")
     bot_token = EncryptedTextField(max_length=10000, default="", blank=True)
     bot_id = models.CharField(max_length=100, default="")
+
+    @property
+    def schedule_name(self):
+        return f"User sync for integration: {self.id}"
+
+    def clean(self):
+        if not getattr(self, 'manifest', False):
+            # ignore field if form doesn't have it
+            return
+
+        if self.manifest_type == Integration.ManifestType.WEBHOOK:
+            manifest_serializer = WebhookManifestSerializer(data=self.manifest)
+        else:
+            manifest_serializer = SyncUsersManifestSerializer(data=self.manifest)
+        if not manifest_serializer.is_valid():
+            raise ValidationError({"manifest": json.dumps(manifest_serializer.errors)})
+
+
+    def save(self, *args, **kwargs):
+        # avoid circular import
+        from admin.integrations.tasks import sync_user_info
+        super().save(*args, **kwargs)
+        # update the background job based on the manifest
+        schedule_cron = self.manifest.get("schedule", False)
+
+        try:
+            schedule_obj = Schedule.objects.get(name=self.schedule_name)
+        except Schedule.DoesNotExist:
+            # Schedule does not exist yet, so create it if specified
+            if schedule_cron:
+                schedule(
+                    sync_user_info,
+                    self.id,
+                    schedule_type=Schedule.CRON,
+                    cron=schedule_cron,
+                    name=self.schedule_name,
+                )
+            return
+
+        # delete if cron was removed
+        if not schedule_cron:
+            schedule_obj.delete()
+            return
+
+        # if schedule changed, then update
+        if schedule_obj.cron != schedule_cron:
+            schedule_obj.cron = schedule_cron
+            schedule_obj.save()
 
     def run_request(self, data):
         url = self._replace_vars(data["url"])

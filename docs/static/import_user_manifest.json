@@ -1,6 +1,5 @@
 {
     "form": [],
-    "type": "import_users",
     "execute": [
         {
             "url": "https://api.bamboohr.com/api/gateway.php/{{COMPANY_ID}}/v1/reports/{{REPORT_ID}}",
@@ -12,6 +11,7 @@
         "Content-Type": "application/json",
         "Authorization": "Basic {{KEY}}:x"
     },
+    "action": "create",
     "data_from": "employees",
     "data_structure": {
         "email": "workEmail",
