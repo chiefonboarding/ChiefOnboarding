@@ -129,7 +129,10 @@ class Integration(models.Model):
             try:
                 files_to_send[field_name] = (file_name, self.params["files"][file_name])
             except KeyError:
-                return False, f"{file_name} could not be found in the locally saved files"
+                return (
+                    False,
+                    f"{file_name} could not be found in the locally saved files",
+                )
 
         try:
             response = requests.request(
