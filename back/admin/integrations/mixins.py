@@ -37,7 +37,7 @@ class PaginatedResponse:
                     "response": self.integration.clean_response(response.json()),
                 }
             )
-        data_structure = self.integration.manifest.get("data_structure")
+        data_structure = self.integration.manifest["data_structure"]
         user_details = []
         for user_data in users:
             user = {}

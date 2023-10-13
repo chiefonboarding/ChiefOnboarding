@@ -137,7 +137,7 @@ class Integration(models.Model):
 
         super().save(*args, **kwargs)
         # update the background job based on the manifest
-        schedule_cron = self.manifest.get("schedule", False)
+        schedule_cron = self.manifest.get("schedule")
 
         try:
             schedule_obj = Schedule.objects.get(name=self.schedule_name)
@@ -154,7 +154,7 @@ class Integration(models.Model):
             return
 
         # delete if cron was removed
-        if not schedule_cron:
+        if schedule_cron is None:
             schedule_obj.delete()
             return
 
