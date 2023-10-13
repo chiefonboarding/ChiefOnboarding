@@ -111,7 +111,7 @@ class Integration(models.Model):
     def has_user_context(self):
         return self.manifest_type == Integration.ManifestType.WEBHOOK
 
-    def run_request(self, data, file=None):
+    def run_request(self, data):
         url = self._replace_vars(data["url"])
         if "data" in data:
             post_data = self._replace_vars(json.dumps(data["data"]))
@@ -292,9 +292,6 @@ class Integration(models.Model):
         return False, response
 
     def execute(self, new_hire, params):
-        # Only one file can be used per integration
-        file = None
-
         self.params = params
         self.params["responses"] = []
         self.params["files"] = {}
@@ -313,7 +310,7 @@ class Integration(models.Model):
 
         # Run all requests
         for item in self.manifest["execute"]:
-            success, response = self.run_request(item, file=file)
+            success, response = self.run_request(item)
 
             # check if we need to poll before continuing
             if polling := item.get("polling", False):
