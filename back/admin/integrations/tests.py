@@ -665,11 +665,13 @@ def test_receiving_and_sending_file(new_hire_factory, custom_integration_factory
     integration = custom_integration_factory(
         manifest={
             "execute": [
-                {"url": "http://localhost/", "method": "GET", "type": "file"},
+                {"url": "http://localhost/", "method": "GET", "save_as_file": "test.png"},
                 {
                     "url": "http://localhost/",
                     "method": "POST",
-                    "send_file_as": "test.png",
+                    "files": {
+                        "file": "test.png"
+                    }
                 },
             ]
         }

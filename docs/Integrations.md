@@ -98,10 +98,16 @@ With this config, it will check the response for the `status` property in the `d
 ```
 This config will try to fetch the same url for 60 times and wait 5 seconds between each call (so max 300 seconds) and will keep going until the `status` of the response is `done`. If it exceeds the 300 seconds, then the integration will fail.
 
-`type`: (optional) Default: `JSON`. If you want to **download** a file, then you should specify: `file`. The file should be a bytes object (no string).
+`save_as_file`: (optional) If you expect a file as a response from the server, then you can define this with the filename you want it to have. For example: `"save_as_file": "filename.png"`. You can then use this filename in the `files` parameter for any requests that you make after this one.
 
-`send_file_as`: (optional) if you have previously stored a file (a request with the `type` set to `file`). Then you can reuse that same file within the same integration by setting this to what the name the file should be. Example: `"send_file_as": "filefield"`.
+`files`: (optional) You can use this to define what you want to send to the api as files. Note that you will have to download the files in the same integration before you are able to use this. This item needs to be defined like this:
 
+```
+{
+    "field_name": "filename.png"
+}
+```
+It will search the previous responses by the key of the `files` dictionary. In this case that would be `filename.png`, so you would need to have `"save_as_file": "filename.png"` in any of the previous requests.
 
 ### Headers
 These headers will be send with every request. These could include some sort of token variable for authentication.
