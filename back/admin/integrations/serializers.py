@@ -69,6 +69,8 @@ class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):
             ("PUT", "PUT"),
         ]
     )
+    files = serializers.DictField(child=serializers.CharField(), default=dict)
+    save_as_file = serializers.CharField(required=False)
     polling = ManifestPollingSerializer(required=False)
     continue_if = ManifestConditionSerializer(required=False)
 

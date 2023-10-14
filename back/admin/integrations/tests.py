@@ -682,7 +682,7 @@ def test_integration_save_data_to_user_invalid_lookup(
 
 @pytest.mark.django_db
 def test_polling_not_getting_correct_state(
-    monkeypatch, new_hire_factory, custom_integration_factory
+    new_hire_factory, custom_integration_factory
 ):
     new_hire = new_hire_factory()
 
@@ -736,6 +736,87 @@ def test_polling_not_getting_correct_state(
 
     assert request_mock.call_count == 3
     assert success is False
+
+
+@pytest.mark.django_db
+@patch(
+    "requests.request",
+    Mock(
+        return_value=Mock(
+            status_code=200,
+            content=b"0123456",
+        )
+    ),
+)
+@patch(
+    "requests.request",
+    Mock(return_value=Mock(status_code=201)),
+)
+def test_receiving_and_sending_file(new_hire_factory, custom_integration_factory):
+    new_hire = new_hire_factory()
+
+    integration = custom_integration_factory(
+        manifest={
+            "execute": [
+                {
+                    "url": "http://localhost/",
+                    "method": "GET",
+                    "save_as_file": "test.png",
+                },
+                {
+                    "url": "http://localhost/",
+                    "method": "POST",
+                    "files": {"file": "test.png"},
+                },
+            ]
+        }
+    )
+
+    success, _response = integration.execute(new_hire, {})
+
+    assert success is True
+
+
+@pytest.mark.django_db
+@patch(
+    "requests.request",
+    Mock(
+        return_value=Mock(
+            status_code=200,
+            content=b"0123456",
+        )
+    ),
+)
+@patch(
+    "requests.request",
+    Mock(return_value=Mock(status_code=201)),
+)
+def test_receiving_and_sending_file_invalid_lookup(
+    new_hire_factory, custom_integration_factory
+):
+    new_hire = new_hire_factory()
+
+    integration = custom_integration_factory(
+        manifest={
+            "execute": [
+                {
+                    "url": "http://localhost/",
+                    "method": "GET",
+                    "save_as_file": "test.png",
+                },
+                {
+                    "url": "http://localhost/",
+                    "method": "POST",
+                    "files": {"file": "test124.png"},
+                },
+            ]
+        }
+    )
+
+    success, response = integration.execute(new_hire, {})
+
+    assert success is False
+    assert response == "test124.png could not be found in the locally saved files"
 
 
 @pytest.mark.django_db

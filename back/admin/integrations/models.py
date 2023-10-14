@@ -1,5 +1,6 @@
 import time
 import base64
+import io
 import json
 import uuid
 from datetime import timedelta
@@ -177,12 +178,25 @@ class Integration(models.Model):
                 post_data = json.loads(post_data)
             except Exception:
                 pass
+
+        # extract files from locally saved files and send them with the request
+        files_to_send = {}
+        for field_name, file_name in data.get("files", {}).items():
+            try:
+                files_to_send[field_name] = (file_name, self.params["files"][file_name])
+            except KeyError:
+                return (
+                    False,
+                    f"{file_name} could not be found in the locally saved files",
+                )
+
         try:
             response = requests.request(
                 data.get("method", "POST"),
                 url,
                 headers=self.headers(data.get("headers", {})),
                 data=post_data,
+                files=files_to_send,
                 timeout=120,
             )
         except (InvalidJSONError, JSONDecodeError):
@@ -336,8 +350,10 @@ class Integration(models.Model):
     def execute(self, new_hire=None, params=None):
         self.params = params or {}
         self.params["responses"] = []
+        self.params["files"] = {}
         self.new_hire = new_hire
         self.has_user_context = new_hire is not None
+
         if self.has_user_context:
             self.params |= new_hire.extra_fields
             self.new_hire = new_hire
@@ -402,8 +418,17 @@ class Integration(models.Model):
                     pass
                 return False, response
 
+            # save if file, so we can reuse later
+            save_as_file = item.get("save_as_file")
+            if save_as_file is not None:
+                self.params["files"][save_as_file] = io.BytesIO(response.content)
+
             # save json response temporarily to be reused in other parts
-            self.params["responses"].append(response.json())
+            if save_as_file is None:
+                self.params["responses"].append(response.json())
+            else:
+                # if we save a file, then just append an empty dict
+                self.params["responses"].append({})
 
             # store data coming back from response to the user, so we can reuse in other
             # integrations
