@@ -24,6 +24,7 @@ from .models import (
 class PendingAdminTaskFactory(factory.django.DjangoModelFactory):
     assigned_to = factory.SubFactory(AdminFactory)
     slack_user = factory.SubFactory(EmployeeFactory)
+    person_type = PendingAdminTask.PersonType.CUSTOM
 
     class Meta:
         model = PendingAdminTask
@@ -160,6 +161,13 @@ class ConditionToDoFactory(factory.django.DjangoModelFactory):
         if not extracted:
             # Add one to do item for the condition
             obj.condition_to_do.add(ToDoFactory())
+
+
+class ConditionAdminTaskFactory(factory.django.DjangoModelFactory):
+    condition_type = Condition.Type.ADMIN_TASK
+
+    class Meta:
+        model = Condition
 
 
 class ConditionTimedFactory(factory.django.DjangoModelFactory):

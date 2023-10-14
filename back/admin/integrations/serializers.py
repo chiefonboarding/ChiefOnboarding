@@ -1,6 +1,8 @@
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
+from django_q.models import validate_cron
+
 
 # Credit: https://stackoverflow.com/a/42432240
 class ValidateMixin:
@@ -57,7 +59,7 @@ class ManifestExistSerializer(ValidateMixin, serializers.Serializer):
 class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):
     url = serializers.CharField()
     data = serializers.JSONField(required=False, default=dict)
-    headers = serializers.JSONField(required=False, default=dict)
+    headers = serializers.DictField(child=serializers.CharField(), default=dict)
     store_data = serializers.DictField(child=serializers.CharField(), default=dict)
     method = serializers.ChoiceField(
         [
@@ -120,26 +122,29 @@ class ManifestOauthSerializer(ValidateMixin, serializers.Serializer):
     without_code = serializers.BooleanField(required=False)
 
 
-class ManifestSerializer(ValidateMixin, serializers.Serializer):
-    type = serializers.ChoiceField(
-        [
-            ("import_users", "imports users from endpoint"),
-        ],
-        required=False,
-    )
+class WebhookManifestSerializer(ValidateMixin, serializers.Serializer):
     form = ManifestFormSerializer(required=False, many=True)
-    data_from = serializers.CharField(required=False)
-    data_structure = serializers.JSONField(required=False)
     exists = ManifestExistSerializer(required=False)
     execute = ManifestExecuteSerializer(many=True)
-    next_page_token_from = serializers.CharField(required=False)
-    next_page = serializers.CharField(required=False)
-    next_page_from = serializers.CharField(required=False)
-    amount_pages_to_fetch = serializers.IntegerField(required=False)
     post_execute_notification = ManifestPostExecuteNotificationSerializer(
         many=True, required=False
     )
     initial_data_form = ManifestInitialDataFormSerializer(many=True, required=False)
     extra_user_info = ManifestExtraUserInfoFormSerializer(many=True, required=False)
-    headers = serializers.JSONField(required=False)
+    headers = serializers.DictField(child=serializers.CharField(), default=dict)
+    oauth = ManifestOauthSerializer(required=False)
+
+
+class SyncUsersManifestSerializer(ValidateMixin, serializers.Serializer):
+    data_from = serializers.CharField(required=False)
+    data_structure = serializers.DictField(child=serializers.CharField())
+    execute = ManifestExecuteSerializer(many=True)
+    next_page_token_from = serializers.CharField(required=False)
+    next_page = serializers.CharField(required=False)
+    next_page_from = serializers.CharField(required=False)
+    schedule = serializers.CharField(required=False, validators=[validate_cron])
+    action = serializers.ChoiceField([("create", "create"), ("update", "update")])
+    amount_pages_to_fetch = serializers.IntegerField(required=False)
+    initial_data_form = ManifestInitialDataFormSerializer(many=True, required=False)
+    headers = serializers.DictField(child=serializers.CharField(), default=dict)
     oauth = ManifestOauthSerializer(required=False)

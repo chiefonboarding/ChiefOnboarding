@@ -1,4 +1,4 @@
-class GettingUsersError(Exception):
+class FailedPaginatedResponseError(Exception):
     pass
 
 

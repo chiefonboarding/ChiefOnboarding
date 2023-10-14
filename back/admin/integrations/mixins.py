@@ -1,15 +1,19 @@
-from admin.integrations.exceptions import KeyIsNotInDataError
-from django.contrib.auth import get_user_model
-from organization.models import Organization
+from admin.integrations.exceptions import (
+    KeyIsNotInDataError,
+    FailedPaginatedResponseError,
+)
 
 from admin.integrations.utils import get_value_from_notation
 from django.utils.translation import gettext_lazy as _
-from admin.integrations.exceptions import GettingUsersError
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
-class ImportUser:
+class PaginatedResponse:
     """
-    Extension of the `Integration` model. This part is only used to get users
+    Extension of the `Integration` model. Generic mixin used for extracting data
     from a third party API endpoint and format them in a way that we can proccess
     them.
     """
@@ -17,7 +21,7 @@ class ImportUser:
     def __init__(self, integration):
         self.integration = integration
 
-    def extract_users_from_list_response(self, response):
+    def extract_data_from_list_response(self, response):
         # Building list of users from response. Dig into response to get to the users.
         data_from = self.integration.manifest["data_from"]
 
@@ -43,7 +47,7 @@ class ImportUser:
                 except KeyError:
                     # This is unlikely to go wrong - only when api changes or when
                     # configs are being setup
-                    raise KeyIsNotInDataError(
+                    logger.info(
                         _("Notation '%(notation)s' not in %(response)s")
                         % {
                             "notation": notation,
@@ -88,12 +92,14 @@ class ImportUser:
         self.integration.params["NEXT_PAGE_TOKEN"] = token
         return self.integration._replace_vars(next_page)
 
-    def get_import_user_candidates(self, user):
-        success, response = self.integration.execute(user, {})
+    def get_data_from_paginated_response(self):
+        success, response = self.integration.execute()
         if not success:
-            raise GettingUsersError(self.integration.clean_response(response))
+            raise FailedPaginatedResponseError(
+                self.integration.clean_response(response)
+            )
 
-        users = self.extract_users_from_list_response(response)
+        users = self.extract_data_from_list_response(response)
 
         amount_pages_to_fetch = self.integration.manifest.get(
             "amount_pages_to_fetch", 5
@@ -109,7 +115,7 @@ class ImportUser:
                 {"method": "GET", "url": next_page_url}
             )
             if not success:
-                raise GettingUsersError(
+                raise FailedPaginatedResponseError(
                     _("Paginated URL fetch: %(response)s")
                     % {"response": self.integration.clean_response(response)}
                 )
@@ -121,22 +127,7 @@ class ImportUser:
             except KeyError:
                 break
 
-            users += self.extract_users_from_list_response(response)
+            users += self.extract_data_from_list_response(response)
             fetched_pages += 1
 
-        # Remove users that are already in the system or have been ignored
-        existing_user_emails = list(
-            get_user_model().objects.all().values_list("email", flat=True)
-        )
-        ignored_user_emails = Organization.objects.get().ignored_user_emails
-        excluded_emails = (
-            existing_user_emails + ignored_user_emails + ["", None]
-        )  # also add blank emails to ignore
-
-        user_candidates = [
-            user_data
-            for user_data in users
-            if user_data.get("email", "") not in excluded_emails
-        ]
-
-        return user_candidates
+        return users

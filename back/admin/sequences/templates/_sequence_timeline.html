@@ -40,7 +40,19 @@
 
   {% for condition in conditions %}
     {% if condition.condition_type == ConditionType.TODO %}
-      <li style="z-index:{{ 100|add:forloop.revcounter }}">
+      <li>
+        <div class="list-timeline-icon">
+        </div>
+        <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
+          {% include '_sequence_condition.html' %}
+        </div>
+      </li>
+    {% endif %}
+  {% endfor %}
+
+  {% for condition in conditions %}
+    {% if condition.condition_type == ConditionType.ADMIN_TASK %}
+      <li>
         <div class="list-timeline-icon">
         </div>
         <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">

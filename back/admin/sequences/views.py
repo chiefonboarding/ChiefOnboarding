@@ -71,10 +71,9 @@ class SequenceView(LoginRequiredMixin, ManagerPermMixin, DetailView):
         context["title"] = _("Sequence")
         context["subtitle"] = ""
         context["object_list"] = ToDo.templates.all().defer("content")
-        context["condition_form"] = ConditionCreateForm()
+        context["condition_form"] = ConditionCreateForm(sequence=self.object)
         context["todos"] = ToDo.templates.all().defer("content")
-        obj = self.get_object()
-        context["conditions"] = obj.conditions.prefetched()
+        context["conditions"] = self.object.conditions.prefetched()
         return context
 
 
@@ -109,18 +108,27 @@ class SequenceConditionCreateView(LoginRequiredMixin, ManagerPermMixin, CreateVi
     # fake page, we don't need to report back
     success_url = "/health"
 
+    def dispatch(self, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            self.sequence = get_object_or_404(Sequence, pk=self.kwargs.get("pk", -1))
+        return super().dispatch(*args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["sequence"] = self.sequence
+        return kwargs
+
     def form_valid(self, form):
         # add condition to sequence
-        sequence = get_object_or_404(Sequence, pk=self.kwargs.get("pk", -1))
-        form.instance.sequence = sequence
+        form.instance.sequence = self.sequence
         form.save()
         return HttpResponse(headers={"HX-Trigger": "reload-sequence"})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["object"] = get_object_or_404(Sequence, pk=self.kwargs.get("pk", -1))
+        context["object"] = self.sequence
         context["condition_form"] = context["form"]
-        context["todos"] = ToDo.templates.all()
+        context["todos"] = ToDo.templates.all().defer("content")
         return context
 
 
@@ -139,15 +147,25 @@ class SequenceConditionUpdateView(LoginRequiredMixin, ManagerPermMixin, UpdateVi
     # fake page, we don't need to report back
     success_url = "/health"
 
+    def dispatch(self, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            self.sequence = get_object_or_404(
+                Sequence, pk=self.kwargs.get("sequence_pk", -1)
+            )
+        return super().dispatch(*args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["sequence"] = self.sequence
+        return kwargs
+
     def form_valid(self, form):
         form.save()
         return HttpResponse(headers={"HX-Trigger": "reload-sequence"})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["object"] = get_object_or_404(
-            Sequence, pk=self.kwargs.get("sequence_pk", -1)
-        )
+        context["object"] = self.sequence
         context["condition_form"] = context["form"]
         return context
 
@@ -165,9 +183,8 @@ class SequenceTimelineDetailView(LoginRequiredMixin, ManagerPermMixin, DetailVie
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        obj = self.get_object()
-        context["conditions"] = obj.conditions.prefetched()
-        context["todos"] = ToDo.templates.all()
+        context["conditions"] = self.object.conditions.prefetched()
+        context["todos"] = ToDo.templates.all().defer("content")
         return context
 
 

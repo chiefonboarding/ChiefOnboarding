@@ -6,7 +6,9 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
+from django_q.models import Schedule
 
+from admin.integrations.sync_userinfo import SyncUsers
 from admin.integrations.utils import get_value_from_notation
 from admin.integrations.models import Integration
 from organization.models import Notification
@@ -33,13 +35,103 @@ def test_create_integration(client, django_user_model):
         url,
         {
             "name": "test",
-            "manifest": '{"execute": []}',
+            "manifest": '{"form": [],"execute": []}',
             "manifest_type": Integration.ManifestType.WEBHOOK,
         },
     )
 
     assert "Enter a valid JSON." not in response.content.decode()
     assert Integration.objects.filter(integration=Integration.Type.CUSTOM).count() == 1
+
+
+@pytest.mark.django_db
+def test_create_update_sync_integration(client, django_user_model):
+    create_url = reverse("integrations:create")
+
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
+
+    client.post(
+        create_url,
+        {
+            "name": "test",
+            "manifest": '{"action": "create","execute": [],"data_structure": {"first_name": "first_name" }}',  # noqa
+            "manifest_type": Integration.ManifestType.SYNC_USERS,
+        },
+    )
+
+    integration = Integration.objects.first()
+
+    update_url = reverse("integrations:update", args=[integration.id])
+
+    assert (
+        Integration.objects.filter(
+            manifest_type=Integration.ManifestType.SYNC_USERS
+        ).count()
+        == 1
+    )
+    schedule = Schedule.objects.filter(
+        name=f"User sync for integration: {integration.id}"
+    ).first()
+
+    # schedule is not there, since there was no schedule provided
+    assert schedule is None
+
+    # add schedule
+    client.post(
+        update_url,
+        {
+            "name": "test",
+            "manifest": '{"action": "create","execute": [],"data_structure": {"first_name": "first_name" }, "schedule": "* * * * *"}',  # noqa
+            "manifest_type": Integration.ManifestType.SYNC_USERS,
+        },
+    )
+
+    schedule = Schedule.objects.filter(
+        name=f"User sync for integration: {integration.id}"
+    ).first()
+    assert schedule is not None
+    assert schedule.cron == "* * * * *"
+
+    # remove schedule
+    client.post(
+        update_url,
+        {
+            "name": "test",
+            "manifest": '{"action": "create","execute": [],"data_structure": {"first_name": "first_name" }}',  # noqa
+            "manifest_type": Integration.ManifestType.SYNC_USERS,
+        },
+    )
+
+    schedule = Schedule.objects.filter(
+        name=f"User sync for integration: {integration.id}"
+    ).first()
+    assert schedule is None
+
+    # update to change cron
+    client.post(
+        update_url,
+        {
+            "name": "test",
+            "manifest": '{"action": "create","execute": [],"data_structure": {"first_name": "first_name" }, "schedule": "* 1 * * *"}',  # noqa
+            "manifest_type": Integration.ManifestType.SYNC_USERS,
+        },
+    )
+
+    schedule = Schedule.objects.filter(
+        name=f"User sync for integration: {integration.id}"
+    ).first()
+    assert schedule is not None
+    assert schedule.cron == "* 1 * * *"
+
+    # delete to test if schedule is gone
+    url = reverse("integrations:delete", args=[integration.id])
+    client.post(url, follow=True)
+
+    assert not Schedule.objects.filter(
+        name=f"User sync for integration: {integration.id}"
+    ).exists()
 
 
 @pytest.mark.django_db
@@ -285,6 +377,7 @@ def test_integration_refresh_token(
         Mock(return_value=(False, Mock(text="[{'error': 'not_found'}]"))),
     ):
         integration.new_hire = new_hire
+        integration.has_user_context = True
         integration.renew_key()
 
         assert (
@@ -820,4 +913,144 @@ def test_integration_reuse_data_from_previous_request(
 
     assert (
         integration._replace_vars("test {{responses.0.details}}") == "test DOSOMETHING#"
+    )
+
+
+@pytest.mark.django_db
+@patch(
+    "admin.integrations.models.Integration.run_request",
+    Mock(
+        return_value=(
+            True,
+            Mock(
+                json=lambda: [
+                    {"email": "test1@chiefonboarding.com", "external_id": 123},
+                    {"email": "test2@chiefonboarding.com", "external_id": 344},
+                    {"email": "test3@chiefonboarding.com", "external_id": 334},
+                    {"email": "test4@chiefonboarding.com", "external_id": 335},
+                    {"email": "test5@chiefonboarding.com"},
+                ]
+            ),
+        )
+    ),
+)
+def test_integration_sync_data(new_hire_factory, custom_integration_factory):
+    new_hire1 = new_hire_factory(email="test1@chiefonboarding.com")
+    new_hire2 = new_hire_factory(email="test2@chiefonboarding.com")
+    new_hire3 = new_hire_factory(email="test5@chiefonboarding.com")
+    new_hire4 = new_hire_factory(email="test6@chiefonboarding.com")
+
+    assert new_hire1.extra_fields == {}
+    assert new_hire2.extra_fields == {}
+    assert new_hire3.extra_fields == {}
+    assert new_hire4.extra_fields == {}
+
+    integration = custom_integration_factory(
+        manifest_type=Integration.ManifestType.SYNC_USERS,
+        manifest={
+            "execute": [
+                {
+                    "url": "http://localhost/",
+                }
+            ],
+            "data_from": "",
+            "action": "update",
+            "data_structure": {"email": "email", "EXT_ID": "external_id"},
+        },
+    )
+
+    SyncUsers(integration).run()
+
+    new_hire1.refresh_from_db()
+    assert new_hire1.extra_fields == {"EXT_ID": 123}
+
+    new_hire2.refresh_from_db()
+    assert new_hire2.extra_fields == {"EXT_ID": 344}
+
+    # no `external_id` data, so blank
+    new_hire3.refresh_from_db()
+    assert new_hire3.extra_fields == {}
+
+    # not in dataset from the API
+    new_hire4.refresh_from_db()
+    assert new_hire4.extra_fields == {}
+
+
+@pytest.mark.django_db
+@patch(
+    "admin.integrations.models.Integration.run_request",
+    Mock(
+        return_value=(
+            True,
+            Mock(
+                json=lambda: [
+                    {
+                        "email": "test1@chiefonboarding.com",
+                        "firstName": "test1",
+                        "lastName": "1",
+                    },
+                    {
+                        "email": "test2@chiefonboarding.com",
+                        "firstName": "test2",
+                        "lastName": "2",
+                    },
+                    {
+                        "email": "test3@chiefonboarding.com",
+                        "firstName": "test3",
+                        "lastName": "3",
+                    },
+                    {
+                        "email": "test4@chiefonboarding.com",
+                        "firstName": "test4",
+                        "lastName": "4",
+                    },
+                    {"email": "test5@chiefonboarding.com"},
+                ]
+            ),
+        )
+    ),
+)
+def test_integration_sync_data_create_users(
+    new_hire_factory, custom_integration_factory
+):
+    new_hire1 = new_hire_factory(email="test1@chiefonboarding.com")
+
+    assert new_hire1.extra_fields == {}
+
+    integration = custom_integration_factory(
+        manifest_type=Integration.ManifestType.SYNC_USERS,
+        manifest={
+            "execute": [
+                {
+                    "url": "http://localhost/",
+                }
+            ],
+            "data_from": "",
+            "action": "create",
+            "data_structure": {
+                "first_name": "firstName",
+                "last_name": "lastName",
+                "email": "email",
+            },
+        },
+    )
+
+    SyncUsers(integration).run()
+
+    new_hire1.refresh_from_db()
+    # didn't do anything with newhire1 as it only creates users
+    assert new_hire1.extra_fields == {}
+
+    assert get_user_model().objects.all().count() == 4
+    # randomly checking users to make sure their data is correct
+    assert get_user_model().objects.filter(email="test2@chiefonboarding.com").exists()
+    assert (
+        get_user_model().objects.get(email="test3@chiefonboarding.com").first_name
+        == "test3"
+    )
+    assert (
+        get_user_model().objects.get(email="test4@chiefonboarding.com").last_name == "4"
+    )
+    assert (
+        not get_user_model().objects.filter(email="test5@chiefonboarding.com").exists()
     )

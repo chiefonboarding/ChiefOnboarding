@@ -23,6 +23,13 @@
                 <span class="badge bg-blue-lt mt-1">{{ todo.name }}</span>
               {% endfor %}
             </div>
+          {% elif condition.condition_type == ConditionType.ADMIN_TASK %}
+            {% translate "When these admin tasks are completed:" %}
+            <div id="div_id_condition_admin_task">
+              {% for admin_task in condition.condition_admin_tasks.all %}
+                <span class="badge bg-blue-lt mt-1">{{ admin_task.name }}</span>
+              {% endfor %}
+            </div>
           {% elif condition.condition_type == ConditionType.BEFORE %}
             {% blocktranslate with days=condition.days time=condition.time %}{{ days }} days before starting at {{ time }}{% endblocktranslate %}
           {% else %}

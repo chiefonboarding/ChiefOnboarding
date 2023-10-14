@@ -3,12 +3,10 @@ import json
 from crispy_forms.helper import FormHelper
 from django import forms
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
 
 from admin.integrations.utils import get_value_from_notation
 
 from .models import Integration
-from .serializers import ManifestSerializer
 
 
 class IntegrationConfigForm(forms.ModelForm):
@@ -131,13 +129,9 @@ class IntegrationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["manifest_type"].required = True
-
-    def clean_manifest(self):
-        manifest = self.cleaned_data["manifest"]
-        manifest_serializer = ManifestSerializer(data=manifest)
-        if not manifest_serializer.is_valid():
-            raise ValidationError(json.dumps(manifest_serializer.errors))
-        return manifest
+        if self.instance.id:
+            # disable manifest_type when updating field
+            self.fields["manifest_type"].disabled = True
 
 
 class IntegrationExtraArgsForm(forms.ModelForm):

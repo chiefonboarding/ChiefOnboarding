@@ -7,7 +7,7 @@ ChiefOnboarding allows you to create integrations or trigger webhooks that can b
 
 There are two types of integrations:
 1. An integration to trigger a URL on an third party service
-2. An "import users" integration, which allows you to import users from a third party to ChiefOnboarding (manually)
+2. An "sync users" integration, which allows you to import users from a third party to ChiefOnboarding (manually or through a background cron job) or update specific information to the user (for example, save an external ID per user)
 
 ## Integration to trigger a third party url
 Here is an example of a manifest of an integration (in this case to add a user to an Asana team):
@@ -190,14 +190,13 @@ You can then use `{{ responses.0.form_id }}` in any of the following requests in
 * If you are using any of the integrations from the repo at: https://integrations.chiefonboarding.com then you have to validate them yourself. This is a user repository and we do not actively moderate the submissions there. Please always validate the urls where requests are going to make sure it's legit. 
 
 
-## Import user integration
+## Sync users integration
+### Creating users
 You can create custom import integrations to pull users from a third party and put them in ChiefOnboarding. This is fairly universal and will work with most APIs. A sample integration config will look like this:
 
 :::code source="static/import_user_manifest.json" :::
 
 The setup is very similar to what we have for other integrations to trigger a webhook. The most notable differences are:
-
-`"type": "import_users"`: this is to indicate that this integration is only used to import users into ChiefOnboarding.
 
 `data_from`: this is to indicate where the users are located in the response. You can use a dot notation if need to go deep into the json to get the data.
 
@@ -232,8 +231,27 @@ So for the current config, we expect a JSON response from the third party like t
 
 Other values in the JSON will be ignored.
 
-### Paginated response
-Sometimes, we might not get all items at once. We have something to cover that too.
+You can run this integration manually (by going to people -> colleagues -> import... ". If you provide a "schedule" prop (cron notation), then it will run this in the background. It will create the users automatically (default role is "other"). 
+
+```
+{
+    "schedule": "* 1 * * * *"
+}
+```
+
+### Updating users
+This will allow you to save additional data from a third party to your user. This can be helpful in case you need a specific ID in an integration that is tied to this user for example. You cannot update core attributes of a user (such as their email or first name). You can only save extra information to the user, which can then be used in integrations or content boxes. 
+
+An example integration to save the bambooHR user id to the user in ChiefOnboarding:
+
+:::code source="static/sync_user_manifest.json" :::
+
+The schedule prop is mandatory here as it would otherwise never run, you cannot trigger this manually. The other main difference with the import option is the "action". It's "update" in this case.
+You will also have to provide the `email` key in the `data_structure`, so ChiefOnboarding knows how to match the user. If no user can be found with the provided `email`, then it will get skipped.
+
+
+## Paginated response
+Sometimes, we might not get all items at once. We have something to cover that too. This only works for syncing users and importing users.
 
 `amount_pages_to_fetch`: Default: 5. Maximum amount of page to fetch. It will stop earlier if there are no users found anymore. There is a limit to this number. Please see the note below.
 

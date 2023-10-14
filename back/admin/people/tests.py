@@ -2533,7 +2533,6 @@ def test_fetching_employees(
 
     integration = custom_user_import_integration_factory(
         manifest={
-            "type": "import_users",
             "execute": [
                 {"url": "http://localhost:8000/test_api/users", "method": "GET"}
             ],
@@ -2639,7 +2638,6 @@ def test_fetching_employees_paginated_response(
 
     integration = custom_user_import_integration_factory(
         manifest={
-            "type": "import_users",
             "execute": [{"url": "http://localhost/test_api/users", "method": "GET"}],
             "data_from": "directory.employees",
             "data_structure": {
@@ -2776,9 +2774,9 @@ def test_fetching_employees_paginated_response_max_pages(
 
     integration = custom_user_import_integration_factory(
         manifest={
-            "type": "import_users",
             "execute": [{"url": "http://localhost/test_api/users", "method": "GET"}],
             "data_from": "employees",
+            "action": "create",
             "data_structure": {
                 "email": "workEmail",
                 "last_name": "lastName",
@@ -2815,7 +2813,6 @@ def test_fetching_employees_incorrect_notation(
 
     integration = custom_user_import_integration_factory(
         manifest={
-            "type": "import_users",
             "execute": [
                 {"url": "http://localhost:8000/test_api/users", "method": "GET"}
             ],

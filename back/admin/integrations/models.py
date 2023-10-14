@@ -6,8 +6,12 @@ import uuid
 from datetime import timedelta
 
 import requests
+
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.template import Context, Template
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -31,6 +35,10 @@ from requests.exceptions import (
 from twilio.rest import Client
 
 from admin.integrations.utils import get_value_from_notation
+from admin.integrations.serializers import (
+    WebhookManifestSerializer,
+    SyncUsersManifestSerializer,
+)
 from misc.fernet_fields import EncryptedTextField
 from misc.fields import EncryptedJSONField
 from organization.models import Notification
@@ -58,9 +66,13 @@ class IntegrationManager(models.Manager):
 
     def import_users_options(self):
         # only import user items
-        return self.get_queryset().filter(
-            integration=Integration.Type.CUSTOM,
-            manifest_type=Integration.ManifestType.USER_IMPORT,
+        return (
+            self.get_queryset()
+            .filter(
+                integration=Integration.Type.CUSTOM,
+                manifest_type=Integration.ManifestType.SYNC_USERS,
+            )
+            .exclude(manifest__schedule__isnull=False)
         )
 
 
@@ -75,7 +87,7 @@ class Integration(models.Model):
 
     class ManifestType(models.IntegerChoices):
         WEBHOOK = 0, _("Provision user accounts or trigger webhooks")
-        USER_IMPORT = 1, _("Import users")
+        SYNC_USERS = 1, _("Sync users")
 
     name = models.CharField(max_length=300, default="", blank=True)
     integration = models.IntegerField(choices=Type.choices)
@@ -108,8 +120,52 @@ class Integration(models.Model):
     bot_id = models.CharField(max_length=100, default="")
 
     @property
-    def has_user_context(self):
-        return self.manifest_type == Integration.ManifestType.WEBHOOK
+    def schedule_name(self):
+        return f"User sync for integration: {self.id}"
+
+    def clean(self):
+        if not self.manifest:
+            # ignore field if form doesn't have it
+            return
+
+        if self.manifest_type == Integration.ManifestType.WEBHOOK:
+            manifest_serializer = WebhookManifestSerializer(data=self.manifest)
+        else:
+            manifest_serializer = SyncUsersManifestSerializer(data=self.manifest)
+        if not manifest_serializer.is_valid():
+            raise ValidationError({"manifest": json.dumps(manifest_serializer.errors)})
+
+    def save(self, *args, **kwargs):
+        # avoid circular import
+        from admin.integrations.tasks import sync_user_info
+
+        super().save(*args, **kwargs)
+        # update the background job based on the manifest
+        schedule_cron = self.manifest.get("schedule")
+
+        try:
+            schedule_obj = Schedule.objects.get(name=self.schedule_name)
+        except Schedule.DoesNotExist:
+            # Schedule does not exist yet, so create it if specified
+            if schedule_cron:
+                schedule(
+                    sync_user_info,
+                    self.id,
+                    schedule_type=Schedule.CRON,
+                    cron=schedule_cron,
+                    name=self.schedule_name,
+                )
+            return
+
+        # delete if cron was removed
+        if schedule_cron is None:
+            schedule_obj.delete()
+            return
+
+        # if schedule changed, then update
+        if schedule_obj.cron != schedule_cron:
+            schedule_obj.cron = schedule_cron
+            schedule_obj.save()
 
     def run_request(self, data):
         url = self._replace_vars(data["url"])
@@ -291,10 +347,13 @@ class Integration(models.Model):
         # if exceeding the max amounts, then fail
         return False, response
 
-    def execute(self, new_hire, params):
-        self.params = params
+    def execute(self, new_hire=None, params=None):
+        self.params = params or {}
         self.params["responses"] = []
         self.params["files"] = {}
+        self.new_hire = new_hire
+        self.has_user_context = new_hire is not None
+
         if self.has_user_context:
             self.params |= new_hire.extra_fields
             self.new_hire = new_hire
@@ -450,3 +509,8 @@ class Integration(models.Model):
         return response
 
     objects = IntegrationManager()
+
+
+@receiver(post_delete, sender=Integration)
+def delete_schedule(sender, instance, **kwargs):
+    Schedule.objects.filter(name=instance.schedule_name).delete()
