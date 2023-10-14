@@ -1,5 +1,4 @@
 {
-    "form": [],
     "execute": [
         {
             "url": "https://api.bamboohr.com/api/gateway.php/{{COMPANY_ID}}/v1/reports/{{REPORT_ID}}",
@@ -11,13 +10,12 @@
         "Content-Type": "application/json",
         "Authorization": "Basic {{KEY}}:x"
     },
-    "action": "create",
     "data_from": "employees",
     "data_structure": {
-        "email": "workEmail",
-        "last_name": "lastName",
-        "first_name": "firstName"
+        "bamboohr_id": "id"
     },
+    "action": "update",
+    "schedule": "0 * * * *",
     "initial_data_form": [
         {
             "id": "KEY",
