@@ -45,7 +45,7 @@ def test_create_integration(client, django_user_model):
 
 
 @pytest.mark.django_db
-def test_create_sync_integration(client, django_user_model):
+def test_create_update_sync_integration(client, django_user_model):
     create_url = reverse("integrations:create")
 
     client.force_login(
@@ -94,6 +94,21 @@ def test_create_sync_integration(client, django_user_model):
     assert schedule is not None
     assert schedule.cron == "* * * * *"
 
+    # remove schedule
+    client.post(
+        update_url,
+        {
+            "name": "test",
+            "manifest": '{"action": "create","execute": [],"data_structure": {"first_name": "first_name" }}',  # noqa
+            "manifest_type": Integration.ManifestType.SYNC_USERS,
+        },
+    )
+
+    schedule = Schedule.objects.filter(
+        name=f"User sync for integration: {integration.id}"
+    ).first()
+    assert schedule is None
+
     # update to change cron
     client.post(
         update_url,
@@ -104,7 +119,9 @@ def test_create_sync_integration(client, django_user_model):
         },
     )
 
-    schedule.refresh_from_db()
+    schedule = Schedule.objects.filter(
+        name=f"User sync for integration: {integration.id}"
+    ).first()
     assert schedule is not None
     assert schedule.cron == "* 1 * * *"
 

@@ -14,7 +14,6 @@ from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from users.mixins import AdminPermMixin, LoginRequiredMixin
-from django_q.models import Schedule
 
 from .forms import IntegrationExtraArgsForm, IntegrationForm
 from .models import Integration
@@ -90,12 +89,6 @@ class IntegrationDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
         context["title"] = _("Delete integration")
         context["subtitle"] = _("settings")
         return context
-
-    def form_valid(self, form):
-        integration = self.object
-        # delete background worker schedule if it exists
-        Schedule.objects.filter(name=integration.schedule_name).delete()
-        return super().form_valid(form)
 
 
 class IntegrationUpdateExtraArgsView(

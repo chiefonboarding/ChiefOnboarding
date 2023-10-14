@@ -33,8 +33,8 @@ class SyncUsers(PaginatedResponse):
 
     def update_users(self):
         # Email param is currently hardcoded, no way to change
-        emails = [user["email"] for user in self.users]
         users_dict = {u["email"]: u for u in self.users}
+        emails = list(users_dict.keys())
 
         user_objects = get_user_model().objects.filter(email__in=emails)
         for user in user_objects:
