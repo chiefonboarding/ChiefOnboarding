@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 
-from admin.integrations.exceptions import FailedPaginatedResponseError
 from admin.integrations.mixins import PaginatedResponse
 from admin.people.serializers import UserImportSerializer
 from organization.models import Organization
