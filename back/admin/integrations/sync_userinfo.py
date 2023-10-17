@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 
+from admin.integrations.exceptions import FailedPaginatedResponseError
 from admin.integrations.mixins import PaginatedResponse
 from admin.people.serializers import UserImportSerializer
 from organization.models import Organization
@@ -20,9 +21,18 @@ class SyncUsers(PaginatedResponse):
 
     def __init__(self, integration):
         super().__init__(integration)
-        self.users = self.get_data_from_paginated_response()
+        try:
+            self.users = self.get_data_from_paginated_response()
+        except FailedPaginatedResponseError:
+            logger.info("Couldn't process request, request failed")
+        except Exception:
+            logger.info("Couldn't process request, unknown error")
+
 
     def run(self):
+        if not self.users:
+            return
+
         action = self.integration.manifest.get("action", "create")
         if action == "create":
             new_users = self.get_import_user_candidates()

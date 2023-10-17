@@ -386,16 +386,17 @@ class Integration(models.Model):
                     return False, response
 
             # No need to retry or log when we are importing users
-            if not success and self.has_user_context:
-                response = self.clean_response(response=response)
-                if polling:
-                    response = "Polling timed out: " + response
-                Notification.objects.create(
-                    notification_type=Notification.Type.FAILED_INTEGRATION,
-                    extra_text=self.name,
-                    created_for=new_hire,
-                    description=f"Execute url ({item['url']}): {response}",
-                )
+            if not success:
+                if self.has_user_context:
+                    response = self.clean_response(response=response)
+                    if polling:
+                        response = "Polling timed out: " + response
+                    Notification.objects.create(
+                        notification_type=Notification.Type.FAILED_INTEGRATION,
+                        extra_text=self.name,
+                        created_for=new_hire,
+                        description=f"Execute url ({item['url']}): {response}",
+                    )
                 # Retry url in one hour
                 try:
                     schedule(
