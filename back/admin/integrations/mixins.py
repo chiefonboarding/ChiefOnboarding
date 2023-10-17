@@ -124,7 +124,7 @@ class PaginatedResponse:
             try:
                 data_from = self.integration.manifest["data_from"]
                 get_value_from_notation(data_from, response.json())
-            except KeyError:
+            except KeyIsNotInDataError:
                 break
 
             users += self.extract_data_from_list_response(response)

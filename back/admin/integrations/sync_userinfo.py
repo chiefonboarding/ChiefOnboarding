@@ -21,18 +21,9 @@ class SyncUsers(PaginatedResponse):
 
     def __init__(self, integration):
         super().__init__(integration)
-        try:
-            self.users = self.get_data_from_paginated_response()
-        except FailedPaginatedResponseError:
-            logger.info("Couldn't process request, request failed")
-        except Exception:
-            logger.info("Couldn't process request, unknown error")
-
+        self.users = self.get_data_from_paginated_response()
 
     def run(self):
-        if not self.users:
-            return
-
         action = self.integration.manifest.get("action", "create")
         if action == "create":
             new_users = self.get_import_user_candidates()
