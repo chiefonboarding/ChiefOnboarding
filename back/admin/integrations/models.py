@@ -136,9 +136,6 @@ class Integration(models.Model):
             raise ValidationError({"manifest": json.dumps(manifest_serializer.errors)})
 
     def save(self, *args, **kwargs):
-        # avoid circular import
-        from admin.integrations.tasks import sync_user_info
-
         super().save(*args, **kwargs)
         # update the background job based on the manifest
         schedule_cron = self.manifest.get("schedule")
@@ -149,7 +146,7 @@ class Integration(models.Model):
             # Schedule does not exist yet, so create it if specified
             if schedule_cron:
                 schedule(
-                    sync_user_info,
+                    "admin.integrations.tasks.sync_user_info",
                     self.id,
                     schedule_type=Schedule.CRON,
                     cron=schedule_cron,
@@ -424,7 +421,7 @@ class Integration(models.Model):
                 self.params["files"][save_as_file] = io.BytesIO(response.content)
 
             # save json response temporarily to be reused in other parts
-            if save_as_file is None:
+            if save_as_file is None and not isinstance(response, str):
                 self.params["responses"].append(response.json())
             else:
                 # if we save a file, then just append an empty dict
