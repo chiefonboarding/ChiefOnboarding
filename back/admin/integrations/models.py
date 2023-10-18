@@ -422,9 +422,9 @@ class Integration(models.Model):
                 self.params["files"][save_as_file] = io.BytesIO(response.content)
 
             # save json response temporarily to be reused in other parts
-            if save_as_file is None and not isinstance(response, str):
+            try:
                 self.params["responses"].append(response.json())
-            else:
+            except:  # noqa E722
                 # if we save a file, then just append an empty dict
                 self.params["responses"].append({})
 
