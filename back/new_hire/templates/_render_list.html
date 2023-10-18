@@ -1,0 +1,17 @@
+{% load general %}
+{% if blockstyle == 'ordered' and items %}
+  <ol>
+{% endif %}
+{% if blockstyle == 'unordered' and items %}
+  <ul>
+{% endif %}
+{% for item in items %}
+  <li>{{item.content|safe|personalize:user}}</li>
+  {% include "_render_list.html" with items=item.items %}
+{% endfor %}
+{% if blockstyle == 'unordered' and items %}
+  </ul>
+{% endif %}
+{% if blockstyle == 'ordered' and items %}
+  </ol>
+{% endif %}
