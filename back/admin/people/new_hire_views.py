@@ -323,11 +323,13 @@ class NewHireSequenceView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Deta
                     condition_type=Condition.Type.AFTER, days__gte=new_hire.workday
                 )
                 | conditions.filter(condition_type=Condition.Type.TODO)
+                | conditions.filter(condition_type=Condition.Type.ADMIN_TASK)
             )
             .annotate(
                 days_order=Case(
                     When(condition_type=Condition.Type.BEFORE, then=F("days") * -1),
                     When(condition_type=Condition.Type.TODO, then=99999),
+                    When(condition_type=Condition.Type.ADMIN_TASK, then=99999),
                     default=F("days"),
                     output_field=IntegerField(),
                 )
@@ -342,6 +344,9 @@ class NewHireSequenceView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Deta
         context["completed_todos"] = ToDoUser.objects.filter(
             user=new_hire, completed=True
         ).values_list("to_do__pk", flat=True)
+        context["completed_admin_tasks"] = AdminTask.objects.filter(
+            new_hire=new_hire, completed=True
+        ).values_list("based_on__pk", flat=True)
         return context
 
 
