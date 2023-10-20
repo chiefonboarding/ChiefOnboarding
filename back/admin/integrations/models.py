@@ -320,7 +320,6 @@ class Integration(models.Model):
 
         # add extra fields directly to params
         self.params = self.new_hire.extra_fields
-        print(self.params)
 
         for item in revoke_manifest["execute"]:
             success, response = self.run_request(item)
