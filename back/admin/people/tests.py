@@ -1561,7 +1561,7 @@ def test_new_hire_access_per_integration(
     ):
         # New hire already has an account (email matches with return)
         url = reverse(
-            "people:new_hire_check_integration", args=[new_hire1.id, integration1.id]
+            "people:user_check_integration", args=[new_hire1.id, integration1.id]
         )
 
         response = client.get(url)
@@ -1574,7 +1574,7 @@ def test_new_hire_access_per_integration(
     ):
         # New hire has no account
         url = reverse(
-            "people:new_hire_check_integration", args=[new_hire2.id, integration1.id]
+            "people:user_check_integration", args=[new_hire2.id, integration1.id]
         )
 
         response = client.get(url)
@@ -1587,7 +1587,7 @@ def test_new_hire_access_per_integration(
     ):
         # New hire has no account
         url = reverse(
-            "people:new_hire_check_integration", args=[new_hire2.id, integration1.id]
+            "people:user_check_integration", args=[new_hire2.id, integration1.id]
         )
 
         response = client.get(url)
@@ -1628,9 +1628,7 @@ def test_new_hire_access_per_integration_config_form(
     integration1.save()
 
     # New hire already has an account (email matches with return)
-    url = reverse(
-        "people:new_hire_give_integration", args=[new_hire1.id, integration1.id]
-    )
+    url = reverse("people:user_give_integration", args=[new_hire1.id, integration1.id])
     # Show form to admin
     response = client.get(url)
 
@@ -1690,9 +1688,7 @@ def test_new_hire_access_per_integration_post(
     integration1.save()
 
     # New hire already has an account (email matches with return)
-    url = reverse(
-        "people:new_hire_give_integration", args=[new_hire1.id, integration1.id]
-    )
+    url = reverse("people:user_give_integration", args=[new_hire1.id, integration1.id])
     # Show form to admin
     response = client.post(url, data={"TEAM_ID": "test_team"}, follow=True)
 

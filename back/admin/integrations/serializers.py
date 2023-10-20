@@ -85,6 +85,12 @@ class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):
         return data
 
 
+class ManifestRevokeSerializer(ValidateMixin, serializers.Serializer):
+    execute = ManifestExecuteSerializer(many=True)
+    verify = serializers.BooleanField(default=True)
+    message = serializers.CharField(required=False, default="")
+
+
 class ManifestPostExecuteNotificationSerializer(ValidateMixin, serializers.Serializer):
     type = serializers.ChoiceField(
         [
@@ -125,6 +131,7 @@ class ManifestOauthSerializer(ValidateMixin, serializers.Serializer):
 class WebhookManifestSerializer(ValidateMixin, serializers.Serializer):
     form = ManifestFormSerializer(required=False, many=True)
     exists = ManifestExistSerializer(required=False)
+    revoke = ManifestRevokeSerializer(required=False)
     execute = ManifestExecuteSerializer(many=True)
     post_execute_notification = ManifestPostExecuteNotificationSerializer(
         many=True, required=False

@@ -45,7 +45,7 @@ For `choice`:
 
 
 ### Exists
-Exists is an option to check if a user is already part of a team. If you add this property to your manifest then it will show up under new hire -> access. From there, you will be able to manaully enable/disable an account for them. Generally, you should skip this option if you are making any calls not related to account provisioning.
+Exists is an option to check if a user is already part of a team. If you add this property to your manifest then it will show up under new hire -> access. From there, you will be able to manually enable/disable an account for them. Generally, you should skip this option if you are making any calls not related to account provisioning.
 
 `url`: The url to check if the user exists. Everything that comes back is parsed to a string and then checked against.
 
@@ -56,6 +56,17 @@ Exists is an option to check if a user is already part of a team. If you add thi
 `headers`: (optionally) This will overwrite the default headers.
 
 `fail_when_4xx_response_code`: Default: True. If the server response with a 4xx status code, then that's considered a failing request. In some cases, apis will return a 404 if the user does not exist. In that case, set this to `False`, so it can check for the `expected` value.
+
+
+### Revoke
+Revoke is an option to revoke access of a user to a third party. If you add this property to your manifest then you will be able to revoke access through the dashboard. Generally, you should skip this option if you are making any calls not related to account provisioning.
+
+`execute`: See below for the `Execute` part.
+
+`verify`: Default: True. Checks if the user was successfully deleted.
+
+`message`: (optionally) This will be shown to the user when they want to delete a user. Could be used as an extra heads-up.
+
 
 ### Execute
 These requests will be ran when this integration gets triggered.

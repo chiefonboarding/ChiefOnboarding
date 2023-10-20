@@ -192,6 +192,11 @@ class User(AbstractBaseUser):
         Preboarding, through="PreboardingUser", related_name="user_preboardings"
     )
     badges = models.ManyToManyField(Badge, related_name="user_introductions")
+    integrations = models.ManyToManyField(
+        "integrations.Integration",
+        through="UserIntegration",
+        related_name="user_integrations",
+    )
 
     # Conditions copied over from chosen sequences
     conditions = models.ManyToManyField(Condition)
@@ -643,6 +648,16 @@ class NewHireWelcomeMessage(models.Model):
         get_user_model(), related_name="welcome_colleague", on_delete=models.CASCADE
     )
     message = models.TextField()
+
+
+class UserIntegration(models.Model):
+    # logging when an integration was added and revoked
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    integration = models.ForeignKey(
+        "integrations.Integration", on_delete=models.CASCADE
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    revoked_at = models.DateTimeField(null=True, blank=True)
 
 
 class OTPRecoveryKey(models.Model):

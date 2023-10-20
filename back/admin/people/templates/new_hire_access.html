@@ -8,26 +8,28 @@
 
 {% block content %}
 {% include "_new_hire_menu.html" %}
-<div class="row">
-  {% for integration in integrations %}
-  <div class="column col-3 integration-{{integration.id}} mb-2">
-    {% include "_new_hire_access_card.html" %}
+{% if integrations %}
+  <div class="row">
+    {% for integration in integrations %}
+    <div class="column col-3 integration-{{integration.id}} mb-2">
+      {% include "_user_access_card.html" %}
+    </div>
+    {% endfor %}
   </div>
-  {% empty %}
-  <div class="card">
+{% else %}
+  <div class="card mt-3">
     <div class="card-body">
       {% translate "You have not enabled any integrations for account provisitioning." %}
     </div>
   </div>
-  {% endfor %}
-</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
 <script>
   {% for integration in integrations %}
     $.ajax({
-      url: "{% url 'people:new_hire_check_integration' object.id integration.id %}",
+      url: "{% url 'people:user_check_integration' object.id integration.id %}",
       method: "get",
       headers: {
         'X-CSRFToken': '{{ csrf_token }}'

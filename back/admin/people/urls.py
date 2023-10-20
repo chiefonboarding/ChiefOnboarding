@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import new_hire_views, views
+from . import new_hire_views, views, access_views
 
 app_name = "people"
 urlpatterns = [
@@ -63,18 +63,23 @@ urlpatterns = [
     ),
     path(
         "new_hire/<int:pk>/access/",
-        new_hire_views.NewHireAccessView.as_view(),
+        access_views.NewHireAccessView.as_view(),
         name="new_hire_access",
     ),
     path(
-        "new_hire/<int:pk>/check_access/<int:integration_id>/",
-        new_hire_views.NewHireCheckAccessView.as_view(),
-        name="new_hire_check_integration",
+        "user/<int:pk>/check_access/<int:integration_id>/",
+        access_views.UserCheckAccessView.as_view(),
+        name="user_check_integration",
     ),
     path(
         "new_hire/<int:pk>/give_access/<int:integration_id>/",
-        new_hire_views.NewHireGiveAccessView.as_view(),
-        name="new_hire_give_integration",
+        access_views.UserGiveAccessView.as_view(),
+        name="user_give_integration",
+    ),
+    path(
+        "new_hire/<int:pk>/revoke_access/<int:integration_id>/",
+        access_views.UserRevokeAccessView.as_view(),
+        name="revoke_access",
     ),
     path(
         "new_hire/<int:pk>/task/<slug:type>/",
