@@ -781,7 +781,10 @@ def test_new_hire_delete(client, django_user_model, new_hire_factory):
 
     url = reverse("people:delete", args=[new_hire1.id])
     response = client.get(url)
-    assert "Are you sure you want to delete this user? You have two options here:" in response.content.decode()
+    assert (
+        "Are you sure you want to delete this user? You have two options here:"
+        in response.content.decode()
+    )
     response = client.post(url, follow=True)
 
     assert django_user_model.objects.all().count() == 1
@@ -2050,7 +2053,10 @@ def test_colleague_delete(client, django_user_model, employee_factory):
 
     url = reverse("people:delete", args=[emp1.id])
     response = client.get(url)
-    assert "Are you sure you want to delete this user? You have two options here:" not in response.content.decode()
+    assert (
+        "Are you sure you want to delete this user? You have two options here:"
+        not in response.content.decode()
+    )
 
     response = client.post(url, follow=True)
 
