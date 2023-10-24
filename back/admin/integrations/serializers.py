@@ -86,9 +86,17 @@ class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):
 
 
 class ManifestRevokeSerializer(ValidateMixin, serializers.Serializer):
-    execute = ManifestExecuteSerializer(many=True)
-    verify = serializers.BooleanField(default=True)
-    message = serializers.CharField(required=False, default="")
+    url = serializers.CharField()
+    data = serializers.JSONField(required=False, default=dict)
+    headers = serializers.DictField(child=serializers.CharField(), default=dict)
+    method = serializers.ChoiceField(
+        [
+            ("HEAD", "HEAD"),
+            ("GET", "GET"),
+            ("POST", "POST"),
+            ("PUT", "PUT"),
+        ]
+    )
 
 
 class ManifestPostExecuteNotificationSerializer(ValidateMixin, serializers.Serializer):
@@ -131,7 +139,7 @@ class ManifestOauthSerializer(ValidateMixin, serializers.Serializer):
 class WebhookManifestSerializer(ValidateMixin, serializers.Serializer):
     form = ManifestFormSerializer(required=False, many=True)
     exists = ManifestExistSerializer(required=False)
-    revoke = ManifestRevokeSerializer(required=False)
+    revoke = ManifestRevokeSerializer(required=False, many=True)
     execute = ManifestExecuteSerializer(many=True)
     post_execute_notification = ManifestPostExecuteNotificationSerializer(
         many=True, required=False

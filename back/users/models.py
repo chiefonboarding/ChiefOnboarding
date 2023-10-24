@@ -651,13 +651,15 @@ class NewHireWelcomeMessage(models.Model):
 
 
 class UserIntegration(models.Model):
-    # logging when an integration was added and revoked
+    # logging when an integration was enabled and revoked
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     integration = models.ForeignKey(
         "integrations.Integration", on_delete=models.CASCADE
     )
-    created_at = models.DateTimeField(auto_now_add=True)
-    revoked_at = models.DateTimeField(null=True, blank=True)
+    revoked = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ["user", "integration"]
 
 
 class OTPRecoveryKey(models.Model):

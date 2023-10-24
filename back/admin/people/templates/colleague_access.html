@@ -2,12 +2,7 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 
-{% block actions %}
-  {% include "_new_hire_settings_menu.html" %}
-{% endblock %}
-
 {% block content %}
-{% include "_new_hire_menu.html" %}
 {% if integrations %}
   <div class="row">
     {% for integration in integrations %}

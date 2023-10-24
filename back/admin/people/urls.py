@@ -72,14 +72,19 @@ urlpatterns = [
         name="user_check_integration",
     ),
     path(
-        "new_hire/<int:pk>/give_access/<int:integration_id>/",
+        "user/<int:pk>/check_access/<int:integration_id>/compact/",
+        access_views.UserCheckAccessView.as_view(),
+        name="user_check_integration_compact",
+    ),
+    path(
+        "user/<int:pk>/give_access/<int:integration_id>/",
         access_views.UserGiveAccessView.as_view(),
         name="user_give_integration",
     ),
     path(
-        "new_hire/<int:pk>/revoke_access/<int:integration_id>/",
-        access_views.UserRevokeAccessView.as_view(),
-        name="revoke_access",
+        "user/<int:pk>/toggle_access/<int:integration_id>/",
+        access_views.UserToggleAccessView.as_view(),
+        name="toggle_access",
     ),
     path(
         "new_hire/<int:pk>/task/<slug:type>/",
@@ -100,11 +105,6 @@ urlpatterns = [
         "new_hire/<int:pk>/extra_info/",
         new_hire_views.NewHireExtraInfoUpdateView.as_view(),
         name="new_hire_extra_info",
-    ),
-    path(
-        "new_hire/<int:pk>/delete/",
-        new_hire_views.NewHireDeleteView.as_view(),
-        name="delete",
     ),
     path(
         "new_hire/<int:pk>/migrate_to_normal/",
@@ -143,6 +143,11 @@ urlpatterns = [
         name="sync-slack",
     ),
     path(
+        "colleagues/<int:pk>/access/",
+        access_views.ColleagueAccessView.as_view(),
+        name="colleague_access",
+    ),
+    path(
         "colleagues/<int:pk>/connect_to_slack/",
         views.ColleagueGiveSlackAccessView.as_view(),
         name="connect-to-slack",
@@ -153,11 +158,6 @@ urlpatterns = [
         name="toggle-portal-access",
     ),
     path("colleagues/<int:pk>/", views.ColleagueUpdateView.as_view(), name="colleague"),
-    path(
-        "colleagues/<int:pk>/delete/",
-        views.ColleagueDeleteView.as_view(),
-        name="colleague_delete",
-    ),
     path(
         "colleagues/<int:pk>/resource/",
         views.ColleagueResourceView.as_view(),
@@ -177,6 +177,16 @@ urlpatterns = [
         "colleagues/<int:pk>/import/users/",
         views.ColleagueImportFetchUsersHXView.as_view(),
         name="import-users-hx",
+    ),
+    path(
+        "colleagues/<int:pk>/delete/",
+        access_views.UserDeleteView.as_view(),
+        name="delete",
+    ),
+    path(
+        "colleagues/<int:pk>/revoke/",
+        access_views.UserRevokeAllAccessView.as_view(),
+        name="revoke_all_access",
     ),
     path(
         "colleagues/import/ignore/",

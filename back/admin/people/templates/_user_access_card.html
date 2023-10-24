@@ -5,40 +5,29 @@
       <h3 class="card-title">
       {{ integration.name }}
       </h3>
-      {% if active %}
-        <div style="color: green; margin-left: 11px; margin-top: 3px;">
-          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-             <circle cx="12" cy="12" r="9"></circle>
-             <path d="M9 12l2 2l4 -4"></path>
-          </svg>
-        </div>
-      {% endif %}
     </div>
-    <div class="d-flex">
-      <div class="dropup">
-        <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open condition options">
-         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-dots-vertical" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="#009988" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    {% if integration.skip_user_provisioning %}
+      <div class="d-flex" style="margin-left: 10px" aria-label="Manual integration - requires additional admin action" data-microtip-position="top" role="tooltip">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+          <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+          <path d="M12 9h.01" />
+          <path d="M11 12h1v4h1" />
+        </svg>
+      </div>
+    {% endif %}
+
+    {% if active %}
+      <div class="d-flex">
+        <a hx-post="{% url 'people:toggle_access' object.id integration.id %}" hx-confirm="Are you sure you want to remove access for this user for this integration?" hx-target=".integration-{{integration.id}}" aria-label="Remove third party access" data-microtip-position="top" role="tooltip" style="cursor: pointer; margin-left: 10px;" class="nav-link d-flex lh-1 text-reset p-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-bolt-off" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="indianred" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-            <circle cx="12" cy="12" r="1" />
-            <circle cx="12" cy="19" r="1" />
-            <circle cx="12" cy="5" r="1" />
+            <path d="M3 3l18 18" />
+            <path d="M15.212 15.21l-4.212 5.79v-7h-6l3.79 -5.21m1.685 -2.32l2.525 -3.47v6m1 1h5l-2.104 2.893" />
           </svg>
         </a>
-        <div class="dropdown-menu dropdown-menu-end">
-          {% if integration.skip_user_provisioning %}
-            <form method="post" action="{% url 'people:revoke_access' user.id integration.id %}">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-white w-100">
-                {% translate "Revoke access" %}
-              </button>
-            </form>
-          {% else %}
-            <a href="{% url 'people:revoke_access' object.id integration.id %}" class="dropdown-item">{% translate "Revoke access" %}</a>
-          {% endif %}
-        </div>
       </div>
-    </div>
+    {% endif %}
   </div>
   <div class="card-footer">
     {% if loading %}
@@ -56,14 +45,11 @@
         </button>
       {% else %}
         {% if integration.skip_user_provisioning %}
-          <form method="post" action="{% url 'people:user_give_integration' object.id integration.id %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-white w-100">
-              {% translate "Set manually activated" %}
-            </button>
-          </form>
+          <button type="submit" class="btn btn-white w-100" hx-post="{% url 'people:toggle_access' object.id integration.id %}" hx-target=".integration-{{integration.id}}">
+            {% translate "Set manually activated" %}
+          </button>
         {% else %}
-          <a href="{% url 'people:user_give_integration' object.id integration.id %}" class="btn btn-white w-100">
+          <a {% if needs_user_info %}href="{% url 'people:user_give_integration' object.id integration.id %}"{% else %}hx-post="{% url 'people:toggle_access' object.id integration.id %}" hx-confirm="Are you sure you want to give this user access to this integration?" hx-target=".integration-{{integration.id}}"{% endif %} class="btn btn-white w-100">
             {% translate "Give access" %}
           </a>
         {% endif %}

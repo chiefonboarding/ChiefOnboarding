@@ -115,7 +115,7 @@ class Integration(models.Model):
         default=uuid.uuid4, editable=False, unique=True
     )
 
-    manifest = models.JSONField(default=dict)
+    manifest = models.JSONField(default=dict, null=True, blank=True)
     extra_args = EncryptedJSONField(default=dict)
     enabled_oauth = models.BooleanField(default=False)
 
@@ -150,6 +150,11 @@ class Integration(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
+
+        # skip if it's not a sync user integration (no background jobs for the others)
+        if self.manifest_type != Integration.ManifestType.SYNC_USERS:
+            return
+
         # update the background job based on the manifest
         schedule_cron = self.manifest.get("schedule")
 
@@ -286,9 +291,14 @@ class Integration(models.Model):
         if self.skip_user_provisioning:
             from users.models import UserIntegration
 
-            return UserIntegration.objects.filter(
-                user=new_hire, integration=self, revoked_at__isnull=True
-            ).exists()
+            try:
+                user_integration = UserIntegration.objects.get(
+                    user=new_hire, integration=self
+                )
+            except UserIntegration.DoesNotExist:
+                return False
+
+            return not user_integration.revoked
 
         self.new_hire = new_hire
         self.has_user_context = new_hire is not None
@@ -303,6 +313,21 @@ class Integration(models.Model):
             return None
 
         return self._replace_vars(self.manifest["exists"]["expected"]) in response.text
+
+    def needs_user_info(self, user):
+        # avoid circular import
+        from admin.integrations.forms import IntegrationExtraUserInfoForm
+
+        if self.skip_user_provisioning:
+            return False
+
+        integration_config_form = self.config_form()
+        # ignores items that were prefilled by an admin
+        user_details_form = IntegrationExtraUserInfoForm(
+            instance=user,
+            missing_info=self.manifest.get("extra_user_info", []),
+        )
+        return len(integration_config_form.fields) + len(user_details_form.fields)
 
     def revoke_user(self, user):
         if self.skip_user_provisioning:

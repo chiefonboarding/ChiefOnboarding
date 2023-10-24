@@ -1,0 +1,68 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-6">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">{% blocktranslate with full_name=object.full_name %}Are you sure you want to delete {{ full_name }}?{% endblocktranslate %}</h3>
+      </div>
+      <div class="card-body">
+        {% if object.role == UserRole.NEWHIRE %}
+          <p>{% translate "Are you sure you want to delete this user? You have two options here:" %}</p>
+          <ol>
+            <li>{% translate "Move them to a normal account, so they keep having access to things like the colleagues page and resources." %}</li>
+            <li>{% translate "Completely remove them. Access to ChiefOnboarding will be revoke entirely. Third party accounts remain." %}</li>
+          </ol>
+        {% else %}
+          <p>{% translate "Are you sure you want to delete this user?" %}</p>
+        {% endif %}
+        {% if manual_provisioned_items %}
+          <p>{% translate "If you want to remove this user then you will have to revoke these items manually (no revoke option specified through manifest)" %}</p>
+          <ol>
+          {% for manual in manual_provisioned_items %}
+            <li>{{manual.integration.name}}</li>
+          {% endfor %}
+          </ol>
+        {% endif %}
+        {% if automated_provisioned_items %}
+          <p>{% translate "Connected user accounts. Click on 'revoke all' to revoke them all." %}</p>
+
+          {% for automated in automated_provisioned_items %}
+          <div class="table-responsive" id="access-table">
+            <table class="table card-table table-vcenter">
+              <tbody>
+                <tr>
+                  <td class="w-1 pe-0" hx-trigger="load" hx-get="{% url 'people:user_check_integration_compact' object.id automated.id %}">
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                  </td>
+                  <td class="w-100">
+                    {{ automated.name }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          {% endfor %}
+          <button class="mt-2 mb-2 btn btn-danger btn-sm" hx-select="#access-table" hx-target="#access-table" hx-post="{% url 'people:revoke_all_access' object.id %}">Revoke all access</button>
+          <p>This does not revoke access from the manually created integrations</p>
+        {% endif %}
+
+      </div>
+      <div class="card-footer text-end">
+        <form method="post" style="display:inline-block" class="mb-0">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">{% translate "Delete account" %}</button>
+        </form>
+        {% if object.role == UserRole.NEWHIRE %}
+        <form method="post" style="display:inline-block" class="mb-0" action="{% url 'people:migrate-to-normal' object.id %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-danger">{% translate "Migrate account to normal account" %}</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,9 +1,12 @@
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
+from django.views.generic import View
 from django.views.generic.detail import DetailView
-from django.utils import timezone
+from django.views.generic.edit import DeleteView
+from django.urls import reverse_lazy
 
 from admin.integrations.forms import IntegrationExtraUserInfoForm
 from admin.integrations.models import Integration
@@ -28,10 +31,66 @@ class NewHireAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Detail
         return context
 
 
+class ColleagueAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
+    template_name = "colleague_access.html"
+    model = get_user_model()
+    context_object_name = "object"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = self.object.full_name
+        context["subtitle"] = _("Employee")
+        context["loading"] = True
+        context["integrations"] = Integration.objects.account_provision_options()
+        return context
+
+
+class UserDeleteView(
+    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, SuccessMessageMixin, DeleteView
+):
+    template_name = "user_delete.html"
+    queryset = get_user_model().objects.all()
+    success_url = reverse_lazy("people:new_hires")
+    context_object_name = "object"
+    success_message = _("User has been removed")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        provision_options = Integration.objects.account_provision_options()
+        context["automated_provisioned_items"] = provision_options.exclude(
+            manifest_type=Integration.ManifestType.MANUAL_USER_PROVISIONING
+        )
+        context["manual_provisioned_items"] = UserIntegration.objects.filter(
+            user=self.object, revoked=False
+        ).select_related("integration")
+        return context
+
+
+class UserRevokeAllAccessView(
+    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, SuccessMessageMixin, View
+):
+    def post(self, request, *args, **kwargs):
+        print(self.kwargs.get("pk", -1))
+        user = get_object_or_404(get_user_model(), id=self.kwargs.get("pk", -1))
+        for integration in Integration.objects.account_provision_options().exclude(
+            manifest_type=Integration.ManifestType.MANUAL_USER_PROVISIONING
+        ):
+            if integration.user_exists(user):
+                integration.revoke_user(user)
+
+        return redirect("people:delete", user.id)
+
+
 class UserCheckAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "_user_access_card.html"
     model = get_user_model()
     context_object_name = "object"
+
+    def get_template_names(self):
+        if "compact" in self.request.path:
+            return ["_user_access_card_compact.html"]
+        else:
+            return ["_user_access_card.html"]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -41,6 +100,7 @@ class UserCheckAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Deta
         found_user = integration.user_exists(self.object)
         context["integration"] = integration
         context["active"] = found_user
+        context["needs_user_info"] = integration.needs_user_info(self.object)
         return context
 
 
@@ -54,18 +114,6 @@ class UserGiveAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Detai
             Integration, id=self.kwargs.get("integration_id", -1)
         )
         user = self.get_object()
-
-        # user added access manually, so just log it
-        if integration.skip_user_provisioning:
-            # this should only very rarely occur
-            if UserIntegration.objects.filter(
-                user=user, integration=integration, revoked_at__isnull=True
-            ).exists():
-                return redirect("people:new_hire_access", pk=user.id)
-
-            # create integration if we don't have an open one
-            UserIntegration.objects.create(user=user, integration=integration)
-            return redirect("people:new_hire_access", pk=user.id)
 
         integration_config_form = integration.config_form(request.POST)
 
@@ -89,7 +137,10 @@ class UserGiveAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Detai
                 messages.error(request, _("Account could not be created"))
                 messages.error(request, error)
 
-            return redirect("people:new_hire_access", pk=user.id)
+            if user.role == get_user_model().Role.NEWHIRE:
+                return redirect("people:new_hire_access", user.id)
+            else:
+                return redirect("people:colleague_access", user.id)
 
         else:
             return render(
@@ -119,46 +170,49 @@ class UserGiveAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Detai
         return context
 
 
-class UserRevokeAccessView(
-    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView
-):
-    template_name = "revoke_user_access.html"
-    model = get_user_model()
-    context_object_name = "object"
-
+class UserToggleAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, View):
     def post(self, request, *args, **kwargs):
         integration = get_object_or_404(
             Integration, id=self.kwargs.get("integration_id", -1)
         )
-        user = self.get_object()
+        user = get_object_or_404(get_user_model(), id=self.kwargs.get("pk", -1))
 
-        # user added access manually, so just log it being revoked
+        # user added/revoked access manually, so just log it being revoked/added
         if integration.skip_user_provisioning:
-            existing_user_integration_log = UserIntegration.objects.filter(
-                user=user, integration=integration, revoked_at__isnull=True
-            ).first()
-            if existing_user_integration_log is not None:
-                existing_user_integration_log.revoked_at = timezone.now()
-                existing_user_integration_log.save()
+            # check if exists
+            user_integration, created = UserIntegration.objects.get_or_create(
+                user=user, integration=integration
+            )
+            if not created:
+                user_integration.revoked = not user_integration.revoked
+                user_integration.save()
 
-            return redirect("people:new_hire_access", pk=user.id)
+            return render(
+                request,
+                "_user_access_card.html",
+                {
+                    "object": user,
+                    "integration": integration,
+                    "active": not user_integration.revoked,
+                },
+            )
 
-        success, error = integration.revoke_user(user)
-
-        if success:
-            messages.success(request, _("Access has been revoked!"))
+        created = False
+        needs_user_info = integration.needs_user_info(user)
+        if integration.user_exists(user):
+            success, error = integration.revoke_user(user)
+            created = True
         else:
-            messages.error(request, _("Access could not be revoked!"))
-            messages.error(request, error)
+            success, error = integration.revoke_user(user)
 
-        return redirect("people:new_hire_access", pk=user.id)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        integration = get_object_or_404(
-            Integration, id=self.kwargs.get("integration_id", -1)
+        return render(
+            request,
+            "_user_access_card.html",
+            {
+                "object": user,
+                "integration": integration,
+                "active": not created,
+                "error": error,
+                "needs_user_info": needs_user_info,
+            },
         )
-        user = self.object
-        context["integration"] = integration
-        context["title"] = user.full_name
-        return context

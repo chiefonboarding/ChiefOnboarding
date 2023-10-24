@@ -775,22 +775,17 @@ def test_new_hire_delete(client, django_user_model, new_hire_factory):
     admin = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin)
 
-    # Doesn't work for admins
-    url = reverse("people:delete", args=[admin.id])
-    response = client.post(url, follow=True)
-    admin.refresh_from_db()
-    assert django_user_model.objects.all().count() == 1
-
     new_hire1 = new_hire_factory()
     # We have two users now
     assert django_user_model.objects.all().count() == 2
 
-    # Works for new hires
     url = reverse("people:delete", args=[new_hire1.id])
+    response = client.get(url)
+    assert "Are you sure you want to delete this user? You have two options here:" in response.content.decode()
     response = client.post(url, follow=True)
 
     assert django_user_model.objects.all().count() == 1
-    assert "New hire has been removed" in response.content.decode()
+    assert "User has been removed" in response.content.decode()
 
 
 @pytest.mark.django_db
@@ -2045,19 +2040,22 @@ def test_colleague_update(client, django_user_model):
 
 
 @pytest.mark.django_db
-def test_colleague_delete(client, django_user_model, new_hire_factory):
+def test_colleague_delete(client, django_user_model, employee_factory):
     admin_user = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin_user)
 
-    new_hire1 = new_hire_factory()
+    emp1 = employee_factory()
 
     assert django_user_model.objects.all().count() == 2
 
-    url = reverse("people:colleague_delete", args=[new_hire1.id])
+    url = reverse("people:delete", args=[emp1.id])
+    response = client.get(url)
+    assert "Are you sure you want to delete this user? You have two options here:" not in response.content.decode()
+
     response = client.post(url, follow=True)
 
-    assert "Colleague has been removed" in response.content.decode()
-    assert new_hire1.full_name not in response.content.decode()
+    assert "User has been removed" in response.content.decode()
+    assert emp1.full_name not in response.content.decode()
     assert django_user_model.objects.all().count() == 1
 
 
