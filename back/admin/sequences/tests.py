@@ -26,6 +26,7 @@ from admin.sequences.factories import (
     PendingEmailMessageFactory,
     PendingSlackMessageFactory,
     PendingTextMessageFactory,
+    IntegrationConfigFactory,
 )
 from admin.sequences.forms import (
     PendingAdminTaskForm,
@@ -934,6 +935,7 @@ def test_sequence_trigger_task(
     badge_factory,
     pending_admin_task_factory,
     pending_text_message_factory,
+    manual_user_provision_integration_factory,
 ):
     org = Organization.object.get()
     # Set it back 5 minutes, so it will actually run through the triggers
@@ -951,6 +953,8 @@ def test_sequence_trigger_task(
     badge1 = badge_factory()
     pending_admin_task1 = pending_admin_task_factory()
     pending_text_message1 = pending_text_message_factory()
+    manual_provisioning = manual_user_provision_integration_factory()
+    manual_config = IntegrationConfigFactory(integration=manual_provisioning)
 
     seq = sequence_factory()
     unconditioned_condition = seq.conditions.all().first()
@@ -971,6 +975,7 @@ def test_sequence_trigger_task(
     condition.add_item(badge1)
     condition.add_item(pending_admin_task1)
     condition.add_item(pending_text_message1)
+    condition.add_item(manual_config)
 
     seq.conditions.add(condition)
 
@@ -990,6 +995,7 @@ def test_sequence_trigger_task(
     assert new_hire1.appointments.all().count() == 1
     assert new_hire1.introductions.all().count() == 1
     assert new_hire1.badges.all().count() == 1
+    assert new_hire1.integrations.all().count() == 1
 
 
 @pytest.mark.django_db

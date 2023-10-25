@@ -755,6 +755,9 @@ class Condition(models.Model):
         return self, admin_tasks
 
     def process_condition(self, user, skip_notification=False):
+        # avoid circular import
+        from users.models import IntegrationUser
+
         # Loop over all m2m fields and add the ones that can be easily added
         for field in [
             "to_do",
@@ -782,6 +785,11 @@ class Condition(models.Model):
             for item in getattr(self, field).all():
                 # Only for integration configs
                 if getattr(item, "integration", None) is not None:
-                    item.integration.execute(user, item.additional_data)
+                    if item.integration.skip_user_provisioning:
+                        IntegrationUser.objects.create(
+                            user=user, integration=item.integration
+                        )
+                    else:
+                        item.integration.execute(user, item.additional_data)
                 else:
                     item.execute(user)
