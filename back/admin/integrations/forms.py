@@ -177,6 +177,12 @@ class IntegrationExtraUserInfoForm(forms.ModelForm):
         if missing_info is None:
             missing_info = self.instance.missing_extra_info
 
+        # remove fields that have already been filled
+        user = self.instance
+        missing_info = [
+            item for item in missing_info if item["id"] not in user.extra_fields.keys()
+        ]
+
         for item in missing_info:
             self.fields[item["id"]] = forms.CharField(
                 label=item["name"], help_text=item["description"]

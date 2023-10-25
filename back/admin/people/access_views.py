@@ -74,6 +74,9 @@ class UserRevokeAllAccessView(
             manifest__exists__isnull=False,
         ):
             if integration.user_exists(user):
+                # Any failed attempts will show up as it will refetch all items to
+                # check if the accounts have been deleted. So we can safely ignore
+                # response here
                 integration.revoke_user(user)
 
         return redirect("people:delete", user.id)

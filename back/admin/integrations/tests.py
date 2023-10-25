@@ -383,6 +383,60 @@ def test_integration_user_exists(
 
 
 @pytest.mark.django_db
+def test_integration_needs_user_info(
+    new_hire_factory,
+    custom_integration_factory,
+    manual_user_provision_integration_factory,
+):
+    # No form and no extra user info, so we could create an account with extra info
+    new_hire = new_hire_factory()
+    integration = custom_integration_factory(
+        manifest={"form": [], "extra_user_info": []}
+    )
+    assert not integration.needs_user_info(new_hire)
+
+    # Need TEAM_ID, so we need user info
+    integration.manifest = {
+        "form": [
+            {
+                "id": "TEAM_ID",
+                "name": "Select team to add user to",
+                "type": "input",
+            }
+        ],
+        "extra_user_info": [],
+    }
+    integration.save()
+    assert integration.needs_user_info(new_hire)
+
+    # Needs extra user info from manifest, so we need user info
+    integration.manifest = {
+        "form": [],
+        "extra_user_info": [
+            {
+                "id": "PERSONAL_EMAIL",
+                "name": "Personal email address",
+                "description": "",
+            }
+        ],
+    }
+    integration.save()
+    assert integration.needs_user_info(new_hire)
+
+    # Add field to new hire (previously filled in)
+    new_hire.extra_fields["PERSONAL_EMAIL"] = "test@test.com"
+    new_hire.save()
+
+    # All info filled, so no need for extra info
+    new_hire.refresh_from_db()
+    assert not integration.needs_user_info(new_hire)
+
+    # manual integration never needs more info
+    manual_integration = manual_user_provision_integration_factory()
+    assert not manual_integration.needs_user_info(new_hire)
+
+
+@pytest.mark.django_db
 def test_integration_revoke_user(
     client,
     django_user_model,

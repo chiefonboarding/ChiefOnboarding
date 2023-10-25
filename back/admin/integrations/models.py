@@ -327,7 +327,7 @@ class Integration(models.Model):
             instance=user,
             missing_info=self.manifest.get("extra_user_info", []),
         )
-        return len(integration_config_form.fields) + len(user_details_form.fields)
+        return len(integration_config_form.fields) + len(user_details_form.fields) > 0
 
     def revoke_user(self, user):
         if self.skip_user_provisioning:
