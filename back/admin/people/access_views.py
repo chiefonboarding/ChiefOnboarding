@@ -14,13 +14,12 @@ from users.mixins import (
     IsAdminOrNewHireManagerMixin,
     LoginRequiredMixin,
 )
-from users.models import UserIntegration
+from users.models import IntegrationUser
 
 
 class NewHireAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "new_hire_access.html"
     model = get_user_model()
-    context_object_name = "object"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -34,7 +33,6 @@ class NewHireAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Detail
 class ColleagueAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "colleague_access.html"
     model = get_user_model()
-    context_object_name = "object"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -51,7 +49,6 @@ class UserDeleteView(
     template_name = "user_delete.html"
     queryset = get_user_model().objects.all()
     success_url = reverse_lazy("people:new_hires")
-    context_object_name = "object"
     success_message = _("User has been removed")
 
     def get_context_data(self, **kwargs):
@@ -60,7 +57,7 @@ class UserDeleteView(
         context["automated_provisioned_items"] = provision_options.exclude(
             manifest_type=Integration.ManifestType.MANUAL_USER_PROVISIONING
         )
-        context["manual_provisioned_items"] = UserIntegration.objects.filter(
+        context["manual_provisioned_items"] = IntegrationUser.objects.filter(
             user=self.object, revoked=False
         ).select_related("integration")
         return context
@@ -70,10 +67,11 @@ class UserRevokeAllAccessView(
     LoginRequiredMixin, IsAdminOrNewHireManagerMixin, SuccessMessageMixin, View
 ):
     def post(self, request, *args, **kwargs):
-        print(self.kwargs.get("pk", -1))
         user = get_object_or_404(get_user_model(), id=self.kwargs.get("pk", -1))
-        for integration in Integration.objects.account_provision_options().exclude(
-            manifest_type=Integration.ManifestType.MANUAL_USER_PROVISIONING
+        for integration in Integration.objects.filter(
+            manifest_type=Integration.ManifestType.WEBHOOK,
+            manifest__revoke__isnull=False,
+            manifest__exists__isnull=False,
         ):
             if integration.user_exists(user):
                 integration.revoke_user(user)
@@ -84,7 +82,6 @@ class UserRevokeAllAccessView(
 class UserCheckAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "_user_access_card.html"
     model = get_user_model()
-    context_object_name = "object"
 
     def get_template_names(self):
         if "compact" in self.request.path:
@@ -107,7 +104,6 @@ class UserCheckAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Deta
 class UserGiveAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "give_user_access.html"
     model = get_user_model()
-    context_object_name = "object"
 
     def post(self, request, *args, **kwargs):
         integration = get_object_or_404(
@@ -180,7 +176,7 @@ class UserToggleAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Vie
         # user added/revoked access manually, so just log it being revoked/added
         if integration.skip_user_provisioning:
             # check if exists
-            user_integration, created = UserIntegration.objects.get_or_create(
+            user_integration, created = IntegrationUser.objects.get_or_create(
                 user=user, integration=integration
             )
             if not created:
@@ -201,9 +197,9 @@ class UserToggleAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Vie
         needs_user_info = integration.needs_user_info(user)
         if integration.user_exists(user):
             success, error = integration.revoke_user(user)
-            created = True
         else:
-            success, error = integration.revoke_user(user)
+            success, error = integration.execute(user)
+            created = True
 
         return render(
             request,
@@ -211,7 +207,7 @@ class UserToggleAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Vie
             {
                 "object": user,
                 "integration": integration,
-                "active": not created,
+                "active": created,
                 "error": error,
                 "needs_user_info": needs_user_info,
             },

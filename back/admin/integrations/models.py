@@ -289,13 +289,13 @@ class Integration(models.Model):
     def user_exists(self, new_hire):
         # check if user has been created manually
         if self.skip_user_provisioning:
-            from users.models import UserIntegration
+            from users.models import IntegrationUser
 
             try:
-                user_integration = UserIntegration.objects.get(
+                user_integration = IntegrationUser.objects.get(
                     user=new_hire, integration=self
                 )
-            except UserIntegration.DoesNotExist:
+            except IntegrationUser.DoesNotExist:
                 return False
 
             return not user_integration.revoked
@@ -332,28 +332,25 @@ class Integration(models.Model):
     def revoke_user(self, user):
         if self.skip_user_provisioning:
             # should never be triggered
-            return True, ""
+            return False, "Cannot revoke manual integration"
 
         self.new_hire = user
-        self.has_user_context = user is not None
+        self.has_user_context = True
 
         # Renew token if necessary
         if not self.renew_key():
             return False, "Couldn't renew key"
 
-        revoke_manifest = self.manifest["revoke"]
+        revoke_manifest = self.manifest.get("revoke", [])
 
         # add extra fields directly to params
         self.params = self.new_hire.extra_fields
 
-        for item in revoke_manifest["execute"]:
+        for item in revoke_manifest:
             success, response = self.run_request(item)
 
             if not success:
                 return False, self.clean_response(response)
-
-        if revoke_manifest.get("verify", True):
-            return self.user_exists(self.new_hire), ""
 
         return True, ""
 

@@ -194,7 +194,7 @@ class User(AbstractBaseUser):
     badges = models.ManyToManyField(Badge, related_name="user_introductions")
     integrations = models.ManyToManyField(
         "integrations.Integration",
-        through="UserIntegration",
+        through="IntegrationUser",
         related_name="user_integrations",
     )
 
@@ -650,7 +650,8 @@ class NewHireWelcomeMessage(models.Model):
     message = models.TextField()
 
 
-class UserIntegration(models.Model):
+class IntegrationUser(models.Model):
+    # UserIntegration
     # logging when an integration was enabled and revoked
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     integration = models.ForeignKey(

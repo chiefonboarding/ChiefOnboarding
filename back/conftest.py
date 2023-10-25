@@ -10,6 +10,7 @@ from admin.integrations.factories import (
     CustomIntegrationFactory,
     CustomUserImportIntegrationFactory,
     IntegrationFactory,
+    ManualUserProvisionIntegrationFactory,
 )
 from admin.introductions.factories import IntroductionFactory
 from admin.notes.factories import NoteFactory
@@ -49,6 +50,7 @@ from users.factories import (
     PreboardingUserFactory,
     ResourceUserFactory,
     ToDoUserFactory,
+    IntegrationUserFactory,
 )
 
 
@@ -102,9 +104,11 @@ register(PendingSlackMessageFactory)
 register(PendingTextMessageFactory)
 register(BadgeFactory)
 register(IntegrationFactory)
+register(IntegrationUserFactory)
 register(CustomIntegrationFactory)
 register(CustomUserImportIntegrationFactory)
 register(IntegrationConfigFactory)
+register(ManualUserProvisionIntegrationFactory)
 register(ConditionWithItemsFactory)
 register(FileFactory)
 register(ResourceWithLevelDeepChaptersFactory)

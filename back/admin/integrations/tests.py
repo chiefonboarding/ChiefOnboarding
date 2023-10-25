@@ -12,6 +12,7 @@ from admin.integrations.sync_userinfo import SyncUsers
 from admin.integrations.utils import get_value_from_notation
 from admin.integrations.models import Integration
 from organization.models import Notification
+from users.factories import IntegrationUserFactory
 
 
 @pytest.mark.django_db
@@ -30,7 +31,7 @@ def test_create_integration(client, django_user_model):
 
     assert "Enter a valid JSON." in response.content.decode()
 
-    # Post with valid JSON
+    # Post with valid JSON for webhook manifest
     response = client.post(
         url,
         {
@@ -42,6 +43,18 @@ def test_create_integration(client, django_user_model):
 
     assert "Enter a valid JSON." not in response.content.decode()
     assert Integration.objects.filter(integration=Integration.Type.CUSTOM).count() == 1
+
+    # Post with valid JSON for manual provisioning
+    response = client.post(
+        url,
+        {
+            "name": "test",
+            "manifest_type": Integration.ManifestType.MANUAL_USER_PROVISIONING,
+        },
+    )
+
+    assert "Enter a valid JSON." not in response.content.decode()
+    assert Integration.objects.filter(integration=Integration.Type.CUSTOM).count() == 2
 
 
 @pytest.mark.django_db
@@ -306,7 +319,11 @@ def test_integration_oauth_redirect_view(
 
 @pytest.mark.django_db
 def test_integration_user_exists(
-    client, django_user_model, new_hire_factory, custom_integration_factory
+    client,
+    django_user_model,
+    new_hire_factory,
+    custom_integration_factory,
+    manual_user_provision_integration_factory,
 ):
     client.force_login(
         django_user_model.objects.create(role=get_user_model().Role.ADMIN)
@@ -345,6 +362,73 @@ def test_integration_user_exists(
     ):
         exists = integration.user_exists(new_hire)
         assert exists is None
+
+    manual_integration = manual_user_provision_integration_factory()
+
+    # Does not exist yet, because manual user provision user obj does not exist
+    assert not manual_integration.user_exists(new_hire)
+
+    # Create user integration, so this will show up as exist
+    integration_user = IntegrationUserFactory(
+        user=new_hire, integration=manual_integration
+    )
+
+    assert manual_integration.user_exists(new_hire)
+
+    # Set as revoked, so it doesn't exist anymore
+    integration_user.revoked = True
+    integration_user.save()
+
+    assert not manual_integration.user_exists(new_hire)
+
+
+@pytest.mark.django_db
+def test_integration_revoke_user(
+    client,
+    django_user_model,
+    new_hire_factory,
+    custom_integration_factory,
+    manual_user_provision_integration_factory,
+):
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
+    integration = custom_integration_factory(
+        manifest={
+            "exists": {
+                "url": "http://localhost:8000/test",
+                "method": "GET",
+                "expected": "{{ email}}",
+            },
+            "revoke": [{"url": "http://localhost:8000/test", "method": "POST"}],
+        }
+    )
+    new_hire = new_hire_factory()
+
+    # Revoke user successfully
+    with patch(
+        "admin.integrations.models.Integration.run_request",
+        Mock(return_value=(True, Mock())),
+    ):
+        success, error = integration.revoke_user(new_hire)
+        assert success
+        assert error == ""
+
+    # Revoke user unsuccessfully
+    with patch(
+        "admin.integrations.models.Integration.run_request",
+        Mock(return_value=(False, "Something went wrong")),
+    ):
+        success, error = integration.revoke_user(new_hire)
+        assert not success
+        assert "Something went wrong"
+
+    # try the same with a manual integration, this doesn't work as it can't actually
+    # revoke a user
+    manual_integration = manual_user_provision_integration_factory()
+    success, error = manual_integration.revoke_user(new_hire)
+    assert not success
+    assert error == "Cannot revoke manual integration"
 
 
 @pytest.mark.django_db

@@ -61,11 +61,7 @@ Exists is an option to check if a user is already part of a team. If you add thi
 ### Revoke
 Revoke is an option to revoke access of a user to a third party. If you add this property to your manifest then you will be able to revoke access through the dashboard. Generally, you should skip this option if you are making any calls not related to account provisioning.
 
-`execute`: See below for the `Execute` part.
-
-`verify`: Default: True. Checks if the user was successfully deleted.
-
-`message`: (optionally) This will be shown to the user when they want to delete a user. Could be used as an extra heads-up.
+This uses the same setup as the execute part below (but is limited to `url`, `data`, `method` and `headers`). It expects an array with requests in it.
 
 
 ### Execute
