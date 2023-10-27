@@ -342,25 +342,25 @@ class ColleagueOffboardngSequenceView(
     LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView
 ):
     template_name = "offboarding_detail.html"
-    model = get_user_model()
+    queryset = get_user_model().objects.filter(termination_date__isnull=False)
     context_object_name = "object"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        new_hire = context["object"]
-        context["title"] = new_hire.full_name
+        employee = self.object
+        context["title"] = employee.full_name
         context["subtitle"] = _("new hire")
 
-        conditions = new_hire.conditions.prefetched()
+        conditions = employee.conditions.prefetched()
 
         # condition items
         context["conditions"] = (
             (
                 conditions.filter(
-                    condition_type=2, days__lte=new_hire.days_before_starting
+                    condition_type=2, days__lte=employee.days_before_starting
                 )
                 | conditions.filter(
-                    condition_type=Condition.Type.AFTER, days__gte=new_hire.workday
+                    condition_type=Condition.Type.AFTER, days__gte=employee.workday
                 )
                 | conditions.filter(condition_type=Condition.Type.TODO)
                 | conditions.filter(condition_type=Condition.Type.ADMIN_TASK)
@@ -378,10 +378,10 @@ class ColleagueOffboardngSequenceView(
         )
 
         context["completed_todos"] = ToDoUser.objects.filter(
-            user=new_hire, completed=True
+            user=employee, completed=True
         ).values_list("to_do__pk", flat=True)
         context["completed_admin_tasks"] = AdminTask.objects.filter(
-            new_hire=new_hire, completed=True
+            new_hire=employee, completed=True
         ).values_list("based_on__pk", flat=True)
         return context
 

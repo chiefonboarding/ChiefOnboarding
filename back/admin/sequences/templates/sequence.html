@@ -211,7 +211,6 @@ function getFormData($form){
 // So this is a temporary workaround for that.
 // Nothing is as permanent as a temporary workaround.
 $("#form-add-item").submit(function (event) {
-    console.log("GO THERE")
     event.preventDefault();
     if (type === 'integration' || type === 'integrationconfig') {
       htmx.ajax('POST', `/admin/sequences/update_integration_config/${type}/${item}/${condition}/${provisionCreated}/`, {'values': getFormData($(this)), 'target': '#form'})
@@ -244,7 +243,6 @@ $("#form-add-item").submit(function (event) {
 
 // close modals when we are reloading the sequence part
 $(document).on("reload-sequence", function(evt){
-  console.log("RELOAD SEQUENCE")
   $('.modal').modal('hide')
 })
 

@@ -79,9 +79,9 @@
                 <div class="list-timeline-content pt-0" style="margin-top: -5px">
                   <div class="card">
                     <div class="card-header">
-                      {% if condition.condition_type == 0 or condition.condition_type == 2 %}
+                      {% if condition.condition_type == ConditionType.AFTER or condition.condition_type == ConditionType.BEFORE %}
                       <h4 class="card-title">{{ condition|new_hire_trigger_date:object }} {% trans "at" %} {{ condition.time }}</h4>
-                      {% elif condition.condition_type == 4 %}
+                      {% elif condition.condition_type == ConditionType.ADMIN_TASK %}
                       <h4 class="card-title">
                         {% trans "When these admin tasks are completed:" %}
                         <div id="div_id_condition_to_do">
@@ -90,7 +90,7 @@
                           {% endfor %}
                         </div>
                       </h4>
-                      {% elif condition.condition_type == 1 %}
+                      {% elif condition.condition_type == ConditionType.TODO %}
                       <h4 class="card-title">
                         {% trans "When these tasks are completed:" %}
                         <div id="div_id_condition_to_do">
@@ -112,9 +112,9 @@
                         {% include '_condition_line_item.html' with type='appointment' read_only=True %}
                       {% endfor %}
                       {% for item in condition.external_new_hire %}
-                        {% if item.send_via == 0 %}{# email #}
+                        {% if item.send_via == ExternalMessagesType.EMAIL %}
                           {% include '_condition_line_item.html' with type='pendingemailmessage' read_only=True %}
-                        {% elif item.send_via == 1 %}{# slack #}
+                        {% elif item.send_via == ExternalMessagesType.SLACK %}
                           {% include '_condition_line_item.html' with type='pendingslackmessage' read_only=True %}
                         {% else %}
                           {% include '_condition_line_item.html' with type='pendingtextmessage' read_only=True %}
@@ -144,9 +144,9 @@
                         {% include '_condition_line_item.html' with type='admintask' read_only=True %}
                       {% endfor %}
                       {% for item in condition.external_admin %}
-                        {% if item.send_via == 0 %}{# email #}
+                        {% if item.send_via == ExternalMessagesType.EMAIL %}
                           {% include '_condition_line_item.html' with type='pendingemailmessage' read_only=True %}
-                        {% elif item.send_via == 1 %}{# slack #}
+                        {% elif item.send_via == ExternalMessagesType.SLACK %}
                           {% include '_condition_line_item.html' with type='pendingslackmessage' read_only=True %}
                         {% else %}
                           {% include '_condition_line_item.html' with type='pendingtextmessage' read_only=True %}
