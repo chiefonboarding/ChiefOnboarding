@@ -179,6 +179,21 @@ urlpatterns = [
         name="import-users-hx",
     ),
     path(
+        "colleagues/<int:pk>/terminate/",
+        views.AddOffboardingSequenceView.as_view(),
+        name="terminate",
+    ),
+    path(
+        "colleagues/offboarding/",
+        views.OffboardingColleagueListView.as_view(),
+        name="offboarding",
+    ),
+    path(
+        "colleagues/<int:pk>/offboarding/",
+        views.ColleagueOffboardngSequenceView.as_view(),
+        name="offboarding-detail",
+    ),
+    path(
         "colleagues/<int:pk>/delete/",
         access_views.UserDeleteView.as_view(),
         name="delete",

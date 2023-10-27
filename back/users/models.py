@@ -177,6 +177,12 @@ class User(AbstractBaseUser):
         blank=True,
         help_text=_("First working day"),
     )
+    termination_date = models.DateField(
+        verbose_name=_("Termination date"),
+        null=True,
+        blank=True,
+        help_text=_("Last day of working"),
+    )
     unique_url = models.CharField(max_length=250, unique=True)
     extra_fields = models.JSONField(default=dict)
 
@@ -442,6 +448,10 @@ class User(AbstractBaseUser):
     @property
     def is_admin(self):
         return self.role == get_user_model().Role.ADMIN
+
+    @property
+    def is_new_hire(self):
+        return self.role == get_user_model().Role.NEWHIRE
 
     def __str__(self):
         return "%s" % self.full_name

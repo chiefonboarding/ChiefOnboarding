@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import Case, F, IntegerField, When
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
 from django.utils import translation
 from django.utils.translation import gettext as _
@@ -13,6 +14,8 @@ from django_q.tasks import async_task
 from rest_framework import generics
 from rest_framework.authentication import SessionAuthentication
 
+from admin.admin_tasks.models import AdminTask
+from users.models import ToDoUser
 from admin.integrations.exceptions import (
     FailedPaginatedResponseError,
     KeyIsNotInDataError,
@@ -21,6 +24,7 @@ from admin.integrations.models import Integration
 from admin.integrations.sync_userinfo import SyncUsers
 from admin.people.serializers import UserImportSerializer
 from admin.resources.models import Resource
+from admin.sequences.models import Sequence, Condition
 from api.permissions import AdminPermission
 from organization.models import Organization, WelcomeMessage
 from slack_bot.utils import Slack, actions, button, paragraph
@@ -29,6 +33,7 @@ from users.mixins import (
     AdminPermMixin,
     LoginRequiredMixin,
     ManagerPermMixin,
+    IsAdminOrNewHireManagerMixin,
 )
 
 from .forms import (
@@ -36,6 +41,7 @@ from .forms import (
     ColleagueUpdateForm,
     EmailIgnoreForm,
     UserRoleForm,
+    OffboardingSequenceChoiceForm,
 )
 
 # See new_hire_views.py for new hire functions!
@@ -56,6 +62,19 @@ class ColleagueListView(LoginRequiredMixin, ManagerPermMixin, ListView):
         ).exists()
         context["import_users_options"] = Integration.objects.import_users_options()
         context["add_action"] = reverse_lazy("people:colleague_create")
+        return context
+
+
+class OffboardingColleagueListView(LoginRequiredMixin, ManagerPermMixin, ListView):
+    template_name = "offboarding.html"
+    queryset = get_user_model().objects.filter(termination_date__isnull=False)
+    paginate_by = 20
+    ordering = ["-termination_date", "email"]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("Employees who are about to leave the company")
+        context["subtitle"] = _("people")
         return context
 
 
@@ -269,6 +288,102 @@ class ColleagueTogglePortalAccessView(LoginRequiredMixin, ManagerPermMixin, View
         context["button_name"] = button_name
         context["exists"] = user.is_active
         return render(request, self.template_name, context)
+
+
+class AddOffboardingSequenceView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+):
+    template_name = "add_offboarding_sequence.html"
+    form_class = OffboardingSequenceChoiceForm
+    model = get_user_model()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = self.object.full_name
+        context["subtitle"] = _("Employee")
+        return context
+
+    def form_valid(self, form):
+        sequence_ids = form.cleaned_data.pop("sequences", [])
+        form.save()
+        employee = self.object
+
+        sequences = Sequence.offboarding.filter(id__in=sequence_ids)
+        employee.add_sequences(sequences)
+
+        # Check if there are items that will not be triggered since date passed
+        conditions = Condition.objects.none()
+        for seq in sequences:
+            conditions |= seq.conditions.filter(
+                condition_type=Condition.Type.BEFORE,
+                # starting is a weird term in this context, but it does same thing
+                days__gte=employee.days_before_starting,
+            )
+
+        if conditions.count():
+            # Prefetch records to avoid a massive amount of queries
+            conditions = Condition.objects.prefetched().filter(
+                id__in=conditions.values_list("pk", flat=True)
+            )
+            return render(
+                self.request,
+                "not_triggered_conditions.html",
+                {
+                    "conditions": conditions,
+                    "title": employee.full_name,
+                    "subtitle": "Employee",
+                    "employee": employee,
+                },
+            )
+        return redirect("people:colleagues")
+
+
+class ColleagueOffboardngSequenceView(
+    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView
+):
+    template_name = "offboarding_detail.html"
+    model = get_user_model()
+    context_object_name = "object"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        new_hire = context["object"]
+        context["title"] = new_hire.full_name
+        context["subtitle"] = _("new hire")
+
+        conditions = new_hire.conditions.prefetched()
+
+        # condition items
+        context["conditions"] = (
+            (
+                conditions.filter(
+                    condition_type=2, days__lte=new_hire.days_before_starting
+                )
+                | conditions.filter(
+                    condition_type=Condition.Type.AFTER, days__gte=new_hire.workday
+                )
+                | conditions.filter(condition_type=Condition.Type.TODO)
+                | conditions.filter(condition_type=Condition.Type.ADMIN_TASK)
+            )
+            .annotate(
+                days_order=Case(
+                    When(condition_type=Condition.Type.BEFORE, then=F("days") * -1),
+                    When(condition_type=Condition.Type.TODO, then=99999),
+                    When(condition_type=Condition.Type.ADMIN_TASK, then=99999),
+                    default=F("days"),
+                    output_field=IntegerField(),
+                )
+            )
+            .order_by("days_order")
+        )
+
+        context["completed_todos"] = ToDoUser.objects.filter(
+            user=new_hire, completed=True
+        ).values_list("to_do__pk", flat=True)
+        context["completed_admin_tasks"] = AdminTask.objects.filter(
+            new_hire=new_hire, completed=True
+        ).values_list("based_on__pk", flat=True)
+        return context
 
 
 class ColleagueImportView(LoginRequiredMixin, AdminPermMixin, DetailView):

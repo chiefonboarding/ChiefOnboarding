@@ -46,7 +46,7 @@ from .forms import (
     NewHireProfileForm,
     PreboardingSendForm,
     RemindMessageForm,
-    SequenceChoiceForm,
+    OnboardingSequenceChoiceForm,
 )
 
 
@@ -150,7 +150,7 @@ class NewHireAddView(
                     "conditions": conditions,
                     "title": new_hire.full_name,
                     "subtitle": "new hire",
-                    "new_hire_id": new_hire.id,
+                    "employee": new_hire,
                 },
             )
 
@@ -194,7 +194,7 @@ class NewHireAddSequenceView(
     LoginRequiredMixin, IsAdminOrNewHireManagerMixin, FormView
 ):
     template_name = "new_hire_add_sequence.html"
-    form_class = SequenceChoiceForm
+    form_class = OnboardingSequenceChoiceForm
 
     def form_valid(self, form):
         user_id = self.kwargs.get("pk", -1)
@@ -236,7 +236,7 @@ class NewHireAddSequenceView(
                     "conditions": conditions,
                     "title": new_hire.full_name,
                     "subtitle": "new hire",
-                    "new_hire_id": new_hire.id,
+                    "employee": new_hire,
                 },
             )
         return redirect("people:new_hire", pk=new_hire.id)

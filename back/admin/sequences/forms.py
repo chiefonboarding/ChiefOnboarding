@@ -1,5 +1,5 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Div, Field, Layout
+from crispy_forms.layout import Div, Field, Layout
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -18,7 +18,7 @@ from .models import (
 )
 
 
-class ConditionCreateForm(forms.ModelForm):
+class ConditionForm(forms.ModelForm):
     condition_to_do = forms.ModelMultipleChoiceField(
         queryset=ToDo.templates.defer_content().all(),
         to_field_name="id",
@@ -30,21 +30,12 @@ class ConditionCreateForm(forms.ModelForm):
         required=False,
     )
 
-    def _get_save_button(self):
-        return (
-            (
-                '<button hx-post="{% url "sequences:condition-create" object.id %}" '
-                'hx-target="#condition_form" hx-swap="#condition_form" '
-                'class="btn btn-primary ms-auto">'
-            )
-            + _("Add block")
-            + "</button>"
-        )
-
     def __init__(self, *args, **kwargs):
         sequence = kwargs.pop("sequence")
         super().__init__(*args, **kwargs)
+        self.allow_zero_date = False
         self.helper = FormHelper()
+        self.helper.form_tag = False
         self.helper.layout = Layout(
             Field("condition_type"),
             Div(
@@ -60,7 +51,6 @@ class ConditionCreateForm(forms.ModelForm):
                 Field("condition_admin_tasks"),
                 css_class="" if self.instance.based_on_admin_task else "d-none",
             ),
-            HTML(self._get_save_button()),
         )
         self.fields["time"].required = False
         self.fields["days"].required = False
@@ -148,17 +138,34 @@ class ConditionCreateForm(forms.ModelForm):
         return cleaned_data
 
 
-class ConditionUpdateForm(ConditionCreateForm):
-    def _get_save_button(self):
-        return (
-            (
-                '<button hx-post="{% url "sequences:condition-update" object.id '
-                'condition.id %}" hx-target="#condition_form" '
-                'hx-swap="#add-condition-form" class="btn btn-primary ms-auto">'
+class OffboardingConditionForm(ConditionForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # use different labels for the type
+        self.fields["condition_type"].choices = [
+            (2, _("On/Before employee's last day")),
+            (0, _("After employee's last day")),
+            (1, _("Based on one or more to do item(s)")),
+            (4, _("Based on one or more admin tasks")),
+        ]
+        self.fields["days"].help_text = _("Enter 0 for the last day")
+
+    def clean_days(self):
+        day = self.cleaned_data["days"]
+        if day is None:
+            # Handled in clean() function
+            return day
+        if self.cleaned_data["condition_type"] == Condition.Type.BEFORE and day < 0:
+            raise ValidationError(_("You cannot less than 0. Their last day is 0."))
+        if self.cleaned_data["condition_type"] == Condition.Type.AFTER and day < 1:
+            raise ValidationError(
+                _(
+                    "You cannot use 0 or less. The day before starting is 1 and the "
+                    "first workday is 1"
+                )
             )
-            + _("Edit block")
-            + "</button>"
-        )
+
+        return day
 
 
 class PendingAdminTaskForm(forms.ModelForm):

@@ -15,7 +15,11 @@
       <div class="col-10">
         <h4 class="card-title">
           {% if condition.condition_type == ConditionType.AFTER %}
-            {% blocktranslate with days=condition.days time=condition.time %}On day {{ days }} at {{ time }}{% endblocktranslate %}
+            {% if sequence.is_onboarding %}
+              {% blocktranslate with days=condition.days time=condition.time %}On day {{ days }} at {{ time }}{% endblocktranslate %}
+            {% else %}
+              {% blocktranslate with days=condition.days time=condition.time %}After termination on day {{ days }} at {{ time }}{% endblocktranslate %}
+            {% endif %}
           {% elif condition.condition_type == ConditionType.TODO %}
             {% translate "When these tasks are completed:" %}
             <div id="div_id_condition_to_do">
@@ -31,7 +35,13 @@
               {% endfor %}
             </div>
           {% elif condition.condition_type == ConditionType.BEFORE %}
-            {% blocktranslate with days=condition.days time=condition.time %}{{ days }} days before starting at {{ time }}{% endblocktranslate %}
+            {% if sequence.is_onboarding %}
+              {% blocktranslate with days=condition.days time=condition.time %}{{ days }} days before starting at {{ time }}{% endblocktranslate %}
+            {% elif condition.days == 0 %}
+              {% blocktranslate with days=condition.days time=condition.time %}On termination day at {{ time }}{% endblocktranslate %}
+            {% else %} {# termination sequence #}
+              {% blocktranslate with days=condition.days time=condition.time %}{{ days }} workday(s) before termination{% endblocktranslate %}
+            {% endif %}
           {% else %}
             {% translate "Without any trigger - assign directly" %}
           {% endif %}
@@ -60,7 +70,7 @@
 
     {# FOR NEW HIRES #}
     {% if condition.external_new_hire|length or condition.to_do.all|length or condition.preboarding.all|length or condition.badges.all|length or condition.integration_configs.all|length or condition.resources.all|length or condition.introductions.all|length %}
-    <span class="badge bg-azure mb-2">{% translate "new hire" %}</span>
+    <span class="badge bg-azure mb-2">{% if sequence.is_onboarding %}{% translate "new hire" %}{% else %}{% translate "employee" %}{% endif %}</span>
     {% endif %}
     {% for item in condition.preboarding.all %}
       {% include '_condition_line_item.html' with type='preboarding' %}
@@ -69,9 +79,9 @@
       {% include '_condition_line_item.html' with type='appointment' %}
     {% endfor %}
     {% for item in condition.external_new_hire %}
-      {% if item.send_via == 0 %}{# email #}
+      {% if item.send_via == ExternalMessagesType.EMAIL %}
         {% include '_condition_line_item.html' with type='pendingemailmessage' %}
-      {% elif item.send_via == 1 %}{# slack #}
+      {% elif item.send_via == ExternalMessagesType.SLACK %}
         {% include '_condition_line_item.html' with type='pendingslackmessage' %}
       {% else %}
         {% include '_condition_line_item.html' with type='pendingtextmessage' %}

@@ -1,12 +1,14 @@
 import json
 
 from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Div, Field, Layout, HTML
 from django import forms
 from django.contrib.auth import get_user_model
+from django.utils.translation import gettext_lazy as _
 
 from admin.integrations.utils import get_value_from_notation
-
 from admin.integrations.models import Integration
+from admin.sequences.models import IntegrationConfig
 
 
 class IntegrationConfigForm(forms.ModelForm):
@@ -112,6 +114,41 @@ class IntegrationConfigForm(forms.ModelForm):
         fields = ()
 
 
+class ManualIntegrationConfigForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        hide_assigned_to = "d-none"
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        if (
+            self.instance is not None
+            and self.instance.person_type == IntegrationConfig.PersonType.CUSTOM
+        ):
+            hide_assigned_to = ""
+        self.helper.layout = Layout(
+            HTML(
+                "<p>"
+                + _(
+                    "This is a manual integration, you will have to assign someone "
+                    "to create it for this person."
+                )
+                + "</p>"
+            ),
+            Div(
+                Field("name"),
+                Field("person_type"),
+                Div(
+                    Field("assigned_to"),
+                    css_class=hide_assigned_to,
+                ),
+            ),
+        )
+
+    class Meta:
+        model = IntegrationConfig
+        fields = ("person_type", "assigned_to")
+
+
 # Credits: https://stackoverflow.com/a/72256767
 # Removed the sort options
 class PrettyJSONEncoder(json.JSONEncoder):
@@ -120,6 +157,8 @@ class PrettyJSONEncoder(json.JSONEncoder):
 
 
 class IntegrationForm(forms.ModelForm):
+    """Form used to register a new integration through the settings"""
+
     manifest = forms.JSONField(encoder=PrettyJSONEncoder, required=False, initial={})
 
     class Meta:

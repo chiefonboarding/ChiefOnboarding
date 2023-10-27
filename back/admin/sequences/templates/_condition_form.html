@@ -1,4 +1,5 @@
 {% load crispy_forms_tags %}
-<form method="post" id="add-condition-form">
+<form method="post" id="add-condition-form" hx-target="#condition_form" hx-swap="#condition_form" hx-post="{% if condition %}{% url "sequences:condition-update" object.id condition.id %}{% else %}{% url "sequences:condition-create" object.id %}{% endif %}">
   {% crispy condition_form %}
+  <button class="btn btn-primary ms-auto">{% if condition %}Edit block{% else %}Add block{% endif %}</button>
 </form>

@@ -6,7 +6,12 @@ from django.utils.translation import gettext as _
 from django.views.generic import View
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.views.generic.edit import (
+    DeleteView,
+    BaseUpdateView,
+    CreateView,
+    UpdateView,
+)
 from django.views.generic.list import ListView
 
 from admin.integrations.forms import IntegrationConfigForm
@@ -17,27 +22,32 @@ from admin.to_do.models import ToDo
 from users.mixins import LoginRequiredMixin, ManagerPermMixin
 
 from .forms import (
-    ConditionCreateForm,
-    ConditionUpdateForm,
+    ConditionForm,
+    OffboardingConditionForm,
     PendingEmailMessageForm,
     PendingSlackMessageForm,
     PendingTextMessageForm,
 )
-from .models import Condition, ExternalMessage, IntegrationConfig, Sequence
+from admin.sequences.models import (
+    Condition,
+    ExternalMessage,
+    IntegrationConfig,
+    Sequence,
+)
 
 
 class SequenceListView(LoginRequiredMixin, ManagerPermMixin, ListView):
     """
-    Lists all sequences in a table.
+    Lists all onboarding sequences in a table.
     """
 
     template_name = "templates.html"
-    queryset = Sequence.objects.all().order_by("name")
+    queryset = Sequence.onboarding.all().order_by("name")
     paginate_by = 10
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = _("Sequence items")
+        context["title"] = _("Onboarding sequence items")
         context["subtitle"] = ""
         context["add_action"] = reverse_lazy("sequences:create")
         return context
@@ -52,7 +62,11 @@ class SequenceCreateView(LoginRequiredMixin, ManagerPermMixin, RedirectView):
     permanent = False
 
     def get_redirect_url(self, *args, **kwargs):
-        seq = Sequence.objects.create(name="New sequence")
+        category = Sequence.Category.ONBOARDING
+        if "offboarding" in self.request.path:
+            category = Sequence.Category.OFFBOARDING
+
+        seq = Sequence.objects.create(name="New sequence", category=category)
         seq.conditions.create(condition_type=Condition.Type.WITHOUT)
         return seq.update_url
 
@@ -71,13 +85,14 @@ class SequenceView(LoginRequiredMixin, ManagerPermMixin, DetailView):
         context["title"] = _("Sequence")
         context["subtitle"] = ""
         context["object_list"] = ToDo.templates.all().defer("content")
-        context["condition_form"] = ConditionCreateForm(sequence=self.object)
+        context["condition_form"] = ConditionForm(sequence=self.object)
+        context["create"] = True  # used for ConditionForm
         context["todos"] = ToDo.templates.all().defer("content")
         context["conditions"] = self.object.conditions.prefetched()
         return context
 
 
-class SequenceNameUpdateView(LoginRequiredMixin, ManagerPermMixin, UpdateView):
+class SequenceNameUpdateView(LoginRequiredMixin, ManagerPermMixin, BaseUpdateView):
     """
     Updates the name of the sequence when the user ends typing.
 
@@ -89,28 +104,31 @@ class SequenceNameUpdateView(LoginRequiredMixin, ManagerPermMixin, UpdateView):
     fields = [
         "name",
     ]
-    # fake page, we don't need to report back
-    success_url = "/health"
+
+    def form_valid(self, form):
+        form.save()
+        return HttpResponse()
 
 
-class SequenceConditionCreateView(LoginRequiredMixin, ManagerPermMixin, CreateView):
-    """
-    Add a new condition block to the sequence.
-    When valid, it will reload the sequence timeline to make sure everything is in
-    the correct order.
-
-    HTMX view
-    """
-
+class SequenceConditionBase(LoginRequiredMixin, ManagerPermMixin):
     template_name = "_condition_form.html"
     model = Condition
-    form_class = ConditionCreateForm
-    # fake page, we don't need to report back
-    success_url = "/health"
+    form_class = ConditionForm
+    new = True
+
+    def get_form(self, form_class=None):
+        """Return an instance of the form to be used in this view."""
+        if self.sequence.is_onboarding:
+            form_class = ConditionForm
+        else:
+            form_class = OffboardingConditionForm
+        return form_class(**self.get_form_kwargs())
 
     def dispatch(self, *args, **kwargs):
         if self.request.user.is_authenticated:
-            self.sequence = get_object_or_404(Sequence, pk=self.kwargs.get("pk", -1))
+            self.sequence = get_object_or_404(
+                Sequence, pk=self.kwargs.get("sequence_pk", -1)
+            )
         return super().dispatch(*args, **kwargs)
 
     def get_form_kwargs(self):
@@ -132,7 +150,19 @@ class SequenceConditionCreateView(LoginRequiredMixin, ManagerPermMixin, CreateVi
         return context
 
 
-class SequenceConditionUpdateView(LoginRequiredMixin, ManagerPermMixin, UpdateView):
+class SequenceConditionCreateView(SequenceConditionBase, CreateView):
+    """
+    Add a new condition block to the sequence.
+    When valid, it will reload the sequence timeline to make sure everything is in
+    the correct order.
+
+    HTMX view
+    """
+
+    pass
+
+
+class SequenceConditionUpdateView(SequenceConditionBase, UpdateView):
     """
     Update a condition block in the sequence.
     When valid, it will reload the sequence timeline to make sure everything is in
@@ -141,51 +171,7 @@ class SequenceConditionUpdateView(LoginRequiredMixin, ManagerPermMixin, UpdateVi
     HTMX view
     """
 
-    template_name = "_condition_form.html"
-    model = Condition
-    form_class = ConditionUpdateForm
-    # fake page, we don't need to report back
-    success_url = "/health"
-
-    def dispatch(self, *args, **kwargs):
-        if self.request.user.is_authenticated:
-            self.sequence = get_object_or_404(
-                Sequence, pk=self.kwargs.get("sequence_pk", -1)
-            )
-        return super().dispatch(*args, **kwargs)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["sequence"] = self.sequence
-        return kwargs
-
-    def form_valid(self, form):
-        form.save()
-        return HttpResponse(headers={"HX-Trigger": "reload-sequence"})
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["object"] = self.sequence
-        context["condition_form"] = context["form"]
-        return context
-
-
-class SequenceTimelineDetailView(LoginRequiredMixin, ManagerPermMixin, DetailView):
-    """
-    Renders the sequence timeline.
-    HTMX view, this will only get called when the frontend requests an updated view.
-    On: added condition block, updated condition block, adding a template to the
-    condition
-    """
-
-    template_name = "_sequence_timeline.html"
-    model = Sequence
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["conditions"] = self.object.conditions.prefetched()
-        context["todos"] = ToDo.templates.all().defer("content")
-        return context
+    pass
 
 
 class SendTestMessageView(LoginRequiredMixin, ManagerPermMixin, View):
@@ -195,7 +181,7 @@ class SendTestMessageView(LoginRequiredMixin, ManagerPermMixin, View):
         external_message.send_to = request.user
         external_message.execute(request.user)
 
-        return HttpResponse(headers={"HX-Trigger": "reload-page"})
+        return HttpResponse()
 
 
 class SequenceFormView(LoginRequiredMixin, ManagerPermMixin, View):
@@ -458,5 +444,6 @@ class SequenceDefaultTemplatesView(LoginRequiredMixin, ManagerPermMixin, ListVie
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["sequence"] = get_object_or_404(Sequence, id=self.kwargs.get("pk", -1))
         context["active"] = self.request.GET.get("type", "")
         return context

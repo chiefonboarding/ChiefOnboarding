@@ -1,6 +1,6 @@
 {% extends 'admin_base.html' %}
-{% load crispy_forms_tags %}
 {% load i18n %}
+{% load crispy_forms_tags %}
 {% block content %}
 <div class="row">
   <div class="col-12">
@@ -9,7 +9,7 @@
         <div class="card-body">
           {% crispy form %}
           <div class="form-footer">
-            <button type="submit" class="btn btn-primary">{% translate "Add to new hire" %}</button>
+            <button type="submit" class="btn btn-primary">{% translate "Schedule termination of employee" %}</button>
           </div>
         </div>
       </form>

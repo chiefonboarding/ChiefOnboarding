@@ -3,6 +3,7 @@
 {% load crispy_forms_tags %}
 
 {% block actions %}
+<a href="{% url 'people:terminate' object.id %}" class="btn">{% translate "Terminate" %}</a>
 <a href="{% url 'people:colleague_access' object.id %}" class="btn">{% translate "Access" %}</a>
 <a href="{% url 'people:delete' object.id %}" class="btn btn-danger">{% translate "Delete" %}</a>
 {% endblock %}

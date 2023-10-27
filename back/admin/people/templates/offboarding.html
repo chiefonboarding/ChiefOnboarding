@@ -1,0 +1,44 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="col-12">
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table card-table table-vcenter text-nowrap">
+        <thead>
+          <tr>
+            <th>{% translate "Name" %}</th>
+            <th>{% translate "Position" %}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for colleague in object_list %}
+          <tr>
+            <td>
+              {% include "_table_user.html" with user=colleague %}
+            </td>
+            <td>
+              {{ colleague.position }}
+            </td>
+            <td class="text-end">
+              <a href="{% url 'people:offboarding-detail' colleague.id %}" class="btn btn-white">
+                {% translate "View" %}
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3">
+              {% translate "No employees are about to leave the company" %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% include "_paginator.html" %}
+  </div>
+</div>
+{% endblock %}

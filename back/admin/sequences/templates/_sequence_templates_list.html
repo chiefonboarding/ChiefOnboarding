@@ -2,37 +2,41 @@
 <div class="card-body" >
   <h3>{% translate "Templates" %}</h3>
 
-  <button aria-label="{% translate "Todo items" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' %}?type=todo" class="btn btn-{% if active == 'todo' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+  <button aria-label="{% translate "Todo items" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' sequence.id %}?type=todo" class="btn btn-{% if active == 'todo' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_todo_icon.html' %}
   </button>
-  <button aria-label="{% translate "Resources" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' %}?type=resource" class="btn btn-{% if active == 'resource' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+  <button aria-label="{% translate "Resources" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' sequence.id %}?type=resource" class="btn btn-{% if active == 'resource' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_resource_icon.html' %}
   </button>
-  <button aria-label="{% translate "Introductions" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' %}?type=introduction" class="btn btn-{% if active == 'introduction' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+  {% if sequence.is_onboarding %}
+  <button aria-label="{% translate "Introductions" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' sequence.id %}?type=introduction" class="btn btn-{% if active == 'introduction' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_intro_icon.html' %}
   </button>
-  <button aria-label="{% translate "Appointments" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' %}?type=appointment" class="btn btn-{% if active == 'appointment' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+  {% endif %}
+  <button aria-label="{% translate "Appointments" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' sequence.id %}?type=appointment" class="btn btn-{% if active == 'appointment' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_appointment_icon.html' %}
   </button>
-  <button aria-label="{% translate "Badges" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' %}?type=badge" class="btn btn-{% if active == 'badge' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+  {% if sequence.is_onboarding %}
+  <button aria-label="{% translate "Badges" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' sequence.id %}?type=badge" class="btn btn-{% if active == 'badge' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_badge_icon.html' %}
   </button>
-  <button aria-label="{% translate "Preboarding items" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' %}?type=preboarding" class="btn btn-{% if active == 'preboarding' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+  <button aria-label="{% translate "Preboarding items" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' sequence.id %}?type=preboarding" class="btn btn-{% if active == 'preboarding' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_preboarding_icon.html' %}
   </button>
-  <button aria-label="{% translate "Admin Tasks" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' %}?type=pendingadmintask" class="btn btn-{% if active == 'pendingadmintask' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+  {% endif %}
+  <button aria-label="{% translate "Admin Tasks" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' sequence.id %}?type=pendingadmintask" class="btn btn-{% if active == 'pendingadmintask' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_admin_task_icon.html' %}
   </button>
-  <button aria-label="{% translate "Slack message" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' %}?type=pendingslackmessage" class="btn btn-{% if active == 'pendingslackmessage' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+  <button aria-label="{% translate "Slack message" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' sequence.id %}?type=pendingslackmessage" class="btn btn-{% if active == 'pendingslackmessage' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_slack_icon.html' %}
   </button>
-  <button aria-label="{% translate "Text message" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' %}?type=pendingtextmessage" class="btn btn-{% if active == 'pendingtextmessage' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+  <button aria-label="{% translate "Text message" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' sequence.id %}?type=pendingtextmessage" class="btn btn-{% if active == 'pendingtextmessage' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_text_icon.html' %}
   </button>
-  <button aria-label="{% translate "Email message" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' %}?type=pendingemailmessage" class="btn btn-{% if active == 'pendingemailmessage' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+  <button aria-label="{% translate "Email message" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' sequence.id %}?type=pendingemailmessage" class="btn btn-{% if active == 'pendingemailmessage' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_email_icon.html' %}
   </button>
-  <button  aria-label="{% translate "Integrations" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' %}?type=integration" class="btn btn-{% if active == 'integration' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+  <button  aria-label="{% translate "Integrations" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' sequence.id %}?type=integration" class="btn btn-{% if active == 'integration' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_integration_config.html' %}
   </button>
   <div style="display: inline-flex;">

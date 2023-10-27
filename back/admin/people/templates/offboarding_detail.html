@@ -2,10 +2,6 @@
 {% load i18n %}
 {% load general %}
 
-{% block actions %}
-{% include "_new_hire_settings_menu.html" %}
-{% endblock %}
-
 {% block content %}
 {% if object.missing_extra_info|length %}
 <div class="alert alert-warning">
@@ -19,55 +15,24 @@
   </div>
 </div>
 {% endif %}
-{% include "_new_hire_menu.html" %}
 <div class="row mt-3">
-  <div class="col-8">
+  <div class="col-12">
     <div class="card">
       <div class="card-header">
         <h3 class="card-title">{% translate "What's up next..." %}</h3>
       </div>
       <div class="card-body">
         <ul class="list list-timeline">
-          {# only show preboarding if before first day #}
-          {% if object.workday == 0 and object.preboarding.all|length %}
-            <li>
-              <div class="list-timeline-icon bg-twitter">
-              </div>
-              <div class="list-timeline-content pt-0" style="margin-top: -5px">
-                <div class="card">
-                  <div class="card-header">
-                    <h4 class="card-title">{% translate "Before first day" %}</h4>
-                  </div>
-                  <div class="card-body">
-                    {% for preboard in object.preboarding.all %}
-                      <p class="text-muted" style="margin-bottom: 5px">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                           <line x1="9" y1="6" x2="20" y2="6"></line>
-                           <line x1="9" y1="12" x2="20" y2="12"></line>
-                           <line x1="9" y1="18" x2="20" y2="18"></line>
-                           <line x1="5" y1="6" x2="5" y2="6.01"></line>
-                           <line x1="5" y1="12" x2="5" y2="12.01"></line>
-                           <line x1="5" y1="18" x2="5" y2="18.01"></line>
-                        </svg>
-                        {{ preboard.name }}
-                      </p>
-                    {% endfor %}
-                  </div>
-                </div>
-              </div>
-            </li>
-          {% endif %}
             {% for condition in conditions %}
-              {% show_highlighted_date_card conditions forloop.counter0 object object.start_day as show_start %}
-              {% if show_start %}
+              {% show_highlighted_date_card conditions forloop.counter0 object.termination_date as show_last_day %}
+              {% if show_last_day %}
                 <li>
                   <div class="list-timeline-icon">
                   </div>
                   <div class="list-timeline-content pt-0" style="margin-top: -5px">
                     <div class="card">
                       <div class="card-header">
-                        <h4 class="card-title">{% blocktranslate with start_day=object.start_day %}{{ start_day }} - New hire's first day!{% endblocktranslate %}</h4>
+                        <h4 class="card-title">{% blocktranslate with last_day=object.termination_date %}{{ last_day }} - Employee's last day{% endblocktranslate %}</h4>
                       </div>
                     </div>
                   </div>
@@ -103,10 +68,9 @@
 
                     </div>
                     <div class="card-body">
-
                       {# FOR NEW HIRES #}
                       {% if condition.external_new_hire|length or condition.to_do.all|length or condition.resources.all|length or condition.introductions.all|length %}
-                      <span class="badge bg-azure mb-2">{% translate "new hire" %}</span>
+                      <span class="badge bg-azure mb-2">{% translate "employee" %}</span>
                       {% endif %}
                       {% for item in condition.appointments.all %}
                         {% include '_condition_line_item.html' with type='appointment' read_only=True %}
@@ -125,12 +89,6 @@
                       {% endfor %}
                       {% for item in condition.resources.all %}
                         {% include '_condition_line_item.html' with type='resource' read_only=True %}
-                      {% endfor %}
-                      {% for item in condition.introductions.all %}
-                        {% include '_condition_line_item.html' with type='introduction' read_only=True %}
-                      {% endfor %}
-                      {% for item in condition.badges.all %}
-                        {% include '_condition_line_item.html' with type='badge' read_only=True %}
                       {% endfor %}
 
                       {# FOR ADMINS #}
@@ -163,40 +121,5 @@
       </div>
     </div>
   </div>
-  <div class="col-4">
-    <div class="card">
-      <div class="card-header">
-        <h3 class="card-title">{% translate "Latest activity..." %}</h3>
-      </div>
-      <div class="card-body">
-        <div class="divide-y" style="max-height: 500px; overflow-y: scroll; overflow-x: hidden;">
-          {% for notification in notifications %}
-            <div class="row">
-              <div class="col">
-                <div class="text-truncate">
-                  <strong>{{ notification.extra_text }}</strong>
-                  <div class="text-muted">
-                    {{ notification.get_notification_type_display }}
-                  </div>
-                </div>
-                <div class="text-truncate text-muted">{% translate "By" %}{% if notification.created_by %} {{ notification.created_by.full_name }}{% else %} ChiefOnboarding{% endif %} - {{ notification.created }}</div>
-                {% if notification.can_delete %}
-                <form method="post" action="{% url 'people:remove_sequence' object.id notification.item_id %}">
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-sm btn-danger mt-2" style="margin-right: 10px">Remove</a>
-                </form>
-                {% endif %}
-              </div>
-            </div>
-          {% empty %}
-            <div class="row">
-              <div class="col">
-                <div>{% translate "No items yet" %}</div>
-              </div>
-            </div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
 </div>
 {% endblock %}

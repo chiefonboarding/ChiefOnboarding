@@ -71,7 +71,11 @@
           {% endfor %}
         </div>
         <div class="card-footer">
-          <a href="{% url 'people:new_hire' new_hire_id %}" class="btn btn-primary" style="float: right">{% translate "Go to new hire" %}</a>
+          {% if employee.is_new_hire %}
+            <a href="{% url 'people:new_hire' employee.id %}" class="btn btn-primary" style="float: right">{% translate "Go to new hire" %}</a>
+          {% else %}
+            <a href="{% url 'people:offboarding-detail' employee.id %}" class="btn btn-primary" style="float: right">{% translate "Go to employee" %}</a>
+          {% endif %}
         </div>
     </div>
   </div>

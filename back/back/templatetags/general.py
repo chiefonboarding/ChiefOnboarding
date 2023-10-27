@@ -60,18 +60,17 @@ def new_hire_trigger_date(condition, new_hire):
 
 
 @register.simple_tag
-def show_start_card(conditions, idx, new_hire):
+def show_highlighted_date_card(conditions, idx, highlighted_date):
     """
-    Check if we should show the start card "New hire's start day"
+    Check if we should show the start/termination card
     Only show when the date before is lower then the start day
     and the date after is higher.
     """
     current_date = timezone.now().date()
-    start_day = new_hire.start_day
     current_condition = conditions[idx]
 
     # Return if this date has already past
-    if current_date > start_day:
+    if current_date > highlighted_date:
         return False
 
     try:

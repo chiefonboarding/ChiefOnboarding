@@ -23,9 +23,28 @@ from slack_bot.utils import Slack
 from .emails import send_sequence_message
 
 
+class OnboardingSequenceManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(category=Sequence.Category.ONBOARDING)
+
+
+class OffboardingSequenceManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(category=Sequence.Category.OFFBOARDING)
+
+
 class Sequence(models.Model):
+    class Category(models.IntegerChoices):
+        ONBOARDING = 0, _("Onboarding sequence")
+        OFFBOARDING = 1, _("Offboarding sequence")
+
     name = models.CharField(verbose_name=_("Name"), max_length=240)
     auto_add = models.BooleanField(default=False)
+    category = models.IntegerField(choices=Category.choices)
+
+    objects = models.Manager()
+    onboarding = OnboardingSequenceManager()
+    offboarding = OffboardingSequenceManager()
 
     def __str__(self):
         return self.name
@@ -33,6 +52,14 @@ class Sequence(models.Model):
     @property
     def update_url(self):
         return reverse("sequences:update", args=[self.id])
+
+    @property
+    def is_onboarding(self):
+        return self.category == Sequence.Category.ONBOARDING
+
+    @property
+    def is_offboarding(self):
+        return self.category == Sequence.Category.OFFBOARDING
 
     def class_name(self):
         return self.__class__.__name__
@@ -526,8 +553,25 @@ class PendingAdminTask(models.Model):
 
 
 class IntegrationConfig(models.Model):
+    class PersonType(models.IntegerChoices):
+        MANAGER = 1, _("Manager")
+        BUDDY = 2, _("Buddy")
+        CUSTOM = 3, _("Custom")
+
     integration = models.ForeignKey(Integration, on_delete=models.CASCADE, null=True)
     additional_data = EncryptedJSONField(default=dict)
+    person_type = models.IntegerField(
+        verbose_name=_("Assigned to"),
+        choices=PersonType.choices,
+        default=PersonType.MANAGER,
+    )
+    assigned_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name=_("Pick user"),
+        on_delete=models.CASCADE,
+        related_name="assigned_user_integration",
+        null=True,
+    )
 
     @property
     def name(self):
@@ -583,7 +627,8 @@ class ConditionPrefetchManager(models.Manager):
             .annotate(
                 days_order=Case(
                     When(condition_type=Condition.Type.BEFORE, then=F("days") * -1),
-                    When(condition_type=Condition.Type.AFTER, then=99999),
+                    When(condition_type=Condition.Type.TODO, then=99998),
+                    When(condition_type=Condition.Type.ADMIN_TASK, then=99999),
                     default=F("days"),
                     output_field=IntegerField(),
                 )
@@ -606,9 +651,7 @@ class Condition(models.Model):
     condition_type = models.IntegerField(
         verbose_name=_("Block type"), choices=Type.choices, default=Type.AFTER
     )
-    days = models.IntegerField(
-        verbose_name=_("Amount of days before/after new hire has started"), default=1
-    )
+    days = models.IntegerField(verbose_name=_("Amount of days before/after"), default=1)
     time = models.TimeField(verbose_name=_("At"), default="08:00")
     condition_to_do = models.ManyToManyField(
         ToDo,
