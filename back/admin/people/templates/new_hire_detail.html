@@ -59,7 +59,7 @@
             </li>
           {% endif %}
             {% for condition in conditions %}
-              {% show_highlighted_date_card conditions forloop.counter0 object object.start_day as show_start %}
+              {% show_highlighted_date_card conditions forloop.counter0 object.start_day as show_start %}
               {% if show_start %}
                 <li>
                   <div class="list-timeline-icon">
@@ -105,7 +105,7 @@
                     <div class="card-body">
 
                       {# FOR NEW HIRES #}
-                      {% if condition.external_new_hire|length or condition.to_do.all|length or condition.resources.all|length or condition.introductions.all|length %}
+                      {% if condition.external_new_hire|length or condition.appointments.all|length or condition.badges.all|length or condition.to_do.all|length or condition.resources.all|length or condition.introductions.all|length %}
                       <span class="badge bg-azure mb-2">{% translate "new hire" %}</span>
                       {% endif %}
                       {% for item in condition.appointments.all %}
@@ -138,7 +138,7 @@
                       <span class="badge bg-orange mb-2">{% translate "admins" %}</span>
                       {% endif %}
                       {% for item in condition.integration_configs.all %}
-                        {% include '_condition_line_item.html' with type='integrationconfig' provision_created=1 %}
+                        {% include '_condition_line_item.html' with type='integrationconfig' provision_created=1 read_only=True %}
                       {% endfor %}
                       {% for item in condition.admin_tasks.all %}
                         {% include '_condition_line_item.html' with type='admintask' read_only=True %}

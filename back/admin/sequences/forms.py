@@ -144,11 +144,11 @@ class OffboardingConditionForm(ConditionForm):
         # use different labels for the type
         self.fields["condition_type"].choices = [
             (2, _("On/Before employee's last day")),
-            (0, _("After employee's last day")),
             (1, _("Based on one or more to do item(s)")),
             (4, _("Based on one or more admin tasks")),
         ]
         self.fields["days"].help_text = _("Enter 0 for the last day")
+        self.fields["days"].label = _("Amount of days before")
 
     def clean_days(self):
         day = self.cleaned_data["days"]
@@ -157,14 +157,6 @@ class OffboardingConditionForm(ConditionForm):
             return day
         if self.cleaned_data["condition_type"] == Condition.Type.BEFORE and day < 0:
             raise ValidationError(_("You cannot less than 0. Their last day is 0."))
-        if self.cleaned_data["condition_type"] == Condition.Type.AFTER and day < 1:
-            raise ValidationError(
-                _(
-                    "You cannot use 0 or less. The day before starting is 1 and the "
-                    "first workday is 1"
-                )
-            )
-
         return day
 
 

@@ -196,3 +196,28 @@ def timed_triggers():
                     user.id,
                     task_name=f"Process condition: {i.id} for {user.full_name}",
                 )
+
+        for user in get_user_model().offboarding.all():
+            amount_days_before = user.days_before_termination_date
+
+            if amount_days_before == -1 or user.get_local_time(last_updated).weekday() < 5:
+                # we are past the termination date or in a weekend, move to the next
+                continue
+
+            current_time = user.get_local_time(last_updated).time()
+            conditions = user.conditions.filter(
+                condition_type=Condition.Type.BEFORE,
+                days=amount_days_before,
+                time=current_time,
+            )
+
+            # Schedule conditions to be executed with new scheduled task, we do this to
+            # avoid long standing tasks. I.e. sending lots of emails might take more
+            # time.
+            for i in conditions:
+                async_task(
+                    process_condition,
+                    i.id,
+                    user.id,
+                    task_name=f"Process condition: {i.id} for {user.full_name}",
+                )

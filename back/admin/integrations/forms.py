@@ -120,6 +120,7 @@ class ManualIntegrationConfigForm(forms.ModelForm):
         hide_assigned_to = "d-none"
         self.helper = FormHelper()
         self.helper.form_tag = False
+        self.fields["assigned_to"].required = False
         if (
             self.instance is not None
             and self.instance.person_type == IntegrationConfig.PersonType.CUSTOM
@@ -130,7 +131,7 @@ class ManualIntegrationConfigForm(forms.ModelForm):
                 "<p>"
                 + _(
                     "This is a manual integration, you will have to assign someone "
-                    "to create it for this person."
+                    "to create/remove it for this person."
                 )
                 + "</p>"
             ),

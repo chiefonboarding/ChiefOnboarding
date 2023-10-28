@@ -53,6 +53,13 @@ class ManagerSlackManager(models.Manager):
         ) | super().get_queryset().exclude(slack_user_id="")
 
 
+class OffboardingManager(models.Manager):
+    def get_queryset(self):
+        return (
+            super().get_queryset().filter(termination_date__isnull=False)
+        )
+
+
 class ManagerManager(models.Manager):
     def get_queryset(self):
         return (
@@ -65,7 +72,7 @@ class ManagerManager(models.Manager):
 
 class NewHireManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(role=User.Role.NEWHIRE)
+        return super().get_queryset().filter(role=User.Role.NEWHIRE, termination_date__isnull=False)
 
     def without_slack(self):
         return self.get_queryset().filter(slack_user_id="")
@@ -215,6 +222,7 @@ class User(AbstractBaseUser):
     managers_and_admins_or_slack_users = ManagerSlackManager()
     new_hires = NewHireManager()
     admins = AdminManager()
+    offboarding = OffboardingManager()
     ordering = ("first_name",)
 
     class Meta:
@@ -363,6 +371,21 @@ class User(AbstractBaseUser):
             if start_day.weekday() not in [5, 6]:
                 start += 1
         return start_day
+
+    @cached_property
+    def days_before_termination_date(self):
+        employee_today = self.get_local_time().date()
+        termination_date = self.termination_date
+        if termination_date < employee_today:
+            # passed the termination date
+            return -1
+
+        days = 1
+        while termination_date != employee_today:
+            employee_today += timedelta(days=1)
+            if employee_today.weekday() not in [5, 6]:
+                days += 1
+        return days
 
     @cached_property
     def days_before_starting(self):

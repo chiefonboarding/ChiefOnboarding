@@ -50,13 +50,20 @@ def personalize(text, user):
 @register.filter(name="new_hire_trigger_date")
 def new_hire_trigger_date(condition, new_hire):
     """
-    Shows the actual date that the conditio will trigger
+    Shows the actual date that the condition will trigger
     """
 
     if condition.condition_type == Condition.Type.BEFORE:
         return new_hire.start_day - timedelta(days=condition.days)
     else:
         return new_hire.workday_to_datetime(condition.days)
+
+@register.filter(name="offboarding_trigger_date")
+def offboarding_trigger_date(condition, employee):
+    """
+    Shows the actual date that the condition will trigger
+    """
+    return employee.termination_date - timedelta(days=condition.days)
 
 
 @register.simple_tag

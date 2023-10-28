@@ -15,11 +15,7 @@
       <div class="col-10">
         <h4 class="card-title">
           {% if condition.condition_type == ConditionType.AFTER %}
-            {% if sequence.is_onboarding %}
-              {% blocktranslate with days=condition.days time=condition.time %}On day {{ days }} at {{ time }}{% endblocktranslate %}
-            {% else %}
-              {% blocktranslate with days=condition.days time=condition.time %}After termination on day {{ days }} at {{ time }}{% endblocktranslate %}
-            {% endif %}
+            {% blocktranslate with days=condition.days time=condition.time %}On day {{ days }} at {{ time }}{% endblocktranslate %}
           {% elif condition.condition_type == ConditionType.TODO %}
             {% translate "When these tasks are completed:" %}
             <div id="div_id_condition_to_do">
@@ -39,7 +35,7 @@
               {% blocktranslate with days=condition.days time=condition.time %}{{ days }} days before starting at {{ time }}{% endblocktranslate %}
             {% elif condition.days == 0 %}
               {% blocktranslate with days=condition.days time=condition.time %}On termination day at {{ time }}{% endblocktranslate %}
-            {% else %} {# termination sequence #}
+            {% else %} {# offboarding sequence #}
               {% blocktranslate with days=condition.days time=condition.time %}{{ days }} workday(s) before termination{% endblocktranslate %}
             {% endif %}
           {% else %}
@@ -64,7 +60,7 @@
     </div>
   </div>
   <div class="card-body">
-    {% if not condition.external_new_hire|length and not condition.preboarding.all|length and not condition.to_do.all|length and not condition.resources.all|length and not condition.introductions.all|length and not condition.external_admin|length and not condition.admin_tasks.all|length and not condition.preboarding.all|length and not condition.badges.all|length and not condition.integration_configs.all|length %}
+    {% if not condition.external_new_hire|length and not condition.preboarding.all|length and not condition.to_do.all|length and not condition.appointments.all|length and not condition.resources.all|length and not condition.introductions.all|length and not condition.external_admin|length and not condition.admin_tasks.all|length and not condition.preboarding.all|length and not condition.badges.all|length and not condition.integration_configs.all|length %}
       No items yet
     {% endif %}
 

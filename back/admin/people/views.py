@@ -67,7 +67,7 @@ class ColleagueListView(LoginRequiredMixin, ManagerPermMixin, ListView):
 
 class OffboardingColleagueListView(LoginRequiredMixin, ManagerPermMixin, ListView):
     template_name = "offboarding.html"
-    queryset = get_user_model().objects.filter(termination_date__isnull=False)
+    queryset = get_user_model().offboarding.all()
     paginate_by = 20
     ordering = ["-termination_date", "email"]
 
@@ -307,6 +307,8 @@ class AddOffboardingSequenceView(
         sequence_ids = form.cleaned_data.pop("sequences", [])
         form.save()
         employee = self.object
+        # delete all previous conditions (from being a new hire)
+        employee.conditions.all().delete()
 
         sequences = Sequence.offboarding.filter(id__in=sequence_ids)
         employee.add_sequences(sequences)
@@ -316,8 +318,7 @@ class AddOffboardingSequenceView(
         for seq in sequences:
             conditions |= seq.conditions.filter(
                 condition_type=Condition.Type.BEFORE,
-                # starting is a weird term in this context, but it does same thing
-                days__gte=employee.days_before_starting,
+                days__gte=employee.days_before_termination_date,
             )
 
         if conditions.count():
@@ -342,14 +343,14 @@ class ColleagueOffboardngSequenceView(
     LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView
 ):
     template_name = "offboarding_detail.html"
-    queryset = get_user_model().objects.filter(termination_date__isnull=False)
+    queryset = get_user_model().offboarding.all()
     context_object_name = "object"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         employee = self.object
         context["title"] = employee.full_name
-        context["subtitle"] = _("new hire")
+        context["subtitle"] = _("Offboarding")
 
         conditions = employee.conditions.prefetched()
 
@@ -357,10 +358,7 @@ class ColleagueOffboardngSequenceView(
         context["conditions"] = (
             (
                 conditions.filter(
-                    condition_type=2, days__lte=employee.days_before_starting
-                )
-                | conditions.filter(
-                    condition_type=Condition.Type.AFTER, days__gte=employee.workday
+                    condition_type=Condition.Type.BEFORE, days__lte=employee.days_before_termination_date
                 )
                 | conditions.filter(condition_type=Condition.Type.TODO)
                 | conditions.filter(condition_type=Condition.Type.ADMIN_TASK)

@@ -10,6 +10,7 @@
           <tr>
             <th>{% translate "Name" %}</th>
             <th>{% translate "Position" %}</th>
+            <th>{% translate "Last day" %}</th>
             <th></th>
           </tr>
         </thead>
@@ -21,6 +22,9 @@
             </td>
             <td>
               {{ colleague.position }}
+            </td>
+            <td>
+              {{ colleague.termination_date }}
             </td>
             <td class="text-end">
               <a href="{% url 'people:offboarding-detail' colleague.id %}" class="btn btn-white">
