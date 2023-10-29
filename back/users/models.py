@@ -55,9 +55,7 @@ class ManagerSlackManager(models.Manager):
 
 class OffboardingManager(models.Manager):
     def get_queryset(self):
-        return (
-            super().get_queryset().filter(termination_date__isnull=False)
-        )
+        return super().get_queryset().filter(termination_date__isnull=False)
 
 
 class ManagerManager(models.Manager):
@@ -72,7 +70,11 @@ class ManagerManager(models.Manager):
 
 class NewHireManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(role=User.Role.NEWHIRE, termination_date__isnull=False)
+        return (
+            super()
+            .get_queryset()
+            .filter(role=User.Role.NEWHIRE, termination_date__isnull=False)
+        )
 
     def without_slack(self):
         return self.get_queryset().filter(slack_user_id="")

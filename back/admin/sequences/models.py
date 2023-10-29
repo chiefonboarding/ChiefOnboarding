@@ -563,7 +563,11 @@ class IntegrationConfig(models.Model):
     person_type = models.IntegerField(
         verbose_name=_("Assigned to"),
         choices=PersonType.choices,
-        default=PersonType.MANAGER,
+        null=True,
+        blank=True,
+        help_text=_(
+            "Leave empty to automatically check the integration as created/removed."
+        ),
     )
     assigned_to = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -571,6 +575,7 @@ class IntegrationConfig(models.Model):
         on_delete=models.CASCADE,
         related_name="assigned_user_integration",
         null=True,
+        blank=True,
     )
 
     @property
@@ -585,6 +590,69 @@ class IntegrationConfig(models.Model):
         self.pk = None
         self.save()
         return self
+
+    def execute(self, user):
+        # avoid circular import
+        from users.models import IntegrationUser
+
+        if not self.integration.skip_user_provisioning:
+            # it's an automated integration so just execute it
+            self.integration.execute(user, self.additional_data)
+            return
+
+        is_offboarding = user.termination_date is not None
+
+        if self.person_type is None:
+            # doesn't need extra action, just log
+            integration_user, created = IntegrationUser.objects.get_or_create(
+                user=user,
+                integration=self.integration,
+                defaults={"revoked": is_offboarding},
+            )
+            if not created:
+                # make sure revoked is set correctly
+                integration_user.revoked = is_offboarding
+                integration_user.save()
+
+            Notification.objects.create(
+                notification_type=Notification.Type.REMOVE_MANUAL_INTEGRATION
+                if is_offboarding
+                else Notification.Type.ADD_MANUAL_INTEGRATION,
+                extra_text=self.integration.name,
+                created_for=user,
+                item_id=integration_user.id,
+                notified_user=False,
+                public_to_new_hire=False,
+            )
+
+        else:
+            # we need an admin to create the item and then check it off
+            if self.person_type == IntegrationConfig.PersonType.MANAGER:
+                assigned_to = user.manager
+            elif self.person_type == IntegrationConfig.PersonType.BUDDY:
+                assigned_to = user.buddy
+            else:
+                assigned_to = self.assigned_to
+
+            admin_task_name = _("Create integration: {self.integration.name}")
+
+            admin_task = AdminTask.objects.create(
+                new_hire=user,
+                assigned_to=assigned_to,
+                name=admin_task_name,
+                option=AdminTask.Notification.NO,
+                integration=self.integration,
+                create_integration=not is_offboarding,
+            )
+
+            Notification.objects.create(
+                notification_type=Notification.Type.ADDED_ADMIN_TASK,
+                extra_text=admin_task_name,
+                created_for=user,
+                item_id=admin_task.id,
+                notified_user=False,
+                public_to_new_hire=False,
+            )
 
 
 class ConditionPrefetchManager(models.Manager):
@@ -798,9 +866,6 @@ class Condition(models.Model):
         return self, admin_tasks
 
     def process_condition(self, user, skip_notification=False):
-        # avoid circular import
-        from users.models import IntegrationUser
-
         # Loop over all m2m fields and add the ones that can be easily added
         for field in [
             "to_do",
@@ -826,13 +891,4 @@ class Condition(models.Model):
         # execute them. It will also add an item to the notification model there.
         for field in ["admin_tasks", "external_messages", "integration_configs"]:
             for item in getattr(self, field).all():
-                # Only for integration configs
-                if getattr(item, "integration", None) is not None:
-                    if item.integration.skip_user_provisioning:
-                        IntegrationUser.objects.create(
-                            user=user, integration=item.integration
-                        )
-                    else:
-                        item.integration.execute(user, item.additional_data)
-                else:
-                    item.execute(user)
+                item.execute(user)

@@ -377,6 +377,12 @@ class Notification(models.Model):
             "Couldn't update Slack message"
         )
         RAN_INTEGRATION = "ran_integration", _("Integration has been triggered")
+        REMOVE_MANUAL_INTEGRATION = "remove_manual_integration", _(
+            "Disable manual integration"
+        )
+        ADD_MANUAL_INTEGRATION = "add_manual_integration", _(
+            "Enable manual integration"
+        )
         FAILED_INTEGRATION = "failed_integration", _("Couldn't complete integration")
         BLOCKED_INTEGRATION = "blocked_integration", _(
             "Integration was blocked due to condition"

@@ -358,7 +358,8 @@ class ColleagueOffboardngSequenceView(
         context["conditions"] = (
             (
                 conditions.filter(
-                    condition_type=Condition.Type.BEFORE, days__lte=employee.days_before_termination_date
+                    condition_type=Condition.Type.BEFORE,
+                    days__lte=employee.days_before_termination_date,
                 )
                 | conditions.filter(condition_type=Condition.Type.TODO)
                 | conditions.filter(condition_type=Condition.Type.ADMIN_TASK)

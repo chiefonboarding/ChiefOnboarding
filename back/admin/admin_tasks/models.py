@@ -62,7 +62,20 @@ class AdminTask(models.Model):
         "sequences.PendingAdminTask",
         null=True,
         on_delete=models.SET_NULL,
-        help_text="If generated through a sequence, then this will be filled",
+        help_text=_("If generated through a sequence, then this will be filled"),
+    )
+    integration = models.ForeignKey(
+        "integrations.Integration",
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text=_("Only set if generated based on a manual integration."),
+    )
+    create_integration = models.BooleanField(
+        default=False,
+        help_text=_(
+            "Specifies if integration has been created or removed by completing the "
+            "admin task."
+        ),
     )
 
     @property

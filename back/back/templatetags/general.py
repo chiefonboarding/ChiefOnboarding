@@ -58,6 +58,7 @@ def new_hire_trigger_date(condition, new_hire):
     else:
         return new_hire.workday_to_datetime(condition.days)
 
+
 @register.filter(name="offboarding_trigger_date")
 def offboarding_trigger_date(condition, employee):
     """

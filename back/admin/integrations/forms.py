@@ -117,15 +117,16 @@ class IntegrationConfigForm(forms.ModelForm):
 class ManualIntegrationConfigForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        hide_assigned_to = "d-none"
         self.helper = FormHelper()
         self.helper.form_tag = False
-        self.fields["assigned_to"].required = False
+
+        hide_assigned_to = "d-none"
         if (
             self.instance is not None
             and self.instance.person_type == IntegrationConfig.PersonType.CUSTOM
         ):
             hide_assigned_to = ""
+
         self.helper.layout = Layout(
             HTML(
                 "<p>"
