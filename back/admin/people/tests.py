@@ -1622,7 +1622,8 @@ def test_new_hire_access_per_integration_compact_view(
     ):
         # New hire already has an account (email matches with return)
         url = reverse(
-            "people:user_check_integration_compact", args=[new_hire1.id, integration1.id]
+            "people:user_check_integration_compact",
+            args=[new_hire1.id, integration1.id],
         )
 
         response = client.get(url)
