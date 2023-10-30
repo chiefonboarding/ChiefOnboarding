@@ -53,7 +53,10 @@ class IntegrationManager(models.Manager):
         # any webhooks and account provisioning
         return self.get_queryset().filter(
             integration=Integration.Type.CUSTOM,
-            manifest_type=Integration.ManifestType.WEBHOOK,
+            manifest_type__in=[
+                Integration.ManifestType.WEBHOOK,
+                Integration.ManifestType.MANUAL_USER_PROVISIONING,
+            ],
         )
 
     def account_provision_options(self):
@@ -62,6 +65,9 @@ class IntegrationManager(models.Manager):
             integration=Integration.Type.CUSTOM,
             manifest_type=Integration.ManifestType.WEBHOOK,
             manifest__exists__isnull=False,
+        ) | self.get_queryset().filter(
+            integration=Integration.Type.CUSTOM,
+            manifest_type=Integration.ManifestType.MANUAL_USER_PROVISIONING,
         )
 
     def import_users_options(self):
@@ -88,6 +94,9 @@ class Integration(models.Model):
     class ManifestType(models.IntegerChoices):
         WEBHOOK = 0, _("Provision user accounts or trigger webhooks")
         SYNC_USERS = 1, _("Sync users")
+        MANUAL_USER_PROVISIONING = 3, _(
+            "Manual user account provisioning, no manifest required"
+        )
 
     name = models.CharField(max_length=300, default="", blank=True)
     integration = models.IntegerField(choices=Type.choices)
@@ -106,7 +115,7 @@ class Integration(models.Model):
         default=uuid.uuid4, editable=False, unique=True
     )
 
-    manifest = models.JSONField(default=dict)
+    manifest = models.JSONField(default=dict, null=True, blank=True)
     extra_args = EncryptedJSONField(default=dict)
     enabled_oauth = models.BooleanField(default=False)
 
@@ -120,12 +129,16 @@ class Integration(models.Model):
     bot_id = models.CharField(max_length=100, default="")
 
     @property
+    def skip_user_provisioning(self):
+        return self.manifest_type == Integration.ManifestType.MANUAL_USER_PROVISIONING
+
+    @property
     def schedule_name(self):
         return f"User sync for integration: {self.id}"
 
     def clean(self):
-        if not self.manifest:
-            # ignore field if form doesn't have it
+        if not self.manifest or self.skip_user_provisioning:
+            # ignore field if form doesn't have it or no manifest is necessary
             return
 
         if self.manifest_type == Integration.ManifestType.WEBHOOK:
@@ -137,6 +150,11 @@ class Integration(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
+
+        # skip if it's not a sync user integration (no background jobs for the others)
+        if self.manifest_type != Integration.ManifestType.SYNC_USERS:
+            return
+
         # update the background job based on the manifest
         schedule_cron = self.manifest.get("schedule")
 
@@ -269,7 +287,21 @@ class Integration(models.Model):
         return new_headers
 
     def user_exists(self, new_hire):
+        # check if user has been created manually
+        if self.skip_user_provisioning:
+            from users.models import IntegrationUser
+
+            try:
+                user_integration = IntegrationUser.objects.get(
+                    user=new_hire, integration=self
+                )
+            except IntegrationUser.DoesNotExist:
+                return False
+
+            return not user_integration.revoked
+
         self.new_hire = new_hire
+        self.has_user_context = new_hire is not None
 
         # Renew token if necessary
         if not self.renew_key():
@@ -281,6 +313,47 @@ class Integration(models.Model):
             return None
 
         return self._replace_vars(self.manifest["exists"]["expected"]) in response.text
+
+    def needs_user_info(self, user):
+        if self.skip_user_provisioning:
+            return False
+
+        # form created from the manifest, this info is always needed to create a new
+        # account. Check if there is anything that needs to be filled
+        form = self.manifest.get("form", [])
+
+        # extra items that are needed from the integration (often prefilled by admin)
+        extra_user_info = self.manifest.get("extra_user_info", [])
+        needs_more_info = any(
+            item["id"] not in user.extra_fields.keys() for item in extra_user_info
+        )
+
+        return len(form) > 0 or needs_more_info
+
+    def revoke_user(self, user):
+        if self.skip_user_provisioning:
+            # should never be triggered
+            return False, "Cannot revoke manual integration"
+
+        self.new_hire = user
+        self.has_user_context = True
+
+        # Renew token if necessary
+        if not self.renew_key():
+            return False, "Couldn't renew key"
+
+        revoke_manifest = self.manifest.get("revoke", [])
+
+        # add extra fields directly to params
+        self.params = self.new_hire.extra_fields
+
+        for item in revoke_manifest:
+            success, response = self.run_request(item)
+
+            if not success:
+                return False, self.clean_response(response)
+
+        return True, ""
 
     def renew_key(self):
         # Oauth2 refreshing access token if needed

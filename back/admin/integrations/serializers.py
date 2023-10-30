@@ -48,7 +48,6 @@ class ManifestExistSerializer(ValidateMixin, serializers.Serializer):
     fail_when_4xx_response_code = serializers.BooleanField(required=False)
     method = serializers.ChoiceField(
         [
-            ("HEAD", "HEAD"),
             ("GET", "GET"),
             ("POST", "POST"),
             ("PUT", "PUT"),
@@ -83,6 +82,20 @@ class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):
                 "continue_if must be filled if you use polling"
             )
         return data
+
+
+class ManifestRevokeSerializer(ValidateMixin, serializers.Serializer):
+    url = serializers.CharField()
+    data = serializers.JSONField(required=False, default=dict)
+    headers = serializers.DictField(child=serializers.CharField(), default=dict)
+    method = serializers.ChoiceField(
+        [
+            ("HEAD", "HEAD"),
+            ("GET", "GET"),
+            ("POST", "POST"),
+            ("PUT", "PUT"),
+        ]
+    )
 
 
 class ManifestPostExecuteNotificationSerializer(ValidateMixin, serializers.Serializer):
@@ -125,6 +138,7 @@ class ManifestOauthSerializer(ValidateMixin, serializers.Serializer):
 class WebhookManifestSerializer(ValidateMixin, serializers.Serializer):
     form = ManifestFormSerializer(required=False, many=True)
     exists = ManifestExistSerializer(required=False)
+    revoke = ManifestRevokeSerializer(required=False, many=True)
     execute = ManifestExecuteSerializer(many=True)
     post_execute_notification = ManifestPostExecuteNotificationSerializer(
         many=True, required=False

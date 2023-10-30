@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 
 from admin.integrations.utils import get_value_from_notation
 
-from .models import Integration
+from admin.integrations.models import Integration
 
 
 class IntegrationConfigForm(forms.ModelForm):
@@ -120,7 +120,7 @@ class PrettyJSONEncoder(json.JSONEncoder):
 
 
 class IntegrationForm(forms.ModelForm):
-    manifest = forms.JSONField(encoder=PrettyJSONEncoder)
+    manifest = forms.JSONField(encoder=PrettyJSONEncoder, required=False, initial=dict)
 
     class Meta:
         model = Integration
@@ -129,8 +129,18 @@ class IntegrationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["manifest_type"].required = True
+
+        # make manifest not required when manual user provisioning
+        if (
+            self.data.get("manifest_type", "")
+            != str(Integration.ManifestType.MANUAL_USER_PROVISIONING)
+            and self.instance.manifest_type
+            != Integration.ManifestType.MANUAL_USER_PROVISIONING
+        ):
+            self.fields["manifest"].required = True
+
         if self.instance.id:
-            # disable manifest_type when updating field
+            # disable manifest_type when updating record
             self.fields["manifest_type"].disabled = True
 
 

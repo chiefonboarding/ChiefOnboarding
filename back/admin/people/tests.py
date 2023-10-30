@@ -27,7 +27,7 @@ from users.factories import (
     ManagerFactory,
     NewHireFactory,
 )
-from users.models import CourseAnswer, User
+from users.models import CourseAnswer, User, IntegrationUser
 
 
 @pytest.mark.django_db
@@ -775,22 +775,20 @@ def test_new_hire_delete(client, django_user_model, new_hire_factory):
     admin = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin)
 
-    # Doesn't work for admins
-    url = reverse("people:delete", args=[admin.id])
-    response = client.post(url, follow=True)
-    admin.refresh_from_db()
-    assert django_user_model.objects.all().count() == 1
-
     new_hire1 = new_hire_factory()
     # We have two users now
     assert django_user_model.objects.all().count() == 2
 
-    # Works for new hires
     url = reverse("people:delete", args=[new_hire1.id])
+    response = client.get(url)
+    assert (
+        "Are you sure you want to delete this user? You have two options here:"
+        in response.content.decode()
+    )
     response = client.post(url, follow=True)
 
     assert django_user_model.objects.all().count() == 1
-    assert "New hire has been removed" in response.content.decode()
+    assert "User has been removed" in response.content.decode()
 
 
 @pytest.mark.django_db
@@ -1514,6 +1512,7 @@ def test_new_hire_access_list(
     new_hire_factory,
     integration_factory,
     custom_integration_factory,
+    manual_user_provision_integration_factory,
 ):
     client.force_login(
         django_user_model.objects.create(role=get_user_model().Role.ADMIN)
@@ -1534,6 +1533,8 @@ def test_new_hire_access_list(
     integration3.manifest = {}
     integration3.save()
 
+    integration4 = manual_user_provision_integration_factory()
+
     # Get the page with integrations
     url = reverse("people:new_hire_access", args=[new_hire1.id])
 
@@ -1542,6 +1543,15 @@ def test_new_hire_access_list(
     assert integration1.name not in response.content.decode()
     assert integration2.name in response.content.decode()
     assert integration3.name not in response.content.decode()
+    assert integration4.name in response.content.decode()
+
+    # Get the page with integrations - should be the same for colleague view
+    url = reverse("people:colleague_access", args=[new_hire1.id])
+
+    assert integration1.name not in response.content.decode()
+    assert integration2.name in response.content.decode()
+    assert integration3.name not in response.content.decode()
+    assert integration4.name in response.content.decode()
 
 
 @pytest.mark.django_db
@@ -1561,7 +1571,7 @@ def test_new_hire_access_per_integration(
     ):
         # New hire already has an account (email matches with return)
         url = reverse(
-            "people:new_hire_check_integration", args=[new_hire1.id, integration1.id]
+            "people:user_check_integration", args=[new_hire1.id, integration1.id]
         )
 
         response = client.get(url)
@@ -1574,7 +1584,7 @@ def test_new_hire_access_per_integration(
     ):
         # New hire has no account
         url = reverse(
-            "people:new_hire_check_integration", args=[new_hire2.id, integration1.id]
+            "people:user_check_integration", args=[new_hire2.id, integration1.id]
         )
 
         response = client.get(url)
@@ -1587,13 +1597,132 @@ def test_new_hire_access_per_integration(
     ):
         # New hire has no account
         url = reverse(
-            "people:new_hire_check_integration", args=[new_hire2.id, integration1.id]
+            "people:user_check_integration", args=[new_hire2.id, integration1.id]
         )
 
         response = client.get(url)
 
         assert integration1.name in response.content.decode()
         assert "Error when trying to reach service" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_new_hire_access_per_integration_compact_view(
+    client, django_user_model, new_hire_factory, custom_integration_factory
+):
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
+
+    new_hire1 = new_hire_factory(email="stan@example.com")
+    integration1 = custom_integration_factory(name="Asana")
+
+    with patch(
+        "admin.integrations.models.Integration.user_exists", Mock(return_value=True)
+    ):
+        # New hire already has an account (email matches with return)
+        url = reverse(
+            "people:user_check_integration_compact",
+            args=[new_hire1.id, integration1.id],
+        )
+
+        response = client.get(url)
+
+        assert "darkgreen" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_new_hire_access_per_integration_toggle(
+    client,
+    django_user_model,
+    new_hire_factory,
+    custom_integration_factory,
+    manual_user_provision_integration_factory,
+):
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
+
+    new_hire1 = new_hire_factory(email="stan@example.com")
+    integration1 = custom_integration_factory(name="Asana")
+    manual_integration = manual_user_provision_integration_factory()
+
+    # create a new account with third party
+    with (
+        patch(
+            "admin.integrations.models.Integration.needs_user_info",
+            Mock(return_value=False),
+        ) as mock_needs_info,
+        patch(
+            "admin.integrations.models.Integration.user_exists",
+            Mock(return_value=False),
+        ) as mock_user_exists,
+        patch(
+            "admin.integrations.models.Integration.execute",
+            Mock(return_value=(True, "")),
+        ) as mock_user_execute,
+        patch(
+            "admin.integrations.models.Integration.revoke_user",
+            Mock(return_value=(True, "")),
+        ) as mock_revoke_user,
+    ):
+        # New hire already has an account (email matches with return)
+        url = reverse("people:toggle_access", args=[new_hire1.id, integration1.id])
+        response = client.post(url)
+
+        assert "Activated" in response.content.decode()
+        assert len(mock_needs_info.mock_calls) == 1
+        assert len(mock_user_exists.mock_calls) == 1
+        assert len(mock_user_execute.mock_calls) == 1
+        assert len(mock_revoke_user.mock_calls) == 0
+
+    # create a new account with manual
+    assert IntegrationUser.objects.all().count() == 0
+    url = reverse("people:toggle_access", args=[new_hire1.id, manual_integration.id])
+    response = client.post(url)
+
+    assert "Activated" in response.content.decode()
+    assert IntegrationUser.objects.all().count() == 1
+    integration_user = IntegrationUser.objects.first()
+    assert not integration_user.revoked
+
+    # revoke third party
+    with (
+        patch(
+            "admin.integrations.models.Integration.needs_user_info",
+            Mock(return_value=False),
+        ) as mock_needs_info,
+        patch(
+            "admin.integrations.models.Integration.user_exists", Mock(return_value=True)
+        ) as mock_user_exists,
+        patch(
+            "admin.integrations.models.Integration.execute",
+            Mock(return_value=(True, "")),
+        ) as mock_user_execute,
+        patch(
+            "admin.integrations.models.Integration.revoke_user",
+            Mock(return_value=(True, "")),
+        ) as mock_revoke_user,
+    ):
+        # New hire already has an account (email matches with return)
+        url = reverse("people:toggle_access", args=[new_hire1.id, integration1.id])
+        response = client.post(url)
+
+        assert "Activated" not in response.content.decode()
+        assert len(mock_needs_info.mock_calls) == 1
+        assert len(mock_user_exists.mock_calls) == 1
+        assert len(mock_user_execute.mock_calls) == 0
+        assert len(mock_revoke_user.mock_calls) == 1
+
+    # revoke manual item
+    assert IntegrationUser.objects.all().count() == 1
+    url = reverse("people:toggle_access", args=[new_hire1.id, manual_integration.id])
+    response = client.post(url)
+
+    assert "Activated" not in response.content.decode()
+    assert IntegrationUser.objects.all().count() == 1
+    integration_user = IntegrationUser.objects.first()
+    assert integration_user.revoked
 
 
 @pytest.mark.django_db
@@ -1628,9 +1757,7 @@ def test_new_hire_access_per_integration_config_form(
     integration1.save()
 
     # New hire already has an account (email matches with return)
-    url = reverse(
-        "people:new_hire_give_integration", args=[new_hire1.id, integration1.id]
-    )
+    url = reverse("people:user_give_integration", args=[new_hire1.id, integration1.id])
     # Show form to admin
     response = client.get(url)
 
@@ -1676,6 +1803,7 @@ def test_new_hire_access_per_integration_post(
         django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     )
 
+    emp1 = EmployeeFactory()
     new_hire1 = new_hire_factory(email="stan@example.com")
     integration1 = custom_integration_factory(
         name="Asana", integration=Integration.Type.CUSTOM
@@ -1690,9 +1818,7 @@ def test_new_hire_access_per_integration_post(
     integration1.save()
 
     # New hire already has an account (email matches with return)
-    url = reverse(
-        "people:new_hire_give_integration", args=[new_hire1.id, integration1.id]
-    )
+    url = reverse("people:user_give_integration", args=[new_hire1.id, integration1.id])
     # Show form to admin
     response = client.post(url, data={"TEAM_ID": "test_team"}, follow=True)
 
@@ -1711,6 +1837,7 @@ def test_new_hire_access_per_integration_post(
 
         assert "Account could not be created" in response.content.decode()
 
+    # new hire created account
     with patch(
         "admin.integrations.models.Integration.execute", Mock(return_value=(True, None))
     ):
@@ -1721,6 +1848,63 @@ def test_new_hire_access_per_integration_post(
         )
 
         assert "Account has been created" in response.content.decode()
+        assert response.redirect_chain[-1][0] == reverse(
+            "people:new_hire_access", args=[new_hire1.id]
+        )
+
+    # Create account for other colleague
+    url = reverse("people:user_give_integration", args=[emp1.id, integration1.id])
+    with patch(
+        "admin.integrations.models.Integration.execute", Mock(return_value=(True, None))
+    ):
+        response = client.post(
+            url,
+            data={"TEAM_ID": "test_team", "PERSONAL_EMAIL": "hi@chiefonboarding.com"},
+            follow=True,
+        )
+
+        assert "Account has been created" in response.content.decode()
+        # redirects to colleagues
+        assert response.redirect_chain[-1][0] == reverse(
+            "people:colleague_access", args=[emp1.id]
+        )
+
+
+@pytest.mark.django_db
+def test_new_hire_access_revoke(
+    client,
+    django_user_model,
+    new_hire_factory,
+    custom_integration_factory,
+    manual_user_provision_integration_factory,
+):
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
+
+    new_hire1 = new_hire_factory(email="stan@example.com")
+    custom_integration_factory(name="Asana")
+    custom_integration_factory(name="Asana1")
+    custom_integration_factory(name="Asana2", manifest={"exists": {}, "revoke": []})
+    custom_integration_factory(name="Asana3", manifest={"exists": {}, "revoke": []})
+    manual_user_provision_integration_factory()
+
+    url = reverse("people:revoke_all_access", args=[new_hire1.id])
+    with (
+        patch(
+            "admin.integrations.models.Integration.user_exists", Mock(return_value=True)
+        ) as mock_user_exists,
+        patch(
+            "admin.integrations.models.Integration.revoke_user",
+            Mock(return_value=(True, "")),
+        ) as mock_revoke_user,
+    ):
+        # revoke all access
+        client.post(url)
+
+        # only triggered for Asana2 and Asana3
+        assert len(mock_user_exists.mock_calls) == 2
+        assert len(mock_revoke_user.mock_calls) == 2
 
 
 @pytest.mark.django_db
@@ -2049,19 +2233,25 @@ def test_colleague_update(client, django_user_model):
 
 
 @pytest.mark.django_db
-def test_colleague_delete(client, django_user_model, new_hire_factory):
+def test_colleague_delete(client, django_user_model, employee_factory):
     admin_user = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin_user)
 
-    new_hire1 = new_hire_factory()
+    emp1 = employee_factory()
 
     assert django_user_model.objects.all().count() == 2
 
-    url = reverse("people:colleague_delete", args=[new_hire1.id])
+    url = reverse("people:delete", args=[emp1.id])
+    response = client.get(url)
+    assert (
+        "Are you sure you want to delete this user? You have two options here:"
+        not in response.content.decode()
+    )
+
     response = client.post(url, follow=True)
 
-    assert "Colleague has been removed" in response.content.decode()
-    assert new_hire1.full_name not in response.content.decode()
+    assert "User has been removed" in response.content.decode()
+    assert emp1.full_name not in response.content.decode()
     assert django_user_model.objects.all().count() == 1
 
 

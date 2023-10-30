@@ -7,7 +7,7 @@ from django.utils import translation
 from django.utils.translation import gettext as _
 from django.views.generic.base import View
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 from django_q.tasks import async_task
 from rest_framework import generics
@@ -27,7 +27,6 @@ from slack_bot.utils import Slack, actions, button, paragraph
 from users.emails import email_new_admin_cred
 from users.mixins import (
     AdminPermMixin,
-    IsAdminOrNewHireManagerMixin,
     LoginRequiredMixin,
     ManagerPermMixin,
 )
@@ -99,14 +98,6 @@ class ColleagueUpdateView(
         context["title"] = new_hire.full_name
         context["subtitle"] = _("Employee")
         return context
-
-
-class ColleagueDeleteView(
-    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, SuccessMessageMixin, DeleteView
-):
-    queryset = get_user_model().objects.all()
-    success_url = reverse_lazy("people:colleagues")
-    success_message = _("Colleague has been removed")
 
 
 class ColleagueResourceView(LoginRequiredMixin, ManagerPermMixin, DetailView):

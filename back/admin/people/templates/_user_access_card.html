@@ -1,0 +1,59 @@
+{% load i18n %}
+<div class="card">
+  <div class="card-header">
+    <div class="d-flex">
+      <h3 class="card-title">
+      {{ integration.name }}
+      </h3>
+    </div>
+    {% if integration.skip_user_provisioning %}
+      <div class="d-flex" style="margin-left: 10px" aria-label="Manual integration - requires additional admin action" data-microtip-position="top" role="tooltip">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+          <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+          <path d="M12 9h.01" />
+          <path d="M11 12h1v4h1" />
+        </svg>
+      </div>
+    {% endif %}
+
+    {% if active %}
+      <div class="d-flex">
+        <a hx-post="{% url 'people:toggle_access' object.id integration.id %}" hx-confirm="Are you sure you want to remove access for this user for this integration?" hx-target=".integration-{{integration.id}}" aria-label="Remove third party access" data-microtip-position="top" role="tooltip" style="cursor: pointer; margin-left: 10px;" class="nav-link d-flex lh-1 text-reset p-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-bolt-off" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="indianred" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M3 3l18 18" />
+            <path d="M15.212 15.21l-4.212 5.79v-7h-6l3.79 -5.21m1.685 -2.32l2.525 -3.47v6m1 1h5l-2.104 2.893" />
+          </svg>
+        </a>
+      </div>
+    {% endif %}
+  </div>
+  <div class="card-footer">
+    {% if loading %}
+    <button class="btn btn-primary w-100" disabled>
+      <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+      {% translate "Checking status" %}
+    </button>
+    {% endif %}
+    {% if not loading %}
+      {% if active is None %}
+        {% translate "Error when trying to reach service" %}
+      {% elif active %}
+        <button class="btn btn-primary w-100">
+          {% translate "Activated" %}
+        </button>
+      {% else %}
+        {% if integration.skip_user_provisioning %}
+          <button type="submit" class="btn btn-white w-100" hx-post="{% url 'people:toggle_access' object.id integration.id %}" hx-target=".integration-{{integration.id}}">
+            {% translate "Set manually activated" %}
+          </button>
+        {% else %}
+          <a {% if needs_user_info %}href="{% url 'people:user_give_integration' object.id integration.id %}"{% else %}hx-post="{% url 'people:toggle_access' object.id integration.id %}" hx-confirm="Are you sure you want to give this user access to this integration?" hx-target=".integration-{{integration.id}}"{% endif %} class="btn btn-white w-100">
+            {% translate "Give access" %}
+          </a>
+        {% endif %}
+      {% endif %}
+    {% endif %}
+  </div>
+</div>

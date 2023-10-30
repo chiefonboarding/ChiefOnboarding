@@ -3,12 +3,8 @@
 {% load crispy_forms_tags %}
 
 {% block actions %}
-<form method="POST" action="{% url 'people:colleague_delete' object.id %}">
-  {% csrf_token %}
-  <button type="submit" class="btn btn-danger">
-    {% translate "Delete" %}
-  </button>
-</form>
+<a href="{% url 'people:colleague_access' object.id %}" class="btn">{% translate "Access" %}</a>
+<a href="{% url 'people:delete' object.id %}" class="btn btn-danger">{% translate "Delete" %}</a>
 {% endblock %}
 
 {% block content %}

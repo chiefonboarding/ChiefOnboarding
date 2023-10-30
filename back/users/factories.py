@@ -4,12 +4,14 @@ import factory
 from django.contrib.auth import get_user_model
 from factory.fuzzy import FuzzyText
 
+from admin.integrations.factories import ManualUserProvisionIntegrationFactory
 from admin.preboarding.factories import PreboardingFactory
 from admin.resources.factories import ResourceFactory
 from admin.to_do.factories import ToDoFactory
 
 from .models import (
     Department,
+    IntegrationUser,
     NewHireWelcomeMessage,
     OTPRecoveryKey,
     PreboardingUser,
@@ -106,3 +108,11 @@ class PreboardingUserFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = PreboardingUser
+
+
+class IntegrationUserFactory(factory.django.DjangoModelFactory):
+    user = factory.SubFactory(NewHireFactory)
+    integration = factory.SubFactory(ManualUserProvisionIntegrationFactory)
+
+    class Meta:
+        model = IntegrationUser

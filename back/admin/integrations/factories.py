@@ -123,3 +123,8 @@ class CustomUserImportIntegrationFactory(IntegrationFactory):
             },
         ],
     }
+
+
+class ManualUserProvisionIntegrationFactory(IntegrationFactory):
+    integration = Integration.Type.CUSTOM
+    manifest_type = Integration.ManifestType.MANUAL_USER_PROVISIONING
