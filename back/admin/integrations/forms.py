@@ -120,7 +120,7 @@ class PrettyJSONEncoder(json.JSONEncoder):
 
 
 class IntegrationForm(forms.ModelForm):
-    manifest = forms.JSONField(encoder=PrettyJSONEncoder, required=False, initial={})
+    manifest = forms.JSONField(encoder=PrettyJSONEncoder, required=False, initial=dict)
 
     class Meta:
         model = Integration
@@ -176,12 +176,6 @@ class IntegrationExtraUserInfoForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if missing_info is None:
             missing_info = self.instance.missing_extra_info
-
-        # remove fields that have already been filled
-        user = self.instance
-        missing_info = [
-            item for item in missing_info if item["id"] not in user.extra_fields.keys()
-        ]
 
         for item in missing_info:
             self.fields[item["id"]] = forms.CharField(
