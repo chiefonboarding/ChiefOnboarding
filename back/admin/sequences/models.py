@@ -866,6 +866,9 @@ class Condition(models.Model):
         return self, admin_tasks
 
     def process_condition(self, user, skip_notification=False):
+        # avoid circular import
+        from users.models import IntegrationUser
+
         # Loop over all m2m fields and add the ones that can be easily added
         for field in [
             "to_do",

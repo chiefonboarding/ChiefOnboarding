@@ -161,7 +161,7 @@ class PrettyJSONEncoder(json.JSONEncoder):
 class IntegrationForm(forms.ModelForm):
     """Form used to register a new integration through the settings"""
 
-    manifest = forms.JSONField(encoder=PrettyJSONEncoder, required=False, initial={})
+    manifest = forms.JSONField(encoder=PrettyJSONEncoder, required=False, initial=dict)
 
     class Meta:
         model = Integration

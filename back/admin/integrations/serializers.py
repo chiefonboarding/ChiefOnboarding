@@ -48,7 +48,6 @@ class ManifestExistSerializer(ValidateMixin, serializers.Serializer):
     fail_when_4xx_response_code = serializers.BooleanField(required=False)
     method = serializers.ChoiceField(
         [
-            ("HEAD", "HEAD"),
             ("GET", "GET"),
             ("POST", "POST"),
             ("PUT", "PUT"),

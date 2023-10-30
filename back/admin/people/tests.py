@@ -1607,6 +1607,31 @@ def test_new_hire_access_per_integration(
 
 
 @pytest.mark.django_db
+def test_new_hire_access_per_integration_compact_view(
+    client, django_user_model, new_hire_factory, custom_integration_factory
+):
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
+
+    new_hire1 = new_hire_factory(email="stan@example.com")
+    integration1 = custom_integration_factory(name="Asana")
+
+    with patch(
+        "admin.integrations.models.Integration.user_exists", Mock(return_value=True)
+    ):
+        # New hire already has an account (email matches with return)
+        url = reverse(
+            "people:user_check_integration_compact",
+            args=[new_hire1.id, integration1.id],
+        )
+
+        response = client.get(url)
+
+        assert "darkgreen" in response.content.decode()
+
+
+@pytest.mark.django_db
 def test_new_hire_access_per_integration_toggle(
     client,
     django_user_model,

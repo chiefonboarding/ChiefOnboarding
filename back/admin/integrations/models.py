@@ -315,19 +315,20 @@ class Integration(models.Model):
         return self._replace_vars(self.manifest["exists"]["expected"]) in response.text
 
     def needs_user_info(self, user):
-        # avoid circular import
-        from admin.integrations.forms import IntegrationExtraUserInfoForm
-
         if self.skip_user_provisioning:
             return False
 
-        integration_config_form = self.config_form()
-        # ignores items that were prefilled by an admin
-        user_details_form = IntegrationExtraUserInfoForm(
-            instance=user,
-            missing_info=self.manifest.get("extra_user_info", []),
+        # form created from the manifest, this info is always needed to create a new
+        # account. Check if there is anything that needs to be filled
+        form = self.manifest.get("form", [])
+
+        # extra items that are needed from the integration (often prefilled by admin)
+        extra_user_info = self.manifest.get("extra_user_info", [])
+        needs_more_info = any(
+            item["id"] not in user.extra_fields.keys() for item in extra_user_info
         )
-        return len(integration_config_form.fields) + len(user_details_form.fields) > 0
+
+        return len(form) > 0 or needs_more_info
 
     def revoke_user(self, user):
         if self.skip_user_provisioning:
