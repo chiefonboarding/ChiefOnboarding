@@ -137,7 +137,7 @@ class Integration(models.Model):
         return f"User sync for integration: {self.id}"
 
     def clean(self):
-        if self.skip_user_provisioning:
+        if not self.manifest or self.skip_user_provisioning:
             # ignore field if form doesn't have it or no manifest is necessary
             return
 
