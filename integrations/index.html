@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.750562669300">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.752017923197">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -30,12 +30,12 @@
 
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
-    <link href="../resources/css/retype.css?v=3.5.0.750562669300" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.5.0.752017923197" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.750562669300" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.752017923197" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.750562669300" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.5.0.750562669300" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.752017923197" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.5.0.752017923197" defer></script>
 </head>
 <body>
     <div id="docs-app" class="relative text-base antialiased text-gray-700 bg-white font-body dark:bg-dark-850 dark:text-dark-300">
@@ -274,12 +274,20 @@
         <span>Exists</span>
     </h3>
 </doc-anchor-target>
-<p>Exists is an option to check if a user is already part of a team. If you add this property to your manifest then it will show up under new hire -&gt; access. From there, you will be able to manaully enable/disable an account for them. Generally, you should skip this option if you are making any calls not related to account provisioning.</p>
+<p>Exists is an option to check if a user is already part of a team. If you add this property to your manifest then it will show up under new hire -&gt; access. From there, you will be able to manually enable/disable an account for them. Generally, you should skip this option if you are making any calls not related to account provisioning.</p>
 <p><code v-pre>url</code>: The url to check if the user exists. Everything that comes back is parsed to a string and then checked against.</p>
 <p><code v-pre>method</code>: The method for lookup that is being used. E.g. <code v-pre>POST</code> or <code v-pre>GET</code>.</p>
 <p><code v-pre>expected</code>: Whatever we expect. Generally this will probably be a positive message or the new hire&#x27;s email. You can use new hire values by wrapping them around double curly brackets.</p>
 <p><code v-pre>headers</code>: (optionally) This will overwrite the default headers.</p>
 <p><code v-pre>fail_when_4xx_response_code</code>: Default: True. If the server response with a 4xx status code, then that&#x27;s considered a failing request. In some cases, apis will return a 404 if the user does not exist. In that case, set this to <code v-pre>False</code>, so it can check for the <code v-pre>expected</code> value.</p>
+<doc-anchor-target id="revoke">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#revoke">#</doc-anchor-trigger>
+        <span>Revoke</span>
+    </h3>
+</doc-anchor-target>
+<p>Revoke is an option to revoke access of a user to a third party. If you add this property to your manifest then you will be able to revoke access through the dashboard. Generally, you should skip this option if you are making any calls not related to account provisioning.</p>
+<p>This uses the same setup as the execute part below (but is limited to <code v-pre>url</code>, <code v-pre>data</code>, <code v-pre>method</code> and <code v-pre>headers</code>). It expects an array with requests in it.</p>
 <doc-anchor-target id="execute">
     <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#execute">#</doc-anchor-trigger>
