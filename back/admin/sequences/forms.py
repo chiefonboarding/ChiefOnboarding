@@ -33,7 +33,6 @@ class ConditionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         sequence = kwargs.pop("sequence")
         super().__init__(*args, **kwargs)
-        self.allow_zero_date = False
         self.helper = FormHelper()
         self.helper.form_tag = False
         self.helper.layout = Layout(
