@@ -30,7 +30,10 @@ class Migration(migrations.Migration):
             field=models.IntegerField(
                 blank=True,
                 choices=[(1, "Manager"), (2, "Buddy"), (3, "Custom")],
-                help_text="Leave empty to automatically check the integration as created/removed.",
+                help_text=(
+                    "Leave empty to automatically check the integration as "
+                    "created/removed."
+                ),
                 null=True,
                 verbose_name="Assigned to",
             ),

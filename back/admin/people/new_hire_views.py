@@ -287,7 +287,9 @@ class NewHireTriggerConditionView(
         context["completed"] = True
         context["condition"] = condition
         # not relevant, still needed for processing the template
-        context["employee"] = get_object_or_404(get_user_model(), id=self.kwargs.get("pk"))
+        context["employee"] = get_object_or_404(
+            get_user_model(), id=self.kwargs.get("pk")
+        )
         return context
 
 

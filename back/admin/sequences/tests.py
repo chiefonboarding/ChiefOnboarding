@@ -850,7 +850,9 @@ def test_delete_sequence(client, admin_factory, sequence_factory):
         ("preboarding", PreboardingFactory),
     ],
 )
-def test_sequence_default_templates_view(client, sequence_factory, admin_factory, template_type, factory):
+def test_sequence_default_templates_view(
+    client, sequence_factory, admin_factory, template_type, factory
+):
     admin = admin_factory()
     client.force_login(admin)
     sequence = sequence_factory()
@@ -906,7 +908,11 @@ def test_sequence_item_test_message(client, admin_factory, mailoutbox):
 
 @pytest.mark.django_db
 def test_sequence_default_templates_integrations(
-    client, admin_factory, integration_factory, custom_integration_factory, sequence_factory
+    client,
+    admin_factory,
+    integration_factory,
+    custom_integration_factory,
+    sequence_factory,
 ):
     admin = admin_factory()
     client.force_login(admin)

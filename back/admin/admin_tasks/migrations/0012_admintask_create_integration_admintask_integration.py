@@ -16,7 +16,10 @@ class Migration(migrations.Migration):
             name="create_integration",
             field=models.BooleanField(
                 default=False,
-                help_text="Specifies if integration has been created or removed by completing the admin task.",
+                help_text=(
+                    "Specifies if integration has been created or removed by completing"
+                    "the admin task."
+                ),
             ),
         ),
         migrations.AddField(
