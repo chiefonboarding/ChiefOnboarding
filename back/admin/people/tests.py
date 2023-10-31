@@ -16,6 +16,7 @@ from admin.introductions.factories import IntroductionFactory
 from admin.notes.models import Note
 from admin.preboarding.factories import PreboardingFactory
 from admin.resources.factories import ResourceFactory
+from admin.sequences.models import Condition
 from admin.templates.utils import get_user_field
 from admin.to_do.factories import ToDoFactory
 from misc.models import File
@@ -290,6 +291,71 @@ def test_create_new_hire_add_sequence_with_manual_trigger_condition(
     # two to do items in total scheduled/added to new hire
     assert new_hire1.total_tasks == 2
     assert new_hire1.completed_tasks == 0
+
+    assert "Done!" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_terminate_employee_with_manual_trigger_condition(
+    client,
+    django_user_model,
+    employee_factory,
+    offboarding_sequence_factory,
+    condition_timed_factory,
+    condition_to_do_factory,
+    to_do_factory,
+):
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
+
+    to_do1 = to_do_factory()
+    to_do2 = to_do_factory()
+    emp1 = employee_factory()
+    sequence = offboarding_sequence_factory()
+    condition1 = condition_timed_factory(
+        sequence=sequence, days=10, condition_type=Condition.Type.BEFORE
+    )
+    condition2 = condition_to_do_factory(sequence=sequence)
+    condition1.to_do.add(to_do1)
+    condition2.to_do.add(to_do2)
+
+    url = reverse("people:terminate", args=[emp1.id])
+    response = client.get(url)
+
+    assert sequence.name in response.content.decode()
+
+    response = client.post(url, data={"sequences": [sequence.id]}, follow=True)
+
+    assert "This field is required." in response.content.decode()
+
+    response = client.post(
+        url,
+        data={
+            "termination_date": timezone.now().date() + timedelta(days=1),
+            "sequences": [sequence.id],
+        },
+        follow=True,
+    )
+
+    print(response.content.decode())
+    assert "Items that will never be triggered" in response.content.decode()
+    assert to_do1.name in response.content.decode()
+    assert "Trigger all these items now" in response.content.decode()
+
+    assert emp1.to_do.count() == 0
+    assert emp1.total_tasks == 0
+    assert emp1.completed_tasks == 0
+
+    url = reverse("people:trigger-condition", args=[emp1.id, condition1.id])
+    response = client.post(url, follow=True)
+
+    emp1.refresh_from_db()
+    # to do item got added from condition
+    assert emp1.to_do.count() == 1
+    # two to do items in total scheduled/added to new hire
+    assert emp1.total_tasks == 2
+    assert emp1.completed_tasks == 0
 
     assert "Done!" in response.content.decode()
 

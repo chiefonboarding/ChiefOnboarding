@@ -4,6 +4,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, Layout, HTML
 from django import forms
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from admin.integrations.utils import get_value_from_notation
@@ -149,6 +150,16 @@ class ManualIntegrationConfigForm(forms.ModelForm):
     class Meta:
         model = IntegrationConfig
         fields = ("person_type", "assigned_to")
+
+    def clean(self):
+        cleaned_data = super().clean()
+        person_type = cleaned_data.get("person_type", None)
+        assigned_to = cleaned_data.get("assigned_to", None)
+        if person_type == IntegrationConfig.PersonType.CUSTOM and assigned_to is None:
+            raise ValidationError(
+                _("You must select someone if you want someone custom")
+            )
+        return cleaned_data
 
 
 # Credits: https://stackoverflow.com/a/72256767

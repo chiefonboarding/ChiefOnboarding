@@ -282,3 +282,9 @@ def test_reset_timed_triggers_last_check_command():
 def test_reset_timed_triggers_last_check_command_with_no_org():
     # Just testing if command runs without error when no org is present
     call_command("reset_timed_triggers_last_check")
+
+
+@pytest.mark.django_db()
+def test_health_check(client):
+    response = client.get("/health")
+    assert response.content.decode() == "ok"

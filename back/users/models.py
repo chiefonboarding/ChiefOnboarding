@@ -382,7 +382,7 @@ class User(AbstractBaseUser):
             # passed the termination date
             return -1
 
-        days = 1
+        days = 0
         while termination_date != employee_today:
             employee_today += timedelta(days=1)
             if employee_today.weekday() not in [5, 6]:

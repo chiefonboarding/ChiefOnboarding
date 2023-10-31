@@ -336,6 +336,8 @@ class SequenceFormUpdateIntegrationConfigView(
         if existing_item is None:
             integration_config = IntegrationConfig.objects.create(
                 integration=integration,
+                assigned_to=item_form.cleaned_data.pop("assigned_to", None),
+                person_type=item_form.cleaned_data.pop("person_type", None),
                 additional_data=item_form.cleaned_data,
             )
             condition.add_item(integration_config)

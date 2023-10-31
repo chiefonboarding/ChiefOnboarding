@@ -202,7 +202,7 @@ def timed_triggers():
 
             if (
                 amount_days_before == -1
-                or user.get_local_time(last_updated).weekday() < 5
+                or user.get_local_time(last_updated).weekday() > 4  # 5 or 6 is weekend
             ):
                 # we are past the termination date or in a weekend, move to the next
                 continue

@@ -196,6 +196,10 @@ class SequenceFactory(factory.django.DjangoModelFactory):
             ConditionFactory(condition_type=Condition.Type.WITHOUT, sequence=obj)
 
 
+class OffboardingSequenceFactory(SequenceFactory):
+    category = Sequence.Category.OFFBOARDING
+
+
 class IntegrationConfigFactory(factory.django.DjangoModelFactory):
     integration = factory.SubFactory(CustomIntegrationFactory)
 

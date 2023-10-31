@@ -31,6 +31,7 @@ from admin.sequences.factories import (
     PendingSlackMessageFactory,
     PendingTextMessageFactory,
     SequenceFactory,
+    OffboardingSequenceFactory,
 )
 from admin.to_do.factories import ToDoFactory
 from misc.factories import FileFactory
@@ -95,6 +96,7 @@ register(NotificationFactory)
 register(PreboardingFactory)
 register(PreboardingUserFactory)
 register(SequenceFactory)
+register(OffboardingSequenceFactory)
 register(ConditionTimedFactory)
 register(ConditionToDoFactory)
 register(ConditionAdminTaskFactory)
