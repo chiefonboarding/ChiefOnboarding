@@ -728,7 +728,8 @@
     "pk": 1,
     "fields": {
         "name": "General sequence",
-        "auto_add": false
+        "auto_add": false,
+        "category": 0
     }
 },
 {
