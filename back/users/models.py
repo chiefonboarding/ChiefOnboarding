@@ -374,18 +374,33 @@ class User(AbstractBaseUser):
                 start += 1
         return start_day
 
+    def offboarding_workday_to_date(self, workdays):
+        # Converts the workday (before the end date) to the actual date on which it
+        # triggers. This will skip any weekends.
+        base_date = self.termination_date
+
+        while workdays > 0:
+            base_date -= timedelta(days=1)
+            if base_date.weekday() not in [5, 6]:
+                workdays -= 1
+
+        return base_date
+
     @cached_property
     def days_before_termination_date(self):
-        employee_today = self.get_local_time().date()
+        # Checks how many workdays we are away from the employee's last day.
+        # This will skip any weekends.
+        date = self.get_local_time().date()
+
         termination_date = self.termination_date
-        if termination_date < employee_today:
+        if termination_date < date:
             # passed the termination date
             return -1
 
         days = 0
-        while termination_date != employee_today:
-            employee_today += timedelta(days=1)
-            if employee_today.weekday() not in [5, 6]:
+        while termination_date != date:
+            date += timedelta(days=1)
+            if date.weekday() not in [5, 6]:
                 days += 1
         return days
 

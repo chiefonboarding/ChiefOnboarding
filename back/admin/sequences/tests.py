@@ -48,6 +48,7 @@ from admin.sequences.tasks import process_condition, timed_triggers
 from admin.to_do.factories import ToDoFactory
 from admin.to_do.forms import ToDoForm
 from admin.to_do.models import ToDo
+from users.models import IntegrationUser
 from organization.models import Notification, Organization
 from slack_bot.models import SlackChannel
 
@@ -195,6 +196,49 @@ def test_sequence_create_condition_success_view(
     sequence1.refresh_from_db()
     # All are assinged to this sequence
     assert sequence1.conditions.all().count() == 4
+
+
+@pytest.mark.django_db
+def test_offboarding_sequence_create_condition_success_view(
+    client, admin_factory, offboarding_sequence_factory, to_do_factory
+):
+    admin = admin_factory()
+    client.force_login(admin)
+
+    sequence1 = offboarding_sequence_factory()
+    to_do1 = to_do_factory()
+    url = reverse("sequences:condition-create", args=[sequence1.id])
+    response = client.get(url)
+    assert "On/Before employee&#x27;s last day" in response.content.decode()
+    assert "Based on one or more to do items" in response.content.decode()
+    assert "Based on one or more admin tasks" in response.content.decode()
+
+    # Create block based on to do items
+    url = reverse("sequences:condition-create", args=[sequence1.id])
+    response = client.post(
+        url,
+        {
+            "condition_to_do": [
+                to_do1.id,
+            ],
+            "condition_type": Condition.Type.TODO,
+        },
+        follow=True,
+    )
+
+    assert response.status_code == 200
+    assert Condition.objects.all().count() == 2
+    assert to_do1 in Condition.objects.last().condition_to_do.all()
+    assert Condition.objects.last().condition_type == Condition.Type.TODO
+
+    response = client.post(
+        url,
+        {"condition_type": Condition.Type.BEFORE, "days": -1},
+        follow=True,
+    )
+
+    assert "Their last day is 0. You cannot go below that." in response.content.decode()
+    assert Condition.objects.all().count() == 2
 
 
 @pytest.mark.django_db
@@ -1159,6 +1203,12 @@ def test_offboarding_sequence_trigger_task(
     assert emp1.integrations.all().count() == 1
     assert AdminTask.objects.filter(new_hire=emp1)
 
+    emp1.termination_date = timezone.now() - timedelta(days=2)
+    emp1.save()
+
+    # Trigger sequence conditions - will be skipped, since it's past termination date
+    timed_triggers()
+
 
 @pytest.mark.django_db
 @freeze_time("2022-05-13")
@@ -1747,6 +1797,68 @@ def test_execute_external_message_slack_to_slack_channel_invalid_channel(
         ).count()
         == 1
     )
+
+
+@pytest.mark.django_db
+def test_notification_execute_integration_config(
+    employee_factory,
+    integration_config_factory,
+    admin_factory,
+    manual_user_provision_integration_factory,
+):
+    emp1 = employee_factory()
+
+    integration_config = integration_config_factory(
+        integration=manual_user_provision_integration_factory()
+    )
+    integration_config.execute(emp1)
+
+    assert Notification.objects.count() == 1
+    assert IntegrationUser.objects.filter(
+        user=emp1, integration=integration_config.integration, revoked=False
+    ).exists()
+
+    # run once again for offboarding
+    emp1 = employee_factory(termination_date=timezone.now())
+    integration_config.execute(emp1)
+    assert Notification.objects.count() == 2
+    assert IntegrationUser.objects.filter(
+        user=emp1, integration=integration_config.integration, revoked=True
+    ).exists()
+
+    # create admin task based on manager
+    admin1 = admin_factory()
+    emp2 = employee_factory(manager=admin1)
+    integration_config.person_type = IntegrationConfig.PersonType.MANAGER
+    integration_config.save()
+
+    integration_config.execute(emp2)
+    assert AdminTask.objects.filter(
+        new_hire=emp2, assigned_to=admin1, integration=integration_config.integration
+    ).exists()
+
+    # create admin task based on buddy
+    admin2 = admin_factory()
+    emp3 = employee_factory(buddy=admin2)
+    integration_config.person_type = IntegrationConfig.PersonType.BUDDY
+    integration_config.save()
+
+    integration_config.execute(emp3)
+    assert AdminTask.objects.filter(
+        new_hire=emp3, assigned_to=admin2, integration=integration_config.integration
+    ).exists()
+
+    # create admin task based on specific person
+    admin3 = admin_factory()
+    emp4 = employee_factory()
+    integration_config.person_type = IntegrationConfig.PersonType.CUSTOM
+    integration_config.assigned_to = admin3
+    integration_config.save()
+
+    integration_config.execute(emp4)
+    assert AdminTask.objects.filter(
+        new_hire=emp4, assigned_to=admin3, integration=integration_config.integration
+    ).exists()
 
 
 @pytest.mark.django_db

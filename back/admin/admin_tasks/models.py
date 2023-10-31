@@ -156,9 +156,19 @@ class AdminTask(models.Model):
 
     def mark_completed(self):
         from admin.sequences.tasks import process_condition
+        from users.models import IntegrationUser
 
         self.completed = True
         self.save()
+
+        # Check if we need to create the manual integration
+        if self.integration is not None:
+            integration_user, created = IntegrationUser.objects.get_or_create(
+                user=self.new_hire,
+                integration=self.integration,
+            )
+            integration_user.revoked = not self.create_integration
+            integration_user.save()
 
         # Get conditions with this to do item as (part of the) condition
         conditions = self.new_hire.conditions.filter(

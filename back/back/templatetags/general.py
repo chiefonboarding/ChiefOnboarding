@@ -64,7 +64,7 @@ def offboarding_trigger_date(condition, employee):
     """
     Shows the actual date that the condition will trigger
     """
-    return employee.termination_date - timedelta(days=condition.days)
+    return employee.offboarding_workday_to_date(workdays=condition.days)
 
 
 @register.simple_tag

@@ -93,6 +93,31 @@ def test_days_before_termination_date(date, days_before, new_hire_factory):
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
+    "date, days_before",
+    [
+        ("2021-01-05", 5),
+        ("2021-01-06", 4),
+        ("2021-01-07", 3),
+        ("2021-01-08", 2),
+        ("2021-01-11", 1),
+        ("2021-01-12", 0),
+    ],
+)
+def test_offboarding_workday_to_date(date, days_before, new_hire_factory):
+    # Set termination day on Tuesday
+    freezer = freeze_time("2021-01-12")
+    freezer.start()
+    user = new_hire_factory(termination_date=datetime.datetime.today().date())
+    freezer.stop()
+
+    freezer = freeze_time(date)
+    freezer.start()
+    assert user.offboarding_workday_to_date(days_before).strftime("%Y-%m-%d") == date
+    freezer.stop()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
     "first_name, last_name, initials, full_name",
     [
         ("", "Smith", "S", "Smith"),
