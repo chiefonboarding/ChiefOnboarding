@@ -326,7 +326,7 @@ def test_sequence_detail_view(
     to_do = to_do_factory()
     condition_timed.to_do.add(to_do)
 
-    url = reverse("sequences:timeline", args=[sequence1.id])
+    url = reverse("sequences:update", args=[sequence1.id])
     response = client.get(url)
 
     assert str(condition_timed.days) in response.content.decode()
@@ -850,10 +850,11 @@ def test_delete_sequence(client, admin_factory, sequence_factory):
         ("preboarding", PreboardingFactory),
     ],
 )
-def test_sequence_default_templates_view(client, admin_factory, template_type, factory):
+def test_sequence_default_templates_view(client, sequence_factory, admin_factory, template_type, factory):
     admin = admin_factory()
     client.force_login(admin)
-    url = reverse("sequences:template_list")
+    sequence = sequence_factory()
+    url = reverse("sequences:template_list", args=[sequence.id])
 
     item = factory()
 
@@ -864,10 +865,11 @@ def test_sequence_default_templates_view(client, admin_factory, template_type, f
 
 
 @pytest.mark.django_db
-def test_sequence_default_templates_not_valid(client, admin_factory):
+def test_sequence_default_templates_not_valid(client, admin_factory, sequence_factory):
     admin = admin_factory()
     client.force_login(admin)
-    url = reverse("sequences:template_list")
+    sequence = sequence_factory()
+    url = reverse("sequences:template_list", args=[sequence.id])
 
     response = client.get(url + "?type=pendingadmintask")
 
@@ -904,11 +906,12 @@ def test_sequence_item_test_message(client, admin_factory, mailoutbox):
 
 @pytest.mark.django_db
 def test_sequence_default_templates_integrations(
-    client, admin_factory, integration_factory, custom_integration_factory
+    client, admin_factory, integration_factory, custom_integration_factory, sequence_factory
 ):
     admin = admin_factory()
     client.force_login(admin)
-    url = reverse("sequences:template_list")
+    sequence = sequence_factory()
+    url = reverse("sequences:template_list", args=[sequence.id])
     custom_integration_factory()
     custom_integration_factory()
     integration_factory(integration=Integration.Type.SLACK_ACCOUNT_CREATION)

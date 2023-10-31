@@ -73,7 +73,7 @@ class NewHireManager(models.Manager):
         return (
             super()
             .get_queryset()
-            .filter(role=User.Role.NEWHIRE, termination_date__isnull=False)
+            .filter(role=User.Role.NEWHIRE, termination_date__isnull=True)
         )
 
     def without_slack(self):
