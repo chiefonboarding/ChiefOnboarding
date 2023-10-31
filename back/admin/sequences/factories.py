@@ -181,6 +181,7 @@ class ConditionTimedFactory(factory.django.DjangoModelFactory):
 
 class SequenceFactory(factory.django.DjangoModelFactory):
     name = FuzzyText()
+    category = Sequence.Category.ONBOARDING
 
     class Meta:
         model = Sequence
