@@ -498,7 +498,7 @@ def test_complete_admin_task_linked_to_integration(
         == 1
     )
 
-    # first task gets completed
+    # Task gets completed
     AdminTask.objects.first().mark_completed()
 
     assert IntegrationUser.objects.filter(
