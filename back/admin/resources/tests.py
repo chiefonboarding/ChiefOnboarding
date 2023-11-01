@@ -1,4 +1,5 @@
 import pytest
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from admin.resources.factories import *  # noqa
@@ -7,7 +8,9 @@ from admin.resources.models import Chapter, Resource
 
 @pytest.mark.django_db
 def test_create_resource(client, django_user_model):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     url = reverse("resources:create")
     response = client.get(url)
@@ -30,7 +33,9 @@ def test_create_resource(client, django_user_model):
 
 @pytest.mark.django_db
 def test_create_resource_with_inner_chapters(client, django_user_model):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     url = reverse("resources:create")
     response = client.get(url)
@@ -62,7 +67,9 @@ def test_create_resource_with_inner_chapters(client, django_user_model):
 def test_create_resource_with_inner_chapters_in_sequence(
     client, django_user_model, sequence_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     sequence = sequence_factory()
     condition = sequence.conditions.all().first()
     # Create a new resource in sequence
@@ -84,7 +91,9 @@ def test_create_resource_with_inner_chapters_in_sequence(
 
 @pytest.mark.django_db
 def test_update_resource(client, django_user_model, resource_factory):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     resource = resource_factory()
     url = resource.update_url
     response = client.get(url)
@@ -293,7 +302,7 @@ def test_duplicate_chapter(resource_with_level_deep_chapters_factory):
 def test_search_resources(
     django_user_model, resource_with_level_deep_chapters_factory, resource_factory
 ):
-    user = django_user_model.objects.create(role=1)
+    user = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
 
     # Will find the item in the first one
     resource1 = resource_with_level_deep_chapters_factory()

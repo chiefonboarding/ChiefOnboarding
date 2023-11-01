@@ -4,12 +4,13 @@ from datetime import timedelta
 import pytest
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
+from django.core.management import call_command
 from django.urls import reverse
 from django.utils import timezone
 
 from misc.models import File
 
-from .models import Organization
+from .models import Notification, Organization
 
 
 @pytest.mark.django_db
@@ -197,12 +198,12 @@ def test_file_delete_as_new_hire(client, new_hire_factory, file_factory):
 
 @pytest.mark.django_db
 def test_notification_can_delete(notification_factory):
-    not1 = notification_factory(notification_type="added_todo")
+    not1 = notification_factory(notification_type=Notification.Type.ADDED_TODO)
 
     assert not not1.can_delete
 
     # Correct notification type and date is within limit
-    not1.notification_type = "added_sequence"
+    not1.notification_type = Notification.Type.ADDED_SEQUENCE
     not1.save()
 
     assert not1.can_delete
@@ -257,3 +258,27 @@ def test_initial_setup_page_with_org_created(client):
 
     # shows 404 as org is already there
     assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_reset_timed_triggers_last_check_command():
+    # pretend task has not ran for a while by setting the last_check back a day
+    org = Organization.objects.get()
+    org.timed_triggers_last_check = timezone.now() - timedelta(days=1)
+    org.save()
+
+    # run command to set it back to now
+    call_command("reset_timed_triggers_last_check")
+
+    org.refresh_from_db()
+    # avoid milisecond/second differences between call and check
+    assert org.timed_triggers_last_check.replace(
+        second=0, microsecond=0
+    ) == timezone.now().replace(second=0, microsecond=0)
+
+
+@pytest.mark.no_run_around_tests
+@pytest.mark.django_db
+def test_reset_timed_triggers_last_check_command_with_no_org():
+    # Just testing if command runs without error when no org is present
+    call_command("reset_timed_triggers_last_check")

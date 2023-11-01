@@ -22,9 +22,9 @@
               {% include '_condition_line_item.html' with type='appointment' read_only=True %}
             {% endfor %}
             {% for item in condition.external_new_hire %}
-              {% if item.send_via == 0 %}{# email #}
+              {% if item.send_via == ExternalMessageType.EMAIL %}
                 {% include '_condition_line_item.html' with type='pendingemailmessage' read_only=True %}
-              {% elif item.send_via == 1 %}{# slack #}
+              {% elif item.send_via == ExternalMessageType.SLACK %}
                 {% include '_condition_line_item.html' with type='pendingslackmessage' read_only=True %}
               {% else %}
                 {% include '_condition_line_item.html' with type='pendingtextmessage' read_only=True %}
@@ -54,9 +54,9 @@
               {% include '_condition_line_item.html' with type='pendingadmintask' read_only=True %}
             {% endfor %}
             {% for item in condition.external_admin %}
-              {% if item.send_via == 0 %}{# email #}
+              {% if item.send_via == ExternalMessageType.EMAIL %}
                 {% include '_condition_line_item.html' with type='pendingemailmessage' read_only=True %}
-              {% elif item.send_via == 1 %}{# slack #}
+              {% elif item.send_via == ExternalMessageType.SLACK %}
                 {% include '_condition_line_item.html' with type='pendingslackmessage' read_only=True %}
               {% else %}
                 {% include '_condition_line_item.html' with type='pendingtextmessage' read_only=True %}

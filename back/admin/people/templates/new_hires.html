@@ -39,6 +39,12 @@
               </a>
             </td>
           </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5">
+              {% translate "There are no new hires right now" %}
+            </td>
+          </tr>
           {% endfor %}
         </tbody>
       </table>

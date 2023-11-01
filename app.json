@@ -8,11 +8,11 @@
   "formation": {
     "web": {
       "quantity": 1,
-      "size": "hobby"
+      "size": "basic"
     },
     "worker": {
       "quantity": 1,
-      "size": "hobby"
+      "size": "basic"
     }
   },
   "image": "heroku/python",

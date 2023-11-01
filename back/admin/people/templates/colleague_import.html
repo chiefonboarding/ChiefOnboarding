@@ -1,0 +1,90 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div id="message-header"></div>
+<div class="row">
+  <div class="col-12">
+    <div class="card mt-3">
+      <div class="card-body" hx-get="{% url 'people:import-users-hx' integration.id %}" hx-trigger="load">
+        <div class="spinner-border"></div>
+        <span style="margin-left: 10px;" class="ml-2">{% translate "Getting users..." %}</span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    function doStyleModifications(){
+      // initialize the select button
+      $('select').selectize()
+      $('.role > div').removeClass("mb-3").css("margin-top", "5px")
+    }
+    document.addEventListener('htmx:afterRequest', function(evt) {
+      doStyleModifications()
+    })
+
+    function CreateUsers(){
+        var users = [];
+
+        $('#results tr').each(function (index, value) {
+          let user = {}
+          // check if user is selected to be created
+          if (!$(value).find(".user-checkbox")[0].checked) {
+            return true
+          }
+          var row = $(value).find("input, select").not(".user-checkbox").each(function() {
+            // skip any weird attributes that shouldn't be here
+            if (this.name == "") {
+              return true
+            }
+            user[this.name] = $(this).val()
+          })
+          users.push(user);
+        });
+
+
+        $("#creating-users").addClass("btn-loading")
+        $.ajax({
+          url: "{% url 'people:import-create' %}",
+          type: 'post',
+          data: JSON.stringify(users),
+          headers: {'X-CSRFToken': '{{ csrf_token }}'},
+          contentType: "application/json; charset=utf-8",
+          success: function( data ) {
+            $("#message-header").html(data)
+            // get new users
+            htmx.ajax("GET", "{% url 'people:import-users-hx' integration.id %}", '.card-body').then(() => {
+              doStyleModifications()
+              $("#creating-users").removeClass("btn-loading")
+            })
+          },
+          error: function( data ) {
+            data = data.responseJSON
+            counter = 0
+            // reset previous errors
+            $(".invalid-feedback").remove()
+            $("#creating-users").removeClass("btn-loading")
+
+            $('#results tr').each(function (index, tr) {
+              // skip over any rows which were not sent to the backend
+              if (!$(tr).find(".user-checkbox")[0].checked) {
+                return true
+              }
+              // check if errors
+              if (!$.isEmptyObject(data[counter])) {
+                for (const [prop, errors] of Object.entries(data[counter])) {
+                  $(tr).find(`[data-field="${prop}"]`)[0].insertAdjacentHTML('beforeend', `<span class="invalid-feedback" style="display:block"><strong>${errors[0]}</strong></span>`)
+                }
+              }
+              // use counter instead of index as we need to skip over not selected rows
+              counter++
+            })
+          }
+        });
+    }
+  </script>
+{% endblock %}

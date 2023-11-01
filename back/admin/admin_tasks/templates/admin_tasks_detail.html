@@ -2,13 +2,14 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 {% block actions %}
-<a type="submit" href="{% url 'admin_tasks:completed' object.id %}" class="btn btn-primary">
-  {% if object.completed %}
-    {% translate "Reopen" %}
-  {% else %}
-    {% translate "Complete" %}
-  {% endif %}
-</a>
+{% if not object.completed %}
+  <form method="post" action="{% url 'admin_tasks:completed' object.id %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary">
+      {% translate "Complete" %}
+    </button>
+  </form>
+{% endif %}
 {% endblock %}
 
 {% block content %}

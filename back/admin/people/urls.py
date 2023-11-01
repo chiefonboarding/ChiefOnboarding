@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import new_hire_views, views
+from . import new_hire_views, views, access_views
 
 app_name = "people"
 urlpatterns = [
@@ -63,18 +63,28 @@ urlpatterns = [
     ),
     path(
         "new_hire/<int:pk>/access/",
-        new_hire_views.NewHireAccessView.as_view(),
+        access_views.NewHireAccessView.as_view(),
         name="new_hire_access",
     ),
     path(
-        "new_hire/<int:pk>/check_access/<int:integration_id>/",
-        new_hire_views.NewHireCheckAccessView.as_view(),
-        name="new_hire_check_integration",
+        "user/<int:pk>/check_access/<int:integration_id>/",
+        access_views.UserCheckAccessView.as_view(),
+        name="user_check_integration",
     ),
     path(
-        "new_hire/<int:pk>/give_access/<int:integration_id>/",
-        new_hire_views.NewHireGiveAccessView.as_view(),
-        name="new_hire_give_integration",
+        "user/<int:pk>/check_access/<int:integration_id>/compact/",
+        access_views.UserCheckAccessView.as_view(),
+        name="user_check_integration_compact",
+    ),
+    path(
+        "user/<int:pk>/give_access/<int:integration_id>/",
+        access_views.UserGiveAccessView.as_view(),
+        name="user_give_integration",
+    ),
+    path(
+        "user/<int:pk>/toggle_access/<int:integration_id>/",
+        access_views.UserToggleAccessView.as_view(),
+        name="toggle_access",
     ),
     path(
         "new_hire/<int:pk>/task/<slug:type>/",
@@ -95,11 +105,6 @@ urlpatterns = [
         "new_hire/<int:pk>/extra_info/",
         new_hire_views.NewHireExtraInfoUpdateView.as_view(),
         name="new_hire_extra_info",
-    ),
-    path(
-        "new_hire/<int:pk>/delete/",
-        new_hire_views.NewHireDeleteView.as_view(),
-        name="delete",
     ),
     path(
         "new_hire/<int:pk>/migrate_to_normal/",
@@ -138,6 +143,11 @@ urlpatterns = [
         name="sync-slack",
     ),
     path(
+        "colleagues/<int:pk>/access/",
+        access_views.ColleagueAccessView.as_view(),
+        name="colleague_access",
+    ),
+    path(
         "colleagues/<int:pk>/connect_to_slack/",
         views.ColleagueGiveSlackAccessView.as_view(),
         name="connect-to-slack",
@@ -149,11 +159,6 @@ urlpatterns = [
     ),
     path("colleagues/<int:pk>/", views.ColleagueUpdateView.as_view(), name="colleague"),
     path(
-        "colleagues/<int:pk>/delete/",
-        views.ColleagueDeleteView.as_view(),
-        name="colleague_delete",
-    ),
-    path(
         "colleagues/<int:pk>/resource/",
         views.ColleagueResourceView.as_view(),
         name="add_resource",
@@ -162,5 +167,35 @@ urlpatterns = [
         "colleagues/<int:pk>/resource/<int:template_id>/",
         views.ColleagueToggleResourceView.as_view(),
         name="toggle_resource",
+    ),
+    path(
+        "colleagues/<int:pk>/import/",
+        views.ColleagueImportView.as_view(),
+        name="import",
+    ),
+    path(
+        "colleagues/<int:pk>/import/users/",
+        views.ColleagueImportFetchUsersHXView.as_view(),
+        name="import-users-hx",
+    ),
+    path(
+        "colleagues/<int:pk>/delete/",
+        access_views.UserDeleteView.as_view(),
+        name="delete",
+    ),
+    path(
+        "colleagues/<int:pk>/revoke/",
+        access_views.UserRevokeAllAccessView.as_view(),
+        name="revoke_all_access",
+    ),
+    path(
+        "colleagues/import/ignore/",
+        views.ColleagueImportIgnoreUserHXView.as_view(),
+        name="import-ignore-hx",
+    ),
+    path(
+        "colleagues/import/create/",
+        views.ColleagueImportAddUsersView.as_view(),
+        name="import-create",
     ),
 ]

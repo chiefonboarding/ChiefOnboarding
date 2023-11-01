@@ -11,12 +11,18 @@ from .emails import (
     send_email_notification_to_external_person,
 )
 
-PRIORITY_CHOICES = ((1, _("Low")), (2, _("Medium")), (3, _("High")))
-
-NOTIFICATION_CHOICES = ((0, _("No")), (1, _("Email")), (2, _("Slack")))
-
 
 class AdminTask(models.Model):
+    class Priority(models.IntegerChoices):
+        EMAIL = 1, _("Low")
+        MEDIUM = 2, _("Medium")
+        HIGH = 3, _("High")
+
+    class Notification(models.IntegerChoices):
+        NO = 0, _("No")
+        EMAIL = 1, _("Email")
+        SLACK = 2, _("Slack")
+
     new_hire = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name=_("New hire"),
@@ -34,7 +40,7 @@ class AdminTask(models.Model):
     name = models.CharField(verbose_name=_("Name"), max_length=500)
     option = models.IntegerField(
         verbose_name=_("Send email or text to extra user?"),
-        choices=NOTIFICATION_CHOICES,
+        choices=Notification.choices,
     )
     slack_user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -50,7 +56,13 @@ class AdminTask(models.Model):
     completed = models.BooleanField(verbose_name=_("Completed"), default=False)
     date = models.DateField(verbose_name=_("Date"), blank=True, null=True)
     priority = models.IntegerField(
-        verbose_name=_("Priority"), choices=PRIORITY_CHOICES, default=2
+        verbose_name=_("Priority"), choices=Priority.choices, default=Priority.MEDIUM
+    )
+    based_on = models.ForeignKey(
+        "sequences.PendingAdminTask",
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text="If generated through a sequence, then this will be filled",
     )
 
     @property
@@ -62,10 +74,9 @@ class AdminTask(models.Model):
             # Only happens when a sequence adds this with "manager" or "buddy" is
             # choosen option
             return
-        if self.option == 1:
-            # through email
+        if self.option == AdminTask.Notification.EMAIL:
             send_email_notification_to_external_person(self)
-        elif self.option == 2:
+        elif self.option == AdminTask.Notification.SLACK:
             blocks = [
                 paragraph(
                     _(
@@ -129,6 +140,37 @@ class AdminTask(models.Model):
             )
         else:
             send_email_new_assigned_admin(self)
+
+    def mark_completed(self):
+        from admin.sequences.tasks import process_condition
+
+        self.completed = True
+        self.save()
+
+        # Get conditions with this to do item as (part of the) condition
+        conditions = self.new_hire.conditions.filter(
+            condition_admin_tasks=self.based_on
+        )
+
+        for condition in conditions:
+            condition_admin_tasks_id = condition.condition_admin_tasks.values_list(
+                "id", flat=True
+            )
+
+            # Check if all admin to do items have been added to new hire and are
+            # completed. If not, then we know it should not be triggered yet
+            completed_tasks = AdminTask.objects.filter(
+                based_on_id__in=condition_admin_tasks_id,
+                new_hire=self.new_hire,
+                completed=True,
+            )
+
+            # If the amount matches, then we should process it
+            if completed_tasks.count() == len(condition_admin_tasks_id):
+                # Send notification only if user has a slack account
+                process_condition(
+                    condition.id, self.new_hire.id, self.new_hire.has_slack_account
+                )
 
     class Meta:
         ordering = ["completed", "date"]

@@ -39,10 +39,21 @@ else:
         env("ALLOWED_HOST", default="0.0.0.0"),
     ]
 
-CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
-
 if DEBUG:
     ALLOWED_HOSTS = ["*"]
+
+
+if env.str("BASE_URL", "") == "":
+    BASE_URL = "https://" + ALLOWED_HOSTS[0]
+else:
+    BASE_URL = env("BASE_URL")
+
+CSRF_TRUSTED_ORIGINS = env.list(
+    "CSRF_TRUSTED_ORIGINS",
+    default=[
+        BASE_URL,
+    ],
+)
 
 INSTALLED_APPS = [
     "django.contrib.auth",
@@ -99,7 +110,6 @@ SLACK_APP_TOKEN = env("SLACK_APP_TOKEN", default="")
 SLACK_BOT_TOKEN = env("SLACK_BOT_TOKEN", default="")
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -195,11 +205,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 AUTH_USER_MODEL = "users.User"
-
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = [
-    origin for origin in env.list("CORS_ALLOWED_ORIGINS", default="")
-]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -299,11 +304,6 @@ AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME", default="")
 # fallback for old environment variable, AWS_DEFAULT_REGION should be prefered
 AWS_REGION = env("AWS_REGION", default="eu-west-1")
 AWS_DEFAULT_REGION = env("AWS_DEFAULT_REGION", default=AWS_REGION)
-
-if env.str("BASE_URL", "") == "":
-    BASE_URL = "https://" + ALLOWED_HOSTS[0]
-else:
-    BASE_URL = env("BASE_URL")
 
 # Twilio
 TWILIO_FROM_NUMBER = env("TWILIO_FROM_NUMBER", default="")

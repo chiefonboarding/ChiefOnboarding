@@ -8,8 +8,10 @@ from django.core.cache import cache
 from django.urls import reverse
 from django.utils import timezone
 from freezegun import freeze_time
+from rest_framework.test import APIClient
 
 from admin.appointments.factories import AppointmentFactory
+from admin.integrations.models import Integration
 from admin.introductions.factories import IntroductionFactory
 from admin.notes.models import Note
 from admin.preboarding.factories import PreboardingFactory
@@ -18,19 +20,21 @@ from admin.templates.utils import get_user_field
 from admin.to_do.factories import ToDoFactory
 from misc.models import File
 from organization.factories import NotificationFactory
-from organization.models import Organization, WelcomeMessage
+from organization.models import Notification, Organization, WelcomeMessage
 from users.factories import (
     AdminFactory,
     EmployeeFactory,
     ManagerFactory,
     NewHireFactory,
 )
-from users.models import CourseAnswer
+from users.models import CourseAnswer, User, IntegrationUser
 
 
 @pytest.mark.django_db
 def test_create_new_hire(client, django_user_model):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     url = reverse("people:new_hire_add")
     response = client.get(url)
@@ -65,8 +69,8 @@ def test_create_new_hire(client, django_user_model):
     assert "New hire has been created" in response.content.decode()
 
     assert get_user_model().objects.all().count() == 2
-    assert get_user_model().objects.first().role == 1
-    assert get_user_model().objects.last().role == 0
+    assert get_user_model().objects.first().role == get_user_model().Role.ADMIN
+    assert get_user_model().objects.last().role == get_user_model().Role.NEWHIRE
 
     url = reverse("people:new_hire", args=[get_user_model().objects.last().id])
     response = client.get(url)
@@ -83,7 +87,9 @@ def test_create_new_hire_with_sequences(
     condition_to_do_factory,
     to_do_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     to_do1 = to_do_factory()
     to_do2 = to_do_factory()
@@ -124,7 +130,9 @@ def test_create_new_hire_manager_options(
     new_hire_factory,
     manager_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     admin1 = admin_factory(slack_user_id="test")
     admin2 = admin_factory()
@@ -154,7 +162,9 @@ def test_update_new_hire_manager_options(
     new_hire_factory,
     manager_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     admin1 = admin_factory(slack_user_id="test")
     admin2 = admin_factory()
@@ -188,17 +198,23 @@ def test_create_new_hire_with_sequences_before_starting(
     condition_to_do_factory,
     to_do_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
+    to_do0 = to_do_factory()
     to_do1 = to_do_factory()
     to_do2 = to_do_factory()
     to_do3 = to_do_factory()
+
     sequence = sequence_factory()
     # before starting
+    condition0 = condition_timed_factory(sequence=sequence, days=8, condition_type=2)
     condition1 = condition_timed_factory(sequence=sequence, days=1, condition_type=2)
     condition2 = condition_to_do_factory(sequence=sequence)
     # after starting
     condition3 = condition_timed_factory(sequence=sequence, days=1)
+    condition0.to_do.add(to_do0)
     condition1.to_do.add(to_do1)
     condition2.to_do.add(to_do2)
     condition3.to_do.add(to_do3)
@@ -220,7 +236,8 @@ def test_create_new_hire_with_sequences_before_starting(
 
     # To do item in condition is passed time, so we should notify user of that
     assert "Items that will never be triggered" in response.content.decode()
-    assert to_do1.name in response.content.decode()
+    assert to_do0.name in response.content.decode()
+    assert to_do1.name not in response.content.decode()
     assert to_do3.name not in response.content.decode()
     # Second to do will not show up as triggers based on to do items are not shown there
     assert to_do2.name not in response.content.decode()
@@ -236,7 +253,9 @@ def test_create_new_hire_add_sequence_with_manual_trigger_condition(
     condition_to_do_factory,
     to_do_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     to_do1 = to_do_factory()
     to_do2 = to_do_factory()
@@ -286,7 +305,9 @@ def test_create_new_hire_add_sequence_with_manual_trigger_condition_before_start
     condition_to_do_factory,
     to_do_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     to_do1 = to_do_factory()
     to_do2 = to_do_factory()
@@ -332,7 +353,9 @@ def test_create_new_hire_add_sequence_without_manual_trigger_condition_redirect_
     condition_timed_factory,
     to_do_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     to_do1 = to_do_factory()
     new_hire1 = new_hire_factory()
@@ -357,7 +380,9 @@ def test_remove_sequence_from_new_hire(
     condition_timed_factory,
     to_do_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     to_do1 = to_do_factory()
     to_do2 = to_do_factory()
@@ -394,7 +419,9 @@ def test_remove_sequence_from_new_hire(
 
 @pytest.mark.django_db
 def test_new_hire_list_view(client, new_hire_factory, django_user_model):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     # create 20 new hires
     new_hire_factory.create_batch(20)
@@ -418,7 +445,9 @@ def test_new_hire_to_do_sequence_item(
     to_do_user_factory,
     condition_to_do_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     condition = condition_to_do_factory()
     new_hire1 = new_hire_factory()
@@ -443,7 +472,9 @@ def test_new_hire_to_do_sequence_item(
 
 @pytest.mark.django_db
 def test_new_hire_latest_activity(client, new_hire_factory, django_user_model):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory()
     new_hire2 = new_hire_factory()
@@ -457,15 +488,17 @@ def test_new_hire_latest_activity(client, new_hire_factory, django_user_model):
 
     # Let's create a few
     not1 = NotificationFactory(
-        notification_type="added_todo", created_for=new_hire1, public_to_new_hire=True
+        notification_type=Notification.Type.ADDED_TODO,
+        created_for=new_hire1,
+        public_to_new_hire=True,
     )
     not2 = NotificationFactory(
-        notification_type="completed_course",
+        notification_type=Notification.Type.COMPLETED_COURSE,
         created_for=new_hire1,
         public_to_new_hire=False,
     )
     not3 = NotificationFactory(
-        notification_type="added_introduction",
+        notification_type=Notification.Type.ADDED_INTRODUCTION,
         created_for=new_hire2,
         public_to_new_hire=True,
     )
@@ -491,7 +524,9 @@ def test_new_hire_latest_activity(client, new_hire_factory, django_user_model):
 def test_send_preboarding_send_menu_option(client, new_hire_factory, django_user_model):
     # Test if send preboarding menu option is available
     # Should only be available before start date
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     new_hire = new_hire_factory(start_day=datetime.fromisoformat("2022-05-15"))
 
     url = reverse("people:new_hire", args=[new_hire.id])
@@ -515,14 +550,18 @@ def test_send_preboarding_message_via_email(
     settings.BASE_URL = "https://chiefonboarding.com"
     settings.TWILIO_ACCOUNT_SID = ""
 
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     org = Organization.object.get()
     new_hire1 = new_hire_factory()
     url = reverse("people:send_preboarding_notification", args=[new_hire1.id])
 
     # Add personalize option to test
-    wm = WelcomeMessage.objects.get(language="en", message_type=0)
+    wm = WelcomeMessage.objects.get(
+        language="en", message_type=WelcomeMessage.Type.PREBOARDING
+    )
     wm.message += " {{ first_name }} "
     wm.save()
 
@@ -580,13 +619,17 @@ def test_send_preboarding_message_via_text(
     settings.BASE_URL = "https://chiefonboarding.com"
     settings.TWILIO_ACCOUNT_SID = "test"
 
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory()
     url = reverse("people:send_preboarding_notification", args=[new_hire1.id])
 
     # Add personalize option to test
-    wm = WelcomeMessage.objects.get(language="en", message_type=0)
+    wm = WelcomeMessage.objects.get(
+        language="en", message_type=WelcomeMessage.Type.PREBOARDING
+    )
     wm.message += " {{ first_name }} "
     wm.save()
 
@@ -607,14 +650,18 @@ def test_send_login_email(  # after first day email
 ):
     settings.BASE_URL = "https://chiefonboarding.com"
 
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     org = Organization.object.get()
     new_hire1 = new_hire_factory()
     url = reverse("people:send_login_email", args=[new_hire1.id])
 
     # Add personalize option to test
-    wm = WelcomeMessage.objects.get(language="en", message_type=1)
+    wm = WelcomeMessage.objects.get(
+        language="en", message_type=WelcomeMessage.Type.NEWHIRE_WELCOME
+    )
     wm.message += " {{ first_name }} "
     wm.save()
 
@@ -635,7 +682,9 @@ def test_send_login_email(  # after first day email
 
 @pytest.mark.django_db
 def test_new_hire_profile(client, new_hire_factory, admin_factory, django_user_model):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory()
     admin1 = admin_factory(email="jo@chiefonboarding.com")
@@ -691,7 +740,7 @@ def test_new_hire_profile(client, new_hire_factory, admin_factory, django_user_m
 def test_migrate_new_hire_to_normal_account(
     client, new_hire_factory, django_user_model
 ):
-    admin = django_user_model.objects.create(role=1)
+    admin = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin)
 
     # Doesn't work for admins
@@ -700,7 +749,7 @@ def test_migrate_new_hire_to_normal_account(
     admin.refresh_from_db()
 
     assert response.status_code == 404
-    assert admin.role == 1
+    assert admin.role == get_user_model().Role.ADMIN
 
     # Check with new hire
     new_hire1 = new_hire_factory()
@@ -712,7 +761,7 @@ def test_migrate_new_hire_to_normal_account(
 
     assert response.status_code == 200
     assert "New hire is now a normal account." in response.content.decode()
-    assert new_hire1.role == 3
+    assert new_hire1.role == get_user_model().Role.OTHER
 
     # Check if removed from new hires page
     url = reverse("people:new_hires")
@@ -723,30 +772,28 @@ def test_migrate_new_hire_to_normal_account(
 
 @pytest.mark.django_db
 def test_new_hire_delete(client, django_user_model, new_hire_factory):
-    admin = django_user_model.objects.create(role=1)
+    admin = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin)
-
-    # Doesn't work for admins
-    url = reverse("people:delete", args=[admin.id])
-    response = client.post(url, follow=True)
-    admin.refresh_from_db()
-    assert django_user_model.objects.all().count() == 1
 
     new_hire1 = new_hire_factory()
     # We have two users now
     assert django_user_model.objects.all().count() == 2
 
-    # Works for new hires
     url = reverse("people:delete", args=[new_hire1.id])
+    response = client.get(url)
+    assert (
+        "Are you sure you want to delete this user? You have two options here:"
+        in response.content.decode()
+    )
     response = client.post(url, follow=True)
 
     assert django_user_model.objects.all().count() == 1
-    assert "New hire has been removed" in response.content.decode()
+    assert "User has been removed" in response.content.decode()
 
 
 @pytest.mark.django_db
 def test_new_hire_notes(client, note_factory, django_user_model):
-    admin = django_user_model.objects.create(role=1)
+    admin = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin)
 
     # create two random notes
@@ -777,7 +824,7 @@ def test_new_hire_notes(client, note_factory, django_user_model):
 def test_new_hire_list_welcome_messages(
     client, new_hire_welcome_message_factory, django_user_model
 ):
-    admin = django_user_model.objects.create(role=1)
+    admin = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin)
 
     # create two random welcome messages
@@ -800,7 +847,9 @@ def test_new_hire_list_welcome_messages(
 def test_new_hire_admin_tasks(
     client, new_hire_factory, django_user_model, admin_task_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory()
 
@@ -833,7 +882,9 @@ def test_new_hire_admin_tasks(
 def test_new_hire_forms(
     client, new_hire_factory, django_user_model, to_do_user_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory()
 
@@ -894,7 +945,9 @@ def test_new_hire_forms(
 def test_new_hire_progress(
     client, new_hire_factory, django_user_model, to_do_user_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory()
 
@@ -1016,7 +1069,9 @@ def test_new_hire_course_answers_list(
     resource_with_level_deep_chapters_factory,
     chapter_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     resource = resource_with_level_deep_chapters_factory(course=True)
 
@@ -1177,7 +1232,9 @@ def test_new_hire_reopen_todo(
 def test_new_hire_reopen_course(
     client, settings, django_user_model, resource_user_factory, mailoutbox
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     resource_user1 = resource_user_factory(resource__course=True)
 
@@ -1226,7 +1283,9 @@ def test_new_hire_reopen_course(
 def test_new_hire_remind_to_do(
     client, settings, django_user_model, to_do_user_factory, mailoutbox
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     to_do_user1 = to_do_user_factory()
 
@@ -1261,7 +1320,9 @@ def test_new_hire_remind_to_do_slack_message(
 ):
     settings.FAKE_SLACK_API = True
 
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     to_do_user1 = to_do_user_factory(user__slack_user_id="slackx")
 
@@ -1311,7 +1372,9 @@ def test_new_hire_remind_to_do_slack_message(
 def test_new_hire_remind_resource(
     client, settings, django_user_model, resource_user_factory, mailoutbox
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     resource_user1 = resource_user_factory()
 
     url = reverse(
@@ -1335,7 +1398,9 @@ def test_new_hire_remind_resource_slack_message(
 ):
     settings.FAKE_SLACK_API = True
 
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     resource_user1 = resource_user_factory(user__slack_user_id="slackx")
 
     url = reverse(
@@ -1382,7 +1447,9 @@ def test_new_hire_tasks(
     preboarding_factory,
     new_hire_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory()
 
@@ -1445,19 +1512,28 @@ def test_new_hire_access_list(
     new_hire_factory,
     integration_factory,
     custom_integration_factory,
+    manual_user_provision_integration_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory()
     # Slack integration - should not show up
-    integration1 = integration_factory(integration=0)
+    integration1 = integration_factory(integration=Integration.Type.SLACK_BOT)
     # Should show up
-    integration2 = custom_integration_factory(name="Asana", integration=10)
+    integration2 = custom_integration_factory(
+        name="Asana",
+    )
 
-    integration3 = custom_integration_factory(name="Google", integration=10)
+    integration3 = custom_integration_factory(
+        name="Google",
+    )
     # Remove exists, so should not show up
     integration3.manifest = {}
     integration3.save()
+
+    integration4 = manual_user_provision_integration_factory()
 
     # Get the page with integrations
     url = reverse("people:new_hire_access", args=[new_hire1.id])
@@ -1467,24 +1543,35 @@ def test_new_hire_access_list(
     assert integration1.name not in response.content.decode()
     assert integration2.name in response.content.decode()
     assert integration3.name not in response.content.decode()
+    assert integration4.name in response.content.decode()
+
+    # Get the page with integrations - should be the same for colleague view
+    url = reverse("people:colleague_access", args=[new_hire1.id])
+
+    assert integration1.name not in response.content.decode()
+    assert integration2.name in response.content.decode()
+    assert integration3.name not in response.content.decode()
+    assert integration4.name in response.content.decode()
 
 
 @pytest.mark.django_db
 def test_new_hire_access_per_integration(
     client, django_user_model, new_hire_factory, custom_integration_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory(email="stan@example.com")
     new_hire2 = new_hire_factory()
-    integration1 = custom_integration_factory(name="Asana", integration=10)
+    integration1 = custom_integration_factory(name="Asana")
 
     with patch(
         "admin.integrations.models.Integration.user_exists", Mock(return_value=True)
     ):
         # New hire already has an account (email matches with return)
         url = reverse(
-            "people:new_hire_check_integration", args=[new_hire1.id, integration1.id]
+            "people:user_check_integration", args=[new_hire1.id, integration1.id]
         )
 
         response = client.get(url)
@@ -1497,7 +1584,7 @@ def test_new_hire_access_per_integration(
     ):
         # New hire has no account
         url = reverse(
-            "people:new_hire_check_integration", args=[new_hire2.id, integration1.id]
+            "people:user_check_integration", args=[new_hire2.id, integration1.id]
         )
 
         response = client.get(url)
@@ -1510,13 +1597,132 @@ def test_new_hire_access_per_integration(
     ):
         # New hire has no account
         url = reverse(
-            "people:new_hire_check_integration", args=[new_hire2.id, integration1.id]
+            "people:user_check_integration", args=[new_hire2.id, integration1.id]
         )
 
         response = client.get(url)
 
         assert integration1.name in response.content.decode()
         assert "Error when trying to reach service" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_new_hire_access_per_integration_compact_view(
+    client, django_user_model, new_hire_factory, custom_integration_factory
+):
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
+
+    new_hire1 = new_hire_factory(email="stan@example.com")
+    integration1 = custom_integration_factory(name="Asana")
+
+    with patch(
+        "admin.integrations.models.Integration.user_exists", Mock(return_value=True)
+    ):
+        # New hire already has an account (email matches with return)
+        url = reverse(
+            "people:user_check_integration_compact",
+            args=[new_hire1.id, integration1.id],
+        )
+
+        response = client.get(url)
+
+        assert "darkgreen" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_new_hire_access_per_integration_toggle(
+    client,
+    django_user_model,
+    new_hire_factory,
+    custom_integration_factory,
+    manual_user_provision_integration_factory,
+):
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
+
+    new_hire1 = new_hire_factory(email="stan@example.com")
+    integration1 = custom_integration_factory(name="Asana")
+    manual_integration = manual_user_provision_integration_factory()
+
+    # create a new account with third party
+    with (
+        patch(
+            "admin.integrations.models.Integration.needs_user_info",
+            Mock(return_value=False),
+        ) as mock_needs_info,
+        patch(
+            "admin.integrations.models.Integration.user_exists",
+            Mock(return_value=False),
+        ) as mock_user_exists,
+        patch(
+            "admin.integrations.models.Integration.execute",
+            Mock(return_value=(True, "")),
+        ) as mock_user_execute,
+        patch(
+            "admin.integrations.models.Integration.revoke_user",
+            Mock(return_value=(True, "")),
+        ) as mock_revoke_user,
+    ):
+        # New hire already has an account (email matches with return)
+        url = reverse("people:toggle_access", args=[new_hire1.id, integration1.id])
+        response = client.post(url)
+
+        assert "Activated" in response.content.decode()
+        assert len(mock_needs_info.mock_calls) == 1
+        assert len(mock_user_exists.mock_calls) == 1
+        assert len(mock_user_execute.mock_calls) == 1
+        assert len(mock_revoke_user.mock_calls) == 0
+
+    # create a new account with manual
+    assert IntegrationUser.objects.all().count() == 0
+    url = reverse("people:toggle_access", args=[new_hire1.id, manual_integration.id])
+    response = client.post(url)
+
+    assert "Activated" in response.content.decode()
+    assert IntegrationUser.objects.all().count() == 1
+    integration_user = IntegrationUser.objects.first()
+    assert not integration_user.revoked
+
+    # revoke third party
+    with (
+        patch(
+            "admin.integrations.models.Integration.needs_user_info",
+            Mock(return_value=False),
+        ) as mock_needs_info,
+        patch(
+            "admin.integrations.models.Integration.user_exists", Mock(return_value=True)
+        ) as mock_user_exists,
+        patch(
+            "admin.integrations.models.Integration.execute",
+            Mock(return_value=(True, "")),
+        ) as mock_user_execute,
+        patch(
+            "admin.integrations.models.Integration.revoke_user",
+            Mock(return_value=(True, "")),
+        ) as mock_revoke_user,
+    ):
+        # New hire already has an account (email matches with return)
+        url = reverse("people:toggle_access", args=[new_hire1.id, integration1.id])
+        response = client.post(url)
+
+        assert "Activated" not in response.content.decode()
+        assert len(mock_needs_info.mock_calls) == 1
+        assert len(mock_user_exists.mock_calls) == 1
+        assert len(mock_user_execute.mock_calls) == 0
+        assert len(mock_revoke_user.mock_calls) == 1
+
+    # revoke manual item
+    assert IntegrationUser.objects.all().count() == 1
+    url = reverse("people:toggle_access", args=[new_hire1.id, manual_integration.id])
+    response = client.post(url)
+
+    assert "Activated" not in response.content.decode()
+    assert IntegrationUser.objects.all().count() == 1
+    integration_user = IntegrationUser.objects.first()
+    assert integration_user.revoked
 
 
 @pytest.mark.django_db
@@ -1535,10 +1741,12 @@ def test_new_hire_access_per_integration(
 def test_new_hire_access_per_integration_config_form(
     client, django_user_model, new_hire_factory, custom_integration_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory(email="stan@example.com")
-    integration1 = custom_integration_factory(name="Asana", integration=10)
+    integration1 = custom_integration_factory(name="Asana")
     integration1.manifest["extra_user_info"] = [
         {
             "id": "PERSONAL_EMAIL",
@@ -1549,9 +1757,7 @@ def test_new_hire_access_per_integration_config_form(
     integration1.save()
 
     # New hire already has an account (email matches with return)
-    url = reverse(
-        "people:new_hire_give_integration", args=[new_hire1.id, integration1.id]
-    )
+    url = reverse("people:user_give_integration", args=[new_hire1.id, integration1.id])
     # Show form to admin
     response = client.get(url)
 
@@ -1593,10 +1799,15 @@ def test_new_hire_access_per_integration_config_form(
 def test_new_hire_access_per_integration_post(
     client, django_user_model, new_hire_factory, custom_integration_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
+    emp1 = EmployeeFactory()
     new_hire1 = new_hire_factory(email="stan@example.com")
-    integration1 = custom_integration_factory(name="Asana", integration=10)
+    integration1 = custom_integration_factory(
+        name="Asana", integration=Integration.Type.CUSTOM
+    )
     integration1.manifest["extra_user_info"] = [
         {
             "id": "PERSONAL_EMAIL",
@@ -1607,9 +1818,7 @@ def test_new_hire_access_per_integration_post(
     integration1.save()
 
     # New hire already has an account (email matches with return)
-    url = reverse(
-        "people:new_hire_give_integration", args=[new_hire1.id, integration1.id]
-    )
+    url = reverse("people:user_give_integration", args=[new_hire1.id, integration1.id])
     # Show form to admin
     response = client.post(url, data={"TEAM_ID": "test_team"}, follow=True)
 
@@ -1628,6 +1837,7 @@ def test_new_hire_access_per_integration_post(
 
         assert "Account could not be created" in response.content.decode()
 
+    # new hire created account
     with patch(
         "admin.integrations.models.Integration.execute", Mock(return_value=(True, None))
     ):
@@ -1638,6 +1848,63 @@ def test_new_hire_access_per_integration_post(
         )
 
         assert "Account has been created" in response.content.decode()
+        assert response.redirect_chain[-1][0] == reverse(
+            "people:new_hire_access", args=[new_hire1.id]
+        )
+
+    # Create account for other colleague
+    url = reverse("people:user_give_integration", args=[emp1.id, integration1.id])
+    with patch(
+        "admin.integrations.models.Integration.execute", Mock(return_value=(True, None))
+    ):
+        response = client.post(
+            url,
+            data={"TEAM_ID": "test_team", "PERSONAL_EMAIL": "hi@chiefonboarding.com"},
+            follow=True,
+        )
+
+        assert "Account has been created" in response.content.decode()
+        # redirects to colleagues
+        assert response.redirect_chain[-1][0] == reverse(
+            "people:colleague_access", args=[emp1.id]
+        )
+
+
+@pytest.mark.django_db
+def test_new_hire_access_revoke(
+    client,
+    django_user_model,
+    new_hire_factory,
+    custom_integration_factory,
+    manual_user_provision_integration_factory,
+):
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
+
+    new_hire1 = new_hire_factory(email="stan@example.com")
+    custom_integration_factory(name="Asana")
+    custom_integration_factory(name="Asana1")
+    custom_integration_factory(name="Asana2", manifest={"exists": {}, "revoke": []})
+    custom_integration_factory(name="Asana3", manifest={"exists": {}, "revoke": []})
+    manual_user_provision_integration_factory()
+
+    url = reverse("people:revoke_all_access", args=[new_hire1.id])
+    with (
+        patch(
+            "admin.integrations.models.Integration.user_exists", Mock(return_value=True)
+        ) as mock_user_exists,
+        patch(
+            "admin.integrations.models.Integration.revoke_user",
+            Mock(return_value=(True, "")),
+        ) as mock_revoke_user,
+    ):
+        # revoke all access
+        client.post(url)
+
+        # only triggered for Asana2 and Asana3
+        assert len(mock_user_exists.mock_calls) == 2
+        assert len(mock_revoke_user.mock_calls) == 2
 
 
 @pytest.mark.django_db
@@ -1655,7 +1922,9 @@ def test_new_hire_access_per_integration_post(
 def test_new_hire_tasks_list(
     client, django_user_model, new_hire_factory, factory, type, status_code
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory()
 
@@ -1692,7 +1961,9 @@ def test_new_hire_tasks_list(
 def test_new_hire_toggle_tasks(
     client, django_user_model, new_hire_factory, factory, type, status_code
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     new_hire1 = new_hire_factory()
 
@@ -1731,7 +2002,9 @@ def test_new_hire_extra_info_update_view(
     integration_factory,
     new_hire_factory,
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     integration = integration_factory(
         manifest={
@@ -1805,7 +2078,9 @@ def test_new_hire_extra_info_update_view(
     ],
 )
 def test_colleagues_list_all_types_of_users_show(client, django_user_model, factory):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     user = factory()
 
@@ -1818,7 +2093,7 @@ def test_colleagues_list_all_types_of_users_show(client, django_user_model, fact
 
 @pytest.mark.django_db
 def test_colleague_create(client, django_user_model, department_factory):
-    admin_user = django_user_model.objects.create(role=1)
+    admin_user = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin_user)
 
     # Generate departments to select
@@ -1895,7 +2170,7 @@ def test_colleague_update(client, django_user_model):
         email="john@chiefonboarding.com",
         language="en",
         timezone="Europe/Amsterdam",
-        role=1,
+        role=User.Role.ADMIN,
     )
     client.force_login(admin_user)
 
@@ -1958,19 +2233,25 @@ def test_colleague_update(client, django_user_model):
 
 
 @pytest.mark.django_db
-def test_colleague_delete(client, django_user_model, new_hire_factory):
-    admin_user = django_user_model.objects.create(role=1)
+def test_colleague_delete(client, django_user_model, employee_factory):
+    admin_user = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin_user)
 
-    new_hire1 = new_hire_factory()
+    emp1 = employee_factory()
 
     assert django_user_model.objects.all().count() == 2
 
-    url = reverse("people:colleague_delete", args=[new_hire1.id])
+    url = reverse("people:delete", args=[emp1.id])
+    response = client.get(url)
+    assert (
+        "Are you sure you want to delete this user? You have two options here:"
+        not in response.content.decode()
+    )
+
     response = client.post(url, follow=True)
 
-    assert "Colleague has been removed" in response.content.decode()
-    assert new_hire1.full_name not in response.content.decode()
+    assert "User has been removed" in response.content.decode()
+    assert emp1.full_name not in response.content.decode()
     assert django_user_model.objects.all().count() == 1
 
 
@@ -2078,8 +2359,8 @@ def test_colleague_delete(client, django_user_model, new_hire_factory):
 def test_import_users_from_slack(client, django_user_model):
     from admin.integrations.models import Integration
 
-    Integration.objects.create(integration=0)
-    admin_user = django_user_model.objects.create(role=1)
+    Integration.objects.create(integration=Integration.Type.SLACK_BOT)
+    admin_user = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin_user)
 
     url = reverse("people:sync-slack")
@@ -2104,9 +2385,11 @@ def test_give_user_slack_access(settings, client, employee_factory, django_user_
     settings.FAKE_SLACK_API = True
 
     employee_with_slack = employee_factory(slack_user_id="slackx")
-    we = WelcomeMessage.objects.get(message_type=4, language="en")
+    we = WelcomeMessage.objects.get(
+        message_type=WelcomeMessage.Type.SLACK_KNOWLEDGE, language="en"
+    )
     employee_without_slack = employee_factory()
-    admin_user = django_user_model.objects.create(role=1)
+    admin_user = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin_user)
 
     assert employee_with_slack.has_slack_account
@@ -2135,13 +2418,15 @@ def test_give_user_slack_access(settings, client, employee_factory, django_user_
         },
         {
             "type": "actions",
-            "elements": {
-                "type": "button",
-                "text": {"type": "plain_text", "text": "resources"},
-                "style": "primary",
-                "value": "show:resources",
-                "action_id": "show:resources",
-            },
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "resources"},
+                    "style": "primary",
+                    "value": "show_resource_items",
+                    "action_id": "show_resource_items",
+                },
+            ],
         },
     ]
 
@@ -2154,7 +2439,7 @@ def test_give_user_slack_access_does_not_exist(
     settings.FAKE_SLACK_API = True
 
     employee_without_slack = employee_factory()
-    admin_user = django_user_model.objects.create(role=1)
+    admin_user = django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     client.force_login(admin_user)
 
     assert not employee_without_slack.has_slack_account
@@ -2179,7 +2464,9 @@ def test_give_user_slack_access_does_not_exist(
 def test_employee_toggle_portal_access(
     client, django_user_model, user_factory, status_code, mailoutbox
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     employee1 = user_factory()
 
@@ -2245,7 +2532,9 @@ def test_employee_can_only_login_with_access(
     assert not user.is_authenticated
 
     # Enable portal access
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     url = reverse("people:toggle-portal-access", args=[employee1.id])
     client.post(url)
     client.logout()
@@ -2270,7 +2559,9 @@ def test_employee_can_only_login_with_access(
 def test_employee_resources(
     client, django_user_model, employee_factory, resource_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     employee1 = employee_factory()
     resource1 = resource_factory()
@@ -2298,7 +2589,9 @@ def test_employee_resources(
 def test_employee_toggle_resources(
     client, django_user_model, employee_factory, resource_factory
 ):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     resource1 = resource_factory()
     employee1 = employee_factory()
@@ -2314,3 +2607,475 @@ def test_employee_toggle_resources(
 
     assert "Add" in response.content.decode()
     assert not employee1.resources.filter(id=resource1.id).exists()
+
+
+@pytest.mark.django_db
+def test_visibility_import_employees_button(
+    client,
+    django_user_model,
+    custom_user_import_integration_factory,
+    custom_integration_factory,
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    custom_integration_factory(name="Asana")
+    custom_user_import_integration_factory(name="Google import")
+
+    url = reverse("people:colleagues")
+    response = client.get(url, follow=True)
+
+    assert "Import users with Google import" in response.content.decode()
+    assert "Asana" not in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_importing_employees(
+    client, django_user_model, custom_user_import_integration_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    integration = custom_user_import_integration_factory(name="Google import")
+
+    url = reverse("people:import", args=[integration.id])
+    response = client.get(url, follow=True)
+
+    assert "Import people" in response.content.decode()
+    # shows it's loading items
+    assert "Getting users" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_ignore_user_from_importing_employees(
+    client, django_user_model, custom_user_import_integration_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+    org = Organization.objects.get()
+    assert org.ignored_user_emails == []
+
+    custom_user_import_integration_factory(name="Google import")
+
+    url = reverse("people:import-ignore-hx")
+    client.post(url, data={"email": "stan@chiefonboarding.com"}, follow=True)
+
+    org.refresh_from_db()
+    assert org.ignored_user_emails == ["stan@chiefonboarding.com"]
+
+
+@pytest.mark.django_db
+# first two will be ignored. Last two will show
+@patch(
+    "admin.integrations.models.Integration.run_request",
+    Mock(
+        return_value=(
+            True,
+            Mock(
+                json=lambda: {
+                    "directory": {
+                        "employees": [
+                            {
+                                "detail": {
+                                    "workEmail": "stan@chiefonboarding.com",
+                                    "firstName": "stan",
+                                    "lastName": "Do",
+                                }
+                            },
+                            {
+                                "detail": {
+                                    "workEmail": "test@chiefonboarding.com",
+                                    "firstName": "stan",
+                                    "lastName": "Do",
+                                }
+                            },
+                            {
+                                "detail": {
+                                    "workEmail": "jake@chiefonboarding.com",
+                                    "firstName": "Jake",
+                                    "lastName": "Weller",
+                                }
+                            },
+                            {
+                                "detail": {
+                                    "workEmail": "brian@chiefonboarding.com",
+                                    "firstName": "Brian",
+                                    "lastName": "Boss",
+                                }
+                            },
+                        ]
+                    }
+                }
+            ),
+        )
+    ),
+)
+def test_fetching_employees(
+    client, django_user_model, custom_user_import_integration_factory, employee_factory
+):
+    # create two users who are already in the system (should not show up)
+    employee_factory(email="stan@chiefonboarding.com")
+    employee_factory(email="john@chiefonboarding.com")
+    org = Organization.objects.get()
+
+    # two emails who have been ignored by the user
+    org.ignored_user_emails = ["test@chiefonboarding.com", "bla@chiefonboarding.com"]
+    org.save()
+
+    client.force_login(django_user_model.objects.create(role=1))
+
+    integration = custom_user_import_integration_factory(
+        manifest={
+            "execute": [
+                {"url": "http://localhost:8000/test_api/users", "method": "GET"}
+            ],
+            "data_from": "directory.employees",
+            "data_structure": {
+                "email": "detail.workEmail",
+                "last_name": "detail.lastName",
+                "first_name": "detail.firstName",
+            },
+            "initial_data_form": [],
+        },
+        name="Google import",
+    )
+
+    url = reverse("people:import-users-hx", args=[integration.id])
+    response = client.get(url, follow=True)
+
+    assert "brian@chiefonboarding.com" in response.content.decode()
+    assert "jake@chiefonboarding.com" in response.content.decode()
+    # ignored due to already exist or on ignore list
+    assert "stan@chiefonboarding.com" not in response.content.decode()
+    assert "bla@chiefonboarding" not in response.content.decode()
+
+
+@pytest.mark.django_db
+@patch(
+    "admin.integrations.models.Integration.run_request",
+    Mock(
+        side_effect=(
+            [
+                True,
+                Mock(
+                    json=lambda: {
+                        "directory": {
+                            "employees": [
+                                {
+                                    "detail": {
+                                        "workEmail": "stan@chiefonboarding.com",
+                                        "firstName": "stan",
+                                        "lastName": "Do",
+                                    }
+                                },
+                                {
+                                    "detail": {
+                                        "workEmail": "test@chiefonboarding.com",
+                                        "firstName": "stan",
+                                        "lastName": "Do",
+                                    }
+                                },
+                                {
+                                    "detail": {
+                                        "workEmail": "jake@chiefonboarding.com",
+                                        "firstName": "Jake",
+                                        "lastName": "Weller",
+                                    }
+                                },
+                                {
+                                    "detail": {
+                                        "workEmail": "brian@chiefonboarding.com",
+                                        "firstName": "Brian",
+                                        "lastName": "Boss",
+                                    }
+                                },
+                            ]
+                        },
+                        "nextPageToken": "244",
+                    }
+                ),
+            ],
+            # second call
+            [
+                True,
+                Mock(
+                    json=lambda: {
+                        "directory": {
+                            "employees": [
+                                {
+                                    "detail": {
+                                        "workEmail": "chris@chiefonboarding.com",
+                                        "firstName": "chris",
+                                        "lastName": "Do",
+                                    }
+                                },
+                                {
+                                    "detail": {
+                                        "workEmail": "emma@chiefonboarding.com",
+                                        "firstName": "emma",
+                                        "lastName": "Do",
+                                    }
+                                },
+                            ]
+                        }
+                    }
+                ),
+            ],
+        )
+    ),
+)
+def test_fetching_employees_paginated_response(
+    client, django_user_model, custom_user_import_integration_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    integration = custom_user_import_integration_factory(
+        manifest={
+            "execute": [{"url": "http://localhost/test_api/users", "method": "GET"}],
+            "data_from": "directory.employees",
+            "data_structure": {
+                "email": "detail.workEmail",
+                "last_name": "detail.lastName",
+                "first_name": "detail.firstName",
+            },
+            "initial_data_form": [],
+            "next_page_token_from": "nextPageToken",
+            "next_page": "https://localhost/test_api/users?pt={{ NEXT_PAGE_TOKEN }}",
+        },
+        name="Google import",
+    )
+
+    url = reverse("people:import-users-hx", args=[integration.id])
+    response = client.get(url, follow=True)
+
+    assert "brian@chiefonboarding.com" in response.content.decode()
+    assert "jake@chiefonboarding.com" in response.content.decode()
+    assert "stan@chiefonboarding.com" in response.content.decode()
+    assert "test@chiefonboarding" in response.content.decode()
+    assert "emma@chiefonboarding" in response.content.decode()
+    assert "chris@chiefonboarding" in response.content.decode()
+
+
+@pytest.mark.django_db
+@patch(
+    "admin.integrations.models.Integration.run_request",
+    Mock(
+        side_effect=(
+            # first call
+            [
+                True,
+                Mock(
+                    json=lambda: {
+                        "employees": [
+                            {
+                                "workEmail": "stan1@chiefonboarding.com",
+                                "firstName": "stan",
+                                "lastName": "Do",
+                            },
+                        ],
+                        "nextPageToken": "244",
+                    }
+                ),
+            ],
+            # second call
+            [
+                True,
+                Mock(
+                    json=lambda: {
+                        "employees": [
+                            {
+                                "workEmail": "stan2@chiefonboarding.com",
+                                "firstName": "stan",
+                                "lastName": "Do",
+                            },
+                        ],
+                        "nextPageToken": "244",
+                    }
+                ),
+            ],
+            # third call
+            [
+                True,
+                Mock(
+                    json=lambda: {
+                        "employees": [
+                            {
+                                "workEmail": "stan3@chiefonboarding.com",
+                                "firstName": "stan",
+                                "lastName": "Do",
+                            },
+                        ],
+                        "nextPageToken": "244",
+                    }
+                ),
+            ],
+            # fourth call
+            [
+                True,
+                Mock(
+                    json=lambda: {
+                        "employees": [
+                            {
+                                "workEmail": "stan4@chiefonboarding.com",
+                                "firstName": "stan",
+                                "lastName": "Do",
+                            },
+                        ],
+                        "nextPageToken": "244",
+                    }
+                ),
+            ],
+            # fith call
+            [
+                True,
+                Mock(
+                    json=lambda: {
+                        "employees": [
+                            {
+                                "workEmail": "stan5@chiefonboarding.com",
+                                "firstName": "stan",
+                                "lastName": "Do",
+                            },
+                        ],
+                        "nextPageToken": "244",
+                    }
+                ),
+            ],
+            # sixth call (doesn't exist)
+            [
+                True,
+                Mock(
+                    json=lambda: {
+                        "employees": [
+                            {
+                                "workEmail": "stan6@chiefonboarding.com",
+                                "firstName": "stan",
+                                "lastName": "Do",
+                            },
+                        ],
+                        "nextPageToken": "244",
+                    }
+                ),
+            ],
+        )
+    ),
+)
+def test_fetching_employees_paginated_response_max_pages(
+    client, django_user_model, custom_user_import_integration_factory
+):
+    client.force_login(django_user_model.objects.create(role=1))
+
+    integration = custom_user_import_integration_factory(
+        manifest={
+            "execute": [{"url": "http://localhost/test_api/users", "method": "GET"}],
+            "data_from": "employees",
+            "action": "create",
+            "data_structure": {
+                "email": "workEmail",
+                "last_name": "lastName",
+                "first_name": "firstName",
+            },
+            "initial_data_form": [],
+            "next_page_token_from": "nextPageToken",
+            "next_page": "https://localhost/test_api/users?pt={{ NEXT_PAGE_TOKEN }}",
+        },
+        name="Google import",
+    )
+
+    url = reverse("people:import-users-hx", args=[integration.id])
+    response = client.get(url, follow=True)
+
+    assert "stan1@chiefonboarding.com" in response.content.decode()
+    assert "stan2@chiefonboarding.com" in response.content.decode()
+    assert "stan3@chiefonboarding.com" in response.content.decode()
+    assert "stan4@chiefonboarding.com" in response.content.decode()
+    assert "stan5@chiefonboarding.com" in response.content.decode()
+    assert "stan6@chiefonboarding.com" not in response.content.decode()
+
+
+@pytest.mark.django_db
+@patch(
+    "admin.integrations.models.Integration.run_request",
+    Mock(return_value=(True, Mock(json=lambda: {"directory": {"users": []}}))),
+)
+def test_fetching_employees_incorrect_notation(
+    client, django_user_model, custom_user_import_integration_factory
+):
+    # create two users who are already in the system (should not show up)
+    client.force_login(django_user_model.objects.create(role=1))
+
+    integration = custom_user_import_integration_factory(
+        manifest={
+            "execute": [
+                {"url": "http://localhost:8000/test_api/users", "method": "GET"}
+            ],
+            "data_from": "directory.employees",
+            "data_structure": {
+                "email": "detail.workEmail",
+                "last_name": "detail.lastName",
+                "first_name": "detail.firstName",
+            },
+            "initial_data_form": [],
+        },
+        name="Google import",
+    )
+
+    # directory.employees should have been directory.users based on the mock data
+
+    url = reverse("people:import-users-hx", args=[integration.id])
+    response = client.get(url, follow=True)
+    assert (
+        "Notation &#x27;directory.employees&#x27; not in" in response.content.decode()
+    )
+
+
+@pytest.mark.django_db
+def test_import_users_create_users(
+    django_user_model, custom_user_import_integration_factory, mailoutbox
+):
+    client = APIClient()
+    client.force_login(django_user_model.objects.create(role=1))
+
+    assert django_user_model.objects.all().count() == 1
+
+    custom_user_import_integration_factory(name="Google import")
+
+    url = reverse("people:import-create")
+    client.post(
+        url,
+        data=[
+            {
+                "first_name": "stan",
+                "last_name": "Do",
+                "email": "stan@chiefonboarding.com",
+                "role": 1,
+            },
+            {
+                "first_name": "Peter",
+                "last_name": "Bla",
+                "email": "bla@chiefonboarding.com",
+                "role": 1,
+            },
+            {
+                "first_name": "Jane",
+                "last_name": "Do",
+                "email": "jane@chiefonboarding.com",
+                "role": 3,
+            },
+        ],
+        format="json",
+        follow=True,
+    )
+
+    # 4 users: 3 imported users + 1 admin user who created the users
+    assert django_user_model.objects.all().count() == 4
+
+    # 2 emails are send out because only two are role 1 (or 2)
+    assert len(mailoutbox) == 2
+
+    assert len(mailoutbox[0].to) == 1
+    assert "stan@chiefonboarding.com" in mailoutbox[0].to[0]
+    assert len(mailoutbox[1].to) == 1
+    assert "bla@chiefonboarding.com" in mailoutbox[1].to[0]
+
+    # has a unique link - make sure we are not calling bulk_create as that would ignore
+    # the `save` method
+    user = django_user_model.objects.get(email="stan@chiefonboarding.com")
+    assert len(user.unique_url) == 8

@@ -1,4 +1,5 @@
 import pytest
+from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.urls import reverse
 from freezegun.api import freeze_time
@@ -126,7 +127,7 @@ def test_create_new_hire_endpoint(setup_rest, sequence_factory):
     assert response.status_code == 201
     # We already have the user with the token + this new hire
     assert User.objects.count() == 2
-    assert User.objects.filter(role=0).count() == 1
+    assert User.objects.filter(role=get_user_model().Role.NEWHIRE).count() == 1
 
 
 @pytest.mark.django_db

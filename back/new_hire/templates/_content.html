@@ -15,22 +15,7 @@
     <blockquote>{{ block.data.text|safe|personalize:user}}</blockquote>
   {% endif %}
   {% if block.type == 'list' %}
-    {% if block.data.style == 'ordered' %}
-      <ol>
-    {% endif %}
-    {% if block.data.style == 'unordered' %}
-      <ul>
-    {% endif %}
-    {% for item in block.data.items %}
-      <li>{{item.content|safe|personalize:user}}</li>
-    {% endfor %}
-    {% if block.data.style == 'unordered' %}
-      </ul>
-    {% endif %}
-    {% if block.data.style == 'ordered' %}
-      </ol>
-    {% endif %}
-    <blockquote>{{ block.data.text|safe|personalize:user }}</blockquote>
+    {% include "_render_list.html" with items=block.data.items blockstyle=block.data.style %}
   {% endif %}
   {% if block.type == 'embed' %}
     {% if 'youtube' in block.data.embed  %}

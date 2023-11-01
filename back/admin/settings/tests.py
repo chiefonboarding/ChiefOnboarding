@@ -8,13 +8,15 @@ from django.urls import reverse
 from django_q.models import Schedule
 
 from admin.integrations.models import Integration
-from organization.models import Notification, Organization
+from organization.models import Notification, Organization, WelcomeMessage
 from slack_bot.models import SlackChannel
 
 
 @pytest.mark.django_db
 def test_update_org_settings(client, django_user_model):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     url = reverse("settings:general")
     response = client.get(url)
@@ -42,7 +44,9 @@ def test_update_org_settings(client, django_user_model):
 
 @pytest.mark.django_db
 def test_update_org_settings_min_one_login_method(client, django_user_model):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     url = reverse("settings:general")
     response = client.get(url)
@@ -68,7 +72,7 @@ def test_update_org_settings_min_one_login_method(client, django_user_model):
     assert "You must enable at least one login option" in response.content.decode()
 
     # Create Google login integration
-    Integration.objects.create(integration=3)
+    Integration.objects.create(integration=Integration.Type.GOOGLE_LOGIN)
 
     response = client.get(url)
     # Google login is  available
@@ -94,7 +98,9 @@ def test_update_org_settings_min_one_login_method(client, django_user_model):
 
 @pytest.mark.django_db
 def test_update_org_slack_settings(client, django_user_model):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     url = reverse("settings:slack")
     response = client.get(url)
@@ -112,7 +118,9 @@ def test_update_org_slack_settings(client, django_user_model):
 
 @pytest.mark.django_db
 def test_update_org_slack_birthday(client, django_user_model):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     url = reverse("settings:slack")
 
@@ -139,7 +147,9 @@ def test_update_org_slack_birthday(client, django_user_model):
 
 @pytest.mark.django_db
 def test_update_welcome_message(client, django_user_model):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     url = reverse("settings:welcome-message", args=["en", 1])
     response = client.get(url)
@@ -245,7 +255,9 @@ def test_create_administrator(client, admin_factory, mailoutbox):
     assert "Admin/Manager has been created" in response.content.decode()
     assert get_user_model().admins.all().count() == 2
     assert Notification.objects.all().count() == 2
-    assert Notification.objects.first().notification_type == "added_administrator"
+    assert (
+        Notification.objects.first().notification_type == Notification.Type.ADDED_ADMIN
+    )
 
     # Try to create the same user now, but as a manager
     data = {
@@ -258,7 +270,10 @@ def test_create_administrator(client, admin_factory, mailoutbox):
 
     assert "Admin/Manager has been created" in response.content.decode()
     assert Notification.objects.all().count() == 3
-    assert Notification.objects.first().notification_type == "added_manager"
+    assert (
+        Notification.objects.first().notification_type
+        == Notification.Type.ADDED_MANAGER
+    )
     # Amount of admins stays 2 as it will overwrite the previous one
     assert get_user_model().managers_and_admins.all().count() == 2
 
@@ -351,7 +366,9 @@ def test_sending_test_preboarding_message(
     client.force_login(admin)
 
     welcome_message_factory(
-        message_type=0, language="es", message="Spanish test message {{ first_name }}"
+        message_type=WelcomeMessage.Type.PREBOARDING,
+        language="es",
+        message="Spanish test message {{ first_name }}",
     )
     url = reverse("settings:welcome-message-test-message", args=["es", 0])
 
@@ -372,7 +389,9 @@ def test_sending_test_credentials_message(
     client.force_login(admin)
 
     welcome_message_factory(
-        message_type=1, language="es", message="Spanish test message {{ first_name }}"
+        message_type=WelcomeMessage.Type.NEWHIRE_WELCOME,
+        language="es",
+        message="Spanish test message {{ first_name }}",
     )
     url = reverse("settings:welcome-message-test-message", args=["es", 1])
 
@@ -394,7 +413,9 @@ def test_sending_test_new_hire_welcome_message(
     client.force_login(admin)
 
     welcome_message_factory(
-        message_type=3, language="es", message="Spanish test message {{ first_name }}"
+        message_type=WelcomeMessage.Type.SLACK_WELCOME,
+        language="es",
+        message="Spanish test message {{ first_name }}",
     )
     url = reverse("settings:welcome-message-test-message", args=["es", 3])
 
@@ -420,7 +441,9 @@ def test_sending_test_colleague_welcome_message(
     client.force_login(admin)
 
     welcome_message_factory(
-        message_type=4, language="es", message="Spanish test message {{ first_name }}"
+        message_type=WelcomeMessage.Type.SLACK_KNOWLEDGE,
+        language="es",
+        message="Spanish test message {{ first_name }}",
     )
     url = reverse("settings:welcome-message-test-message", args=["es", 4])
 
@@ -437,13 +460,15 @@ def test_sending_test_colleague_welcome_message(
         },
         {
             "type": "actions",
-            "elements": {
-                "type": "button",
-                "text": {"type": "plain_text", "text": "recursos"},
-                "style": "primary",
-                "value": "show:resources",
-                "action_id": "show:resources",
-            },
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "recursos"},
+                    "style": "primary",
+                    "value": "show_resource_items",
+                    "action_id": "show_resource_items",
+                },
+            ],
         },
     ]
 
@@ -514,14 +539,16 @@ def test_integration_list(client, admin_factory):
     assert "Remove" not in response.content.decode()
     assert "Update Slack channels list" not in response.content.decode()
 
-    Integration.objects.create(integration=0)
+    Integration.objects.create(integration=Integration.Type.SLACK_BOT)
 
     response = client.get(url)
 
     assert "Remove" in response.content.decode()
     assert "Update Slack channels list" in response.content.decode()
 
-    integration = Integration.objects.create(integration=10, name="Test integration")
+    integration = Integration.objects.create(
+        integration=Integration.Type.CUSTOM, name="Test integration"
+    )
 
     response = client.get(url)
 
@@ -543,7 +570,7 @@ def test_integration_list(client, admin_factory):
 def test_slack_channels_update_view(client, admin_factory):
     admin_user1 = admin_factory()
     client.force_login(admin_user1)
-    Integration.objects.create(integration=0)
+    Integration.objects.create(integration=Integration.Type.SLACK_BOT)
 
     url = reverse("settings:slack-account-update-channels")
     response = client.get(url)

@@ -27,13 +27,6 @@ from slack_bot.utils import Slack, paragraph
 
 from .utils import CompletedFormCheck
 
-ROLE_CHOICES = (
-    (0, _("New Hire")),
-    (1, _("Administrator")),
-    (2, _("Manager")),
-    (3, _("Other")),
-)
-
 
 class Department(models.Model):
     """
@@ -56,13 +49,15 @@ class CustomUserManager(BaseUserManager):
 class ManagerSlackManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(
-            role__in=[1, 2]
+            role__in=[User.Role.MANAGER, User.Role.ADMIN]
         ) | super().get_queryset().exclude(slack_user_id="")
 
 
 class ManagerManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(role__in=[1, 2])
+        return (
+            super().get_queryset().filter(role__in=[User.Role.MANAGER, User.Role.ADMIN])
+        )
 
     def with_slack(self):
         return self.get_queryset().exclude(slack_user_id="")
@@ -70,7 +65,7 @@ class ManagerManager(models.Manager):
 
 class NewHireManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(role=0)
+        return super().get_queryset().filter(role=User.Role.NEWHIRE)
 
     def without_slack(self):
         return self.get_queryset().filter(slack_user_id="")
@@ -91,10 +86,16 @@ class NewHireManager(models.Manager):
 
 class AdminManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(role=1)
+        return super().get_queryset().filter(role=get_user_model().Role.ADMIN)
 
 
 class User(AbstractBaseUser):
+    class Role(models.IntegerChoices):
+        NEWHIRE = 0, _("New hire")
+        ADMIN = 1, _("Administrator")
+        MANAGER = 2, _("Manager")
+        OTHER = 3, _("Other")
+
     first_name = models.CharField(verbose_name=_("First name"), max_length=200)
     last_name = models.CharField(verbose_name=_("Last name"), max_length=200)
     email = models.EmailField(verbose_name=_("Email"), max_length=200, unique=True)
@@ -140,7 +141,7 @@ class User(AbstractBaseUser):
     )
     role = models.IntegerField(
         verbose_name=_("Role"),
-        choices=ROLE_CHOICES,
+        choices=Role.choices,
         default=3,
         help_text=_(
             "An administrator has access to everything. A manager has only access to "
@@ -191,6 +192,11 @@ class User(AbstractBaseUser):
         Preboarding, through="PreboardingUser", related_name="user_preboardings"
     )
     badges = models.ManyToManyField(Badge, related_name="user_introductions")
+    integrations = models.ManyToManyField(
+        "integrations.Integration",
+        through="IntegrationUser",
+        related_name="user_integrations",
+    )
 
     # Conditions copied over from chosen sequences
     conditions = models.ManyToManyField(Condition)
@@ -315,7 +321,7 @@ class User(AbstractBaseUser):
         for sequence in sequences:
             sequence.assign_to_user(self)
             Notification.objects.create(
-                notification_type="added_sequence",
+                notification_type=Notification.Type.ADDED_SEQUENCE,
                 item_id=sequence.id,
                 created_for=self,
                 extra_text=sequence.name,
@@ -431,11 +437,11 @@ class User(AbstractBaseUser):
 
     @property
     def is_admin_or_manager(self):
-        return self.role in (1, 2)
+        return self.role in [get_user_model().Role.ADMIN, get_user_model().Role.MANAGER]
 
     @property
     def is_admin(self):
-        return self.role == 1
+        return self.role == get_user_model().Role.ADMIN
 
     def __str__(self):
         return "%s" % self.full_name
@@ -642,6 +648,19 @@ class NewHireWelcomeMessage(models.Model):
         get_user_model(), related_name="welcome_colleague", on_delete=models.CASCADE
     )
     message = models.TextField()
+
+
+class IntegrationUser(models.Model):
+    # UserIntegration
+    # logging when an integration was enabled and revoked
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    integration = models.ForeignKey(
+        "integrations.Integration", on_delete=models.CASCADE
+    )
+    revoked = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ["user", "integration"]
 
 
 class OTPRecoveryKey(models.Model):

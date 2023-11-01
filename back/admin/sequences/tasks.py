@@ -33,10 +33,10 @@ def process_condition(condition_id, user_id, send_email=True):
     # Send notifications to user
     notifications = Notification.objects.filter(
         notification_type__in=[
-            "added_todo",
-            "added_resource",
-            "added_badge",
-            "added_introduction",
+            Notification.Type.ADDED_TODO,
+            Notification.Type.ADDED_RESOURCE,
+            Notification.Type.ADDED_BADGE,
+            Notification.Type.ADDED_INTRODUCTION,
         ],
         created_for=user,
         notified_user=False,
@@ -50,18 +50,24 @@ def process_condition(condition_id, user_id, send_email=True):
             SlackToDo(
                 ToDoUser.objects.get(to_do__id=notif.item_id, user=user), user
             ).get_block()
-            for notif in notifications.filter(notification_type="added_todo")
+            for notif in notifications.filter(
+                notification_type=Notification.Type.ADDED_TODO
+            )
         ]
 
         resource_blocks = [
             SlackResource(
                 ResourceUser.objects.get(user=user, resource__id=notif.item_id), user
             ).get_block()
-            for notif in notifications.filter(notification_type="added_resource")
+            for notif in notifications.filter(
+                notification_type=Notification.Type.ADDED_RESOURCE
+            )
         ]
 
         badge_blocks = []
-        for notif in notifications.filter(notification_type="added_badge"):
+        for notif in notifications.filter(
+            notification_type=Notification.Type.ADDED_BADGE
+        ):
             badge_blocks.append(
                 paragraph(
                     _("*Congrats, you unlocked: %(item_name)s *")
@@ -76,7 +82,9 @@ def process_condition(condition_id, user_id, send_email=True):
 
         intro_blocks = [
             SlackIntro(Introduction.objects.get(id=notif.item_id), user).format_block()
-            for notif in notifications.filter(notification_type="added_introduction")
+            for notif in notifications.filter(
+                notification_type=Notification.Type.ADDED_INTRODUCTION
+            )
         ]
 
         if len(to_do_blocks):
@@ -166,12 +174,16 @@ def timed_triggers():
             if amount_days == 0:
                 # Before starting
                 conditions = user.conditions.filter(
-                    condition_type=2, days=amount_days_before, time=current_time
+                    condition_type=Condition.Type.BEFORE,
+                    days=amount_days_before,
+                    time=current_time,
                 )
             elif user.get_local_time(last_updated).weekday() < 5:
                 # On workday x
                 conditions = user.conditions.filter(
-                    condition_type=0, days=amount_days, time=current_time
+                    condition_type=Condition.Type.AFTER,
+                    days=amount_days,
+                    time=current_time,
                 )
 
             # Schedule conditions to be executed with new scheduled task, we do this to

@@ -1,0 +1,57 @@
+{% load i18n %}
+{% load general %}
+{% load crispy_forms_tags %}
+<table class="table card-table table-vcenter text-nowrap">
+  <thead>
+    <tr>
+      <th></th>
+      <th>{% translate "First name" %}</th>
+      <th>{% translate "Last name" %}</th>
+      <th>{% translate "Email" %}</th>
+      <th>Role</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody id="results" style="white-space: normal">
+    {% for user in users %}
+      <tr id="hash-{{user.email|hash}}">
+        <td class="w-1 pe-0">
+          <input type="checkbox" class="user-checkbox form-check-input m-0 align-middle" aria-label="Select user" checked="" style="margin-top: -3px !important;">
+        </td>
+        <td data-field="first_name">
+          {{ user.first_name }}
+          <input type="hidden" name="first_name" value="{{ user.first_name }}">
+        </td>
+        <td data-field="last_name">
+          {{ user.last_name }}
+          <input type="hidden" name="last_name" value="{{ user.last_name }}">
+        </td>
+        <td data-field="email">
+          {{ user.email }}
+          <input type="hidden" name="email" value="{{ user.email }}">
+        </td>
+        <td data-field="role" class="role">
+          {{ role_form|crispy }}
+        </td>
+        <td class="text-end">
+          <a hx-confirm="{% translate "Are you sure? This cannot be reversed. You will have to create the user manually if you would want to add them later" %}" hx-post="{% url 'people:import-ignore-hx' %}" hx-vals='{"email": "{{user.email}}"}' hx-target="#hash-{{user.email|hash}}" hx-swap="outerHTML" class="btn btn-white">
+            {% translate "Don't show this user again" %}
+          </a>
+        </td>
+      </tr>
+    {% empty %}
+      {% if not error %}
+        <tr>
+          <td colspan="6">{% translate "No users found" %}</td>
+        </tr>
+      {% else %}
+        <tr class="table-danger">
+          <td colspan="6">{{ error }}</td>
+        </tr>
+      {% endif %}
+    {% endfor %}
+  </tbody>
+</table>
+<button class="btn btn-primary" id="creating-users" onClick="CreateUsers()">{% translate "Create users" %}</button>
+<div id="errors"></div>
+<p class="mt-2">{% translate "Managers and administrators will receive an email with login credentials" %}</p>

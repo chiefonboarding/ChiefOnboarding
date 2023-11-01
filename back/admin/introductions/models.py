@@ -4,7 +4,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from organization.models import BaseItem
+from organization.models import BaseItem, Notification
 
 
 class Introduction(BaseItem):
@@ -31,4 +31,4 @@ class Introduction(BaseItem):
 
     @property
     def notification_add_type(self):
-        return "added_introduction"
+        return Notification.Type.ADDED_INTRODUCTION

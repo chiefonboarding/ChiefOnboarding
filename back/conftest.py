@@ -6,7 +6,12 @@ from pytest_factoryboy import register
 from admin.admin_tasks.factories import AdminTaskFactory
 from admin.appointments.factories import AppointmentFactory
 from admin.badges.factories import BadgeFactory
-from admin.integrations.factories import CustomIntegrationFactory, IntegrationFactory
+from admin.integrations.factories import (
+    CustomIntegrationFactory,
+    CustomUserImportIntegrationFactory,
+    IntegrationFactory,
+    ManualUserProvisionIntegrationFactory,
+)
 from admin.introductions.factories import IntroductionFactory
 from admin.notes.factories import NoteFactory
 from admin.preboarding.factories import PreboardingFactory
@@ -16,6 +21,7 @@ from admin.resources.factories import (
     ResourceWithLevelDeepChaptersFactory,
 )
 from admin.sequences.factories import (
+    ConditionAdminTaskFactory,
     ConditionTimedFactory,
     ConditionToDoFactory,
     ConditionWithItemsFactory,
@@ -44,6 +50,7 @@ from users.factories import (
     PreboardingUserFactory,
     ResourceUserFactory,
     ToDoUserFactory,
+    IntegrationUserFactory,
 )
 
 
@@ -90,14 +97,18 @@ register(PreboardingUserFactory)
 register(SequenceFactory)
 register(ConditionTimedFactory)
 register(ConditionToDoFactory)
+register(ConditionAdminTaskFactory)
 register(PendingAdminTaskFactory)
 register(PendingEmailMessageFactory)
 register(PendingSlackMessageFactory)
 register(PendingTextMessageFactory)
 register(BadgeFactory)
-register(CustomIntegrationFactory)
 register(IntegrationFactory)
+register(IntegrationUserFactory)
+register(CustomIntegrationFactory)
+register(CustomUserImportIntegrationFactory)
 register(IntegrationConfigFactory)
+register(ManualUserProvisionIntegrationFactory)
 register(ConditionWithItemsFactory)
 register(FileFactory)
 register(ResourceWithLevelDeepChaptersFactory)

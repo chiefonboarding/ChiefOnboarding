@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from twilio.rest import Client
 
-from admin.admin_tasks.models import NOTIFICATION_CHOICES, PRIORITY_CHOICES
+from admin.admin_tasks.models import AdminTask
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
 from admin.integrations.models import Integration
@@ -21,21 +21,6 @@ from slack_bot.models import SlackChannel
 from slack_bot.utils import Slack
 
 from .emails import send_sequence_message
-
-PEOPLE_CHOICES = (
-    (0, _("New hire")),
-    (1, _("Manager")),
-    (2, _("Buddy")),
-    (3, _("Custom")),
-)
-
-PEOPLE_CHOICES_WITH_CHANNELS = (
-    (0, _("New hire")),
-    (1, _("Manager")),
-    (2, _("Buddy")),
-    (3, _("Custom")),
-    (4, _("Slack channel")),
-)
 
 
 class Sequence(models.Model):
@@ -58,18 +43,23 @@ class Sequence(models.Model):
         self.name = _("%(name)s (duplicate)") % {"name": self.name}
         self.auto_add = False
         self.save()
+
+        admin_tasks = {}
         for condition in old_sequence.conditions.all():
-            new_condition = condition.duplicate()
+            new_condition, admin_tasks = condition.duplicate(admin_tasks=admin_tasks)
             self.conditions.add(new_condition)
         return self
 
     def assign_to_user(self, user):
-        user_condition = None
-
         # adding conditions
         for sequence_condition in self.conditions.all():
+            user_condition = None
+
             # Check what kind of condition it is
-            if sequence_condition.condition_type in [0, 2]:
+            if sequence_condition.condition_type in [
+                Condition.Type.BEFORE,
+                Condition.Type.AFTER,
+            ]:
                 # Get the timed based condition or return None if not exist
                 user_condition = user.conditions.filter(
                     condition_type=sequence_condition.condition_type,
@@ -77,10 +67,10 @@ class Sequence(models.Model):
                     time=sequence_condition.time,
                 ).first()
 
-            elif sequence_condition.condition_type == 1:
+            elif sequence_condition.condition_type == Condition.Type.TODO:
                 # For to_do items, filter all condition items to find if one matches
                 # Both the amount and the todos itself need to match exactly
-                conditions = user.conditions.filter(condition_type=1)
+                conditions = user.conditions.filter(condition_type=Condition.Type.TODO)
                 original_condition_to_do_ids = (
                     sequence_condition.condition_to_do.all().values_list(
                         "id", flat=True
@@ -100,6 +90,35 @@ class Sequence(models.Model):
 
                     if found_to_do_items == len(original_condition_to_do_ids):
                         # We found our match. Amount matches AND the todos match
+                        user_condition = condition
+                        break
+
+            elif sequence_condition.condition_type == Condition.Type.ADMIN_TASK:
+                # For admin to do items, filter all condition items to find if one
+                # matches. Both the amount and the admin to do itself need to match
+                # exactly
+                conditions = user.conditions.filter(
+                    condition_type=Condition.Type.ADMIN_TASK
+                )
+                original_condition_admin_tasks_ids = (
+                    sequence_condition.condition_admin_tasks.all().values_list(
+                        "id", flat=True
+                    )
+                )
+
+                for condition in conditions:
+                    # Quickly check if the amount of items match - if not match, drop
+                    if condition.condition_admin_tasks.all().count() != len(  # noqa
+                        original_condition_admin_tasks_ids
+                    ):
+                        continue
+
+                    found_admin_tasks = condition.condition_admin_tasks.filter(
+                        id__in=original_condition_admin_tasks_ids
+                    ).count()
+
+                    if found_admin_tasks == len(original_condition_admin_tasks_ids):
+                        # We found our match. Amount matches AND the admin_tasks match
                         user_condition = condition
                         break
             else:
@@ -124,9 +143,12 @@ class Sequence(models.Model):
                 sequence_condition.save()
 
                 # Add condition to_dos
-                for condition_to_do in old_condition.condition_to_do.all():
-                    sequence_condition.condition_to_do.add(condition_to_do)
+                sequence_condition.condition_to_do.set(
+                    old_condition.condition_to_do.all()
+                )
 
+                for condition_admin_task in old_condition.condition_admin_tasks.all():
+                    sequence_condition.condition_admin_tasks.add(condition_admin_task)
                 # Add all the things that get triggered
                 sequence_condition.include_other_condition(old_condition)
 
@@ -183,7 +205,7 @@ class Sequence(models.Model):
         for condition in new_hire.conditions.all():
             for field in condition._meta.many_to_many:
                 # We only want to remove assigned items, not triggers
-                if field.name == "condition_to_do":
+                if field.name in ("condition_to_do", "condition_admin_tasks"):
                     continue
                 getattr(condition, field.name).remove(*items[field.name])
 
@@ -194,28 +216,39 @@ class Sequence(models.Model):
         Condition.objects.filter(id__in=conditions_to_be_deleted).delete()
         # Delete sequence
         Notification.objects.order_by("-created").filter(
-            notification_type="added_sequence"
+            notification_type=Notification.Type.ADDED_SEQUENCE
         ).first().delete()
 
 
 class ExternalMessageManager(models.Manager):
     def for_new_hire(self):
-        return self.get_queryset().filter(person_type=0)
+        return self.get_queryset().filter(
+            person_type=ExternalMessage.PersonType.NEWHIRE
+        )
 
     def for_admins(self):
-        return self.get_queryset().exclude(person_type=0)
+        return self.get_queryset().exclude(
+            person_type=ExternalMessage.PersonType.NEWHIRE
+        )
 
 
 class ExternalMessage(ContentMixin, models.Model):
-    EXTERNAL_TYPE = (
-        (0, _("Email")),
-        (1, _("Slack")),
-        (2, _("Text")),
-    )
+    class Type(models.IntegerChoices):
+        EMAIL = 0, _("Email")
+        SLACK = 1, _("Slack")
+        TEXT = 2, _("Text")
+
+    class PersonType(models.IntegerChoices):
+        NEWHIRE = 0, _("New hire")
+        MANAGER = 1, _("Manager")
+        BUDDY = 2, _("Buddy")
+        CUSTOM = 3, _("Custom")
+        SLACK_CHANNEL = 4, _("Slack channel")
+
     name = models.CharField(verbose_name=_("Name"), max_length=240)
     content_json = ContentJSONField(default=dict, verbose_name=_("Content"))
     content = models.CharField(verbose_name=_("Content"), max_length=12000, blank=True)
-    send_via = models.IntegerField(verbose_name=_("Send via"), choices=EXTERNAL_TYPE)
+    send_via = models.IntegerField(verbose_name=_("Send via"), choices=Type.choices)
     send_to = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name=_("Send to"),
@@ -237,29 +270,29 @@ class ExternalMessage(ContentMixin, models.Model):
         blank=True,
     )
     person_type = models.IntegerField(
-        verbose_name=_("For"), choices=PEOPLE_CHOICES_WITH_CHANNELS, default=1
+        verbose_name=_("For"), choices=PersonType.choices, default=1
     )
 
     @property
     def is_email_message(self):
-        return self.send_via == 0
+        return self.send_via == self.Type.EMAIL
 
     @property
     def is_slack_message(self):
-        return self.send_via == 1
+        return self.send_via == self.Type.SLACK
 
     @property
     def is_text_message(self):
-        return self.send_via == 2
+        return self.send_via == self.Type.TEXT
 
     @property
     def notification_add_type(self):
         if self.is_text_message:
-            return "sent_text_message"
+            return Notification.Type.SENT_TEXT_MESSAGE
         if self.is_email_message:
-            return "sent_email_message"
+            return Notification.Type.SENT_EMAIL_MESSAGE
         if self.is_slack_message:
-            return "sent_slack_message"
+            return Notification.Type.SENT_SLACK_MESSAGE
 
     @property
     def get_icon_template(self):
@@ -276,11 +309,11 @@ class ExternalMessage(ContentMixin, models.Model):
         return self
 
     def get_user(self, new_hire):
-        if self.person_type == 0:
+        if self.person_type == ExternalMessage.PersonType.NEWHIRE:
             return new_hire
-        elif self.person_type == 1:
+        elif self.person_type == ExternalMessage.PersonType.MANAGER:
             return new_hire.manager
-        elif self.person_type == 2:
+        elif self.person_type == ExternalMessage.PersonType.BUDDY:
             return new_hire.buddy
         else:
             return self.send_to
@@ -290,7 +323,7 @@ class ExternalMessage(ContentMixin, models.Model):
             # Make sure there is actually an email
             if self.get_user(user) is None:
                 Notification.objects.create(
-                    notification_type="failed_no_email",
+                    notification_type=Notification.Type.FAILED_NO_EMAIL,
                     extra_text=self.subject,
                     created_for=user,
                 )
@@ -306,7 +339,7 @@ class ExternalMessage(ContentMixin, models.Model):
             blocks = ToDo(content=self.content_json).to_slack_block(user)
 
             # Send to channel instead of person?
-            if self.person_type == 4:
+            if self.person_type == ExternalMessage.PersonType.SLACK_CHANNEL:
                 channel = (
                     None
                     if self.send_to_channel is None
@@ -320,7 +353,7 @@ class ExternalMessage(ContentMixin, models.Model):
             send_to = self.get_user(user)
             if send_to is None or send_to.phone == "":
                 Notification.objects.create(
-                    notification_type="failed_no_phone",
+                    notification_type=Notification.Type.FAILED_NO_PHONE,
                     extra_text=self.name,
                     created_for=user,
                 )
@@ -349,7 +382,7 @@ class PendingEmailMessage(ExternalMessage):
     # Email message model proxied from ExternalMessage
 
     def save(self, *args, **kwargs):
-        self.send_via = 0
+        self.send_via = self.Type.EMAIL
         return super(PendingEmailMessage, self).save(*args, **kwargs)
 
     class Meta:
@@ -360,7 +393,7 @@ class PendingSlackMessage(ExternalMessage):
     # Slack message model proxied from ExternalMessage
 
     def save(self, *args, **kwargs):
-        self.send_via = 1
+        self.send_via = self.Type.SLACK
         return super(PendingSlackMessage, self).save(*args, **kwargs)
 
     class Meta:
@@ -371,7 +404,7 @@ class PendingTextMessage(ExternalMessage):
     # Text message model proxied from ExternalMessage
 
     def save(self, *args, **kwargs):
-        self.send_via = 2
+        self.send_via = self.Type.TEXT
         return super(PendingTextMessage, self).save(*args, **kwargs)
 
     class Meta:
@@ -379,6 +412,17 @@ class PendingTextMessage(ExternalMessage):
 
 
 class PendingAdminTask(models.Model):
+    class PersonType(models.IntegerChoices):
+        NEWHIRE = 0, _("New hire")
+        MANAGER = 1, _("Manager")
+        BUDDY = 2, _("Buddy")
+        CUSTOM = 3, _("Custom")
+
+    class Notification(models.IntegerChoices):
+        NO = 0, _("No")
+        EMAIL = 1, _("Email")
+        SLACK = 2, _("Slack")
+
     name = models.CharField(verbose_name=_("Name"), max_length=500)
     comment = models.CharField(
         verbose_name=_("Comment"), max_length=12500, default="", blank=True
@@ -386,8 +430,8 @@ class PendingAdminTask(models.Model):
     person_type = models.IntegerField(
         # Filter out new hire. Never assign an admin task to a new hire.
         verbose_name=_("Assigned to"),
-        choices=[person for person in PEOPLE_CHOICES if person[0] != 0],
-        default=1,
+        choices=[person for person in PersonType.choices if person[0] != 0],
+        default=PersonType.MANAGER,
     )
     assigned_to = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -398,7 +442,7 @@ class PendingAdminTask(models.Model):
     )
     option = models.IntegerField(
         verbose_name=_("Send email or Slack message to extra user?"),
-        choices=NOTIFICATION_CHOICES,
+        choices=Notification.choices,
         default=0,
     )
     slack_user = models.ForeignKey(
@@ -414,15 +458,27 @@ class PendingAdminTask(models.Model):
     )
     date = models.DateField(verbose_name=_("Due date"), blank=True, null=True)
     priority = models.IntegerField(
-        verbose_name=_("Priority"), choices=PRIORITY_CHOICES, default=2
+        verbose_name=_("Priority"),
+        choices=AdminTask.Priority.choices,
+        default=AdminTask.Priority.MEDIUM,
+    )
+    template = models.BooleanField(
+        default=False,
+        help_text=(
+            "Should always be False, for now it's just here to comply with other "
+            "functions (like duplicate)"
+        ),
     )
 
+    def __str__(self):
+        return self.name
+
     def get_user(self, new_hire):
-        if self.person_type == 0:
+        if self.person_type == PendingAdminTask.PersonType.NEWHIRE:
             return new_hire
-        elif self.person_type == 1:
+        elif self.person_type == PendingAdminTask.PersonType.MANAGER:
             return new_hire.manager
-        elif self.person_type == 2:
+        elif self.person_type == PendingAdminTask.PersonType.BUDDY:
             return new_hire.buddy
         else:
             return self.assigned_to
@@ -430,29 +486,31 @@ class PendingAdminTask(models.Model):
     def execute(self, user):
         from admin.admin_tasks.models import AdminTask, AdminTaskComment
 
-        admin_task, created = AdminTask.objects.get_or_create(
+        if AdminTask.objects.filter(new_hire=user, based_on=self).exists():
+            # if a task already exists, then skip
+            return
+
+        admin_task = AdminTask.objects.create(
             new_hire=user,
             assigned_to=self.get_user(user),
             name=self.name,
-            defaults={
-                "option": self.option,
-                "slack_user": self.slack_user,
-                "email": self.email,
-                "date": self.date,
-                "priority": self.priority,
-            },
+            option=self.option,
+            slack_user=self.slack_user,
+            email=self.email,
+            date=self.date,
+            priority=self.priority,
+            based_on=self,
         )
-        if created and self.comment != "":
-            AdminTaskComment.objects.create(
-                content=self.comment,
-                comment_by=admin_task.assigned_to,
-                admin_task=admin_task,
-            )
+        AdminTaskComment.objects.create(
+            content=self.comment,
+            comment_by=admin_task.assigned_to,
+            admin_task=admin_task,
+        )
         admin_task.send_notification_new_assigned()
         admin_task.send_notification_third_party()
 
         Notification.objects.create(
-            notification_type="added_admin_task",
+            notification_type=Notification.Type.ADDED_ADMIN_TASK,
             extra_text=self.name,
             created_for=self.assigned_to,
         )
@@ -524,8 +582,8 @@ class ConditionPrefetchManager(models.Manager):
             )
             .annotate(
                 days_order=Case(
-                    When(condition_type=2, then=F("days") * -1),
-                    When(condition_type=1, then=99999),
+                    When(condition_type=Condition.Type.BEFORE, then=F("days") * -1),
+                    When(condition_type=Condition.Type.AFTER, then=99999),
                     default=F("days"),
                     output_field=IntegerField(),
                 )
@@ -535,17 +593,18 @@ class ConditionPrefetchManager(models.Manager):
 
 
 class Condition(models.Model):
-    CONDITION_TYPE = (
-        (0, _("After new hire has started")),
-        (1, _("Based on one or more to do item(s)")),
-        (2, _("Before the new hire has started")),
-        (3, _("Without trigger")),
-    )
+    class Type(models.IntegerChoices):
+        AFTER = 0, _("After new hire has started")
+        TODO = 1, _("Based on one or more to do item(s)")
+        BEFORE = 2, _("Before the new hire has started")
+        WITHOUT = 3, _("Without trigger")
+        ADMIN_TASK = 4, _("Based on one or more admin tasks")
+
     sequence = models.ForeignKey(
         Sequence, on_delete=models.CASCADE, null=True, related_name="conditions"
     )
     condition_type = models.IntegerField(
-        verbose_name=_("Block type"), choices=CONDITION_TYPE, default=0
+        verbose_name=_("Block type"), choices=Type.choices, default=Type.AFTER
     )
     days = models.IntegerField(
         verbose_name=_("Amount of days before/after new hire has started"), default=1
@@ -555,6 +614,11 @@ class Condition(models.Model):
         ToDo,
         verbose_name=_("Trigger after these to do items have been completed:"),
         related_name="condition_to_do",
+    )
+    condition_admin_tasks = models.ManyToManyField(
+        PendingAdminTask,
+        verbose_name=_("Trigger after these admin todo items have been completed:"),
+        related_name="condition_triggers",
     )
     to_do = models.ManyToManyField(ToDo)
     badges = models.ManyToManyField(Badge)
@@ -582,6 +646,18 @@ class Condition(models.Model):
             or self.integration_configs.exists()
         )
 
+    @property
+    def based_on_to_do(self):
+        return self.condition_type == Condition.Type.TODO
+
+    @property
+    def based_on_admin_task(self):
+        return self.condition_type == Condition.Type.ADMIN_TASK
+
+    @property
+    def based_on_time(self):
+        return self.condition_type in [Condition.Type.AFTER, Condition.Type.BEFORE]
+
     def remove_item(self, model_item):
         # If any of the external messages, then get the root one
         if type(model_item)._meta.model_name in [
@@ -593,7 +669,7 @@ class Condition(models.Model):
         # model_item is a template item. I.e. a ToDo object.
         for field in self._meta.many_to_many:
             # We only want to remove assigned items, not triggers
-            if field.name == "condition_to_do":
+            if field.name in ("condition_to_do", "condition_admin_tasks"):
                 continue
             if (
                 field.related_model._meta.model_name
@@ -605,7 +681,7 @@ class Condition(models.Model):
         # model_item is a template item. I.e. a ToDo object.
         for field in self._meta.many_to_many:
             # We only want to add assigned items, not triggers
-            if field.name == "condition_to_do":
+            if field.name in ("condition_to_do", "condition_admin_tasks"):
                 continue
             if (
                 field.related_model._meta.model_name
@@ -617,26 +693,29 @@ class Condition(models.Model):
         # this will put another condition into this one
         for field in self._meta.many_to_many:
             # We only want to add assigned items, not triggers
-            if field.name == "condition_to_do":
+            if field.name in ("condition_to_do", "condition_admin_tasks"):
                 continue
 
             condition_field = getattr(condition, field.name)
             for item in condition_field.all():
                 getattr(self, field.name).add(item)
 
-    def duplicate(self):
+    def duplicate(self, admin_tasks):
         old_condition = Condition.objects.get(id=self.id)
         self.pk = None
         self.save()
+
         # This function is not being used except for duplicating sequences
         # It can't be triggered standalone (for now)
         for field in old_condition._meta.many_to_many:
             if field.name not in [
                 "admin_tasks",
+                "condition_admin_tasks",
                 "external_messages",
                 "integration_configs",
             ]:
-                # Duplicate old ones
+                # Duplicate template items that have been customized. Those should be
+                # unique again. (only items that have a `template` flag on the model)
                 items = []
                 old_custom_templates = getattr(old_condition, field.name).filter(
                     template=False
@@ -645,8 +724,8 @@ class Condition(models.Model):
                     dup = old.duplicate(change_name=False)
                     items.append(dup)
 
-                # Only using set() for template items. The other ones need to be
-                # duplicated as they are unique to the condition
+                # Reassign items that are still unchanged templates, they should connect
+                # to the same item
                 old_templates = getattr(old_condition, field.name).filter(template=True)
                 getattr(self, field.name).add(*old_templates, *items)
 
@@ -654,15 +733,31 @@ class Condition(models.Model):
                 # For items that do not have templates, just duplicate them
                 items = []
                 old_custom_templates = getattr(old_condition, field.name).all()
-                for old in old_custom_templates:
-                    dup = old.duplicate(change_name=False)
-                    items.append(dup)
+                # exception for condition_admin_tasks, those should be linked to
+                # previously created items, so link old id to new object, for
+                # future lookup
+                if field.name == "condition_admin_tasks":
+                    for item in old_custom_templates:
+                        items.append(admin_tasks[item.id])
+
+                else:
+                    for old in old_custom_templates:
+                        old_id = old.id
+                        dup = old.duplicate(change_name=False)
+                        items.append(dup)
+                        if field.name == "admin_tasks":
+                            # lookup old id to get newly created object
+                            admin_tasks[old_id] = dup
+
                 getattr(self, field.name).add(*items)
 
         # returning the new item
-        return self
+        return self, admin_tasks
 
     def process_condition(self, user, skip_notification=False):
+        # avoid circular import
+        from users.models import IntegrationUser
+
         # Loop over all m2m fields and add the ones that can be easily added
         for field in [
             "to_do",
@@ -690,6 +785,11 @@ class Condition(models.Model):
             for item in getattr(self, field).all():
                 # Only for integration configs
                 if getattr(item, "integration", None) is not None:
-                    item.integration.execute(user, item.additional_data)
+                    if item.integration.skip_user_provisioning:
+                        IntegrationUser.objects.create(
+                            user=user, integration=item.integration
+                        )
+                    else:
+                        item.integration.execute(user, item.additional_data)
                 else:
                     item.execute(user)

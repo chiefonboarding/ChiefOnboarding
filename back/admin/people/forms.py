@@ -117,7 +117,7 @@ class NewHireAddForm(forms.ModelForm):
             Submit(name="submit", value=_("Create new hire")),
         )
         # Only show if the slack bot has been enabled
-        if Integration.objects.filter(integration=0).exists():
+        if Integration.objects.filter(integration=Integration.Type.SLACK_BOT).exists():
             layout[2].extend(
                 [
                     Div(
@@ -403,3 +403,23 @@ class PreboardingSendForm(forms.Form):
         labels = {
             "send_type": _("Send type"),
         }
+
+
+class EmailIgnoreForm(forms.Form):
+    email = forms.EmailField()
+
+
+class UserRoleForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["role"].label = ""
+        self.fields["role"].help_text = ""
+        # new hires are excluded as those should be created through a normal new hire
+        # create form or through the API to set all options (sequences, start day etc)
+        self.fields["role"].choices = tuple(
+            x for x in get_user_model().Role.choices if x[0] != 0
+        )
+
+    class Meta:
+        model = get_user_model()
+        fields = ("role",)

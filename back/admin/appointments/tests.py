@@ -1,4 +1,5 @@
 import pytest
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from admin.appointments.models import Appointment
@@ -6,7 +7,9 @@ from admin.appointments.models import Appointment
 
 @pytest.mark.django_db
 def test_create_appointment(client, django_user_model):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     url = reverse("appointments:create")
     response = client.get(url)
@@ -59,7 +62,9 @@ def test_create_appointment(client, django_user_model):
 
 @pytest.mark.django_db
 def test_create_appointment_without_fixed_date(client, django_user_model):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
 
     url = reverse("appointments:create")
     response = client.get(url)
@@ -85,7 +90,9 @@ def test_create_appointment_without_fixed_date(client, django_user_model):
 
 @pytest.mark.django_db
 def test_update_appointment(client, django_user_model, appointment_factory):
-    client.force_login(django_user_model.objects.create(role=1))
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
     appointment = appointment_factory()
 
     url = reverse("appointments:update", args=[appointment.id])

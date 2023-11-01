@@ -171,6 +171,11 @@ class Organization(models.Model):
             "See documentation if you want to use your own."
         ),
     )
+    ignored_user_emails = ArrayField(
+        models.EmailField(),
+        default=list,
+        help_text="Emails which get ignored by the importer",
+    )
 
     object = ObjectManager()
     objects = models.Manager()
@@ -232,17 +237,16 @@ class Tag(models.Model):
 
 
 class WelcomeMessage(models.Model):
-    MESSAGE_TYPE = (
-        (0, _("pre-boarding")),
-        (1, _("new hire welcome")),
-        (2, _("text welcome")),
-        (3, _("slack welcome")),
-        (4, _("slack knowledge")),
-    )
+    class Type(models.IntegerChoices):
+        PREBOARDING = 0, _("pre-boarding")
+        NEWHIRE_WELCOME = 1, _("new hire welcome")
+        TEXT_WELCOME = 2, _("text welcome")
+        SLACK_WELCOME = 3, _("slack welcome")
+        SLACK_KNOWLEDGE = 4, _("slack knowledge")
 
     message = models.CharField(verbose_name=_("Message"), max_length=20250, blank=True)
     language = models.CharField(choices=settings.LANGUAGES, max_length=3, default="en")
-    message_type = models.IntegerField(choices=MESSAGE_TYPE, default=0)
+    message_type = models.IntegerField(choices=Type.choices, default=Type.PREBOARDING)
 
 
 class TemplateManager(models.Manager):
@@ -309,66 +313,101 @@ class BaseItem(ContentMixin, models.Model):
         return blocks
 
 
-NOTIFICATION_TYPES = [
-    ("added_todo", _("A new to do item has been added")),
-    ("completed_todo", _("To do item has been marked as completed")),
-    ("added_resource", _("A new resource item has been added")),
-    ("completed_course", _("Course has been completed")),
-    ("added_badge", _("A new badge item has been added")),
-    ("added_introduction", _("A new introduction item has been added")),
-    ("added_preboarding", _("A new preboarding item has been added")),
-    ("added_appointment", _("A new appointment item has been added")),
-    ("added_new_hire", _("A new hire has been added")),
-    ("added_administrator", _("A new administrator has been added")),
-    ("added_manager", _("A new manager has been added")),
-    ("added_admin_task", _("A new admin task has been added")),
-    ("added_sequence", _("A new sequence has been added")),
-    ("sent_email_message", _("A new email has been sent")),
-    ("sent_text_message", _("A new text message has been sent")),
-    ("sent_slack_message", _("A new slack message has been sent")),
-    ("updated_slack_message", _("A new slack message has been updated")),
-    ("sent_email_login_credentials", _("Login credentials have been sent")),
-    ("sent_email_task_reopened", _("Reopened task email has been sent")),
-    ("sent_email_task_reminder", _("Task reminder email has been sent")),
-    ("sent_email_new_hire_credentials", _("Sent new hire credentials email")),
-    ("sent_email_preboarding_access", _("Sent new hire preboarding email")),
-    ("sent_email_custom_sequence", _("Sent email from sequence")),
-    ("sent_email_new_hire_with_updates", _("Sent email with updates to new hire")),
-    ("sent_email_admin_task_extra", _("Sent email to extra person in admin task")),
-    (
-        "sent_email_admin_task_new_assigned",
-        _("Sent email about new person assigned to admin task"),
-    ),
-    (
-        "sent_email_admin_task_new_comment",
-        _("Sent email about new comment on admin task"),
-    ),
-    (
-        "sent_email_integration_notification",
-        _("Sent email about completing integration call"),
-    ),
-    ("failed_no_phone", _("Couldn't send text message: number is missing")),
-    ("failed_no_email", _("Couldn't send email message: email is missing")),
-    (
-        "failed_email_recipients_refused",
-        _("Couldn't deliver email message: recipient refused"),
-    ),
-    ("failed_email_delivery", _("Couldn't deliver email message: provider error")),
-    ("failed_email_address", _("Couldn't deliver email message: provider error")),
-    ("failed_send_slack_message", _("Couldn't send Slack message")),
-    ("failed_update_slack_message", _("Couldn't update Slack message")),
-    ("ran_integration", _("Integration has been triggered")),
-    ("failed_integration", _("Couldn't complete integration")),
-    (
-        "failed_text_integration_notification",
-        _("Couldn't send integration notification"),
-    ),
-]
-
-
 class Notification(models.Model):
+    class Type(models.TextChoices):
+        ADDED_TODO = "added_todo", _("A new to do item has been added")
+        COMPLETED_TODO = "completed_todo", _("To do item has been marked as completed")
+        ADDED_RESOURCE = "added_resource", _("A new resource item has been added")
+        COMPLETED_COURSE = "completed_course", _("Course has been completed")
+        ADDED_BADGE = "added_badge", _("A new badge item has been added")
+        ADDED_INTRODUCTION = "added_introduction", _(
+            "A new introduction item has been added"
+        )
+        ADDED_PREBOARDING = "added_preboarding", _(
+            "A new preboarding item has been added"
+        )
+        ADDED_APPOINTMENT = "added_appointment", _(
+            "A new appointment item has been added"
+        )
+        ADDED_NEWHIRE = "added_new_hire", _("A new hire has been added")
+        ADDED_ADMIN = "added_administrator", _("A new administrator has been added")
+        ADDED_MANAGER = "added_manager", _("A new manager has been added")
+        ADDED_ADMIN_TASK = "added_admin_task", _("A new admin task has been added")
+        ADDED_SEQUENCE = "added_sequence", _("A new sequence has been added")
+        SENT_EMAIL_MESSAGE = "sent_email_message", _("A new email has been sent")
+        SENT_TEXT_MESSAGE = "sent_text_message", _("A new text message has been sent")
+        SENT_SLACK_MESSAGE = "sent_slack_message", _(
+            "A new slack message has been sent"
+        )
+        UPDATED_SLACK_MESSAGE = "updated_slack_message", _(
+            "A new slack message has been updated"
+        )
+        SENT_EMAIL_LOGIN_CREDENTIALS = "sent_email_login_credentials", _(
+            "Login credentials have been sent"
+        )
+        SENT_EMAIL_TASK_REOPENED = "sent_email_task_reopened", _(
+            "Reopened task email has been sent"
+        )
+        SENT_EMAIL_TASK_REMINDER = "sent_email_task_reminder", _(
+            "Task reminder email has been sent"
+        )
+        SENT_EMAIL_NEWHIRE_CRED = "sent_email_new_hire_credentials", _(
+            "Sent new hire credentials email"
+        )
+        SENT_EMAIL_PREBOARDING_ACCESS = "sent_email_preboarding_access", _(
+            "Sent new hire preboarding email"
+        )
+        SENT_EMAIL_CUSTOM_SEQUENCE = "sent_email_custom_sequence", _(
+            "Sent email from sequence"
+        )
+        SENT_EMAIL_NEWHIRE_UPDATES = "sent_email_new_hire_with_updates", _(
+            "Sent email with updates to new hire"
+        )
+        SENT_EMAIL_ADMIN_TASK_EXTRA = "sent_email_admin_task_extra", _(
+            "Sent email to extra person in admin task"
+        )
+        SENT_EMAIL_ADMIN_TASK_NEW_ASSIGNED = "sent_email_admin_task_new_assigned", _(
+            "Sent email about new person assigned to admin task"
+        )
+        SENT_EMAIL_ADMIN_TASK_NEW_COMMENT = "sent_email_admin_task_new_comment", _(
+            "Sent email about new comment on admin task"
+        )
+        SENT_EMAIL_INTEGRATION_NOTIFICATION = "sent_email_integration_notification", _(
+            "Sent email about completing integration call"
+        )
+        FAILED_NO_PHONE = "failed_no_phone", _(
+            "Couldn't send text message: number is missing"
+        )
+        FAILED_NO_EMAIL = "failed_no_email", _(
+            "Couldn't send email message: email is missing"
+        )
+        FAILED_EMAIL_RECIPIENTS_REFUSED = "failed_email_recipients_refused", _(
+            "Couldn't deliver email message: recipient refused"
+        )
+        FAILED_EMAIL_DELIVERY = "failed_email_delivery", _(
+            "Couldn't deliver email message: provider error"
+        )
+        FAILED_EMAIL_ADDRESS = "failed_email_address", _(
+            "Couldn't deliver email message: provider error"
+        )
+        FAILED_SEND_SLACK_MESSAGE = "failed_send_slack_message", _(
+            "Couldn't send Slack message"
+        )
+        FAILED_UPDATE_SLACK_MESSAGE = "failed_update_slack_message", _(
+            "Couldn't update Slack message"
+        )
+        RAN_INTEGRATION = "ran_integration", _("Integration has been triggered")
+        FAILED_INTEGRATION = "failed_integration", _("Couldn't complete integration")
+        BLOCKED_INTEGRATION = "blocked_integration", _(
+            "Integration was blocked due to condition"
+        )
+        FAILED_TEXT_INTEGRATION_NOTIFICATION = (
+            "failed_text_integration_notification",
+            _("Couldn't send integration notification"),
+        )
+
     notification_type = models.CharField(
-        choices=NOTIFICATION_TYPES, max_length=100, default="added_todo"
+        choices=Type.choices, max_length=100, default=Type.ADDED_TODO
     )
     extra_text = models.TextField(default="")
     description = models.TextField(default="")
@@ -414,6 +453,7 @@ class Notification(models.Model):
     def can_delete(self):
         # Only allow delete when it's a sequence item and when it's no more then two
         # days ago when it got added
-        return self.notification_type == "added_sequence" and self.created > (
-            timezone.now() - timedelta(days=2)
+        return (
+            self.notification_type == Notification.Type.ADDED_SEQUENCE
+            and self.created > (timezone.now() - timedelta(days=2))
         )

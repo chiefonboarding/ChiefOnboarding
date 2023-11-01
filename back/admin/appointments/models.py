@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from misc.fields import ContentJSONField
-from organization.models import BaseItem
+from organization.models import BaseItem, Notification
 
 
 class Appointment(BaseItem):
@@ -23,7 +23,7 @@ class Appointment(BaseItem):
 
     @property
     def notification_add_type(self):
-        return "added_appointment"
+        return Notification.Type.ADDED_APPOINTMENT
 
     @property
     def update_url(self):

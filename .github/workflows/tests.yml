@@ -53,10 +53,10 @@ jobs:
         coveralls --service=github
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Check formatting flake8/black/isort
+    - name: Check formatting/linting ruff and black
       run: |
         cd back
-        flake8 .
+        ruff check .
         black --check .
     - name: Check migrations
       run: |
