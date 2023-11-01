@@ -412,11 +412,38 @@ class User(AbstractBaseUser):
             "manager_email": manager_email,
             "department": department,
         }
+
+        if "{{ access_overview }}" in text:
+            all_access = []
+            for integration, access in self.check_integration_access().items():
+                if access is None:
+                    access_str = "(unknown)"
+                elif access:
+                    access_str = "(has access)"
+                else:
+                    access_str = "(no access)"
+
+                all_access.append(f"{integration} {access_str}")
+
+            new_hire_context["access_overview"] = ", ".join(all_access)
+
         text = t.render(Context(new_hire_context | extra_values))
         # Remove non breakable space html code (if any). These could show up in the
         # Slack bot.
         text = text.replace("&nbsp;", " ")
         return text
+
+    def check_integration_access(self):
+        from admin.integrations.models import Integration
+
+        items = {}
+        for integration_user in IntegrationUser.objects.filter(user=self):
+            items[integration_user.integration.name] = not integration_user.revoked
+
+        for integration in Integration.objects.filter(manifest__exists__isnull=False):
+            items[integration.name] = integration.user_exists(self)
+
+        return items
 
     def reset_otp_recovery_keys(self):
         self.user_otp.all().delete()
