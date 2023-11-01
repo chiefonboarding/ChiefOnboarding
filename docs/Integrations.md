@@ -179,6 +179,8 @@ Throughout the manifest you can use the variables that you have defined in the `
 
 `start`: New hire's start date
 
+`access_overview`: This will be a list of all the access the user could have access to. This includes previously assigned manual access and automated access (all of the automated items). It will result in a string like this: `Asana (no access), Google (has access), Teams (unknown)`. `unknown` is used when we couldn't reach the service.
+
 !!!
 Please do not overwrite these with your own ids
 !!!
