@@ -20,6 +20,7 @@ from admin.preboarding.models import Preboarding
 from admin.resources.models import CourseAnswer, Resource
 from admin.sequences.models import Condition
 from admin.to_do.models import ToDo
+from admin.hardware.models import Hardware
 from misc.fernet_fields import EncryptedTextField
 from misc.models import File
 from organization.models import Notification
@@ -207,6 +208,7 @@ class User(AbstractBaseUser):
         Preboarding, through="PreboardingUser", related_name="user_preboardings"
     )
     badges = models.ManyToManyField(Badge, related_name="user_introductions")
+    hardware = models.ManyToManyField(Hardware, related_name="user_hardware")
     integrations = models.ManyToManyField(
         "integrations.Integration",
         through="IntegrationUser",

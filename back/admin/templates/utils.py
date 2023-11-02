@@ -6,6 +6,7 @@ from admin.introductions.forms import IntroductionForm
 from admin.preboarding.forms import PreboardingForm
 from admin.resources.forms import ResourceForm
 from admin.to_do.forms import ToDoForm
+from admin.hardware.forms import HardwareForm
 
 MODELS = [
     {"app": "to_do", "model": "ToDo", "user_field": "to_do", "form": ToDoForm},
@@ -34,6 +35,7 @@ MODELS = [
         "form": PreboardingForm,
     },
     {"app": "badges", "model": "Badge", "user_field": "badges", "form": BadgeForm},
+    {"app": "hardware", "model": "Hardware", "user_field": "hardware", "form": HardwareForm},
 ]
 
 

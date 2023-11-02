@@ -14,6 +14,7 @@ from admin.introductions.models import Introduction
 from admin.preboarding.models import Preboarding
 from admin.resources.models import Resource
 from admin.to_do.models import ToDo
+from admin.hardware.models import Hardware
 from misc.fields import ContentJSONField, EncryptedJSONField
 from misc.mixins import ContentMixin
 from organization.models import Notification
@@ -195,6 +196,7 @@ class Sequence(models.Model):
         preboarding = Preboarding.objects.none()
         appointments = Appointment.objects.none()
         integration_configs = IntegrationConfig.objects.none()
+        hardware = Hardware.objects.none()
 
         # TODO: this is going to make a lot of queries, should be optimized
         for condition in self.conditions.all():
@@ -207,6 +209,7 @@ class Sequence(models.Model):
             preboarding |= condition.preboarding.all()
             appointments |= condition.appointments.all()
             integration_configs |= condition.integration_configs.all()
+            hardware |= condition.hardware.all()
 
         # Cycle through new hire's item and remove the ones that aren't supposed to
         # be there
@@ -215,6 +218,7 @@ class Sequence(models.Model):
         new_hire.appointments.remove(*appointments)
         new_hire.preboarding.remove(*preboarding)
         new_hire.introductions.remove(*introductions)
+        new_hire.hardware.remove(*hardware)
 
         # Do the same with the conditions
         conditions_to_be_deleted = []
@@ -228,6 +232,7 @@ class Sequence(models.Model):
             "preboarding": preboarding,
             "appointments": appointments,
             "integration_configs": integration_configs,
+            "hardware": hardware,
         }
         for condition in new_hire.conditions.all():
             for field in condition._meta.many_to_many:
@@ -740,6 +745,7 @@ class Condition(models.Model):
     preboarding = models.ManyToManyField(Preboarding)
     appointments = models.ManyToManyField(Appointment)
     integration_configs = models.ManyToManyField(IntegrationConfig)
+    hardware = models.ManyToManyField(Hardware)
 
     objects = ConditionPrefetchManager()
 
@@ -755,6 +761,7 @@ class Condition(models.Model):
             or self.preboarding.exists()
             or self.appointments.exists()
             or self.integration_configs.exists()
+            or self.hardware.exists()
         )
 
     @property
@@ -891,6 +898,6 @@ class Condition(models.Model):
 
         # For the ones that aren't a quick copy/paste, follow back to their model and
         # execute them. It will also add an item to the notification model there.
-        for field in ["admin_tasks", "external_messages", "integration_configs"]:
+        for field in ["admin_tasks", "external_messages", "integration_configs", "hardware"]:
             for item in getattr(self, field).all():
                 item.execute(user)

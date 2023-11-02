@@ -15,6 +15,7 @@ from admin.sequences import urls as sequences_urls
 from admin.settings import urls as settings_urls
 from admin.templates import urls as template_urls
 from admin.to_do import urls as to_do_urls
+from admin.hardware import urls as hardware_urls
 from api import urls as public_api_urls
 from new_hire import urls as new_hire_urls
 from organization import urls as org_urls
@@ -40,6 +41,7 @@ urlpatterns = [
     path("admin/tasks/", include(admin_tasks_urls)),
     path("admin/templates/", include(template_urls)),
     path("admin/templates/todo/", include(to_do_urls)),
+    path("admin/templates/hardware/", include(hardware_urls)),
     path("admin/templates/introductions/", include(intro_urls)),
     path("admin/templates/resources/", include(resource_urls)),
     path("admin/templates/badges/", include(badge_urls)),

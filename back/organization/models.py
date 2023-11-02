@@ -314,6 +314,7 @@ class Notification(models.Model):
         ADDED_MANAGER = "added_manager", _("A new manager has been added")
         ADDED_ADMIN_TASK = "added_admin_task", _("A new admin task has been added")
         ADDED_SEQUENCE = "added_sequence", _("A new sequence has been added")
+        ADDED_HARDWARE = "added_hardware", _("A new hardware item has been added")
         SENT_EMAIL_MESSAGE = "sent_email_message", _("A new email has been sent")
         SENT_TEXT_MESSAGE = "sent_text_message", _("A new text message has been sent")
         SENT_SLACK_MESSAGE = "sent_slack_message", _(

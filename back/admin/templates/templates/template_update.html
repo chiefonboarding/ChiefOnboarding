@@ -55,5 +55,14 @@ $("#id_send_back").on('change', function() {
     $(".slack_channel_dissapear").addClass("d-none")
   }
 })
+// FOR HARDWARE
+$("#id_person_type").on('change', function() {
+  let selectedItem = $(this).val()
+  if (selectedItem == 3){
+    $("#div_id_assigned_to").parent().removeClass("d-none")
+  } else {
+    $("#div_id_assigned_to").parent().addClass("d-none")
+  }
+})
 </script>
 {% endblock %}

@@ -55,6 +55,30 @@
         </a>
       </div>
     </div>
+    <div class="card mt-3">
+      <div class="card-header">
+        <h3 class="card-title">{% translate "Hardware" %}</h3>
+      </div>
+      <div class="list-group list-group-flush">
+        {% for hardware in object.hardware.all %}
+        <div class="list-group-item">
+          <div class="row align-items-center">
+            <div class="col text-truncate">
+              <span class="text-body d-block">{{ hardware.name }}</span>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="list-group-item">
+          <div class="row align-items-center">
+            <div class="col text-truncate">
+              {% translate "No hardware assigned to this user yet" %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}

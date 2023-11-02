@@ -105,7 +105,7 @@
                     <div class="card-body">
 
                       {# FOR NEW HIRES #}
-                      {% if condition.external_new_hire|length or condition.appointments.all|length or condition.badges.all|length or condition.to_do.all|length or condition.resources.all|length or condition.introductions.all|length %}
+                      {% if condition.external_new_hire|length or condition.appointments.all|length or condition.badges.all|length or condition.to_do.all|length or condition.resources.all|length or condition.introductions.all|length or condition.integration_configs.all|length  %}
                       <span class="badge bg-azure mb-2">{% translate "new hire" %}</span>
                       {% endif %}
                       {% for item in condition.appointments.all %}
@@ -132,14 +132,17 @@
                       {% for item in condition.badges.all %}
                         {% include '_condition_line_item.html' with type='badge' read_only=True %}
                       {% endfor %}
-
-                      {# FOR ADMINS #}
-                      {% if condition.external_admin|length or condition.admin_tasks.all|length or condition.integration_configs.all|length %}
-                      <span class="badge bg-orange mb-2">{% translate "admins" %}</span>
-                      {% endif %}
                       {% for item in condition.integration_configs.all %}
                         {% include '_condition_line_item.html' with type='integrationconfig' provision_created=1 read_only=True %}
                       {% endfor %}
+                      {% for item in condition.hardware.all %}
+                        {% include '_condition_line_item.html' with type='hardware' read_only=True %}
+                      {% endfor %}
+
+                      {# FOR ADMINS #}
+                      {% if condition.external_admin|length or condition.admin_tasks.all|length %}
+                      <span class="badge bg-orange mb-2">{% translate "admins" %}</span>
+                      {% endif %}
                       {% for item in condition.admin_tasks.all %}
                         {% include '_condition_line_item.html' with type='admintask' read_only=True %}
                       {% endfor %}
@@ -198,5 +201,24 @@
         </div>
       </div>
     </div>
+    {% if object.hardware.all %}
+    <div class="card mt-3">
+      <div class="card-header">
+        <h3 class="card-title">{% translate "Hardware" %}</h3>
+      </div>
+      <div class="list-group list-group-flush">
+        {% for hardware in object.hardware.all %}
+        <div class="list-group-item">
+          <div class="row align-items-center">
+            <div class="col text-truncate">
+              <span class="text-body d-block">{{ hardware.name }}</span>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}

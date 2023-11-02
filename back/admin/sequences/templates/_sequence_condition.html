@@ -60,7 +60,7 @@
     </div>
   </div>
   <div class="card-body">
-    {% if not condition.external_new_hire|length and not condition.preboarding.all|length and not condition.to_do.all|length and not condition.appointments.all|length and not condition.resources.all|length and not condition.introductions.all|length and not condition.external_admin|length and not condition.admin_tasks.all|length and not condition.preboarding.all|length and not condition.badges.all|length and not condition.integration_configs.all|length %}
+    {% if not condition.external_new_hire|length and not condition.preboarding.all|length and not condition.to_do.all|length and not condition.hardware.all|length and not condition.appointments.all|length and not condition.resources.all|length and not condition.introductions.all|length and not condition.external_admin|length and not condition.admin_tasks.all|length and not condition.preboarding.all|length and not condition.badges.all|length and not condition.integration_configs.all|length %}
       No items yet
     {% endif %}
 
@@ -97,6 +97,9 @@
     {% endfor %}
     {% for item in condition.integration_configs.all %}
       {% include '_condition_line_item.html' with type='integrationconfig' provision_created=1 %}
+    {% endfor %}
+    {% for item in condition.hardware.all %}
+      {% include '_condition_line_item.html' with type='hardware' %}
     {% endfor %}
 
     {# FOR ADMINS #}

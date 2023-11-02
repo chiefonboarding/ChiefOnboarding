@@ -77,6 +77,12 @@ class AdminTask(models.Model):
             "admin task."
         ),
     )
+    hardware = models.ForeignKey(
+        "hardware.Hardware",
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text=_("Only set if generated based on hardware."),
+    )
 
     @property
     def get_icon_template(self):
