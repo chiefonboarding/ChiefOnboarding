@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from admin.appointments.factories import AppointmentFactory  # noqa
 from admin.badges.factories import BadgeFactory  # noqa
+from admin.hardware.factories import HardwareFactory  # noqa
 from admin.introductions.factories import IntroductionFactory  # noqa
 from admin.preboarding.factories import PreboardingFactory  # noqa
 from admin.resources.factories import ResourceFactory  # noqa
@@ -22,6 +23,7 @@ from admin.to_do.factories import ToDoFactory  # noqa
         ("preboarding:list", "preboarding", "preboarding"),
         ("appointments:list", "appointments", "appointment"),
         ("resources:list", "resources", "resource"),
+        ("hardware:list", "hardware", "hardware"),
     ],
 )
 def test_templates_crud(
@@ -67,6 +69,10 @@ def test_templates_crud(
     ResourceFactory()
     ResourceFactory(template=False)
     ResourceFactory(template=False)
+
+    HardwareFactory()
+    HardwareFactory(template=False)
+    HardwareFactory(template=False)
 
     # Get first object of template
     object_model = apps.get_model(app, model)

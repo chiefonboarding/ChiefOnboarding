@@ -3,6 +3,7 @@ from django.db import models
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
 
+from organization.models import Notification
 from slack_bot.utils import Slack, actions, button, paragraph
 
 from .emails import (
@@ -175,6 +176,22 @@ class AdminTask(models.Model):
             )
             integration_user.revoked = not self.create_integration
             integration_user.save()
+
+        # Check if we need to add hardware
+
+        if self.hardware is not None:
+            add = self.hardware not in self.new_hire.hardware.all()
+            if add:
+                self.new_hire.hardware.add(self.hardware)
+            else:
+                self.new_hire.hardware.remove(self.hardware)
+
+            Notification.objects.create(
+                notification_type=self.hardware.notification_add_type if add else self.hardware.notification_remove_type,
+                extra_text=self.hardware.name,
+                created_for=self.new_hire,
+                item_id=self.id,
+            )
 
         # Get conditions with this to do item as (part of the) condition
         conditions = self.new_hire.conditions.filter(

@@ -35,15 +35,22 @@ class Hardware(BaseItem):
 
     def execute(self, user):
         from admin.admin_tasks.models import AdminTask
-        user.hardware.add(self)
-        Notification.objects.create(
-            notification_type=self.notification_add_type,
-            extra_text=self.name,
-            created_for=user,
-            item_id=self.id,
-        )
+        add = self not in user.hardware.all()
 
         if self.person_type is None:
+            # no person assigned, so add directly
+            if add:
+                user.hardware.add(self)
+            else:
+                user.hardware.remove(self)
+
+            Notification.objects.create(
+                notification_type=self.notification_add_type if add else self.notification_remove_type,
+                extra_text=self.name,
+                created_for=user,
+                item_id=self.id,
+            )
+
             return
 
         if self.person_type == Hardware.PersonType.MANAGER:
@@ -53,7 +60,10 @@ class Hardware(BaseItem):
         else:
             assigned_to = self.assigned_to
 
-        admin_task_name = _("Send hardware to new hire: {self.name}")
+        if add:
+            admin_task_name = _("Send hardware to new hire (%(new_hire)s): %(name)s") % {"new_hire": user.full_name, "name": self.name}
+        else:
+            admin_task_name = _("Reclaim hardware from employee (%(new_hire)s): %(name)s") % {"new_hire": user.full_name, "name": self.name}
 
         admin_task = AdminTask.objects.create(
             new_hire=user,
@@ -78,6 +88,10 @@ class Hardware(BaseItem):
     @property
     def notification_add_type(self):
         return Notification.Type.ADDED_HARDWARE
+
+    @property
+    def notification_remove_type(self):
+        return Notification.Type.REMOVED_HARDWARE
 
     @property
     def update_url(self):
