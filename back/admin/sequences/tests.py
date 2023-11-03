@@ -16,6 +16,8 @@ from admin.badges.forms import BadgeForm
 from admin.integrations.models import Integration
 from admin.introductions.factories import IntroductionFactory
 from admin.introductions.forms import IntroductionForm
+from admin.hardware.forms import HardwareForm
+from admin.hardware.factories import HardwareFactory
 from admin.preboarding.factories import PreboardingFactory
 from admin.preboarding.forms import PreboardingForm
 from admin.resources.factories import ResourceFactory
@@ -414,6 +416,7 @@ def test_sequence_detail_view(
         ("appointment", AppointmentForm, AppointmentFactory),
         ("introduction", IntroductionForm, IntroductionFactory),
         ("badge", BadgeForm, BadgeFactory),
+        ("hardware", HardwareForm, HardwareFactory),
         ("preboarding", PreboardingForm, PreboardingFactory),
         ("pendingadmintask", PendingAdminTaskForm, PendingAdminTaskFactory),
         ("pendingslackmessage", PendingSlackMessageForm, PendingSlackMessageFactory),
@@ -964,6 +967,7 @@ def test_delete_sequence(client, admin_factory, sequence_factory):
         ("appointment", AppointmentFactory),
         ("introduction", IntroductionFactory),
         ("badge", BadgeFactory),
+        ("hardware", HardwareFactory),
         ("preboarding", PreboardingFactory),
     ],
 )
@@ -1081,6 +1085,7 @@ def test_onboarding_sequence_trigger_task(
     pending_text_message1 = pending_text_message_factory()
     manual_provisioning = manual_user_provision_integration_factory()
     manual_config = IntegrationConfigFactory(integration=manual_provisioning)
+    hardware = HardwareFactory()
 
     seq = sequence_factory()
     unconditioned_condition = seq.conditions.all().first()
@@ -1102,6 +1107,7 @@ def test_onboarding_sequence_trigger_task(
     condition.add_item(pending_admin_task1)
     condition.add_item(pending_text_message1)
     condition.add_item(manual_config)
+    condition.add_item(hardware)
 
     seq.conditions.add(condition)
 
@@ -1122,6 +1128,7 @@ def test_onboarding_sequence_trigger_task(
     assert new_hire1.introductions.all().count() == 1
     assert new_hire1.badges.all().count() == 1
     assert new_hire1.integrations.all().count() == 1
+    assert new_hire1.hardware.all().count() == 1
 
 
 @pytest.mark.django_db
@@ -1132,10 +1139,7 @@ def test_offboarding_sequence_trigger_task(
     condition_timed_factory,
     to_do_factory,
     resource_factory,
-    introduction_factory,
-    appointment_factory,
-    preboarding_factory,
-    badge_factory,
+    hardware_factory,
     pending_admin_task_factory,
     pending_text_message_factory,
     manual_user_provision_integration_factory,
@@ -1150,14 +1154,11 @@ def test_offboarding_sequence_trigger_task(
     to_do1 = to_do_factory()
     to_do2 = to_do_factory()
     resource1 = resource_factory()
-    appointment1 = appointment_factory()
-    introduction1 = introduction_factory()
-    preboarding1 = preboarding_factory()
-    badge1 = badge_factory()
     pending_admin_task1 = pending_admin_task_factory()
     pending_text_message1 = pending_text_message_factory()
     manual_provisioning = manual_user_provision_integration_factory()
     manual_config = IntegrationConfigFactory(integration=manual_provisioning)
+    hardware = hardware_factory()
 
     seq = offboarding_sequence_factory()
     unconditioned_condition = seq.conditions.all().first()
@@ -1174,13 +1175,10 @@ def test_offboarding_sequence_trigger_task(
     )
     condition.add_item(to_do2)
     condition.add_item(resource1)
-    condition.add_item(appointment1)
-    condition.add_item(introduction1)
-    condition.add_item(preboarding1)
-    condition.add_item(badge1)
     condition.add_item(pending_admin_task1)
     condition.add_item(pending_text_message1)
     condition.add_item(manual_config)
+    condition.add_item(hardware)
 
     seq.conditions.add(condition)
 
@@ -1197,10 +1195,8 @@ def test_offboarding_sequence_trigger_task(
 
     assert emp1.to_do.all().count() == 2
     assert emp1.resources.all().count() == 1
-    assert emp1.appointments.all().count() == 1
-    assert emp1.introductions.all().count() == 1
-    assert emp1.badges.all().count() == 1
     assert emp1.integrations.all().count() == 1
+    assert emp1.hardware.all().count() == 1
     assert AdminTask.objects.filter(new_hire=emp1)
 
     emp1.termination_date = timezone.now() - timedelta(days=2)
