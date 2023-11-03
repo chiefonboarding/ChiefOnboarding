@@ -21,7 +21,10 @@ class LdapConfig:
     POSIX_GROUP_RDN: str = None
     USER_FILTER: str = '(cn=*)'
     GROUP_FILTER: str = '(cn=*)'
-    TLS = False
+    TLS:bool = False
+    CERT_FILE:bool = None
+    IS_AD:bool = False
+    DOMAIN:str = None
 
     @property
     def SERVER_URL(self) -> str:
@@ -130,7 +133,7 @@ class LDAP_OP:
         self.__conn: Connection = None
         self.__conn_status = False
         self.__last_error:str = None
-        if ldap_config is not None and (LdapConfig, ldap_config):
+        if ldap_config is not None and isinstance(LdapConfig, ldap_config):
             self.ldap_config = ldap_config
         else:
             self.__ldap_config = LdapConfig()

@@ -1,5 +1,6 @@
 
 from .ldap import LdapConfig, inetOrgPerson, posixAccount, LDAP_OP
+from .ad import AdConfig, AD_OP
 from .toLdapGroup import *
 import re
 from os import path
@@ -11,8 +12,8 @@ from django.conf import settings
 __all__=['LdapSync','ldap_add_user','ldap_delete_user','ldap_sync_role','ldap_set_password','LdapConfig', 'inetOrgPerson', 'posixAccount']
 
 class LdapSync:
-    def __init__(self,ldap_config: LdapConfig = None):
-        self.__ldap: LDAP_OP = None
+    def __init__(self,ldap_config: LdapConfig|AdConfig = None):
+        self.__ldap: LDAP_OP|AD_OP = None
         self.init(ldap_config=ldap_config)
 
     def init(self, ldap_config: LdapConfig = None):
@@ -20,8 +21,16 @@ class LdapSync:
             ldap_config = self.get_ldap_config()
         is_log=settings.LDAP_LOG
         is_log=True
-        ldap = LDAP_OP(ldap_config,is_log=is_log)
+        self.__is_ad =settings.IS_AD
+        if self.is_ad:
+            ldap = AD_OP(ldap_config)
+        else:
+            ldap = LDAP_OP(ldap_config,is_log=is_log)
         self.ldap = ldap
+
+    @property
+    def is_ad(self):
+        return self.__is_ad
 
     @property
     def ldap(self):
@@ -37,19 +46,10 @@ class LdapSync:
 
     def add_user(self, user, password:str=None,need_hash_pw:bool=True,algorithm:str='SSHA'):
         ldap_user = self.user_2_ldap(user, password=password,need_hash_pw=need_hash_pw,algorithm=algorithm)        
-        i = 1
-        uid = ldap_user.uid
-        while True:
-            if self.ldap.add_user(ldap_user,need_hash_pw=False):
-                user.set_password(password)
-                user.save()
-                break
-            elif self.ldap.last_error == 'entryAlreadyExists':
-                ldap_user.uid = '{uid}{i}'.format(uid=uid, i=i)
-                user.username = ldap_user.uid
-                i += 1
-            else:
-                break
+        if not self.is_ad:
+            self.add_user_for_ldap(ldap_user,user)
+        else:
+            self.add_user_for_ad(ldap_user,user)
         department_name=None
         if user.department is not None:
             department_name = user.department.name
@@ -58,20 +58,55 @@ class LdapSync:
         self.add_user_to_group(uid=user.username,groups_info=groups_info)
         return user
 
+    def add_user_for_ad(self, ldap_user:inetOrgPerson|posixAccount,user):
+        self.ldap.add_user(user=ldap_user,groups=None)
+        user.set_password(ldap_user.userPassword)
+        user.save()
+
+    def add_user_for_ldap(self, ldap_user:inetOrgPerson|posixAccount,user):
+        i = 1
+        uid = ldap_user.uid
+        password=ldap_user.userPassword
+        if not self.is_ad:
+            while True:
+                if self.ldap.add_user(ldap_user,need_hash_pw=False):
+                    user.set_password(password)
+                    user.save()
+                    break
+                elif self.ldap.last_error == 'entryAlreadyExists':
+                    ldap_user.uid = '{uid}{i}'.format(uid=uid, i=i)
+                    user.username = ldap_user.uid
+                    i += 1
+                else:
+                    break
+        return user
 
     def add_user_to_group(self, uid:str, groups_info:GroupsInfo):
-        for group in groups_info.ldap_groups:
-            self.ldap.add_user_to_group(uid=uid,group_name=group.dn)
-        for group in groups_info.posixGroups:
-            self.ldap.add_user_to_group(uid=uid,group_name=group.dn,is_posix=True)
+        if not self.is_ad:
+            for group in groups_info.ldap_groups:
+                self.ldap.add_user_to_group(uid=uid,group_name=group.dn)
+            for group in groups_info.posixGroups:
+                self.ldap.add_user_to_group(uid=uid,group_name=group.dn,is_posix=True)
+        else:
+            for group in groups_info.ldap_groups:
+                group_name=group.name
+                self.ldap.add_user_to_group(username=uid,group=group_name)
 
     def create_group(self, groups_info:GroupsInfo,member:str):
-        for group in groups_info.ldap_groups:
-            self.ldap.create_group(group.dn,objectClass=group.objectClass,members=[member])
-        for group in groups_info.posixGroups:
-            self.ldap.create_posix_group(group.dn,gidNumber=group.gidNumber,members=[member])
+        if not self.is_ad:
+            for group in groups_info.ldap_groups:
+                self.ldap.create_group(group.dn,objectClass=group.objectClass,members=[member])
+            for group in groups_info.posixGroups:
+                self.ldap.create_posix_group(group.dn,gidNumber=group.gidNumber,members=[member])
+        else:
+            for group in groups_info.ldap_groups:
+                group_name=group.name
+                group_location=group.rdn
+                self.ldap.create_group_B(group_name,group_location=group_location,members=[member],ignore_errors=True)
 
     def del_user(self, user):
+        if self.is_ad:
+            return user
         uid = user.username
         if uid is None or uid.strip() == '':
             return user
@@ -81,13 +116,19 @@ class LdapSync:
         
     def sync_role_from_ldap(self, user):
         uid = user.username
-        entry = self.ldap.search_user(uid)
-        if 'memberOf' in entry:
-            group = entry['memberOf']
-            role_map, default_role = self.get_role_map()
-            role = self.analyze_role(
-                group_list=group, role_map=role_map, default_role=default_role)
-            user.role = role
+        if not self.is_ad:
+            entry = self.ldap.search_user(uid)
+            if 'memberOf' in entry:
+                group = entry['memberOf']
+            else:
+                group = []
+        else:
+            group = self.ldap.find_user_groups(uid)
+        if len(group) == 0:
+            return user
+        role_map, default_role = self.get_role_map()
+        role = self.analyze_role(group_list=group, role_map=role_map, default_role=default_role)
+        user.role = role
         return user
 
     def sync(self):
@@ -115,19 +156,31 @@ class LdapSync:
             return min(role_list)
 
     @classmethod
-    def get_ldap_config(cls) -> LdapConfig:
-        ldap_config = LdapConfig()
-        ldap_config.HOST = settings.LDAP_HOST
-        ldap_config.PORT = settings.LDAP_PORT
-        ldap_config.TLS = settings.LDAP_TLS
-        ldap_config.BASE_DN = settings.LDAP_BASE_DN
-        ldap_config.BIND_DN = settings.LDAP_BIND_DN
-        ldap_config.BIND_PW = settings.LDAP_BIND_PW
-        ldap_config.USER_BASE_RDN = settings.LDAP_USER_BASE_RDN
-        ldap_config.GROUP_BASE_RDN = settings.LDAP_GROUP_BASE_RDN
-        ldap_config.USER_FILTER = settings.LDAP_USER_FILTER
-        ldap_config.GROUP_FILTER = settings.LDAP_GROUP_FILTER
-        ldap_config.POSIX_GROUP_RDN=settings.LDAP_POSIX_GROUP_RDN
+    def get_ldap_config(cls) -> LdapConfig|AdConfig:
+        IS_AD=settings.LDAP_IS_AD
+        if not IS_AD:
+            ldap_config = LdapConfig()
+            ldap_config.HOST = settings.LDAP_HOST
+            ldap_config.PORT = settings.LDAP_PORT
+            ldap_config.TLS = settings.LDAP_TLS
+            ldap_config.BASE_DN = settings.LDAP_BASE_DN
+            ldap_config.BIND_DN = settings.LDAP_BIND_DN
+            ldap_config.BIND_PW = settings.LDAP_BIND_PW
+            ldap_config.USER_BASE_RDN = settings.LDAP_USER_BASE_RDN
+            ldap_config.GROUP_BASE_RDN = settings.LDAP_GROUP_BASE_RDN
+            ldap_config.USER_FILTER = settings.LDAP_USER_FILTER
+            ldap_config.GROUP_FILTER = settings.LDAP_GROUP_FILTER
+            ldap_config.POSIX_GROUP_RDN=settings.LDAP_POSIX_GROUP_RDN
+        else:
+            ldap_config = AdConfig()
+            ldap_config.DOMAIN_DNS_NAME = settings.AD_DOMAIN_DNS_NAME
+            ldap_config.AD_HOST_NAME = settings.AD_HOST_NAME
+            ldap_config.PRINCIPAL_SUFFIX = settings.AD_PRINCIPAL_SUFFIX
+            ldap_config.CERT_FILE = settings.AD_CERT_FILE
+            ldap_config.BIND_USER = settings.AD_BIND_USER
+            ldap_config.BIND_PASSWORD = settings.BIND_PASSWORD
+            ldap_config.USER_BASE_RDN = settings.AD_USER_BASE_RDN
+            ldap_config.PRINCIPAL_SUFFIX=settings.AD_PRINCIPAL_SUFFIX
         return ldap_config
 
     @classmethod

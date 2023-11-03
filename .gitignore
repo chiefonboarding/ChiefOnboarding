@@ -3,3 +3,5 @@
 dump.rdb
 .idea/dataSources.local.xml
 front/node_modules
+venv
+ad.cert

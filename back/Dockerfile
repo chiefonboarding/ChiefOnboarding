@@ -10,7 +10,7 @@ WORKDIR /app
 COPY ./back/ .
 # COPY ./back/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 RUN cp /app/supervisord.conf /etc/supervisor/conf.d/supervisord.conf \
-    && pipenv install --system && pip install --no-cache-dir ldap3 passlib PyYAML \
+    && pipenv install --system && pip install --no-cache-dir ldap3 passlib PyYAML ms_active_directory \
     && django-admin compilemessages 
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
