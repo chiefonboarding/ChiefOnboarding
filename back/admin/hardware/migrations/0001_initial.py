@@ -50,7 +50,10 @@ class Migration(migrations.Migration):
                     models.IntegerField(
                         blank=True,
                         choices=[(1, "Manager"), (2, "Buddy"), (3, "Custom")],
-                        help_text="Leave empty to automatically remove/add hardware without notifications.",
+                        help_text=(
+                            "Leave empty to automatically remove/add hardware without "
+                            "notifications."
+                        ),
                         null=True,
                         verbose_name="Assigned to",
                     ),

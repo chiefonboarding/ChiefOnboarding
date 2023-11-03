@@ -102,10 +102,11 @@ def test_hardware_admin_task(
     admin_factory,
     hardware_factory,
 ):
-
     emp1 = employee_factory()
     admin1 = admin_factory()
-    hardware = hardware_factory(person_type=Hardware.PersonType.CUSTOM, assigned_to=admin1)
+    hardware = hardware_factory(
+        person_type=Hardware.PersonType.CUSTOM, assigned_to=admin1
+    )
     hardware.execute(emp1)
 
     admin_task = AdminTask.objects.get(
@@ -123,13 +124,18 @@ def test_hardware_admin_task(
     hardware.execute(emp1)
 
     # we now have two admin tasks
-    assert AdminTask.objects.filter(
-        new_hire=emp1, assigned_to=admin1, hardware=hardware
-    ).count() == 2
+    assert (
+        AdminTask.objects.filter(
+            new_hire=emp1, assigned_to=admin1, hardware=hardware
+        ).count()
+        == 2
+    )
 
     for item in AdminTask.objects.all():
         print(item.name)
-    admin_task = AdminTask.objects.get(name=f"Reclaim hardware from employee ({emp1.full_name}): {hardware.name}")
+    admin_task = AdminTask.objects.get(
+        name=f"Reclaim hardware from employee ({emp1.full_name}): {hardware.name}"
+    )
     assert not admin_task.completed
     admin_task.mark_completed()
 

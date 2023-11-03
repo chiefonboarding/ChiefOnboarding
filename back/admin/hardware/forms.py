@@ -15,9 +15,9 @@ class HardwareForm(TagModelForm):
 
         # Check if assigned_to field should be hidden
         hide_assigned_to = "d-none"
-        if (
-            self.data.get("person_type", None) == str(Hardware.PersonType.CUSTOM)
-            or (self.instance is not None and self.instance.person_type == Hardware.PersonType.CUSTOM)
+        if self.data.get("person_type", None) == str(Hardware.PersonType.CUSTOM) or (
+            self.instance is not None
+            and self.instance.person_type == Hardware.PersonType.CUSTOM
         ):
             hide_assigned_to = ""
 

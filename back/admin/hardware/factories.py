@@ -11,7 +11,10 @@ class HardwareFactory(factory.django.DjangoModelFactory):
     content = {
         "time": 0,
         "blocks": [
-            {"data": {"text": "Should be returned when they get terminated"}, "type": "paragraph"}
+            {
+                "data": {"text": "Should be returned when they get terminated"},
+                "type": "paragraph",
+            }
         ],
     }
 

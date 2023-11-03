@@ -35,6 +35,7 @@ class Hardware(BaseItem):
 
     def execute(self, user):
         from admin.admin_tasks.models import AdminTask
+
         add = self not in user.hardware.all()
 
         if self.person_type is None:
@@ -45,7 +46,9 @@ class Hardware(BaseItem):
                 user.hardware.remove(self)
 
             Notification.objects.create(
-                notification_type=self.notification_add_type if add else self.notification_remove_type,
+                notification_type=self.notification_add_type
+                if add
+                else self.notification_remove_type,
                 extra_text=self.name,
                 created_for=user,
                 item_id=self.id,
@@ -61,9 +64,13 @@ class Hardware(BaseItem):
             assigned_to = self.assigned_to
 
         if add:
-            admin_task_name = _("Send hardware to new hire (%(new_hire)s): %(name)s") % {"new_hire": user.full_name, "name": self.name}
+            admin_task_name = _(
+                "Send hardware to new hire (%(new_hire)s): %(name)s"
+            ) % {"new_hire": user.full_name, "name": self.name}
         else:
-            admin_task_name = _("Reclaim hardware from employee (%(new_hire)s): %(name)s") % {"new_hire": user.full_name, "name": self.name}
+            admin_task_name = _(
+                "Reclaim hardware from employee (%(new_hire)s): %(name)s"
+            ) % {"new_hire": user.full_name, "name": self.name}
 
         admin_task = AdminTask.objects.create(
             new_hire=user,

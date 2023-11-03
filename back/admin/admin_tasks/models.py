@@ -187,7 +187,9 @@ class AdminTask(models.Model):
                 self.new_hire.hardware.remove(self.hardware)
 
             Notification.objects.create(
-                notification_type=self.hardware.notification_add_type if add else self.hardware.notification_remove_type,
+                notification_type=self.hardware.notification_add_type
+                if add
+                else self.hardware.notification_remove_type,
                 extra_text=self.hardware.name,
                 created_for=self.new_hire,
                 item_id=self.id,

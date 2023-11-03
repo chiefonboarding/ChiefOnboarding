@@ -898,6 +898,11 @@ class Condition(models.Model):
 
         # For the ones that aren't a quick copy/paste, follow back to their model and
         # execute them. It will also add an item to the notification model there.
-        for field in ["admin_tasks", "external_messages", "integration_configs", "hardware"]:
+        for field in [
+            "admin_tasks",
+            "external_messages",
+            "integration_configs",
+            "hardware",
+        ]:
             for item in getattr(self, field).all():
                 item.execute(user)
