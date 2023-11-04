@@ -178,7 +178,7 @@ class LdapSync:
             ldap_config.PRINCIPAL_SUFFIX = settings.AD_PRINCIPAL_SUFFIX
             ldap_config.CERT_FILE = settings.AD_CERT_FILE
             ldap_config.BIND_USER = settings.AD_BIND_USER
-            ldap_config.BIND_PASSWORD = settings.BIND_PASSWORD
+            ldap_config.BIND_PASSWORD = settings.AD_BIND_PASSWORD
             ldap_config.USER_BASE_RDN = settings.AD_USER_BASE_RDN
             ldap_config.PRINCIPAL_SUFFIX=settings.AD_PRINCIPAL_SUFFIX
         return ldap_config
