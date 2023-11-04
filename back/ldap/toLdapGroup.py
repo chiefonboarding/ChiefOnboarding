@@ -99,12 +99,16 @@ class Department(_base):
                 self.ldap_groups = list11
             except:
                 pass
+        else:
+            self.ldap_groups = []
         if isinstance(list2, list) and len(list2) > 0 and isinstance(list2[0], dict):
             try:
                 list22 = [posixGroup(**group_dict) for group_dict in list2]
                 self.posixGroups = list22
             except:
                 pass
+        else:
+            self.posixGroups = []
 
     def load_from_dict(self, dict):
         for key, value in dict.items():
