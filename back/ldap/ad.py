@@ -142,6 +142,6 @@ class AD_OP():
 
     def modify_passwd(self, username: str, password: str) -> bool:
         return self.conn.reset_password_for_account(
-            username=username,
+            account=username,
             new_password=password
         )
