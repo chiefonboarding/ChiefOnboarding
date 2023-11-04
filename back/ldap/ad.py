@@ -80,7 +80,7 @@ class AD_OP():
     def disconnect(self):
         if self.conn_status:
             self.conn.get_ldap_connection().unbind()
-            self.conn=None
+            self.__conn=None
 
     def add_user(self, user: posixAccount | inetOrgPerson, groups: list[str] = None) -> ADUser:
         username = user.uid
