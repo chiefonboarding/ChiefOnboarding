@@ -261,7 +261,7 @@ class LdapSync:
 def ldap_add_user(user,password:str=None,need_hash_pw:bool=True,algorithm:str='SSHA'):
     # Drop if LDAP is not enabled
     if (not settings.LDAP_SYNC):
-        return
+        return user
     ldap = LdapSync()
     user=ldap.add_user(user,password=password,need_hash_pw=need_hash_pw,algorithm=algorithm)
     user.ldap = True
@@ -272,7 +272,7 @@ def ldap_add_user(user,password:str=None,need_hash_pw:bool=True,algorithm:str='S
 def ldap_delete_user(user):
     # Drop if LDAP is not enabled
     if (not settings.LDAP_SYNC):
-        return
+        return user
     ldap = LdapSync()
     user=ldap.del_user(user)
     ldap.close()
@@ -282,7 +282,7 @@ def ldap_delete_user(user):
 def ldap_sync_role(users=[]):
     # Drop if LDAP is not enabled
     if (not settings.LDAP_SYNC):
-        return
+        return users
     ldap = LdapSync()
     for user in users:
         user=ldap.sync_role_from_ldap(user)
@@ -293,7 +293,7 @@ def ldap_sync_role(users=[]):
 def ldap_set_password(user,password:str):
     # Drop if LDAP is not enabled
     if (not settings.LDAP_SYNC):
-        return
+        return user
     ldap = LdapSync()
     ldap.set_password(user,password)
     ldap.close()
