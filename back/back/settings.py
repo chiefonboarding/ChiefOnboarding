@@ -449,7 +449,7 @@ LDAP_LOG=env.bool("LDAP_LOG", default=False)
 LDAP_USER_HOME_DIRECTORY=env("LDAP_USER_HOME_DIRECTORY", default="/home")
 
 #AD
-IS_AD=env.bool("IS_AD", default=False)
+LDAP_IS_AD=env.bool("LDAP_IS_AD", default=False)
 AD_DOMAIN_DNS_NAME=env("AD_DOMAIN_DNS_NAME", default="example.org")
 AD_HOST_NAME=env("AD_HOST_NAME", default="ad.example.org")
 AD_PRINCIPAL_SUFFIX=env("AD_PRINCIPAL_SUFFIX", default=None)
@@ -457,7 +457,7 @@ AD_CERT_FILE=env("AD_CERT_FILE", default='/etc/ssl/certs/ca-certificates.crt')
 AD_BIND_USER=env("AD_BIND_USER", default="admin@example.org")
 AD_BIND_PASSWORD=env("AD_BIND_PASSWORD", default="admin")
 AD_USER_BASE_RDN=env("AD_USER_BASE_RDN", default="ou=User")
-AD_PRINCIPAL_SUFFIX=env("AD_PRINCIPAL_SUFFIX", default=None)
+
 
 
 # USER_CREDENTIALS
