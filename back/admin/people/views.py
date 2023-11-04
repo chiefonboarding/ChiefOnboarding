@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -26,7 +25,7 @@ from admin.resources.models import Resource
 from api.permissions import AdminPermission
 from organization.models import Organization, WelcomeMessage
 from slack_bot.utils import Slack, actions, button, paragraph
-from users.emails import email_new_admin_cred
+from users.emails import email_new_admin_cred, send_new_hire_credentials
 from users.mixins import (
     AdminPermMixin,
     LoginRequiredMixin,
@@ -111,18 +110,6 @@ class ColleagueUpdateView(
         return context
 
 
-class ColleagueDeleteView(
-    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, SuccessMessageMixin, DeleteView
-):
-    queryset = get_user_model().objects.all()
-    success_url = reverse_lazy("people:colleagues")
-    success_message = _("Colleague has been removed")
-
-    def form_valid(self, form):
-        delete_user = self.get_object()
-        ldap_delete_user(delete_user)
-        messages.info(self.request, _("Colleague has been removed"))
-        return super().form_valid(form)
 
 class ColleagueResourceView(LoginRequiredMixin, ManagerPermMixin, DetailView):
     template_name = "add_resources.html"
