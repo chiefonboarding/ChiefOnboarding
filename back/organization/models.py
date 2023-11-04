@@ -16,6 +16,43 @@ from django.utils.translation import gettext_lazy as _
 from misc.mixins import ContentMixin
 from misc.models import File
 
+def text_to_content(text:str)->list[dict[str,str]]:
+    # Split the text into multiple paragraphs using \r\n as separator
+    paragraphs = text.split('\r\n')
+    # Create a 'paragraph' type element for each paragraph
+    content = [{'type': 'paragraph', 'data': {'text': p}} for p in paragraphs if p]
+    return content
+
+def context_check_content_data(context:dict[str,str,str])->dict[str,str,str]:
+    content=context['content']
+    content_new=[]
+    for data in content:
+        if data['type']=='paragraph':
+            extend_data= text_to_content(data['data']['text'])
+        else:
+            extend_data=[data]
+        content_new+=extend_data
+    context['content']=content_new
+    return context
+
+def text_to_content(text:str)->list[dict[str,str]]:
+    # Split the text into multiple paragraphs using \r\n as separator
+    paragraphs = text.split('\r\n')
+    # Create a 'paragraph' type element for each paragraph
+    content = [{'type': 'paragraph', 'data': {'text': p}} for p in paragraphs if p]
+    return content
+
+def context_check_content_data(context:dict[str,str,str])->dict[str,str,str]:
+    content=context['content']
+    content_new=[]
+    for data in content:
+        if data['type']=='paragraph':
+            extend_data= text_to_content(data['data']['text'])
+        else:
+            extend_data=[data]
+        content_new+=extend_data
+    context['content']=content_new
+    return context
 
 def text_to_content(text:str)->list[dict[str,str]]:
     # Split the text into multiple paragraphs using \r\n as separator

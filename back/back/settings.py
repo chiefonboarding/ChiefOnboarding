@@ -85,6 +85,8 @@ INSTALLED_APPS = [
     "new_hire",
     # slack
     "slack_bot",
+    # ldap
+    "ldap",
     # external
     "rest_framework",
     "axes",
@@ -422,9 +424,53 @@ OIDC_ROLE_MANAGER_PATTERN = env("OIDC_ROLE_MANAGER_PATTERN", default="^cn=Manage
 OIDC_ROLE_NEW_HIRE_PATTERN = env("OIDC_ROLE_NEW_HIRE_PATTERN", default="^cn=Newhires.*")
 OIDC_ROLE_DEFAULT = env.int("OIDC_DEFAULT_ROLE", "3")
 OIDC_ROLE_UPDATING = env.bool("OIDC_ROLE_UPDATING", True)
-OIDC_ROLE_PATH_IN_RETURN = env("OIDC_ROLE_PATH_IN_RETURN", default="zoneinfo").split(
-    "."
-)
+OIDC_ROLE_PATH_IN_RETURN = env("OIDC_ROLE_PATH_IN_RETURN", default="zoneinfo").split(".")
+OIDC_USERINFO_SYNC = env.bool("OIDC_USERINFO_SYNC", default=False)
+OIDC_USERNAME_KEY  = env("OIDC_USERNAME_KEY", default="sub")
+# LDAP
+LDAP_SYNC=env.bool("LDAP_SYNC", default=False)
+LDAP_HOST=env("LDAP_HOST", default="openldap")
+LDAP_PORT=env.int("LDAP_PORT", default=389)
+LDAP_TLS=env.bool("LDAP_TLS", default=False)
+LDAP_BIND_DN=env("LDAP_BIND_DN", default="cn=admin,dc=example,dc=org")
+LDAP_BIND_PW=env("LDAP_BIND_PW", default="admin")
+LDAP_BASE_DN=env("LDAP_BASE_DN", default="dc=example,dc=org")
+LDAP_USER_BASE_RDN=env("LDAP_USER_BASE_RDN", default="ou=User")
+LDAP_GROUP_BASE_RDN=env("LDAP_GROUP_BASE_RDN", default="ou=Group")
+LDAP_USER_FILTER=env("LDAP_USER_FILTER", default="(cn=*)")
+LDAP_GROUP_FILTER=env("LDAP_GROUP_FILTER", default="(cn=*)")
+# Account type for LDAP, posixAccount or inetOrgPerson
+LDAP_ACCOUNT_TYPE=env("LDAP_ACCOUNT_TYPE", default="posixAccount")
+LDAP_USER_TMP_OU=env("LDAP_USER_TMP_OU", default="ou=Inactive")
+LDAP_DEFAULT_GROUPS = env("LDAP_DEFAULT_GROUPS", default="")
+LDAP_POSIX_GROUP_RDN = env("LDAP_POSIX_GROUP_RDN", default="")
+LDAP_DEFAULT_GROUPS_FILENAME=env("LDAP_DEFAULT_GROUPS_FILENAME", default="/department.yaml")
+LDAP_LOG=env.bool("LDAP_LOG", default=False)
+LDAP_USER_HOME_DIRECTORY=env("LDAP_USER_HOME_DIRECTORY", default="/home")
+
+#AD
+LDAP_IS_AD=env.bool("LDAP_IS_AD", default=False)
+AD_DOMAIN_DNS_NAME=env("AD_DOMAIN_DNS_NAME", default="example.org")
+AD_HOST_NAME=env("AD_HOST_NAME", default="ad.example.org")
+AD_PRINCIPAL_SUFFIX=env("AD_PRINCIPAL_SUFFIX", default=None)
+AD_CERT_FILE=env("AD_CERT_FILE", default='/etc/ssl/certs/ca-certificates.crt')
+AD_BIND_USER=env("AD_BIND_USER", default="admin@example.org")
+AD_BIND_PASSWORD=env("AD_BIND_PASSWORD", default="admin")
+AD_USER_BASE_RDN=env("AD_USER_BASE_RDN", default="ou=User")
+
+
+
+# USER_CREDENTIALS
+USER_CREDENTIALS_SEND_IMMEADIATELY= env.bool("USER_CREDENTIALS_SEND_IMMEADIATELY", default=False)
+
 
 # Welcome page
 WELCOME_URL = env.str("WELCOME_URL",default=BASE_URL)
+
+PREBOARDING_URL = None
+if env.str("PREBOARDING_URL","")=="":    
+    PREBOARDING_URL = None
+else:
+    PREBOARDING_URL = env("PREBOARDING_URL")
+
+EMAIL_TO_NEW_ADMIN = env.bool("EMAIL_TO_NEW_ADMIN", default=True)

@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("organization", "0033_organization_only_one_allowed"),
+        ("organization", "0034_organization_oidc_login"),
     ]
 
     operations = [

@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -9,6 +10,7 @@ from django.views.generic.base import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
+from django.conf import settings
 from django_q.tasks import async_task
 from rest_framework import generics
 from rest_framework.authentication import SessionAuthentication
@@ -31,6 +33,7 @@ from users.mixins import (
     ManagerPermMixin,
 )
 
+from ldap.tasks import *
 from .forms import (
     ColleagueCreateForm,
     ColleagueUpdateForm,
@@ -71,6 +74,14 @@ class ColleagueCreateView(
 
     def form_valid(self, form):
         form.instance.is_active = False
+        new_colleague = form.save()
+        new_colleague=ldap_add_user(new_colleague)
+        new_colleague.save()
+        if settings.USER_CREDENTIALS_SEND_IMMEADIATELY:
+            try:
+                send_new_hire_credentials(new_colleague.id)
+            except:
+                pass
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -99,6 +110,19 @@ class ColleagueUpdateView(
         context["subtitle"] = _("Employee")
         return context
 
+
+class ColleagueDeleteView(
+    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, SuccessMessageMixin, DeleteView
+):
+    queryset = get_user_model().objects.all()
+    success_url = reverse_lazy("people:colleagues")
+    success_message = _("Colleague has been removed")
+
+    def form_valid(self, form):
+        delete_user = self.get_object()
+        ldap_delete_user(delete_user)
+        messages.info(self.request, _("Colleague has been removed"))
+        return super().form_valid(form)
 
 class ColleagueResourceView(LoginRequiredMixin, ManagerPermMixin, DetailView):
     template_name = "add_resources.html"
