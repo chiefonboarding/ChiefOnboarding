@@ -1,11 +1,11 @@
 {% load crispy_forms_tags %}
 {% load i18n %}
 <div class="card drop
-    {% if condition.condition_type == 0 %}
+    {% if condition.condition_type == ConditionType.AFTER %}
       after
-    {% elif condition.condition_type == 1 %}
+    {% elif condition.condition_type == ConditionType.TODO %}
       to_do
-    {% elif condition.condition_type == 2 %}
+    {% elif condition.condition_type == ConditionType.BEFORE %}
       before
     {% else %}
       unconditioned
@@ -14,23 +14,30 @@
     <div class="row d-flex" style="width: 103% !important;">
       <div class="col-10">
         <h4 class="card-title">
-          {% if condition.condition_type == 0 %}
+          {% if condition.condition_type == ConditionType.AFTER %}
             {% blocktranslate with days=condition.days time=condition.time %}On day {{ days }} at {{ time }}{% endblocktranslate %}
-          {% elif condition.condition_type == 1 %}
+          {% elif condition.condition_type == ConditionType.TODO %}
             {% translate "When these tasks are completed:" %}
             <div id="div_id_condition_to_do">
               {% for todo in condition.condition_to_do.all %}
                 <span class="badge bg-blue-lt mt-1">{{ todo.name }}</span>
               {% endfor %}
             </div>
-          {% elif condition.condition_type == 2 %}
+          {% elif condition.condition_type == ConditionType.ADMIN_TASK %}
+            {% translate "When these admin tasks are completed:" %}
+            <div id="div_id_condition_admin_task">
+              {% for admin_task in condition.condition_admin_tasks.all %}
+                <span class="badge bg-blue-lt mt-1">{{ admin_task.name }}</span>
+              {% endfor %}
+            </div>
+          {% elif condition.condition_type == ConditionType.BEFORE %}
             {% blocktranslate with days=condition.days time=condition.time %}{{ days }} days before starting at {{ time }}{% endblocktranslate %}
           {% else %}
             {% translate "Without any trigger - assign directly" %}
           {% endif %}
         </h4>
       </div>
-      {% if not disable_delete and condition.condition_type != 3 %}
+      {% if not disable_delete and condition.condition_type != ConditionType.WITHOUT %}
       <div class="col-2 text-end">
         <button class="btn btn-azure btn-sm" onclick="editCondition({{condition.id}})">
           {% include "_edit_icon.html" %}
@@ -94,9 +101,9 @@
       {% include '_condition_line_item.html' with type='pendingadmintask' %}
     {% endfor %}
     {% for item in condition.external_admin %}
-      {% if item.send_via == 0 %}{# email #}
+      {% if item.send_via == ExternalMessagesType.EMAIL %}
         {% include '_condition_line_item.html' with type='pendingemailmessage' %}
-      {% elif item.send_via == 1 %}{# slack #}
+      {% elif item.send_via == ExternalMessagesType.SLACK %}
         {% include '_condition_line_item.html' with type='pendingslackmessage' %}
       {% else %}
         {% include '_condition_line_item.html' with type='pendingtextmessage' %}

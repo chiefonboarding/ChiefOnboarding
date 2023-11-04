@@ -17,7 +17,7 @@ from users.models import ResourceUser, ToDoUser
 def link_slack_users(users=[]):
     # Drop if Slack is not enabled
     if (
-        not Integration.objects.filter(integration=0).exists()
+        not Integration.objects.filter(integration=Integration.Type.SLACK_BOT).exists()
         and settings.SLACK_APP_TOKEN == ""
     ):
         return
@@ -40,7 +40,8 @@ def link_slack_users(users=[]):
                 paragraph(
                     user.personalize(
                         WelcomeMessage.objects.get(
-                            language=user.language, message_type=3
+                            language=user.language,
+                            message_type=WelcomeMessage.Type.SLACK_WELCOME,
                         ).message
                     ),
                 )
@@ -81,7 +82,7 @@ def link_slack_users(users=[]):
 
 def update_new_hire():
     if (
-        not Integration.objects.filter(integration=0).exists()
+        not Integration.objects.filter(integration=Integration.Type.SLACK_BOT).exists()
         and settings.SLACK_APP_TOKEN == ""
     ):
         return
@@ -144,7 +145,7 @@ def first_day_reminder():
     org = Organization.object.get()
     # If Slack doesn't exist or setting is disabled, then drop
     if (
-        not Integration.objects.filter(integration=0).exists()
+        not Integration.objects.filter(integration=Integration.Type.SLACK_BOT).exists()
         or org is None
         or not org.send_new_hire_start_reminder
     ):
@@ -178,7 +179,7 @@ def birthday_reminder():
     org = Organization.object.get()
     # If Slack doesn't exist or setting is disabled, then drop
     if (
-        not Integration.objects.filter(integration=0).exists()
+        not Integration.objects.filter(integration=Integration.Type.SLACK_BOT).exists()
         or org is None
         or not org.slack_birthday_wishes_channel
     ):
@@ -201,7 +202,7 @@ def introduce_new_people():
     org = Organization.object.get()
     # If Slack doesn't exist or setting is disabled, then drop
     if (
-        not Integration.objects.filter(integration=0).exists()
+        not Integration.objects.filter(integration=Integration.Type.SLACK_BOT).exists()
         or org is None
         or not org.ask_colleague_welcome_message
     ):

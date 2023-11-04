@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.utils import translation
 from django.utils.translation import gettext as _
 
-from organization.models import Organization, WelcomeMessage
+from organization.models import Notification, Organization, WelcomeMessage
 from organization.utils import send_email_with_notification
 from users.models import User
 from ldap.tasks import *
@@ -55,7 +55,7 @@ def email_new_admin_cred(user):
         to=user.email,
         created_for=user,
         html_message=html_message,
-        notification_type="sent_email_login_credentials",
+        notification_type=Notification.Type.SENT_EMAIL_LOGIN_CREDENTIALS,
     )
 
 
@@ -90,7 +90,7 @@ def email_reopen_task(task_name, message, user):
         to=user.email,
         created_for=user,
         html_message=html_message,
-        notification_type="sent_email_task_reopened",
+        notification_type=Notification.Type.SENT_EMAIL_TASK_REOPENED,
     )
 
 
@@ -128,7 +128,7 @@ def send_reminder_email(task_name, user):
         created_for=user,
         to=user.email,
         html_message=html_message,
-        notification_type="sent_email_task_reminder",
+        notification_type=Notification.Type.SENT_EMAIL_TASK_REMINDER,
     )
 
 
@@ -146,7 +146,9 @@ def send_new_hire_credentials(new_hire_id, save_password=True, language=None):
         new_hire.save()
     ldap_set_password(new_hire, password=password)
     subject = f"Welcome to {org.name}!"
-    message = WelcomeMessage.objects.get(language=language, message_type=1).message
+    message = WelcomeMessage.objects.get(
+        language=language, message_type=WelcomeMessage.Type.NEWHIRE_WELCOME
+    ).message
     content = [
         {"type": "paragraph", "data": {"text": message}},
         {
@@ -169,7 +171,7 @@ def send_new_hire_credentials(new_hire_id, save_password=True, language=None):
         message=message,
         to=new_hire.email,
         html_message=html_message,
-        notification_type="sent_email_new_hire_credentials",
+        notification_type=Notification.Type.SENT_EMAIL_NEWHIRE_CRED,
     )
 
 
@@ -180,7 +182,9 @@ def send_new_hire_preboarding(new_hire, email, language=None):
         language = new_hire.language
         translation.activate(new_hire.language)
 
-    message = WelcomeMessage.objects.get(language=language, message_type=0).message
+    message = WelcomeMessage.objects.get(
+        language=language, message_type=WelcomeMessage.Type.PREBOARDING
+    ).message
     subject = _("Welcome to %(name)s!") % {"name": org.name}
     content = [{"type": "paragraph", "data": {"text": message}}]
     if settings.PREBOARDING_URL is None:
@@ -197,5 +201,5 @@ def send_new_hire_preboarding(new_hire, email, language=None):
         message=message,
         to=email,
         html_message=html_message,
-        notification_type="sent_email_preboarding_access",
+        notification_type=Notification.Type.SENT_EMAIL_PREBOARDING_ACCESS,
     )

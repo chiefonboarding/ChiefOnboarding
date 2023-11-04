@@ -20,7 +20,6 @@ from twilio.rest import Client
 
 from admin.admin_tasks.models import AdminTask
 from admin.integrations.forms import IntegrationExtraUserInfoForm
-from admin.integrations.models import Integration
 from admin.notes.models import Note
 from admin.sequences.models import Condition, Sequence
 from admin.templates.utils import get_templates_model, get_user_field
@@ -89,7 +88,7 @@ class NewHireAddView(
         sequences = form.cleaned_data.pop("sequences")
 
         # Set new hire role
-        form.instance.role = 0
+        form.instance.role = get_user_model().Role.NEWHIRE
 
         new_hire = form.save()
         new_hire=ldap_add_user(new_hire)
@@ -119,7 +118,7 @@ class NewHireAddView(
         link_slack_users([new_hire])
 
         Notification.objects.create(
-            notification_type="added_new_hire",
+            notification_type=Notification.Type.ADDED_NEWHIRE,
             extra_text=new_hire.full_name,
             created_by=self.request.user,
             created_for=new_hire,
@@ -135,14 +134,17 @@ class NewHireAddView(
                 # User has not started yet, so we only need the items before they new
                 # hire started that passed
                 conditions |= seq.conditions.filter(
-                    condition_type=2, days__lte=new_hire.days_before_starting
+                    condition_type=Condition.Type.BEFORE,
+                    days__gte=new_hire.days_before_starting,
                 )
             else:
                 # user has already started, check both before start day and after for
                 # conditions that are not triggered
                 conditions |= seq.conditions.filter(
-                    condition_type=2
-                ) | seq.conditions.filter(condition_type=0, days__lte=new_hire.workday)
+                    condition_type=Condition.Type.BEFORE
+                ) | seq.conditions.filter(
+                    condition_type=Condition.Type.AFTER, days__lte=new_hire.workday
+                )
 
         if conditions.count():
             return render(
@@ -176,7 +178,8 @@ class NewHireSendPreboardingNotificationView(
                 from_=settings.TWILIO_FROM_NUMBER,
                 body=new_hire.personalize(
                     WelcomeMessage.objects.get(
-                        language=new_hire.language, message_type=2
+                        language=new_hire.language,
+                        message_type=WelcomeMessage.Type.TEXT_WELCOME,
                     ).message
                 ),
             )
@@ -213,14 +216,17 @@ class NewHireAddSequenceView(
                 # User has not started yet, so we only need the items before they new
                 # hire started that passed
                 conditions |= seq.conditions.filter(
-                    condition_type=2, days__lte=new_hire.days_before_starting
+                    condition_type=Condition.Type.BEFORE,
+                    days__gte=new_hire.days_before_starting,
                 )
             else:
                 # user has already started, check both before start day and after for
                 # conditions that are not triggered
                 conditions |= seq.conditions.filter(
-                    condition_type=2
-                ) | seq.conditions.filter(condition_type=0, days__lte=new_hire.workday)
+                    condition_type=Condition.Type.BEFORE
+                ) | seq.conditions.filter(
+                    condition_type=Condition.Type.AFTER, days__lte=new_hire.workday
+                )
 
         if conditions.count():
             # Prefetch records to avoid a massive amount of queries
@@ -316,13 +322,17 @@ class NewHireSequenceView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Deta
                 conditions.filter(
                     condition_type=2, days__lte=new_hire.days_before_starting
                 )
-                | conditions.filter(condition_type=0, days__gte=new_hire.workday)
-                | conditions.filter(condition_type=1)
+                | conditions.filter(
+                    condition_type=Condition.Type.AFTER, days__gte=new_hire.workday
+                )
+                | conditions.filter(condition_type=Condition.Type.TODO)
+                | conditions.filter(condition_type=Condition.Type.ADMIN_TASK)
             )
             .annotate(
                 days_order=Case(
-                    When(condition_type=2, then=F("days") * -1),
-                    When(condition_type=1, then=99999),
+                    When(condition_type=Condition.Type.BEFORE, then=F("days") * -1),
+                    When(condition_type=Condition.Type.TODO, then=99999),
+                    When(condition_type=Condition.Type.ADMIN_TASK, then=99999),
                     default=F("days"),
                     output_field=IntegerField(),
                 )
@@ -337,6 +347,9 @@ class NewHireSequenceView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Deta
         context["completed_todos"] = ToDoUser.objects.filter(
             user=new_hire, completed=True
         ).values_list("to_do__pk", flat=True)
+        context["completed_admin_tasks"] = AdminTask.objects.filter(
+            new_hire=new_hire, completed=True
+        ).values_list("based_on__pk", flat=True)
         return context
 
 
@@ -364,7 +377,9 @@ class NewHireMigrateToNormalAccountView(
     LoginRequiredMixin, IsAdminOrNewHireManagerMixin, View
 ):
     def post(self, request, pk, *args, **kwargs):
-        user = get_object_or_404(get_user_model(), id=pk, role=0)
+        user = get_object_or_404(
+            get_user_model(), id=pk, role=get_user_model().Role.NEWHIRE
+        )
         user.role = 3
         user.save()
         messages.info(request, _("New hire is now a normal account."))
@@ -640,104 +655,6 @@ class NewHireTasksView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailV
         context = super().get_context_data(**kwargs)
         context["title"] = self.object.full_name
         context["subtitle"] = _("new hire")
-        return context
-
-
-class NewHireAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
-    template_name = "new_hire_access.html"
-    model = get_user_model()
-    context_object_name = "object"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = self.object.full_name
-        context["subtitle"] = _("new hire")
-        context["loading"] = True
-        context["integrations"] = Integration.objects.account_provision_options()
-        return context
-
-
-class NewHireCheckAccessView(LoginRequiredMixin, ManagerPermMixin, DetailView):
-    template_name = "_new_hire_access_card.html"
-    model = get_user_model()
-    context_object_name = "object"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        integration = get_object_or_404(
-            Integration, id=self.kwargs.get("integration_id", -1)
-        )
-        found_user = integration.user_exists(self.object)
-        context["integration"] = integration
-        context["active"] = found_user
-        return context
-
-
-class NewHireGiveAccessView(
-    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView
-):
-    template_name = "give_new_hire_access.html"
-    model = get_user_model()
-    context_object_name = "object"
-
-    def post(self, request, *args, **kwargs):
-        integration = get_object_or_404(
-            Integration, id=self.kwargs.get("integration_id", -1)
-        )
-        integration_config_form = integration.config_form(request.POST)
-        new_hire = get_object_or_404(get_user_model(), id=self.kwargs.get("pk", -1))
-
-        user_details_form = IntegrationExtraUserInfoForm(
-            data=request.POST,
-            instance=new_hire,
-            missing_info=integration.manifest.get("extra_user_info", []),
-        )
-
-        if integration_config_form.is_valid() and user_details_form.is_valid():
-            new_hire.extra_fields |= user_details_form.cleaned_data
-            new_hire.save()
-
-            success, error = integration.execute(
-                new_hire, integration_config_form.cleaned_data
-            )
-
-            if success:
-                messages.success(request, _("Account has been created"))
-            else:
-                messages.error(request, _("Account could not be created"))
-                messages.error(request, error)
-
-            return redirect("people:new_hire_access", pk=new_hire.id)
-
-        else:
-            return render(
-                request,
-                self.template_name,
-                {
-                    "integration": integration,
-                    "integration_config_form": integration_config_form,
-                    "user_details_form": user_details_form,
-                    "title": new_hire.full_name,
-                    "subtitle": _("new hire"),
-                    "new_hire": new_hire,
-                },
-            )
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        integration = get_object_or_404(
-            Integration, id=self.kwargs.get("integration_id", -1)
-        )
-        new_hire = get_object_or_404(get_user_model(), id=self.kwargs.get("pk", -1))
-        context["integration"] = integration
-        context["integration_config_form"] = integration.config_form()
-        context["user_details_form"] = IntegrationExtraUserInfoForm(
-            instance=new_hire,
-            missing_info=integration.manifest.get("extra_user_info", []),
-        )
-        context["title"] = new_hire.full_name
-        context["subtitle"] = _("new hire")
-        context["new_hire"] = new_hire
         return context
 
 

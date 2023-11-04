@@ -39,7 +39,9 @@ else:
         slack_handler = SocketModeHandler(app, settings.SLACK_APP_TOKEN)
         slack_handler.connect()
     else:
-        integration = Integration.objects.filter(integration=0).first()
+        integration = Integration.objects.filter(
+            integration=Integration.Type.SLACK_BOT
+        ).first()
         app = SlackBoltApp(
             token=integration.token, signing_secret=integration.signing_secret
         )
@@ -126,7 +128,7 @@ def message_changed(body):
         return
 
     Notification.objects.create(
-        notification_type="updated_slack_message",
+        notification_type=Notification.Type.UPDATED_SLACK_MESSAGE,
         extra_text=body["event"].get("message", {}).get("text", ""),
         created_for=user,
         blocks=body["event"].get("message", {}).get("blocks", []),
@@ -289,6 +291,14 @@ def slack_create_new_hire_or_ask_perm(event):
     if not org.auto_create_user:
         return
 
+    if "email" not in event["user"]["profile"]:
+        # likely a bot user - skipping
+        logger.warning(
+            "[team_join] Could not find email address from user: "
+            f"{event['user']['name']}"
+        )
+        return
+
     joined_user = (
         get_user_model()
         .objects.filter(email__iexact=event["user"]["profile"]["email"])
@@ -313,7 +323,7 @@ def slack_create_new_hire_or_ask_perm(event):
 
         # First make a generic user (convert to new hire later)
         joined_user = get_user_model().objects.create(
-            role=3,
+            role=get_user_model().Role.OTHER,
             first_name=first_name,
             last_name=last_name,
             email=event["user"]["profile"]["email"],
@@ -324,7 +334,7 @@ def slack_create_new_hire_or_ask_perm(event):
         joined_user.set_unusable_password()
 
     if org.create_new_hire_without_confirm:
-        joined_user.role = 0
+        joined_user.role = get_user_model().Role.NEWHIRE
         joined_user.is_active = True
         joined_user.save()
 
@@ -402,7 +412,7 @@ def slack_add_sequences_to_new_hire(body, view):
     private_metadata = json.loads(view["private_metadata"])
 
     new_hire = get_user_model().objects.get(id=private_metadata["user_id"])
-    new_hire.role = 0
+    new_hire.role = get_user_model().Role.NEWHIRE
     new_hire.save()
 
     seq_ids = [
@@ -696,8 +706,7 @@ def slack_complete_admin_task(body, payload):
         return
 
     admin_task = AdminTask.objects.get(id=payload["value"])
-    admin_task.completed = True
-    admin_task.save()
+    admin_task.mark_completed()
     Slack().update_message(
         channel=body["container"]["channel_id"],
         ts=body["container"]["message_ts"],

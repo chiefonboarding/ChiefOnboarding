@@ -3,7 +3,7 @@ from django.utils.translation import gettext as _
 from admin.badges.models import Badge
 from admin.resources.models import Resource
 from admin.to_do.models import ToDo
-from organization.models import Organization
+from organization.models import Notification, Organization
 from organization.utils import send_email_with_notification
 
 
@@ -17,7 +17,7 @@ def send_sequence_message(new_hire, admin, message, subject):
         to=admin.email,
         created_for=admin,
         html_message=html_message,
-        notification_type="sent_email_custom_sequence",
+        notification_type=Notification.Type.SENT_EMAIL_CUSTOM_SEQUENCE,
     )
 
 
@@ -27,7 +27,9 @@ def send_sequence_update_message(all_notifications, new_hire):
     subject = _("Here is an update!")
     blocks = []
 
-    notifications = all_notifications.filter(notification_type="added_todo")
+    notifications = all_notifications.filter(
+        notification_type=Notification.Type.ADDED_TODO
+    )
     if notifications.exists():
         blocks.append(
             {
@@ -46,7 +48,9 @@ def send_sequence_update_message(all_notifications, new_hire):
             text += f"- {to_do.name} <br />"
         blocks.append({"type": "quote", "data": {"text": text}})
 
-    notifications = all_notifications.filter(notification_type="added_resource")
+    notifications = all_notifications.filter(
+        notification_type=Notification.Type.ADDED_RESOURCE
+    )
     if notifications.exists():
         blocks.append(
             {
@@ -65,7 +69,9 @@ def send_sequence_update_message(all_notifications, new_hire):
             text += f"- {i.name} <br />"
         blocks.append({"type": "quote", "data": {"text": text}})
 
-    notifications = all_notifications.filter(notification_type="added_badge")
+    notifications = all_notifications.filter(
+        notification_type=Notification.Type.ADDED_BADGE
+    )
     if notifications.exists():
         blocks.append(
             {
@@ -89,5 +95,5 @@ def send_sequence_update_message(all_notifications, new_hire):
         to=new_hire.email,
         created_for=new_hire,
         html_message=html_message,
-        notification_type="sent_email_new_hire_with_updates",
+        notification_type=Notification.Type.SENT_EMAIL_NEWHIRE_UPDATES,
     )

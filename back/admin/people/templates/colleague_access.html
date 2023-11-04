@@ -1,0 +1,21 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+{% if integrations %}
+  <div class="row">
+    {% for integration in integrations %}
+    <div class="column col-3 integration-{{integration.id}} mb-2" hx-trigger="load" hx-get="{% url 'people:user_check_integration' object.id integration.id %}">
+      {% include "_user_access_card.html" %}
+    </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card mt-3">
+    <div class="card-body">
+      {% translate "You have not enabled any integrations for account provisioning." %}
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

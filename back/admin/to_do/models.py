@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from misc.fields import ContentJSONField
-from organization.models import BaseItem
+from organization.models import BaseItem, Notification
 
 
 class ToDo(BaseItem):
@@ -30,7 +30,7 @@ class ToDo(BaseItem):
 
     @property
     def notification_add_type(self):
-        return "added_todo"
+        return Notification.Type.ADDED_TODO
 
     @property
     def update_url(self):

@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from misc.fields import ContentJSONField
 from misc.models import File
-from organization.models import BaseItem
+from organization.models import BaseItem, Notification
 
 
 class Badge(BaseItem):
@@ -28,4 +28,4 @@ class Badge(BaseItem):
 
     @property
     def notification_add_type(self):
-        return "added_badge"
+        return Notification.Type.ADDED_BADGE

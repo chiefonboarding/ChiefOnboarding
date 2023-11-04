@@ -4,7 +4,7 @@ from django.utils import timezone
 from factory.fuzzy import FuzzyChoice, FuzzyText
 from pytest_factoryboy import register
 
-from .models import NOTIFICATION_TYPES, Notification, Organization, WelcomeMessage
+from .models import Notification, Organization, WelcomeMessage
 
 
 @register
@@ -18,7 +18,7 @@ class OrganizationFactory(factory.django.DjangoModelFactory):
 
 @register
 class NotificationFactory(factory.django.DjangoModelFactory):
-    notification_type = FuzzyChoice([x[0] for x in NOTIFICATION_TYPES])
+    notification_type = FuzzyChoice([x[0] for x in Notification.Type.choices])
     extra_text = FuzzyText()
 
     class Meta:
@@ -27,7 +27,7 @@ class NotificationFactory(factory.django.DjangoModelFactory):
 
 @register
 class WelcomeMessageFactory(factory.django.DjangoModelFactory):
-    message_type = FuzzyChoice([x[0] for x in WelcomeMessage.MESSAGE_TYPE])
+    message_type = FuzzyChoice([x[0] for x in WelcomeMessage.Type.choices])
     language = FuzzyChoice([x[0] for x in settings.LANGUAGES])
     message = FuzzyText()
 

@@ -225,6 +225,9 @@
       document.body.addEventListener('htmx:configRequest', function(event) {
         event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
       })
+      {% if DEBUG %}
+      htmx.logAll();
+      {% endif %}
     </script>
     <script defer>
       function initSelectize(prefix="") {
@@ -387,14 +390,22 @@
       window.onload = function(){
         initWYSIWYGEditor()
       }
+
       $(document).on('change', "select#id_condition_type", function() {
-        // Change things to fill in when condition_type changes
-        if ($(this).val() == 1){
+      // Change things to fill in when condition_type changes
+       let option = $(this).val()
+        if (option == 1){
           $("#add-condition-form #div_id_condition_to_do").parent().removeClass("d-none")
+          $("#div_id_condition_admin_tasks").parent().addClass("d-none")
           $("#div_id_days").parent().addClass("d-none")
+        } else if (option == 2 || option == 0) {
+          $("#add-condition-form #div_id_condition_to_do").parent().addClass("d-none")
+          $("#div_id_condition_admin_tasks").parent().addClass("d-none")
+          $("#div_id_days").parent().removeClass("d-none")
         } else {
           $("#add-condition-form #div_id_condition_to_do").parent().addClass("d-none")
-          $("#div_id_days").parent().removeClass("d-none")
+          $("#div_id_condition_admin_tasks").parent().removeClass("d-none")
+          $("#div_id_days").parent().addClass("d-none")
         }
       })
       // Reload entire page

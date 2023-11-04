@@ -292,7 +292,7 @@ def test_complete_admin_task(client, admin_factory, admin_task_factory):
     assert "Complete" in response.content.decode()
     assert complete_url in response.content.decode()
 
-    response = client.get(complete_url, follow=True)
+    response = client.post(complete_url, follow=True)
     task1.refresh_from_db()
     task2.refresh_from_db()
 
@@ -301,16 +301,8 @@ def test_complete_admin_task(client, admin_factory, admin_task_factory):
     assert "disabled" in response.content.decode()
     # Cannot add new comment
     assert "div_id_content" not in response.content.decode()
-    # Complete url is still there to make it open again
-    assert complete_url in response.content.decode()
-
-    assert task1.completed
-    assert not task2.completed
-
-    url = reverse("admin_tasks:mine")
-    response = client.get(url)
-    # Check button is now visible
-    assert "btn-success" in response.content.decode()
+    # Complete url is gone
+    assert complete_url not in response.content.decode()
 
 
 @pytest.mark.django_db
@@ -416,3 +408,54 @@ def test_admin_task_comment_on_not_owned_task_slack_message(
             ],
         },
     ]
+
+
+@pytest.mark.django_db
+def test_complete_admin_task_trigger_condition(
+    client,
+    admin_factory,
+    sequence_factory,
+    condition_admin_task_factory,
+    pending_admin_task_factory,
+    new_hire_factory,
+):
+    admin = admin_factory()
+    client.force_login(admin)
+
+    task_to_complete1 = pending_admin_task_factory(assigned_to=admin)
+    task_to_complete2 = pending_admin_task_factory(assigned_to=admin)
+
+    # add tasks to sequence to be added to new hire directly
+    sequence = sequence_factory()
+    unconditioned_condition = sequence.conditions.first()
+    unconditioned_condition.admin_tasks.add(task_to_complete1, task_to_complete2)
+
+    # set up condition when both tasks are completed to create a third one
+    task_to_be_created = pending_admin_task_factory()
+    admin_task_condition = condition_admin_task_factory()
+    admin_task_condition.condition_admin_tasks.set(
+        [task_to_complete1, task_to_complete2]
+    )
+    admin_task_condition.admin_tasks.add(task_to_be_created)
+    sequence.conditions.add(admin_task_condition)
+
+    new_hire = new_hire_factory()
+
+    new_hire.add_sequences([sequence])
+
+    assert new_hire.conditions.count() == 1
+
+    # new hire has now two admin tasks
+    assert AdminTask.objects.filter(new_hire=new_hire).count() == 2
+
+    # first task gets completed
+    AdminTask.objects.get(based_on=task_to_complete1).mark_completed()
+
+    # still two tasks
+    assert AdminTask.objects.filter(new_hire=new_hire).count() == 2
+
+    # second task gets completed
+    AdminTask.objects.get(based_on=task_to_complete2).mark_completed()
+
+    # we now have 3 tasks
+    assert AdminTask.objects.filter(new_hire=new_hire).count() == 3

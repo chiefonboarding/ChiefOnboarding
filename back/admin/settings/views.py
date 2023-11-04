@@ -112,7 +112,11 @@ class AdministratorCreateView(
             email_new_admin_cred(user)
         self.object = user
 
-        note_type = "added_administrator" if user.is_admin else "added_manager"
+        note_type = (
+            Notification.Type.ADDED_ADMIN
+            if user.is_admin
+            else Notification.Type.ADDED_MANAGER
+        )
         Notification.objects.create(
             notification_type=note_type,
             extra_text=user.full_name,
@@ -184,7 +188,7 @@ class WelcomeMessageUpdateView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["languages"] = settings.LANGUAGES
-        context["types"] = WelcomeMessage.MESSAGE_TYPE
+        context["types"] = WelcomeMessage.Type.choices
         context["title"] = _("Update welcome messages")
         context["subtitle"] = _("settings")
         return context
@@ -204,17 +208,17 @@ class WelcomeMessageSendTestMessageView(
         we = request.user.personalize(we.message)
         translation.activate(language)
 
-        if message_type == 0:
+        if message_type == WelcomeMessage.Type.PREBOARDING:
             send_new_hire_preboarding(
                 request.user, email=request.user.email, language=language
             )
 
-        if message_type == 1:
+        if message_type == WelcomeMessage.Type.NEWHIRE_WELCOME:
             send_new_hire_credentials(
                 request.user.id, save_password=False, language=language
             )
 
-        if message_type == 2:
+        if message_type == WelcomeMessage.Type.TEXT_WELCOME:
             client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
             client.messages.create(
                 to=request.user.phone,
@@ -222,21 +226,23 @@ class WelcomeMessageSendTestMessageView(
                 body=request.user.personalize(we.message),
             )
 
-        if message_type == 3:
+        if message_type == WelcomeMessage.Type.SLACK_WELCOME:
             Slack().send_message(
                 blocks=[paragraph(we)], channel=request.user.slack_user_id
             )
 
-        if message_type == 4:
+        if message_type == WelcomeMessage.Type.SLACK_KNOWLEDGE:
             blocks = [
                 paragraph(we),
                 actions(
-                    button(
-                        text=_("resources"),
-                        value="show:resources",
-                        style="primary",
-                        action_id="show:resources",
-                    )
+                    [
+                        button(
+                            text=_("resources"),
+                            value="show_resource_items",
+                            style="primary",
+                            action_id="show_resource_items",
+                        )
+                    ]
                 ),
             ]
 
@@ -316,15 +322,17 @@ class IntegrationsListView(LoginRequiredMixin, AdminPermMixin, TemplateView):
         context["title"] = _("Integrations")
         context["subtitle"] = _("settings")
         context["slack_bot"] = Integration.objects.filter(
-            integration=0, active=True
+            integration=Integration.Type.SLACK_BOT, active=True
         ).first()
         context["google_login"] = Integration.objects.filter(
-            integration=3, active=True
+            integration=Integration.Type.GOOGLE_LOGIN, active=True
         ).first()
         context["slack_bot_environ"] = settings.SLACK_APP_TOKEN != ""
         context["base_url"] = settings.BASE_URL
 
-        context["custom_integrations"] = Integration.objects.filter(integration=10)
+        context["custom_integrations"] = Integration.objects.filter(
+            integration=Integration.Type.CUSTOM
+        )
         context["add_action"] = reverse_lazy("integrations:create")
         return context
 
@@ -354,7 +362,7 @@ class SlackBotSetupView(
         return context
 
     def form_valid(self, form):
-        Integration.objects.filter(integration=0).delete()
+        Integration.objects.filter(integration=Integration.Type.SLACK_BOT).delete()
         form.instance.integration = 0
         return super().form_valid(form)
 

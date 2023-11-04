@@ -3,23 +3,13 @@ import json
 from crispy_forms.helper import FormHelper
 from django import forms
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
 
-from .models import Integration
-from .serializers import ManifestSerializer
+from admin.integrations.utils import get_value_from_notation
+
+from admin.integrations.models import Integration
 
 
 class IntegrationConfigForm(forms.ModelForm):
-    def _get_result(self, notation, value):
-        # if we don't need to go into props, then just return the value
-        if notation == "":
-            return value
-
-        notations = notation.split(".")
-        for notation in notations:
-            value = value[notation]
-        return value
-
     def _expected_example(self, form_item):
         def _add_items(form_item):
             items = []
@@ -60,7 +50,7 @@ class IntegrationConfigForm(forms.ModelForm):
         self.error = None
         for item in form:
             if item["type"] == "input":
-                self.fields[item["id"]] = forms.TextField(
+                self.fields[item["id"]] = forms.CharField(
                     label=item["name"],
                     required=False,
                 )
@@ -92,10 +82,14 @@ class IntegrationConfigForm(forms.ModelForm):
                         else forms.Select,
                         choices=[
                             (
-                                self._get_result(item.get("choice_value", "id"), x),
-                                self._get_result(item.get("choice_name", "name"), x),
+                                get_value_from_notation(
+                                    item.get("choice_value", "id"), x
+                                ),
+                                get_value_from_notation(
+                                    item.get("choice_name", "name"), x
+                                ),
                             )
-                            for x in self._get_result(
+                            for x in get_value_from_notation(
                                 item.get("data_from", ""), option_data
                             )
                         ],
@@ -126,18 +120,28 @@ class PrettyJSONEncoder(json.JSONEncoder):
 
 
 class IntegrationForm(forms.ModelForm):
-    manifest = forms.JSONField(encoder=PrettyJSONEncoder)
+    manifest = forms.JSONField(encoder=PrettyJSONEncoder, required=False, initial=dict)
 
     class Meta:
         model = Integration
-        fields = ("name", "manifest")
+        fields = ("name", "manifest_type", "manifest")
 
-    def clean_manifest(self):
-        manifest = self.cleaned_data["manifest"]
-        manifest_serializer = ManifestSerializer(data=manifest)
-        if not manifest_serializer.is_valid():
-            raise ValidationError(json.dumps(manifest_serializer.errors))
-        return manifest
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["manifest_type"].required = True
+
+        # make manifest not required when manual user provisioning
+        if (
+            self.data.get("manifest_type", "")
+            != str(Integration.ManifestType.MANUAL_USER_PROVISIONING)
+            and self.instance.manifest_type
+            != Integration.ManifestType.MANUAL_USER_PROVISIONING
+        ):
+            self.fields["manifest"].required = True
+
+        if self.instance.id:
+            # disable manifest_type when updating record
+            self.fields["manifest_type"].disabled = True
 
 
 class IntegrationExtraArgsForm(forms.ModelForm):

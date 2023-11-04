@@ -25,28 +25,28 @@ def send_email_with_notification(
         )
     except AnymailRecipientsRefused as e:
         Notification.objects.create(
-            notification_type="failed_email_recipients_refused",
+            notification_type=Notification.Type.FAILED_EMAIL_RECIPIENTS_REFUSED,
             created_for=created_for,
             extra_text=subject,
             description=e.message,
         )
     except AnymailAPIError as e:
         Notification.objects.create(
-            notification_type="failed_email_delivery",
+            notification_type=Notification.Type.FAILED_EMAIL_DELIVERY,
             created_for=created_for,
             extra_text=subject,
             description=e.message,
         )
     except AnymailInvalidAddress as e:
         Notification.objects.create(
-            notification_type="failed_email_address",
+            notification_type=Notification.Type.FAILED_EMAIL_ADDRESS,
             created_for=created_for,
             extra_text=subject,
             description=e.message,
         )
     except smtplib.SMTPException as e:
         Notification.objects.create(
-            notification_type="failed_email_delivery",
+            notification_type=Notification.Type.FAILED_EMAIL_DELIVERY,
             created_for=created_for,
             extra_text=subject,
             description=str(e),

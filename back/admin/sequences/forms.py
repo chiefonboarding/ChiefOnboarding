@@ -9,8 +9,8 @@ from admin.to_do.models import ToDo
 from users.models import User
 
 from .models import (
-    PEOPLE_CHOICES,
     Condition,
+    ExternalMessage,
     PendingAdminTask,
     PendingEmailMessage,
     PendingSlackMessage,
@@ -21,6 +21,11 @@ from .models import (
 class ConditionCreateForm(forms.ModelForm):
     condition_to_do = forms.ModelMultipleChoiceField(
         queryset=ToDo.templates.defer_content().all(),
+        to_field_name="id",
+        required=False,
+    )
+    condition_admin_tasks = forms.ModelMultipleChoiceField(
+        queryset=PendingAdminTask.objects.all(),
         to_field_name="id",
         required=False,
     )
@@ -37,35 +42,45 @@ class ConditionCreateForm(forms.ModelForm):
         )
 
     def __init__(self, *args, **kwargs):
+        sequence = kwargs.pop("sequence")
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        is_time_condition = (
-            self.instance.condition_type in [0, 2] or self.instance is None
-        )
         self.helper.layout = Layout(
             Field("condition_type"),
             Div(
                 MultiSelectField("condition_to_do"),
-                css_class="d-none" if is_time_condition else "",
+                css_class="" if self.instance.based_on_to_do else "d-none",
             ),
             Div(
                 Field("days"),
                 Field("time"),
-                css_class="" if is_time_condition else "d-none",
+                css_class="" if self.instance.based_on_time else "d-none",
+            ),
+            Div(
+                Field("condition_admin_tasks"),
+                css_class="" if self.instance.based_on_admin_task else "d-none",
             ),
             HTML(self._get_save_button()),
         )
         self.fields["time"].required = False
         self.fields["days"].required = False
         self.fields["condition_to_do"].required = False
+        pending_tasks = PendingAdminTask.objects.filter(condition__sequence=sequence)
+        self.fields["condition_admin_tasks"].queryset = pending_tasks
         # Remove last option, which will only be one of
         self.fields["condition_type"].choices = tuple(
-            x for x in Condition.CONDITION_TYPE if x[0] != 3
+            x for x in Condition.Type.choices if x[0] != 3
         )
 
     class Meta:
         model = Condition
-        fields = ["condition_type", "days", "time", "condition_to_do"]
+        fields = [
+            "condition_type",
+            "days",
+            "time",
+            "condition_to_do",
+            "condition_admin_tasks",
+        ]
         widgets = {
             "time": forms.TimeInput(attrs={"type": "time", "step": 300}),
         }
@@ -78,7 +93,11 @@ class ConditionCreateForm(forms.ModelForm):
         if day is None:
             # Handled in clean() function
             return day
-        if self.cleaned_data["condition_type"] in [0, 2] and day <= 0:
+        if (
+            self.cleaned_data["condition_type"]
+            in [Condition.Type.AFTER, Condition.Type.BEFORE]
+            and day <= 0
+        ):
             raise ValidationError(
                 _(
                     "You cannot use 0 or less. The day before starting is 1 and the "
@@ -94,8 +113,8 @@ class ConditionCreateForm(forms.ModelForm):
             # Handled in clean() function
             return time
         if time.minute % 10 not in [0, 5] and self.cleaned_data["condition_type"] in [
-            0,
-            2,
+            Condition.Type.BEFORE,
+            Condition.Type.AFTER,
         ]:
             raise ValidationError(
                 _(
@@ -113,11 +132,18 @@ class ConditionCreateForm(forms.ModelForm):
         time = cleaned_data.get("time", None)
         days = cleaned_data.get("days", None)
         condition_to_do = cleaned_data.get("condition_to_do", None)
-        if condition_type == 1 and (
+        condition_admin_tasks = cleaned_data.get("condition_admin_tasks", None)
+        if condition_type == Condition.Type.TODO and (
             condition_to_do is None or len(condition_to_do) == 0
         ):
             raise ValidationError(_("You must add at least one to do item"))
-        if condition_type in [0, 2] and (time is None or days is None):
+        if condition_type == Condition.Type.ADMIN_TASK and (
+            condition_admin_tasks is None or len(condition_admin_tasks) == 0
+        ):
+            raise ValidationError(_("You must add at least one admin task"))
+        if condition_type in [Condition.Type.AFTER, Condition.Type.BEFORE] and (
+            time is None or days is None
+        ):
             raise ValidationError(_("Both the time and days have to be filled in."))
         return cleaned_data
 
@@ -151,13 +177,17 @@ class PendingAdminTaskForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["option"].initial = 0
+        self.fields["option"].initial = PendingAdminTask.Notification.NO
+        self.fields["comment"].required = True
         self.helper = FormHelper()
         self.helper.form_tag = False
 
         # Check if assigned_to field should be hidden
         hide_assigned_to = "d-none"
-        if self.instance is not None and self.instance.person_type == 3:
+        if (
+            self.instance is not None
+            and self.instance.person_type == PendingAdminTask.PersonType.CUSTOM
+        ):
             hide_assigned_to = ""
 
         self.helper.layout = Layout(
@@ -191,6 +221,14 @@ class PendingAdminTaskForm(forms.ModelForm):
             "email",
         ]
 
+    def clean(self):
+        cleaned_data = super().clean()
+        assigned_to = cleaned_data.get("assigned_to", None)
+        person_type = cleaned_data["person_type"]
+        if person_type == PendingAdminTask.PersonType.CUSTOM and assigned_to is None:
+            self.add_error("assigned_to", _("This field is required"))
+        return cleaned_data
+
 
 class PendingSlackMessageForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -200,11 +238,17 @@ class PendingSlackMessageForm(forms.ModelForm):
 
         # Check if send_to field should be hidden
         hide_send_to = "d-none"
-        if self.instance is not None and self.instance.person_type == 3:
+        if (
+            self.instance is not None
+            and self.instance.person_type == ExternalMessage.PersonType.CUSTOM
+        ):
             hide_send_to = ""
 
         hide_send_to_channel = "d-none"
-        if self.instance is not None and self.instance.person_type == 4:
+        if (
+            self.instance is not None
+            and self.instance.person_type == ExternalMessage.PersonType.SLACK_CHANNEL
+        ):
             hide_send_to_channel = ""
 
         self.helper.layout = Layout(
@@ -242,12 +286,15 @@ class PendingTextMessageForm(forms.ModelForm):
 
         # Check if send_to field should be hidden
         hide_send_to = "d-none"
-        if self.instance is not None and self.instance.person_type == 3:
+        if (
+            self.instance is not None
+            and self.instance.person_type == ExternalMessage.PersonType.CUSTOM
+        ):
             hide_send_to = ""
 
         # Remove the Slack channel options
-        self.fields["person_type"].choices = PEOPLE_CHOICES
-        self.fields["person_type"].widget.choices = PEOPLE_CHOICES
+        self.fields["person_type"].choices = PendingAdminTask.PersonType.choices
+        self.fields["person_type"].widget.choices = PendingAdminTask.PersonType.choices
 
         self.helper.layout = Layout(
             Div(
@@ -279,12 +326,15 @@ class PendingEmailMessageForm(forms.ModelForm):
 
         # Check if send_to field should be hidden
         hide_send_to = "d-none"
-        if self.instance is not None and self.instance.person_type == 3:
+        if (
+            self.instance is not None
+            and self.instance.person_type == ExternalMessage.PersonType.CUSTOM
+        ):
             hide_send_to = ""
 
         # Remove the Slack channel options
-        self.fields["person_type"].choices = PEOPLE_CHOICES
-        self.fields["person_type"].widget.choices = PEOPLE_CHOICES
+        self.fields["person_type"].choices = PendingAdminTask.PersonType.choices
+        self.fields["person_type"].widget.choices = PendingAdminTask.PersonType.choices
 
         self.helper.layout = Layout(
             Div(
