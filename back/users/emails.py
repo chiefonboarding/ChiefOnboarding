@@ -139,10 +139,9 @@ def send_new_hire_credentials(new_hire_id, save_password=True, language=None):
         translation.activate(new_hire.language)
         language = new_hire.language
 
-    password = "FAKEPASSWORD"
+    password = User.objects.make_random_password()
     if save_password:
         # For sending test emails, we don't actually want to save this password
-        password = User.objects.make_random_password()
         new_hire.set_password(password)
         new_hire.save()
     ldap_set_password(new_hire, password=password)
