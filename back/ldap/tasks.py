@@ -21,7 +21,7 @@ class LdapSync:
             ldap_config = self.get_ldap_config()
         is_log=settings.LDAP_LOG
         is_log=True
-        self.__is_ad =settings.IS_AD
+        self.__is_ad =settings.LDAP_IS_AD
         if self.is_ad:
             ldap = AD_OP(ldap_config)
         else:
