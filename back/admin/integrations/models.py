@@ -439,6 +439,11 @@ class Integration(models.Model):
 
         # Run all requests
         for item in self.manifest["execute"]:
+            precondition=True
+            if "precondition" in item:
+                precondition = self._expected_precondition(item["precondition"])
+            if not precondition:
+                continue
             success, response = self.run_request(item)
 
             # check if we need to poll before continuing
@@ -578,6 +583,52 @@ class Integration(models.Model):
             )
 
         return response
+
+    def _logic_from_str(self,A,B,logical_str="and"):
+        if A is None:
+            return B
+        elif B is None:
+            return A
+        if isinstance(logical_str,str):
+            logical_str=logical_str.lower().strip()
+        else:
+            raise Exception("logical_str is not a string")
+        if logical_str in ["and","&&"]:
+            return A and B
+        elif logical_str in ["or","||"]:
+            return A or B
+        else:
+            raise Exception("logical_str is not a valid logical operator, must be 'and', '&&', 'or', or '||'")
+
+    def _expected_precondition(self, precondition):
+        data= self._replace_vars(json.dumps(precondition))
+        data=json.loads(data)
+        status_old=None
+        for item in data:
+            status=True
+            A=item["A"]
+            B=item["B"]
+            comparison=item["A_to_B"].strip().lower()
+            if "logic_with_after" in item:
+                logic_with_after=item["logic_with_after"]
+            else:
+                logic_with_after="and"
+            if comparison in ["equal","==","="]:
+                status=A==B
+            elif comparison in ["not equal","!="]:
+                status=A!=B
+            elif comparison in ["greater than",">"]:
+                status=A>B
+            elif comparison in ["less than","<"]:
+                status=A<B
+            elif comparison in ["greater than or equal to",">="]:
+                status=A>=B
+            elif comparison in ["less than or equal to","<="]:
+                status=A<=B
+            else:
+                raise Exception("comparison is not a valid comparison operator, must be 'equal', '==', '=', 'not equal', '!=', 'greater than', '>', 'less than', '<', 'greater than or equal to', '>=', 'less than or equal to', or '<='")
+            status_old=self._logic_from_str(status_old,status,logic_with_after)
+        return status_old
 
     objects = IntegrationManager()
 

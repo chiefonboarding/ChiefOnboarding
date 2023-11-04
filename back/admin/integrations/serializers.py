@@ -53,7 +53,7 @@ class ManifestExistSerializer(ValidateMixin, serializers.Serializer):
             ("PUT", "PUT"),
         ]
     )
-
+    precondition=serializers.JSONField(required=False, default=list[dict])
 
 class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):
     url = serializers.CharField()
