@@ -54,8 +54,12 @@ class LdapSync:
         if user.department is not None:
             department_name = user.department.name
         groups_info=self.get_default_groups_from_file(department_name=department_name)
-        self.create_group(groups_info=groups_info,member=user.username)
-        self.add_user_to_group(uid=user.username,groups_info=groups_info)
+        try:
+            if not self.is_ad:
+                self.create_group(groups_info=groups_info,member=user.username)
+            self.add_user_to_group(uid=user.username,groups_info=groups_info)
+        except:
+            pass
         return user
 
     def add_user_for_ad(self, ldap_user:inetOrgPerson|posixAccount,user):
