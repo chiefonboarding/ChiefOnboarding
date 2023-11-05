@@ -1,0 +1,27 @@
+{% extends 'settings_base.html' %}
+{% load static %}
+{% load allauth i18n %}
+{% load crispy_forms_tags %}
+
+{% block actions %}{% endblock %}
+{% block settings_content %}
+  {% include '_personal_tabs.html' %}
+  <div class="card-body">
+    <p>
+      {% blocktranslate %}You are about to deactivate authenticator app based authentication. Are you sure?{% endblocktranslate %}
+    </p>
+    {% url 'settings:mfa_deactivate_totp' as action_url %}
+    {% element form form=form method="post" action=action_url no_visible_fields=True %}
+        {% slot body %}
+            {% csrf_token %}
+            {{ form|crispy }}
+        {% endslot %}
+        {% slot actions %}
+          <div class="form-footer">
+            <button type="submit" class="btn btn-danger">{% trans "Deactivate" %}</button>
+          </div>
+        {% endslot %}
+    {% endelement %}
+    </form>
+  </div>
+{% endblock %}

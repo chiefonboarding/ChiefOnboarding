@@ -237,31 +237,3 @@ class WelcomeMessagesUpdateForm(forms.ModelForm):
                 )
             )
         }
-
-
-class OTPVerificationForm(forms.Form):
-    otp = forms.CharField(
-        label=_("6 digit OTP code"),
-        help_text=_("This is the code that your 2FA application shows you."),
-        max_length=6,
-    )
-
-    def __init__(self, user, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user = user
-
-    def clean_otp(self):
-        otp = self.cleaned_data["otp"]
-        totp = pyotp.TOTP(self.user.totp_secret)
-        valid = totp.verify(otp)
-        # Check if token is correct and block replay attacks
-        if not valid and cache.get(f"{self.user.email}_totp_passed") is None:
-            raise ValidationError(
-                _(
-                    "OTP token was not correct. Please wait 30 seconds and then try "
-                    "again"
-                )
-            )
-
-        cache.set(f"{self.user.email}_totp_passed", "true", 30)
-        return otp

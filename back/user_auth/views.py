@@ -77,39 +77,6 @@ class AuthenticateView(LoginView):
         return context
 
 
-@method_decorator(axes_dispatch, name="dispatch")
-class MFAView(LoginRequiredMixin, FormView):
-    template_name = "mfa.html"
-    form_class = OTPVerificationForm
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["user"] = self.request.user
-        return kwargs
-
-    def form_invalid(self, form):
-        # Check if recovery key was entered instead
-        recovery_key = self.request.user.check_otp_recovery_key(form.data["otp"])
-        if recovery_key is not None:
-            self.request.user.requires_otp = False
-            self.request.user.save()
-            return redirect("logged_in_user_redirect")
-
-        # Log wrong keys by ip to prevent guessing/bruteforcing
-        signals.user_login_failed.send(
-            sender=self.request.user,
-            request=self.request,
-            credentials={
-                "token": "MFA invalid",
-            },
-        )
-        return self.render_to_response(self.get_context_data(form=form))
-
-    def form_valid(self, form):
-        self.request.session["passed_mfa"] = True
-        return redirect("logged_in_user_redirect")
-
-
 class GoogleLoginView(View):
     permanent = False
 

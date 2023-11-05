@@ -1,55 +1,31 @@
-from django.contrib.auth.views import (
-    PasswordResetCompleteView,
-    PasswordResetConfirmView,
-    PasswordResetDoneView,
-    PasswordResetView,
-)
-from django.urls import path
+from django.urls import path, re_path
+from allauth.account import views as allauth_views
+from allauth.mfa import views as allauth_mfa_views
 
 from . import views
 
 urlpatterns = [
+    # allauth urls
+    path("", allauth_views.login, name="account_login"),
+    path("password/reset/", allauth_views.password_reset, name="account_reset_password"),
     path(
-        "",
-        views.AuthenticateView.as_view(),
-        name="login",
+        "password/reset/done/",
+        allauth_views.password_reset_done,
+        name="account_reset_password_done",
+    ),
+    re_path(
+        r"^password/reset/key/(?P<uidb36>[0-9A-Za-z]+)-(?P<key>.+)/$",
+        allauth_views.password_reset_from_key,
+        name="account_reset_password_from_key",
     ),
     path(
-        "mfa/",
-        views.MFAView.as_view(),
-        name="mfa",
+        "password/reset/key/done/",
+        allauth_views.password_reset_from_key_done,
+        name="account_reset_password_from_key_done",
     ),
-    path("logout/", views.LogoutView.as_view(), name="logout"),
-    path(
-        "password/reset_request/",
-        PasswordResetView.as_view(
-            template_name="password_reset.html",
-            email_template_name="email/reset.html",
-            subject_template_name="email/reset_subject.txt",
-        ),
-        name="password-reset",
-    ),
-    path(
-        "password/reset_request/done/",
-        PasswordResetDoneView.as_view(
-            template_name="password_reset_done.html",
-        ),
-        name="password_reset_done",
-    ),
-    path(
-        "password/reset_change/<uidb64>/<token>/",
-        PasswordResetConfirmView.as_view(
-            template_name="password_change.html",
-        ),
-        name="password_reset_confirm",
-    ),
-    path(
-        "password/reset_change/done/",
-        PasswordResetCompleteView.as_view(
-            template_name="password_change_done.html",
-        ),
-        name="password_reset_complete",
-    ),
+    path("authenticate/", allauth_mfa_views.authenticate, name="mfa_authenticate"),
+    path("reauthenticate/", allauth_views.reauthenticate, name="account_reauthenticate"),
+    path("logout/", allauth_views.LogoutView.as_view(), name="logout"),
     path(
         "redirect/", views.LoginRedirectView.as_view(), name="logged_in_user_redirect"
     ),

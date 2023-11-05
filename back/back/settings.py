@@ -92,6 +92,14 @@ INSTALLED_APPS = [
     "anymail",
     "django_q",
     "crispy_forms",
+    # allauth
+    'allauth',
+    'allauth.mfa',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.slack',
+    'allauth.socialaccount.providers.openid_connect',
 ]
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
@@ -99,10 +107,24 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-# Login Defaults
+# ALLAUTH config
+ACCOUNT_ADAPTER = "users.adapter.UserAdapter"
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+# We don't allow signups, so this is not necessary
+ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_MAX_EMAIL_ADDRESSES = 1
+ACCOUNT_LOGIN_ATTEMPTS_LIMIT = env.int("LOGIN_ATTEMPTS_LIMIT", default=10)
+ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = env.int("LOGIN_ATTEMPTS_TIMEOUT", default=300)
+ACCOUNT_PRESERVE_USERNAME_CASING = False  # lowercases username (email) value
+ACCOUNT_SESSION_REMEMBER = True
+ACCOUNT_USER_MODEL_USERNAME_FIELD = "email"
+MFA_TOTP_ISSUER = env("CHIEFONBOARDING_NAME", default="ChiefOnboarding")
+
+# DJANGO login config
 LOGIN_REDIRECT_URL = "logged_in_user_redirect"
-LOGOUT_REDIRECT_URL = "login"
-LOGIN_URL = "login"
+LOGOUT_REDIRECT_URL = "account_login"
+LOGIN_URL = "account_login"
 
 RUNNING_TESTS = "pytest" in sys.modules
 FAKE_SLACK_API = False
@@ -123,6 +145,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "users.middleware.language_middleware",
     "axes.middleware.AxesMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 # Django Debug Bar
@@ -317,6 +340,8 @@ AUTHENTICATION_BACKENDS = [
     "axes.backends.AxesBackend",
     # Django ModelBackend is the default authentication backend.
     "django.contrib.auth.backends.ModelBackend",
+    # `allauth` specific authentication methods, such as login by email
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 AXES_ENABLED = env.bool("AXES_ENABLED", default=True)
 AXES_FAILURE_LIMIT = env.int("AXES_FAILURE_LIMIT", default=10)
