@@ -10,7 +10,7 @@ from django.db import models
 from django.db.models import CheckConstraint, Q
 from django.template import Context, Template
 from django.utils.crypto import get_random_string
-from django.utils.functional import cached_property
+from django.utils.functional import cached_property, keep_lazy_text
 from django.utils.translation import gettext_lazy as _
 
 from admin.appointments.models import Appointment
@@ -410,28 +410,30 @@ class User(AbstractBaseUser):
             "start": self.start_day,
             "buddy_email": buddy_email,
             "manager_email": manager_email,
+            "access_overview": self.get_access_overview(),
             "department": department,
         }
-
-        if "{{ access_overview }}" in text:
-            all_access = []
-            for integration, access in self.check_integration_access().items():
-                if access is None:
-                    access_str = "(unknown)"
-                elif access:
-                    access_str = "(has access)"
-                else:
-                    access_str = "(no access)"
-
-                all_access.append(f"{integration} {access_str}")
-
-            new_hire_context["access_overview"] = ", ".join(all_access)
 
         text = t.render(Context(new_hire_context | extra_values))
         # Remove non breakable space html code (if any). These could show up in the
         # Slack bot.
         text = text.replace("&nbsp;", " ")
         return text
+
+    @keep_lazy_text
+    def get_access_overview(self):
+        all_access = []
+        for integration, access in self.check_integration_access().items():
+            if access is None:
+                access_str = _("(unknown)")
+            elif access:
+                access_str = _("(has access)")
+            else:
+                access_str = _("(no access)")
+
+            all_access.append(f"{integration} {access_str}")
+
+        return ", ".join(all_access)
 
     def check_integration_access(self):
         from admin.integrations.models import Integration
