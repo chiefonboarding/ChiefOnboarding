@@ -86,7 +86,6 @@ class SequenceView(LoginRequiredMixin, ManagerPermMixin, DetailView):
         context["subtitle"] = ""
         context["object_list"] = ToDo.templates.all().defer("content")
         context["condition_form"] = ConditionForm(sequence=self.object)
-        context["create"] = True  # used for ConditionForm
         context["todos"] = ToDo.templates.all().defer("content")
         context["conditions"] = self.object.conditions.prefetched()
         return context
@@ -113,7 +112,6 @@ class SequenceNameUpdateView(LoginRequiredMixin, ManagerPermMixin, BaseUpdateVie
 class SequenceConditionBase(LoginRequiredMixin, ManagerPermMixin):
     template_name = "_condition_form.html"
     model = Condition
-    form_class = ConditionForm
     new = True
 
     def get_form(self, form_class=None):

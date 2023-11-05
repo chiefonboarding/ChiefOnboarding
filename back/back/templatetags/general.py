@@ -71,7 +71,7 @@ def offboarding_trigger_date(condition, employee):
 def show_highlighted_date_card(conditions, idx, highlighted_date):
     """
     Check if we should show the start/termination card
-    Only show when the date before is lower then the start day
+    Only show when the date before is lower than the start day
     and the date after is higher.
     """
     current_date = timezone.now().date()

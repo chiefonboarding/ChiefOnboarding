@@ -570,10 +570,9 @@ class Integration(models.Model):
 
             return ManualIntegrationConfigForm(data=data)
 
-        else:
-            from .forms import IntegrationConfigForm
+        from .forms import IntegrationConfigForm
 
-            return IntegrationConfigForm(instance=self, data=data)
+        return IntegrationConfigForm(instance=self, data=data)
 
     def clean_response(self, response):
         # if json, then convert to string to make it easier to replace values

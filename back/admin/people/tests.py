@@ -355,6 +355,7 @@ def test_terminate_employee_with_manual_trigger_condition(
     assert to_do1.name in response.content.decode()
     assert "Trigger all these items now" in response.content.decode()
 
+    emp1.refresh_from_db()
     assert emp1.to_do.count() == 0
     assert emp1.total_tasks == 0
     assert emp1.completed_tasks == 0

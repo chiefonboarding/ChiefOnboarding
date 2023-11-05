@@ -57,10 +57,6 @@ class Sequence(models.Model):
     def is_onboarding(self):
         return self.category == Sequence.Category.ONBOARDING
 
-    @property
-    def is_offboarding(self):
-        return self.category == Sequence.Category.OFFBOARDING
-
     def class_name(self):
         return self.__class__.__name__
 
@@ -604,15 +600,11 @@ class IntegrationConfig(models.Model):
 
         if self.person_type is None:
             # doesn't need extra action, just log
-            integration_user, created = IntegrationUser.objects.get_or_create(
+            integration_user, created = IntegrationUser.objects.update_or_create(
                 user=user,
                 integration=self.integration,
                 defaults={"revoked": is_offboarding},
             )
-            if not created:
-                # make sure revoked is set correctly
-                integration_user.revoked = is_offboarding
-                integration_user.save()
 
             Notification.objects.create(
                 notification_type=Notification.Type.REMOVE_MANUAL_INTEGRATION
@@ -634,15 +626,16 @@ class IntegrationConfig(models.Model):
             else:
                 assigned_to = self.assigned_to
 
-            admin_task_name = _("Create integration: {self.integration.name}")
+            admin_task_name = _("Create integration: %(integration_name)s") % {
+                "integration_name": self.integration.name
+            }
 
             admin_task = AdminTask.objects.create(
                 new_hire=user,
                 assigned_to=assigned_to,
                 name=admin_task_name,
                 option=AdminTask.Notification.NO,
-                integration=self.integration,
-                create_integration=not is_offboarding,
+                manual_integration=self.integration,
             )
 
             Notification.objects.create(

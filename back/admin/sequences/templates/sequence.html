@@ -381,7 +381,6 @@ document.addEventListener("dragover", function( event ) {
   if (Boolean(droppedPlace)) {
     const type = event.dataTransfer.getData('type');
     const droppedPlace = event.target.closest(".drop")
-    console.log(type)
     if (
         ($(droppedPlace).hasClass("before") && allowedBefore.includes(type)) ||
         ($(droppedPlace).hasClass("unconditioned") ||

@@ -64,18 +64,11 @@ class AdminTask(models.Model):
         on_delete=models.SET_NULL,
         help_text=_("If generated through a sequence, then this will be filled"),
     )
-    integration = models.ForeignKey(
+    manual_integration = models.ForeignKey(
         "integrations.Integration",
         null=True,
         on_delete=models.SET_NULL,
         help_text=_("Only set if generated based on a manual integration."),
-    )
-    create_integration = models.BooleanField(
-        default=False,
-        help_text=_(
-            "Specifies if integration has been created or removed by completing the "
-            "admin task."
-        ),
     )
 
     @property
@@ -162,12 +155,12 @@ class AdminTask(models.Model):
         self.save()
 
         # Check if we need to create the manual integration
-        if self.integration is not None:
+        if self.manual_integration is not None:
             integration_user, created = IntegrationUser.objects.get_or_create(
                 user=self.new_hire,
-                integration=self.integration,
+                integration=self.manual_integration,
             )
-            integration_user.revoked = not self.create_integration
+            integration_user.revoked = not self.new_hire.is_onboarding
             integration_user.save()
 
         # Get conditions with this to do item as (part of the) condition

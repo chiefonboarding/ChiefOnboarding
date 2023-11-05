@@ -40,8 +40,8 @@
                       <h4 class="card-title">
                         {% trans "When these admin tasks are completed:" %}
                         <div id="div_id_condition_to_do">
-                          {% for to_do in condition.condition_admin_tasks.all %}
-                          <span class="badge {% if to_do.id in completed_admin_tasks %}bg-green-lt{% else %}bg-blue-lt{% endif %} mt-1">{{ to_do.name }}</span>
+                          {% for admin_to_do in condition.condition_admin_tasks.all %}
+                          <span class="badge {% if admin_to_do.id in completed_admin_tasks %}bg-green-lt{% else %}bg-blue-lt{% endif %} mt-1">{{ admin_to_do.name }}</span>
                           {% endfor %}
                         </div>
                       </h4>
