@@ -10,7 +10,7 @@ from django.db import models
 from django.db.models import CheckConstraint, Q
 from django.template import Context, Template
 from django.utils.crypto import get_random_string
-from django.utils.functional import cached_property, keep_lazy_text
+from django.utils.functional import cached_property, lazy
 from django.utils.translation import gettext_lazy as _
 
 from admin.appointments.models import Appointment
@@ -385,7 +385,9 @@ class User(AbstractBaseUser):
         )
         return us_tz.normalize(local.astimezone(us_tz))
 
-    def personalize(self, text, extra_values={}):
+    def personalize(self, text, extra_values=None):
+        if extra_values is None:
+            extra_values = {}
         t = Template(text)
         department = ""
         manager = ""
@@ -410,7 +412,7 @@ class User(AbstractBaseUser):
             "start": self.start_day,
             "buddy_email": buddy_email,
             "manager_email": manager_email,
-            "access_overview": self.get_access_overview(),
+            "access_overview": lazy(self.get_access_overview, str),
             "department": department,
         }
 
@@ -420,7 +422,6 @@ class User(AbstractBaseUser):
         text = text.replace("&nbsp;", " ")
         return text
 
-    @keep_lazy_text
     def get_access_overview(self):
         all_access = []
         for integration, access in self.check_integration_access().items():
