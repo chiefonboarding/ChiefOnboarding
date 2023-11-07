@@ -1,6 +1,6 @@
-from django.urls import path, re_path
 from allauth.account import views as allauth_views
 from allauth.mfa import views as allauth_mfa_views
+from django.urls import path, re_path
 
 from . import views
 

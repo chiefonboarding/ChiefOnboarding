@@ -3,6 +3,7 @@ from datetime import datetime
 from axes.decorators import axes_dispatch
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login, signals
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -18,7 +19,6 @@ from django.views.generic.list import ListView
 from admin.resources.models import Chapter, CourseAnswer, Resource
 from admin.to_do.models import ToDo
 from organization.models import Notification
-from django.contrib.auth.mixins import LoginRequiredMixin
 from users.models import (
     NewHireWelcomeMessage,
     PreboardingUser,

@@ -1,8 +1,8 @@
 from unittest.mock import Mock, patch
 
-from allauth.mfa.models import Authenticator
 import jwt
 import pytest
+from allauth.mfa.models import Authenticator
 from django.contrib import auth
 from django.urls import reverse
 

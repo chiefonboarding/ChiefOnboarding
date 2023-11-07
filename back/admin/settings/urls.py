@@ -1,6 +1,5 @@
-from django.urls import path, include
-
 from allauth.mfa import views as allauth_mfa_views
+from django.urls import include, path
 
 from . import views
 

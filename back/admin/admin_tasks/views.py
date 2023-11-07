@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
@@ -8,7 +9,6 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from users.mixins import ManagerPermMixin
-from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import AdminTaskCommentForm, AdminTaskCreateForm, AdminTaskUpdateForm
 from .models import AdminTask, AdminTaskComment

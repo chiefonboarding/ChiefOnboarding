@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -33,7 +34,6 @@ from users.mixins import (
     ManagerPermMixin,
 )
 from users.models import ToDoUser
-from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import (
     ColleagueCreateForm,

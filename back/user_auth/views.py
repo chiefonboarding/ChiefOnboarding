@@ -7,6 +7,7 @@ import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
@@ -16,7 +17,6 @@ from django.views.generic import View
 
 from admin.integrations.models import Integration
 from organization.models import Organization
-from django.contrib.auth.mixins import LoginRequiredMixin
 
 logger = logging.getLogger(__name__)
 

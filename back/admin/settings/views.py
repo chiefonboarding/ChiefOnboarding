@@ -1,6 +1,14 @@
+from allauth.account.decorators import reauthentication_required
+from allauth.mfa.views import (
+    ActivateTOTPView,
+    DeactivateTOTPView,
+    GenerateRecoveryCodesView,
+    IndexView,
+)
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -16,13 +24,6 @@ from django.views.generic.list import ListView
 from twilio.rest import Client
 
 from admin.integrations.models import Integration
-from allauth.mfa.views import (
-    IndexView,
-    ActivateTOTPView,
-    DeactivateTOTPView,
-    GenerateRecoveryCodesView,
-)
-from allauth.account.decorators import reauthentication_required
 from organization.models import Notification, Organization, WelcomeMessage
 from slack_bot.models import SlackChannel
 from slack_bot.utils import Slack, actions, button, paragraph
@@ -32,7 +33,6 @@ from users.emails import (
     send_new_hire_preboarding,
 )
 from users.mixins import AdminPermMixin, ManagerPermMixin
-from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import (
     AdministratorsCreateForm,

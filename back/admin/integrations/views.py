@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 
 import requests
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
@@ -14,7 +15,6 @@ from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from users.mixins import AdminPermMixin
-from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import IntegrationExtraArgsForm, IntegrationForm
 from .models import Integration

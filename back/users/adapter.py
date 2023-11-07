@@ -1,8 +1,6 @@
-from cryptography.fernet import Fernet
-
 from allauth.account.adapter import DefaultAccountAdapter
 from allauth.mfa.adapter import DefaultMFAAdapter
-
+from cryptography.fernet import Fernet
 from django.conf import settings
 from django.utils.encoding import force_bytes, force_str
 
