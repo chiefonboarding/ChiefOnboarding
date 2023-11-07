@@ -1,6 +1,7 @@
 import datetime
 
 import pytest
+from unittest.mock import Mock, patch
 from django.contrib.auth import get_user_model
 from freezegun import freeze_time
 
@@ -199,7 +200,13 @@ def test_days_before_starting(date, daybefore, new_hire_factory):
 
 
 @pytest.mark.django_db
-def test_personalize(manager_factory, new_hire_factory, department_factory):
+def test_personalize(
+    manager_factory,
+    new_hire_factory,
+    department_factory,
+    custom_integration_factory,
+    integration_user_factory,
+):
     department = department_factory(name="IT")
     manager = manager_factory(first_name="jane", last_name="smith")
     buddy = manager_factory(email="cat@chiefonboarding.com")
@@ -211,11 +218,16 @@ def test_personalize(manager_factory, new_hire_factory, department_factory):
         position="developer",
         department=department,
     )
+    # add integrations
+    i_u1 = integration_user_factory(user=new_hire, revoked=True)
+    i_u2 = integration_user_factory(user=new_hire, revoked=False)
+
+    integration = custom_integration_factory()
 
     text = (
         "Hello {{ first_name }} {{ last_name }}, your manager is {{ manager }} and "
         "you can reach your buddy through {{ buddy_email }}, you will be our "
-        "{{ position }} in {{ department }}"
+        "{{ position }} in {{ department }}. He has access to: {{ access_overview }}"
     )
     text_without_spaces = (
         "Hello {{first_name}} {{last_name}}, your manager is {{manager}} and you can "
@@ -225,11 +237,47 @@ def test_personalize(manager_factory, new_hire_factory, department_factory):
 
     expected_output = (
         "Hello john smith, your manager is jane smith and you can reach your buddy "
+        "through cat@chiefonboarding.com, you will be our developer in IT. He has "
+        f"access to: {i_u1.integration.name} (no access), {i_u2.integration.name} (has "
+        f"access), {integration.name} (unknown)"
+    )
+
+    expected_output_without_spaces = (
+        "Hello john smith, your manager is jane smith and you can reach your buddy "
         "through cat@chiefonboarding.com, you will be our developer in IT"
     )
 
-    assert new_hire.personalize(text) == expected_output
-    assert new_hire.personalize(text_without_spaces) == expected_output
+    # Service errored
+    with patch(
+        "admin.integrations.models.Integration.user_exists",
+        Mock(return_value=(None)),
+    ):
+        assert new_hire.personalize(text) == expected_output
+        assert (
+            new_hire.personalize(text_without_spaces) == expected_output_without_spaces
+        )
+
+
+@pytest.mark.django_db
+def test_check_integration_access(
+    new_hire_factory, custom_integration_factory, integration_user_factory
+):
+    new_hire = new_hire_factory()
+    integration_user1 = integration_user_factory(user=new_hire, revoked=True)
+    integration_user2 = integration_user_factory(user=new_hire, revoked=False)
+
+    integration = custom_integration_factory()
+
+    # integration service errored
+    with patch(
+        "admin.integrations.models.Integration.user_exists",
+        Mock(return_value=(None)),
+    ):
+        access = new_hire.check_integration_access()
+
+    assert access[integration_user1.integration.name] is False
+    assert access[integration_user2.integration.name] is True
+    assert access[integration.name] is None
 
 
 @pytest.mark.django_db

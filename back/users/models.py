@@ -10,7 +10,7 @@ from django.db import models
 from django.db.models import CheckConstraint, Q
 from django.template import Context, Template
 from django.utils.crypto import get_random_string
-from django.utils.functional import cached_property
+from django.utils.functional import cached_property, lazy
 from django.utils.translation import gettext_lazy as _
 
 from admin.appointments.models import Appointment
@@ -431,7 +431,9 @@ class User(AbstractBaseUser):
         )
         return us_tz.normalize(local.astimezone(us_tz))
 
-    def personalize(self, text, extra_values={}):
+    def personalize(self, text, extra_values=None):
+        if extra_values is None:
+            extra_values = {}
         t = Template(text)
         department = ""
         manager = ""
@@ -456,13 +458,41 @@ class User(AbstractBaseUser):
             "start": self.start_day,
             "buddy_email": buddy_email,
             "manager_email": manager_email,
+            "access_overview": lazy(self.get_access_overview, str),
             "department": department,
         }
+
         text = t.render(Context(new_hire_context | extra_values))
         # Remove non breakable space html code (if any). These could show up in the
         # Slack bot.
         text = text.replace("&nbsp;", " ")
         return text
+
+    def get_access_overview(self):
+        all_access = []
+        for integration, access in self.check_integration_access().items():
+            if access is None:
+                access_str = _("(unknown)")
+            elif access:
+                access_str = _("(has access)")
+            else:
+                access_str = _("(no access)")
+
+            all_access.append(f"{integration} {access_str}")
+
+        return ", ".join(all_access)
+
+    def check_integration_access(self):
+        from admin.integrations.models import Integration
+
+        items = {}
+        for integration_user in IntegrationUser.objects.filter(user=self):
+            items[integration_user.integration.name] = not integration_user.revoked
+
+        for integration in Integration.objects.filter(manifest__exists__isnull=False):
+            items[integration.name] = integration.user_exists(self)
+
+        return items
 
     def reset_otp_recovery_keys(self):
         self.user_otp.all().delete()
