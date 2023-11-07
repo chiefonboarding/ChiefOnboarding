@@ -493,7 +493,7 @@ def test_complete_admin_task_linked_to_integration(
     # new hire has now one admin task linked to integration config
     assert (
         AdminTask.objects.filter(
-            new_hire=new_hire, integration=integration_config.integration
+            new_hire=new_hire, manual_integration=integration_config.integration
         ).count()
         == 1
     )

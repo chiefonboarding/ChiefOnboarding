@@ -298,7 +298,7 @@ class AddOffboardingSequenceView(
 
     def dispatch(self, *args, **kwargs):
         employee = self.get_object()
-        if employee.termination_date is not None:
+        if self.request.user.is_authenticated and employee.termination_date is not None:
             raise Http404
         return super().dispatch(*args, **kwargs)
 
