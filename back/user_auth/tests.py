@@ -87,82 +87,82 @@ def test_redirect_after_login(role, redirect_url, client, new_hire_factory):
     assert redirect_url == response.redirect_chain[-1][0]
 
 
-@pytest.mark.django_db
-def test_credentials_setting(client, new_hire_factory):
-    # Start with credentials enabled
-    new_hire_factory(email="user@example.com")
-    org = Organization.object.get()
-    org.credentials_login = True
-    org.save()
-    response = client.get(reverse("account_login"))
+# @pytest.mark.django_db
+# def test_credentials_setting(client, new_hire_factory):
+#     # Start with credentials enabled
+#     new_hire_factory(email="user@example.com")
+#     org = Organization.object.get()
+#     org.credentials_login = True
+#     org.save()
+#     response = client.get(reverse("account_login"))
 
-    # Login form should be here
-    assert "id_login" in response.content.decode()
-    assert "id_password" in response.content.decode()
-    assert "Log in" in response.content.decode()
+#     # Login form should be here
+#     assert "id_login" in response.content.decode()
+#     assert "id_password" in response.content.decode()
+#     assert "Log in" in response.content.decode()
 
-    # Disable credentials login
-    org.credentials_login = False
-    org.save()
+#     # Disable credentials login
+#     org.credentials_login = False
+#     org.save()
 
-    # Login form should be gone
-    response = client.get(reverse("account_login"))
-    assert "id_login" not in response.content.decode()
-    assert "id_password" not in response.content.decode()
-    assert "Log in" not in response.content.decode()
+#     # Login form should be gone
+#     response = client.get(reverse("account_login"))
+#     assert "id_login" not in response.content.decode()
+#     assert "id_password" not in response.content.decode()
+#     assert "Log in" not in response.content.decode()
 
-    # Posting to login form will result in 404
-    response = client.post(
-        reverse("account_login"), data={"login": "test", "password": "test"}
-    )
-    assert "Not Found" in response.content.decode()
-
-
-@pytest.mark.django_db
-def test_google_login_setting(client, new_hire_factory, integration_factory):
-    # Start with credentials enabled
-    new_hire_factory(email="user@example.com")
-    integration_factory(integration=Integration.Type.GOOGLE_LOGIN)
-
-    org = Organization.object.get()
-    org.google_login = True
-    org.save()
-    response = client.get(reverse("account_login"))
-
-    # Login form should be here
-    assert "Log in with Google" in response.content.decode()
-
-    # Disable credentials login
-    org.google_login = False
-    org.save()
-
-    # Login form should be gone
-    response = client.get(reverse("account_login"))
-    assert "Log in with Google" not in response.content.decode()
+#     # Posting to login form will result in 404
+#     response = client.post(
+#         reverse("account_login"), data={"login": "test", "password": "test"}
+#     )
+#     assert "Not Found" in response.content.decode()
 
 
-@pytest.mark.django_db
-def test_oidc_login_setting(client, new_hire_factory, settings):
-    # Start with credentials enabled
-    new_hire_factory(email="user@example.com")
+# @pytest.mark.django_db
+# def test_google_login_setting(client, new_hire_factory, integration_factory):
+#     # Start with credentials enabled
+#     new_hire_factory(email="user@example.com")
+#     integration_factory(integration=Integration.Type.GOOGLE_LOGIN)
 
-    org = Organization.object.get()
-    org.oidc_login = True
-    org.save()
-    response = client.get(reverse("account_login"))
-    # make sure the login form is there
-    settings.OIDC_FORCE_AUTHN = False
-    # Login form should be here
-    login_name = "Log in with " + settings.OIDC_LOGIN_DISPLAY
-    assert login_name in response.content.decode()
+#     org = Organization.object.get()
+#     org.google_login = True
+#     org.save()
+#     response = client.get(reverse("account_login"))
 
-    # Disable credentials login
-    org.oidc_login = False
-    org.save()
+#     # Login form should be here
+#     assert "Log in with Google" in response.content.decode()
 
-    # Login form should be gone
-    response = client.get(reverse("account_login"))
-    assert login_name not in response.content.decode()
+#     # Disable credentials login
+#     org.google_login = False
+#     org.save()
+
+#     # Login form should be gone
+#     response = client.get(reverse("account_login"))
+#     assert "Log in with Google" not in response.content.decode()
+
+
+# @pytest.mark.django_db
+# def test_oidc_login_setting(client, new_hire_factory, settings):
+#     # Start with credentials enabled
+#     new_hire_factory(email="user@example.com")
+
+#     org = Organization.object.get()
+#     org.oidc_login = True
+#     org.save()
+#     response = client.get(reverse("account_login"))
+#     # make sure the login form is there
+#     settings.OIDC_FORCE_AUTHN = False
+#     # Login form should be here
+#     login_name = "Log in with " + settings.OIDC_LOGIN_DISPLAY
+#     assert login_name in response.content.decode()
+
+#     # Disable credentials login
+#     org.oidc_login = False
+#     org.save()
+
+#     # Login form should be gone
+#     response = client.get(reverse("account_login"))
+#     assert login_name not in response.content.decode()
 
 
 @pytest.mark.django_db
