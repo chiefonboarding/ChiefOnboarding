@@ -181,6 +181,7 @@ class ConditionTimedFactory(factory.django.DjangoModelFactory):
 
 class SequenceFactory(factory.django.DjangoModelFactory):
     name = FuzzyText()
+    category = Sequence.Category.ONBOARDING
 
     class Meta:
         model = Sequence
@@ -193,6 +194,10 @@ class SequenceFactory(factory.django.DjangoModelFactory):
         if not extracted:
             # Always create the non-condition condition
             ConditionFactory(condition_type=Condition.Type.WITHOUT, sequence=obj)
+
+
+class OffboardingSequenceFactory(SequenceFactory):
+    category = Sequence.Category.OFFBOARDING
 
 
 class IntegrationConfigFactory(factory.django.DjangoModelFactory):

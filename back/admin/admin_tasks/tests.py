@@ -3,6 +3,8 @@ from django.core.cache import cache
 from django.urls import reverse
 
 from admin.admin_tasks.models import AdminTask
+from admin.sequences.models import IntegrationConfig
+from users.models import IntegrationUser
 
 
 @pytest.mark.django_db
@@ -459,3 +461,46 @@ def test_complete_admin_task_trigger_condition(
 
     # we now have 3 tasks
     assert AdminTask.objects.filter(new_hire=new_hire).count() == 3
+
+
+@pytest.mark.django_db
+def test_complete_admin_task_linked_to_integration(
+    client,
+    admin_factory,
+    sequence_factory,
+    integration_config_factory,
+    manual_user_provision_integration_factory,
+    new_hire_factory,
+):
+    admin = admin_factory()
+    client.force_login(admin)
+
+    integration_config = integration_config_factory(
+        person_type=IntegrationConfig.PersonType.CUSTOM,
+        assigned_to=admin,
+        integration=manual_user_provision_integration_factory(),
+    )
+
+    # add config to sequence to be added to new hire directly
+    sequence = sequence_factory()
+    unconditioned_condition = sequence.conditions.first()
+    unconditioned_condition.integration_configs.add(integration_config)
+
+    new_hire = new_hire_factory()
+
+    new_hire.add_sequences([sequence])
+
+    # new hire has now one admin task linked to integration config
+    assert (
+        AdminTask.objects.filter(
+            new_hire=new_hire, manual_integration=integration_config.integration
+        ).count()
+        == 1
+    )
+
+    # Task gets completed
+    AdminTask.objects.first().mark_completed()
+
+    assert IntegrationUser.objects.filter(
+        user=new_hire, integration=integration_config.integration, revoked=False
+    ).exists()

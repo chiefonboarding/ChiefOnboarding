@@ -1,5 +1,5 @@
 {% load i18n %}
-<div class="row d-flex" style="margin-bottom: 2px">
+<div class="row d-flex" style="margin-bottom: 2px" id="condition-item-{{item.id}}-{{condition.pk}}">
   <div class="col-11">
 
     <div class="text-muted" style="margin-bottom: 5px; {% if not read_only %}cursor:pointer{% endif %}" {% if not read_only %}onclick="changeTemplate({{item.id}}, {{condition.pk}}, '{{type}}', {{ provision_created }})" data-bs-toggle="modal" data-bs-target="#modal-template-edit" {% endif %}>
@@ -7,7 +7,7 @@
       {{ item.name }}
     </div>
   </div>
-  {% if not read_only %}
+  {% if not readonly %}
   <div class="col-1">
     <div class="dropup">
       <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open condition options">
@@ -22,7 +22,7 @@
         {% if type == "pendingemailmessage" or type == "pendingslackmessage" or type == "pendingtextmessage" %}
           <a hx-post="{% url 'sequences:send_test_message' item.id %}" href="#" class="dropdown-item">{% translate "Send test message" %}</a>
         {% endif %}
-        <a hx-delete="{% url 'sequences:template_condition' condition.pk type item.id %}" hx-target="#condition-{{condition.pk}}" href="#" class="dropdown-item">{% translate "Delete" %}</a>
+        <a hx-delete="{% url 'sequences:template_condition' condition.pk type item.id %}" hx-target="#condition-item-{{item.id}}-{{condition.pk}}" href="#" class="dropdown-item">{% translate "Delete" %}</a>
       </div>
     </div>
   </div>

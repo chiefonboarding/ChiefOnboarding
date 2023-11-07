@@ -22,7 +22,11 @@
 <div class="row">
   <div class="col-7">
     <div class="alert alert-warning" role="alert">
-      {% translate "All changes will be automatically saved. This doesn't impact current new hires." %}
+      {% if sequence.is_onboarding %}
+        {% translate "All changes will be automatically saved. This doesn't impact current new hires." %}
+      {% else %}
+        {% translate "All changes will be automatically saved. This doesn't impact employees whom are currently being terminated." %}
+      {% endif %}
     </div>
     <div class="card">
       <div class="card-body">
@@ -43,8 +47,70 @@
                    <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
                  </span>
         </div>
-        <div class="card-body" id="timeline">
-          {% include '_sequence_timeline.html' %}
+        <div class="card-body" id="timeline" hx-trigger="reload-sequence from:body" hx-select="#timeline" hx-get="{% url 'sequences:update' object.id %}" hx-swap="outerHTML">
+          <ul class="list list-timeline">
+            {# only show unconditioned #}
+            <li>
+              <div class="list-timeline-icon bg-twitter">
+              </div>
+              {% for condition in conditions %}
+                {% if condition.condition_type == ConditionType.WITHOUT %}
+                <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
+                  {% include '_sequence_condition.html' with condition=condition disable_delete=True %}
+                </div>
+                {% endif %}
+              {% endfor %}
+            </li>
+
+            {# before start day #}
+            {% for condition in conditions %}
+              {% if condition.condition_type == ConditionType.BEFORE %}
+                <li>
+                  <div class="list-timeline-icon">
+                  </div>
+                  <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
+                    {% include '_sequence_condition.html' %}
+                  </div>
+                </li>
+              {% endif %}
+            {% endfor %}
+
+            {% for condition in conditions %}
+              {% if condition.condition_type == ConditionType.AFTER %}
+                <li>
+                  <div class="list-timeline-icon">
+                  </div>
+                  <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
+                    {% include '_sequence_condition.html' %}
+                  </div>
+                </li>
+              {% endif %}
+            {% endfor %}
+
+            {% for condition in conditions %}
+              {% if condition.condition_type == ConditionType.TODO %}
+                <li>
+                  <div class="list-timeline-icon">
+                  </div>
+                  <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
+                    {% include '_sequence_condition.html' %}
+                  </div>
+                </li>
+              {% endif %}
+            {% endfor %}
+
+            {% for condition in conditions %}
+              {% if condition.condition_type == ConditionType.ADMIN_TASK %}
+                <li>
+                  <div class="list-timeline-icon">
+                  </div>
+                  <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
+                    {% include '_sequence_condition.html' %}
+                  </div>
+                </li>
+              {% endif %}
+            {% endfor %}
+          </ul>
         </div>
       </div>
       <div class="card-footer">
@@ -158,9 +224,7 @@ $("#form-add-item").submit(function (event) {
         }
       }).done(function( data, textStatus, request) {
         if (request.getResponseHeader("HX-Trigger") !== null) {
-          $('.modal').modal('hide')
-          // document.getElementById("add-condition-form").reset();
-          htmx.ajax('GET', "{% url 'sequences:timeline' object.id %}", '#timeline')
+          htmx.trigger("#timeline", "reload-sequence");
           return
         }
         $("#form").html(data)
@@ -179,8 +243,7 @@ $("#form-add-item").submit(function (event) {
 
 // close modals when we are reloading the sequence part
 $(document).on("reload-sequence", function(evt){
-    $('.modal').modal('hide')
-    htmx.ajax('GET', "{% url 'sequences:timeline' object.id %}", '#timeline')
+  $('.modal').modal('hide')
 })
 
 function editCondition(id) {
@@ -259,6 +322,100 @@ $(document).on('change', "select#id_person_type", function() {
 <script>
 var placeholder = '{% translate "Start typing here..." %}';
 var newItemText = '{% translate "New item" %}';
+{% if sequence.is_onboarding %}
+var allowedBefore = ["pendingadmintask", "pendingemailmessage", "pendingslackmessage", "pendingtextmessage", "integration"]
+var allowedAfter = ["pendingadmintask","appointment", "todo", "resource", "introduction", "badge", "pendingemailmessage", "pendingslackmessage", "pendingtextmessage", "integration"]
+{% else %}
+var allowedBefore = ["pendingadmintask","appointment", "todo", "resource", "introduction", "badge", "pendingemailmessage", "pendingslackmessage", "pendingtextmessage", "integration"]
+var allowedAfter = ["pendingadmintask", "pendingemailmessage", "pendingslackmessage", "pendingtextmessage", "integration"]
+{% endif %}
 </script>
 <script src="{% static 'js/resources.js' %}"></script>
+<script>
+
+var dragged;
+document.addEventListener("dragstart", function( event ) {
+  dragged = event.target;
+  event.dataTransfer.setData('id', event.target.dataset.id);
+  event.dataTransfer.setData('type', event.target.dataset.type);
+  event.target.style.opacity = .5;
+}, false);
+
+document.addEventListener("drop", function( event ) {
+  // prevent default action
+  event.preventDefault();
+
+  const droppedPlace = event.target.closest(".drop")
+  if (Boolean(droppedPlace)) {
+    const droppedPlace = event.target.closest(".drop")
+    const templateId = event.dataTransfer.getData('id');
+    const type = event.dataTransfer.getData('type');
+    const conditionID = droppedPlace.dataset.id
+
+    if (!(
+        ($(droppedPlace).hasClass("before") && allowedBefore.includes(type)) ||
+        ($(droppedPlace).hasClass("unconditioned") ||
+        ($(droppedPlace).hasClass("after") &&  allowedAfter.includes(type)) ||
+        $(droppedPlace).hasClass("to_do"))
+    )) {
+      return
+    }
+
+    $(".card").css("background-color", "white")
+    if (templateId !== '0' && type !== 'integration') {
+      htmx.ajax('POST', `/admin/sequences/condition/${conditionID}/${type}/${templateId}/`, `#condition-${conditionID}`).then(() => {
+        initSelectize(`#condition-${conditionID}`)
+      });
+    } else {
+      changeTemplate(parseInt(templateId), conditionID, type)
+      $('#modal-template-edit').modal('show')
+    }
+  }
+}, false);
+
+document.addEventListener("dragover", function( event ) {
+  // prevent default action
+  event.preventDefault();
+  event.stopPropagation();
+  const droppedPlace = event.target.closest(".drop")
+  if (Boolean(droppedPlace)) {
+    const type = event.dataTransfer.getData('type');
+    const droppedPlace = event.target.closest(".drop")
+    if (
+        ($(droppedPlace).hasClass("before") && allowedBefore.includes(type)) ||
+        ($(droppedPlace).hasClass("unconditioned") ||
+        ($(droppedPlace).hasClass("after") &&  allowedAfter.includes(type)) ||
+        $(droppedPlace).hasClass("to_do"))
+    ) {
+      droppedPlace.style.backgroundColor='rgb(239, 242, 246)';
+    }
+  }
+}, false);
+
+document.addEventListener("dragend", function( event ) {
+  event.target.style.opacity = "";
+  const droppedPlace = event.target.closest(".drop")
+  if (typeof event.target.closest !== "function") {
+      return
+  }
+  if (Boolean(droppedPlace)) {
+    const droppedPlace = event.target.closest(".drop")
+    droppedPlace.style.backgroundColor='white';
+  }
+}, false);
+
+document.addEventListener("dragleave", function( event ) {
+  // prevent default action
+  event.preventDefault();
+  event.stopPropagation();
+  if (typeof event.target.closest !== "function") {
+      return
+  }
+  const droppedPlace = event.target.closest(".drop")
+  if (Boolean(droppedPlace)) {
+    const droppedPlace = event.target.closest(".drop")
+    droppedPlace.style.backgroundColor='white';
+  }
+}, false);
+</script>
 {% endblock %}

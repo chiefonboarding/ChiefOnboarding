@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from admin.sequences import views, offboarding_views
 
 app_name = "sequences"
 urlpatterns = [
@@ -9,17 +9,12 @@ urlpatterns = [
     path("<int:pk>/", views.SequenceView.as_view(), name="update"),
     path("<int:pk>/delete/", views.SequenceDeleteView.as_view(), name="delete"),
     path(
-        "<int:pk>/timeline/",
-        views.SequenceTimelineDetailView.as_view(),
-        name="timeline",
-    ),
-    path(
         "<int:pk>/update_name/",
         views.SequenceNameUpdateView.as_view(),
         name="update_name",
     ),
     path(
-        "<int:pk>/condition/",
+        "<int:sequence_pk>/condition/",
         views.SequenceConditionCreateView.as_view(),
         name="condition-create",
     ),
@@ -59,6 +54,19 @@ urlpatterns = [
         name="update-integration-config",
     ),
     path(
-        "templates/", views.SequenceDefaultTemplatesView.as_view(), name="template_list"
+        "<int:pk>/templates/",
+        views.SequenceDefaultTemplatesView.as_view(),
+        name="template_list",
+    ),
+    # offboarding urls
+    path(
+        "offboarding",
+        offboarding_views.OffboardingSequenceListView.as_view(),
+        name="offboarding-list",
+    ),
+    path(
+        "offboarding/create/",
+        views.SequenceCreateView.as_view(),
+        name="offboarding-create",
     ),
 ]

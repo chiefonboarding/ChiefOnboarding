@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models
-from django.db.models import Case, F, IntegerField, Prefetch, When
+from django.db.models import Prefetch
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -20,12 +20,32 @@ from organization.models import Notification
 from slack_bot.models import SlackChannel
 from slack_bot.utils import Slack
 
-from .emails import send_sequence_message
+from admin.sequences.emails import send_sequence_message
+from admin.sequences.querysets import ConditionQuerySet
+
+
+class OnboardingSequenceManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(category=Sequence.Category.ONBOARDING)
+
+
+class OffboardingSequenceManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(category=Sequence.Category.OFFBOARDING)
 
 
 class Sequence(models.Model):
+    class Category(models.IntegerChoices):
+        ONBOARDING = 0, _("Onboarding sequence")
+        OFFBOARDING = 1, _("Offboarding sequence")
+
     name = models.CharField(verbose_name=_("Name"), max_length=240)
     auto_add = models.BooleanField(default=False)
+    category = models.IntegerField(choices=Category.choices)
+
+    objects = models.Manager()
+    onboarding = OnboardingSequenceManager()
+    offboarding = OffboardingSequenceManager()
 
     def __str__(self):
         return self.name
@@ -33,6 +53,10 @@ class Sequence(models.Model):
     @property
     def update_url(self):
         return reverse("sequences:update", args=[self.id])
+
+    @property
+    def is_onboarding(self):
+        return self.category == Sequence.Category.ONBOARDING
 
     def class_name(self):
         return self.__class__.__name__
@@ -484,13 +508,13 @@ class PendingAdminTask(models.Model):
             return self.assigned_to
 
     def execute(self, user):
-        from admin.admin_tasks.models import AdminTask, AdminTaskComment
+        from admin.admin_tasks.models import AdminTask
 
         if AdminTask.objects.filter(new_hire=user, based_on=self).exists():
             # if a task already exists, then skip
             return
 
-        admin_task = AdminTask.objects.create(
+        AdminTask.objects.create_admin_task(
             new_hire=user,
             assigned_to=self.get_user(user),
             name=self.name,
@@ -499,20 +523,10 @@ class PendingAdminTask(models.Model):
             email=self.email,
             date=self.date,
             priority=self.priority,
-            based_on=self,
-        )
-        AdminTaskComment.objects.create(
-            content=self.comment,
-            comment_by=admin_task.assigned_to,
-            admin_task=admin_task,
-        )
-        admin_task.send_notification_new_assigned()
-        admin_task.send_notification_third_party()
-
-        Notification.objects.create(
-            notification_type=Notification.Type.ADDED_ADMIN_TASK,
-            extra_text=self.name,
-            created_for=self.assigned_to,
+            pending_admin_task=self,
+            manual_integration=None,
+            comment=self.comment,
+            send_notification=True,
         )
 
     @property
@@ -526,8 +540,30 @@ class PendingAdminTask(models.Model):
 
 
 class IntegrationConfig(models.Model):
+    class PersonType(models.IntegerChoices):
+        MANAGER = 1, _("Manager")
+        BUDDY = 2, _("Buddy")
+        CUSTOM = 3, _("Custom")
+
     integration = models.ForeignKey(Integration, on_delete=models.CASCADE, null=True)
     additional_data = EncryptedJSONField(default=dict)
+    person_type = models.IntegerField(
+        verbose_name=_("Assigned to"),
+        choices=PersonType.choices,
+        null=True,
+        blank=True,
+        help_text=_(
+            "Leave empty to automatically check the integration as created/removed."
+        ),
+    )
+    assigned_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name=_("Pick user"),
+        on_delete=models.CASCADE,
+        related_name="assigned_user_integration",
+        null=True,
+        blank=True,
+    )
 
     @property
     def name(self):
@@ -541,6 +577,64 @@ class IntegrationConfig(models.Model):
         self.pk = None
         self.save()
         return self
+
+    def execute(self, user):
+        # avoid circular import
+        from users.models import IntegrationUser
+
+        if not self.integration.skip_user_provisioning:
+            # it's an automated integration so just execute it
+            self.integration.execute(user, self.additional_data)
+            return
+
+        is_offboarding = user.termination_date is not None
+
+        if self.person_type is None:
+            # doesn't need extra action, just log
+            integration_user, created = IntegrationUser.objects.update_or_create(
+                user=user,
+                integration=self.integration,
+                defaults={"revoked": is_offboarding},
+            )
+
+            Notification.objects.create(
+                notification_type=Notification.Type.REMOVE_MANUAL_INTEGRATION
+                if is_offboarding
+                else Notification.Type.ADD_MANUAL_INTEGRATION,
+                extra_text=self.integration.name,
+                created_for=user,
+                item_id=integration_user.id,
+                notified_user=False,
+                public_to_new_hire=False,
+            )
+
+        else:
+            # we need an admin to create the item and then check it off
+            if self.person_type == IntegrationConfig.PersonType.MANAGER:
+                assigned_to = user.manager
+            elif self.person_type == IntegrationConfig.PersonType.BUDDY:
+                assigned_to = user.buddy
+            else:
+                assigned_to = self.assigned_to
+
+            admin_task_name = _("Create integration: %(integration_name)s") % {
+                "integration_name": self.integration.name
+            }
+
+            AdminTask.objects.create_admin_task(
+                new_hire=user,
+                assigned_to=assigned_to,
+                name=admin_task_name,
+                option=AdminTask.Notification.NO,
+                slack_user=None,
+                email="",
+                date=None,
+                priority=AdminTask.Priority.MEDIUM,
+                pending_admin_task=None,
+                manual_integration=self.integration,
+                comment="-",
+                send_notification=True,
+            )
 
 
 class ConditionPrefetchManager(models.Manager):
@@ -580,14 +674,7 @@ class ConditionPrefetchManager(models.Manager):
                     "integration_configs", queryset=IntegrationConfig.objects.all()
                 ),
             )
-            .annotate(
-                days_order=Case(
-                    When(condition_type=Condition.Type.BEFORE, then=F("days") * -1),
-                    When(condition_type=Condition.Type.AFTER, then=99999),
-                    default=F("days"),
-                    output_field=IntegerField(),
-                )
-            )
+            .alias_days_order()
             .order_by("days_order", "time")
         )
 
@@ -606,9 +693,7 @@ class Condition(models.Model):
     condition_type = models.IntegerField(
         verbose_name=_("Block type"), choices=Type.choices, default=Type.AFTER
     )
-    days = models.IntegerField(
-        verbose_name=_("Amount of days before/after new hire has started"), default=1
-    )
+    days = models.IntegerField(verbose_name=_("Amount of days before/after"), default=1)
     time = models.TimeField(verbose_name=_("At"), default="08:00")
     condition_to_do = models.ManyToManyField(
         ToDo,
@@ -630,7 +715,7 @@ class Condition(models.Model):
     appointments = models.ManyToManyField(Appointment)
     integration_configs = models.ManyToManyField(IntegrationConfig)
 
-    objects = ConditionPrefetchManager()
+    objects = ConditionPrefetchManager.from_queryset(ConditionQuerySet)()
 
     @property
     def is_empty(self):
@@ -756,7 +841,6 @@ class Condition(models.Model):
 
     def process_condition(self, user, skip_notification=False):
         # avoid circular import
-        from users.models import IntegrationUser
 
         # Loop over all m2m fields and add the ones that can be easily added
         for field in [
@@ -783,13 +867,4 @@ class Condition(models.Model):
         # execute them. It will also add an item to the notification model there.
         for field in ["admin_tasks", "external_messages", "integration_configs"]:
             for item in getattr(self, field).all():
-                # Only for integration configs
-                if getattr(item, "integration", None) is not None:
-                    if item.integration.skip_user_provisioning:
-                        IntegrationUser.objects.create(
-                            user=user, integration=item.integration
-                        )
-                    else:
-                        item.integration.execute(user, item.additional_data)
-                else:
-                    item.execute(user)
+                item.execute(user)

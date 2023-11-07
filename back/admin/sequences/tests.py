@@ -48,17 +48,21 @@ from admin.sequences.tasks import process_condition, timed_triggers
 from admin.to_do.factories import ToDoFactory
 from admin.to_do.forms import ToDoForm
 from admin.to_do.models import ToDo
+from users.models import IntegrationUser
 from organization.models import Notification, Organization
 from slack_bot.models import SlackChannel
 
 
 @pytest.mark.django_db
-def test_sequence_list_view(client, admin_factory, sequence_factory):
+def test_onboarding_sequence_list_view(
+    client, admin_factory, sequence_factory, offboarding_sequence_factory
+):
     admin = admin_factory()
     client.force_login(admin)
 
     sequence1 = sequence_factory()
     sequence2 = sequence_factory()
+    sequence3 = offboarding_sequence_factory()
 
     url = reverse("sequences:list")
 
@@ -66,6 +70,27 @@ def test_sequence_list_view(client, admin_factory, sequence_factory):
 
     assert sequence1.name in response.content.decode()
     assert sequence2.name in response.content.decode()
+    assert sequence3.name not in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_offboarding_sequence_list_view(
+    client, admin_factory, sequence_factory, offboarding_sequence_factory
+):
+    admin = admin_factory()
+    client.force_login(admin)
+
+    sequence1 = sequence_factory()
+    sequence2 = offboarding_sequence_factory()
+    sequence3 = offboarding_sequence_factory()
+
+    url = reverse("sequences:offboarding-list")
+
+    response = client.get(url)
+
+    assert sequence1.name not in response.content.decode()
+    assert sequence2.name in response.content.decode()
+    assert sequence3.name in response.content.decode()
 
 
 @pytest.mark.django_db
@@ -171,6 +196,49 @@ def test_sequence_create_condition_success_view(
     sequence1.refresh_from_db()
     # All are assinged to this sequence
     assert sequence1.conditions.all().count() == 4
+
+
+@pytest.mark.django_db
+def test_offboarding_sequence_create_condition_success_view(
+    client, admin_factory, offboarding_sequence_factory, to_do_factory
+):
+    admin = admin_factory()
+    client.force_login(admin)
+
+    sequence1 = offboarding_sequence_factory()
+    to_do1 = to_do_factory()
+    url = reverse("sequences:condition-create", args=[sequence1.id])
+    response = client.get(url)
+    assert "On/Before employee&#x27;s last day" in response.content.decode()
+    assert "Based on one or more to do items" in response.content.decode()
+    assert "Based on one or more admin tasks" in response.content.decode()
+
+    # Create block based on to do items
+    url = reverse("sequences:condition-create", args=[sequence1.id])
+    response = client.post(
+        url,
+        {
+            "condition_to_do": [
+                to_do1.id,
+            ],
+            "condition_type": Condition.Type.TODO,
+        },
+        follow=True,
+    )
+
+    assert response.status_code == 200
+    assert Condition.objects.all().count() == 2
+    assert to_do1 in Condition.objects.last().condition_to_do.all()
+    assert Condition.objects.last().condition_type == Condition.Type.TODO
+
+    response = client.post(
+        url,
+        {"condition_type": Condition.Type.BEFORE, "days": -1},
+        follow=True,
+    )
+
+    assert "Their last day is 0. You cannot go below that." in response.content.decode()
+    assert Condition.objects.all().count() == 2
 
 
 @pytest.mark.django_db
@@ -326,7 +394,7 @@ def test_sequence_detail_view(
     to_do = to_do_factory()
     condition_timed.to_do.add(to_do)
 
-    url = reverse("sequences:timeline", args=[sequence1.id])
+    url = reverse("sequences:update", args=[sequence1.id])
     response = client.get(url)
 
     assert str(condition_timed.days) in response.content.decode()
@@ -629,6 +697,55 @@ def test_sequence_create_custom_integration_form(
 
 
 @pytest.mark.django_db
+def test_sequence_create_manual_custom_integration_form(
+    client,
+    admin_factory,
+    sequence_factory,
+    manual_user_provision_integration_factory,
+):
+    integration = manual_user_provision_integration_factory()
+    admin = admin_factory()
+    sequence = sequence_factory()
+    condition = sequence.conditions.all().first()
+    client.force_login(admin)
+
+    url = reverse("sequences:forms", args=["integration", integration.id])
+
+    # get form in modal
+    response = client.get(url)
+    assert (
+        "This is a manual integration, you will have to assign someone to create"
+        in response.content.decode()
+    )
+    assert "Assigned to" in response.content.decode()
+
+    # Create a integration config item
+    url = reverse(
+        "sequences:update-integration-config",
+        args=["integrationconfig", integration.id, condition.id, 0],
+    )
+    response = client.post(
+        url, data={"person_type": IntegrationConfig.PersonType.CUSTOM}
+    )
+    assert (
+        "You must select someone if you want someone custom"
+        in response.content.decode()
+    )
+
+    response = client.post(
+        url,
+        data={
+            "person_type": IntegrationConfig.PersonType.CUSTOM,
+            "assigned_to": admin.id,
+        },
+    )
+
+    assert IntegrationConfig.objects.all().count() == 1
+    integration_config = IntegrationConfig.objects.first()
+    assert integration_config.assigned_to == admin
+
+
+@pytest.mark.django_db
 def test_sequence_create_custom_integration_form_input_field(
     client,
     admin_factory,
@@ -850,10 +967,13 @@ def test_delete_sequence(client, admin_factory, sequence_factory):
         ("preboarding", PreboardingFactory),
     ],
 )
-def test_sequence_default_templates_view(client, admin_factory, template_type, factory):
+def test_sequence_default_templates_view(
+    client, sequence_factory, admin_factory, template_type, factory
+):
     admin = admin_factory()
     client.force_login(admin)
-    url = reverse("sequences:template_list")
+    sequence = sequence_factory()
+    url = reverse("sequences:template_list", args=[sequence.id])
 
     item = factory()
 
@@ -864,10 +984,11 @@ def test_sequence_default_templates_view(client, admin_factory, template_type, f
 
 
 @pytest.mark.django_db
-def test_sequence_default_templates_not_valid(client, admin_factory):
+def test_sequence_default_templates_not_valid(client, admin_factory, sequence_factory):
     admin = admin_factory()
     client.force_login(admin)
-    url = reverse("sequences:template_list")
+    sequence = sequence_factory()
+    url = reverse("sequences:template_list", args=[sequence.id])
 
     response = client.get(url + "?type=pendingadmintask")
 
@@ -904,11 +1025,16 @@ def test_sequence_item_test_message(client, admin_factory, mailoutbox):
 
 @pytest.mark.django_db
 def test_sequence_default_templates_integrations(
-    client, admin_factory, integration_factory, custom_integration_factory
+    client,
+    admin_factory,
+    integration_factory,
+    custom_integration_factory,
+    sequence_factory,
 ):
     admin = admin_factory()
     client.force_login(admin)
-    url = reverse("sequences:template_list")
+    sequence = sequence_factory()
+    url = reverse("sequences:template_list", args=[sequence.id])
     custom_integration_factory()
     custom_integration_factory()
     integration_factory(integration=Integration.Type.SLACK_ACCOUNT_CREATION)
@@ -923,7 +1049,7 @@ def test_sequence_default_templates_integrations(
 
 @pytest.mark.django_db
 @freeze_time("2022-05-13")
-def test_sequence_trigger_task(
+def test_onboarding_sequence_trigger_task(
     sequence_factory,
     new_hire_factory,
     condition_timed_factory,
@@ -996,6 +1122,105 @@ def test_sequence_trigger_task(
     assert new_hire1.introductions.all().count() == 1
     assert new_hire1.badges.all().count() == 1
     assert new_hire1.integrations.all().count() == 1
+
+
+@pytest.mark.django_db
+@freeze_time("2022-05-13")
+def test_offboarding_sequence_trigger_task(
+    offboarding_sequence_factory,
+    employee_factory,
+    condition_timed_factory,
+    to_do_factory,
+    resource_factory,
+    introduction_factory,
+    appointment_factory,
+    preboarding_factory,
+    badge_factory,
+    pending_admin_task_factory,
+    pending_text_message_factory,
+    manual_user_provision_integration_factory,
+):
+    org = Organization.object.get()
+    # Set it back 5 minutes, so it will actually run through the triggers
+    org.timed_triggers_last_check = timezone.now() - timedelta(minutes=5)
+    org.save()
+
+    emp1 = employee_factory(termination_date=timezone.now())
+
+    to_do1 = to_do_factory()
+    to_do2 = to_do_factory()
+    resource1 = resource_factory()
+    appointment1 = appointment_factory()
+    introduction1 = introduction_factory()
+    preboarding1 = preboarding_factory()
+    badge1 = badge_factory()
+    pending_admin_task1 = pending_admin_task_factory()
+    pending_text_message1 = pending_text_message_factory()
+    manual_provisioning = manual_user_provision_integration_factory()
+    manual_config = IntegrationConfigFactory(integration=manual_provisioning)
+
+    seq = offboarding_sequence_factory()
+    unconditioned_condition = seq.conditions.all().first()
+    unconditioned_condition.add_item(to_do1)
+
+    # Round current time to 0 or 5 to make it valid entry
+    current_time = timezone.now()
+    current_time = current_time.replace(
+        minute=current_time.minute - (current_time.minute % 5), second=0, microsecond=0
+    )
+
+    condition = condition_timed_factory(
+        days=0, time=current_time, condition_type=Condition.Type.BEFORE
+    )
+    condition.add_item(to_do2)
+    condition.add_item(resource1)
+    condition.add_item(appointment1)
+    condition.add_item(introduction1)
+    condition.add_item(preboarding1)
+    condition.add_item(badge1)
+    condition.add_item(pending_admin_task1)
+    condition.add_item(pending_text_message1)
+    condition.add_item(manual_config)
+
+    seq.conditions.add(condition)
+
+    # Add sequence to user
+    emp1.add_sequences([seq])
+
+    assert emp1.to_do.all().count() == 1
+
+    # Trigger sequence conditions
+    timed_triggers()
+
+    org.refresh_from_db()
+    assert org.timed_triggers_last_check == current_time
+
+    assert emp1.to_do.all().count() == 2
+    assert emp1.resources.all().count() == 1
+    assert emp1.appointments.all().count() == 1
+    assert emp1.introductions.all().count() == 1
+    assert emp1.badges.all().count() == 1
+    assert emp1.integrations.all().count() == 1
+    assert AdminTask.objects.filter(new_hire=emp1).exists()
+
+    emp1.termination_date = timezone.now() - timedelta(days=2)
+    emp1.save()
+
+    # Set it back 5 minutes again, so it will actually run through the triggers
+    org.timed_triggers_last_check = timezone.now() - timedelta(minutes=5)
+    org.save()
+
+    # Trigger sequence conditions - will be skipped, since it's past termination date
+    timed_triggers()
+
+    emp1.refresh_from_db()
+    assert emp1.to_do.all().count() == 2
+    assert emp1.resources.all().count() == 1
+    assert emp1.appointments.all().count() == 1
+    assert emp1.introductions.all().count() == 1
+    assert emp1.badges.all().count() == 1
+    assert emp1.integrations.all().count() == 1
+    assert AdminTask.objects.filter(new_hire=emp1).exists()
 
 
 @pytest.mark.django_db
@@ -1585,6 +1810,74 @@ def test_execute_external_message_slack_to_slack_channel_invalid_channel(
         ).count()
         == 1
     )
+
+
+@pytest.mark.django_db
+def test_notification_execute_integration_config(
+    employee_factory,
+    integration_config_factory,
+    admin_factory,
+    manual_user_provision_integration_factory,
+):
+    emp1 = employee_factory()
+
+    integration_config = integration_config_factory(
+        integration=manual_user_provision_integration_factory()
+    )
+    integration_config.execute(emp1)
+
+    assert Notification.objects.count() == 1
+    assert IntegrationUser.objects.filter(
+        user=emp1, integration=integration_config.integration, revoked=False
+    ).exists()
+
+    # run once again for offboarding
+    emp1 = employee_factory(termination_date=timezone.now())
+    integration_config.execute(emp1)
+    assert Notification.objects.count() == 2
+    assert IntegrationUser.objects.filter(
+        user=emp1, integration=integration_config.integration, revoked=True
+    ).exists()
+
+    # create admin task based on manager
+    admin1 = admin_factory()
+    emp2 = employee_factory(manager=admin1)
+    integration_config.person_type = IntegrationConfig.PersonType.MANAGER
+    integration_config.save()
+
+    integration_config.execute(emp2)
+    assert AdminTask.objects.filter(
+        new_hire=emp2,
+        assigned_to=admin1,
+        manual_integration=integration_config.integration,
+    ).exists()
+
+    # create admin task based on buddy
+    admin2 = admin_factory()
+    emp3 = employee_factory(buddy=admin2)
+    integration_config.person_type = IntegrationConfig.PersonType.BUDDY
+    integration_config.save()
+
+    integration_config.execute(emp3)
+    assert AdminTask.objects.filter(
+        new_hire=emp3,
+        assigned_to=admin2,
+        manual_integration=integration_config.integration,
+    ).exists()
+
+    # create admin task based on specific person
+    admin3 = admin_factory()
+    emp4 = employee_factory()
+    integration_config.person_type = IntegrationConfig.PersonType.CUSTOM
+    integration_config.assigned_to = admin3
+    integration_config.save()
+
+    integration_config.execute(emp4)
+    assert AdminTask.objects.filter(
+        new_hire=emp4,
+        assigned_to=admin3,
+        manual_integration=integration_config.integration,
+    ).exists()
 
 
 @pytest.mark.django_db

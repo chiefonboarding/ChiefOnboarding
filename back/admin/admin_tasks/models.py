@@ -4,12 +4,58 @@ from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
 
 from slack_bot.utils import Slack, actions, button, paragraph
+from organization.models import Notification
 
 from .emails import (
     send_email_new_assigned_admin,
     send_email_new_comment,
     send_email_notification_to_external_person,
 )
+
+
+class AminTaskManager(models.Manager):
+    def create_admin_task(
+        self,
+        new_hire,
+        assigned_to,
+        name,
+        option,
+        slack_user,
+        email,
+        date,
+        priority,
+        pending_admin_task,
+        manual_integration,
+        comment,
+        send_notification,
+    ):
+        admin_task = AdminTask.objects.create(
+            new_hire=new_hire,
+            assigned_to=assigned_to,
+            name=name,
+            option=option,
+            slack_user=slack_user,
+            email=email,
+            date=date,
+            priority=priority,
+            based_on=pending_admin_task,
+            manual_integration=manual_integration,
+        )
+        AdminTaskComment.objects.create(
+            content=comment,
+            comment_by=admin_task.assigned_to,
+            admin_task=admin_task,
+        )
+        if send_notification:
+            admin_task.send_notification_new_assigned()
+
+        admin_task.send_notification_third_party()
+
+        Notification.objects.create(
+            notification_type=Notification.Type.ADDED_ADMIN_TASK,
+            extra_text=name,
+            created_for=admin_task.assigned_to,
+        )
 
 
 class AdminTask(models.Model):
@@ -62,8 +108,16 @@ class AdminTask(models.Model):
         "sequences.PendingAdminTask",
         null=True,
         on_delete=models.SET_NULL,
-        help_text="If generated through a sequence, then this will be filled",
+        help_text=_("If generated through a sequence, then this will be filled"),
     )
+    manual_integration = models.ForeignKey(
+        "integrations.Integration",
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text=_("Only set if generated based on a manual integration."),
+    )
+
+    objects = AminTaskManager()
 
     @property
     def get_icon_template(self):
@@ -146,6 +200,10 @@ class AdminTask(models.Model):
 
         self.completed = True
         self.save()
+
+        # Check if we need to register the manual integration
+        if self.manual_integration is not None:
+            self.manual_integration.register_manual_integration_run(self.new_hire)
 
         # Get conditions with this to do item as (part of the) condition
         conditions = self.new_hire.conditions.filter(

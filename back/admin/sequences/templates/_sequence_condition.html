@@ -31,7 +31,13 @@
               {% endfor %}
             </div>
           {% elif condition.condition_type == ConditionType.BEFORE %}
-            {% blocktranslate with days=condition.days time=condition.time %}{{ days }} days before starting at {{ time }}{% endblocktranslate %}
+            {% if sequence.is_onboarding %}
+              {% blocktranslate with days=condition.days time=condition.time %}{{ days }} days before starting at {{ time }}{% endblocktranslate %}
+            {% elif condition.days == 0 %}
+              {% blocktranslate with days=condition.days time=condition.time %}On termination day at {{ time }}{% endblocktranslate %}
+            {% else %} {# offboarding sequence #}
+              {% blocktranslate with days=condition.days time=condition.time %}{{ days }} workday(s) before termination{% endblocktranslate %}
+            {% endif %}
           {% else %}
             {% translate "Without any trigger - assign directly" %}
           {% endif %}
@@ -54,60 +60,6 @@
     </div>
   </div>
   <div class="card-body">
-    {% if not condition.external_new_hire|length and not condition.preboarding.all|length and not condition.to_do.all|length and not condition.resources.all|length and not condition.introductions.all|length and not condition.external_admin|length and not condition.admin_tasks.all|length and not condition.preboarding.all|length and not condition.badges.all|length and not condition.integration_configs.all|length %}
-      No items yet
-    {% endif %}
-
-    {# FOR NEW HIRES #}
-    {% if condition.external_new_hire|length or condition.to_do.all|length or condition.preboarding.all|length or condition.badges.all|length or condition.integration_configs.all|length or condition.resources.all|length or condition.introductions.all|length %}
-    <span class="badge bg-azure mb-2">{% translate "new hire" %}</span>
-    {% endif %}
-    {% for item in condition.preboarding.all %}
-      {% include '_condition_line_item.html' with type='preboarding' %}
-    {% endfor %}
-    {% for item in condition.appointments.all %}
-      {% include '_condition_line_item.html' with type='appointment' %}
-    {% endfor %}
-    {% for item in condition.external_new_hire %}
-      {% if item.send_via == 0 %}{# email #}
-        {% include '_condition_line_item.html' with type='pendingemailmessage' %}
-      {% elif item.send_via == 1 %}{# slack #}
-        {% include '_condition_line_item.html' with type='pendingslackmessage' %}
-      {% else %}
-        {% include '_condition_line_item.html' with type='pendingtextmessage' %}
-      {% endif %}
-    {% endfor %}
-    {% for item in condition.to_do.all %}
-      {% include '_condition_line_item.html' with type='todo' %}
-    {% endfor %}
-    {% for item in condition.resources.all %}
-      {% include '_condition_line_item.html' with type='resource' %}
-    {% endfor %}
-    {% for item in condition.introductions.all %}
-      {% include '_condition_line_item.html' with type='introduction' %}
-    {% endfor %}
-    {% for item in condition.badges.all %}
-      {% include '_condition_line_item.html' with type='badge' %}
-    {% endfor %}
-    {% for item in condition.integration_configs.all %}
-      {% include '_condition_line_item.html' with type='integrationconfig' provision_created=1 %}
-    {% endfor %}
-
-    {# FOR ADMINS #}
-    {% if condition.external_admin|length or condition.admin_tasks.all|length %}
-    <span class="badge bg-orange mb-2">{% translate "admins" %}</span>
-    {% endif %}
-    {% for item in condition.admin_tasks.all %}
-      {% include '_condition_line_item.html' with type='pendingadmintask' %}
-    {% endfor %}
-    {% for item in condition.external_admin %}
-      {% if item.send_via == ExternalMessagesType.EMAIL %}
-        {% include '_condition_line_item.html' with type='pendingemailmessage' %}
-      {% elif item.send_via == ExternalMessagesType.SLACK %}
-        {% include '_condition_line_item.html' with type='pendingslackmessage' %}
-      {% else %}
-        {% include '_condition_line_item.html' with type='pendingtextmessage' %}
-      {% endif %}
-    {% endfor %}
+    {% include "_condition_body.html" %}
   </div>
 </div>

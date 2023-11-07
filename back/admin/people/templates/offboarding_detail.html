@@ -1,0 +1,74 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+{% load general %}
+
+{% block content %}
+{% if object.missing_extra_info|length %}
+<div class="alert alert-warning">
+  <div class="row">
+    <div class="col-6" style="mt-2 mb-0">
+      <p class="mb-0 mt-2">{% translate "Some integrations require extra information. Make sure to complete those!" %}</p>
+    </div>
+    <div class="col-6" style="text-align:right">
+      <a href="{% url 'people:new_hire_extra_info' object.id %}" class="btn btn-primary">{% translate "Complete info" %}</a>
+    </div>
+  </div>
+</div>
+{% endif %}
+<div class="row mt-3">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">{% blocktranslate with last_day=object.termination_date %}Employee's last day: {{ last_day }}{% endblocktranslate %}</h3>
+      </div>
+      <div class="card-body">
+        <ul class="list list-timeline">
+            {% for condition in conditions %}
+              <li>
+                <div class="list-timeline-icon">
+                </div>
+                <div class="list-timeline-content pt-0" style="margin-top: -5px">
+                  <div class="card">
+                    <div class="card-header">
+                      {% if condition.condition_type == ConditionType.BEFORE %}
+                        {% if condition.days == 0 %}
+                          <h4 class="card-title">{% blocktranslate with days=condition.days time=condition.time %}On their last day at {{ time }}{% endblocktranslate %}</h4>
+                        {% else %}
+                          <h4 class="card-title">{{ condition|offboarding_trigger_date:object }} {% trans "at" %} {{ condition.time }}</h4>
+                        {% endif %}
+                      {% elif condition.condition_type == ConditionType.ADMIN_TASK %}
+                      <h4 class="card-title">
+                        {% trans "When these admin tasks are completed:" %}
+                        <div id="div_id_condition_to_do">
+                          {% for admin_to_do in condition.condition_admin_tasks.all %}
+                          <span class="badge {% if admin_to_do.id in completed_admin_tasks %}bg-green-lt{% else %}bg-blue-lt{% endif %} mt-1">{{ admin_to_do.name }}</span>
+                          {% endfor %}
+                        </div>
+                      </h4>
+                      {% elif condition.condition_type == ConditionType.TODO %}
+                      <h4 class="card-title">
+                        {% trans "When these tasks are completed:" %}
+                        <div id="div_id_condition_to_do">
+                          {% for to_do in condition.condition_to_do.all %}
+                          <span class="badge {% if to_do.id in completed_todos %}bg-green-lt{% else %}bg-blue-lt{% endif %} mt-1">{{ to_do.name }}</span>
+                          {% endfor %}
+                        </div>
+                      </h4>
+                      {% endif %}
+
+                    </div>
+                    <div class="card-body">
+                      {% include "_condition_body.html" with readonly=True %}
+                    </div>
+                  </div>
+                </div>
+              </li>
+            {% empty %}
+              No items left!
+            {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

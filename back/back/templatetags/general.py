@@ -50,7 +50,7 @@ def personalize(text, user):
 @register.filter(name="new_hire_trigger_date")
 def new_hire_trigger_date(condition, new_hire):
     """
-    Shows the actual date that the conditio will trigger
+    Shows the actual date that the condition will trigger
     """
 
     if condition.condition_type == Condition.Type.BEFORE:
@@ -59,19 +59,26 @@ def new_hire_trigger_date(condition, new_hire):
         return new_hire.workday_to_datetime(condition.days)
 
 
-@register.simple_tag
-def show_start_card(conditions, idx, new_hire):
+@register.filter(name="offboarding_trigger_date")
+def offboarding_trigger_date(condition, employee):
     """
-    Check if we should show the start card "New hire's start day"
-    Only show when the date before is lower then the start day
+    Shows the actual date that the condition will trigger
+    """
+    return employee.offboarding_workday_to_date(workdays=condition.days)
+
+
+@register.simple_tag
+def show_highlighted_date_card(conditions, idx, highlighted_date):
+    """
+    Check if we should show the start/termination card
+    Only show when the date before is lower than the start day
     and the date after is higher.
     """
     current_date = timezone.now().date()
-    start_day = new_hire.start_day
     current_condition = conditions[idx]
 
     # Return if this date has already past
-    if current_date > start_day:
+    if current_date > highlighted_date:
         return False
 
     try:

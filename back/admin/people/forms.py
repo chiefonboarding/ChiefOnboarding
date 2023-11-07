@@ -1,6 +1,7 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, Layout, Submit
 from django import forms
+from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -19,9 +20,9 @@ from users.models import Department
 
 class NewHireAddForm(forms.ModelForm):
     sequences = forms.ModelMultipleChoiceField(
-        queryset=Sequence.objects.all(),
+        queryset=Sequence.onboarding.all(),
         to_field_name="id",
-        initial=Sequence.objects.filter(auto_add=True),
+        initial=Sequence.onboarding.filter(auto_add=True),
         required=False,
         label=_("Sequences"),
     )
@@ -358,12 +359,34 @@ class ColleagueCreateForm(forms.ModelForm):
         )
 
 
-class SequenceChoiceForm(forms.Form):
+class OnboardingSequenceChoiceForm(forms.Form):
     sequences = forms.ModelMultipleChoiceField(
         label=_("Select sequences you want to add "),
         widget=forms.CheckboxSelectMultiple,
-        queryset=Sequence.objects.all(),
+        queryset=Sequence.onboarding.all(),
     )
+
+
+class OffboardingSequenceChoiceForm(forms.ModelForm):
+    termination_date = forms.DateField(
+        widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
+    )
+    sequences = forms.ModelMultipleChoiceField(
+        label=_("Select sequences you want to add "),
+        widget=forms.CheckboxSelectMultiple,
+        queryset=Sequence.offboarding.all(),
+    )
+
+    class Meta:
+        model = get_user_model()
+        fields = ("termination_date", "sequences")
+
+    def clean_termination_date(self):
+        date = self.cleaned_data["termination_date"]
+        # date must be in the future
+        if date < timezone.now().date():
+            raise ValidationError(_("You cannot set an offboarding date in the past."))
+        return date
 
 
 class RemindMessageForm(forms.Form):
