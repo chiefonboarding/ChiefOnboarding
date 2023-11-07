@@ -137,4 +137,4 @@ class InitialSetupView(CreateView):
         demo_user.start_day = timezone.now().date() + timedelta(days=5)
         demo_user.save()
 
-        return redirect("login")
+        return redirect("account_login")

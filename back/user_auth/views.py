@@ -115,7 +115,7 @@ class GoogleLoginView(View):
                 request,
                 _("Something went wrong with reaching Google. Please try again."),
             )
-            return redirect("login")
+            return redirect("account_login")
         if "email" in user_info:
             users = get_user_model().objects.filter(email=user_info["email"])
             if users.exists():
@@ -134,7 +134,7 @@ class GoogleLoginView(View):
                 " log in with the correct account?"
             ),
         )
-        return redirect("login")
+        return redirect("account_login")
 
 
 class OIDCLoginView(View):
@@ -153,7 +153,7 @@ class OIDCLoginView(View):
                 self.request,
                 _("OIDC login has not been enabled."),
             )
-            return redirect("login")
+            return redirect("account_login")
         # Make sure these configd exists. Technically, it shouldn't be possible
         # to enable `oidc_login` when this is not set, but just to be safe
         OIDC_CLIENT_ID_VALID = settings.OIDC_CLIENT_ID.strip() != ""
@@ -211,7 +211,7 @@ class OIDCLoginView(View):
                         " log in with the correct account?"
                     ),
                 )
-                return redirect("login")
+                return redirect("account_login")
 
             login(request, user)
             # add login type to session, so we can redirect to the correct page when we
@@ -228,7 +228,7 @@ class OIDCLoginView(View):
                 request,
                 _("Something went wrong with reaching OIDC. Please try again."),
             )
-            return redirect("login")
+            return redirect("account_login")
 
     def request_tokens(self, authorization_code):
         data = {

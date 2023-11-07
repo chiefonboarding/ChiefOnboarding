@@ -2638,7 +2638,7 @@ def test_employee_can_only_login_with_access(
 ):
     employee1 = employee_factory()
 
-    url = reverse("login")
+    url = reverse("account_login")
     data = {"username": employee1.email, "password": "test"}
     client.post(url, data=data, follow=True)
 
@@ -2662,7 +2662,7 @@ def test_employee_can_only_login_with_access(
     assert not user.is_authenticated
 
     # Try logging in again with employee account
-    url = reverse("login")
+    url = reverse("account_login")
     client.post(url, data=data, follow=True)
 
     user = auth.get_user(client)

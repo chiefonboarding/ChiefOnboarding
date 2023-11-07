@@ -137,7 +137,6 @@ def test_name(first_name, last_name, initials, full_name, new_hire_factory):
 def test_unique_user_props(new_hire_factory):
     user1 = new_hire_factory()
     user2 = new_hire_factory()
-    assert user1.totp_secret != user2.totp_secret
     assert user1.unique_url != user2.unique_url
 
 

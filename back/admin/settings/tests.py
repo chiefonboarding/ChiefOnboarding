@@ -474,57 +474,6 @@ def test_sending_test_colleague_welcome_message(
 
 
 @pytest.mark.django_db
-def test_otp_view(client, admin_factory):
-    admin_user1 = admin_factory()
-    client.force_login(admin_user1)
-
-    url = reverse("settings:personal-otp")
-    response = client.get(url)
-
-    assert "Please scan the code below" in response.content.decode()
-
-    # Secret is necessary to set up TOTP
-    assert admin_user1.totp_secret in response.content.decode()
-    assert "6 digit OTP code" in response.content.decode()
-
-
-@pytest.mark.django_db
-@patch("pyotp.TOTP.verify", Mock(return_value=False))
-def test_enable_otp_view_wrong_otp(client, admin_factory):
-    admin_user1 = admin_factory()
-    client.force_login(admin_user1)
-
-    url = reverse("settings:personal-otp")
-    response = client.post(url, {"otp": 223456}, follow=True)
-
-    admin_user1.refresh_from_db()
-
-    assert not admin_user1.requires_otp
-    assert "OTP token was not correct." in response.content.decode()
-
-
-@pytest.mark.django_db
-@patch("pyotp.TOTP.verify", Mock(return_value=True))
-def test_enable_otp_view_correct_otp(client, admin_factory):
-    admin_user1 = admin_factory()
-    client.force_login(admin_user1)
-
-    url = reverse("settings:personal-otp")
-    response = client.post(url, {"otp": 223456}, follow=True)
-
-    admin_user1.refresh_from_db()
-
-    assert "Please copy and save the keys below. These will only show once"
-    assert len(response.context["keys"]) == 10
-    assert admin_user1.requires_otp
-    assert "OTP token was not correct." not in response.content.decode()
-
-    response = client.get(url)
-
-    assert "OTP has been enabled for your account" not in response.content.decode()
-
-
-@pytest.mark.django_db
 def test_integration_list(client, admin_factory):
     admin_user1 = admin_factory()
     client.force_login(admin_user1)
