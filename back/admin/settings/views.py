@@ -16,7 +16,12 @@ from django.views.generic.list import ListView
 from twilio.rest import Client
 
 from admin.integrations.models import Integration
-from allauth.mfa.views import IndexView, ActivateTOTPView, DeactivateTOTPView, GenerateRecoveryCodesView
+from allauth.mfa.views import (
+    IndexView,
+    ActivateTOTPView,
+    DeactivateTOTPView,
+    GenerateRecoveryCodesView,
+)
 from allauth.account.decorators import reauthentication_required
 from organization.models import Notification, Organization, WelcomeMessage
 from slack_bot.models import SlackChannel
@@ -282,7 +287,6 @@ class PersonalLanguageUpdateView(
 
 
 class TOTPIndexView(LoginRequiredMixin, ManagerPermMixin, IndexView):
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = _("TOTP 2FA")
@@ -311,7 +315,9 @@ class TOTPDeactivateView(LoginRequiredMixin, ManagerPermMixin, DeactivateTOTPVie
         return context
 
 
-class TOTPGenerateRecoveryCodesView(LoginRequiredMixin, ManagerPermMixin, GenerateRecoveryCodesView):
+class TOTPGenerateRecoveryCodesView(
+    LoginRequiredMixin, ManagerPermMixin, GenerateRecoveryCodesView
+):
     success_url = reverse_lazy("settings:totp")
 
     def get_context_data(self, **kwargs):

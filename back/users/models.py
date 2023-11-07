@@ -1,10 +1,7 @@
-import uuid
 from datetime import datetime, timedelta
 
-import pyotp
 import pytz
 from allauth.account.models import EmailAddress
-from allauth.mfa.utils import is_mfa_enabled
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
@@ -25,7 +22,6 @@ from admin.preboarding.models import Preboarding
 from admin.resources.models import CourseAnswer, Resource
 from admin.sequences.models import Condition
 from admin.to_do.models import ToDo
-from misc.fernet_fields import EncryptedTextField
 from misc.models import File
 from organization.models import Notification
 from slack_bot.utils import Slack, paragraph
@@ -165,8 +161,6 @@ class User(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_introduced_to_colleagues = models.BooleanField(default=False)
     sent_preboarding_details = models.BooleanField(default=False)
-    totp_secret = EncryptedTextField(blank=True)
-    requires_otp = models.BooleanField(default=False)
     seen_updates = models.DateTimeField(auto_now_add=True)
     # new hire specific
     completed_tasks = models.IntegerField(default=0)
@@ -331,7 +325,6 @@ class User(AbstractBaseUser):
     def save(self, *args, **kwargs):
         self.email = self.email.lower()
         if not self.pk:
-            self.totp_secret = pyotp.random_base32()
             while True:
                 unique_string = get_random_string(length=8)
                 if not User.objects.filter(unique_url=unique_string).exists():
@@ -521,7 +514,9 @@ def verify_email_address_allauth(sender, instance, created, **kwargs):
     # We don't need to validate the email address as it's entered by an admin/manager.
     # Signing up is permanently disabled.
     if created:
-        EmailAddress.objects.create(user=instance, email=instance.email, verified=True, primary=True)
+        EmailAddress.objects.create(
+            user=instance, email=instance.email, verified=True, primary=True
+        )
 
 
 class ToDoUserManager(models.Manager):
@@ -728,7 +723,6 @@ class NewHireWelcomeMessage(models.Model):
 
 
 class IntegrationUser(models.Model):
-    # UserIntegration
     # logging when an integration was enabled and revoked
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     integration = models.ForeignKey(
@@ -738,11 +732,3 @@ class IntegrationUser(models.Model):
 
     class Meta:
         unique_together = ["user", "integration"]
-
-
-# class OTPRecoveryKey(models.Model):
-#     user = models.ForeignKey(
-#         get_user_model(), related_name="user_otp", on_delete=models.CASCADE
-#     )
-#     key = EncryptedTextField(default=uuid.uuid4)
-#     is_used = models.BooleanField(default=False)

@@ -7,7 +7,9 @@ from . import views
 urlpatterns = [
     # allauth urls
     path("", allauth_views.login, name="account_login"),
-    path("password/reset/", allauth_views.password_reset, name="account_reset_password"),
+    path(
+        "password/reset/", allauth_views.password_reset, name="account_reset_password"
+    ),
     path(
         "password/reset/done/",
         allauth_views.password_reset_done,
@@ -24,7 +26,9 @@ urlpatterns = [
         name="account_reset_password_from_key_done",
     ),
     path("authenticate/", allauth_mfa_views.authenticate, name="mfa_authenticate"),
-    path("reauthenticate/", allauth_views.reauthenticate, name="account_reauthenticate"),
+    path(
+        "reauthenticate/", allauth_views.reauthenticate, name="account_reauthenticate"
+    ),
     path("logout/", allauth_views.LogoutView.as_view(), name="logout"),
     path(
         "redirect/", views.LoginRedirectView.as_view(), name="logged_in_user_redirect"

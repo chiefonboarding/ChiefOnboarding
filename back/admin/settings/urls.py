@@ -22,8 +22,16 @@ urlpatterns = [
                     "totp/",
                     include(
                         [
-                            path("activate/", views.TOTPActivateView.as_view(), name="mfa_activate_totp"),
-                            path("deactivate/", views.TOTPDeactivateView.as_view(), name="mfa_deactivate_totp"),
+                            path(
+                                "activate/",
+                                views.TOTPActivateView.as_view(),
+                                name="mfa_activate_totp",
+                            ),
+                            path(
+                                "deactivate/",
+                                views.TOTPDeactivateView.as_view(),
+                                name="mfa_deactivate_totp",
+                            ),
                         ]
                     ),
                 ),
@@ -45,7 +53,7 @@ urlpatterns = [
                     ),
                 ),
             ]
-        )
+        ),
     ),
     path(
         "welcome_message/<slug:language>/<int:type>/",

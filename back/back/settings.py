@@ -93,13 +93,13 @@ INSTALLED_APPS = [
     "django_q",
     "crispy_forms",
     # allauth
-    'allauth',
-    'allauth.mfa',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.slack',
-    'allauth.socialaccount.providers.openid_connect',
+    "allauth",
+    "allauth.mfa",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.slack",
+    "allauth.socialaccount.providers.openid_connect",
 ]
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
@@ -341,7 +341,7 @@ AUTHENTICATION_BACKENDS = [
     # Django ModelBackend is the default authentication backend.
     "django.contrib.auth.backends.ModelBackend",
     # `allauth` specific authentication methods, such as login by email
-    'allauth.account.auth_backends.AuthenticationBackend',
+    "allauth.account.auth_backends.AuthenticationBackend",
 ]
 AXES_ENABLED = env.bool("AXES_ENABLED", default=True)
 AXES_FAILURE_LIMIT = env.int("AXES_FAILURE_LIMIT", default=10)

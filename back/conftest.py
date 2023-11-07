@@ -49,7 +49,6 @@ from users.factories import (
     ManagerFactory,
     NewHireFactory,
     NewHireWelcomeMessageFactory,
-    OTPRecoveryKeyFactory,
     PreboardingUserFactory,
     ResourceUserFactory,
     ToDoUserFactory,
@@ -81,7 +80,6 @@ register(NewHireFactory)
 register(AdminFactory)
 register(ManagerFactory)
 register(EmployeeFactory)
-register(OTPRecoveryKeyFactory)
 register(NewHireWelcomeMessageFactory)
 register(WelcomeMessageFactory)
 register(ToDoFactory)
