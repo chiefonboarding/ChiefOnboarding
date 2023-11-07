@@ -621,22 +621,21 @@ class IntegrationConfig(models.Model):
                 "integration_name": self.integration.name
             }
 
-            admin_task = AdminTask.objects.create(
+            AdminTask.objects.create_admin_task(
                 new_hire=user,
                 assigned_to=assigned_to,
                 name=admin_task_name,
                 option=AdminTask.Notification.NO,
+                slack_user=None,
+                email="",
+                date=None,
+                priority=AdminTask.Priority.MEDIUM,
+                pending_admin_task=None,
                 manual_integration=self.integration,
+                comment="-",
+                send_notification=True,
             )
 
-            Notification.objects.create(
-                notification_type=Notification.Type.ADDED_ADMIN_TASK,
-                extra_text=admin_task_name,
-                created_for=user,
-                item_id=admin_task.id,
-                notified_user=False,
-                public_to_new_hire=False,
-            )
 
 
 class ConditionPrefetchManager(models.Manager):

@@ -182,15 +182,14 @@ class Integration(models.Model):
             schedule_obj.cron = schedule_cron
             schedule_obj.save()
 
-    def register_manual_integration_run(self, active=True):
+    def register_manual_integration_run(self, user):
         from users.models import IntegrationUser
 
-        integration_user, created = IntegrationUser.objects.get_or_create(
-            user=self.new_hire,
-            integration=self.manual_integration,
+        integration_user, created = IntegrationUser.objects.update_or_create(
+            user=user,
+            integration=self,
+            defaults={"revoked": user.termination_date is not None}
         )
-        integration_user.revoked = not active
-        integration_user.save()
 
     def run_request(self, data):
         url = self._replace_vars(data["url"])

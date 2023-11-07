@@ -297,9 +297,11 @@ class AddOffboardingSequenceView(
     model = get_user_model()
 
     def dispatch(self, *args, **kwargs):
-        employee = self.get_object()
-        if self.request.user.is_authenticated and employee.termination_date is not None:
-            raise Http404
+        # raise "login required" before 404
+        if self.request.user.is_authenticated:
+            employee = self.get_object()
+            if employee.termination_date is not None:
+                raise Http404
         return super().dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
