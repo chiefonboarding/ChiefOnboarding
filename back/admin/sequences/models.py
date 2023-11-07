@@ -13,15 +13,14 @@ from admin.integrations.models import Integration
 from admin.introductions.models import Introduction
 from admin.preboarding.models import Preboarding
 from admin.resources.models import Resource
+from admin.sequences.emails import send_sequence_message
+from admin.sequences.querysets import ConditionQuerySet
 from admin.to_do.models import ToDo
 from misc.fields import ContentJSONField, EncryptedJSONField
 from misc.mixins import ContentMixin
 from organization.models import Notification
 from slack_bot.models import SlackChannel
 from slack_bot.utils import Slack
-
-from admin.sequences.emails import send_sequence_message
-from admin.sequences.querysets import ConditionQuerySet
 
 
 class OnboardingSequenceManager(models.Manager):

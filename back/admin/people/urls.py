@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import new_hire_views, views, access_views
+from . import access_views, new_hire_views, views
 
 app_name = "people"
 urlpatterns = [

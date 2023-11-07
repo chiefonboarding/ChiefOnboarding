@@ -1,10 +1,10 @@
+import logging
+
 from django.contrib.auth import get_user_model
 
 from admin.integrations.mixins import PaginatedResponse
 from admin.people.serializers import UserImportSerializer
 from organization.models import Organization
-
-import logging
 
 logger = logging.getLogger(__name__)
 

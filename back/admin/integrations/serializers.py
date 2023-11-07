@@ -1,7 +1,6 @@
 from django.core.exceptions import ValidationError
-from rest_framework import serializers
-
 from django_q.models import validate_cron
+from rest_framework import serializers
 
 
 # Credit: https://stackoverflow.com/a/42432240

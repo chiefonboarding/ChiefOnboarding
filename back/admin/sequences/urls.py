@@ -1,6 +1,6 @@
 from django.urls import path
 
-from admin.sequences import views, offboarding_views
+from admin.sequences import offboarding_views, views
 
 app_name = "sequences"
 urlpatterns = [

@@ -3,7 +3,6 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext as _
-
 from django.views.generic.detail import BaseDetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView

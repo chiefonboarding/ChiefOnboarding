@@ -43,9 +43,9 @@ from users.models import NewHireWelcomeMessage, PreboardingUser, ResourceUser, T
 from .forms import (
     NewHireAddForm,
     NewHireProfileForm,
+    OnboardingSequenceChoiceForm,
     PreboardingSendForm,
     RemindMessageForm,
-    OnboardingSequenceChoiceForm,
 )
 
 
