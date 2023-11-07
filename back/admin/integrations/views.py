@@ -13,7 +13,8 @@ from django.views.generic import View
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
-from users.mixins import AdminPermMixin, LoginRequiredMixin
+from users.mixins import AdminPermMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import IntegrationExtraArgsForm, IntegrationForm
 from .models import Integration

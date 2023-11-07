@@ -4,7 +4,8 @@ from django.utils.translation import gettext as _
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
-from users.mixins import LoginRequiredMixin, ManagerPermMixin
+from users.mixins import ManagerPermMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import AppointmentForm
 from .models import Appointment

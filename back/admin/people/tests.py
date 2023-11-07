@@ -2639,7 +2639,7 @@ def test_employee_can_only_login_with_access(
     employee1 = employee_factory()
 
     url = reverse("account_login")
-    data = {"username": employee1.email, "password": "test"}
+    data = {"login": employee1.email, "password": "test"}
     client.post(url, data=data, follow=True)
 
     user = auth.get_user(client)

@@ -3,7 +3,8 @@ from django.views.generic import View
 
 from admin.sequences.models import Sequence
 from admin.templates.utils import get_templates_model
-from users.mixins import LoginRequiredMixin, ManagerPermMixin
+from users.mixins import ManagerPermMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 class TemplateDuplicateView(LoginRequiredMixin, ManagerPermMixin, View):

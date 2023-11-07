@@ -25,7 +25,8 @@ from admin.sequences.models import (
 from admin.sequences.utils import get_sequence_model_form, get_sequence_templates_model
 from admin.templates.utils import get_templates_model
 from admin.to_do.models import ToDo
-from users.mixins import LoginRequiredMixin, ManagerPermMixin
+from users.mixins import ManagerPermMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import (
     ConditionForm,

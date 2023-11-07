@@ -10,11 +10,9 @@ from django.views.generic.edit import DeleteView
 
 from admin.integrations.forms import IntegrationExtraUserInfoForm
 from admin.integrations.models import Integration
-from users.mixins import (
-    IsAdminOrNewHireManagerMixin,
-    LoginRequiredMixin,
-)
+from users.mixins import IsAdminOrNewHireManagerMixin
 from users.models import IntegrationUser
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 class NewHireAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):

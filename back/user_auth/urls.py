@@ -7,6 +7,9 @@ from . import views
 urlpatterns = [
     # allauth urls
     path("", allauth_views.login, name="account_login"),
+    # mocking this one, it's necessary for loading the login page, but we actually never
+    # use it, so just loop it back to the login page out of safety.
+    path("", allauth_views.login, name="account_signup"),
     path(
         "password/reset/", allauth_views.password_reset, name="account_reset_password"
     ),

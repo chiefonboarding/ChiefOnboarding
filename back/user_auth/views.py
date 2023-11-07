@@ -16,12 +16,12 @@ from django.views.generic import View
 
 from admin.integrations.models import Integration
 from organization.models import Organization
-from users.mixins import LoginRequiredMixin as LoginWithMFARequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 logger = logging.getLogger(__name__)
 
 
-class LoginRedirectView(LoginWithMFARequiredMixin, View):
+class LoginRedirectView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         if request.user.is_admin_or_manager:
             return redirect("admin:new_hires")

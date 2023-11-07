@@ -18,7 +18,7 @@ from django.views.generic.list import ListView
 from admin.resources.models import Chapter, CourseAnswer, Resource
 from admin.to_do.models import ToDo
 from organization.models import Notification
-from users.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from users.models import (
     NewHireWelcomeMessage,
     PreboardingUser,

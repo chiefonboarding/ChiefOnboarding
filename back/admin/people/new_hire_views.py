@@ -35,9 +35,9 @@ from users.emails import (
 )
 from users.mixins import (
     IsAdminOrNewHireManagerMixin,
-    LoginRequiredMixin,
     ManagerPermMixin,
 )
+from django.contrib.auth.mixins import LoginRequiredMixin
 from users.models import NewHireWelcomeMessage, PreboardingUser, ResourceUser, ToDoUser
 
 from .forms import (

@@ -31,7 +31,8 @@ from users.emails import (
     send_new_hire_credentials,
     send_new_hire_preboarding,
 )
-from users.mixins import AdminPermMixin, LoginRequiredMixin, ManagerPermMixin
+from users.mixins import AdminPermMixin, ManagerPermMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import (
     AdministratorsCreateForm,

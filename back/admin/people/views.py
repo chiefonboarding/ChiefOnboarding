@@ -30,10 +30,10 @@ from users.emails import email_new_admin_cred
 from users.mixins import (
     AdminPermMixin,
     IsAdminOrNewHireManagerMixin,
-    LoginRequiredMixin,
     ManagerPermMixin,
 )
 from users.models import ToDoUser
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import (
     ColleagueCreateForm,

@@ -1,9 +1,11 @@
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic.list import ListView
+from users.mixins import ManagerPermMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from admin.sequences.models import Sequence
-from users.mixins import LoginRequiredMixin, ManagerPermMixin
+from users.mixins import ManagerPermMixin
 
 
 class OffboardingSequenceListView(LoginRequiredMixin, ManagerPermMixin, ListView):
