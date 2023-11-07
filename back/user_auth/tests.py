@@ -19,10 +19,10 @@ WHITELISTED_URLS = [
     "google/",
     "api/auth/google_login",
     "api/auth/oidc_login/",
-    "password/reset_request/",
-    "password/reset_request/done/",
-    "password/reset_change/<uidb64>/<token>/",
-    "password/reset_change/done/",
+    "password/reset/",
+    "password/reset/done/",
+    "^password/reset/key/(?P<uidb36>[0-9A-Za-z]+)-(?P<key>.+)/$",
+    "password/reset/key/done/",
     "api/slack/bot",
     "new_hire/preboarding/",
     "new_hire/slackform/<int:pk>/",
@@ -58,7 +58,7 @@ def test_login_data_validation(email, password, logged_in, client, new_hire_fact
     new_hire.save()
 
     url = reverse("account_login")
-    data = {"username": email, "password": password}
+    data = {"login": email, "password": password}
     client.post(url, data=data, follow=True)
     user = auth.get_user(client)
     assert user.is_authenticated == logged_in
@@ -80,7 +80,7 @@ def test_redirect_after_login(role, redirect_url, client, new_hire_factory):
     new_hire.save()
 
     url = reverse("account_login")
-    data = {"username": new_hire.email, "password": "strong_pass"}
+    data = {"login": new_hire.email, "password": "strong_pass"}
     response = client.post(url, data=data, follow=True)
     user = auth.get_user(client)
     assert user.is_authenticated
@@ -97,7 +97,7 @@ def test_credentials_setting(client, new_hire_factory):
     response = client.get(reverse("account_login"))
 
     # Login form should be here
-    assert "id_username" in response.content.decode()
+    assert "id_login" in response.content.decode()
     assert "id_password" in response.content.decode()
     assert "Log in" in response.content.decode()
 
@@ -107,13 +107,13 @@ def test_credentials_setting(client, new_hire_factory):
 
     # Login form should be gone
     response = client.get(reverse("account_login"))
-    assert "id_username" not in response.content.decode()
+    assert "id_login" not in response.content.decode()
     assert "id_password" not in response.content.decode()
     assert "Log in" not in response.content.decode()
 
     # Posting to login form will result in 404
     response = client.post(
-        reverse("account_login"), data={"username": "test", "password": "test"}
+        reverse("account_login"), data={"login": "test", "password": "test"}
     )
     assert "Not Found" in response.content.decode()
 
@@ -172,7 +172,7 @@ def test_authed_view(url, client, new_hire_factory):
     # the public (without authentication)
     new_hire = new_hire_factory()
     # also add mfa
-    Authenticator(user=new_hire, type=Authenticator.Type.TOTP)
+    Authenticator.objects.create(user=new_hire, type=Authenticator.Type.TOTP, data={})
     new_hire.set_password("strong_pass")
     new_hire.save()
 
@@ -217,9 +217,9 @@ def test_authed_view(url, client, new_hire_factory):
 
     # Make sure the url also has MFA enabled
     url = reverse("account_login")
-    data = {"username": new_hire.email, "password": "strong_pass"}
+    data = {"login": new_hire.email, "password": "strong_pass"}
     response = client.post(url, data, follow=True)
-    assert "/mfa/" in response.redirect_chain[-1][0]
+    assert "/authenticate/" in response.redirect_chain[-1][0]
 
 
 @pytest.mark.django_db
