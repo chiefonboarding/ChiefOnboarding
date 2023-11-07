@@ -8,9 +8,9 @@ from django.urls import reverse
 from django.utils import timezone
 from django_q.models import Schedule
 
+from admin.integrations.models import Integration
 from admin.integrations.sync_userinfo import SyncUsers
 from admin.integrations.utils import get_value_from_notation
-from admin.integrations.models import Integration
 from organization.models import Notification
 from users.factories import IntegrationUserFactory
 

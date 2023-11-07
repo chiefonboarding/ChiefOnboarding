@@ -1,12 +1,12 @@
-from admin.integrations.exceptions import (
-    KeyIsNotInDataError,
-    FailedPaginatedResponseError,
-)
+import logging
 
-from admin.integrations.utils import get_value_from_notation
 from django.utils.translation import gettext_lazy as _
 
-import logging
+from admin.integrations.exceptions import (
+    FailedPaginatedResponseError,
+    KeyIsNotInDataError,
+)
+from admin.integrations.utils import get_value_from_notation
 
 logger = logging.getLogger(__name__)
 

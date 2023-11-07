@@ -28,7 +28,7 @@ from users.factories import (
     ManagerFactory,
     NewHireFactory,
 )
-from users.models import CourseAnswer, User, IntegrationUser
+from users.models import CourseAnswer, IntegrationUser, User
 
 
 @pytest.mark.django_db
