@@ -182,6 +182,16 @@ class Integration(models.Model):
             schedule_obj.cron = schedule_cron
             schedule_obj.save()
 
+    def register_manual_integration_run(self, active=True):
+        from users.models import IntegrationUser
+
+        integration_user, created = IntegrationUser.objects.get_or_create(
+            user=self.new_hire,
+            integration=self.manual_integration,
+        )
+        integration_user.revoked = not active
+        integration_user.save()
+
     def run_request(self, data):
         url = self._replace_vars(data["url"])
         if "data" in data:

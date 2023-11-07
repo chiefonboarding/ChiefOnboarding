@@ -5,7 +5,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Case, F, IntegerField, When
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
@@ -326,15 +325,7 @@ class NewHireSequenceView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Deta
                 | conditions.filter(condition_type=Condition.Type.TODO)
                 | conditions.filter(condition_type=Condition.Type.ADMIN_TASK)
             )
-            .annotate(
-                days_order=Case(
-                    When(condition_type=Condition.Type.BEFORE, then=F("days") * -1),
-                    When(condition_type=Condition.Type.TODO, then=99999),
-                    When(condition_type=Condition.Type.ADMIN_TASK, then=99999),
-                    default=F("days"),
-                    output_field=IntegerField(),
-                )
-            )
+            .alias_days_order()
             .order_by("days_order")
         )
 

@@ -1201,13 +1201,26 @@ def test_offboarding_sequence_trigger_task(
     assert emp1.introductions.all().count() == 1
     assert emp1.badges.all().count() == 1
     assert emp1.integrations.all().count() == 1
-    assert AdminTask.objects.filter(new_hire=emp1)
+    assert AdminTask.objects.filter(new_hire=emp1).exists()
 
     emp1.termination_date = timezone.now() - timedelta(days=2)
     emp1.save()
 
+    # Set it back 5 minutes again, so it will actually run through the triggers
+    org.timed_triggers_last_check = timezone.now() - timedelta(minutes=5)
+    org.save()
+
     # Trigger sequence conditions - will be skipped, since it's past termination date
     timed_triggers()
+
+    emp1.refresh_from_db()
+    assert emp1.to_do.all().count() == 2
+    assert emp1.resources.all().count() == 1
+    assert emp1.appointments.all().count() == 1
+    assert emp1.introductions.all().count() == 1
+    assert emp1.badges.all().count() == 1
+    assert emp1.integrations.all().count() == 1
+    assert AdminTask.objects.filter(new_hire=emp1).exists()
 
 
 @pytest.mark.django_db
@@ -1834,7 +1847,9 @@ def test_notification_execute_integration_config(
 
     integration_config.execute(emp2)
     assert AdminTask.objects.filter(
-        new_hire=emp2, assigned_to=admin1, integration=integration_config.integration
+        new_hire=emp2,
+        assigned_to=admin1,
+        manual_integration=integration_config.integration,
     ).exists()
 
     # create admin task based on buddy
@@ -1845,7 +1860,9 @@ def test_notification_execute_integration_config(
 
     integration_config.execute(emp3)
     assert AdminTask.objects.filter(
-        new_hire=emp3, assigned_to=admin2, integration=integration_config.integration
+        new_hire=emp3,
+        assigned_to=admin2,
+        manual_integration=integration_config.integration,
     ).exists()
 
     # create admin task based on specific person
@@ -1857,7 +1874,9 @@ def test_notification_execute_integration_config(
 
     integration_config.execute(emp4)
     assert AdminTask.objects.filter(
-        new_hire=emp4, assigned_to=admin3, integration=integration_config.integration
+        new_hire=emp4,
+        assigned_to=admin3,
+        manual_integration=integration_config.integration,
     ).exists()
 
 

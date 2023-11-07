@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models
-from django.db.models import Case, F, IntegerField, Prefetch, When
+from django.db.models import Prefetch
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -20,7 +20,8 @@ from organization.models import Notification
 from slack_bot.models import SlackChannel
 from slack_bot.utils import Slack
 
-from .emails import send_sequence_message
+from admin.sequences.emails import send_sequence_message
+from admin.sequences.querysets import ConditionQuerySet
 
 
 class OnboardingSequenceManager(models.Manager):
@@ -507,13 +508,13 @@ class PendingAdminTask(models.Model):
             return self.assigned_to
 
     def execute(self, user):
-        from admin.admin_tasks.models import AdminTask, AdminTaskComment
+        from admin.admin_tasks.models import AdminTask
 
         if AdminTask.objects.filter(new_hire=user, based_on=self).exists():
             # if a task already exists, then skip
             return
 
-        admin_task = AdminTask.objects.create(
+        AdminTask.objects.create_admin_task(
             new_hire=user,
             assigned_to=self.get_user(user),
             name=self.name,
@@ -522,20 +523,10 @@ class PendingAdminTask(models.Model):
             email=self.email,
             date=self.date,
             priority=self.priority,
-            based_on=self,
-        )
-        AdminTaskComment.objects.create(
-            content=self.comment,
-            comment_by=admin_task.assigned_to,
-            admin_task=admin_task,
-        )
-        admin_task.send_notification_new_assigned()
-        admin_task.send_notification_third_party()
-
-        Notification.objects.create(
-            notification_type=Notification.Type.ADDED_ADMIN_TASK,
-            extra_text=self.name,
-            created_for=self.assigned_to,
+            pending_admin_task=self,
+            manual_integration=None,
+            comment=self.comment,
+            send_notification=True,
         )
 
     @property
@@ -685,15 +676,7 @@ class ConditionPrefetchManager(models.Manager):
                     "integration_configs", queryset=IntegrationConfig.objects.all()
                 ),
             )
-            .annotate(
-                days_order=Case(
-                    When(condition_type=Condition.Type.BEFORE, then=F("days") * -1),
-                    When(condition_type=Condition.Type.TODO, then=99998),
-                    When(condition_type=Condition.Type.ADMIN_TASK, then=99999),
-                    default=F("days"),
-                    output_field=IntegerField(),
-                )
-            )
+            .alias_days_order()
             .order_by("days_order", "time")
         )
 
@@ -734,7 +717,7 @@ class Condition(models.Model):
     appointments = models.ManyToManyField(Appointment)
     integration_configs = models.ManyToManyField(IntegrationConfig)
 
-    objects = ConditionPrefetchManager()
+    objects = ConditionPrefetchManager.from_queryset(ConditionQuerySet)()
 
     @property
     def is_empty(self):
