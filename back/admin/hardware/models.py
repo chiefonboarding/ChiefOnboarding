@@ -33,27 +33,30 @@ class Hardware(BaseItem):
         blank=True,
     )
 
+    def remove_or_add_to_user(self, user):
+        add = user.termination_date is None
+        if add:
+            user.hardware.add(self)
+        else:
+            user.hardware.remove(self)
+
+        Notification.objects.create(
+            notification_type=self.notification_add_type
+            if add
+            else self.notification_remove_type,
+            extra_text=self.name,
+            created_for=user,
+            item_id=self.id,
+        )
+
     def execute(self, user):
         from admin.admin_tasks.models import AdminTask
 
-        add = self not in user.hardware.all()
+        add = user.termination_date is None
 
         if self.person_type is None:
             # no person assigned, so add directly
-            if add:
-                user.hardware.add(self)
-            else:
-                user.hardware.remove(self)
-
-            Notification.objects.create(
-                notification_type=self.notification_add_type
-                if add
-                else self.notification_remove_type,
-                extra_text=self.name,
-                created_for=user,
-                item_id=self.id,
-            )
-
+            self.remove_or_add_to_user(user)
             return
 
         if self.person_type == Hardware.PersonType.MANAGER:
@@ -72,20 +75,12 @@ class Hardware(BaseItem):
                 "Reclaim hardware from employee (%(new_hire)s): %(name)s"
             ) % {"new_hire": user.full_name, "name": self.name}
 
-        admin_task = AdminTask.objects.create(
+
+        AdminTask.objects.create_admin_task(
             new_hire=user,
             assigned_to=assigned_to,
             name=admin_task_name,
-            option=AdminTask.Notification.NO,
             hardware=self,
-        )
-
-        Notification.objects.create(
-            notification_type=Notification.Type.ADDED_ADMIN_TASK,
-            extra_text=admin_task_name,
-            created_for=user,
-            item_id=admin_task.id,
-            public_to_new_hire=False,
         )
 
     @property

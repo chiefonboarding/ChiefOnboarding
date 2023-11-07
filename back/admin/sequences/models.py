@@ -35,16 +35,6 @@ class OffboardingSequenceManager(models.Manager):
         return super().get_queryset().filter(category=Sequence.Category.OFFBOARDING)
 
 
-class OnboardingSequenceManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(category=Sequence.Category.ONBOARDING)
-
-
-class OffboardingSequenceManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(category=Sequence.Category.OFFBOARDING)
-
-
 class Sequence(models.Model):
     class Category(models.IntegerChoices):
         ONBOARDING = 0, _("Onboarding sequence")
@@ -539,9 +529,7 @@ class PendingAdminTask(models.Model):
             date=self.date,
             priority=self.priority,
             pending_admin_task=self,
-            manual_integration=None,
             comment=self.comment,
-            send_notification=True,
         )
 
     @property
@@ -606,7 +594,6 @@ class IntegrationConfig(models.Model):
 
         if self.person_type is None:
             # doesn't need extra action, just log
-
             integration_user, created = IntegrationUser.objects.update_or_create(
                 user=user,
                 integration=self.integration,
@@ -641,15 +628,7 @@ class IntegrationConfig(models.Model):
                 new_hire=user,
                 assigned_to=assigned_to,
                 name=admin_task_name,
-                option=AdminTask.Notification.NO,
-                slack_user=None,
-                email="",
-                date=None,
-                priority=AdminTask.Priority.MEDIUM,
-                pending_admin_task=None,
                 manual_integration=self.integration,
-                comment="-",
-                send_notification=True,
             )
 
 

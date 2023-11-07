@@ -3,7 +3,6 @@ from django.db import models
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
 
-from organization.models import Notification
 from slack_bot.utils import Slack, actions, button, paragraph
 from organization.models import Notification
 
@@ -20,15 +19,16 @@ class AminTaskManager(models.Manager):
         new_hire,
         assigned_to,
         name,
-        option,
-        slack_user,
-        email,
-        date,
-        priority,
-        pending_admin_task,
-        manual_integration,
-        comment,
-        send_notification,
+        option=0,
+        slack_user=None,
+        email="",
+        date=None,
+        priority=2,
+        pending_admin_task=None,
+        hardware=None,
+        manual_integration=None,
+        comment="-",
+        send_notification=True,
     ):
         admin_task = AdminTask.objects.create(
             new_hire=new_hire,
@@ -40,6 +40,7 @@ class AminTaskManager(models.Manager):
             date=date,
             priority=priority,
             based_on=pending_admin_task,
+            hardware=hardware,
             manual_integration=manual_integration,
         )
         AdminTaskComment.objects.create(
@@ -204,7 +205,6 @@ class AdminTask(models.Model):
 
     def mark_completed(self):
         from admin.sequences.tasks import process_condition
-        from users.models import IntegrationUser
 
         self.completed = True
         self.save()
@@ -212,6 +212,10 @@ class AdminTask(models.Model):
         # Check if we need to register the manual integration
         if self.manual_integration is not None:
             self.manual_integration.register_manual_integration_run(self.new_hire)
+
+        # Check if we need to register hardware
+        if self.hardware is not None:
+            self.hardware.remove_or_add_to_user(self.new_hire)
 
         # Get conditions with this to do item as (part of the) condition
         conditions = self.new_hire.conditions.filter(

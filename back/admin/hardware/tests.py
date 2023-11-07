@@ -1,6 +1,7 @@
 import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.utils import timezone
 
 from admin.admin_tasks.models import AdminTask
 from admin.hardware.models import Hardware
@@ -23,7 +24,6 @@ def test_create_hardware_with_assigned_user(client, django_user_model):
     }
 
     response = client.post(url, data, follow=True)
-    print(response.content.decode())
 
     assert "This field is required" in response.content.decode()
     assert Hardware.objects.all().count() == 0
@@ -54,6 +54,8 @@ def test_hardware_execute(
     assert Notification.objects.count() == 1
 
     # run once again for offboarding
+    emp1.termination_date = timezone.now()
+    emp1.save()
     hardware.execute(emp1)
     assert Notification.objects.count() == 2
     assert emp1.hardware.count() == 0
@@ -70,7 +72,7 @@ def test_hardware_execute(
     ).exists()
     # not attached to user yet
     assert emp1.hardware.count() == 0
-    assert Notification.objects.count() == 3
+    assert Notification.objects.count() == 4
 
     # create admin task based on buddy
     admin2 = admin_factory()
@@ -113,14 +115,16 @@ def test_hardware_admin_task(
         new_hire=emp1, assigned_to=admin1, hardware=hardware
     )
     assert emp1.hardware.count() == 0
-    assert Notification.objects.count() == 1
+    assert Notification.objects.count() == 2
 
     admin_task.mark_completed()
 
     assert emp1.hardware.count() == 1
-    assert Notification.objects.count() == 2
+    assert Notification.objects.count() == 3
 
     # trigger hardware another time for reclaiming hardware
+    emp1.termination_date = timezone.now()
+    emp1.save()
     hardware.execute(emp1)
 
     # we now have two admin tasks
@@ -131,13 +135,11 @@ def test_hardware_admin_task(
         == 2
     )
 
-    for item in AdminTask.objects.all():
-        print(item.name)
     admin_task = AdminTask.objects.get(
         name=f"Reclaim hardware from employee ({emp1.full_name}): {hardware.name}"
     )
     assert not admin_task.completed
     admin_task.mark_completed()
 
-    assert Notification.objects.count() == 4
+    assert Notification.objects.count() == 6
     assert emp1.hardware.count() == 0
