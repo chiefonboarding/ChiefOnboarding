@@ -182,6 +182,15 @@ class Integration(models.Model):
             schedule_obj.cron = schedule_cron
             schedule_obj.save()
 
+    def register_manual_integration_run(self, user):
+        from users.models import IntegrationUser
+
+        integration_user, created = IntegrationUser.objects.update_or_create(
+            user=user,
+            integration=self,
+            defaults={"revoked": user.termination_date is not None},
+        )
+
     def run_request(self, data):
         url = self._replace_vars(data["url"])
         if "data" in data:
@@ -570,10 +579,9 @@ class Integration(models.Model):
 
             return ManualIntegrationConfigForm(data=data)
 
-        else:
-            from .forms import IntegrationConfigForm
+        from .forms import IntegrationConfigForm
 
-            return IntegrationConfigForm(instance=self, data=data)
+        return IntegrationConfigForm(instance=self, data=data)
 
     def clean_response(self, response):
         # if json, then convert to string to make it easier to replace values

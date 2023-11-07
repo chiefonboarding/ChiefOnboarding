@@ -40,8 +40,8 @@
                       <h4 class="card-title">
                         {% trans "When these admin tasks are completed:" %}
                         <div id="div_id_condition_to_do">
-                          {% for to_do in condition.condition_admin_tasks.all %}
-                          <span class="badge {% if to_do.id in completed_admin_tasks %}bg-green-lt{% else %}bg-blue-lt{% endif %} mt-1">{{ to_do.name }}</span>
+                          {% for admin_to_do in condition.condition_admin_tasks.all %}
+                          <span class="badge {% if admin_to_do.id in completed_admin_tasks %}bg-green-lt{% else %}bg-blue-lt{% endif %} mt-1">{{ admin_to_do.name }}</span>
                           {% endfor %}
                         </div>
                       </h4>
@@ -58,51 +58,7 @@
 
                     </div>
                     <div class="card-body">
-                      {# FOR NEW HIRES #}
-                      {% if condition.external_new_hire|length or condition.appointments.all|length or condition.hardware.all|length or condition.to_do.all|length or condition.resources.all|length or condition.introductions.all|length or condition.integration_configs.all|length %}
-                      <span class="badge bg-azure mb-2">{% translate "employee" %}</span>
-                      {% endif %}
-                      {% for item in condition.appointments.all %}
-                        {% include '_condition_line_item.html' with type='appointment' read_only=True %}
-                      {% endfor %}
-                      {% for item in condition.external_new_hire %}
-                        {% if item.send_via == ExternalMessagesType.EMAIL %}
-                          {% include '_condition_line_item.html' with type='pendingemailmessage' read_only=True %}
-                        {% elif item.send_via == ExternalMessagesType.SLACK %}
-                          {% include '_condition_line_item.html' with type='pendingslackmessage' read_only=True %}
-                        {% else %}
-                          {% include '_condition_line_item.html' with type='pendingtextmessage' read_only=True %}
-                        {% endif %}
-                      {% endfor %}
-                      {% for item in condition.to_do.all %}
-                        {% include '_condition_line_item.html' with type='todo' read_only=True %}
-                      {% endfor %}
-                      {% for item in condition.resources.all %}
-                        {% include '_condition_line_item.html' with type='resource' read_only=True %}
-                      {% endfor %}
-                      {% for item in condition.integration_configs.all %}
-                        {% include '_condition_line_item.html' with type='integrationconfig' provision_created=1 read_only=True %}
-                      {% endfor %}
-                      {% for item in condition.hardware.all %}
-                        {% include '_condition_line_item.html' with type='hardware' read_only=True %}
-                      {% endfor %}
-
-                      {# FOR ADMINS #}
-                      {% if condition.external_admin|length or condition.admin_tasks.all|length %}
-                      <span class="badge bg-orange mb-2">{% translate "admins" %}</span>
-                      {% endif %}
-                      {% for item in condition.admin_tasks.all %}
-                        {% include '_condition_line_item.html' with type='admintask' read_only=True %}
-                      {% endfor %}
-                      {% for item in condition.external_admin %}
-                        {% if item.send_via == 0 %}{# email #}
-                          {% include '_condition_line_item.html' with type='pendingemailmessage' read_only=True %}
-                        {% elif item.send_via == 1 %}{# slack #}
-                          {% include '_condition_line_item.html' with type='pendingslackmessage' read_only=True %}
-                        {% else %}
-                          {% include '_condition_line_item.html' with type='pendingtextmessage' read_only=True %}
-                        {% endif %}
-                      {% endfor %}
+                      {% include "_condition_body.html" with readonly=True %}
                     </div>
                   </div>
                 </div>

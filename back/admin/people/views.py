@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Case, F, IntegerField, When
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
 from django.utils import translation
@@ -69,7 +68,7 @@ class OffboardingColleagueListView(LoginRequiredMixin, ManagerPermMixin, ListVie
     template_name = "offboarding.html"
     queryset = get_user_model().offboarding.all()
     paginate_by = 20
-    ordering = ["-termination_date", "email"]
+    ordering = ["termination_date", "email"]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -297,6 +296,14 @@ class AddOffboardingSequenceView(
     form_class = OffboardingSequenceChoiceForm
     model = get_user_model()
 
+    def dispatch(self, *args, **kwargs):
+        # raise "login required" before 404
+        if self.request.user.is_authenticated:
+            employee = self.get_object()
+            if employee.termination_date is not None:
+                raise Http404
+        return super().dispatch(*args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = self.object.full_name
@@ -339,7 +346,7 @@ class AddOffboardingSequenceView(
         return redirect("people:colleagues")
 
 
-class ColleagueOffboardngSequenceView(
+class ColleagueOffboardingSequenceView(
     LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView
 ):
     template_name = "offboarding_detail.html"
@@ -364,15 +371,7 @@ class ColleagueOffboardngSequenceView(
                 | conditions.filter(condition_type=Condition.Type.TODO)
                 | conditions.filter(condition_type=Condition.Type.ADMIN_TASK)
             )
-            .annotate(
-                days_order=Case(
-                    When(condition_type=Condition.Type.BEFORE, then=F("days") * -1),
-                    When(condition_type=Condition.Type.TODO, then=99999),
-                    When(condition_type=Condition.Type.ADMIN_TASK, then=99999),
-                    default=F("days"),
-                    output_field=IntegerField(),
-                )
-            )
+            .alias_days_order()
             .order_by("days_order")
         )
 

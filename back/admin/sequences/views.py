@@ -86,7 +86,6 @@ class SequenceView(LoginRequiredMixin, ManagerPermMixin, DetailView):
         context["subtitle"] = ""
         context["object_list"] = ToDo.templates.all().defer("content")
         context["condition_form"] = ConditionForm(sequence=self.object)
-        context["create"] = True  # used for ConditionForm
         context["todos"] = ToDo.templates.all().defer("content")
         context["conditions"] = self.object.conditions.prefetched()
         return context
@@ -113,7 +112,6 @@ class SequenceNameUpdateView(LoginRequiredMixin, ManagerPermMixin, BaseUpdateVie
 class SequenceConditionBase(LoginRequiredMixin, ManagerPermMixin):
     template_name = "_condition_form.html"
     model = Condition
-    form_class = ConditionForm
     new = True
 
     def get_form(self, form_class=None):
@@ -366,12 +364,7 @@ class SequenceConditionItemView(LoginRequiredMixin, ManagerPermMixin, View):
         templates_model = get_sequence_templates_model(type)
         template_item = get_object_or_404(templates_model, id=template_pk)
         condition.remove_item(template_item)
-        condition = Condition.objects.prefetched().filter(id=condition.id).first()
-        return render(
-            request,
-            "_sequence_condition.html",
-            {"condition": condition, "object": condition.sequence},
-        )
+        return HttpResponse()
 
     def post(self, request, pk, type, template_pk, *args, **kwargs):
         condition = get_object_or_404(Condition, id=pk)

@@ -190,7 +190,7 @@ urlpatterns = [
     ),
     path(
         "colleagues/<int:pk>/offboarding/",
-        views.ColleagueOffboardngSequenceView.as_view(),
+        views.ColleagueOffboardingSequenceView.as_view(),
         name="offboarding-detail",
     ),
     path(
