@@ -75,7 +75,6 @@ class Hardware(BaseItem):
                 "Reclaim hardware from employee (%(new_hire)s): %(name)s"
             ) % {"new_hire": user.full_name, "name": self.name}
 
-
         AdminTask.objects.create_admin_task(
             new_hire=user,
             assigned_to=assigned_to,
