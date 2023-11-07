@@ -203,9 +203,7 @@ class AdminTask(models.Model):
 
         # Check if we need to register the manual integration
         if self.manual_integration is not None:
-            self.manual_integration.register_manual_integration_run(
-                self.new_hire
-            )
+            self.manual_integration.register_manual_integration_run(self.new_hire)
 
         # Get conditions with this to do item as (part of the) condition
         conditions = self.new_hire.conditions.filter(

@@ -637,7 +637,6 @@ class IntegrationConfig(models.Model):
             )
 
 
-
 class ConditionPrefetchManager(models.Manager):
     def prefetched(self):
         return (

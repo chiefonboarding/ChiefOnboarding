@@ -188,7 +188,7 @@ class Integration(models.Model):
         integration_user, created = IntegrationUser.objects.update_or_create(
             user=user,
             integration=self,
-            defaults={"revoked": user.termination_date is not None}
+            defaults={"revoked": user.termination_date is not None},
         )
 
     def run_request(self, data):
