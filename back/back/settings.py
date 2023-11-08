@@ -64,7 +64,6 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "users",
     "organization",
-    "user_auth",
     "misc",
     "back",
     # admin
@@ -97,9 +96,6 @@ INSTALLED_APPS = [
     "allauth.mfa",
     "allauth.account",
     "allauth.socialaccount",
-    "allauth.socialaccount.providers.google",
-    "allauth.socialaccount.providers.slack",
-    "allauth.socialaccount.providers.openid_connect",
 ]
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
@@ -120,6 +116,34 @@ ACCOUNT_PRESERVE_USERNAME_CASING = False  # lowercases username (email) value
 ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_USER_MODEL_USERNAME_FIELD = "email"
 MFA_TOTP_ISSUER = env("CHIEFONBOARDING_NAME", default="ChiefOnboarding")
+# social
+SOCIALACCOUNT_AUTO_SIGNUP = False
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+
+SOCIALACCOUNT_PROVIDERS = {}
+
+if env.bool("ALLOW_GOOGLE_SSO", False):
+    INSTALLED_APPS += ["allauth.socialaccount.providers.google"]
+    SOCIALACCOUNT_PROVIDERS["google"] = {
+        "APPS": [
+            {
+                "client_id": env.str("GOOGLE_SSO_CLIENT_ID", ""),
+                "secret": env.str("GOOGLE_SSO_SECRET", ""),
+                "key": "",
+            },
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "offline",
+        },
+        "OAUTH_PKCE_ENABLED": True,
+    }
+
+if env.bool("ALLOW_OIDC", False):
+    INSTALLED_APPS += ["allauth.socialaccount.providers.openid_connect"]
+    SOCIALACCOUNT_PROVIDERS["openid_connect"] = {
+        "APPS": [env.dict("OPENID_CONNECT_CONFIG", {})],
+    }
 
 # DJANGO login config
 LOGIN_REDIRECT_URL = "logged_in_user_redirect"

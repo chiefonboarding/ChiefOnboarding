@@ -2,7 +2,6 @@ from django.conf import settings
 from django.urls import include, path
 from django.views.generic.base import TemplateView
 
-import user_auth
 from admin.admin_tasks import urls as admin_tasks_urls
 from admin.appointments import urls as appointment_urls
 from admin.badges import urls as badge_urls
@@ -21,7 +20,7 @@ from new_hire import urls as new_hire_urls
 from organization import urls as org_urls
 from organization import views as org_views
 from slack_bot import urls as slack_urls
-from user_auth import urls as auth_urls
+from users import urls as auth_urls
 
 urlpatterns = [
     path(
@@ -29,11 +28,6 @@ urlpatterns = [
         TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
     ),
     path("", include(auth_urls)),
-    path(
-        "api/auth/google_login",
-        user_auth.views.GoogleLoginView.as_view(),
-        name="google_login",
-    ),
     path("api/org/", include(org_urls)),
     path("setup/", org_views.InitialSetupView.as_view(), name="setup"),
     path("admin/people/", include((people_urls, "admin.people"), namespace="admin")),

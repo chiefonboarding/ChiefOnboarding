@@ -40,27 +40,6 @@ class IntegrationCreateView(
         return super().form_valid(form)
 
 
-class IntegrationCreateGoogleLoginView(
-    LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin
-):
-    template_name = "token_create.html"
-    fields = ["client_id", "client_secret"]
-    queryset = Integration.objects.filter(integration=Integration.Type.GOOGLE_LOGIN)
-    success_message = _("Integration has been updated!")
-    success_url = reverse_lazy("settings:integrations")
-
-    def form_valid(self, form):
-        form.instance.integration = Integration.Type.GOOGLE_LOGIN
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("Change Google login credentials")
-        context["subtitle"] = _("settings")
-        context["button_text"] = _("Update")
-        return context
-
-
 class IntegrationUpdateView(
     LoginRequiredMixin, AdminPermMixin, UpdateView, SuccessMessageMixin
 ):

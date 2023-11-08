@@ -9,7 +9,7 @@ from django.urls import reverse
 from admin.integrations.models import Integration
 from organization.models import Organization
 
-from .utils import get_all_urls
+from .test_utils import get_all_urls
 
 # No need to login for those urls
 # These are public pages or authentication happens in a different way
