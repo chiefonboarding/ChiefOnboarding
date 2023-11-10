@@ -323,11 +323,11 @@ $(document).on('change', "select#id_person_type", function() {
 var placeholder = '{% translate "Start typing here..." %}';
 var newItemText = '{% translate "New item" %}';
 {% if sequence.is_onboarding %}
-var allowedBefore = ["pendingadmintask", "pendingemailmessage", "pendingslackmessage", "pendingtextmessage", "integration"]
-var allowedAfter = ["pendingadmintask","appointment", "todo", "resource", "introduction", "badge", "pendingemailmessage", "pendingslackmessage", "pendingtextmessage", "integration"]
+var allowedBefore = ["pendingadmintask", "pendingemailmessage", "pendingslackmessage", "pendingtextmessage", "integration", "hardware"]
+var allowedAfter = ["pendingadmintask","appointment", "todo", "resource", "introduction", "badge", "pendingemailmessage", "pendingslackmessage", "pendingtextmessage", "integration", "hardware"]
 {% else %}
-var allowedBefore = ["pendingadmintask","appointment", "todo", "resource", "introduction", "badge", "pendingemailmessage", "pendingslackmessage", "pendingtextmessage", "integration"]
-var allowedAfter = ["pendingadmintask", "pendingemailmessage", "pendingslackmessage", "pendingtextmessage", "integration"]
+var allowedBefore = ["pendingadmintask","appointment", "todo", "resource", "introduction", "badge", "pendingemailmessage", "pendingslackmessage", "pendingtextmessage", "integration", "hardware"]
+var allowedAfter = ["pendingadmintask", "pendingemailmessage", "pendingslackmessage", "pendingtextmessage", "integration", "hardware"]
 {% endif %}
 </script>
 <script src="{% static 'js/resources.js' %}"></script>

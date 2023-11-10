@@ -84,6 +84,7 @@ def test_hardware_execute(
     assert AdminTask.objects.filter(
         new_hire=emp3, assigned_to=admin2, hardware=hardware
     ).exists()
+    assert Notification.objects.count() == 6
 
     # create admin task based on specific person
     admin3 = admin_factory()
@@ -96,6 +97,7 @@ def test_hardware_execute(
     assert AdminTask.objects.filter(
         new_hire=emp4, assigned_to=admin3, hardware=hardware
     ).exists()
+    assert Notification.objects.count() == 8
 
 
 @pytest.mark.django_db

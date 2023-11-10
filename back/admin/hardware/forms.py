@@ -48,7 +48,7 @@ class HardwareForm(TagModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        assigned_to = cleaned_data.get("assigned_to", None)
+        assigned_to = cleaned_data.get("assigned_to")
         person_type = cleaned_data["person_type"]
         if person_type == Hardware.PersonType.CUSTOM and assigned_to is None:
             self.add_error("assigned_to", _("This field is required"))

@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from misc.fields import ContentJSONField
+from admin.admin_tasks.models import AdminTask
 from organization.models import BaseItem, Notification
 
 
@@ -50,8 +51,6 @@ class Hardware(BaseItem):
         )
 
     def execute(self, user):
-        from admin.admin_tasks.models import AdminTask
-
         add = user.termination_date is None
 
         if self.person_type is None:
