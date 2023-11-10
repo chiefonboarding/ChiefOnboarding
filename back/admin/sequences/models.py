@@ -9,6 +9,7 @@ from twilio.rest import Client
 from admin.admin_tasks.models import AdminTask
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
+from admin.hardware.models import Hardware
 from admin.integrations.models import Integration
 from admin.introductions.models import Introduction
 from admin.preboarding.models import Preboarding
@@ -191,6 +192,7 @@ class Sequence(models.Model):
         preboarding = Preboarding.objects.none()
         appointments = Appointment.objects.none()
         integration_configs = IntegrationConfig.objects.none()
+        hardware = Hardware.objects.none()
 
         # TODO: this is going to make a lot of queries, should be optimized
         for condition in self.conditions.all():
@@ -203,6 +205,7 @@ class Sequence(models.Model):
             preboarding |= condition.preboarding.all()
             appointments |= condition.appointments.all()
             integration_configs |= condition.integration_configs.all()
+            hardware |= condition.hardware.all()
 
         # Cycle through new hire's item and remove the ones that aren't supposed to
         # be there
@@ -211,6 +214,7 @@ class Sequence(models.Model):
         new_hire.appointments.remove(*appointments)
         new_hire.preboarding.remove(*preboarding)
         new_hire.introductions.remove(*introductions)
+        new_hire.hardware.remove(*hardware)
 
         # Do the same with the conditions
         conditions_to_be_deleted = []
@@ -224,6 +228,7 @@ class Sequence(models.Model):
             "preboarding": preboarding,
             "appointments": appointments,
             "integration_configs": integration_configs,
+            "hardware": hardware,
         }
         for condition in new_hire.conditions.all():
             for field in condition._meta.many_to_many:
@@ -523,9 +528,7 @@ class PendingAdminTask(models.Model):
             date=self.date,
             priority=self.priority,
             pending_admin_task=self,
-            manual_integration=None,
             comment=self.comment,
-            send_notification=True,
         )
 
     @property
@@ -624,15 +627,7 @@ class IntegrationConfig(models.Model):
                 new_hire=user,
                 assigned_to=assigned_to,
                 name=admin_task_name,
-                option=AdminTask.Notification.NO,
-                slack_user=None,
-                email="",
-                date=None,
-                priority=AdminTask.Priority.MEDIUM,
-                pending_admin_task=None,
                 manual_integration=self.integration,
-                comment="-",
-                send_notification=True,
             )
 
 
@@ -713,6 +708,7 @@ class Condition(models.Model):
     preboarding = models.ManyToManyField(Preboarding)
     appointments = models.ManyToManyField(Appointment)
     integration_configs = models.ManyToManyField(IntegrationConfig)
+    hardware = models.ManyToManyField(Hardware)
 
     objects = ConditionPrefetchManager.from_queryset(ConditionQuerySet)()
 
@@ -728,6 +724,7 @@ class Condition(models.Model):
             or self.preboarding.exists()
             or self.appointments.exists()
             or self.integration_configs.exists()
+            or self.hardware.exists()
         )
 
     @property
@@ -864,6 +861,11 @@ class Condition(models.Model):
 
         # For the ones that aren't a quick copy/paste, follow back to their model and
         # execute them. It will also add an item to the notification model there.
-        for field in ["admin_tasks", "external_messages", "integration_configs"]:
+        for field in [
+            "admin_tasks",
+            "external_messages",
+            "integration_configs",
+            "hardware",
+        ]:
             for item in getattr(self, field).all():
                 item.execute(user)

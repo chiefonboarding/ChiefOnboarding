@@ -2,6 +2,7 @@ from django.apps import apps
 
 from admin.appointments.forms import AppointmentForm
 from admin.badges.forms import BadgeForm
+from admin.hardware.forms import HardwareForm
 from admin.introductions.forms import IntroductionForm
 from admin.preboarding.forms import PreboardingForm
 from admin.resources.forms import ResourceForm
@@ -34,6 +35,12 @@ MODELS = [
         "form": PreboardingForm,
     },
     {"app": "badges", "model": "Badge", "user_field": "badges", "form": BadgeForm},
+    {
+        "app": "hardware",
+        "model": "Hardware",
+        "user_field": "hardware",
+        "form": HardwareForm,
+    },
 ]
 
 

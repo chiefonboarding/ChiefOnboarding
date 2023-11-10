@@ -15,6 +15,7 @@ from django.utils.translation import gettext_lazy as _
 
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
+from admin.hardware.models import Hardware
 from admin.introductions.models import Introduction
 from admin.preboarding.models import Preboarding
 from admin.resources.models import CourseAnswer, Resource
@@ -207,6 +208,7 @@ class User(AbstractBaseUser):
         Preboarding, through="PreboardingUser", related_name="user_preboardings"
     )
     badges = models.ManyToManyField(Badge, related_name="user_introductions")
+    hardware = models.ManyToManyField(Hardware, related_name="user_hardware")
     integrations = models.ManyToManyField(
         "integrations.Integration",
         through="IntegrationUser",

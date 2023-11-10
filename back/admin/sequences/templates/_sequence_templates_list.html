@@ -1,5 +1,5 @@
 {% load i18n %}
-<div class="card-body" >
+<div class="card-body select-template">
   <h3>{% translate "Templates" %}</h3>
 
   <button aria-label="{% translate "Todo items" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' sequence.id %}?type=todo" class="btn btn-{% if active == 'todo' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
@@ -36,8 +36,11 @@
   <button aria-label="{% translate "Email message" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' sequence.id %}?type=pendingemailmessage" class="btn btn-{% if active == 'pendingemailmessage' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_email_icon.html' %}
   </button>
-  <button  aria-label="{% translate "Integrations" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' sequence.id %}?type=integration" class="btn btn-{% if active == 'integration' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+  <button aria-label="{% translate "Integrations" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' sequence.id %}?type=integration" class="btn btn-{% if active == 'integration' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
     {% include '_integration_config.html' %}
+  </button>
+  <button aria-label="{% translate "Hardware" %}" data-microtip-position="top" role="tooltip" hx-get="{% url 'sequences:template_list' sequence.id %}?type=hardware" class="btn btn-{% if active == 'hardware' %}primary{% else %}white{% endif %}" hx-target="#template-list" hx-indicator="#spinner">
+    {% include '_hardware_icon.html' %}
   </button>
   <div style="display: inline-flex;">
     <span class="requesting" id="spinner">

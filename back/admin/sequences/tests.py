@@ -13,6 +13,8 @@ from admin.appointments.factories import AppointmentFactory
 from admin.appointments.forms import AppointmentForm
 from admin.badges.factories import BadgeFactory
 from admin.badges.forms import BadgeForm
+from admin.hardware.factories import HardwareFactory
+from admin.hardware.forms import HardwareForm
 from admin.integrations.models import Integration
 from admin.introductions.factories import IntroductionFactory
 from admin.introductions.forms import IntroductionForm
@@ -414,6 +416,7 @@ def test_sequence_detail_view(
         ("appointment", AppointmentForm, AppointmentFactory),
         ("introduction", IntroductionForm, IntroductionFactory),
         ("badge", BadgeForm, BadgeFactory),
+        ("hardware", HardwareForm, HardwareFactory),
         ("preboarding", PreboardingForm, PreboardingFactory),
         ("pendingadmintask", PendingAdminTaskForm, PendingAdminTaskFactory),
         ("pendingslackmessage", PendingSlackMessageForm, PendingSlackMessageFactory),
@@ -964,6 +967,7 @@ def test_delete_sequence(client, admin_factory, sequence_factory):
         ("appointment", AppointmentFactory),
         ("introduction", IntroductionFactory),
         ("badge", BadgeFactory),
+        ("hardware", HardwareFactory),
         ("preboarding", PreboardingFactory),
     ],
 )
@@ -1081,6 +1085,7 @@ def test_onboarding_sequence_trigger_task(
     pending_text_message1 = pending_text_message_factory()
     manual_provisioning = manual_user_provision_integration_factory()
     manual_config = IntegrationConfigFactory(integration=manual_provisioning)
+    hardware = HardwareFactory()
 
     seq = sequence_factory()
     unconditioned_condition = seq.conditions.all().first()
@@ -1102,6 +1107,7 @@ def test_onboarding_sequence_trigger_task(
     condition.add_item(pending_admin_task1)
     condition.add_item(pending_text_message1)
     condition.add_item(manual_config)
+    condition.add_item(hardware)
 
     seq.conditions.add(condition)
 
@@ -1122,6 +1128,7 @@ def test_onboarding_sequence_trigger_task(
     assert new_hire1.introductions.all().count() == 1
     assert new_hire1.badges.all().count() == 1
     assert new_hire1.integrations.all().count() == 1
+    assert new_hire1.hardware.all().count() == 1
 
 
 @pytest.mark.django_db

@@ -6,6 +6,7 @@ import user_auth
 from admin.admin_tasks import urls as admin_tasks_urls
 from admin.appointments import urls as appointment_urls
 from admin.badges import urls as badge_urls
+from admin.hardware import urls as hardware_urls
 from admin.integrations import urls as integrations_urls
 from admin.introductions import urls as intro_urls
 from admin.people import urls as people_urls
@@ -40,6 +41,7 @@ urlpatterns = [
     path("admin/tasks/", include(admin_tasks_urls)),
     path("admin/templates/", include(template_urls)),
     path("admin/templates/todo/", include(to_do_urls)),
+    path("admin/templates/hardware/", include(hardware_urls)),
     path("admin/templates/introductions/", include(intro_urls)),
     path("admin/templates/resources/", include(resource_urls)),
     path("admin/templates/badges/", include(badge_urls)),

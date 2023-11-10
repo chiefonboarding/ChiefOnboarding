@@ -81,6 +81,7 @@ INSTALLED_APPS = [
     "admin.sequences",
     "admin.people",
     "admin.settings",
+    "admin.hardware",
     # new hires
     "new_hire",
     # slack

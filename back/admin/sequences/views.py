@@ -375,7 +375,11 @@ class SequenceConditionItemView(LoginRequiredMixin, ManagerPermMixin, View):
         return render(
             request,
             "_sequence_condition.html",
-            {"condition": condition, "object": condition.sequence},
+            {
+                "condition": condition,
+                "object": condition.sequence,
+                "sequence": condition.sequence,
+            },
         )
 
 

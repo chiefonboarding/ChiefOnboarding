@@ -37,6 +37,9 @@
 {% for item in condition.integration_configs.all %}
   {% include '_condition_line_item.html' with type='integrationconfig' provision_created=1 %}
 {% endfor %}
+{% for item in condition.hardware.all %}
+  {% include '_condition_line_item.html' with type='hardware' %}
+{% endfor %}
 
 {# FOR ADMINS #}
 {% if condition.external_admin|length or condition.admin_tasks.all|length %}
