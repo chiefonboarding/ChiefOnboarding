@@ -9,7 +9,7 @@
   <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
 </div>
 {% endfor %}
-<div class="card card-md" method="post">
+<div class="card card-md">
   {% if org.credentials_login %}
     {% csrf_token %}
     <div class="card-body">
@@ -28,6 +28,6 @@
       </form>
     </div>
   {% endif %}
-  {% include "socialaccount/snippets/login.html" with page_layout="entrance" %}
+  {% include "socialaccount/snippets/login.html" %}
 </form>
 {% endblock %}

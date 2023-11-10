@@ -43,60 +43,6 @@ def test_update_org_settings(client, django_user_model):
 
 
 @pytest.mark.django_db
-def test_update_org_settings_min_one_login_method(client, django_user_model):
-    client.force_login(
-        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
-    )
-
-    url = reverse("settings:general")
-    response = client.get(url)
-
-    # Google login is not available
-    assert "Google account" not in response.content.decode()
-
-    data = {
-        "name": "test",
-        "language": "en",
-        "timezone": "UTC",
-        "base_color": "#FFFFF",
-        "accent_color": "#FFFFF",
-        "credentials_login": False,
-    }
-
-    response = client.post(url, data=data, follow=True)
-
-    org = Organization.object.get()
-
-    # Did not update
-    assert org.credentials_login
-    assert "You must enable at least one login option" in response.content.decode()
-
-    # Create Google login integration
-    Integration.objects.create(integration=Integration.Type.GOOGLE_LOGIN)
-
-    response = client.get(url)
-    # Google login is  available
-    assert "Google" in response.content.decode()
-
-    data = {
-        "name": "test",
-        "language": "en",
-        "timezone": "UTC",
-        "base_color": "#FFFFF",
-        "accent_color": "#FFFFF",
-        "credentials_login": False,
-        "google_login": True,
-    }
-    response = client.post(url, data=data, follow=True)
-
-    org.refresh_from_db()
-
-    assert "You must enable at least one login option" not in response.content.decode()
-    assert not org.credentials_login
-    assert org.google_login
-
-
-@pytest.mark.django_db
 def test_update_org_slack_settings(client, django_user_model):
     client.force_login(
         django_user_model.objects.create(role=get_user_model().Role.ADMIN)

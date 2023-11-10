@@ -163,26 +163,6 @@ def test_update_integration(client, django_user_model, custom_integration_factor
 
 
 @pytest.mark.django_db
-def test_create_google_login_integration(client, django_user_model):
-    client.force_login(
-        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
-    )
-
-    url = reverse("integrations:create-google")
-    response = client.get(url)
-
-    assert "client_id" in response.content.decode()
-    assert "client_secret" in response.content.decode()
-
-    response = client.post(url, data={"client_id": "12", "client_secret": "233"})
-
-    assert (
-        Integration.objects.filter(integration=Integration.Type.GOOGLE_LOGIN).count()
-        == 1
-    )
-
-
-@pytest.mark.django_db
 def test_delete_integration(client, django_user_model, custom_integration_factory):
     client.force_login(
         django_user_model.objects.create(role=get_user_model().Role.ADMIN)

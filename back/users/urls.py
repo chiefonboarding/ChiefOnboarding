@@ -13,7 +13,6 @@ urlpatterns = [
     # mocking this one, it's necessary for loading the login page, but we actually never
     # use it, so just loop it back to the login page out of safety.
     path("", allauth_views.login, name="account_signup"),
-    path("", allauth_views.login, name="account_signup"),
     path(
         "password/reset/", allauth_views.password_reset, name="account_reset_password"
     ),
@@ -43,6 +42,7 @@ urlpatterns = [
     path("social/", include("allauth.socialaccount.urls")),
 ]
 
+# copied from https://github.com/pennersr/django-allauth/blob/main/allauth/urls.py
 # Provider urlpatterns, as separate attribute (for reusability).
 provider_urlpatterns = []
 provider_classes = providers.registry.get_class_list()
