@@ -1,4 +1,3 @@
-
 import pytest
 from allauth.mfa.models import Authenticator
 from django.contrib import auth
