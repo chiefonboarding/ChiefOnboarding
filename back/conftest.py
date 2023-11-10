@@ -27,12 +27,12 @@ from admin.sequences.factories import (
     ConditionToDoFactory,
     ConditionWithItemsFactory,
     IntegrationConfigFactory,
+    OffboardingSequenceFactory,
     PendingAdminTaskFactory,
     PendingEmailMessageFactory,
     PendingSlackMessageFactory,
     PendingTextMessageFactory,
     SequenceFactory,
-    OffboardingSequenceFactory,
 )
 from admin.to_do.factories import ToDoFactory
 from misc.factories import FileFactory
@@ -45,6 +45,7 @@ from users.factories import (
     AdminFactory,
     DepartmentFactory,
     EmployeeFactory,
+    IntegrationUserFactory,
     ManagerFactory,
     NewHireFactory,
     NewHireWelcomeMessageFactory,
@@ -52,7 +53,6 @@ from users.factories import (
     PreboardingUserFactory,
     ResourceUserFactory,
     ToDoUserFactory,
-    IntegrationUserFactory,
 )
 
 

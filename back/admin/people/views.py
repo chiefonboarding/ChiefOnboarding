@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import HttpResponse, Http404
-from django.shortcuts import get_object_or_404, render, redirect
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils import translation
 from django.utils.translation import gettext as _
@@ -14,7 +14,6 @@ from rest_framework import generics
 from rest_framework.authentication import SessionAuthentication
 
 from admin.admin_tasks.models import AdminTask
-from users.models import ToDoUser
 from admin.integrations.exceptions import (
     FailedPaginatedResponseError,
     KeyIsNotInDataError,
@@ -23,24 +22,25 @@ from admin.integrations.models import Integration
 from admin.integrations.sync_userinfo import SyncUsers
 from admin.people.serializers import UserImportSerializer
 from admin.resources.models import Resource
-from admin.sequences.models import Sequence, Condition
+from admin.sequences.models import Condition, Sequence
 from api.permissions import AdminPermission
 from organization.models import Organization, WelcomeMessage
 from slack_bot.utils import Slack, actions, button, paragraph
 from users.emails import email_new_admin_cred
 from users.mixins import (
     AdminPermMixin,
+    IsAdminOrNewHireManagerMixin,
     LoginRequiredMixin,
     ManagerPermMixin,
-    IsAdminOrNewHireManagerMixin,
 )
+from users.models import ToDoUser
 
 from .forms import (
     ColleagueCreateForm,
     ColleagueUpdateForm,
     EmailIgnoreForm,
-    UserRoleForm,
     OffboardingSequenceChoiceForm,
+    UserRoleForm,
 )
 
 # See new_hire_views.py for new hire functions!

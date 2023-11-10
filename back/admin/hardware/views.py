@@ -4,10 +4,9 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
-from users.mixins import LoginRequiredMixin, ManagerPermMixin
-
 from admin.hardware.forms import HardwareForm
 from admin.hardware.models import Hardware
+from users.mixins import LoginRequiredMixin, ManagerPermMixin
 
 
 class HardwareListView(LoginRequiredMixin, ManagerPermMixin, ListView):

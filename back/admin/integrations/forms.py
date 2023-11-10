@@ -1,14 +1,14 @@
 import json
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Div, Field, Layout, HTML
+from crispy_forms.layout import HTML, Div, Field, Layout
 from django import forms
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from admin.integrations.utils import get_value_from_notation
 from admin.integrations.models import Integration
+from admin.integrations.utils import get_value_from_notation
 from admin.sequences.models import IntegrationConfig
 
 

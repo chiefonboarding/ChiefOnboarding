@@ -2,11 +2,11 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import DeleteView
-from django.urls import reverse_lazy
 
 from admin.integrations.forms import IntegrationExtraUserInfoForm
 from admin.integrations.models import Integration

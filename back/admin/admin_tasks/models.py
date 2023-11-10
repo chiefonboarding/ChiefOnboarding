@@ -3,8 +3,8 @@ from django.db import models
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
 
-from slack_bot.utils import Slack, actions, button, paragraph
 from organization.models import Notification
+from slack_bot.utils import Slack, actions, button, paragraph
 
 from .emails import (
     send_email_new_assigned_admin,

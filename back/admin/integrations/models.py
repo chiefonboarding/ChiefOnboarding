@@ -1,12 +1,11 @@
-import time
 import base64
 import io
 import json
+import time
 import uuid
 from datetime import timedelta
 
 import requests
-
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -34,11 +33,11 @@ from requests.exceptions import (
 )
 from twilio.rest import Client
 
-from admin.integrations.utils import get_value_from_notation
 from admin.integrations.serializers import (
-    WebhookManifestSerializer,
     SyncUsersManifestSerializer,
+    WebhookManifestSerializer,
 )
+from admin.integrations.utils import get_value_from_notation
 from misc.fernet_fields import EncryptedTextField
 from misc.fields import EncryptedJSONField
 from organization.models import Notification

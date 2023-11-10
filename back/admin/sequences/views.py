@@ -7,15 +7,21 @@ from django.views.generic import View
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import (
-    DeleteView,
     BaseUpdateView,
     CreateView,
+    DeleteView,
     UpdateView,
 )
 from django.views.generic.list import ListView
 
 from admin.integrations.forms import IntegrationConfigForm
 from admin.integrations.models import Integration
+from admin.sequences.models import (
+    Condition,
+    ExternalMessage,
+    IntegrationConfig,
+    Sequence,
+)
 from admin.sequences.utils import get_sequence_model_form, get_sequence_templates_model
 from admin.templates.utils import get_templates_model
 from admin.to_do.models import ToDo
@@ -27,12 +33,6 @@ from .forms import (
     PendingEmailMessageForm,
     PendingSlackMessageForm,
     PendingTextMessageForm,
-)
-from admin.sequences.models import (
-    Condition,
-    ExternalMessage,
-    IntegrationConfig,
-    Sequence,
 )
 
 

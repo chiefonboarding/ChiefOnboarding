@@ -1,11 +1,11 @@
-from django.db import models
 from django.conf import settings
+from django.db import models
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from misc.fields import ContentJSONField
 from admin.admin_tasks.models import AdminTask
+from misc.fields import ContentJSONField
 from organization.models import BaseItem, Notification
 
 

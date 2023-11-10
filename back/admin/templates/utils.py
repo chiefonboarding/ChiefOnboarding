@@ -2,11 +2,11 @@ from django.apps import apps
 
 from admin.appointments.forms import AppointmentForm
 from admin.badges.forms import BadgeForm
+from admin.hardware.forms import HardwareForm
 from admin.introductions.forms import IntroductionForm
 from admin.preboarding.forms import PreboardingForm
 from admin.resources.forms import ResourceForm
 from admin.to_do.forms import ToDoForm
-from admin.hardware.forms import HardwareForm
 
 MODELS = [
     {"app": "to_do", "model": "ToDo", "user_field": "to_do", "form": ToDoForm},

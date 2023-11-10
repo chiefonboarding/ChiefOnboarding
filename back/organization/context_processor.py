@@ -1,7 +1,7 @@
-from users.models import User
 from django.conf import settings
 
 from admin.sequences.models import Condition, ExternalMessage
+from users.models import User
 
 from .models import Organization
 

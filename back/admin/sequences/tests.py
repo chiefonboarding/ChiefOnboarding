@@ -13,22 +13,22 @@ from admin.appointments.factories import AppointmentFactory
 from admin.appointments.forms import AppointmentForm
 from admin.badges.factories import BadgeFactory
 from admin.badges.forms import BadgeForm
+from admin.hardware.factories import HardwareFactory
+from admin.hardware.forms import HardwareForm
 from admin.integrations.models import Integration
 from admin.introductions.factories import IntroductionFactory
 from admin.introductions.forms import IntroductionForm
-from admin.hardware.forms import HardwareForm
-from admin.hardware.factories import HardwareFactory
 from admin.preboarding.factories import PreboardingFactory
 from admin.preboarding.forms import PreboardingForm
 from admin.resources.factories import ResourceFactory
 from admin.resources.forms import ResourceForm
 from admin.sequences.emails import send_sequence_message
 from admin.sequences.factories import (
+    IntegrationConfigFactory,
     PendingAdminTaskFactory,
     PendingEmailMessageFactory,
     PendingSlackMessageFactory,
     PendingTextMessageFactory,
-    IntegrationConfigFactory,
 )
 from admin.sequences.forms import (
     PendingAdminTaskForm,
@@ -50,9 +50,9 @@ from admin.sequences.tasks import process_condition, timed_triggers
 from admin.to_do.factories import ToDoFactory
 from admin.to_do.forms import ToDoForm
 from admin.to_do.models import ToDo
-from users.models import IntegrationUser
 from organization.models import Notification, Organization
 from slack_bot.models import SlackChannel
+from users.models import IntegrationUser
 
 
 @pytest.mark.django_db
