@@ -101,7 +101,10 @@
                 </div>
               </a>
               <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <a href="{% url 'logout' %}" class="dropdown-item">{% translate "Logout" %}</a>
+                <form method="post" action="{% url 'logout' %}">
+                  {% csrf_token %}
+                  <button class="dropdown-item">{% translate "Logout" %}</button>
+                </form>
               </div>
             </div>
           </div>

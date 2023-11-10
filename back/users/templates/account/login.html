@@ -11,9 +11,9 @@
 {% endfor %}
 <div class="card card-md">
   {% if org.credentials_login %}
-    {% csrf_token %}
     <div class="card-body">
       <form method="post">
+        {% csrf_token %}
         <div class="mb-2">
           {{ form|crispy }}
           {% if redirect_field_value %}
