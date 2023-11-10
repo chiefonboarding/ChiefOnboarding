@@ -317,7 +317,9 @@ def test_totp_views(client, admin_factory):
     assert "Activate" in response.content.decode()
     assert "TOTP 2FA" in response.content.decode()
 
-    with patch("allauth.account.decorators.did_recently_authenticate", Mock(return_value=True)):
+    with patch(
+        "allauth.account.decorators.did_recently_authenticate", Mock(return_value=True)
+    ):
         response = client.get(reverse("settings:mfa_activate_totp"))
         assert "To protect your account with two-factor" in response.content.decode()
 
@@ -327,7 +329,7 @@ def test_totp_views(client, admin_factory):
             {
                 "code": "123",
             },
-            follow=True
+            follow=True,
         )
 
     url = reverse("settings:totp")
