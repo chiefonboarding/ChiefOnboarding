@@ -8,7 +8,7 @@ from django.urls import reverse
 from django_q.models import Schedule
 
 from admin.integrations.models import Integration
-from organization.models import Notification, Organization, WelcomeMessage
+from organization.models import Notification, WelcomeMessage
 from slack_bot.models import SlackChannel
 
 

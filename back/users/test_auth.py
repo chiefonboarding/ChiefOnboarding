@@ -1,13 +1,8 @@
-from unittest.mock import Mock, patch
 
-import jwt
 import pytest
 from allauth.mfa.models import Authenticator
 from django.contrib import auth
 from django.urls import reverse
-
-from admin.integrations.models import Integration
-from organization.models import Organization
 
 from .test_utils import get_all_urls
 
@@ -16,9 +11,6 @@ from .test_utils import get_all_urls
 WHITELISTED_URLS = [
     "robots.txt",
     "logout/",
-    "google/",
-    "api/auth/google_login",
-    "api/auth/oidc_login/",
     "password/reset/",
     "password/reset/done/",
     "^password/reset/key/(?P<uidb36>[0-9A-Za-z]+)-(?P<key>.+)/$",
@@ -28,6 +20,8 @@ WHITELISTED_URLS = [
     "new_hire/slackform/<int:pk>/",
     "setup/",
     "login/",
+    "social/login/cancelled/",
+    "social/login/error/",
 ]
 
 POST_URLS = [
@@ -220,4 +214,3 @@ def test_authed_view(url, client, new_hire_factory):
     data = {"login": new_hire.email, "password": "strong_pass"}
     response = client.post(url, data, follow=True)
     assert "/authenticate/" in response.redirect_chain[-1][0]
-
