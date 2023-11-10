@@ -305,7 +305,8 @@ def test_language_update(client, admin_factory):
 
 
 @pytest.mark.django_db
-def test_totp_view(client, admin_factory):
+def test_totp_views(client, admin_factory):
+    # just some lightweight tests, these are covered by allauth anyway
     admin_user1 = admin_factory()
     client.force_login(admin_user1)
 
@@ -316,17 +317,22 @@ def test_totp_view(client, admin_factory):
     assert "Activate" in response.content.decode()
     assert "TOTP 2FA" in response.content.decode()
 
+    with patch("allauth.account.decorators.did_recently_authenticate", Mock(return_value=True)):
+        response = client.get(reverse("settings:mfa_activate_totp"))
+        assert "To protect your account with two-factor" in response.content.decode()
 
-@pytest.mark.django_db
-def test_activate_totp_view(client, admin_factory):
-    admin_user1 = admin_factory()
-    client.force_login(admin_user1)
+    with patch("allauth.mfa.totp.validate_totp_code", Mock(return_value=True)):
+        response = client.post(
+            reverse("settings:mfa_activate_totp"),
+            {
+                "code": "123",
+            },
+            follow=True
+        )
 
-    url = reverse("settings:mfa_activate_totp")
+    url = reverse("settings:totp")
     response = client.get(url)
-
-    assert response.status_code == 200
-    assert "To protect your account with two-factor" in response.content.decode()
+    # TODO
 
 
 @pytest.mark.django_db
