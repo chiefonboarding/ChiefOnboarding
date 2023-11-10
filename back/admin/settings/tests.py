@@ -305,6 +305,31 @@ def test_language_update(client, admin_factory):
 
 
 @pytest.mark.django_db
+def test_totp_view(client, admin_factory):
+    admin_user1 = admin_factory()
+    client.force_login(admin_user1)
+
+    url = reverse("settings:totp")
+    response = client.get(url)
+
+    assert response.status_code == 200
+    assert "Activate" in response.content.decode()
+    assert "TOTP 2FA" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_activate_totp_view(client, admin_factory):
+    admin_user1 = admin_factory()
+    client.force_login(admin_user1)
+
+    url = reverse("settings:mfa_activate_totp")
+    response = client.get(url)
+
+    assert response.status_code == 200
+    assert "To protect your account with two-factor" in response.content.decode()
+
+
+@pytest.mark.django_db
 def test_sending_test_preboarding_message(
     client, admin_factory, mailoutbox, welcome_message_factory
 ):
