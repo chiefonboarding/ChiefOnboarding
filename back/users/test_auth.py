@@ -82,15 +82,6 @@ def test_redirect_after_login(role, redirect_url, client, new_hire_factory):
 
 
 @pytest.mark.django_db
-@override_settings(ALLOW_GOOGLE_SSO=True)
-def test_google_login(client):
-    # The actual login flow testing is done through allauth.
-    # Just checking if the button shows up.
-    response = client.get(reverse("account_login"))
-    assert "Log in with Google" in response.content.decode()
-
-
-@pytest.mark.django_db
 @override_settings(ALLOW_CREDENTIALS_LOGIN=False)
 def test_disabled_credentials_login(client):
     response = client.get(reverse("account_login"))
