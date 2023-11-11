@@ -12,7 +12,7 @@
               {% if provider.id == "openid" %}
                   {% for brand in provider.get_brands %}
                     {% provider_login_url provider openid=brand.openid_url process=process as href %}
-                        <div class="row">
+                        <div class="row mt-1 mb-1">
                           <div class="col">
                             <form method="POST" action="{{ href }}">
                               <button class="btn btn-white w-100">
@@ -24,7 +24,7 @@
                   {% endfor %}
               {% endif %}
               {% provider_login_url provider process=process scope=scope auth_params=auth_params as href %}
-              <div class="row">
+              <div class="row mt-1 mb-1">
                 <div class="col">
                   <form method="POST" action="{{ href }}">
                     {% csrf_token %}

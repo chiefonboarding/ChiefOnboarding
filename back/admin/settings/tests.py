@@ -323,18 +323,28 @@ def test_totp_views(client, admin_factory):
         response = client.get(reverse("settings:mfa_activate_totp"))
         assert "To protect your account with two-factor" in response.content.decode()
 
-    with patch("allauth.mfa.totp.validate_totp_code", Mock(return_value=True)):
-        response = client.post(
-            reverse("settings:mfa_activate_totp"),
-            {
-                "code": "123",
-            },
-            follow=True,
-        )
+        with patch("allauth.mfa.totp.validate_totp_code", Mock(return_value=True)):
+            response = client.post(
+                reverse("settings:mfa_activate_totp"),
+                {
+                    "code": "123",
+                },
+                follow=True,
+            )
 
     url = reverse("settings:totp")
     response = client.get(url)
-    # TODO
+    assert "Authentication using an authenticator app is active." in response.content.decode()
+
+    with patch(
+        "allauth.account.decorators.did_recently_authenticate", Mock(return_value=True)
+    ):
+        response = client.get(reverse("settings:mfa_deactivate_totp"))
+        assert "Deactivate" in response.content.decode()
+
+        response = client.get(reverse("settings:mfa_generate_recovery_codes"))
+        assert "You are about to generate a new" in response.content.decode()
+
 
 
 @pytest.mark.django_db
