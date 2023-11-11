@@ -10,7 +10,7 @@
 </div>
 {% endfor %}
 <div class="card card-md">
-  {% if org.credentials_login %}
+  {% if allow_credentials_login %}
     <div class="card-body">
       <form method="post">
         {% csrf_token %}

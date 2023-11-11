@@ -218,6 +218,11 @@ def test_notification_can_delete(notification_factory):
 @pytest.mark.no_run_around_tests
 @pytest.mark.django_db(reset_sequences=True)
 def test_initial_setup_page(client):
+    # account login redirects to setup page
+    url = reverse("account_login")
+    response = client.get(url, follow=True)
+    assert reverse("setup") == response.redirect_chain[-1][0]
+
     url = reverse("setup")
     response = client.get(url)
 

@@ -334,7 +334,10 @@ def test_totp_views(client, admin_factory):
 
     url = reverse("settings:totp")
     response = client.get(url)
-    assert "Authentication using an authenticator app is active." in response.content.decode()
+    assert (
+        "Authentication using an authenticator app is active."
+        in response.content.decode()
+    )
 
     with patch(
         "allauth.account.decorators.did_recently_authenticate", Mock(return_value=True)
@@ -344,7 +347,6 @@ def test_totp_views(client, admin_factory):
 
         response = client.get(reverse("settings:mfa_generate_recovery_codes"))
         assert "You are about to generate a new" in response.content.decode()
-
 
 
 @pytest.mark.django_db

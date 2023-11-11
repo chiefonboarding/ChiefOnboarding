@@ -11,6 +11,7 @@ def org_include(request):
         return {
             "org": Organization.objects.first(),
             "DEBUG": settings.DEBUG,
+            "allow_credentials_login": settings.ALLOW_CREDENTIALS_LOGIN,
             "ConditionType": Condition.Type.__dict__,
             "ExternalMessageType": ExternalMessage.Type.__dict__,
             "ExternalMessagesPersonType": ExternalMessage.PersonType.__dict__,

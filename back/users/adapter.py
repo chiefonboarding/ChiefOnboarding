@@ -2,7 +2,6 @@ import logging
 import re
 
 from allauth.account.adapter import DefaultAccountAdapter
-from allauth.account.utils import user_field
 from allauth.mfa.adapter import DefaultMFAAdapter
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from cryptography.fernet import Fernet
@@ -46,19 +45,22 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
 
     def populate_user(self, request, sociallogin, data):
         user = super().populate_user(request, sociallogin, data)
-        # set default to OTHER
-        user_field(user, "role", get_user_model().Role.OTHER)
 
-        if settings.OIDC_ROLE_PATH_IN_RETURN != "":
-            try:
-                raw_role_data = get_value_from_notation(
-                    settings.OIDC_ROLE_PATH_IN_RETURN, data
-                )
-            except KeyError:
-                # end here
-                logger.info("OIDC: Path does not exist in the given data")
-                return user
+        if settings.OIDC_ROLE_PATH_IN_RETURN == "":
+            # set default to OTHER
+            user.role = get_user_model().Role.OTHER
+            user.save(update_fields=["role"])
+            return user
 
-            user_field(user, "role", self._get_user_role(raw_role_data))
+        try:
+            raw_role_data = get_value_from_notation(
+                settings.OIDC_ROLE_PATH_IN_RETURN, data
+            )
+        except KeyError:
+            logger.info("OIDC: Path does not exist in the given data")
+            raw_role_data = ""
+
+        user.role = self._get_user_role(raw_role_data)
+        user.save(update_fields=["role"])
 
         return user

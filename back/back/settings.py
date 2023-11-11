@@ -142,8 +142,10 @@ if env.bool("ALLOW_GOOGLE_SSO", False):
 if env.bool("ALLOW_OIDC", False):
     INSTALLED_APPS += ["allauth.socialaccount.providers.openid_connect"]
     SOCIALACCOUNT_PROVIDERS["openid_connect"] = {
-        "APPS": [env.dict("OPENID_CONNECT_CONFIG", {})],
+        "APPS": env.list("OPENID_CONNECT_CONFIG", []),
     }
+
+ALLOW_CREDENTIALS_LOGIN = env.bool("ALLOW_CREDENTIALS_LOGIN", True)
 
 # DJANGO login config
 LOGIN_REDIRECT_URL = "logged_in_user_redirect"
