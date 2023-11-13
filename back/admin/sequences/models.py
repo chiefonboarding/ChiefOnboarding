@@ -267,7 +267,7 @@ class ExternalMessage(ContentMixin, models.Model):
         TEXT = 2, _("Text")
 
     class PersonType(models.IntegerChoices):
-        NEWHIRE = 0, _("New hire")
+        NEWHIRE = 0, _("New hire/User to be offboarded")
         MANAGER = 1, _("Manager")
         BUDDY = 2, _("Buddy")
         CUSTOM = 3, _("Custom")
@@ -441,7 +441,7 @@ class PendingTextMessage(ExternalMessage):
 
 class PendingAdminTask(models.Model):
     class PersonType(models.IntegerChoices):
-        NEWHIRE = 0, _("New hire")
+        NEWHIRE = 0, _("New hire/User to be offboarded")
         MANAGER = 1, _("Manager")
         BUDDY = 2, _("Buddy")
         CUSTOM = 3, _("Custom")
