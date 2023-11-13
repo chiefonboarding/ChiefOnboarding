@@ -33,7 +33,6 @@ class NewHireAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Detail
 class ColleagueAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "colleague_access.html"
     model = get_user_model()
-    context_object_name = "object"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -108,7 +107,6 @@ class UserCheckAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Deta
 class UserGiveAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "give_user_access.html"
     model = get_user_model()
-    context_object_name = "object"
 
     def post(self, request, *args, **kwargs):
         integration = get_object_or_404(

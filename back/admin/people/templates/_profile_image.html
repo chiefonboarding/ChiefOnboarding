@@ -1,5 +1,5 @@
-{% if user.profile_image is not None %}
-<span class="avatar me-2 {% if big %}mb-3 avatar-rounded{% endif %}" style="background-image: url({{ user.profile_image.get_url }})"></span>
+{% if request.user.profile_image is not None %}
+<span class="avatar me-2 {% if big %}mb-3 avatar-rounded{% endif %}" style="background-image: url({{ request.user.profile_image.get_url }})"></span>
 {% else %}
-<span class="avatar me-2">{{ user.initials }}</span>
+<span class="avatar me-2">{{ request.user.initials }}</span>
 {% endif %}
