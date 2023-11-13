@@ -19,7 +19,6 @@ WHITELISTED_URLS = [
     "new_hire/preboarding/",
     "new_hire/slackform/<int:pk>/",
     "setup/",
-    "login/",
     "social/login/cancelled/",
     "social/login/error/",
 ]
