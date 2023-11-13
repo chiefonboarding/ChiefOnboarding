@@ -667,9 +667,7 @@ class ConditionPrefetchManager(models.Manager):
                 Prefetch(
                     "integration_configs", queryset=IntegrationConfig.objects.all()
                 ),
-                Prefetch(
-                    "hardware", queryset=Hardware.objects.all()
-                ),
+                Prefetch("hardware", queryset=Hardware.objects.all()),
             )
             .alias_days_order()
             .order_by("days_order", "time")
