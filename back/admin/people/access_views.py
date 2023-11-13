@@ -20,6 +20,7 @@ from users.models import IntegrationUser
 class NewHireAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "new_hire_access.html"
     model = get_user_model()
+    context_object_name = "object"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -33,6 +34,7 @@ class NewHireAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Detail
 class ColleagueAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "colleague_access.html"
     model = get_user_model()
+    context_object_name = "object"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -50,6 +52,7 @@ class UserDeleteView(
     queryset = get_user_model().objects.all()
     success_url = reverse_lazy("people:new_hires")
     success_message = _("User has been removed")
+    context_object_name = "object"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -85,6 +88,7 @@ class UserRevokeAllAccessView(
 class UserCheckAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "_user_access_card.html"
     model = get_user_model()
+    context_object_name = "object"
 
     def get_template_names(self):
         if "compact" in self.request.path:
@@ -107,6 +111,7 @@ class UserCheckAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Deta
 class UserGiveAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "give_user_access.html"
     model = get_user_model()
+    context_object_name = "object"
 
     def post(self, request, *args, **kwargs):
         integration = get_object_or_404(
