@@ -302,7 +302,7 @@ class User(AbstractBaseUser):
         has_manager = self.manager is not None
         # end early if both are already filled
         if has_buddy and has_manager:
-            return False, False
+            return {"manager": False, "buddy": False}
         # not all items have to be checked. Introductions for example, doesn't have a
         # content field.
         to_check = [
