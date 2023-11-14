@@ -7,7 +7,7 @@ RUN python -m pip install pipenv
 
 ENV PYTHONUNBUFFERED 1
 WORKDIR /app
-COPY ./back/ .
+COPY . .
 # COPY ./back/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 RUN cp /app/supervisord.conf /etc/supervisor/conf.d/supervisord.conf \
     && pipenv install --system && pip install --no-cache-dir ldap3 passlib PyYAML ms_active_directory \
