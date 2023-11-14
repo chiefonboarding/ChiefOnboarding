@@ -316,7 +316,7 @@ def test_check_for_buddy_manager_tags(
     integration_config_factory,
     manual_user_provision_integration_factory,
     custom_integration_factory,
-    employee_factory
+    employee_factory,
 ):
     new_hire = new_hire_factory()
     integration = manual_user_provision_integration_factory()

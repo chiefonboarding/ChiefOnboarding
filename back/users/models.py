@@ -345,7 +345,9 @@ class User(AbstractBaseUser):
                         requires_buddy = True
 
                     # stop if we either have a user or if assigned user is required
-                    if (requires_manager or has_manager) and (requires_buddy or has_buddy):
+                    if (requires_manager or has_manager) and (
+                        requires_buddy or has_buddy
+                    ):
                         break
 
         return {"manager": requires_manager, "buddy": requires_buddy}
