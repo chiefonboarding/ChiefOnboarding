@@ -261,6 +261,14 @@ class BaseItem(ContentMixin, models.Model):
     class Meta:
         abstract = True
 
+    @property
+    def requires_assigned_manager_or_buddy(self):
+        from organization.utils import has_manager_or_buddy_tags
+
+        # returns manager, buddy
+        content = getattr(self, "content", None)
+        return has_manager_or_buddy_tags(content)
+
     def save(self, *args, **kwargs):
         if self.tags is None:
             self.tags = []

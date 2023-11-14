@@ -331,6 +331,14 @@ class ExternalMessage(ContentMixin, models.Model):
         if self.is_text_message:
             return render_to_string("_text_icon.html")
 
+    @property
+    def requires_assigned_manager_or_buddy(self):
+        # returns manager, buddy
+        return (
+            self.person_type == ExternalMessage.PersonType.MANAGER,
+            self.person_type == ExternalMessage.PersonType.BUDDY,
+        )
+
     def duplicate(self, change_name=False):
         self.pk = None
         self.save()
@@ -501,6 +509,14 @@ class PendingAdminTask(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def requires_assigned_manager_or_buddy(self):
+        # returns manager, buddy
+        return (
+            self.person_type == PendingAdminTask.PersonType.MANAGER,
+            self.person_type == PendingAdminTask.PersonType.BUDDY,
+        )
+
     def get_user(self, new_hire):
         if self.person_type == PendingAdminTask.PersonType.NEWHIRE:
             return new_hire
@@ -566,6 +582,14 @@ class IntegrationConfig(models.Model):
         null=True,
         blank=True,
     )
+
+    @property
+    def requires_assigned_manager_or_buddy(self):
+        # returns manager, buddy
+        return (
+            self.person_type == IntegrationConfig.PersonType.MANAGER,
+            self.person_type == IntegrationConfig.PersonType.BUDDY,
+        )
 
     @property
     def name(self):
