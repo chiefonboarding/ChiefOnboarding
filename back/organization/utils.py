@@ -60,12 +60,12 @@ def send_email_with_notification(
         )
 
 
-def has_manager_or_buddy_tags(content):
-    if content is None:
+def has_manager_or_buddy_tags(content_json):
+    if content_json is None:
         return False, False
 
     # convert to string and then remove all spaces, so we can easily match
-    content_str = json.dumps(content)
+    content_str = json.dumps(content_json)
     content_str_no_spaces = "".join(content_str.split())
 
     manager_tags = ["{{manager}}", "{{manager_email}}"]
