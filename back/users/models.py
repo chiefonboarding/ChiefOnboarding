@@ -298,6 +298,11 @@ class User(AbstractBaseUser):
 
     @property
     def requires_manager_or_buddy(self):
+        has_buddy = self.buddy is not None
+        has_manager = self.manager is not None
+        # end early if both are already filled
+        if has_buddy and has_manager:
+            return False, False
         # not all items have to be checked. Introductions for example, doesn't have a
         # content field.
         to_check = [
@@ -334,13 +339,13 @@ class User(AbstractBaseUser):
                             item_requires_buddy,
                         ) = i.requires_assigned_manager_or_buddy
 
-                    if item_requires_manager:
+                    if item_requires_manager and not has_manager:
                         requires_manager = True
-                    if item_requires_buddy:
+                    if item_requires_buddy and not has_buddy:
                         requires_buddy = True
 
-                    # stop if both are required, no need to go further
-                    if requires_manager and requires_buddy:
+                    # stop if we either have a user or if assigned user is required
+                    if (requires_manager or has_manager) and (requires_buddy or has_buddy):
                         break
 
         return {"manager": requires_manager, "buddy": requires_buddy}

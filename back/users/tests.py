@@ -316,6 +316,7 @@ def test_check_for_buddy_manager_tags(
     integration_config_factory,
     manual_user_provision_integration_factory,
     custom_integration_factory,
+    employee_factory
 ):
     new_hire = new_hire_factory()
     integration = manual_user_provision_integration_factory()
@@ -367,6 +368,23 @@ def test_check_for_buddy_manager_tags(
 
     # none of the items have a buddy or manager tag, so should return false
     assert {"manager": True, "buddy": False} == new_hire.requires_manager_or_buddy
+
+    # manager is assigned
+    new_hire.manager = employee_factory()
+    new_hire.save()
+
+    assert {"manager": False, "buddy": False} == new_hire.requires_manager_or_buddy
+
+    # require buddy too now, but assign a buddy as well now
+    integration = custom_integration_factory(
+        manifest={"test": {"test2": "{{manager_email}}, {{ buddy_email }}"}}
+    )
+    integration.save()
+    new_hire.buddy = employee_factory()
+    new_hire.save()
+
+    # ends early as both are already assigned
+    assert {"manager": False, "buddy": False} == new_hire.requires_manager_or_buddy
 
 
 @pytest.mark.django_db
