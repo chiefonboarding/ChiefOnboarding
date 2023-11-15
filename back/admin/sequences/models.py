@@ -55,6 +55,10 @@ class Sequence(models.Model):
         return reverse("sequences:update", args=[self.id])
 
     @property
+    def get_icon_template(self):
+        return render_to_string("_sequence_icon.html")
+
+    @property
     def is_onboarding(self):
         return self.category == Sequence.Category.ONBOARDING
 

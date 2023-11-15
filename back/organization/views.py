@@ -1,15 +1,18 @@
 import os
 from datetime import timedelta
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core import management
 from django.db import transaction
+from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext as _
+from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
 from rest_framework import status
@@ -22,7 +25,7 @@ from misc.models import File
 from misc.s3 import S3
 from misc.serializers import FileSerializer
 from slack_bot.models import SlackChannel
-from users.mixins import AdminPermMixin, LoginRequiredMixin
+from users.mixins import AdminPermMixin, LoginRequiredMixin, ManagerPermMixin
 from users.models import User
 
 from .forms import InitalAdminAccountForm
@@ -138,3 +141,45 @@ class InitialSetupView(CreateView):
         demo_user.save()
 
         return redirect("login")
+
+
+class SearchHXView(LoginRequiredMixin, ManagerPermMixin, TemplateView):
+    template_name = "search_results.html"
+
+    def _get_relevant_items_from_model(self, lookup_model, query):
+        model = apps.get_model(lookup_model["app"], lookup_model["model"])
+        if lookup_model["model"] == "User":
+            objects = model.objects.filter(
+                Q(first_name__search=query) | Q(last_name__search=query)
+            )
+        elif lookup_model.get("templates", False):
+            objects = model.templates.filter(name__search=query)
+        else:
+            objects = model.objects.filter(name__search=query)
+
+        return [
+            {"name": obj.name, "url": obj.update_url, "icon": obj.get_icon_template}
+            for obj in objects
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        query = self.request.GET.get("q", "")
+        lookup_models = [
+            {"app": "to_do", "model": "ToDo", "templates": True},
+            {"app": "resources", "model": "Resource", "templates": True},
+            {"app": "badges", "model": "Badge", "templates": True},
+            {"app": "appointments", "model": "Appointment", "templates": True},
+            {"app": "introductions", "model": "Introduction", "templates": True},
+            {"app": "preboarding", "model": "Preboarding", "templates": True},
+            {"app": "integrations", "model": "Integration"},
+            {"app": "sequences", "model": "Sequence"},
+            {"app": "hardware", "model": "Hardware", "template": True},
+            {"app": "users", "model": "User"},
+        ]
+        results = []
+        for item in lookup_models:
+            results += self._get_relevant_items_from_model(item, query)
+        context["results"] = results[:20]
+        context["more_results"] = len(results) > 20
+        return context
