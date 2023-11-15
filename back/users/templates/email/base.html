@@ -470,7 +470,7 @@
                         {% autoescape off %}
                         {% for i in content %}
                           {% if i.type == 'paragraph' %}
-                            <p style="font-size: 16px; line-height: 1.625; color: #51545E; margin: .4em 0 1.1875em;">{{i.data.text|personalize:user}}</p>
+                            <p style="font-size: 16px; line-height: 1.625; color: #51545E; margin: .4em 0 1.1875em;">{{i.data.text|linebreaksbr|personalize:user}}</p>
                           {% endif %}
                           {% if i.type == 'header' %}
                             <h{{ i.data.level }}>{{ i.data.text|personalize:user }}</h{{ i.data.level }}>
