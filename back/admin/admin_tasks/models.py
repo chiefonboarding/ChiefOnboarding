@@ -242,9 +242,8 @@ class AdminTask(models.Model):
                 )
 
     def reopen(self):
-        from admin.sequences.tasks import process_condition
-
-        # As actions happen due to completed tasks, they should not reverse even if the task is re-opened
+        # As actions happen due to completed tasks,
+        # they should not reverse even if the task is re-opened
         self.completed = False
         self.save()
 
