@@ -21,6 +21,7 @@
             <th>{% translate "Assigned to" %}</th>
             <th>{% translate "Task" %}</th>
             <th>{% translate "Due in" %}</th>
+            <th>{% translate "Action" %}</th>
           </tr>
         </thead>
         <tbody>
@@ -35,6 +36,15 @@
               </div>
             </td>
             <td>{% if task.date|naturaltime is not None %}{{ task.date|naturaltime }}{% else %}{% translate "No deadline set" %}{%endif %}</td>
+            <td>
+              <form method="POST" action="{% url 'people:new_hire_admin_task_complete' object.id task.id  %}" style="display:inherit;">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button type="submit" aria-label="{% translate "Mark as complete" %}" data-microtip-position="top" role="tooltip" class="btn btn-white">
+                  {% include "_mark_complete_icon.html" %}
+                </button>
+              </form>
+            </td>
           </tr>
           {% empty %}
           <tr>
@@ -60,6 +70,7 @@
           <tr>
             <th>{% translate "Assigned to" %}</th>
             <th>{% translate "Task" %}</th>
+            <th>{% translate "Action" %}</th>
           </tr>
         </thead>
         <tbody>
@@ -72,6 +83,15 @@
               <div class="text-truncate">
                 {{ task.name }}
               </div>
+            </td>
+            <td>
+              <form method="POST" action="{% url 'people:new_hire_admin_task_reopen' object.id task.id  %}" style="display:inherit;">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button type="submit" aria-label="{% translate "Return to in-progress" %}" data-microtip-position="top" role="tooltip" class="btn btn-white">
+                  {% include "_unmark_complete_icon.html" %}
+                </button>
+              </form>
             </td>
           </tr>
           {% empty %}
