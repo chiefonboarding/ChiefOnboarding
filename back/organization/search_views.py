@@ -1,6 +1,7 @@
 from django.db.models import Q
 from django.views.generic.base import TemplateView
 
+from admin.appointments.models import Appointment
 from admin.badges.models import Badge
 from admin.hardware.models import Hardware
 from admin.integrations.models import Integration
@@ -31,6 +32,7 @@ class SearchHXView(LoginRequiredMixin, ManagerPermMixin, TemplateView):
             Preboarding,
             Integration,
             Sequence,
+            Appointment,
             Hardware,
             User,
         ]
