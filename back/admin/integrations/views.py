@@ -1,7 +1,9 @@
 import json
+from django.views.generic.detail import DetailView
 from datetime import timedelta
 from urllib.parse import urlparse
 
+from django.views.generic.list import ListView
 import requests
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -16,7 +18,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from users.mixins import AdminPermMixin, LoginRequiredMixin
 
 from .forms import IntegrationExtraArgsForm, IntegrationForm
-from .models import Integration
+from .models import Integration, IntegrationTracker
 
 
 class IntegrationCreateView(
@@ -201,3 +203,25 @@ class SlackOAuthView(LoginRequiredMixin, View):
         else:
             messages.error(request, _("Could not get tokens from Slack"))
         return redirect("settings:integrations")
+
+
+class IntegrationTrackerListView(LoginRequiredMixin, ListView):
+    queryset = IntegrationTracker.objects.all().select_related("integration", "for_user").order_by("-ran_at")
+    template_name = "tracker_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("All integration runs")
+        context["subtitle"] = _("integrations")
+        return context
+
+
+class IntegrationTrackerDetailView(LoginRequiredMixin, DetailView):
+    model = IntegrationTracker
+    template_name = "tracker.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("%(integration)s for %(user)s") % {"integration": self.object.integration.name, "user": self.object.for_user}
+        context["subtitle"] = _("integrations")
+        return context

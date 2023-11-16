@@ -45,6 +45,60 @@ from organization.models import Notification
 from organization.utils import has_manager_or_buddy_tags, send_email_with_notification
 
 
+class IntegrationTracker(models.Model):
+    """Model to track the integrations that ran. Gives insights into error messages"""
+    class Category(models.IntegerChoices):
+        EXECUTE = 0, _("Run the execute part")
+        EXISTS = 1, _("Check if user exists")
+        REVOKE = 2, _("Revoke user")
+
+    integration = models.ForeignKey("integrations.Integration", on_delete=models.CASCADE)
+    category = models.IntegerField(choices=Category.choices)
+    for_user = models.ForeignKey("users.User", on_delete=models.CASCADE)
+    ran_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def ran_execute_block(self):
+        return self.category == IntegrationTracker.Category.EXECUTE
+
+    @property
+    def ran_exists_block(self):
+        return self.category == IntegrationTracker.Category.EXISTS
+
+    @property
+    def ran_revoke_block(self):
+        return self.category == IntegrationTracker.Category.REVOKE
+
+
+class IntegrationTrackerStep(models.Model):
+    tracker = models.ForeignKey("integrations.IntegrationTracker", on_delete=models.CASCADE, related_name="steps")
+    status_code = models.IntegerField()
+    json_response = models.JSONField()
+    text_response = models.TextField()
+    url = models.TextField()
+    method = models.TextField()
+    post_data = models.JSONField()
+    headers = models.JSONField()
+    error = models.TextField()
+
+    @property
+    def has_succeeded(self):
+        return self.status_code >= 200 and self.status_code < 300
+
+    @property
+    def pretty_json_response(self):
+        return json.dumps(self.json_response, indent=4)
+
+    @property
+    def pretty_headers(self):
+        return json.dumps(self.headers, indent=4)
+
+    @property
+    def pretty_post_data(self):
+        return json.dumps(self.post_data, indent=4)
+
+
+
 class IntegrationManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset()
@@ -230,6 +284,8 @@ class Integration(models.Model):
                     f"{file_name} could not be found in the locally saved files",
                 )
 
+        error = ""
+
         try:
             response = requests.request(
                 data.get("method", "POST"),
@@ -240,34 +296,58 @@ class Integration(models.Model):
                 timeout=120,
             )
         except (InvalidJSONError, JSONDecodeError):
-            return False, "JSON is invalid"
+            error = "JSON is invalid"
 
         except HTTPError:
-            return False, "An HTTP error occurred"
+            error = "An HTTP error occurred"
 
         except SSLError:
-            return False, "An SSL error occurred"
+            error = "An SSL error occurred"
 
         except Timeout:
-            return False, "The request timed out"
+            error = "The request timed out"
 
         except (URLRequired, MissingSchema, InvalidSchema, InvalidURL):
-            return False, "The url is invalid"
+            error = "The url is invalid"
 
         except TooManyRedirects:
-            return False, "There are too many redirects"
+            error = "There are too many redirects"
 
         except InvalidHeader:
-            return False, "The header is invalid"
+            error = "The header is invalid"
 
         except:  # noqa E722
-            return False, "There was an unexpected error with the request"
+            error = "There was an unexpected error with the request"
 
-        if data.get("fail_when_4xx_response_code", True):
+        if error == "" and data.get("fail_when_4xx_response_code", True):
             try:
                 response.raise_for_status()
             except Exception:
-                return False, response.text
+                error = response.text
+
+        try:
+            json_response = response.json()
+            text_response = ""
+        except:
+            json_response = {}
+            text_response = response.text
+
+
+        if hasattr(self, "tracker"):
+            IntegrationTrackerStep.objects.create(
+                tracker=self.tracker,
+                status_code=response.status_code,
+                json_response=json.loads(self.clean_response(json_response)),
+                text_response=self.clean_response(text_response),
+                url=self.clean_response(url),
+                method=data.get("method", "POST"),
+                post_data=json.loads(self.clean_response(post_data)),
+                headers=json.loads(self.clean_response(self.headers(data.get("headers", {})))),
+                error=error
+            )
+
+        if error != "":
+            return False, error
 
         return True, response
 
@@ -325,6 +405,8 @@ class Integration(models.Model):
 
             return not user_integration.revoked
 
+        self.tracker = IntegrationTracker.objects.create(category=IntegrationTracker.Category.EXISTS, integration=self, for_user=new_hire)
+
         self.new_hire = new_hire
         self.has_user_context = new_hire is not None
 
@@ -379,6 +461,7 @@ class Integration(models.Model):
 
         # add extra fields directly to params
         self.params = self.new_hire.extra_fields
+        self.tracker = IntegrationTracker.objects.create(category=IntegrationTracker.Category.REVOKE, integration=self, for_user=self.new_hire)
 
         for item in revoke_manifest:
             success, response = self.run_request(item)
@@ -414,6 +497,12 @@ class Integration(models.Model):
                     seconds=response.json()["expires_in"]
                 )
             self.save(update_fields=["expiring", "extra_args"])
+            if hasattr(self, "tracker"):
+                # we need to clean the last step as we now probably got new secret keys that need to be masked
+                last_step = self.tracker.steps.last()
+                last_step.json_response = self.clean_response(last_step.json_response)
+                last_step.save()
+
         return success
 
     def _check_condition(self, response, condition):
@@ -456,6 +545,8 @@ class Integration(models.Model):
         self.params["files"] = {}
         self.new_hire = new_hire
         self.has_user_context = new_hire is not None
+
+        self.tracker = IntegrationTracker.objects.create(category=IntegrationTracker.Category.EXECUTE, integration=self, for_user=self.new_hire)
 
         if self.has_user_context:
             self.params |= new_hire.extra_fields
@@ -607,9 +698,12 @@ class Integration(models.Model):
 
         return IntegrationConfigForm(instance=self, data=data)
 
-    def clean_response(self, response):
-        # if json, then convert to string to make it easier to replace values
-        response = str(response)
+    def clean_response(self, response) -> str:
+        try:
+            response = json.dumps(response)
+        except:
+            response = str(response)
+
         for name, value in self.extra_args.items():
             response = response.replace(
                 str(value), _("***Secret value for %(name)s***") % {"name": name}

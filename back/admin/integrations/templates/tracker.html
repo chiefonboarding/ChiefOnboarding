@@ -1,0 +1,48 @@
+{% extends 'admin_base.html' %}
+{% load i18n tz %}
+
+{% block content %}
+<div class="row">
+  <div class="col-4">
+    <div class="card">
+      <div class="card-body">
+        <h4>{% translate "Integration" %}</h4>
+        <p>{{ object.integration.name }}</p>
+        <h4>{% translate "Type" %}</h4>
+        <p>{{ object.get_category_display }}</p>
+        <h4>{% translate "User" %}</h4>
+        <p>{{ object.for_user }}</p>
+        <h4>{% translate "Ran at" %}</h4>
+        <p>{{ object.ran_at|timezone:request.user.timezone }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-8">
+    {% for step in object.steps.all %}
+      <div class="card">
+        <div class="card-body">
+          <div class="text-secondary float-end">{% trans "Status code" %}: {{ step.status_code }}</div>
+          <h4>{% trans "Method and URL" %}</h4>
+          <p>{{ step.method }}: {{ step.url }}</p>
+          <h4>{% translate "Response" %}</h4>
+<pre>
+{{ step.pretty_json_response }}
+</pre>
+<h4>{% translate "Post data" %}</h4>
+<pre>
+{{ step.pretty_post_data }}
+</pre>
+<h4>{% translate "Headers" %}</h4>
+<pre>
+{{ step.pretty_headers }}
+</pre>
+          {% if step.error != "" %}
+            <h4>{% translate "Error" %}</h4>
+            {{ step.error }}
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
