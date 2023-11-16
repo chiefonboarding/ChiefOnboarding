@@ -9,6 +9,8 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 from django.db.models import CheckConstraint, Q
 from django.template import Context, Template
+from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property, lazy
 from django.utils.translation import gettext_lazy as _
@@ -237,9 +239,24 @@ class User(AbstractBaseUser):
             )
         ]
 
+    @property
+    def name(self):
+        # used for search
+        return self.full_name
+
     @cached_property
     def full_name(self):
         return f"{self.first_name} {self.last_name}".strip()
+
+    @property
+    def update_url(self):
+        if self.role == User.Role.NEWHIRE:
+            return reverse("people:new_hire", args=[self.id])
+        else:
+            return reverse("people:colleague", args=[self.id])
+
+    def get_icon_template(self):
+        return render_to_string("_user_icon.html")
 
     @cached_property
     def progress(self):

@@ -22,7 +22,6 @@ class Badge(BaseItem):
     def delete_url(self):
         return reverse("badges:delete", args=[self.id])
 
-    @property
     def get_icon_template(self):
         return render_to_string("_badge_icon.html")
 
