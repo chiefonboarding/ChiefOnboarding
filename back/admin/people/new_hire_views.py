@@ -703,9 +703,11 @@ class NewHireDeleteView(
     success_url = reverse_lazy("people:new_hires")
     success_message = _("New hire has been removed")
 
-class CompleteAdminTaskView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
+
+class CompleteAdminTaskView(
+    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView
+):
     def post(self, request, pk, admin_task_pk, *args, **kwargs):
-        
         task = get_object_or_404(AdminTask, id=admin_task_pk)
         task.mark_completed()
 
@@ -713,9 +715,9 @@ class CompleteAdminTaskView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, De
 
         return redirect("people:new_hire_admin_tasks", pk=pk)
 
+
 class ReOpenAdminTaskView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     def post(self, request, pk, admin_task_pk, *args, **kwargs):
-        
         task = get_object_or_404(AdminTask, id=admin_task_pk)
         task.reopen()
 
