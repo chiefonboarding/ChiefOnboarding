@@ -1,16 +1,16 @@
-from organization.models import TemplateManager
-from django.views.generic.base import TemplateView
 from django.db.models import Q
-from users.mixins import LoginRequiredMixin, ManagerPermMixin
+from django.views.generic.base import TemplateView
 
-from admin.to_do.models import ToDo
-from admin.resources.models import Resource
 from admin.badges.models import Badge
+from admin.hardware.models import Hardware
+from admin.integrations.models import Integration
 from admin.introductions.models import Introduction
 from admin.preboarding.models import Preboarding
-from admin.integrations.models import Integration
+from admin.resources.models import Resource
 from admin.sequences.models import Sequence
-from admin.hardware.models import Hardware
+from admin.to_do.models import ToDo
+from organization.models import TemplateManager
+from users.mixins import LoginRequiredMixin, ManagerPermMixin
 from users.models import User
 
 
@@ -24,7 +24,15 @@ class SearchHXView(LoginRequiredMixin, ManagerPermMixin, TemplateView):
             return context
 
         lookup_models = [
-            ToDo, Resource, Badge, Introduction, Preboarding, Integration, Sequence, Hardware, User
+            ToDo,
+            Resource,
+            Badge,
+            Introduction,
+            Preboarding,
+            Integration,
+            Sequence,
+            Hardware,
+            User,
         ]
         results = []
         for model in lookup_models:
@@ -32,7 +40,9 @@ class SearchHXView(LoginRequiredMixin, ManagerPermMixin, TemplateView):
                 objects = model.objects.filter(
                     Q(first_name__search=query) | Q(last_name__search=query)
                 )
-            elif hasattr(model, "templates") and isinstance(model.template, TemplateManager):
+            elif hasattr(model, "templates") and isinstance(
+                model.template, TemplateManager
+            ):
                 objects = model.templates.filter(name__search=query)
             else:
                 objects = model.objects.filter(name__search=query)

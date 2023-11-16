@@ -26,7 +26,7 @@ def test_icon(
     admin_task_factory,
     hardware_factory,
     integration_factory,
-    sequence_factory
+    sequence_factory,
 ):
     intro = introduction_factory()
     appointment = appointment_factory()
@@ -40,7 +40,6 @@ def test_icon(
     hardware = hardware_factory()
     integration = integration_factory()
     sequence = sequence_factory()
-
 
     assert "icon-tabler-user" in intro.get_icon_template()
     assert "badge" in badge.get_icon_template()
