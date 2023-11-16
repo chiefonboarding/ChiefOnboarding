@@ -136,7 +136,6 @@ class Integration(models.Model):
     def update_url(self):
         return reverse("integrations:update", args=[self.id])
 
-    @property
     def get_icon_template(self):
         return render_to_string("_integration_config.html")
 

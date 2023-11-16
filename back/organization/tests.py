@@ -24,9 +24,11 @@ def test_icon(
     resource_factory,
     preboarding_factory,
     admin_task_factory,
+    hardware_factory,
+    integration_factory,
+    sequence_factory
 ):
     intro = introduction_factory()
-
     appointment = appointment_factory()
     badge = badge_factory()
     to_do = to_do_factory()
@@ -35,16 +37,23 @@ def test_icon(
     resource = resource_factory()
     preboarding = preboarding_factory()
     admin_task = admin_task_factory()
+    hardware = hardware_factory()
+    integration = integration_factory()
+    sequence = sequence_factory()
 
-    assert "icon-tabler-user" in intro.get_icon_template
-    assert "badge" in badge.get_icon_template
-    assert "calendar-event" in appointment.get_icon_template
-    assert "checkbox" in to_do.get_icon_template
-    assert "location" in integration_config.get_icon_template
-    assert "list-check" in pending_admin_task.get_icon_template
-    assert "folders" in resource.get_icon_template
-    assert "list-details" in preboarding.get_icon_template
-    assert "list-check" in admin_task.get_icon_template
+
+    assert "icon-tabler-user" in intro.get_icon_template()
+    assert "badge" in badge.get_icon_template()
+    assert "calendar-event" in appointment.get_icon_template()
+    assert "checkbox" in to_do.get_icon_template()
+    assert "location" in integration_config.get_icon_template()
+    assert "list-check" in pending_admin_task.get_icon_template()
+    assert "folders" in resource.get_icon_template()
+    assert "list-details" in preboarding.get_icon_template()
+    assert "list-check" in admin_task.get_icon_template()
+    assert "devices" in hardware.get_icon_template()
+    assert "location" in integration.get_icon_template()
+    assert "subtask" in sequence.get_icon_template()
 
 
 @pytest.mark.django_db

@@ -255,7 +255,6 @@ class User(AbstractBaseUser):
         else:
             return reverse("people:colleague", args=[self.id])
 
-    @property
     def get_icon_template(self):
         return render_to_string("_user_icon.html")
 

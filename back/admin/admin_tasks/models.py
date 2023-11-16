@@ -127,7 +127,6 @@ class AdminTask(models.Model):
 
     objects = AminTaskManager()
 
-    @property
     def get_icon_template(self):
         return render_to_string("_admin_task_icon.html")
 
