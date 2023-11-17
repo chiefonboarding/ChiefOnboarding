@@ -424,7 +424,9 @@ def test_sequence_detail_view(
         ("pendingemailmessage", PendingEmailMessageForm, PendingEmailMessageFactory),
     ],
 )
-def test_sequence_form_view(client, admin_factory, sequence_factory, template_type, form, factory):
+def test_sequence_form_view(
+    client, admin_factory, sequence_factory, template_type, form, factory
+):
     admin = admin_factory()
     client.force_login(admin)
     sequence = sequence_factory()
@@ -846,7 +848,11 @@ def test_integration_invalid_json_format_returned(
 
 @pytest.mark.django_db
 def test_sequence_open_filled_custom_integration_form(
-    client, admin_factory, custom_integration_factory, integration_config_factory, sequence_factory
+    client,
+    admin_factory,
+    custom_integration_factory,
+    integration_config_factory,
+    sequence_factory,
 ):
     integration = custom_integration_factory(
         manifest={
@@ -880,7 +886,10 @@ def test_sequence_open_filled_custom_integration_form(
     client.force_login(admin)
     sequence = sequence_factory()
 
-    url = reverse("sequences:forms", args=[sequence.id, "integrationconfig", integration_config.id])
+    url = reverse(
+        "sequences:forms",
+        args=[sequence.id, "integrationconfig", integration_config.id],
+    )
     # Create a new to do item
     response = client.get(url)
 
