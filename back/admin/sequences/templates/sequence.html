@@ -178,7 +178,7 @@ function changeTemplate(itemId, conditionId, typeId, provCreated=0) {
   provisionCreated = provCreated
 
   $.ajax({
-    url: `/admin/sequences/forms/${typeId}/${itemId}/`,
+    url: `/admin/sequences/{{object.id}}/forms/${typeId}/${itemId}/`,
     headers: {
       'X-CSRFToken': '{{ csrf_token }}'
     }

@@ -1888,6 +1888,48 @@ def test_notification_execute_integration_config(
 
 
 @pytest.mark.django_db
+def test_execute_integration_revoke(
+    custom_integration_factory, condition_to_do_factory, employee_factory, integration_config_factory
+):
+    employee = employee_factory()
+    condition = condition_to_do_factory()
+    integration = custom_integration_factory(manifest={"form": [], "execute": [{"url": "http://localhost:8000/", "method": "get"}], "revoke": [{"url": "http://localhost:8000/", "method": "get"}]})
+    integration_config = integration_config_factory(integration=integration)
+    condition.add_item(integration_config)
+
+    # integration has revoke part, but employee is not being offboarded
+    with patch(
+        "admin.integrations.models.Integration.execute",
+        Mock(return_value=(True, "")),
+    ) as execute_mock:
+        condition.process_condition(employee)
+        assert execute_mock.called
+
+    # integration has revoke part and employee is being offboarded
+    employee.termination_date = timezone.now()
+    employee.save()
+
+    # revoke part gets triggered
+    with patch(
+        "admin.integrations.models.Integration.revoke_user",
+        Mock(return_value=(True, "")),
+    ) as revoke_user_mock:
+        condition.process_condition(employee)
+        assert revoke_user_mock.called
+
+    integration.manifest={"form": [], "execute": [{"url": "http://localhost:8000/", "method": "get"}]}
+    integration.save()
+
+    # revoke part is gone, we are back at the execute part
+    with patch(
+        "admin.integrations.models.Integration.execute",
+        Mock(return_value=(True, "")),
+    ) as execute_mock:
+        condition.process_condition(employee)
+        assert execute_mock.called
+
+
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "factory",
     [
