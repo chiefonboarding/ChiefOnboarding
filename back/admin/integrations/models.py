@@ -12,7 +12,8 @@ from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django.template import Context, Template
-from django.urls import reverse_lazy
+from django.template.loader import render_to_string
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
@@ -134,6 +135,13 @@ class Integration(models.Model):
     @property
     def can_revoke_access(self):
         return self.manifest.get("revoke", False)
+
+    @property
+    def update_url(self):
+        return reverse("integrations:update", args=[self.id])
+
+    def get_icon_template(self):
+        return render_to_string("_integration_config.html")
 
     @property
     def schedule_name(self):

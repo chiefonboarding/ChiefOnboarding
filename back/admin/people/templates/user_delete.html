@@ -29,10 +29,10 @@
         {% if automated_provisioned_items %}
           <p>{% translate "Connected user accounts. Click on 'revoke all access' to revoke them all." %}</p>
 
-          {% for automated in automated_provisioned_items %}
           <div class="table-responsive" id="access-table">
             <table class="table card-table table-vcenter">
               <tbody>
+                {% for automated in automated_provisioned_items %}
                 <tr>
                   <td class="w-1 pe-0" hx-trigger="load" hx-get="{% url 'people:user_check_integration_compact' object.id automated.id %}">
                     <span class="spinner-border spinner-border-sm me-2" role="status"></span>
@@ -41,10 +41,10 @@
                     {{ automated.name }}
                   </td>
                 </tr>
+                {% endfor %}
               </tbody>
             </table>
           </div>
-          {% endfor %}
           <button class="mt-2 mb-2 btn btn-danger btn-sm" hx-select="#access-table" hx-target="#access-table" hx-post="{% url 'people:revoke_all_access' object.id %}">Revoke all access</button>
           <p>This does not revoke access from the manually created integrations</p>
         {% endif %}

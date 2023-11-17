@@ -22,7 +22,6 @@ class Preboarding(BaseItem):
     def delete_url(self):
         return reverse("preboarding:delete", args=[self.id])
 
-    @property
     def get_icon_template(self):
         return render_to_string("_preboarding_icon.html")
 

@@ -54,6 +54,9 @@ class Sequence(models.Model):
     def update_url(self):
         return reverse("sequences:update", args=[self.id])
 
+    def get_icon_template(self):
+        return render_to_string("_sequence_icon.html")
+
     @property
     def is_onboarding(self):
         return self.category == Sequence.Category.ONBOARDING
@@ -271,7 +274,7 @@ class ExternalMessage(ContentMixin, models.Model):
         TEXT = 2, _("Text")
 
     class PersonType(models.IntegerChoices):
-        NEWHIRE = 0, _("New hire")
+        NEWHIRE = 0, _("New hire/User to be offboarded")
         MANAGER = 1, _("Manager")
         BUDDY = 2, _("Buddy")
         CUSTOM = 3, _("Custom")
@@ -326,7 +329,6 @@ class ExternalMessage(ContentMixin, models.Model):
         if self.is_slack_message:
             return Notification.Type.SENT_SLACK_MESSAGE
 
-    @property
     def get_icon_template(self):
         if self.is_email_message:
             return render_to_string("_email_icon.html")
@@ -445,7 +447,7 @@ class PendingTextMessage(ExternalMessage):
 
 class PendingAdminTask(models.Model):
     class PersonType(models.IntegerChoices):
-        NEWHIRE = 0, _("New hire")
+        NEWHIRE = 0, _("New hire/User to be offboarded")
         MANAGER = 1, _("Manager")
         BUDDY = 2, _("Buddy")
         CUSTOM = 3, _("Custom")
@@ -535,7 +537,6 @@ class PendingAdminTask(models.Model):
             comment=self.comment,
         )
 
-    @property
     def get_icon_template(self):
         return render_to_string("_admin_task_icon.html")
 
@@ -575,7 +576,6 @@ class IntegrationConfig(models.Model):
     def name(self):
         return self.integration.name
 
-    @property
     def get_icon_template(self):
         return render_to_string("_integration_config.html")
 
@@ -673,6 +673,7 @@ class ConditionPrefetchManager(models.Manager):
                 Prefetch(
                     "integration_configs", queryset=IntegrationConfig.objects.all()
                 ),
+                Prefetch("hardware", queryset=Hardware.objects.all()),
             )
             .alias_days_order()
             .order_by("days_order", "time")

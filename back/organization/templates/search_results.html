@@ -1,0 +1,75 @@
+{% load i18n %}
+<div id="search">
+  <div class="container-xl">
+    <div class="page-header d-print-none">
+      <div class="row align-items-center">
+        <div class="col">
+          <h2 class="page-title">
+            {% translate "Search" %}
+          </h2>
+          <div class="page-pretitle">
+            {% translate "results" %}
+          </div>
+        </div>
+        <!-- Page title actions -->
+        <div class="col-auto ms-auto d-print-none">
+          <div class="btn-list">
+            <button type="button" class="btn btn-primary d-none d-sm-inline-block" onClick="$('#search').slideUp()">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>
+              {% translate "Close" %}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-body">
+    <div class="container-xl">
+      <div class="col-12">
+        <div class="card">
+          <div class="table-responsive">
+            <table class="table card-table table-vcenter text-nowrap">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>{% translate "Name" %}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for result in results %}
+                <tr>
+                  <td>
+                    {{ result.icon }}
+                  </td>
+                  <td>
+                    {{ result.name }}
+                  </td>
+                  <td class="text-end">
+                    <a href="{{ result.url }}" class="btn btn-white">
+                      {% translate "View" %}
+                    </a>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="3">
+                    {% translate "Nothing found" %}
+                  </td>
+                </tr>
+                {% endfor %}
+                {% if more_results %}
+                <tr>
+                  <td colspan="3">
+                    {% translate "There are more results that are currently not shown. Please be more specific with your search query." %}
+                  </td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1630,7 +1630,7 @@ def test_pending_email_message_item(
         pending_email_message.notification_add_type
         == Notification.Type.SENT_EMAIL_MESSAGE
     )
-    assert "mail" in pending_email_message.get_icon_template
+    assert "mail" in pending_email_message.get_icon_template()
 
     # Test variable swapping
     send_sequence_message(new_hire, admin, [], pending_email_message.subject)
@@ -1663,7 +1663,7 @@ def test_pending_text_message_item(pending_text_message_factory):
         pending_text_message.notification_add_type
         == Notification.Type.SENT_TEXT_MESSAGE
     )
-    assert "message" in pending_text_message.get_icon_template
+    assert "message" in pending_text_message.get_icon_template()
 
 
 @pytest.mark.django_db
@@ -1677,7 +1677,7 @@ def test_pending_slack_message_item(pending_slack_message_factory):
         pending_slack_message.notification_add_type
         == Notification.Type.SENT_SLACK_MESSAGE
     )
-    assert "slack" in pending_slack_message.get_icon_template
+    assert "slack" in pending_slack_message.get_icon_template()
 
 
 @pytest.mark.django_db

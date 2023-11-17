@@ -84,7 +84,6 @@ class ColleagueCreateView(
     model = get_user_model()
     form_class = ColleagueCreateForm
     success_message = _("Colleague has been added")
-    context_object_name = "object"
     success_url = reverse_lazy("people:colleagues")
 
     def form_valid(self, form):
@@ -105,7 +104,6 @@ class ColleagueUpdateView(
     model = get_user_model()
     form_class = ColleagueUpdateForm
     success_message = _("Employee has been updated")
-    context_object_name = "object"
 
     def get_success_url(self):
         return self.request.path
@@ -121,7 +119,6 @@ class ColleagueUpdateView(
 class ColleagueResourceView(LoginRequiredMixin, ManagerPermMixin, DetailView):
     template_name = "add_resources.html"
     model = get_user_model()
-    context_object_name = "object"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -351,7 +348,6 @@ class ColleagueOffboardingSequenceView(
 ):
     template_name = "offboarding_detail.html"
     queryset = get_user_model().offboarding.all()
-    context_object_name = "object"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

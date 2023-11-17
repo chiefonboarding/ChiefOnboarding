@@ -81,7 +81,6 @@ class Hardware(BaseItem):
             hardware=self,
         )
 
-    @property
     def get_icon_template(self):
         return render_to_string("_hardware_icon.html")
 
