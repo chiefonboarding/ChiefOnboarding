@@ -1,6 +1,6 @@
+from django import forms
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponse
-from django import forms
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
@@ -200,7 +200,9 @@ class SequenceFormView(LoginRequiredMixin, ManagerPermMixin, View):
                 # offboarding sequences with revoke option don't need an extra form here
                 form = forms.Form()
             else:
-                form = template_item.integration.config_form(template_item.additional_data)
+                form = template_item.integration.config_form(
+                    template_item.additional_data
+                )
 
             return render(
                 request,

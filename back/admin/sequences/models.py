@@ -596,7 +596,6 @@ class IntegrationConfig(models.Model):
                 self.integration.execute(user, self.additional_data)
             return
 
-
         if self.person_type is None:
             # doesn't need extra action, just log
             integration_user, created = IntegrationUser.objects.update_or_create(

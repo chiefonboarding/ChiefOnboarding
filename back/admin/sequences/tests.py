@@ -1889,11 +1889,20 @@ def test_notification_execute_integration_config(
 
 @pytest.mark.django_db
 def test_execute_integration_revoke(
-    custom_integration_factory, condition_to_do_factory, employee_factory, integration_config_factory
+    custom_integration_factory,
+    condition_to_do_factory,
+    employee_factory,
+    integration_config_factory,
 ):
     employee = employee_factory()
     condition = condition_to_do_factory()
-    integration = custom_integration_factory(manifest={"form": [], "execute": [{"url": "http://localhost:8000/", "method": "get"}], "revoke": [{"url": "http://localhost:8000/", "method": "get"}]})
+    integration = custom_integration_factory(
+        manifest={
+            "form": [],
+            "execute": [{"url": "http://localhost:8000/", "method": "get"}],
+            "revoke": [{"url": "http://localhost:8000/", "method": "get"}],
+        }
+    )
     integration_config = integration_config_factory(integration=integration)
     condition.add_item(integration_config)
 
@@ -1917,7 +1926,10 @@ def test_execute_integration_revoke(
         condition.process_condition(employee)
         assert revoke_user_mock.called
 
-    integration.manifest={"form": [], "execute": [{"url": "http://localhost:8000/", "method": "get"}]}
+    integration.manifest = {
+        "form": [],
+        "execute": [{"url": "http://localhost:8000/", "method": "get"}],
+    }
     integration.save()
 
     # revoke part is gone, we are back at the execute part
