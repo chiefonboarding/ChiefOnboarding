@@ -61,6 +61,10 @@ class Sequence(models.Model):
     def is_onboarding(self):
         return self.category == Sequence.Category.ONBOARDING
 
+    @property
+    def is_offboarding(self):
+        return self.category != Sequence.Category.ONBOARDING
+
     def class_name(self):
         return self.__class__.__name__
 
@@ -586,22 +590,23 @@ class IntegrationConfig(models.Model):
 
         if not self.integration.skip_user_provisioning:
             # it's an automated integration so just execute it
-            self.integration.execute(user, self.additional_data)
+            if user.is_offboarding and self.integration.can_revoke_access:
+                self.integration.revoke_user(user)
+            else:
+                self.integration.execute(user, self.additional_data)
             return
-
-        is_offboarding = user.termination_date is not None
 
         if self.person_type is None:
             # doesn't need extra action, just log
             integration_user, created = IntegrationUser.objects.update_or_create(
                 user=user,
                 integration=self.integration,
-                defaults={"revoked": is_offboarding},
+                defaults={"revoked": user.is_offboarding},
             )
 
             Notification.objects.create(
                 notification_type=Notification.Type.REMOVE_MANUAL_INTEGRATION
-                if is_offboarding
+                if user.is_offboarding
                 else Notification.Type.ADD_MANUAL_INTEGRATION,
                 extra_text=self.integration.name,
                 created_for=user,
@@ -837,8 +842,6 @@ class Condition(models.Model):
         return self, admin_tasks
 
     def process_condition(self, user, skip_notification=False):
-        # avoid circular import
-
         # Loop over all m2m fields and add the ones that can be easily added
         for field in [
             "to_do",

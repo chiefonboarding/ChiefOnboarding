@@ -5,6 +5,11 @@
     <div class="text-muted" style="margin-bottom: 5px; {% if not read_only %}cursor:pointer{% endif %}" {% if not read_only %}onclick="changeTemplate({{item.id}}, {{condition.pk}}, '{{type}}', {{ provision_created }})" data-bs-toggle="modal" data-bs-target="#modal-template-edit" {% endif %}>
       {{ item.get_icon_template }}
       {{ item.name }}
+      {% if sequence.is_offboarding and item.integration.can_revoke_access %}
+      <div aria-label="{% translate "User will be revoked access from this integration" %}" data-microtip-position="top" role="tooltip" style="display:inline-block">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plug-connected-x" style="width: 16px; height: 16px; margin-bottom: 2px"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="indianred" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 16l-4 4" /><path d="M7 12l5 5l-1.5 1.5a3.536 3.536 0 1 1 -5 -5l1.5 -1.5z" /><path d="M17 12l-5 -5l1.5 -1.5a3.536 3.536 0 1 1 5 5l-1.5 1.5z" /><path d="M3 21l2.5 -2.5" /><path d="M18.5 5.5l2.5 -2.5" /><path d="M10 11l-2 2" /><path d="M13 14l-2 2" /><path d="M16 16l4 4" /></svg>
+      </div>
+      {% endif %}
     </div>
   </div>
   {% if not readonly %}

@@ -35,7 +35,7 @@ class Hardware(BaseItem):
     )
 
     def remove_or_add_to_user(self, user):
-        add = user.termination_date is None
+        add = not user.is_offboarding
         if add:
             user.hardware.add(self)
         else:
@@ -51,7 +51,7 @@ class Hardware(BaseItem):
         )
 
     def execute(self, user):
-        add = user.termination_date is None
+        add = not user.is_offboarding
 
         if self.person_type is None:
             # no person assigned, so add directly

@@ -133,6 +133,10 @@ class Integration(models.Model):
         return self.manifest_type == Integration.ManifestType.MANUAL_USER_PROVISIONING
 
     @property
+    def can_revoke_access(self):
+        return self.manifest.get("revoke", False)
+
+    @property
     def update_url(self):
         return reverse("integrations:update", args=[self.id])
 
@@ -195,7 +199,7 @@ class Integration(models.Model):
         integration_user, created = IntegrationUser.objects.update_or_create(
             user=user,
             integration=self,
-            defaults={"revoked": user.termination_date is not None},
+            defaults={"revoked": user.is_offboarding},
         )
 
     def run_request(self, data):

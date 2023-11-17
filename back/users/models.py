@@ -274,6 +274,10 @@ class User(AbstractBaseUser):
         return initial_characters
 
     @property
+    def is_offboarding(self):
+        return self.termination_date is not None
+
+    @property
     def has_slack_account(self):
         return self.slack_user_id != ""
 
