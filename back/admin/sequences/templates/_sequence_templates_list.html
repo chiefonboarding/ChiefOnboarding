@@ -53,7 +53,7 @@
   <div class="divide-y">
     {% for template in object_list %}
     <div>
-      <div class="row" draggable="true" style="cursor:pointer" data-id="{{template.id}}" data-type="{{ active }}">
+      <div class="row" draggable="true" style="cursor:grab" data-id="{{template.id}}" data-type="{{ active }}">
         <div class="col">
           <div class="text-truncate">
             <p style="margin-bottom:0px">{{ template.name }}</p>
@@ -69,7 +69,8 @@
 {% if active != 'integration' %}
 <div class="card-footer">
   <div>
-    <div class="row" draggable="true" style="cursor:pointer" data-id="0" data-type="{{ active }}">
+    <div class="row" draggable="true" style="cursor:grab" data-id="0" data-type="{{ active }}" 
+        aria-label="{% translate "Drag this unto a sequence block to create new item" %}" data-microtip-position="bottom" role="tooltip">
       <div class="col-auto align-self-center">
         <div class="badge bg-primary"></div>
       </div>
