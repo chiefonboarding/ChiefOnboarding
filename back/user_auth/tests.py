@@ -282,6 +282,7 @@ def test_authed_view(url, client, new_hire_factory):
         ["<int:condition>", "1"],
         ["<int:exists>", "1"],
         ["<uuid:uuid>", "65a6d9b5-6e1d-47de-b677-8c4e73bf3f00"],
+        ["<int:admin_task_pk>","1"]
     ]
     for placeholder, real_value in swaps:
         url = url.replace(placeholder, real_value)

@@ -714,13 +714,3 @@ class CompleteAdminTaskView(
         messages.success(request, _("The admin task was successfully completed"))
 
         return redirect("people:new_hire_admin_tasks", pk=pk)
-
-
-class ReOpenAdminTaskView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
-    def post(self, request, pk, admin_task_pk, *args, **kwargs):
-        task = get_object_or_404(AdminTask, id=admin_task_pk)
-        task.reopen()
-
-        messages.success(request, _("The admin task was successfully re opened"))
-
-        return redirect("people:new_hire_admin_tasks", pk=pk)
