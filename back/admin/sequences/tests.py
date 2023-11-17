@@ -424,28 +424,30 @@ def test_sequence_detail_view(
         ("pendingemailmessage", PendingEmailMessageForm, PendingEmailMessageFactory),
     ],
 )
-def test_sequence_form_view(client, admin_factory, template_type, form, factory):
+def test_sequence_form_view(client, admin_factory, sequence_factory, template_type, form, factory):
     admin = admin_factory()
     client.force_login(admin)
+    sequence = sequence_factory()
 
-    url = reverse("sequences:forms", args=[template_type, 0])
+    url = reverse("sequences:forms", args=[sequence.id, template_type, 0])
     response = client.get(url)
 
     response.context["form"] == form()
 
     item = factory()
-    url = reverse("sequences:forms", args=[template_type, item.id])
+    url = reverse("sequences:forms", args=[sequence.id, template_type, item.id])
     response = client.get(url)
 
     response.context["form"].instance is not None
 
 
 @pytest.mark.django_db
-def test_sequence_unknown_form_view(client, admin_factory):
+def test_sequence_unknown_form_view(client, admin_factory, sequence_factory):
     admin = admin_factory()
     client.force_login(admin)
+    sequence = sequence_factory()
 
-    url = reverse("sequences:forms", args=["badddddge", 0])
+    url = reverse("sequences:forms", args=[sequence.id, "badddddge", 0])
     response = client.get(url)
 
     assert response.status_code == 404
@@ -465,10 +467,11 @@ def test_sequence_unknown_form_view(client, admin_factory):
     ),
 )
 def test_sequence_integration_form_view(
-    client, admin_factory, custom_integration_factory
+    client, admin_factory, custom_integration_factory, sequence_factory
 ):
     admin = admin_factory()
     client.force_login(admin)
+    sequence = sequence_factory()
     integration = custom_integration_factory(
         manifest={
             "form": [
@@ -485,7 +488,7 @@ def test_sequence_integration_form_view(
         }
     )
 
-    url = reverse("sequences:forms", args=["integration", integration.id])
+    url = reverse("sequences:forms", args=[sequence.id, "integration", integration.id])
     response = client.get(url)
 
     assert response.status_code == 200
@@ -712,7 +715,7 @@ def test_sequence_create_manual_custom_integration_form(
     condition = sequence.conditions.all().first()
     client.force_login(admin)
 
-    url = reverse("sequences:forms", args=["integration", integration.id])
+    url = reverse("sequences:forms", args=[sequence.id, "integration", integration.id])
 
     # get form in modal
     response = client.get(url)
@@ -786,10 +789,12 @@ def test_sequence_create_custom_integration_form_input_field(
 def test_integration_invalid_json_format_returned(
     custom_integration_factory,
     admin_factory,
+    sequence_factory,
     client,
 ):
     admin = admin_factory()
     client.force_login(admin)
+    sequence = sequence_factory()
     integration = custom_integration_factory(
         manifest={
             "form": [
@@ -808,7 +813,7 @@ def test_integration_invalid_json_format_returned(
 
     url = reverse(
         "sequences:forms",
-        args=["integration", integration.id],
+        args=[sequence.id, "integration", integration.id],
     )
     response = client.get(url)
     assert '"data": {' in response.content.decode()
@@ -832,7 +837,7 @@ def test_integration_invalid_json_format_returned(
 
     url = reverse(
         "sequences:forms",
-        args=["integration", integration.id],
+        args=[sequence.id, "integration", integration.id],
     )
     response = client.get(url)
     assert "{" in response.content.decode()
@@ -841,7 +846,7 @@ def test_integration_invalid_json_format_returned(
 
 @pytest.mark.django_db
 def test_sequence_open_filled_custom_integration_form(
-    client, admin_factory, custom_integration_factory, integration_config_factory
+    client, admin_factory, custom_integration_factory, integration_config_factory, sequence_factory
 ):
     integration = custom_integration_factory(
         manifest={
@@ -873,8 +878,9 @@ def test_sequence_open_filled_custom_integration_form(
 
     admin = admin_factory()
     client.force_login(admin)
+    sequence = sequence_factory()
 
-    url = reverse("sequences:forms", args=["integrationconfig", integration_config.id])
+    url = reverse("sequences:forms", args=[sequence.id, "integrationconfig", integration_config.id])
     # Create a new to do item
     response = client.get(url)
 
