@@ -241,12 +241,6 @@ class AdminTask(models.Model):
                     condition.id, self.new_hire.id, self.new_hire.has_slack_account
                 )
 
-    def reopen(self):
-        # As actions happen due to completed tasks,
-        # they should not reverse even if the task is re-opened
-        self.completed = False
-        self.save()
-
     class Meta:
         ordering = ["completed", "date"]
 
