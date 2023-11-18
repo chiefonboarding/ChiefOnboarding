@@ -5,6 +5,7 @@ import pytest
 from django.contrib.auth import get_user_model
 from freezegun import freeze_time
 
+from admin.sequences.models import IntegrationConfig
 from organization.models import Organization
 from users.tasks import hourly_check_for_new_hire_send_credentials
 
@@ -303,6 +304,87 @@ def test_new_hire_manager(new_hire_factory):
     should_intro.save()
 
     assert User.new_hires.to_introduce().count() == 2
+
+
+@pytest.mark.django_db
+def test_check_for_buddy_manager_tags(
+    new_hire_factory,
+    condition_to_do_factory,
+    to_do_factory,
+    resource_factory,
+    hardware_factory,
+    integration_config_factory,
+    manual_user_provision_integration_factory,
+    custom_integration_factory,
+    employee_factory,
+):
+    new_hire = new_hire_factory()
+    integration = manual_user_provision_integration_factory()
+    integration_config1 = integration_config_factory(integration=integration)
+    to_do1 = to_do_factory()
+    to_do2 = to_do_factory()
+    resource1 = resource_factory()
+    hardware1 = hardware_factory()
+
+    condition = condition_to_do_factory()
+    condition.to_do.add(to_do1, to_do2)
+    condition.resources.add(resource1)
+    condition.hardware.add(hardware1)
+    condition.integration_configs.add(integration_config1)
+
+    new_hire.conditions.add(condition)
+
+    # none of the items have a buddy or manager tag, so should return false
+    assert {"manager": False, "buddy": False} == new_hire.requires_manager_or_buddy()
+
+    to_do1.content = {"test": "test {{ manager }} "}
+    to_do1.save()
+
+    # has manager tag now and not buddy
+    assert {"manager": True, "buddy": False} == new_hire.requires_manager_or_buddy()
+
+    integration_config1.person_type = IntegrationConfig.PersonType.BUDDY
+    integration_config1.save()
+
+    # has manager tag now and buddy tag
+    assert {"manager": True, "buddy": True} == new_hire.requires_manager_or_buddy()
+
+    # reset both
+    integration_config1.person_type = None
+    integration_config1.save()
+
+    to_do1.content = {}
+    to_do1.save()
+
+    # none of the items have a buddy or manager tag, so should return false
+    assert {"manager": False, "buddy": False} == new_hire.requires_manager_or_buddy()
+
+    integration = custom_integration_factory(
+        manifest={"test": {"test2": "{{manager_email}}"}}
+    )
+
+    integration_config2 = integration_config_factory(integration=integration)
+    condition.integration_configs.add(integration_config2)
+
+    # none of the items have a buddy or manager tag, so should return false
+    assert {"manager": True, "buddy": False} == new_hire.requires_manager_or_buddy()
+
+    # manager is assigned
+    new_hire.manager = employee_factory()
+    new_hire.save()
+
+    assert {"manager": False, "buddy": False} == new_hire.requires_manager_or_buddy()
+
+    # require buddy too now, but assign a buddy as well now
+    integration = custom_integration_factory(
+        manifest={"test": {"test2": "{{manager_email}}, {{ buddy_email }}"}}
+    )
+    integration.save()
+    new_hire.buddy = employee_factory()
+    new_hire.save()
+
+    # ends early as both are already assigned
+    assert {"manager": False, "buddy": False} == new_hire.requires_manager_or_buddy()
 
 
 @pytest.mark.django_db

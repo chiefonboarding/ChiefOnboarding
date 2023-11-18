@@ -1,4 +1,9 @@
 {% load i18n %}
+{% if object.requires_manager_or_buddy.buddy or object.requires_manager_or_buddy.manager %}
+  <a href="{% url 'people:new_hire_profile' object.id %}" aria-label="{% if buddy and manager %}{% translate "You have assigned items to this user that require a manager and a buddy. Please assign one." %}{% elif buddy %}{% translate "You have assigned items to this user that require a buddy. Please assign one." %}{% else %}{% translate "You have assigned items to this user that require a manager. Please assign one." %}{% endif %}" data-microtip-position="top" role="tooltip" class="btn">
+    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-alert-triangle" style="margin-right: 0px" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="indianred" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4" /><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" /><path d="M12 16h.01" /></svg>
+  </a>
+{% endif %}
 <div class="dropdown">
   <button class="btn btn-white dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
     {% translate "Settings" %}

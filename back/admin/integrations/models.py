@@ -42,7 +42,7 @@ from admin.integrations.utils import get_value_from_notation
 from misc.fernet_fields import EncryptedTextField
 from misc.fields import EncryptedJSONField
 from organization.models import Notification
-from organization.utils import send_email_with_notification
+from organization.utils import has_manager_or_buddy_tags, send_email_with_notification
 
 
 class IntegrationManager(models.Manager):
@@ -146,6 +146,11 @@ class Integration(models.Model):
     @property
     def schedule_name(self):
         return f"User sync for integration: {self.id}"
+
+    @property
+    def requires_assigned_manager_or_buddy(self):
+        # returns manager, buddy
+        return has_manager_or_buddy_tags(self.manifest)
 
     def clean(self):
         if not self.manifest or self.skip_user_provisioning:

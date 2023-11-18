@@ -18,6 +18,7 @@ from django.utils.translation import gettext_lazy as _
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
 from admin.hardware.models import Hardware
+from admin.integrations.models import Integration
 from admin.introductions.models import Introduction
 from admin.preboarding.models import Preboarding
 from admin.resources.models import CourseAnswer, Resource
@@ -316,6 +317,61 @@ class User(AbstractBaseUser):
             if item["id"] not in self.extra_fields.keys()
         ]
 
+    def requires_manager_or_buddy(self):
+        has_buddy = self.buddy_id is not None
+        has_manager = self.manager_id is not None
+        # end early if both are already filled
+        if has_buddy and has_manager:
+            return {"manager": False, "buddy": False}
+        # not all items have to be checked. Introductions for example, doesn't have a
+        # content field.
+        to_check = [
+            "to_do",
+            "resources",
+            "appointments",
+            "badges",
+            "hardware",
+            "external_messages",
+            "admin_tasks",
+            "preboarding",
+            "integration_configs",
+        ]
+        requires_manager = False
+        requires_buddy = False
+        for item in self.conditions.prefetched().prefetch_related(
+            "integration_configs__integration"
+        ):
+            for field in to_check:
+                condition_attribute = getattr(item, field)
+                for i in condition_attribute.all():
+                    if (
+                        field == "integration_configs"
+                        and i.integration.manifest_type
+                        == Integration.ManifestType.WEBHOOK
+                    ):
+                        (
+                            item_requires_manager,
+                            item_requires_buddy,
+                        ) = i.integration.requires_assigned_manager_or_buddy
+                    else:
+                        (
+                            item_requires_manager,
+                            item_requires_buddy,
+                        ) = i.requires_assigned_manager_or_buddy
+
+                    if item_requires_manager and not has_manager:
+                        requires_manager = True
+                    if item_requires_buddy and not has_buddy:
+                        requires_buddy = True
+
+                    # stop if we either have a user or if assigned user is required
+                    if (requires_manager or has_manager) and (
+                        requires_buddy or has_buddy
+                    ):
+                        break
+
+        return {"manager": requires_manager, "buddy": requires_buddy}
+
     def update_progress(self):
         all_to_do_ids = list(
             self.conditions.values_list("to_do__id", flat=True)
@@ -506,8 +562,6 @@ class User(AbstractBaseUser):
         return ", ".join(all_access)
 
     def check_integration_access(self):
-        from admin.integrations.models import Integration
-
         items = {}
         for integration_user in IntegrationUser.objects.filter(user=self):
             items[integration_user.integration.name] = not integration_user.revoked
