@@ -296,10 +296,9 @@ class User(AbstractBaseUser):
             if item["id"] not in self.extra_fields.keys()
         ]
 
-    @property
     def requires_manager_or_buddy(self):
-        has_buddy = self.buddy is not None
-        has_manager = self.manager is not None
+        has_buddy = self.buddy_id is not None
+        has_manager = self.manager_id is not None
         # end early if both are already filled
         if has_buddy and has_manager:
             return {"manager": False, "buddy": False}

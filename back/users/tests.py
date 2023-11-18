@@ -335,19 +335,19 @@ def test_check_for_buddy_manager_tags(
     new_hire.conditions.add(condition)
 
     # none of the items have a buddy or manager tag, so should return false
-    assert {"manager": False, "buddy": False} == new_hire.requires_manager_or_buddy
+    assert {"manager": False, "buddy": False} == new_hire.requires_manager_or_buddy()
 
     to_do1.content = {"test": "test {{ manager }} "}
     to_do1.save()
 
     # has manager tag now and not buddy
-    assert {"manager": True, "buddy": False} == new_hire.requires_manager_or_buddy
+    assert {"manager": True, "buddy": False} == new_hire.requires_manager_or_buddy()
 
     integration_config1.person_type = IntegrationConfig.PersonType.BUDDY
     integration_config1.save()
 
     # has manager tag now and buddy tag
-    assert {"manager": True, "buddy": True} == new_hire.requires_manager_or_buddy
+    assert {"manager": True, "buddy": True} == new_hire.requires_manager_or_buddy()
 
     # reset both
     integration_config1.person_type = None
@@ -357,7 +357,7 @@ def test_check_for_buddy_manager_tags(
     to_do1.save()
 
     # none of the items have a buddy or manager tag, so should return false
-    assert {"manager": False, "buddy": False} == new_hire.requires_manager_or_buddy
+    assert {"manager": False, "buddy": False} == new_hire.requires_manager_or_buddy()
 
     integration = custom_integration_factory(
         manifest={"test": {"test2": "{{manager_email}}"}}
@@ -367,13 +367,13 @@ def test_check_for_buddy_manager_tags(
     condition.integration_configs.add(integration_config2)
 
     # none of the items have a buddy or manager tag, so should return false
-    assert {"manager": True, "buddy": False} == new_hire.requires_manager_or_buddy
+    assert {"manager": True, "buddy": False} == new_hire.requires_manager_or_buddy()
 
     # manager is assigned
     new_hire.manager = employee_factory()
     new_hire.save()
 
-    assert {"manager": False, "buddy": False} == new_hire.requires_manager_or_buddy
+    assert {"manager": False, "buddy": False} == new_hire.requires_manager_or_buddy()
 
     # require buddy too now, but assign a buddy as well now
     integration = custom_integration_factory(
@@ -384,7 +384,7 @@ def test_check_for_buddy_manager_tags(
     new_hire.save()
 
     # ends early as both are already assigned
-    assert {"manager": False, "buddy": False} == new_hire.requires_manager_or_buddy
+    assert {"manager": False, "buddy": False} == new_hire.requires_manager_or_buddy()
 
 
 @pytest.mark.django_db
