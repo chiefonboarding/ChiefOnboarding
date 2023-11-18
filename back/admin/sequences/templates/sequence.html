@@ -164,6 +164,19 @@
 </div>
 
 {% endblock %}
+{% block extra_css %}
+<style>
+  #timeline .drop {
+    -webkit-transition: all 200ms ease;
+    -moz-transition: all 200ms ease;
+    -ms-transition: all 200ms ease;
+    -o-transition: all 200ms ease;
+    transition: all 200ms ease;
+  }
+  #timeline .drop.not_droppable { opacity: 0.5; }
+  #timeline .drop.droppable { box-shadow: rgba(35, 46, 60, 0.50) 0 2px 4px 0; }
+</style>
+{% endblock %}
 {% block extra_js %}
 <script>
 var type = '';
@@ -329,16 +342,63 @@ var allowedAfter = ["pendingadmintask","appointment", "todo", "resource", "intro
 var allowedBefore = ["pendingadmintask","appointment", "todo", "resource", "introduction", "badge", "pendingemailmessage", "pendingslackmessage", "pendingtextmessage", "integration", "hardware"]
 var allowedAfter = ["pendingadmintask", "pendingemailmessage", "pendingslackmessage", "pendingtextmessage", "integration", "hardware"]
 {% endif %}
+
+
 </script>
 <script src="{% static 'js/resources.js' %}"></script>
 <script>
 
 var dragged;
+var draggedToElement;
+
+const targetClassConditionsMap = 
+{
+  before: (type) => allowedBefore.includes(type),
+  after: (type) => allowedAfter.includes(type),
+  unconditioned: (type) => true,
+  to_do: (type) => true
+};
+
+
+function isTypeAllowedAtTargetElement(type, targetElement) {
+  const $elem = $(targetElement);
+  const classes = $elem.attr("class").split(/\s+/);
+  var hasError = false;
+
+  $.each(targetClassConditionsMap, (property, validator) => {
+    if(classes.includes(property)) {
+      // Need to make a validation for this property, as it part of the classpath
+      if(!validator(type)) {
+        hasError = true;
+      }
+    }
+  });
+  return !hasError;
+}
+
+function markAsNotDroppable(element) {
+  $(element).addClass("not_droppable");
+}
+
+function markAsDroppable(element) {
+  $(element).addClass("droppable");
+}
+
+function removeDroppableClasses() {
+  $('#timeline .droppable, #timeline .not_droppable').removeClass('droppable not_droppable');
+}
+
 document.addEventListener("dragstart", function( event ) {
   dragged = event.target;
-  event.dataTransfer.setData('id', event.target.dataset.id);
-  event.dataTransfer.setData('type', event.target.dataset.type);
   event.target.style.opacity = .5;
+
+  $('#timeline .drop').each((index, element) => {
+    if(!isTypeAllowedAtTargetElement(dragged.dataset.type, element)) {
+      markAsNotDroppable(element);
+    } else {
+      markAsDroppable(element);
+    }
+  });
 }, false);
 
 document.addEventListener("drop", function( event ) {
@@ -346,19 +406,15 @@ document.addEventListener("drop", function( event ) {
   event.preventDefault();
 
   const droppedPlace = event.target.closest(".drop")
+  draggedToElement = droppedPlace;
+
   if (Boolean(droppedPlace)) {
-    const droppedPlace = event.target.closest(".drop")
-    const templateId = event.dataTransfer.getData('id');
-    const type = event.dataTransfer.getData('type');
+    const templateId = dragged.dataset.id;
+    const type = dragged.dataset.type;
     const conditionID = droppedPlace.dataset.id
 
-    if (!(
-        ($(droppedPlace).hasClass("before") && allowedBefore.includes(type)) ||
-        ($(droppedPlace).hasClass("unconditioned") ||
-        ($(droppedPlace).hasClass("after") &&  allowedAfter.includes(type)) ||
-        $(droppedPlace).hasClass("to_do"))
-    )) {
-      return
+    if (!isTypeAllowedAtTargetElement(type, droppedPlace)) {
+      return;
     }
 
     $(".card").css("background-color", "white")
@@ -379,28 +435,21 @@ document.addEventListener("dragover", function( event ) {
   event.stopPropagation();
   const droppedPlace = event.target.closest(".drop")
   if (Boolean(droppedPlace)) {
-    const type = event.dataTransfer.getData('type');
-    const droppedPlace = event.target.closest(".drop")
-    if (
-        ($(droppedPlace).hasClass("before") && allowedBefore.includes(type)) ||
-        ($(droppedPlace).hasClass("unconditioned") ||
-        ($(droppedPlace).hasClass("after") &&  allowedAfter.includes(type)) ||
-        $(droppedPlace).hasClass("to_do"))
-    ) {
+    const type = dragged.dataset.type;
+    if (isTypeAllowedAtTargetElement(type, droppedPlace)) {
       droppedPlace.style.backgroundColor='rgb(239, 242, 246)';
     }
   }
 }, false);
 
 document.addEventListener("dragend", function( event ) {
+  removeDroppableClasses();
   event.target.style.opacity = "";
-  const droppedPlace = event.target.closest(".drop")
   if (typeof event.target.closest !== "function") {
       return
   }
-  if (Boolean(droppedPlace)) {
-    const droppedPlace = event.target.closest(".drop")
-    droppedPlace.style.backgroundColor='white';
+  if (Boolean(draggedToElement)) {
+    draggedToElement.style.backgroundColor='white';
   }
 }, false);
 
