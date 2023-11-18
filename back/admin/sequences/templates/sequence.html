@@ -164,6 +164,19 @@
 </div>
 
 {% endblock %}
+{% block extra_css %}
+<style>
+  #timeline .drop {
+    -webkit-transition: all 200ms ease;
+    -moz-transition: all 200ms ease;
+    -ms-transition: all 200ms ease;
+    -o-transition: all 200ms ease;
+    transition: all 200ms ease;
+  }
+  #timeline .drop.not_droppable { opacity: 0.5; }
+  #timeline .drop.droppable { box-shadow: rgba(35, 46, 60, 0.50) 0 2px 4px 0; }
+</style>
+{% endblock %}
 {% block extra_js %}
 <script>
 var type = '';
@@ -337,6 +350,7 @@ var allowedAfter = ["pendingadmintask", "pendingemailmessage", "pendingslackmess
 
 var dragged;
 var draggedToElement;
+
 const targetClassConditionsMap = 
 {
   before: (type) => allowedBefore.includes(type),
@@ -362,9 +376,29 @@ function isTypeAllowedAtTargetElement(type, targetElement) {
   return !hasError;
 }
 
+function markAsNotDroppable(element) {
+  $(element).addClass("not_droppable");
+}
+
+function markAsDroppable(element) {
+  $(element).addClass("droppable");
+}
+
+function removeDroppableClasses() {
+  $('#timeline .droppable, #timeline .not_droppable').removeClass('droppable not_droppable');
+}
+
 document.addEventListener("dragstart", function( event ) {
   dragged = event.target;
   event.target.style.opacity = .5;
+
+  $('#timeline .drop').each((index, element) => {
+    if(!isTypeAllowedAtTargetElement(dragged.dataset.type, element)) {
+      markAsNotDroppable(element);
+    } else {
+      markAsDroppable(element);
+    }
+  });
 }, false);
 
 document.addEventListener("drop", function( event ) {
@@ -404,13 +438,12 @@ document.addEventListener("dragover", function( event ) {
     const type = dragged.dataset.type;
     if (isTypeAllowedAtTargetElement(type, droppedPlace)) {
       droppedPlace.style.backgroundColor='rgb(239, 242, 246)';
-    } else {
-      droppedPlace.style.backgroundColor='rgb(255 208 208)';
     }
   }
 }, false);
 
 document.addEventListener("dragend", function( event ) {
+  removeDroppableClasses();
   event.target.style.opacity = "";
   if (typeof event.target.closest !== "function") {
       return
