@@ -99,6 +99,8 @@
                           {% endfor %}
                         </div>
                       </h4>
+                      {% elif condition.condition_type == ConditionType.INTEGRATIONS_REVOKED %}
+                        {% blocktranslate %}When all access has been revoked{% endblocktranslate %}
                       {% endif %}
 
                     </div>

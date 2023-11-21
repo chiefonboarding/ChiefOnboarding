@@ -110,6 +110,18 @@
                 </li>
               {% endif %}
             {% endfor %}
+
+            {% for condition in conditions %}
+              {% if condition.condition_type == ConditionType.INTEGRATIONS_REVOKED %}
+                <li>
+                  <div class="list-timeline-icon">
+                  </div>
+                  <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
+                    {% include '_sequence_condition.html' %}
+                  </div>
+                </li>
+              {% endif %}
+            {% endfor %}
           </ul>
         </div>
       </div>
@@ -351,7 +363,7 @@ var allowedAfter = ["pendingadmintask", "pendingemailmessage", "pendingslackmess
 var dragged;
 var draggedToElement;
 
-const targetClassConditionsMap = 
+const targetClassConditionsMap =
 {
   before: (type) => allowedBefore.includes(type),
   after: (type) => allowedAfter.includes(type),

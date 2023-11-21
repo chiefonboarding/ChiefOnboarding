@@ -312,10 +312,10 @@ class Integration(models.Model):
         return new_headers
 
     def user_exists(self, new_hire):
+        from users.models import IntegrationUser
+
         # check if user has been created manually
         if self.skip_user_provisioning:
-            from users.models import IntegrationUser
-
             try:
                 user_integration = IntegrationUser.objects.get(
                     user=new_hire, integration=self
@@ -337,7 +337,15 @@ class Integration(models.Model):
         if not success:
             return None
 
-        return self._replace_vars(self.manifest["exists"]["expected"]) in response.text
+        user_exists = (
+            self._replace_vars(self.manifest["exists"]["expected"]) in response.text
+        )
+
+        IntegrationUser.objects.update_or_create(
+            integration=self, user=new_hire, defaults={"revoked": not user_exists}
+        )
+
+        return user_exists
 
     def needs_user_info(self, user):
         if self.skip_user_provisioning:
