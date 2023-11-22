@@ -14,6 +14,7 @@ from django.urls import reverse
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property, lazy
 from django.utils.translation import gettext_lazy as _
+from django_q.tasks import async_task
 
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
@@ -196,6 +197,7 @@ class User(AbstractBaseUser):
         blank=True,
         help_text=_("Last day of working"),
     )
+    ran_integrations_condition = models.BooleanField(default=False)
     unique_url = models.CharField(max_length=250, unique=True)
     extra_fields = models.JSONField(default=dict)
 
@@ -808,7 +810,6 @@ class NewHireWelcomeMessage(models.Model):
 
 
 class IntegrationUser(models.Model):
-    # UserIntegration
     # logging when an integration was enabled and revoked
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     integration = models.ForeignKey(
@@ -818,6 +819,36 @@ class IntegrationUser(models.Model):
 
     class Meta:
         unique_together = ["user", "integration"]
+
+    def save(self, *args, **kwargs):
+        integration_user = super().save(*args, **kwargs)
+        user = self.user
+        if (
+            user.is_offboarding
+            and not user.ran_integrations_condition
+            and user.conditions.filter(
+                condition_type=Condition.Type.INTEGRATIONS_REVOKED
+            ).exists()
+            and not IntegrationUser.objects.filter(user=user, revoked=False).exists()
+        ):
+            from admin.sequences.tasks import process_condition
+
+            integration_revoked_condition = user.conditions.get(
+                condition_type=Condition.Type.INTEGRATIONS_REVOKED
+            )
+            async_task(
+                process_condition,
+                integration_revoked_condition.id,
+                user.id,
+                task_name=(
+                    f"Process condition: {integration_revoked_condition.id} for "
+                    f"{user.full_name} - all integrations revoked"
+                ),
+            )
+            user.ran_integrations_condition = True
+            user.save()
+
+        return integration_user
 
 
 class OTPRecoveryKey(models.Model):

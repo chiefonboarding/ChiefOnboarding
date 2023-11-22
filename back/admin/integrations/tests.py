@@ -13,6 +13,7 @@ from admin.integrations.sync_userinfo import SyncUsers
 from admin.integrations.utils import get_value_from_notation
 from organization.models import Notification
 from users.factories import IntegrationUserFactory
+from users.models import IntegrationUser
 
 
 @pytest.mark.django_db
@@ -345,6 +346,9 @@ def test_integration_user_exists(
         Mock(return_value=(True, Mock(text="[{'error': 'not_found'}]"))),
     ):
         exists = integration.user_exists(new_hire)
+        assert IntegrationUser.objects.filter(
+            user=new_hire, integration=integration, revoked=True
+        ).exists()
         assert not exists
 
     # Found user
@@ -353,6 +357,9 @@ def test_integration_user_exists(
         Mock(return_value=(True, Mock(text="[{'user': '" + new_hire.email + "'}]"))),
     ):
         exists = integration.user_exists(new_hire)
+        assert IntegrationUser.objects.filter(
+            user=new_hire, integration=integration, revoked=False
+        ).exists()
         assert exists
 
     # Error went wrong

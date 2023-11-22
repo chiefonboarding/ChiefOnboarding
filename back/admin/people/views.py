@@ -314,6 +314,13 @@ class AddOffboardingSequenceView(
         # delete all previous conditions (from being a new hire)
         employee.conditions.all().delete()
 
+        # TODO: should become a background worker at some point
+        for integration in Integration.objects.filter(
+            manifest_type=Integration.ManifestType.WEBHOOK,
+            manifest__exists__isnull=False,
+        ):
+            integration.user_exists(employee)
+
         sequences = Sequence.offboarding.filter(id__in=sequence_ids)
         employee.add_sequences(sequences)
 

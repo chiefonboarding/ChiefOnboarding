@@ -152,6 +152,14 @@ class Sequence(models.Model):
                         # We found our match. Amount matches AND the admin_tasks match
                         user_condition = condition
                         break
+
+            elif (
+                sequence_condition.condition_type == Condition.Type.INTEGRATIONS_REVOKED
+            ):
+                user_condition = user.conditions.filter(
+                    condition_type=Condition.Type.INTEGRATIONS_REVOKED
+                ).first()
+
             else:
                 # Condition (always just one) that will be assigned directly (type == 3)
                 # Just run the condition with the new hire
@@ -710,6 +718,7 @@ class Condition(models.Model):
         BEFORE = 2, _("Before the new hire has started")
         WITHOUT = 3, _("Without trigger")
         ADMIN_TASK = 4, _("Based on one or more admin tasks")
+        INTEGRATIONS_REVOKED = 5, _("When all integrations have been revoked")
 
     sequence = models.ForeignKey(
         Sequence, on_delete=models.CASCADE, null=True, related_name="conditions"

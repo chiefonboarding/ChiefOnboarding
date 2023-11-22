@@ -145,6 +145,7 @@ class OffboardingConditionForm(ConditionForm):
             (2, _("On/Before employee's last day")),
             (1, _("Based on one or more to do items")),
             (4, _("Based on one or more admin tasks")),
+            (5, _("When all integrations have been revoked")),
         ]
         self.fields["days"].help_text = _("Enter 0 for the last day")
         self.fields["days"].label = _("Amount of days before")

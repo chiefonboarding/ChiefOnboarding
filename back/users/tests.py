@@ -3,6 +3,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from freezegun import freeze_time
 
 from admin.sequences.models import IntegrationConfig
@@ -519,3 +520,50 @@ def test_new_hire_missing_extra_info(
             "description": "test2",
         }
     ]
+
+
+@pytest.mark.django_db
+def test_integration_user_trigger(
+    employee_factory,
+    integration_user_factory,
+    condition_integrations_revoked_factory,
+    sequence_factory,
+    to_do_factory,
+):
+    employee = employee_factory()
+    # add integrations
+    integration_user_factory(user=employee, revoked=True)
+    i_u2 = integration_user_factory(user=employee, revoked=False)
+
+    # create sequence
+    condition = condition_integrations_revoked_factory()
+    condition.to_do.add(to_do_factory())
+    seq = sequence_factory()
+    seq.conditions.add(condition)
+    employee.add_sequences([seq])
+
+    # no items yet, because user access items have not been revoked yet
+    assert employee.to_do.count() == 0
+
+    i_u2.revoked = True
+    i_u2.save()
+
+    # no items yet, because user is not offboarding
+    assert employee.to_do.count() == 0
+
+    employee.termination_date = timezone.now()
+    employee.save()
+
+    i_u2.revoked = True
+    i_u2.save()
+
+    # one item from sequence
+    assert employee.to_do.count() == 1
+
+    # running a second time won't work, due to already run
+    condition.to_do.add(to_do_factory())
+    i_u2.revoked = True
+    i_u2.save()
+
+    # another item from sequence won't be here
+    assert employee.to_do.count() == 1
