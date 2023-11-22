@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.utils import translation
 from django_q.tasks import async_task
 
-from admin.integrations.models import Integration
 from organization.models import Organization
 
 from .emails import send_new_hire_credentials
@@ -35,13 +34,3 @@ def hourly_check_for_new_hire_send_credentials():
                 new_hire.id,
                 task_name=f"Sending login credentials: {new_hire.full_name}",
             )
-
-
-def check_all_integration_access(user_id):
-    user = get_user_model().objects.get(id=user_id)
-
-    # Create the IntegrationUser for each integration
-    for integration in Integration.objects.filter(
-        manifest_type=Integration.ManifestType.WEBHOOK, manifest__exists__isnull=False
-    ):
-        integration.user_exists(user)
