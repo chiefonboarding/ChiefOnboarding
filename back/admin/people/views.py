@@ -34,6 +34,7 @@ from users.mixins import (
     ManagerPermMixin,
 )
 from users.models import ToDoUser
+from users.tasks import check_all_integration_access
 
 from .forms import (
     ColleagueCreateForm,
@@ -316,6 +317,13 @@ class AddOffboardingSequenceView(
 
         sequences = Sequence.offboarding.filter(id__in=sequence_ids)
         employee.add_sequences(sequences)
+
+        # run background task to check all access for user
+        async_task(
+            check_all_integration_access,
+            employee.id,
+            task_name=f"Check all access for user: {employee.full_name}",
+        )
 
         # Check if there are items that will not be triggered since date passed
         conditions = Condition.objects.none()

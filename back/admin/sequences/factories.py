@@ -179,6 +179,13 @@ class ConditionTimedFactory(factory.django.DjangoModelFactory):
         model = Condition
 
 
+class ConditionIntegrationsRevokedFactory(factory.django.DjangoModelFactory):
+    condition_type = Condition.Type.INTEGRATIONS_REVOKED
+
+    class Meta:
+        model = Condition
+
+
 class SequenceFactory(factory.django.DjangoModelFactory):
     name = FuzzyText()
     category = Sequence.Category.ONBOARDING

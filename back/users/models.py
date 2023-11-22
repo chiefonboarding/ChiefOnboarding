@@ -829,7 +829,7 @@ class IntegrationUser(models.Model):
             and user.conditions.filter(
                 condition_type=Condition.Type.INTEGRATIONS_REVOKED
             ).exists()
-            and IntegrationUser.objects.filter(user=user, revoked=False).exists()
+            and not IntegrationUser.objects.filter(user=user, revoked=False).exists()
         ):
             from admin.sequences.tasks import process_condition
 

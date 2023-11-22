@@ -23,6 +23,7 @@ from admin.resources.factories import (
 )
 from admin.sequences.factories import (
     ConditionAdminTaskFactory,
+    ConditionIntegrationsRevokedFactory,
     ConditionTimedFactory,
     ConditionToDoFactory,
     ConditionWithItemsFactory,
@@ -102,6 +103,7 @@ register(OffboardingSequenceFactory)
 register(ConditionTimedFactory)
 register(ConditionToDoFactory)
 register(ConditionAdminTaskFactory)
+register(ConditionIntegrationsRevokedFactory)
 register(PendingAdminTaskFactory)
 register(PendingEmailMessageFactory)
 register(PendingSlackMessageFactory)

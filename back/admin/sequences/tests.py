@@ -1585,6 +1585,47 @@ def test_sequence_assign_to_user_merge_admin_task_condition(
 
 
 @pytest.mark.django_db
+def test_sequence_assign_to_user_merge_integrations_revoked_condition(
+    sequence_factory,
+    new_hire_factory,
+    condition_integrations_revoked_factory,
+    to_do_factory,
+    pending_admin_task_factory,
+):
+    # Condition should merge as the condition admin_tasks match with an existing one
+
+    new_hire = new_hire_factory()
+    sequence = sequence_factory()
+    condition = condition_integrations_revoked_factory(sequence=sequence)
+
+    # Condition has two admin task items and will trigger one todo task
+    pending_admin_task1 = pending_admin_task_factory()
+    pending_admin_task2 = pending_admin_task_factory()
+    condition.condition_admin_tasks.set([pending_admin_task1, pending_admin_task2])
+    to_do1 = to_do_factory()
+    condition.to_do.add(to_do1)
+
+    # Add to new hire
+    new_hire.add_sequences([sequence])
+
+    # there is now one condition
+    assert new_hire.conditions.all().count() == 1
+
+    to_do2 = to_do_factory(template=False)
+    to_do3 = to_do_factory()
+
+    condition.to_do.add(to_do2)
+    condition.to_do.add(to_do3)
+
+    # Add again to new hire
+    new_hire.add_sequences([sequence])
+
+    # Condition item was updated and not a new one created
+    assert new_hire.conditions.all().count() == 1
+    assert new_hire.conditions.all().first().to_do.count() == 3
+
+
+@pytest.mark.django_db
 def test_sequence_add_unconditional_item(
     sequence_factory,
     new_hire_factory,
