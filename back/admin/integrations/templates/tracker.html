@@ -19,7 +19,7 @@
   </div>
   <div class="col-8">
     {% for step in object.steps.all %}
-      <div class="card">
+      <div class="card mb-3">
         <div class="card-body">
           <div class="text-secondary float-end">{% trans "Status code" %}: {{ step.status_code }}</div>
           <h4>{% trans "Method and URL" %}</h4>

@@ -665,7 +665,7 @@ def test_integration_clean_error_data(custom_integration_factory):
     )
     assert (
         integration.clean_response("test 123 error")
-        == "test ***Secret value for SECRET_KEY*** error"
+        == '"test ***Secret value for SECRET_KEY*** error"'
     )
 
 
@@ -816,8 +816,8 @@ def test_integration_save_data_to_user_invalid_lookup(
 
     assert result == (
         False,
-        "Could not store data to new hire: "
-        "user_data.user_id not found in {'user': {'user_id': 123}}",
+        'Could not store data to new hire: '
+        'user_data.user_id not found in {"user": {"user_id": 123}}',
     )
 
     new_hire.refresh_from_db()

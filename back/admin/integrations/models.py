@@ -54,7 +54,7 @@ class IntegrationTracker(models.Model):
 
     integration = models.ForeignKey("integrations.Integration", on_delete=models.CASCADE)
     category = models.IntegerField(choices=Category.choices)
-    for_user = models.ForeignKey("users.User", on_delete=models.CASCADE)
+    for_user = models.ForeignKey("users.User", on_delete=models.CASCADE, null=True)
     ran_at = models.DateTimeField(auto_now_add=True)
 
     @property
@@ -286,6 +286,7 @@ class Integration(models.Model):
 
         error = ""
 
+        response = None
         try:
             response = requests.request(
                 data.get("method", "POST"),
@@ -330,13 +331,16 @@ class Integration(models.Model):
             text_response = ""
         except:
             json_response = {}
-            text_response = response.text
+            if error:
+                text_response = error
+            else:
+                text_response = response.text
 
 
         if hasattr(self, "tracker"):
             IntegrationTrackerStep.objects.create(
+                status_code=0 if response is None else response.status_code,
                 tracker=self.tracker,
-                status_code=response.status_code,
                 json_response=json.loads(self.clean_response(json_response)),
                 text_response=self.clean_response(text_response),
                 url=self.clean_response(url),
@@ -346,7 +350,7 @@ class Integration(models.Model):
                 error=error
             )
 
-        if error != "":
+        if error:
             return False, error
 
         return True, response
