@@ -665,7 +665,7 @@ def test_integration_clean_error_data(custom_integration_factory):
     )
     assert (
         integration.clean_response("test 123 error")
-        == '"test ***Secret value for SECRET_KEY*** error"'
+        == "test ***Secret value for SECRET_KEY*** error"
     )
 
 
@@ -816,8 +816,8 @@ def test_integration_save_data_to_user_invalid_lookup(
 
     assert result == (
         False,
-        'Could not store data to new hire: '
-        'user_data.user_id not found in {"user": {"user_id": 123}}',
+        "Could not store data to new hire: "
+        "user_data.user_id not found in {'user': {'user_id': 123}}",
     )
 
     new_hire.refresh_from_db()
@@ -886,13 +886,7 @@ def test_polling_not_getting_correct_state(
 @pytest.mark.django_db
 @patch(
     "requests.request",
-    Mock(
-        return_value=Mock(
-            status_code=200,
-            content=b"0123456",
-            json=lambda: dict({})
-        )
-    ),
+    Mock(return_value=Mock(status_code=200, content=b"0123456", json=lambda: dict({}))),
 )
 @patch(
     "requests.request",
@@ -926,13 +920,7 @@ def test_receiving_and_sending_file(new_hire_factory, custom_integration_factory
 @pytest.mark.django_db
 @patch(
     "requests.request",
-    Mock(
-        return_value=Mock(
-            status_code=200,
-            content=b"0123456",
-            json=lambda: dict({})
-        )
-    ),
+    Mock(return_value=Mock(status_code=200, content=b"0123456", json=lambda: dict({}))),
 )
 @patch(
     "requests.request",
@@ -963,7 +951,7 @@ def test_receiving_and_sending_file_invalid_lookup(
     success, response = integration.execute(new_hire, {})
 
     assert success is False
-    assert response == '"test124.png could not be found in the locally saved files"'
+    assert response == "test124.png could not be found in the locally saved files"
 
 
 @pytest.mark.django_db

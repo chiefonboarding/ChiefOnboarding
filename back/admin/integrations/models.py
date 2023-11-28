@@ -47,12 +47,15 @@ from organization.utils import has_manager_or_buddy_tags, send_email_with_notifi
 
 class IntegrationTracker(models.Model):
     """Model to track the integrations that ran. Gives insights into error messages"""
+
     class Category(models.IntegerChoices):
         EXECUTE = 0, _("Run the execute part")
         EXISTS = 1, _("Check if user exists")
         REVOKE = 2, _("Revoke user")
 
-    integration = models.ForeignKey("integrations.Integration", on_delete=models.CASCADE)
+    integration = models.ForeignKey(
+        "integrations.Integration", on_delete=models.CASCADE
+    )
     category = models.IntegerField(choices=Category.choices)
     for_user = models.ForeignKey("users.User", on_delete=models.CASCADE, null=True)
     ran_at = models.DateTimeField(auto_now_add=True)
@@ -71,7 +74,11 @@ class IntegrationTracker(models.Model):
 
 
 class IntegrationTrackerStep(models.Model):
-    tracker = models.ForeignKey("integrations.IntegrationTracker", on_delete=models.CASCADE, related_name="steps")
+    tracker = models.ForeignKey(
+        "integrations.IntegrationTracker",
+        on_delete=models.CASCADE,
+        related_name="steps",
+    )
     status_code = models.IntegerField()
     json_response = models.JSONField()
     text_response = models.TextField()
@@ -268,7 +275,6 @@ class Integration(models.Model):
 
         return value
 
-
     def run_request(self, data):
         url = self._replace_vars(data["url"])
         if "data" in data:
@@ -295,9 +301,13 @@ class Integration(models.Model):
                         text_response=error,
                         url=self.clean_response(url),
                         method=data.get("method", "POST"),
-                        post_data=json.loads(self.clean_response(self.cast_to_json(post_data))),
-                        headers=json.loads(self.clean_response(self.headers(data.get("headers", {})))),
-                        error=error
+                        post_data=json.loads(
+                            self.clean_response(self.cast_to_json(post_data))
+                        ),
+                        headers=json.loads(
+                            self.clean_response(self.headers(data.get("headers", {})))
+                        ),
+                        error=error,
                     )
                 return False, error
 
@@ -344,13 +354,12 @@ class Integration(models.Model):
         try:
             json_response = response.json()
             text_response = ""
-        except:
+        except:  # noqa E722
             json_response = {}
             if error:
                 text_response = error
             else:
                 text_response = response.text
-
 
         if hasattr(self, "tracker"):
             IntegrationTrackerStep.objects.create(
@@ -361,8 +370,10 @@ class Integration(models.Model):
                 url=self.clean_response(url),
                 method=data.get("method", "POST"),
                 post_data=json.loads(self.clean_response(self.cast_to_json(post_data))),
-                headers=json.loads(self.clean_response(self.headers(data.get("headers", {})))),
-                error=error
+                headers=json.loads(
+                    self.clean_response(self.headers(data.get("headers", {})))
+                ),
+                error=error,
             )
 
         if error:
@@ -424,7 +435,11 @@ class Integration(models.Model):
 
             return not user_integration.revoked
 
-        self.tracker = IntegrationTracker.objects.create(category=IntegrationTracker.Category.EXISTS, integration=self, for_user=new_hire)
+        self.tracker = IntegrationTracker.objects.create(
+            category=IntegrationTracker.Category.EXISTS,
+            integration=self,
+            for_user=new_hire,
+        )
 
         self.new_hire = new_hire
         self.has_user_context = new_hire is not None
@@ -480,7 +495,11 @@ class Integration(models.Model):
 
         # add extra fields directly to params
         self.params = self.new_hire.extra_fields
-        self.tracker = IntegrationTracker.objects.create(category=IntegrationTracker.Category.REVOKE, integration=self, for_user=self.new_hire)
+        self.tracker = IntegrationTracker.objects.create(
+            category=IntegrationTracker.Category.REVOKE,
+            integration=self,
+            for_user=self.new_hire,
+        )
 
         for item in revoke_manifest:
             success, response = self.run_request(item)
@@ -517,7 +536,8 @@ class Integration(models.Model):
                 )
             self.save(update_fields=["expiring", "extra_args"])
             if hasattr(self, "tracker"):
-                # we need to clean the last step as we now probably got new secret keys that need to be masked
+                # we need to clean the last step as we now probably got new secret keys
+                # that need to be masked
                 last_step = self.tracker.steps.last()
                 last_step.json_response = self.clean_response(last_step.json_response)
                 last_step.save()
@@ -565,7 +585,11 @@ class Integration(models.Model):
         self.new_hire = new_hire
         self.has_user_context = new_hire is not None
 
-        self.tracker = IntegrationTracker.objects.create(category=IntegrationTracker.Category.EXECUTE, integration=self, for_user=self.new_hire)
+        self.tracker = IntegrationTracker.objects.create(
+            category=IntegrationTracker.Category.EXECUTE,
+            integration=self,
+            for_user=self.new_hire,
+        )
 
         if self.has_user_context:
             self.params |= new_hire.extra_fields
@@ -718,10 +742,11 @@ class Integration(models.Model):
         return IntegrationConfigForm(instance=self, data=data)
 
     def clean_response(self, response) -> str:
-        try:
-            response = json.dumps(response)
-        except:
-            response = str(response)
+        if isinstance(response, dict):
+            try:
+                response = json.dumps(response)
+            except ValueError:
+                response = str(response)
 
         for name, value in self.extra_args.items():
             response = response.replace(
