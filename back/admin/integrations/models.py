@@ -98,7 +98,6 @@ class IntegrationTrackerStep(models.Model):
         return json.dumps(self.post_data, indent=4)
 
 
-
 class IntegrationManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset()
@@ -261,6 +260,15 @@ class Integration(models.Model):
             defaults={"revoked": user.is_offboarding},
         )
 
+    def cast_to_json(self, value):
+        try:
+            value = json.loads(value)
+        except Exception:
+            pass
+
+        return value
+
+
     def run_request(self, data):
         url = self._replace_vars(data["url"])
         if "data" in data:
@@ -268,10 +276,9 @@ class Integration(models.Model):
         else:
             post_data = {}
         if data.get("cast_data_to_json", False):
-            try:
-                post_data = json.loads(post_data)
-            except Exception:
-                pass
+            post_data = self.cast_to_json(post_data)
+
+        error = ""
 
         # extract files from locally saved files and send them with the request
         files_to_send = {}
@@ -279,12 +286,20 @@ class Integration(models.Model):
             try:
                 files_to_send[field_name] = (file_name, self.params["files"][file_name])
             except KeyError:
-                return (
-                    False,
-                    f"{file_name} could not be found in the locally saved files",
-                )
-
-        error = ""
+                error = f"{file_name} could not be found in the locally saved files"
+                if hasattr(self, "tracker"):
+                    IntegrationTrackerStep.objects.create(
+                        status_code=0,
+                        tracker=self.tracker,
+                        json_response={},
+                        text_response=error,
+                        url=self.clean_response(url),
+                        method=data.get("method", "POST"),
+                        post_data=json.loads(self.clean_response(self.cast_to_json(post_data))),
+                        headers=json.loads(self.clean_response(self.headers(data.get("headers", {})))),
+                        error=error
+                    )
+                return False, error
 
         response = None
         try:
@@ -345,7 +360,7 @@ class Integration(models.Model):
                 text_response=self.clean_response(text_response),
                 url=self.clean_response(url),
                 method=data.get("method", "POST"),
-                post_data=json.loads(self.clean_response(post_data)),
+                post_data=json.loads(self.clean_response(self.cast_to_json(post_data))),
                 headers=json.loads(self.clean_response(self.headers(data.get("headers", {})))),
                 error=error
             )

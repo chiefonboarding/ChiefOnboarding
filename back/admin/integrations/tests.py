@@ -890,12 +890,13 @@ def test_polling_not_getting_correct_state(
         return_value=Mock(
             status_code=200,
             content=b"0123456",
+            json=lambda: dict({})
         )
     ),
 )
 @patch(
     "requests.request",
-    Mock(return_value=Mock(status_code=201)),
+    Mock(return_value=Mock(status_code=201, json=lambda: dict({}))),
 )
 def test_receiving_and_sending_file(new_hire_factory, custom_integration_factory):
     new_hire = new_hire_factory()
@@ -929,12 +930,13 @@ def test_receiving_and_sending_file(new_hire_factory, custom_integration_factory
         return_value=Mock(
             status_code=200,
             content=b"0123456",
+            json=lambda: dict({})
         )
     ),
 )
 @patch(
     "requests.request",
-    Mock(return_value=Mock(status_code=201)),
+    Mock(return_value=Mock(status_code=201, json=lambda: dict({}))),
 )
 def test_receiving_and_sending_file_invalid_lookup(
     new_hire_factory, custom_integration_factory
@@ -961,7 +963,7 @@ def test_receiving_and_sending_file_invalid_lookup(
     success, response = integration.execute(new_hire, {})
 
     assert success is False
-    assert response == "test124.png could not be found in the locally saved files"
+    assert response == '"test124.png could not be found in the locally saved files"'
 
 
 @pytest.mark.django_db
