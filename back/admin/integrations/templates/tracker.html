@@ -1,5 +1,5 @@
 {% extends 'admin_base.html' %}
-{% load i18n tz %}
+{% load i18n %}
 
 {% block content %}
 <div class="row">
@@ -13,7 +13,7 @@
         <h4>{% translate "User" %}</h4>
         <p>{{ object.for_user }}</p>
         <h4>{% translate "Ran at" %}</h4>
-        <p>{{ object.ran_at|timezone:request.user.timezone }}</p>
+        <p>{{ object.ran_at }} UTC</p>
       </div>
     </div>
   </div>

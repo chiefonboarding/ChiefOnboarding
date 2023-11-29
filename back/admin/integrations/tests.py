@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django_q.models import Schedule
 
-from admin.integrations.models import Integration
+from admin.integrations.models import Integration, IntegrationTracker
 from admin.integrations.sync_userinfo import SyncUsers
 from admin.integrations.utils import get_value_from_notation
 from organization.models import Notification
@@ -817,7 +817,7 @@ def test_integration_save_data_to_user_invalid_lookup(
     assert result == (
         False,
         "Could not store data to new hire: "
-        "user_data.user_id not found in {'user': {'user_id': 123}}",
+        'user_data.user_id not found in {"user": {"user_id": 123}}',
     )
 
     new_hire.refresh_from_db()
@@ -1189,3 +1189,52 @@ def test_integration_sync_data_create_users(
     assert (
         not get_user_model().objects.filter(email="test5@chiefonboarding.com").exists()
     )
+
+
+@pytest.mark.django_db
+def test_integration_tracker(
+    client, django_user_model, new_hire_factory, custom_integration_factory
+):
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
+    integration = custom_integration_factory()
+    integration.manifest["exists"] = {
+        "url": "http://localhost:8000/test",
+        "method": "GET",
+        "expected": "{{ email}}",
+    }
+    integration.manifest["form"] = []
+    integration.manifest["extra_user_info"] = []
+    integration.save()
+    new_hire = new_hire_factory()
+
+    # Didn't find user
+    with patch(
+        "requests.request",
+        Mock(
+            return_value=Mock(
+                status_code=200,
+                json=lambda: '[{"error": "not_found"}]',
+                text='[{"error": "not_found"}]',
+            )
+        ),
+    ):
+        url = reverse(
+            "people:user_check_integration", args=[new_hire.id, integration.id]
+        )
+        response = client.get(url)
+
+    url = reverse("integrations:trackers")
+    response = client.get(url)
+
+    assert "All integration runs" in response.content.decode()
+    assert new_hire.full_name in response.content.decode()
+    assert "Check if user exists" in response.content.decode()
+
+    url = reverse("integrations:tracker", args=[IntegrationTracker.objects.first().id])
+    response = client.get(url)
+
+    assert integration.name + " for " + new_hire.full_name in response.content.decode()
+    print(response.content.decode())
+    assert "not_found" in response.content.decode()
