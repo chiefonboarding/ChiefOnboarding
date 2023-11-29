@@ -373,7 +373,7 @@ class Integration(models.Model):
                 headers=json.loads(
                     self.clean_response(self.headers(data.get("headers", {})))
                 ),
-                error=error,
+                error=self.clean_response(error),
             )
 
         if error:
