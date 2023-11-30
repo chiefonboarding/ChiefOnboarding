@@ -28,4 +28,14 @@ urlpatterns = [
         views.IntegrationUpdateExtraArgsView.as_view(),
         name="update-creds",
     ),
+    path(
+        "tracker/",
+        views.IntegrationTrackerListView.as_view(),
+        name="trackers",
+    ),
+    path(
+        "tracker/<int:pk>/",
+        views.IntegrationTrackerDetailView.as_view(),
+        name="tracker",
+    ),
 ]
