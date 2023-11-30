@@ -580,7 +580,7 @@ class Integration(models.Model):
         # if exceeding the max amounts, then fail
         return False, response
 
-    def execute(self, new_hire=None, params=None):
+    def execute(self, new_hire=None, params=None, retry_on_failure=False):
         self.params = params or {}
         self.params["responses"] = []
         self.params["files"] = {}
@@ -639,8 +639,8 @@ class Integration(models.Model):
                         created_for=new_hire,
                         description=f"Execute url ({item['url']}): {response}",
                     )
-                # Retry url in one hour
-                try:
+                if retry_on_failure:
+                    # Retry url in one hour
                     schedule(
                         "admin.integrations.tasks.retry_integration",
                         new_hire.id,
@@ -652,10 +652,6 @@ class Integration(models.Model):
                         next_run=timezone.now() + timedelta(hours=1),
                         schedule_type=Schedule.ONCE,
                     )
-                except:  # noqa E722
-                    # Only errors when item gets added another time, so we can safely
-                    # let it pass.
-                    pass
                 return False, response
 
             # save if file, so we can reuse later
