@@ -625,7 +625,9 @@ class IntegrationConfig(models.Model):
             if user.is_offboarding and self.integration.can_revoke_access:
                 self.integration.revoke_user(user)
             else:
-                self.integration.execute(user, self.additional_data)
+                self.integration.execute(
+                    user, self.additional_data, retry_on_failure=True
+                )
             return
 
         if self.person_type is None:
