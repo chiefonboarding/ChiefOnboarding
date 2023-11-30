@@ -5,6 +5,7 @@ from crispy_forms.layout import HTML, Div, Field, Layout
 from django import forms
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from admin.integrations.models import Integration
@@ -101,7 +102,7 @@ class IntegrationConfigForm(forms.ModelForm):
                 except Exception:
                     expected = self._expected_example(item)
 
-                    self.error = (
+                    self.error = mark_safe(
                         f"Form item ({item['name']}) could not be rendered. Format "
                         "was different than expected.<br><h2>Expected format:"
                         f"</h2><pre>{json.dumps(expected, indent=4)}</pre><br><h2>"
