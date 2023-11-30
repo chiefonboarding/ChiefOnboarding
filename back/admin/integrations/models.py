@@ -366,7 +366,9 @@ class Integration(models.Model):
                 status_code=0 if response is None else response.status_code,
                 tracker=self.tracker,
                 json_response=json.loads(self.clean_response(json_response)),
-                text_response=self.clean_response(text_response),
+                text_response="Cannot display, could be file"
+                if data.get("save_as_file", False)
+                else self.clean_response(text_response),
                 url=self.clean_response(url),
                 method=data.get("method", "POST"),
                 post_data=json.loads(self.clean_response(self.cast_to_json(post_data))),
