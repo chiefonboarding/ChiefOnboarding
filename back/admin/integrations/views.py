@@ -19,7 +19,7 @@ from django.views.generic.list import ListView
 
 from users.mixins import AdminPermMixin, LoginRequiredMixin
 
-from .forms import IntegrationExtraArgsForm, IntegrationForm, IntegrationTestForm
+from .forms import IntegrationExtraArgsForm, IntegrationForm
 from .models import Integration, IntegrationTracker
 
 
