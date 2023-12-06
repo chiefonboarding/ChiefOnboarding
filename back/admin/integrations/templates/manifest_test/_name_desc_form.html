@@ -1,0 +1,28 @@
+{% load i18n %}
+<div class="row mt-2" v-for="(i, itemIndex) in {{ location }}" :key="itemIndex">
+  <div class="col-2">
+    <label class="form-label">
+      {% trans "ID" %}
+    </label>
+    <input type="text" name="id" v-model="i.id" value="" maxlength="240" class="textinput form-control" id="id_id">
+  </div>
+  <div class="col-4">
+    <label class="form-label">
+      {% trans "Name" %}
+    </label>
+    <input type="text" name="name" v-model="i.name" value="" maxlength="240" class="textinput form-control" id="id_name">
+  </div>
+  <div class="col-5">
+    <label class="form-label">
+      {% trans "Description" %}
+    </label>
+    <input type="text" name="description" v-model="i.description" value="" maxlength="240" class="textinput form-control" id="id_description">
+  </div>
+  <div class="col-1">
+    <button type="button" @click="removeObjFromList({{ location }}, itemIndex)" class="btn btn-sm btn-danger mt-4">{% trans "X" %}</button>
+  </div>
+</div>
+<div v-if="{{ location }}.length == 0">
+  {{ empty_message }}
+</div>
+<button type="button" @click="addNameDescrItem({{ location }})" class="btn btn-sm btn-primary mt-1">{{ add_button }}</button>

@@ -4,12 +4,14 @@ from urllib.parse import urlparse
 
 import requests
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
-from django.shortcuts import get_object_or_404, redirect
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from django.views.generic import View
+from django.views.generic import TemplateView, View
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
@@ -17,7 +19,7 @@ from django.views.generic.list import ListView
 
 from users.mixins import AdminPermMixin, LoginRequiredMixin
 
-from .forms import IntegrationExtraArgsForm, IntegrationForm
+from .forms import IntegrationExtraArgsForm, IntegrationForm, IntegrationTestForm
 from .models import Integration, IntegrationTracker
 
 
@@ -76,6 +78,8 @@ class IntegrationUpdateView(
         context["title"] = _("Update existing integration")
         context["subtitle"] = _("settings")
         context["button_text"] = _("Update")
+        context["test_form"] = IntegrationTestForm()
+        print(context["test_form"].as_table())
         return context
 
 
@@ -232,3 +236,119 @@ class IntegrationTrackerDetailView(LoginRequiredMixin, DetailView):
         }
         context["subtitle"] = _("integrations")
         return context
+
+
+class IntegrationBuilderView(LoginRequiredMixin, AdminPermMixin, TemplateView):
+    template_name = "manifest_test.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if pk := self.kwargs.get("pk", False):
+            manifest = get_object_or_404(Integration, id=pk).manifest
+            if not manifest.get("exists", {}):
+                manifest["exists"] = {
+                    "url": "",
+                    "method": "",
+                    "expected": "",
+                    "headers": {},
+                    "fail_when_4xx_response_code": False,
+                }
+            for base in [manifest["exists"], manifest, *manifest["form"]]:
+                if base.get("headers", False):
+                    base["headers"] = [
+                        {"key": key, "value": value}
+                        for key, value in base["headers"].items()
+                    ]
+                else:
+                    base["headers"] = []
+
+            for form in manifest["form"]:
+                form["results_from"] = (
+                    "fixed" if len(form.get("items", [])) > 0 else "fetched"
+                )
+            context["manifest"] = manifest
+            if manifest.get("extra_user_info", False):
+                manifest["extra_user_info"] = []
+            if manifest.get("initial_data_form", False):
+                manifest["extra_user_info"] = []
+
+        context["title"] = _(
+            "BETA: Create and test an integration (experimental feature)"
+        )
+        context["subtitle"] = _("integrations")
+        context["users"] = get_user_model().objects.all()
+        return context
+
+
+class IntegrationTestFormView(LoginRequiredMixin, AdminPermMixin, View):
+    def post(self, request, *args, **kwargs):
+        test_type = request.POST.get("type", "form")
+        try:
+            manifest = json.loads(request.POST.get("manifest", "{}"))
+        except ValueError:
+            manifest = {}
+        try:
+            extra_fields = json.loads(request.POST.get("extra_fields", "{}"))
+        except ValueError:
+            extra_fields = {}
+        try:
+            extra_args = json.loads(request.POST.get("extra_args", "{}"))
+        except ValueError:
+            extra_args = {}
+
+        try:
+            user = get_user_model().objects.get(id=request.POST.get("user", -1))
+        except get_user_model().DoesNotExist:
+            return HttpResponse("No user selected")
+
+        for base in [manifest["exists"], manifest, *manifest["form"]]:
+            if base.get("headers", False):
+                base["headers"] = {
+                    item["key"]: item["value"] for item in base["headers"]
+                }
+
+        extra_args_dict = {item["key"]: item["value"] for item in extra_args}
+        extra_fields_dict = {item["key"]: item["value"] for item in extra_fields}
+
+        # mock extra fields to user. DO NOT SAVE!
+        user.extra_fields = extra_fields_dict
+        integration = Integration(manifest=manifest, extra_args=extra_args_dict)
+
+        if test_type == "form":
+            form = integration.config_form()
+            return render(request, "_item_form.html", {"form": form})
+
+        if test_type == "user_exists":
+            return HttpResponse(integration.test_user_exists(user))
+
+
+class IntegrationTestDownloadJSONView(LoginRequiredMixin, AdminPermMixin, View):
+    def post(self, request, *args, **kwargs):
+        try:
+            manifest = json.loads(request.POST.get("manifest", "{}"))
+        except ValueError:
+            manifest = {}
+
+        for base in [manifest["exists"], manifest, *manifest["form"]]:
+            if base.get("headers", False):
+                base["headers"] = {
+                    item["key"]: item["value"] for item in base["headers"]
+                }
+
+        return HttpResponse("<pre>" + json.dumps(manifest, indent=4) + "</pre>")
+
+
+class IntegrationTestUserExistsView(LoginRequiredMixin, AdminPermMixin, View):
+    def post(self, request, *args, **kwargs):
+        try:
+            manifest = json.loads(request.POST.get("manifest", "{}"))
+        except ValueError:
+            manifest = {}
+
+        for base in [manifest["exists"], manifest, *manifest["form"]]:
+            if base.get("headers", False):
+                base["headers"] = {
+                    item["key"]: item["value"] for item in base["headers"]
+                }
+
+        return HttpResponse("<pre>" + json.dumps(manifest, indent=4) + "</pre>")
