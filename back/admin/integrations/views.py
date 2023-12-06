@@ -78,8 +78,6 @@ class IntegrationUpdateView(
         context["title"] = _("Update existing integration")
         context["subtitle"] = _("settings")
         context["button_text"] = _("Update")
-        context["test_form"] = IntegrationTestForm()
-        print(context["test_form"].as_table())
         return context
 
 
