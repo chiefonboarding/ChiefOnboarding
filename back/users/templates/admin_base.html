@@ -260,7 +260,7 @@
     </script>
     <script defer>
       function initSelectize(prefix="") {
-        $(prefix + ' select:not(.multi-with-add):not(.add)').selectize()
+        $(prefix + ' select:not(.multi-with-add):not(.add):not(.disable-selectize)').selectize()
         $(prefix + ' .multi-with-add').selectize({ create: true })
         $(prefix + ' .add').selectize({ create: true })
       }

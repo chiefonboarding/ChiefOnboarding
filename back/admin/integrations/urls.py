@@ -38,4 +38,24 @@ urlpatterns = [
         views.IntegrationTrackerDetailView.as_view(),
         name="tracker",
     ),
+    path(
+        "builder/",
+        views.IntegrationBuilderView.as_view(),
+        name="builder",
+    ),
+    path(
+        "builder/<int:pk>/",
+        views.IntegrationBuilderView.as_view(),
+        name="builder",
+    ),
+    path(
+        "builder/json/",
+        views.IntegrationTestDownloadJSONView.as_view(),
+        name="builder-json",
+    ),
+    path(
+        "builder/test/form/",
+        views.IntegrationTestFormView.as_view(),
+        name="builder-test-form",
+    ),
 ]

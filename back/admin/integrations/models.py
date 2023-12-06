@@ -385,9 +385,10 @@ class Integration(models.Model):
 
     def _replace_vars(self, text):
         params = {} if not hasattr(self, "params") else self.params
-        params["redirect_url"] = settings.BASE_URL + reverse_lazy(
-            "integrations:oauth-callback", args=[self.id]
-        )
+        if self.pk is not None:
+            params["redirect_url"] = settings.BASE_URL + reverse_lazy(
+                "integrations:oauth-callback", args=[self.id]
+            )
         if hasattr(self, "new_hire") and self.new_hire is not None:
             text = self.new_hire.personalize(text, self.extra_args | params)
             return text
@@ -464,6 +465,24 @@ class Integration(models.Model):
         )
 
         return user_exists
+
+    def test_user_exists(self, new_hire):
+        self.new_hire = new_hire
+        self.has_user_context = new_hire is not None
+
+        # Renew token if necessary
+        if not self.renew_key():
+            return "Couldn't renew token"
+
+        success, response = self.run_request(self.manifest["exists"])
+
+        user_exists = (
+            self._replace_vars(self.manifest["exists"]["expected"]) in response.text
+        )
+
+        found_user = "FOUND USER" if user_exists else "COULD NOT FIND USER"
+
+        return f"{found_user} in {response.text}"
 
     def needs_user_info(self, user):
         if self.skip_user_provisioning:
