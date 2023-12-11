@@ -244,8 +244,9 @@ class IntegrationBuilderView(LoginRequiredMixin, AdminPermMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if pk := self.kwargs.get("pk", False):
-            manifest = get_object_or_404(Integration, id=pk).manifest
-            context["object"] = manifest
+            integration = get_object_or_404(Integration, id=pk)
+            manifest = integration.manifest
+            context["object"] = integration
             if not manifest.get("exists", {}):
                 manifest["exists"] = {
                     "url": "",
