@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.generic import TemplateView, View
@@ -229,7 +229,9 @@ class IntegrationTrackerDetailView(LoginRequiredMixin, ManagerPermMixin, DetailV
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = _("%(integration)s for %(user)s") % {
-            "integration": self.object.integration.name if self.object.integration is not None else "Test integration",
+            "integration": self.object.integration.name
+            if self.object.integration is not None
+            else "Test integration",
             "user": self.object.for_user,
         }
         context["subtitle"] = _("integrations")
@@ -256,7 +258,13 @@ class IntegrationBuilderView(LoginRequiredMixin, AdminPermMixin, TemplateView):
             if not manifest.get("revoke", False):
                 manifest["revoke"] = []
 
-            for base in [manifest["exists"], manifest, *manifest["form"], *manifest["revoke"], *manifest["execute"]]:
+            for base in [
+                manifest["exists"],
+                manifest,
+                *manifest["form"],
+                *manifest["revoke"],
+                *manifest["execute"],
+            ]:
                 if base.get("headers", False):
                     base["headers"] = [
                         {"key": key, "value": value}
@@ -323,14 +331,15 @@ class IntegrationTestView(LoginRequiredMixin, AdminPermMixin, View):
         for idx, ex in enumerate(manifest["execute"]):
             try:
                 ex["data"] = json.loads(ex["data"])
-            except:
+            except ValueError:
                 return HttpResponse(f"Data of request {idx + 1} is not a valid json")
-
 
         extra_args_dict = {item["key"]: item["value"] for item in extra_args}
 
         try:
-            extra_args_dict |= Integration.objects.get(id=request.POST.get("integration_id", -1)).extra_args
+            extra_args_dict |= Integration.objects.get(
+                id=request.POST.get("integration_id", -1)
+            ).extra_args
         except Integration.DoesNotExist:
             # don't use args from original manifest
             pass
@@ -356,7 +365,10 @@ class IntegrationTestView(LoginRequiredMixin, AdminPermMixin, View):
             integration_status = "Succeeded" if succeeded else "Failed"
 
             url = reverse("integrations:tracker", args=[integration.tracker.id])
-            return HttpResponse(f"{integration_status}\n\n<a target='_blank' href='{url}'>See steps here</a>")
+            return HttpResponse(
+                f"{integration_status}\n\n"
+                f"<a target='_blank' href='{url}'>See steps here</a>"
+            )
 
         else:
             return HttpResponse("Unknown type")
@@ -369,7 +381,12 @@ class IntegrationTestDownloadJSONView(LoginRequiredMixin, AdminPermMixin, View):
         except ValueError:
             manifest = {}
 
-        for base in [manifest["exists"], manifest, *manifest["form"], *manifest["execute"]]:
+        for base in [
+            manifest["exists"],
+            manifest,
+            *manifest["form"],
+            *manifest["execute"],
+        ]:
             if "headers" in base:
                 if base["headers"] == []:
                     del base["headers"]
