@@ -54,7 +54,7 @@ class IntegrationTracker(models.Model):
         REVOKE = 2, _("Revoke user")
 
     integration = models.ForeignKey(
-        "integrations.Integration", on_delete=models.CASCADE
+        "integrations.Integration", on_delete=models.CASCADE, null=True
     )
     category = models.IntegerField(choices=Category.choices)
     for_user = models.ForeignKey("users.User", on_delete=models.CASCADE, null=True)
@@ -472,9 +472,12 @@ class Integration(models.Model):
 
         # Renew token if necessary
         if not self.renew_key():
-            return "Couldn't renew token"
+            return _("Couldn't renew token")
 
         success, response = self.run_request(self.manifest["exists"])
+
+        if isinstance(response, str):
+            return _("Error when making the request: %(error)s") % {"error": response}
 
         user_exists = (
             self._replace_vars(self.manifest["exists"]["expected"]) in response.text
@@ -518,7 +521,7 @@ class Integration(models.Model):
         self.params = self.new_hire.extra_fields
         self.tracker = IntegrationTracker.objects.create(
             category=IntegrationTracker.Category.REVOKE,
-            integration=self,
+            integration=self if self.pk is not None else None,
             for_user=self.new_hire,
         )
 
@@ -608,7 +611,7 @@ class Integration(models.Model):
 
         self.tracker = IntegrationTracker.objects.create(
             category=IntegrationTracker.Category.EXECUTE,
-            integration=self,
+            integration=self if self.pk is not None else None,
             for_user=self.new_hire,
         )
 

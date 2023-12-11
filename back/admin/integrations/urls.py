@@ -54,8 +54,8 @@ urlpatterns = [
         name="builder-json",
     ),
     path(
-        "builder/test/form/",
-        views.IntegrationTestFormView.as_view(),
-        name="builder-test-form",
+        "builder/test/",
+        views.IntegrationTestView.as_view(),
+        name="builder-test",
     ),
 ]
