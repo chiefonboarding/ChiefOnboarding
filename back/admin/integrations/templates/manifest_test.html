@@ -12,11 +12,17 @@ select.form-select {
 {% endblock %}
 
 {% block actions %}
-<button type="button" hx-vals="js:{manifest: JSON.stringify(app.manifest), extra_fields: JSON.stringify(app.extra_fields), extra_args: JSON.stringify(app.extra_args), user: app.user_id}" hx-post="{% url 'integrations:builder-test-form' %}" class="btn btn-primary" hx-target="#result">
+<button type="button" hx-vals="js:{manifest: JSON.stringify(app.manifest), extra_fields: JSON.stringify(app.extra_fields), {% if object %}integration_id: {{ object.id }},{% endif %} extra_args: JSON.stringify(app.extra_args), user: app.user_id}" hx-post="{% url 'integrations:builder-test' %}" class="btn btn-primary" hx-target="#result">
     {% translate "Test form" %}
   </button>
-  <button type="button" hx-vals="js:{manifest: JSON.stringify(app.manifest), extra_fields: JSON.stringify(app.extra_fields), extra_args: JSON.stringify(app.extra_args), user: app.user_id, type: 'user_exists'}" hx-post="{% url 'integrations:builder-test-form' %}" class="btn btn-primary" hx-target="#result">
+  <button type="button" hx-vals="js:{manifest: JSON.stringify(app.manifest), extra_fields: JSON.stringify(app.extra_fields), {% if object %}integration_id: {{ object.id }},{% endif %} extra_args: JSON.stringify(app.extra_args), user: app.user_id, type: 'user_exists'}" hx-post="{% url 'integrations:builder-test' %}" class="btn btn-primary" hx-target="#result">
     {% translate "Test user exist" %}
+  </button>
+  <button type="button" hx-vals="js:{manifest: JSON.stringify(app.manifest), extra_fields: JSON.stringify(app.extra_fields), {% if object %}integration_id: {{ object.id }},{% endif %}extra_args: JSON.stringify(app.extra_args), user: app.user_id, type: 'execute'}" hx-post="{% url 'integrations:builder-test' %}" class="btn btn-primary" hx-target="#result">
+    {% translate "Test execute" %}
+  </button>
+  <button type="button" hx-vals="js:{manifest: JSON.stringify(app.manifest), extra_fields: JSON.stringify(app.extra_fields), {% if object %}integration_id: {{ object.id }},{% endif %}extra_args: JSON.stringify(app.extra_args), user: app.user_id, type: 'revoke'}" hx-post="{% url 'integrations:builder-test' %}" class="btn btn-primary" hx-target="#result">
+    {% translate "Test revoke" %}
   </button>
   <button type="button" hx-vals="js:{manifest: JSON.stringify(app.manifest)}" hx-post="{% url 'integrations:builder-json' %}" class="btn btn-primary" hx-target="#result">
     {% translate "Download JSON" %}
@@ -27,6 +33,9 @@ select.form-select {
 {% if manifest %}
 {{ manifest|json_script:"manifest" }}
 {% endif %}
+<div class="alert alert-info" role="alert">
+  <div>If you need OAuth, then set OAuth up first manually and authenticate. Then edit the manifest to automatically use the credentials from the OAuth setup process.</div>
+</div>
 
 <div class="row" id="app">
   <div class="col-8">
@@ -42,23 +51,23 @@ select.form-select {
             <hr>
 
             <div class="mb-2">
-              <label for="id_name" class="form-label">
-                {% trans "The name of the field, used in the form to select the item" %}
+              <label class="form-label">
+                {% trans "Name of the field, used in the form to select the item" %}
               </label>
               <input type="text" name="name" v-model="formItem.name" value="" maxlength="240" class="textinput form-control" id="id_name">
             </div>
 
             <div class="mb-2">
-              <label for="id_id" class="form-label">
-                {% trans "The ID of the field, which can be used elsewhere to get the value" %}
+              <label class="form-label">
+                {% trans "ID of the field, which can be used elsewhere to get the value" %}
               </label>
               <input type="text" name="id" v-model="formItem.id" value="" maxlength="240" class="textinput form-control" id="id_id">
             </div>
 
             <div class="row mb-2">
               <div class="col-6">
-                <label for="id_type" class="form-label">
-                  {% trans "The type of the input. Use text for manual input, use choice for a fetched or fixed list of options." %}
+                <label class="form-label">
+                  {% trans "Type of the input. Use text for manual input, use choice for a fetched or fixed list of options." %}
                 </label>
                 <select v-model="formItem.type" class="form-select disable-selectize" id="type">
                   <option value="text">text</option>
@@ -67,7 +76,7 @@ select.form-select {
                 </select>
               </div>
               <div class="col-6" v-if="formItem.type != 'text'">
-                <label for="id_fetch" class="form-label">
+                <label class="form-label">
                   {% trans "Use fixed options or fetch options directly from a third party API." %}
                 </label>
                 <select v-model="formItem.results_from" class="form-select disable-selectize" id="fetch">
@@ -80,8 +89,8 @@ select.form-select {
             <div v-if="formItem.results_from == 'fetched' && formItem.type != 'text'">
               <h4>Fetching items from URL</h4>
               <div class="mb-2">
-                <label for="id_url" class="form-label">
-                  {% trans "The url where items should be fetched from" %}
+                <label class="form-label">
+                  {% trans "Url where items should be fetched from" %}
                 </label>
                 <input type="url" name="url" v-model="formItem.url" value="" maxlength="240" class="textinput form-control" id="id_url">
               </div>
@@ -89,27 +98,27 @@ select.form-select {
               {% include "manifest_test/_method.html" with method_location="formItem.method" %}
 
               <div class="mb-2">
-                <label for="id_headers" class="form-label">
+                <label class="form-label">
                   {% trans "Headers (overrules the default `headers` if not empty)" %}
                 </label>
                 {% include "manifest_test/_key_value_form.html" with location="formItem.headers" empty_message="There are no headers defined yet" add_button="Add header" %}
               </div>
 
               <div class="mb-2">
-                <label for="id_data_from" class="form-label">
-                  {% trans "The property it should use from the response of the url. Default all the result items (the result should be an array in that case)" %}
+                <label  class="form-label">
+                  {% trans "Property it should use from the response of the url. Default all the result items (the result should be an array in that case)" %}
                 </label>
                 <input type="text" name="data_from" v-model="formItem.data_from" value="" maxlength="240" class="textinput form-control" id="id_data_from">
               </div>
               <div class="row">
                 <div class="col-6 mb-2">
-                  <label for="choice_value" class="form-label">
+                  <label class="form-label">
                     {% trans "The value prop from the result data (likely referring to an ID)" %}
                   </label>
                   <input type="text" name="choice_value" v-model="formItem.choice_value" value="" maxlength="240" class="textinput form-control" id="id_choice_value">
                 </div>
                 <div class="col-6 mb-2">
-                  <label for="id_choice_name" class="form-label">
+                  <label class="form-label">
                     {% trans "The name prop from the result data (likely referring to a description)" %}
                   </label>
                   <input type="text" name="choice_name" v-model="formItem.choice_name" value="" maxlength="240" class="textinput form-control" id="id_choice_name">
@@ -156,8 +165,8 @@ select.form-select {
         <h3>{% trans "Exists" %}</h3>
         <p>{% trans "Check if a user already exists in the third party service. Leave empty to ignore." %}</p>
         <div>
-          <label for="id_url" class="form-label">
-            {% trans "The url where it should check" %}
+          <label class="form-label">
+            {% trans "Url it should check" %}
           </label>
           <input type="url" name="url" v-model="manifest.exists.url" value="" maxlength="240" class="textinput form-control" id="id_url">
           {% include "manifest_test/_method.html" with method_location="manifest.exists.method" %}
@@ -167,19 +176,152 @@ select.form-select {
           <input type="text" name="expected" v-model="manifest.exists.expected" value="" maxlength="240" class="textinput form-control" id="id_expected">
           <div class="form-check mt-2">
             <input class="form-check-input" type="checkbox" v-model="manifest.exists.fail_when_4xx_response_code" value="" id="failWhen4xx">
-            <label class="form-check-label" for="failWhen4xx">
+            <label class="form-check-label">
               {% trans "If the server response with a 4xx status code, then that's considered a server error. Disable this if you want 4xx to indicate that a user does not exist." %}
             </label>
           </div>
 
           <div class="mb-2">
-            <label for="id_headers" class="form-label">
+            <label class="form-label">
               {% trans "Headers (overrules the default `headers` if not empty)" %}
             </label>
             {% include "manifest_test/_key_value_form.html" with location="manifest.exists.headers" empty_message="There are no headers defined yet" add_button="Add header" %}
           </div>
 
         </div>
+      </div>
+    </div>
+    <div class="card mt-4">
+      <div class="card-body">
+        <h3>{% trans "Execute" %}</h3>
+        <p>{% trans "This will run when the integration gets triggered." %}</p>
+        <div v-for="(ex, itemIndex) in manifest.execute" :key="ex.url">
+          <hr>
+          <label class="form-label">
+            {% trans "URL" %}
+          </label>
+          <input type="url" name="url" v-model="ex.url" value="" maxlength="240" class="textinput form-control" id="id_url">
+          {% include "manifest_test/_method.html" with method_location="ex.method" %}
+          <label class="form-label mt-2">
+            {% trans "Post data" %}
+          </label>
+          <textarea name="data" v-model="ex.data" value="" maxlength="240" class="textinput form-control" id="id_data"></textarea>
+
+          <div class="form-check mt-2">
+            <input class="form-check-input" type="checkbox" v-model="ex.cast_data_to_json" value="">
+            <label class="form-check-label">
+              {% trans "Check this if the data should be send as json. If unchecked, then it's send as a string." %}
+            </label>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">
+              {% trans "Headers (overrules the default `headers` if not empty)" %}
+            </label>
+            {% include "manifest_test/_key_value_form.html" with location="ex.headers" empty_message="There are no headers defined yet" add_button="Add header" %}
+          </div>
+          <div class="mb-2" v-if="ex.hasOwnProperty('files')">
+            <label class="form-label">
+              {% trans "Files (note: you will have to download these before you can use them" %}
+            </label>
+            {% include "manifest_test/_key_value_form.html" with location="ex.files" empty_message="No files will be sent with it" add_button="Add file" %}
+          </div>
+          <div class="mb-2" v-if="ex.hasOwnProperty('store_data')">
+            <label class="form-label">
+              {% trans "Store data" %}
+            </label>
+            {% include "manifest_test/_key_value_form.html" with location="ex.store_data" empty_message="No fields will be stored to new hire" add_button="Add field" %}
+          </div>
+          <div class="mb-2" v-if="ex.hasOwnProperty('polling')">
+            <label class="form-label">
+              {% trans "Polling" %}
+            </label>
+            <div class="col-6">
+              <label class="form-label">
+                {% trans "Time between each poll (seconds)" %}
+              </label>
+              <input type="number" name="interval" v-model="ex.polling.interval" value="" maxlength="240" class="textinput form-control">
+            </div>
+            <div class="col-6">
+              <label class="form-label">
+                {% trans "Amount of times to try before giving up" %}
+              </label>
+              <input type="number" name="amount" v-model="ex.polling.amount" value="" maxlength="240" class="textinput form-control">
+            </div>
+          </div>
+          <div class="mb-2" v-if="ex.hasOwnProperty('continue_if')">
+            <label class="form-label">
+              {% trans "Only continue with the other requests if..." %}
+            </label>
+            <div class="col-6">
+              <label class="form-label">
+                {% trans "Response notation (for example: 'details.status')" %}
+              </label>
+              <input type="text" name="response_notation" v-model="ex.continue_if.response_notation" value="" maxlength="240" class="textinput form-control">
+            </div>
+            <div class="col-6">
+              <label class="form-label">
+                {% trans "Expected value" %}
+              </label>
+              <input type="text" name="amount" v-model="ex.continue_if.value" value="" maxlength="240" class="textinput form-control">
+            </div>
+          </div>
+          <div class="mb-2" v-if="ex.hasOwnProperty('save_as_file')">
+            <label class="form-label">
+              {% trans "Give a name to the file (so you can use it in other requests underneath)" %}
+            </label>
+            <input type="text" name="response_notation" v-model="ex.save_as_file" value="" maxlength="240" class="textinput form-control">
+          </div>
+
+          <div class="dropdown">
+            <button type="button" class="btn btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+              {% trans "Add/Remove other options" %}
+            </button>
+            <div class="dropdown-menu">
+              <button @click="toggleStoreData(ex)" class="dropdown-item">
+                store data
+              </button>
+              <button @click="togglePolling(ex)" class="dropdown-item">
+                polling
+              </button>
+              <button class="dropdown-item" @click="toggleContinueIf(ex)">
+                continue if
+              </button>
+              <button class="dropdown-item" @click="toggleSaveAsFile(ex)">
+                save as file
+              </button>
+            </div>
+          </div>
+          <button type="button" @click="removeItemsItem(manifest.execute, itemIndex)" class="btn btn-sm btn-danger mt-1">{% trans "Remove request" %}</button>
+        </div>
+        <button type="button" @click="addRequestItem(manifest.execute)" class="btn btn-primary mt-1">{% trans "Add request" %}</button>
+      </div>
+    </div>
+    <div class="card mt-4">
+      <div class="card-body">
+        <h3>{% trans "Revoke" %}</h3>
+        <p>{% trans "This will revoke a user when the integration is triggered in the offboarding sequence or by revoking the user by clicking on the button" %}</p>
+        <div v-for="(revokeStep, itemIndex) in manifest.revoke" :key="revokeStep.url">
+          <hr>
+          <label class="form-label">
+            {% trans "URL" %}
+          </label>
+          <input type="url" name="url" v-model="revokeStep.url" value="" maxlength="240" class="textinput form-control" id="id_url">
+          <label class="form-label mt-2">
+            {% trans "Post data" %}
+          </label>
+          <textarea name="data" v-model="revokeStep.data" value="" maxlength="240" class="textinput form-control" id="id_data"></textarea>
+          {% include "manifest_test/_method.html" with method_location="revokeStep.method" %}
+
+          <div class="mb-2">
+            <label class="form-label">
+              {% trans "Headers (overrules the default `headers` if not empty)" %}
+            </label>
+            {% include "manifest_test/_key_value_form.html" with location="revokeStep.headers" empty_message="There are no headers defined yet" add_button="Add header" %}
+          </div>
+          <button type="button" @click="removeItemsItem(manifest.revoke, itemIndex)" class="btn btn-sm btn-danger mt-1">{% trans "Remove request" %}</button>
+        </div>
+        <button type="button" @click="addRequestItem(manifest.revoke)" class="btn btn-primary mt-1">{% trans "Add revoke request" %}</button>
       </div>
     </div>
     <div class="card mt-4">

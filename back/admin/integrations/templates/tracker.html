@@ -7,7 +7,7 @@
     <div class="card">
       <div class="card-body">
         <h4>{% translate "Integration" %}</h4>
-        <p>{{ object.integration.name }}</p>
+        <p>{% if object.integration is None %}Test integration{% else %}{{ object.integration.name }}{% endif %}</p>
         <h4>{% translate "Type" %}</h4>
         <p>{{ object.get_category_display }}</p>
         <h4>{% translate "User" %}</h4>

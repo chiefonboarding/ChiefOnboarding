@@ -18,7 +18,7 @@
         <tbody>
           {% for integration_run in object_list %}
           <tr>
-            <td>{{ integration_run.integration.name }}</td>
+            <td>{% if integration_run.integration is None %}Test integration{% else %}{{ integration_run.integration.name }}{% endif %}</td>
             <td>{{ integration_run.get_category_display }}</td>
             <td>{{ integration_run.for_user }}</td>
             <td class="text-end"><a href="{% url 'integrations:tracker' integration_run.id %}" class="btn">Check steps</a></td>
