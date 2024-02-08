@@ -774,7 +774,7 @@ class Integration(models.Model):
             if isinstance(value, dict):
                 for inner_name, inner_value in value.items():
                     response = response.replace(
-                        str(inner_value), _("***Secret value for %(nname)s***") % {"name": inner_name + "." + name}
+                        str(inner_value), _("***Secret value for %(name)s***") % {"name": name + "." + inner_name}
                     )
             else:
                 response = response.replace(
