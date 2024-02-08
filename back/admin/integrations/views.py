@@ -248,6 +248,9 @@ class IntegrationBuilderView(LoginRequiredMixin, AdminPermMixin, TemplateView):
         if pk := self.kwargs.get("pk", False):
             integration = get_object_or_404(Integration, id=pk)
             manifest = integration.manifest
+            if manifest.get("form", None) is None:
+                manifest["form"] = []
+
             context["object"] = integration
             if not manifest.get("exists", {}):
                 manifest["exists"] = {

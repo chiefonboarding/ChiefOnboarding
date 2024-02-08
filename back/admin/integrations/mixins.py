@@ -1,8 +1,10 @@
 import logging
+from json.decoder import JSONDecodeError
 
 from django.utils.translation import gettext_lazy as _
 
 from admin.integrations.exceptions import (
+    DataIsNotJSONError,
     FailedPaginatedResponseError,
     KeyIsNotInDataError,
 )
@@ -37,6 +39,14 @@ class PaginatedResponse:
                     "response": self.integration.clean_response(response.json()),
                 }
             )
+        except JSONDecodeError:
+            raise DataIsNotJSONError(
+                _("Response is not JSON: %(response)s")
+                % {
+                    "response": self.integration.clean_response(response.text),
+                }
+            )
+
         data_structure = self.integration.manifest["data_structure"]
         user_details = []
         for user_data in users:
