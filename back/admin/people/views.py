@@ -417,7 +417,11 @@ class ColleagueImportFetchUsersHXView(LoginRequiredMixin, AdminPermMixin, View):
             # we are passing in the user who is requesting it, but we likely don't need
             # them.
             users = SyncUsers(integration).get_import_user_candidates()
-        except (KeyIsNotInDataError, FailedPaginatedResponseError, DataIsNotJSONError) as e:
+        except (
+            KeyIsNotInDataError,
+            FailedPaginatedResponseError,
+            DataIsNotJSONError,
+        ) as e:
             return render(request, "_import_user_table.html", {"error": e})
 
         return render(

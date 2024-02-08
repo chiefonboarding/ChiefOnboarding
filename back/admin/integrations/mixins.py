@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from admin.integrations.exceptions import (
     FailedPaginatedResponseError,
     KeyIsNotInDataError,
-    DataIsNotJSONError
+    DataIsNotJSONError,
 )
 from admin.integrations.utils import get_value_from_notation
 
@@ -46,7 +46,6 @@ class PaginatedResponse:
                     "response": self.integration.clean_response(response.text),
                 }
             )
-
 
         data_structure = self.integration.manifest["data_structure"]
         user_details = []

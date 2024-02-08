@@ -4,3 +4,7 @@ class FailedPaginatedResponseError(Exception):
 
 class KeyIsNotInDataError(Exception):
     pass
+
+
+class DataIsNotJSONError(Exception):
+    pass
