@@ -342,6 +342,7 @@ class IntegrationTestView(LoginRequiredMixin, AdminPermMixin, View):
             integration = Integration.objects.get(
                 id=request.POST.get("integration_id", -1)
             )
+            integration.renew_key()
             extra_args_dict |= integration.extra_args
             expiring = integration.expiring
         except Integration.DoesNotExist:
