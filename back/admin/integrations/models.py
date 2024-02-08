@@ -772,14 +772,14 @@ class Integration(models.Model):
 
         for name, value in self.extra_args.items():
             if isinstance(value, dict):
-                response = response.replace(
-                    str(value), _("***Secret value for %(name)s***") % {"name": name}
-                )
-            else:
                 for inner_name, inner_value in value.items():
                     response = response.replace(
                         str(inner_value), _("***Secret value for %(nname)s***") % {"name": inner_name + "." + name}
                     )
+            else:
+                response = response.replace(
+                    str(value), _("***Secret value for %(name)s***") % {"name": name}
+                )
 
             if name == "Authorization" and value.startswith("Basic"):
                 response.replace(base64.b64encode(
