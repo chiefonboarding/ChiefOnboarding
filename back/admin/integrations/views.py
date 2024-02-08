@@ -336,11 +336,14 @@ class IntegrationTestView(LoginRequiredMixin, AdminPermMixin, View):
                 return HttpResponse(f"Data of request {idx + 1} is not a valid json")
 
         extra_args_dict = {item["key"]: item["value"] for item in extra_args}
+        expiring = timezone.now()
 
         try:
-            extra_args_dict |= Integration.objects.get(
+            integration = Integration.objects.get(
                 id=request.POST.get("integration_id", -1)
-            ).extra_args
+            )
+            extra_args_dict |= integration.extra_args
+            expiring = integration.expiring
         except Integration.DoesNotExist:
             # don't use args from original manifest
             pass
@@ -348,7 +351,7 @@ class IntegrationTestView(LoginRequiredMixin, AdminPermMixin, View):
         # mock extra fields to user. DO NOT SAVE!
         extra_fields_dict = {item["key"]: item["value"] for item in extra_fields}
         user.extra_fields = extra_fields_dict
-        integration = Integration(manifest=manifest, extra_args=extra_args_dict)
+        integration = Integration(manifest=manifest, extra_args=extra_args_dict, expiring=expiring)
 
         if test_type == "form":
             form = integration.config_form()
