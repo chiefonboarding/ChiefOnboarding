@@ -774,6 +774,11 @@ class Integration(models.Model):
             response = response.replace(
                 str(value), _("***Secret value for %(name)s***") % {"name": name}
             )
+            if name == "Authorization" and value.startswith("Basic"):
+                response.replace(base64.b64encode(
+                    value.split(" ", 1)[1].encode("ascii")
+                ).decode("ascii"), "BASE64 ENCODED SECRET")
+
 
         return response
 
