@@ -35,9 +35,11 @@ def send_sequence_update_message(all_notifications, new_hire):
             {
                 "type": "paragraph",
                 "data": {
-                    "text": _("Todo item")
-                    if notifications.count() == 1
-                    else _("Todo items")
+                    "text": (
+                        _("Todo item")
+                        if notifications.count() == 1
+                        else _("Todo items")
+                    )
                 },
             }
         )
@@ -56,9 +58,9 @@ def send_sequence_update_message(all_notifications, new_hire):
             {
                 "type": "paragraph",
                 "data": {
-                    "text": _("Resource")
-                    if notifications.count() == 1
-                    else _("Resources")
+                    "text": (
+                        _("Resource") if notifications.count() == 1 else _("Resources")
+                    )
                 },
             }
         )

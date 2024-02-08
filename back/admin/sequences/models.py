@@ -639,9 +639,11 @@ class IntegrationConfig(models.Model):
             )
 
             Notification.objects.create(
-                notification_type=Notification.Type.REMOVE_MANUAL_INTEGRATION
-                if user.is_offboarding
-                else Notification.Type.ADD_MANUAL_INTEGRATION,
+                notification_type=(
+                    Notification.Type.REMOVE_MANUAL_INTEGRATION
+                    if user.is_offboarding
+                    else Notification.Type.ADD_MANUAL_INTEGRATION
+                ),
                 extra_text=self.integration.name,
                 created_for=user,
                 item_id=integration_user.id,

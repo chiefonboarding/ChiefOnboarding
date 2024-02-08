@@ -229,9 +229,11 @@ class IntegrationTrackerDetailView(LoginRequiredMixin, ManagerPermMixin, DetailV
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = _("%(integration)s for %(user)s") % {
-            "integration": self.object.integration.name
-            if self.object.integration is not None
-            else "Test integration",
+            "integration": (
+                self.object.integration.name
+                if self.object.integration is not None
+                else "Test integration"
+            ),
             "user": self.object.for_user,
         }
         context["subtitle"] = _("integrations")
