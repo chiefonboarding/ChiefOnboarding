@@ -15,9 +15,9 @@ from rest_framework.authentication import SessionAuthentication
 
 from admin.admin_tasks.models import AdminTask
 from admin.integrations.exceptions import (
+    DataIsNotJSONError,
     FailedPaginatedResponseError,
     KeyIsNotInDataError,
-    DataIsNotJSONError,
 )
 from admin.integrations.models import Integration
 from admin.integrations.sync_userinfo import SyncUsers

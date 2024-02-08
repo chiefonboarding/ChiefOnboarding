@@ -4,9 +4,9 @@ from json.decoder import JSONDecodeError
 from django.utils.translation import gettext_lazy as _
 
 from admin.integrations.exceptions import (
+    DataIsNotJSONError,
     FailedPaginatedResponseError,
     KeyIsNotInDataError,
-    DataIsNotJSONError,
 )
 from admin.integrations.utils import get_value_from_notation
 
