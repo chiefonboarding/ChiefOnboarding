@@ -81,9 +81,11 @@ class IntegrationConfigForm(forms.ModelForm):
                 try:
                     self.fields[item["id"]] = field(
                         label=item["name"],
-                        widget=forms.CheckboxSelectMultiple
-                        if item["type"] == "multiple_choice"
-                        else forms.Select,
+                        widget=(
+                            forms.CheckboxSelectMultiple
+                            if item["type"] == "multiple_choice"
+                            else forms.Select
+                        ),
                         choices=[
                             (
                                 get_value_from_notation(

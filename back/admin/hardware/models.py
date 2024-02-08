@@ -42,9 +42,9 @@ class Hardware(BaseItem):
             user.hardware.remove(self)
 
         Notification.objects.create(
-            notification_type=self.notification_add_type
-            if add
-            else self.notification_remove_type,
+            notification_type=(
+                self.notification_add_type if add else self.notification_remove_type
+            ),
             extra_text=self.name,
             created_for=user,
             item_id=self.id,
