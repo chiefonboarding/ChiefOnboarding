@@ -352,7 +352,9 @@ class IntegrationTestView(LoginRequiredMixin, AdminPermMixin, View):
         # mock extra fields to user. DO NOT SAVE!
         extra_fields_dict = {item["key"]: item["value"] for item in extra_fields}
         user.extra_fields = extra_fields_dict
-        integration = Integration(manifest=manifest, extra_args=extra_args_dict, expiring=expiring)
+        integration = Integration(
+            manifest=manifest, extra_args=extra_args_dict, expiring=expiring
+        )
 
         if test_type == "form":
             form = integration.config_form()
