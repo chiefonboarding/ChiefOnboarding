@@ -4,6 +4,7 @@ import json
 import time
 import uuid
 from datetime import timedelta
+from json.decoder import JSONDecodeError as NativeJSONDecodeError
 
 import requests
 from django.conf import settings
@@ -362,10 +363,32 @@ class Integration(models.Model):
                 text_response = response.text
 
         if hasattr(self, "tracker"):
+            # TODO: JSON needs to be refactored
+            try:
+                json_payload = json.loads(self.clean_response(json_response))
+            except NativeJSONDecodeError:
+                json_payload = self.clean_response(json_response)
+
+            try:
+                json_post_payload = json.loads(
+                    self.clean_response(self.cast_to_json(post_data))
+                )
+            except NativeJSONDecodeError:
+                json_post_payload = self.clean_response(self.cast_to_json(post_data))
+
+            try:
+                json_headers_payload = json.loads(
+                    self.clean_response(self.headers(data.get("headers", {})))
+                )
+            except NativeJSONDecodeError:
+                json_headers_payload = self.clean_response(
+                    self.headers(data.get("headers", {}))
+                )
+
             IntegrationTrackerStep.objects.create(
                 status_code=0 if response is None else response.status_code,
                 tracker=self.tracker,
-                json_response=json.loads(self.clean_response(json_response)),
+                json_response=json_payload,
                 text_response=(
                     "Cannot display, could be file"
                     if data.get("save_as_file", False)
@@ -373,10 +396,8 @@ class Integration(models.Model):
                 ),
                 url=self.clean_response(url),
                 method=data.get("method", "POST"),
-                post_data=json.loads(self.clean_response(self.cast_to_json(post_data))),
-                headers=json.loads(
-                    self.clean_response(self.headers(data.get("headers", {})))
-                ),
+                post_data=json_post_payload,
+                headers=json_headers_payload,
                 error=self.clean_response(error),
             )
 
