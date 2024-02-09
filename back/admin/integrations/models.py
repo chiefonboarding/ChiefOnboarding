@@ -373,6 +373,11 @@ class Integration(models.Model):
             except:
                 json_post_payload = self.clean_response(self.cast_to_json(post_data))
 
+            try:
+                json_headers_payload = json.loads(self.clean_response(self.headers(data.get("headers", {}))))
+            except:
+                json_headers_payload = self.clean_response(self.headers(data.get("headers", {})))
+
             IntegrationTrackerStep.objects.create(
                 status_code=0 if response is None else response.status_code,
                 tracker=self.tracker,
@@ -385,9 +390,7 @@ class Integration(models.Model):
                 url=self.clean_response(url),
                 method=data.get("method", "POST"),
                 post_data=json_post_payload,
-                headers=json.loads(
-                    self.clean_response(self.headers(data.get("headers", {})))
-                ),
+                headers=json.loads(self.clean_response(self.headers(data.get("headers", {})))),
                 error=self.clean_response(error),
             )
 
