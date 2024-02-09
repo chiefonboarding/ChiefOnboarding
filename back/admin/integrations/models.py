@@ -362,10 +362,15 @@ class Integration(models.Model):
                 text_response = response.text
 
         if hasattr(self, "tracker"):
+            try:
+                json_payload = json.loads(self.clean_response(json_response))
+            except:
+                json_payload = self.clean_response(json_response)
+
             IntegrationTrackerStep.objects.create(
                 status_code=0 if response is None else response.status_code,
                 tracker=self.tracker,
-                json_response=json.loads(self.clean_response(json_response)),
+                json_response=json_payload,
                 text_response=(
                     "Cannot display, could be file"
                     if data.get("save_as_file", False)
