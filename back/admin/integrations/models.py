@@ -390,7 +390,7 @@ class Integration(models.Model):
                 url=self.clean_response(url),
                 method=data.get("method", "POST"),
                 post_data=json_post_payload,
-                headers=json.loads(self.clean_response(self.headers(data.get("headers", {})))),
+                headers=json_headers_payload,
                 error=self.clean_response(error),
             )
 
