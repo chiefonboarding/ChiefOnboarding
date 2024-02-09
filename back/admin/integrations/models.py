@@ -362,10 +362,16 @@ class Integration(models.Model):
                 text_response = response.text
 
         if hasattr(self, "tracker"):
+            # TODO: JSON needs to be refactored
             try:
                 json_payload = json.loads(self.clean_response(json_response))
             except:
                 json_payload = self.clean_response(json_response)
+
+            try:
+                json_post_payload = json.loads(self.clean_response(self.cast_to_json(post_data)))
+            except:
+                json_post_payload = self.clean_response(self.cast_to_json(post_data))
 
             IntegrationTrackerStep.objects.create(
                 status_code=0 if response is None else response.status_code,
@@ -378,7 +384,7 @@ class Integration(models.Model):
                 ),
                 url=self.clean_response(url),
                 method=data.get("method", "POST"),
-                post_data=json.loads(self.clean_response(self.cast_to_json(post_data))),
+                post_data=json_post_payload,
                 headers=json.loads(
                     self.clean_response(self.headers(data.get("headers", {})))
                 ),
