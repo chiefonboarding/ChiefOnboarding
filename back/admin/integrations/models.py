@@ -1,10 +1,10 @@
 import base64
 import io
 import json
-from json.decoder import JSONDecodeError as NativeJSONDecodeError
 import time
 import uuid
 from datetime import timedelta
+from json.decoder import JSONDecodeError as NativeJSONDecodeError
 
 import requests
 from django.conf import settings
