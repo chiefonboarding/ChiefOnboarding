@@ -1,6 +1,7 @@
 import base64
 import io
 import json
+from json.decoder import JSONDecodeError as NativeJSONDecodeError
 import time
 import uuid
 from datetime import timedelta
@@ -365,21 +366,21 @@ class Integration(models.Model):
             # TODO: JSON needs to be refactored
             try:
                 json_payload = json.loads(self.clean_response(json_response))
-            except JSONDecodeError:
+            except NativeJSONDecodeError:
                 json_payload = self.clean_response(json_response)
 
             try:
                 json_post_payload = json.loads(
                     self.clean_response(self.cast_to_json(post_data))
                 )
-            except JSONDecodeError:
+            except NativeJSONDecodeError:
                 json_post_payload = self.clean_response(self.cast_to_json(post_data))
 
             try:
                 json_headers_payload = json.loads(
                     self.clean_response(self.headers(data.get("headers", {})))
                 )
-            except JSONDecodeError:
+            except NativeJSONDecodeError:
                 json_headers_payload = self.clean_response(
                     self.headers(data.get("headers", {}))
                 )
