@@ -365,18 +365,24 @@ class Integration(models.Model):
             # TODO: JSON needs to be refactored
             try:
                 json_payload = json.loads(self.clean_response(json_response))
-            except:
+            except JSONDecodeError:
                 json_payload = self.clean_response(json_response)
 
             try:
-                json_post_payload = json.loads(self.clean_response(self.cast_to_json(post_data)))
-            except:
+                json_post_payload = json.loads(
+                    self.clean_response(self.cast_to_json(post_data))
+                )
+            except JSONDecodeError:
                 json_post_payload = self.clean_response(self.cast_to_json(post_data))
 
             try:
-                json_headers_payload = json.loads(self.clean_response(self.headers(data.get("headers", {}))))
-            except:
-                json_headers_payload = self.clean_response(self.headers(data.get("headers", {})))
+                json_headers_payload = json.loads(
+                    self.clean_response(self.headers(data.get("headers", {})))
+                )
+            except JSONDecodeError:
+                json_headers_payload = self.clean_response(
+                    self.headers(data.get("headers", {}))
+                )
 
             IntegrationTrackerStep.objects.create(
                 status_code=0 if response is None else response.status_code,
