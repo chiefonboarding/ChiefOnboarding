@@ -202,14 +202,17 @@ class IntegrationForm(forms.ModelForm):
 class IntegrationExtraArgsForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        initial_data = self.instance.extra_args
+        # TODO: allow secrets to be hidden from form instaed of hiding
+        # everything
+
+        # initial_data = self.instance.extra_args
         for item in self.instance.manifest["initial_data_form"]:
             self.fields[item["id"]] = forms.CharField(
                 label=item["name"], help_text=item["description"]
             )
-            # Check if item was already saved - load data back in form
-            if item["id"] in initial_data:
-                self.fields[item["id"]].initial = initial_data[item["id"]]
+            # # Check if item was already saved - load data back in form
+            # if item["id"] in initial_data:
+            #     self.fields[item["id"]].initial = initial_data[item["id"]]
             # If field is secret field, then hide it - values are generated on the fly
             if "name" in item and item["name"] == "generate":
                 self.fields[item["id"]].required = False
