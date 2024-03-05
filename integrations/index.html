@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.752636453443">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.762924537750">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
@@ -30,12 +30,12 @@
 
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
-    <link href="../resources/css/retype.css?v=3.5.0.752636453443" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.5.0.762924537750" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.752636453443" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.5.0.762924537750" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.752636453443" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.5.0.752636453443" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.5.0.762924537750" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.5.0.762924537750" defer></script>
 </head>
 <body>
     <div id="docs-app" class="relative text-base antialiased text-gray-700 bg-white font-body dark:bg-dark-850 dark:text-dark-300">
@@ -288,6 +288,7 @@
 </doc-anchor-target>
 <p>Revoke is an option to revoke access of a user to a third party. If you add this property to your manifest then you will be able to revoke access through the dashboard. Generally, you should skip this option if you are making any calls not related to account provisioning.</p>
 <p>This uses the same setup as the execute part below (but is limited to <code v-pre>url</code>, <code v-pre>data</code>, <code v-pre>method</code> and <code v-pre>headers</code>). It expects an array with requests in it.</p>
+<p>If you want to make the revoking fail when the status code of the request is not 2xx, then just add <code v-pre>fail_when_4xx_response_code</code> to the request and set it to <code v-pre>true</code>.</p>
 <doc-anchor-target id="execute">
     <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#execute">#</doc-anchor-trigger>
@@ -627,7 +628,7 @@ You will also have to provide the <code v-pre>email</code> key in the <code v-pr
                                     <ul class="flex flex-wrap items-center text-sm">
                                     </ul>
                                 </div>
-                                <div class="docs-copyright py-2 text-gray-500 dark:text-dark-350 text-sm leading-relaxed"><p>© Copyright 2023. All rights reserved.</p></div>
+                                <div class="docs-copyright py-2 text-gray-500 dark:text-dark-350 text-sm leading-relaxed"><p>© Copyright 2024. All rights reserved.</p></div>
                             </footer>
                         </div>
                     </div>
