@@ -63,6 +63,8 @@ Revoke is an option to revoke access of a user to a third party. If you add this
 
 This uses the same setup as the execute part below (but is limited to `url`, `data`, `method` and `headers`). It expects an array with requests in it.
 
+If you want to make the revoking fail when the status code of the request is not 2xx, then just add `fail_when_4xx_response_code` to the request and set it to `true`.
+
 
 ### Execute
 These requests will be ran when this integration gets triggered.

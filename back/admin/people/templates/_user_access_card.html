@@ -37,6 +37,9 @@
     </button>
     {% endif %}
     {% if not loading %}
+      {% if error %}
+      {% translate "Request failed with error: " %}<pre>{{ error }}</pre>
+      {% endif %}
       {% if active is None %}
         {% translate "Error when trying to reach service" %}
       {% elif active %}
