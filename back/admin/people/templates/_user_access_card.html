@@ -39,6 +39,9 @@
     {% if not loading %}
       {% if active is None %}
         {% translate "Error when trying to reach service" %}
+        {% if error %}
+        {% translate "Failed with error: " %}<pre>{{ error }}</pre>
+        {% endif %}
       {% elif active %}
         <button class="btn btn-primary w-100">
           {% translate "Activated" %}
