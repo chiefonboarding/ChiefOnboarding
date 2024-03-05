@@ -234,8 +234,8 @@ def test_integration_extra_args_form(
 
     response = client.get(url)
 
-    # Value that got added is now shown
-    assert "123" in response.content.decode()
+    # Value is not shown on update page
+    assert "123" not in response.content.decode()
 
 
 @pytest.mark.django_db
