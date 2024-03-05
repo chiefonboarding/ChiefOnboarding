@@ -308,14 +308,17 @@ class Notification(models.Model):
         ADDED_RESOURCE = "added_resource", _("A new resource item has been added")
         COMPLETED_COURSE = "completed_course", _("Course has been completed")
         ADDED_BADGE = "added_badge", _("A new badge item has been added")
-        ADDED_INTRODUCTION = "added_introduction", _(
-            "A new introduction item has been added"
+        ADDED_INTRODUCTION = (
+            "added_introduction",
+            _("A new introduction item has been added"),
         )
-        ADDED_PREBOARDING = "added_preboarding", _(
-            "A new preboarding item has been added"
+        ADDED_PREBOARDING = (
+            "added_preboarding",
+            _("A new preboarding item has been added"),
         )
-        ADDED_APPOINTMENT = "added_appointment", _(
-            "A new appointment item has been added"
+        ADDED_APPOINTMENT = (
+            "added_appointment",
+            _("A new appointment item has been added"),
         )
         ADDED_NEWHIRE = "added_new_hire", _("A new hire has been added")
         ADDED_ADMIN = "added_administrator", _("A new administrator has been added")
@@ -326,76 +329,99 @@ class Notification(models.Model):
         REMOVED_HARDWARE = "removed_hardware", _("A new hardware item has been removed")
         SENT_EMAIL_MESSAGE = "sent_email_message", _("A new email has been sent")
         SENT_TEXT_MESSAGE = "sent_text_message", _("A new text message has been sent")
-        SENT_SLACK_MESSAGE = "sent_slack_message", _(
-            "A new slack message has been sent"
+        SENT_SLACK_MESSAGE = (
+            "sent_slack_message",
+            _("A new slack message has been sent"),
         )
-        UPDATED_SLACK_MESSAGE = "updated_slack_message", _(
-            "A new slack message has been updated"
+        UPDATED_SLACK_MESSAGE = (
+            "updated_slack_message",
+            _("A new slack message has been updated"),
         )
-        SENT_EMAIL_LOGIN_CREDENTIALS = "sent_email_login_credentials", _(
-            "Login credentials have been sent"
+        SENT_EMAIL_LOGIN_CREDENTIALS = (
+            "sent_email_login_credentials",
+            _("Login credentials have been sent"),
         )
-        SENT_EMAIL_TASK_REOPENED = "sent_email_task_reopened", _(
-            "Reopened task email has been sent"
+        SENT_EMAIL_TASK_REOPENED = (
+            "sent_email_task_reopened",
+            _("Reopened task email has been sent"),
         )
-        SENT_EMAIL_TASK_REMINDER = "sent_email_task_reminder", _(
-            "Task reminder email has been sent"
+        SENT_EMAIL_TASK_REMINDER = (
+            "sent_email_task_reminder",
+            _("Task reminder email has been sent"),
         )
-        SENT_EMAIL_NEWHIRE_CRED = "sent_email_new_hire_credentials", _(
-            "Sent new hire credentials email"
+        SENT_EMAIL_NEWHIRE_CRED = (
+            "sent_email_new_hire_credentials",
+            _("Sent new hire credentials email"),
         )
-        SENT_EMAIL_PREBOARDING_ACCESS = "sent_email_preboarding_access", _(
-            "Sent new hire preboarding email"
+        SENT_EMAIL_PREBOARDING_ACCESS = (
+            "sent_email_preboarding_access",
+            _("Sent new hire preboarding email"),
         )
-        SENT_EMAIL_CUSTOM_SEQUENCE = "sent_email_custom_sequence", _(
-            "Sent email from sequence"
+        SENT_EMAIL_CUSTOM_SEQUENCE = (
+            "sent_email_custom_sequence",
+            _("Sent email from sequence"),
         )
-        SENT_EMAIL_NEWHIRE_UPDATES = "sent_email_new_hire_with_updates", _(
-            "Sent email with updates to new hire"
+        SENT_EMAIL_NEWHIRE_UPDATES = (
+            "sent_email_new_hire_with_updates",
+            _("Sent email with updates to new hire"),
         )
-        SENT_EMAIL_ADMIN_TASK_EXTRA = "sent_email_admin_task_extra", _(
-            "Sent email to extra person in admin task"
+        SENT_EMAIL_ADMIN_TASK_EXTRA = (
+            "sent_email_admin_task_extra",
+            _("Sent email to extra person in admin task"),
         )
-        SENT_EMAIL_ADMIN_TASK_NEW_ASSIGNED = "sent_email_admin_task_new_assigned", _(
-            "Sent email about new person assigned to admin task"
+        SENT_EMAIL_ADMIN_TASK_NEW_ASSIGNED = (
+            "sent_email_admin_task_new_assigned",
+            _("Sent email about new person assigned to admin task"),
         )
-        SENT_EMAIL_ADMIN_TASK_NEW_COMMENT = "sent_email_admin_task_new_comment", _(
-            "Sent email about new comment on admin task"
+        SENT_EMAIL_ADMIN_TASK_NEW_COMMENT = (
+            "sent_email_admin_task_new_comment",
+            _("Sent email about new comment on admin task"),
         )
-        SENT_EMAIL_INTEGRATION_NOTIFICATION = "sent_email_integration_notification", _(
-            "Sent email about completing integration call"
+        SENT_EMAIL_INTEGRATION_NOTIFICATION = (
+            "sent_email_integration_notification",
+            _("Sent email about completing integration call"),
         )
-        FAILED_NO_PHONE = "failed_no_phone", _(
-            "Couldn't send text message: number is missing"
+        FAILED_NO_PHONE = (
+            "failed_no_phone",
+            _("Couldn't send text message: number is missing"),
         )
-        FAILED_NO_EMAIL = "failed_no_email", _(
-            "Couldn't send email message: email is missing"
+        FAILED_NO_EMAIL = (
+            "failed_no_email",
+            _("Couldn't send email message: email is missing"),
         )
-        FAILED_EMAIL_RECIPIENTS_REFUSED = "failed_email_recipients_refused", _(
-            "Couldn't deliver email message: recipient refused"
+        FAILED_EMAIL_RECIPIENTS_REFUSED = (
+            "failed_email_recipients_refused",
+            _("Couldn't deliver email message: recipient refused"),
         )
-        FAILED_EMAIL_DELIVERY = "failed_email_delivery", _(
-            "Couldn't deliver email message: provider error"
+        FAILED_EMAIL_DELIVERY = (
+            "failed_email_delivery",
+            _("Couldn't deliver email message: provider error"),
         )
-        FAILED_EMAIL_ADDRESS = "failed_email_address", _(
-            "Couldn't deliver email message: provider error"
+        FAILED_EMAIL_ADDRESS = (
+            "failed_email_address",
+            _("Couldn't deliver email message: provider error"),
         )
-        FAILED_SEND_SLACK_MESSAGE = "failed_send_slack_message", _(
-            "Couldn't send Slack message"
+        FAILED_SEND_SLACK_MESSAGE = (
+            "failed_send_slack_message",
+            _("Couldn't send Slack message"),
         )
-        FAILED_UPDATE_SLACK_MESSAGE = "failed_update_slack_message", _(
-            "Couldn't update Slack message"
+        FAILED_UPDATE_SLACK_MESSAGE = (
+            "failed_update_slack_message",
+            _("Couldn't update Slack message"),
         )
         RAN_INTEGRATION = "ran_integration", _("Integration has been triggered")
-        REMOVE_MANUAL_INTEGRATION = "remove_manual_integration", _(
-            "Disable manual integration"
+        REMOVE_MANUAL_INTEGRATION = (
+            "remove_manual_integration",
+            _("Disable manual integration"),
         )
-        ADD_MANUAL_INTEGRATION = "add_manual_integration", _(
-            "Enable manual integration"
+        ADD_MANUAL_INTEGRATION = (
+            "add_manual_integration",
+            _("Enable manual integration"),
         )
         FAILED_INTEGRATION = "failed_integration", _("Couldn't complete integration")
-        BLOCKED_INTEGRATION = "blocked_integration", _(
-            "Integration was blocked due to condition"
+        BLOCKED_INTEGRATION = (
+            "blocked_integration",
+            _("Integration was blocked due to condition"),
         )
         FAILED_TEXT_INTEGRATION_NOTIFICATION = (
             "failed_text_integration_notification",
