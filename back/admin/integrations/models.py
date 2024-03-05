@@ -155,8 +155,9 @@ class Integration(models.Model):
     class ManifestType(models.IntegerChoices):
         WEBHOOK = 0, _("Provision user accounts or trigger webhooks")
         SYNC_USERS = 1, _("Sync users")
-        MANUAL_USER_PROVISIONING = 3, _(
-            "Manual user account provisioning, no manifest required"
+        MANUAL_USER_PROVISIONING = (
+            3,
+            _("Manual user account provisioning, no manifest required"),
         )
 
     name = models.CharField(max_length=300, default="", blank=True)

@@ -56,8 +56,7 @@ jobs:
     - name: Check formatting/linting ruff and black
       run: |
         cd back
-        ruff check .
-        black --check .
+        ruff check . && ruff format . --check
     - name: Check migrations
       run: |
         cd back
