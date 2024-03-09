@@ -1,4 +1,5 @@
 import base64
+import json
 from datetime import timedelta
 from unittest.mock import Mock, patch
 
@@ -162,6 +163,28 @@ def test_update_integration(client, django_user_model, custom_integration_factor
     assert "TEAM_ID" in response.content.decode()
     assert integration.name in response.content.decode()
 
+    # add some extra_args data and make one item a secret value
+    integration.manifest["initial_data_form"][0]["secret"] = True
+    integration.extra_args["TOKEN"] = "test"
+    integration.save()
+
+    new_manifest = integration.manifest
+    # delete the `TOKEN` one
+    del new_manifest["initial_data_form"][0]
+
+    response = client.post(
+        url,
+        data={
+            "manifest": json.dumps(new_manifest),
+            "name": "test",
+            "manifest_type": Integration.ManifestType.MANUAL_USER_PROVISIONING,
+        },
+        follow=True,
+    )
+    integration.refresh_from_db()
+    assert response.status_code == 200
+    assert integration.extra_args == {}
+
 
 @pytest.mark.django_db
 def test_create_google_login_integration(client, django_user_model):
@@ -234,8 +257,45 @@ def test_integration_extra_args_form(
 
     response = client.get(url)
 
-    # Value is not shown on update page
-    assert "123" not in response.content.decode()
+    # Value and token are shown on update page
+    assert "123" in response.content.decode()
+    assert "SECRET_TOKEN" in response.content.decode()
+
+    # make token hidden through secret
+    integration.manifest["initial_data_form"][0]["secret"] = True
+    integration.save()
+
+    # not on page anymore
+    response = client.get(url)
+    assert "SECRET_TOKEN" not in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_integration_remove_extra_args_form(
+    client, django_user_model, custom_integration_factory
+):
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
+    integration = custom_integration_factory()
+    integration.manifest["initial_data_form"][0]["secret"] = True
+    integration.extra_args["TOKEN"] = "test"
+    integration.save()
+
+    url = reverse("integrations:delete-creds", args=[integration.id, "token"])
+    response = client.post(url, follow=True)
+
+    # raise 404 as 'token' is incorrect
+    assert response.status_code == 404
+
+    url = reverse("integrations:delete-creds", args=[integration.id, "TOKEN"])
+    response = client.post(url, follow=True)
+
+    # remove url is gone and value has been cleared
+    assert response.status_code == 200
+    assert url not in response.content.decode()
+    integration.refresh_from_db()
+    assert integration.extra_args.get("token", None) is None
 
 
 @pytest.mark.django_db

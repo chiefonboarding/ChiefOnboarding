@@ -269,6 +269,7 @@ def test_authed_view(url, client, new_hire_factory):
         ["<slug:language>", "en"],
         ["<int:type>", "1"],
         ["<slug:type>", "todo"],
+        ["<slug:secret>", "token"],
         ["<int:condition_pk>", "1"],
         ["<int:template_pk>", "1"],
         ["<int:template_id>", "1"],
