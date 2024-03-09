@@ -210,6 +210,25 @@ class Integration(models.Model):
         return f"User sync for integration: {self.id}"
 
     @property
+    def secret_values(self):
+        print(self.manifest["initial_data_form"])
+        return [
+            item
+            for item in self.manifest["initial_data_form"]
+            if item.get("secret", False) and item.get("name") != "generate"
+        ]
+
+    @property
+    def missing_secret_values(self):
+        return [
+            item for item in self.secret_values if item["id"] not in self.extra_args
+        ]
+
+    @property
+    def filled_secret_values(self):
+        return [item for item in self.secret_values if item["id"] in self.extra_args]
+
+    @property
     def requires_assigned_manager_or_buddy(self):
         # returns manager, buddy
         return has_manager_or_buddy_tags(self.manifest)
