@@ -164,13 +164,13 @@ def test_update_integration(client, django_user_model, custom_integration_factor
     assert integration.name in response.content.decode()
 
     # add some extra_args data and make one item a secret value
-    integration.manifest["initial_data_form"][0]["secret"] = True
-    integration.extra_args["TOKEN"] = "test"
-    integration.save()
-
-    new_manifest = integration.manifest
+    new_manifest = json.loads(json.dumps(integration.manifest))
+    new_manifest["initial_data_form"][0]["secret"] = True
     # delete the `TOKEN` one
     del new_manifest["initial_data_form"][0]
+
+    integration.extra_args["TOKEN"] = "test"
+    integration.save()
 
     response = client.post(
         url,
