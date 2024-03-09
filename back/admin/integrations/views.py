@@ -6,7 +6,7 @@ import requests
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -80,6 +80,18 @@ class IntegrationUpdateView(
         context["button_text"] = _("Update")
         return context
 
+    def form_valid(self, form):
+        new_initial_data = form.cleaned_data["manifest"].get("initial_data_form", [])
+        old_initial_data = self.get_object().manifest.get("initial_data_form", [])
+
+        # remove keys that don't exist anymore from saved secrets
+        new_initial_data_keys = [item["id"] for item in new_initial_data]
+        for item in old_initial_data:
+            if item["id"] not in new_initial_data_keys:
+                form.instance.extra_args.pop(item["id"], None)
+
+        return super().form_valid(form)
+
 
 class IntegrationDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
     """This is a general delete function for all integrations"""
@@ -98,7 +110,7 @@ class IntegrationDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
 class IntegrationUpdateExtraArgsView(
     LoginRequiredMixin, AdminPermMixin, UpdateView, SuccessMessageMixin
 ):
-    template_name = "token_create.html"
+    template_name = "update_initial_data_form.html"
     form_class = IntegrationExtraArgsForm
     queryset = Integration.objects.filter(integration=Integration.Type.CUSTOM)
     success_message = _("Your config values have been updated!")
@@ -106,10 +118,33 @@ class IntegrationUpdateExtraArgsView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = _("Add new integration")
+        context["title"] = _("Integration settings")
         context["subtitle"] = _("settings")
         context["button_text"] = _("Update")
         return context
+
+
+class IntegrationDeleteExtraArgsView(
+    LoginRequiredMixin, AdminPermMixin, DeleteView, SuccessMessageMixin
+):
+    template_name = "update_initial_data_form.html"
+    queryset = Integration.objects.filter(integration=Integration.Type.CUSTOM)
+    success_message = _("Secret value has been removed")
+    success_url = reverse_lazy("settings:integrations")
+
+    def form_valid(self, form):
+        self.object = self.get_object()
+
+        secret_value = self.kwargs.get("secret")
+        if secret_value not in [
+            item["id"] for item in self.object.filled_secret_values
+        ]:
+            raise Http404
+
+        self.object.extra_args.pop(secret_value)
+        self.object.save()
+        success_url = reverse_lazy("integrations:update-creds", args=[self.object.pk])
+        return HttpResponseRedirect(success_url)
 
 
 class IntegrationOauthRedirectView(LoginRequiredMixin, RedirectView):

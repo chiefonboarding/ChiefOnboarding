@@ -29,6 +29,11 @@ urlpatterns = [
         name="update-creds",
     ),
     path(
+        "update_creds/<int:pk>/delete/<slug:secret>/",
+        views.IntegrationDeleteExtraArgsView.as_view(),
+        name="delete-creds",
+    ),
+    path(
         "tracker/",
         views.IntegrationTrackerListView.as_view(),
         name="trackers",
