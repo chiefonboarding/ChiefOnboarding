@@ -1,7 +1,3 @@
----
-order: 50
----
-
 # API
 
 This API will allow you to programmatically create new hires. The API does not work when you are logged in with sessions (logging in through the log in form), you will need to use a token to get access. These tokens do not expire and you can create them through shell.
@@ -9,20 +5,20 @@ This API will allow you to programmatically create new hires. The API does not w
 ## Setup
 Enable the API through the environment variable:
 
-```
+```ini
 API_ACCESS=True
 ```
 
 Just to be safe, run the migrations for the token table `docker-compose run --rm web python3 manage.py migrate` (docker) or redeploy on Render/Heroku. Up next, you will have to generate a token to authenticate with the API. You will have to attach a user to it, like this:
 
-```
+```bash
 docker-compose run --rm web python manage.py drf_create_token email@example.com
 ```
 Use the email address from an admin user there. You will then get to see the newly created token. Now you can make calls to the API. Please note that if you ever remove this person, then the token will also be revoked.
 
 Example:
 
-```
+```bash
 curl -H "Authorization: Token xxxxxxxxxxxxxxx" https://YOURDOMAIN/api/employees/
 ```
 
@@ -32,19 +28,19 @@ curl -H "Authorization: Token xxxxxxxxxxxxxxx" https://YOURDOMAIN/api/employees/
 
 1. We would like to assign a buddy to this new hire, so first we need to get a list of employees to find the id of our buddy. Getting all employees that are in ChiefOnboarding:
 
-```
+```bash
 curl -H "Authorization: Token xxxxxxxxxxxxxxx" https://YOURDOMAIN/api/employees/
 ```
 
 2. We might also want to add some sequences to the new hire. In that case, we need the ids of the sequences we want to add. We can get all sequences with this request:
 
-```
+```bash
 curl -H "Authorization: Token xxxxxxxxxxxxxxx" https://YOURDOMAIN/api/sequences/
 ```
 
 2. Create the new hire:
 
-```
+```bash
 curl -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' -H "Authorization: Token xxxxxxxxxxxxxxx" -d '{"first_name":"James","last_name":"Weller","email":"james@chiefonboarding.com","phone":"","position":"Technical lead","language":"en","message":"","start_day":"2020-12-04","buddy":4,"timezone":"UTC","sequences":[3], "role":0}' https://YOURDOMAIN/api/users/
 ```
 
@@ -65,7 +61,7 @@ Role options (note: keep an eye on updates, this will likely change soon):
 
 The data part of that query (with explanation):
 
-```
+```json
 { 
 	"first_name": "James", # required
 	"last_name": "Weller", # required

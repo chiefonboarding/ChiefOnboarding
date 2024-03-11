@@ -1,7 +1,6 @@
 ---
-order: 90
+outline: deep
 ---
-
 # How to / Demo
 
 At ChiefOnboarding, we currently don't do demos with potential customers. Demos take a lot of time and are quite similar between potential customers. You all come with the same goal, right? Improving your onboarding process. 
