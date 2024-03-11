@@ -184,7 +184,7 @@ Let's look at each form field:
 Once created, you can choose to send the new hire's preboarding email. This one is not sent automatically, as you might want to make changes before you send it (this will be implemented as part of the sequences later on though).
 
 #### Using the API
-Please go to the [API doc page](/API/) for instructions on how to set this up.
+Please go to the [API doc page](/api.html) for instructions on how to set this up.
 
 #### Automatically adding new hires when they join Slack (with or without manual approval)
 In the settings, there is now the option to enable 'automatic new hire creation from people joining Slack'. When a new hire joins Slack, ChiefOnboarding will get notified and it will automatically create a new hire account for them. It will also assign one or more default sequences to the new hire. No manual action is needed here - everything is automated.
