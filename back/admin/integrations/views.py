@@ -20,7 +20,7 @@ from django.views.generic.list import ListView
 from users.mixins import AdminPermMixin, LoginRequiredMixin, ManagerPermMixin
 
 from .forms import IntegrationExtraArgsForm, IntegrationForm
-from .models import Integration, IntegrationTracker
+from .models import Integration, IntegrationTracker, Manifest
 
 
 class IntegrationCreateView(
@@ -275,67 +275,27 @@ class IntegrationTrackerDetailView(LoginRequiredMixin, ManagerPermMixin, DetailV
         return context
 
 
-class IntegrationBuilderView(LoginRequiredMixin, AdminPermMixin, TemplateView):
+class IntegrationBuilderCreateView(LoginRequiredMixin, AdminPermMixin, RedirectView):
+    permanent = False
+
+    def get_redirect_url(self, *args, **kwargs):
+        if pk := self.kwargs.get("pk", False):
+            integration = get_object_or_404(Integration, id=pk)
+        else:
+            manifest = Manifest.objects.create()
+            integration = Integration.objects.create(manifest_obj=manifest, manifest_type=Integration.ManifestType.WEBHOOK, integration=Integration.Type.CUSTOM)
+
+        return reverse("integrations:builder", args=[integration.id])
+
+
+class IntegrationBuilderView(LoginRequiredMixin, AdminPermMixin, DetailView):
     template_name = "manifest_test.html"
+    model = Integration
+    context_object_name = "integration"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if pk := self.kwargs.get("pk", False):
-            integration = get_object_or_404(Integration, id=pk)
-            manifest = integration.manifest
-            if manifest.get("form", None) is None:
-                manifest["form"] = []
-
-            context["object"] = integration
-            if not manifest.get("exists", {}):
-                manifest["exists"] = {
-                    "url": "",
-                    "method": "",
-                    "expected": "",
-                    "headers": {},
-                    "fail_when_4xx_response_code": False,
-                }
-
-            if not manifest.get("revoke", False):
-                manifest["revoke"] = []
-
-            for base in [
-                manifest["exists"],
-                manifest,
-                *manifest["form"],
-                *manifest["revoke"],
-                *manifest["execute"],
-            ]:
-                if base.get("headers", False):
-                    base["headers"] = [
-                        {"key": key, "value": value}
-                        for key, value in base["headers"].items()
-                    ]
-                else:
-                    base["headers"] = []
-
-            for form in manifest["form"]:
-                form["results_from"] = (
-                    "fixed" if len(form.get("items", [])) > 0 else "fetched"
-                )
-
-            for ex in [*manifest["revoke"], *manifest["execute"]]:
-                if ex.get("data", False):
-                    ex["data"] = json.dumps(ex["data"])
-                else:
-                    ex["data"] = "{}"
-
-            context["manifest"] = manifest
-            if manifest.get("extra_user_info", False):
-                manifest["extra_user_info"] = []
-            if manifest.get("initial_data_form", False):
-                manifest["extra_user_info"] = []
-
-        context["title"] = _(
-            "BETA: Create and test an integration (experimental feature)"
-        )
-        context["subtitle"] = _("integrations")
-        context["users"] = get_user_model().objects.all()
+        context["form"] = ManifestFormForm()
         return context
 
 
@@ -456,3 +416,24 @@ class IntegrationTestDownloadJSONView(LoginRequiredMixin, AdminPermMixin, View):
             del form_item["results_from"]
 
         return HttpResponse("<pre>" + json.dumps(manifest, indent=4) + "</pre>")
+
+from .forms import ManifestFormForm
+
+
+class IntegrationBuilderFormCreateView(
+    LoginRequiredMixin, AdminPermMixin, CreateView
+):
+    template_name = "manifest_test/form.html"
+    form_class = ManifestFormForm
+
+    def get_success_url(self):
+        return self.request.path
+
+    def form_valid(self, form):
+        form.instance.manifest = Integration.objects.get(id=self.kwargs["integration_id"]).manifest_obj
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["integration"] = Integration.objects.get(id=self.kwargs["integration_id"])
+        return context

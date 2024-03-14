@@ -1,3 +1,4 @@
+from admin.integrations.models import ManifestForm
 import json
 
 from crispy_forms.helper import FormHelper
@@ -251,3 +252,10 @@ class IntegrationExtraUserInfoForm(forms.ModelForm):
     class Meta:
         model = get_user_model()
         fields = ()
+
+
+class ManifestFormForm(forms.ModelForm):
+    class Meta:
+        model = ManifestForm
+        fields = ("id", "name", "type", "items", "url", "method", "data", "headers", "data_from", "choice_value", "choice_name")
+

@@ -45,7 +45,7 @@ urlpatterns = [
     ),
     path(
         "builder/",
-        views.IntegrationBuilderView.as_view(),
+        views.IntegrationBuilderCreateView.as_view(),
         name="builder",
     ),
     path(
@@ -62,5 +62,12 @@ urlpatterns = [
         "builder/test/",
         views.IntegrationTestView.as_view(),
         name="builder-test",
+    ),
+
+    # builder
+    path(
+        "<int:integration_id>/builder/form/",
+        views.IntegrationBuilderFormCreateView.as_view(),
+        name="manifest-form-add",
     ),
 ]

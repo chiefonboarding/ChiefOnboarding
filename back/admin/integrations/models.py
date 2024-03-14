@@ -4,6 +4,7 @@ import json
 import time
 import uuid
 from datetime import timedelta
+from django.contrib.postgres.fields import ArrayField
 from json.decoder import JSONDecodeError as NativeJSONDecodeError
 
 import requests
@@ -44,6 +45,13 @@ from misc.fernet_fields import EncryptedTextField
 from misc.fields import EncryptedJSONField
 from organization.models import Notification
 from organization.utils import has_manager_or_buddy_tags, send_email_with_notification
+
+
+class MethodTypes(models.TextChoices):
+    GET = "GET"
+    POST = "POST"
+    DELETE = "DELETE"
+    PUT = "PUT"
 
 
 class IntegrationTracker(models.Model):
@@ -108,7 +116,7 @@ class IntegrationTrackerStep(models.Model):
 
 class IntegrationManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset()
+        return super().get_queryset().filter(is_active=True)
 
     def sequence_integration_options(self):
         # any webhooks and account provisioning
@@ -142,6 +150,106 @@ class IntegrationManager(models.Manager):
             .exclude(manifest__schedule__isnull=False)
         )
 
+class IntegrationInactiveManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_active=False)
+
+
+class ManifestExistsField(models.Model):
+    url = models.URLField(max_length=255)
+    method = models.CharField(choices=MethodTypes.choices, default=MethodTypes.GET, max_length=255)
+    expected = models.CharField(max_length=255)
+    status_code = ArrayField(
+        models.IntegerField(),
+        blank=True
+    )
+    headers = models.JSONField(default=dict)
+
+
+class ManifestRevokeField(models.Model):
+    url = models.URLField(max_length=255)
+    method = models.CharField(choices=MethodTypes.choices, default=MethodTypes.GET, max_length=255)
+    data = models.JSONField(default=dict)
+    expected = models.CharField(default="", max_length=255, blank=True)
+    status_code = ArrayField(
+        models.IntegerField(),
+        blank=True
+    )
+    headers = models.JSONField(default=dict)
+
+
+class Manifest(models.Model):
+    exists = models.OneToOneField(
+        ManifestExistsField, on_delete=models.CASCADE, null=True
+    )
+    revoke = models.OneToOneField(
+        ManifestRevokeField, on_delete=models.CASCADE, null=True
+    )
+    headers = models.JSONField(default=dict)
+
+
+class ManifestExecute(models.Model):
+    manifest = models.ForeignKey(
+        Manifest, on_delete=models.CASCADE, null=True, related_name="execute"
+    )
+    url = models.URLField(max_length=255)
+    method = models.CharField(choices=MethodTypes.choices, default=MethodTypes.GET, max_length=255)
+    data = models.JSONField(default=dict)
+    expected = models.CharField(max_length=255)
+    store_data = models.JSONField(default=dict)
+    continue_if = models.JSONField(default=dict)
+    polling = models.JSONField(default=dict)
+    save_as_file = models.CharField(default="", blank=True)
+    files = models.JSONField(default=dict)
+    headers = models.JSONField(default=dict)
+
+
+class ManifestForm(models.Model):
+    class ItemsType(models.TextChoices):
+        CHOICE = "CHOICE"
+        INPUT = "INPUT"
+
+    manifest = models.ForeignKey(
+        Manifest, on_delete=models.CASCADE, null=True, related_name="form"
+    )
+    index_id = models.BigAutoField(primary_key=True)
+    id = models.CharField(max_length=100, help_text=_("This value can be used in the other calls. Please do not use spaces or weird characters. A single word in capitals is prefered."))
+    name = models.CharField(max_length=255, help_text=_("The form label shown to the admin"))
+    type = models.CharField(choices=ItemsType.choices, max_length=7, help_text=_("If you choose choice, you will be able to set the options yourself OR fetch from an external url."))
+
+    # fixed items
+    items = models.JSONField(default=list, help_text=_("Use only if you set type to 'choice'. This is for fixed items (if you don't want to fetch from a URL)"), blank=True)
+
+    # dynamic choices
+    url = models.URLField(max_length=255, help_text=_("The url it should fetch the options from."), blank=True)
+    method = models.CharField(choices=MethodTypes.choices, default=MethodTypes.GET, max_length=255, verbose_name=_("Request method"))
+    data = models.JSONField(default=dict, blank=True)
+    headers = models.JSONField(default=dict, help_text=_("(optionally) This will overwrite the default headers."), blank=True)
+    data_from = models.CharField(max_length=255, default="", help_text=_("The property it should use from the response of the url if you need to go deeper into the result."), blank=True)
+    choice_value = models.CharField(max_length=255, default="id", help_text=_("The value it should take for using in other parts of the integration"))
+    choice_name = models.CharField(max_length=255, default="name", help_text=_("The name that should be displayed to the admin as an option."))
+
+    def is_input_form_field(self):
+        return self.type == ManifestForm.ItemsType.INPUT
+
+
+class ManifestInitialDataField(models.Model):
+    manifest = models.ForeignKey(
+        Manifest, on_delete=models.CASCADE, null=True, related_name="initial_data_form"
+    )
+    index_id = models.BigAutoField(primary_key=True)
+    id = models.CharField(max_length=100)
+    name = models.CharField(max_length=255)
+
+
+class ManifestExtraUserInfoField(models.Model):
+    manifest = models.ForeignKey(
+        Manifest, on_delete=models.CASCADE, null=True, related_name="extra_user_info"
+    )
+    index_id = models.BigAutoField(primary_key=True)
+    id = models.CharField(max_length=100)
+    name = models.CharField(max_length=255)
+
 
 class Integration(models.Model):
     class Type(models.IntegerChoices):
@@ -161,6 +269,7 @@ class Integration(models.Model):
         )
 
     name = models.CharField(max_length=300, default="", blank=True)
+    is_active = models.BooleanField(default=True, help_text="If inactive, it's a test/debug integration")
     integration = models.IntegerField(choices=Type.choices)
     manifest_type = models.IntegerField(
         choices=ManifestType.choices, null=True, blank=True
@@ -170,13 +279,14 @@ class Integration(models.Model):
     base_url = models.CharField(max_length=22300, default="", blank=True)
     redirect_url = models.CharField(max_length=22300, default="", blank=True)
     account_id = models.CharField(max_length=22300, default="", blank=True)
-    active = models.BooleanField(default=True)
+    active = models.BooleanField(default=True) # legacy?
     ttl = models.IntegerField(null=True, blank=True)
     expiring = models.DateTimeField(auto_now_add=True, blank=True)
     one_time_auth_code = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True
     )
 
+    manifest_obj = models.ForeignKey(Manifest, null=True, on_delete=models.CASCADE)
     manifest = models.JSONField(default=dict, null=True, blank=True)
     extra_args = EncryptedJSONField(default=dict)
     enabled_oauth = models.BooleanField(default=False)
@@ -211,7 +321,6 @@ class Integration(models.Model):
 
     @property
     def secret_values(self):
-        print(self.manifest["initial_data_form"])
         return [
             item
             for item in self.manifest["initial_data_form"]
@@ -835,6 +944,7 @@ class Integration(models.Model):
         return response
 
     objects = IntegrationManager()
+    inactive = IntegrationInactiveManager()
 
 
 @receiver(post_delete, sender=Integration)
