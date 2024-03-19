@@ -155,37 +155,45 @@ class IntegrationInactiveManager(models.Manager):
         return super().get_queryset().filter(is_active=False)
 
 
-class ManifestExistsField(models.Model):
-    url = models.URLField(max_length=255)
+class ManifestExists(models.Model):
+    url = models.URLField(max_length=255, default="", blank=True)
     method = models.CharField(choices=MethodTypes.choices, default=MethodTypes.GET, max_length=255)
-    expected = models.CharField(max_length=255)
+    expected = models.CharField(max_length=255, verbose_name=_("Expected text in the response"), help_text=_("Either use this or the status code to validate if the user exists"), default="", blank=True)
     status_code = ArrayField(
         models.IntegerField(),
-        blank=True
+        default=list,
+        blank=True,
+        help_text=_("Either use this or the 'expected text' to validate if the user exists")
     )
-    headers = models.JSONField(default=dict)
+    headers = models.JSONField(default=list, blank=True, help_text="Without any items, it will use the default")
+
+    @property
+    def is_valid(self):
+        return self.url != ""
 
 
-class ManifestRevokeField(models.Model):
+
+class Manifest(models.Model):
+    exists = models.OneToOneField(
+        ManifestExists, on_delete=models.CASCADE, null=True
+    )
+    headers = models.JSONField(default=list, blank=True)
+
+
+class ManifestRevoke(models.Model):
+    manifest = models.ForeignKey(
+        Manifest, on_delete=models.CASCADE, null=True, related_name="revoke"
+    )
     url = models.URLField(max_length=255)
     method = models.CharField(choices=MethodTypes.choices, default=MethodTypes.GET, max_length=255)
     data = models.JSONField(default=dict)
     expected = models.CharField(default="", max_length=255, blank=True)
     status_code = ArrayField(
         models.IntegerField(),
+        default=list,
         blank=True
     )
-    headers = models.JSONField(default=dict)
-
-
-class Manifest(models.Model):
-    exists = models.OneToOneField(
-        ManifestExistsField, on_delete=models.CASCADE, null=True
-    )
-    revoke = models.OneToOneField(
-        ManifestRevokeField, on_delete=models.CASCADE, null=True
-    )
-    headers = models.JSONField(default=dict)
+    headers = models.JSONField(default=list, blank=True, help_text="Without any items, it will use the default")
 
 
 class ManifestExecute(models.Model):
@@ -201,7 +209,7 @@ class ManifestExecute(models.Model):
     polling = models.JSONField(default=dict)
     save_as_file = models.CharField(default="", blank=True)
     files = models.JSONField(default=dict)
-    headers = models.JSONField(default=dict)
+    headers = models.JSONField(default=list, blank=True)
 
 
 class ManifestForm(models.Model):
@@ -209,13 +217,18 @@ class ManifestForm(models.Model):
         CHOICE = "CHOICE"
         INPUT = "INPUT"
 
+    class OptionsSource(models.TextChoices):
+        FIXED_LIST = "fixed list"
+        FETCH_URL = "fetch url"
+
     manifest = models.ForeignKey(
         Manifest, on_delete=models.CASCADE, null=True, related_name="form"
     )
     index_id = models.BigAutoField(primary_key=True)
     id = models.CharField(max_length=100, help_text=_("This value can be used in the other calls. Please do not use spaces or weird characters. A single word in capitals is prefered."))
     name = models.CharField(max_length=255, help_text=_("The form label shown to the admin"))
-    type = models.CharField(choices=ItemsType.choices, max_length=7, help_text=_("If you choose choice, you will be able to set the options yourself OR fetch from an external url."))
+    type = models.CharField(choices=ItemsType.choices, max_length=7, help_text=_("If you choose choice, you will be able to set the options yourself OR fetch from an external url."), default=ItemsType.INPUT)
+    options_source = models.CharField(choices=OptionsSource.choices, default=OptionsSource.FIXED_LIST)
 
     # fixed items
     items = models.JSONField(default=list, help_text=_("Use only if you set type to 'choice'. This is for fixed items (if you don't want to fetch from a URL)"), blank=True)
@@ -226,29 +239,32 @@ class ManifestForm(models.Model):
     data = models.JSONField(default=dict, blank=True)
     headers = models.JSONField(default=dict, help_text=_("(optionally) This will overwrite the default headers."), blank=True)
     data_from = models.CharField(max_length=255, default="", help_text=_("The property it should use from the response of the url if you need to go deeper into the result."), blank=True)
-    choice_value = models.CharField(max_length=255, default="id", help_text=_("The value it should take for using in other parts of the integration"))
-    choice_name = models.CharField(max_length=255, default="name", help_text=_("The name that should be displayed to the admin as an option."))
+    choice_value = models.CharField(max_length=255, default="id", help_text=_("The value it should take for using in other parts of the integration"), blank=True)
+    choice_name = models.CharField(max_length=255, default="name", help_text=_("The name that should be displayed to the admin as an option."), blank=True)
 
     def is_input_form_field(self):
         return self.type == ManifestForm.ItemsType.INPUT
 
 
-class ManifestInitialDataField(models.Model):
+class ManifestInitialData(models.Model):
     manifest = models.ForeignKey(
         Manifest, on_delete=models.CASCADE, null=True, related_name="initial_data_form"
     )
     index_id = models.BigAutoField(primary_key=True)
-    id = models.CharField(max_length=100)
-    name = models.CharField(max_length=255)
+    id = models.CharField(max_length=100, help_text=_("This value can be used in the other calls. Please do not use spaces or weird characters. A single word in capitals is prefered."))
+    name = models.CharField(max_length=255, help_text=_("Type 'generate' if you want this value to be generated on the fly (different for each execution), will not need to be filled by a user"))
+    description = models.CharField(max_length=1255, help_text=_("This will be shown under the input field for extra context"))
+    secret = models.BooleanField(default=False, help_text="Enable this if the value should always be masked")
 
 
-class ManifestExtraUserInfoField(models.Model):
+class ManifestExtraUserInfo(models.Model):
     manifest = models.ForeignKey(
         Manifest, on_delete=models.CASCADE, null=True, related_name="extra_user_info"
     )
     index_id = models.BigAutoField(primary_key=True)
-    id = models.CharField(max_length=100)
+    id = models.CharField(max_length=100, help_text=_("This value can be used in the other calls. Please do not use spaces or weird characters. A single word in capitals is prefered."))
     name = models.CharField(max_length=255)
+    description = models.CharField(max_length=1255, help_text=_("This will be shown under the input field for extra context"))
 
 
 class Integration(models.Model):
@@ -286,7 +302,7 @@ class Integration(models.Model):
         default=uuid.uuid4, editable=False, unique=True
     )
 
-    manifest_obj = models.ForeignKey(Manifest, null=True, on_delete=models.CASCADE)
+    manifest_obj = models.OneToOneField(Manifest, null=True, on_delete=models.CASCADE)
     manifest = models.JSONField(default=dict, null=True, blank=True)
     extra_args = EncryptedJSONField(default=dict)
     enabled_oauth = models.BooleanField(default=False)

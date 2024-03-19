@@ -3,55 +3,57 @@
 {% load crispy_forms_tags %}
 
 {% block actions %}
-<button type="button" hx-vals="js:{manifest: JSON.stringify(app.manifest), extra_fields: JSON.stringify(app.extra_fields), {% if object %}integration_id: {{ object.id }},{% endif %} extra_args: JSON.stringify(app.extra_args), user: app.user_id}" hx-post="{% url 'integrations:builder-test' %}" class="btn btn-primary" hx-target="#result">
-    {% translate "Test form" %}
-  </button>
-  <button type="button" hx-vals="js:{manifest: JSON.stringify(app.manifest), extra_fields: JSON.stringify(app.extra_fields), {% if object %}integration_id: {{ object.id }},{% endif %} extra_args: JSON.stringify(app.extra_args), user: app.user_id, type: 'user_exists'}" hx-post="{% url 'integrations:builder-test' %}" class="btn btn-primary" hx-target="#result">
-    {% translate "Test user exist" %}
-  </button>
-  <button type="button" hx-vals="js:{manifest: JSON.stringify(app.manifest), extra_fields: JSON.stringify(app.extra_fields), {% if object %}integration_id: {{ object.id }},{% endif %}extra_args: JSON.stringify(app.extra_args), user: app.user_id, type: 'execute'}" hx-post="{% url 'integrations:builder-test' %}" class="btn btn-primary" hx-target="#result">
-    {% translate "Test execute" %}
-  </button>
-  <button type="button" hx-vals="js:{manifest: JSON.stringify(app.manifest), extra_fields: JSON.stringify(app.extra_fields), {% if object %}integration_id: {{ object.id }},{% endif %}extra_args: JSON.stringify(app.extra_args), user: app.user_id, type: 'revoke'}" hx-post="{% url 'integrations:builder-test' %}" class="btn btn-primary" hx-target="#result">
-    {% translate "Test revoke" %}
-  </button>
-  <button type="button" hx-vals="js:{manifest: JSON.stringify(app.manifest)}" hx-post="{% url 'integrations:builder-json' %}" class="btn btn-primary" hx-target="#result">
-    {% translate "Download JSON" %}
-  </button>
 {% endblock %}
 {% block content %}
 
-<div style="text-align: center">
-  <button type="button" hx-get="{% url 'integrations:manifest-form-add' integration.id %}" class="btn btn-primary" hx-target="#modify_component">
-    {% translate "Form" %}
-  </button>
-  <button type="button" hx-get="{% url 'integrations:builder-test' %}" class="btn btn-primary" hx-target="#result">
-    {% translate "Headers" %}
-  </button>
-  <button type="button" hx-get="{% url 'integrations:builder-test' %}" class="btn btn-primary" hx-target="#result">
-    {% translate "Exists" %}
-  </button>
-  <button type="button" hx-get="{% url 'integrations:builder-test' %}" class="btn btn-primary" hx-target="#result">
-    {% translate "Revoke" %}
-  </button>
-  <button type="button" hx-get="{% url 'integrations:builder-test' %}" class="btn btn-primary" hx-target="#result">
-    {% translate "Initial data form" %}
-  </button>
-  <button type="button" hx-get="{% url 'integrations:builder-test' %}" class="btn btn-primary" hx-target="#result">
-    {% translate "Execute" %}
-  </button>
-</div>
-
-<div class="row mt-4">
+<div class="row">
   <div class="col-8">
-    <div class="card">
+    <div style="text-align: center">
+      <button type="button" hx-get="{% url 'integrations:manifest-form-add' integration.id %}" class="btn btn-primary" hx-target="#modify_component">
+        {% translate "Form" %}
+      </button>
+      <button type="button" hx-get="{% url 'integrations:manifest-headers-update' integration.manifest_obj.id %}" class="btn btn-primary" hx-target="#modify_component">
+        {% translate "Headers" %}
+      </button>
+      <button type="button" hx-get="{% url 'integrations:manifest-exists-update' integration.manifest_obj.exists.id %}" class="btn btn-primary" hx-target="#modify_component">
+        {% translate "Exists" %}
+      </button>
+      <button type="button" hx-get="{% url 'integrations:manifest-revoke-add' integration.id %}" class="btn btn-primary" hx-target="#modify_component">
+        {% translate "Revoke" %}
+      </button>
+      <button type="button" hx-get="{% url 'integrations:manifest-initial-data-create' integration.manifest_obj.id %}" class="btn btn-primary" hx-target="#modify_component">
+        {% translate "Initial data form" %}
+      </button>
+      <button type="button" hx-get="{% url 'integrations:manifest-user-info-create' integration.manifest_obj.id %}" class="btn btn-primary" hx-target="#modify_component">
+        {% translate "User specific info" %}
+      </button>
+      <button type="button" hx-get="{% url 'integrations:manifest-execute-add' integration.id %}" class="btn btn-primary" hx-target="#modify_component">
+        {% translate "Execute" %}
+      </button>
+    </div>
+
+    <div class="card mt-3">
       <div class="card-body" id="modify_component">
         {% include "manifest_test/form.html" %}
       </div>
     </div>
   </div>
   <div class="col-4">
-    <div class="card">
+    <div style="text-align: center">
+      <button type="button" hx-post="{% url 'integrations:builder-test' %}" class="btn" hx-target="#result" aria-label="{% translate "Test form" %}" data-microtip-position="top" role="tooltip">
+        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-forms" style="margin-right:0px"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3a3 3 0 0 0 -3 3v12a3 3 0 0 0 3 3" /><path d="M6 3a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3" /><path d="M13 7h7a1 1 0 0 1 1 1v8a1 1 0 0 1 -1 1h-7" /><path d="M5 7h-1a1 1 0 0 0 -1 1v8a1 1 0 0 0 1 1h1" /><path d="M17 12h.01" /><path d="M13 12h.01" /></svg>
+      </button>
+      <button type="button" hx-post="{% url 'integrations:builder-test' %}" class="btn" hx-target="#result" aria-label="{% translate "Test user exist" %}" data-microtip-position="top" role="tooltip">
+        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-user-scan" style="margin-right: 0px"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 9a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M4 8v-2a2 2 0 0 1 2 -2h2" /><path d="M4 16v2a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v2" /><path d="M16 20h2a2 2 0 0 0 2 -2v-2" /><path d="M8 16a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2" /></svg>
+      </button>
+      <button type="button" hx-post="{% url 'integrations:builder-test' %}" class="btn" hx-target="#result" aria-label="{% translate "Test execute" %}" data-microtip-position="top" role="tooltip">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-bolt" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0px"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11"></path></svg>
+      </button>
+      <button type="button" aria-label="{% translate "Test revoke" %}" data-microtip-position="top" role="tooltip" hx-post="{% url 'integrations:builder-test' %}" class="btn" hx-target="#result">
+        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-user-x" style="margin-right: 0px"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h3.5" /><path d="M22 22l-5 -5" /><path d="M17 22l5 -5" /></svg>
+      </button>
+    </div>
+    <div class="card mt-3">
       <div class="card-body">
         <h3>{% trans "Result" %}</h3>
         <div id="result">
@@ -66,7 +68,7 @@
         <label class="form-label">
           {% trans "User" %}
         </label>
-        <select class="form-select disable-selectize" v-model="user_id" id="id_user">
+        <select class="form-select" v-model="user_id" id="id_user">
           {% for user in users %}
           <option value="{{ user.id }}">{{ user.full_name }}</option>
           {% endfor %}
@@ -76,24 +78,54 @@
         </div>
       </div>
     </div>
-    <div class="card mt-4">
-      <div class="card-body">
-        <h3>{% trans "Integration extra fields" %}</h3>
-        <p>{% trans "Extra info necessary to do the request (api keys etc)" %}</p>
-        <div class="mb-2 mt-2">
-          {% include "manifest_test/_key_value_form.html" with location="extra_args" empty_message="There are no integration fields defined yet" add_button="Add extra field" %}
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-{% if DEBUG %}
-<script src="{% static 'js/vue.js' %}"></script>
-{% else %}
-<script src="{% static 'js/vue.min.js' %}"></script>
-{% endif %}
-<script src="{% static 'js/manifest.js' %}"></script>
+<script src="//unpkg.com/alpinejs" defer></script>
+<script>
+document.body.addEventListener('htmx:afterOnLoad', event => {
+  $(".alert").delay(500).fadeOut(300)
+  initSelectize()
+})
+
+// FOR FORMS
+// Change when form type changes
+$(document).on('change', "#id_type", function() {
+  let secondPart = $(this).parent().parent().parent().children().eq(1)
+  let form = $(this).parent().parent().parent().parent()
+  if (this.value == "CHOICE"){
+    secondPart.removeClass("d-none")
+  } else {
+    secondPart.addClass("d-none")
+  }
+  if (this.value == "CHOICE"){
+    if (secondPart.find("#id_options_source").value == "fixed list") {
+      form.children("div").eq(2).addClass("d-none")
+      form.children("div").eq(3).removeClass("d-none")
+    } else {
+      form.children("div").eq(2).removeClass("d-none")
+      form.children("div").eq(3).addClass("d-none")
+    }
+  } else {
+    form.children("div").eq(2).addClass("d-none")
+    form.children("div").eq(3).addClass("d-none")
+  }
+})
+
+// FOR FORMS
+// Change when form option changes
+$(document).on('change', "#id_options_source", function() {
+  let form = $(this).parent().parent().parent().parent()
+  if (this.value == "fixed list"){
+    form.children("div").eq(2).removeClass("d-none")
+    form.children("div").eq(3).addClass("d-none")
+  } else {
+    form.children("div").eq(2).addClass("d-none")
+    form.children("div").eq(3).removeClass("d-none")
+  }
+})
+
+</script>
 {% endblock %}

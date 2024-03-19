@@ -1,0 +1,9 @@
+{% load crispy_forms_tags %}
+{% load i18n %}
+<div class="row">
+  <form hx-post="{% url 'integrations:manifest-execute-update' integration.id object.id %}" hx-target="#form_form">
+    {% crispy form %}
+    <button class="btn btn-primary">{% translate "Update" %}</button>
+  </form>
+</div>
+<hr />

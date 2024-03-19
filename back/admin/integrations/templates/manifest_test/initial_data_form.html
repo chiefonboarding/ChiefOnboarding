@@ -1,0 +1,27 @@
+{% load crispy_forms_tags %}
+{% load i18n %}
+<div id="form">
+  {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %}">
+      <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+    </div>
+  {% endfor %}
+  <h3>{% trans "Initial data form" %}</h3>
+  <p>{% trans "Additional items that will be needed to run this integration. Think of api keys or a domain name for example." %}</p>
+  {% for item, id in existing_form_items %}
+  <div id="form-{{id}}">
+    {% crispy item %}
+    <div class="row">
+      <form hx-post="{% url 'integrations:manifest-initial-data-delete' integration.manifest_obj.id id %}" hx-target="#form-{{id}}" hx-confirm="Are you sure you want to remove this item? This will also remove the saved value (if any)">
+        <button type="submit" class="btn btn-danger">{% translate "Delete" %}</button>
+      </form>
+    </div>
+    <hr />
+  </div>
+  {% endfor %}
+  <h3>{% trans "Create new field" %}</h3>
+  <form hx-post="{% url 'integrations:manifest-initial-data-create' integration.manifest_obj.id %}" hx-target="#form">
+    {% crispy form %}
+    <button type="submit" class="btn btn-primary">{% translate "Add" %}</button>
+  </form>
+</div>

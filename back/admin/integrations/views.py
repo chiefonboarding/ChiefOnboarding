@@ -275,30 +275,6 @@ class IntegrationTrackerDetailView(LoginRequiredMixin, ManagerPermMixin, DetailV
         return context
 
 
-class IntegrationBuilderCreateView(LoginRequiredMixin, AdminPermMixin, RedirectView):
-    permanent = False
-
-    def get_redirect_url(self, *args, **kwargs):
-        if pk := self.kwargs.get("pk", False):
-            integration = get_object_or_404(Integration, id=pk)
-        else:
-            manifest = Manifest.objects.create()
-            integration = Integration.objects.create(manifest_obj=manifest, manifest_type=Integration.ManifestType.WEBHOOK, integration=Integration.Type.CUSTOM)
-
-        return reverse("integrations:builder", args=[integration.id])
-
-
-class IntegrationBuilderView(LoginRequiredMixin, AdminPermMixin, DetailView):
-    template_name = "manifest_test.html"
-    model = Integration
-    context_object_name = "integration"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["form"] = ManifestFormForm()
-        return context
-
-
 class IntegrationTestView(LoginRequiredMixin, AdminPermMixin, View):
     def post(self, request, *args, **kwargs):
         test_type = request.POST.get("type", "form")
@@ -417,23 +393,3 @@ class IntegrationTestDownloadJSONView(LoginRequiredMixin, AdminPermMixin, View):
 
         return HttpResponse("<pre>" + json.dumps(manifest, indent=4) + "</pre>")
 
-from .forms import ManifestFormForm
-
-
-class IntegrationBuilderFormCreateView(
-    LoginRequiredMixin, AdminPermMixin, CreateView
-):
-    template_name = "manifest_test/form.html"
-    form_class = ManifestFormForm
-
-    def get_success_url(self):
-        return self.request.path
-
-    def form_valid(self, form):
-        form.instance.manifest = Integration.objects.get(id=self.kwargs["integration_id"]).manifest_obj
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["integration"] = Integration.objects.get(id=self.kwargs["integration_id"])
-        return context

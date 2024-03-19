@@ -1,6 +1,7 @@
 from django.urls import path
 
 from . import views
+from . import builder_views
 
 app_name = "integrations"
 urlpatterns = [
@@ -44,16 +45,6 @@ urlpatterns = [
         name="tracker",
     ),
     path(
-        "builder/",
-        views.IntegrationBuilderCreateView.as_view(),
-        name="builder",
-    ),
-    path(
-        "builder/<int:pk>/",
-        views.IntegrationBuilderView.as_view(),
-        name="builder",
-    ),
-    path(
         "builder/json/",
         views.IntegrationTestDownloadJSONView.as_view(),
         name="builder-json",
@@ -66,8 +57,88 @@ urlpatterns = [
 
     # builder
     path(
+        "builder/",
+        builder_views.IntegrationBuilderCreateView.as_view(),
+        name="builder",
+    ),
+    path(
+        "builder/<int:pk>/",
+        builder_views.IntegrationBuilderView.as_view(),
+        name="builder",
+    ),
+    path(
         "<int:integration_id>/builder/form/",
-        views.IntegrationBuilderFormCreateView.as_view(),
+        builder_views.IntegrationBuilderFormCreateView.as_view(),
         name="manifest-form-add",
+    ),
+    path(
+        "<int:integration_id>/builder/form/<int:pk>/update/",
+        builder_views.IntegrationBuilderFormUpdateView.as_view(),
+        name="manifest-form-update",
+    ),
+    path(
+        "<int:integration_id>/builder/form/<int:pk>/delete/",
+        builder_views.IntegrationBuilderFormDeleteView.as_view(),
+        name="manifest-form-delete",
+    ),
+    path(
+        "<int:integration_id>/builder/revoke/",
+        builder_views.IntegrationBuilderRevokeCreateView.as_view(),
+        name="manifest-revoke-add",
+    ),
+    path(
+        "<int:integration_id>/builder/revoke/<int:pk>/update/",
+        builder_views.IntegrationBuilderRevokeUpdateView.as_view(),
+        name="manifest-revoke-update",
+    ),
+    path(
+        "<int:integration_id>/builder/revoke/<int:pk>/delete/",
+        builder_views.IntegrationBuilderRevokeDeleteView.as_view(),
+        name="manifest-revoke-delete",
+    ),
+    path(
+        "<int:pk>/builder/headers/", # manifest pk
+        builder_views.IntegrationBuilderHeadersUpdateView.as_view(),
+        name="manifest-headers-update",
+    ),
+    path(
+        "<int:pk>/builder/exists/", # ManifestExist pk
+        builder_views.IntegrationBuilderExistsUpdateView.as_view(),
+        name="manifest-exists-update",
+    ),
+    path(
+        "<int:pk>/builder/manifest_exists_form/create/", # manifest pk
+        builder_views.IntegrationBuilderInitialDataFormCreateView.as_view(),
+        name="manifest-initial-data-create",
+    ),
+    path(
+        "<int:pk>/builder/manifest_exists_form/<int:initial_data_form_id>/delete/", # manifest pk, initial_data_form.id
+        builder_views.IntegrationBuilderInitialDataFormDeleteView.as_view(),
+        name="manifest-initial-data-delete",
+    ),
+    path(
+        "<int:pk>/builder/user_info_form/create/", # manifest pk
+        builder_views.IntegrationBuilderUserInfoFormCreateView.as_view(),
+        name="manifest-user-info-create",
+    ),
+    path(
+        "<int:pk>/builder/user_info_form/<int:user_info_form_id>/delete/", # manifest pk, user_info_form.id
+        builder_views.IntegrationBuilderUserInfoFormDeleteView.as_view(),
+        name="manifest-user-info-delete",
+    ),
+    path(
+        "<int:integration_id>/builder/execute/",
+        builder_views.IntegrationBuilderExecuteCreateView.as_view(),
+        name="manifest-execute-add",
+    ),
+    path(
+        "<int:integration_id>/builder/execute/<int:pk>/update/",
+        builder_views.IntegrationBuilderExecuteUpdateView.as_view(),
+        name="manifest-execute-update",
+    ),
+    path(
+        "<int:integration_id>/builder/execute/<int:pk>/delete/",
+        builder_views.IntegrationBuilderExecuteDeleteView.as_view(),
+        name="manifest-execute-delete",
     ),
 ]
