@@ -520,42 +520,6 @@ class Integration(models.Model):
 
         return True, ""
 
-    def renew_key(self):
-        # Oauth2 refreshing access token if needed
-        success = True
-        if (
-            self.has_oauth
-            and "expires_in" in self.extra_args.get("oauth", {})
-            and self.expiring < timezone.now()
-        ):
-            success, response = self.run_request(self.manifest["oauth"]["refresh"])
-
-            if not success:
-                user = self.new_hire if self.has_user_context else None
-                Notification.objects.create(
-                    notification_type=Notification.Type.FAILED_INTEGRATION,
-                    extra_text=self.name,
-                    created_for=user,
-                    description="Refresh url: " + str(response),
-                )
-                return success
-
-            self.extra_args["oauth"] |= response.json()
-            if "expires_in" in response.json():
-                self.expiring = timezone.now() + timedelta(
-                    seconds=response.json()["expires_in"]
-                )
-            self.save(update_fields=["expiring", "extra_args"])
-            if hasattr(self, "tracker"):
-                # we need to clean the last step as we now probably got new secret keys
-                # that need to be masked
-                last_step = self.tracker.steps.last()
-                last_step.json_response = self.clean_response(last_step.json_response)
-                last_step.save()
-
-        return success
-
-
     def execute(self, new_hire=None, params=None, retry_on_failure=False):
         self.params = params or {}
         self.params["responses"] = []
@@ -573,32 +537,6 @@ class Integration(models.Model):
         if not self.renew_key():
             return False, None
 
-            # No need to retry or log when we are importing users
-            if not success:
-                if self.has_user_context:
-                    response = self.clean_response(response=response)
-                    if polling:
-                        response = "Polling timed out: " + response
-                    Notification.objects.create(
-                        notification_type=Notification.Type.FAILED_INTEGRATION,
-                        extra_text=self.name,
-                        created_for=new_hire,
-                        description=f"Execute url ({item['url']}): {response}",
-                    )
-                if retry_on_failure:
-                    # Retry url in one hour
-                    schedule(
-                        "admin.integrations.tasks.retry_integration",
-                        new_hire.id,
-                        self.id,
-                        params,
-                        name=(
-                            f"Retrying integration {self.id} for new hire {new_hire.id}"
-                        ),
-                        next_run=timezone.now() + timedelta(hours=1),
-                        schedule_type=Schedule.ONCE,
-                    )
-                return False, response
 
 
         # Succesfully ran integration, add notification only when we are provisioning
