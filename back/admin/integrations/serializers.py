@@ -97,17 +97,6 @@ class ManifestRevokeSerializer(ValidateMixin, serializers.Serializer):
     )
 
 
-class ManifestPostExecuteNotificationSerializer(ValidateMixin, serializers.Serializer):
-    type = serializers.ChoiceField(
-        [
-            ("email", "Email message"),
-            ("text", "Text message"),
-        ]
-    )
-    to = serializers.CharField()
-    subject = serializers.CharField()
-    message = serializers.CharField()
-
 
 class ManifestInitialDataFormSerializer(ValidateMixin, serializers.Serializer):
     id = serializers.CharField()
@@ -134,9 +123,6 @@ class WebhookManifestSerializer(ValidateMixin, serializers.Serializer):
     exists = ManifestExistSerializer(required=False)
     revoke = ManifestRevokeSerializer(required=False, many=True)
     execute = ManifestExecuteSerializer(many=True)
-    post_execute_notification = ManifestPostExecuteNotificationSerializer(
-        many=True, required=False
-    )
     initial_data_form = ManifestInitialDataFormSerializer(many=True, required=False)
     extra_user_info = ManifestExtraUserInfoFormSerializer(many=True, required=False)
     headers = serializers.DictField(child=serializers.CharField(), default=dict)

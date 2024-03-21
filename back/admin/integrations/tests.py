@@ -619,39 +619,6 @@ def test_integration_refresh_token(
         )
 
 
-@pytest.mark.django_db
-def test_integration_send_email(
-    client, django_user_model, new_hire_factory, mailoutbox, custom_integration_factory
-):
-    client.force_login(
-        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
-    )
-    integration = custom_integration_factory(
-        manifest={
-            "oauth": {},
-            "initial_data_form": [{"id": "PASSWORD", "name": "generate"}],
-            "execute": [],
-            "post_execute_notification": [
-                {
-                    "type": "email",
-                    "subject": "Welcome {{first_name}}",
-                    "message": "Here is your password: {{PASSWORD}}",
-                    "to": "{{email}}",
-                }
-            ],
-        },
-        expiring=timezone.now() - timedelta(days=1),
-    )
-    new_hire = new_hire_factory()
-    integration.execute(new_hire, {})
-
-    assert len(mailoutbox) == 1
-    assert mailoutbox[0].subject == f"Welcome {new_hire.first_name}"
-    assert len(mailoutbox[0].to) == 1
-    assert mailoutbox[0].to[0] == new_hire.email
-    assert "Here is your password:" in mailoutbox[0].body
-    assert "{{PASSWORD}}" not in mailoutbox[0].body
-
 
 @pytest.mark.django_db
 def test_integration_oauth_callback_redirect_view_disabled_when_done(

@@ -19,7 +19,6 @@ var app = new Vue({
         "headers": [],
         "extra_user_info": [],
         "initial_data_form": [],
-        "post_execute_notification": [],
         "results_from": "" // removed
       },
       extra_fields: [], // new hire

@@ -1,3 +1,4 @@
+
 def get_value_from_notation(notation, value):
     # if we don't need to go into props, then just return the value
     if notation == "":
@@ -25,3 +26,4 @@ def get_value_from_notation(notation, value):
                 raise KeyError
 
     return value
+
