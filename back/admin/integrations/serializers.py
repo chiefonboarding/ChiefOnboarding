@@ -29,6 +29,12 @@ class ManifestFormSerializer(ValidateMixin, serializers.Serializer):
     data_from = serializers.CharField(required=False)
     choice_value = serializers.CharField(required=False)
     choice_name = serializers.CharField(required=False)
+    options_source = serializers.ChoiceField(
+        [
+            ("fixed list", "fixed list"),
+            ("fetch url", "fetch url"),
+        ]
+    )
 
 
 class ManifestConditionSerializer(ValidateMixin, serializers.Serializer):

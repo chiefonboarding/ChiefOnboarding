@@ -1,0 +1,462 @@
+from django.contrib.auth import get_user_model
+from django.contrib.messages.views import SuccessMessageMixin
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
+from django.utils.translation import gettext as _
+from django.views.generic import View
+from django.views.generic.base import RedirectView
+from django.views.generic.detail import DetailView, SingleObjectMixin
+from django.views.generic.edit import FormView
+
+from admin.integrations.models import Integration
+from users.mixins import AdminPermMixin, LoginRequiredMixin
+from users.models import User
+
+from .builder_forms import (
+    ManifestExecuteForm,
+    ManifestExistsForm,
+    ManifestFormForm,
+    ManifestHeadersForm,
+    ManifestInitialDataForm,
+    ManifestRevokeForm,
+    ManifestUserInfoForm,
+)
+from .utils import convert_array_to_object, convert_object_to_array
+
+
+class SingleObjectMixinWithObj(SingleObjectMixin):
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().dispatch(request, *args, **kwargs)
+
+
+class RedirectToSelfMixin:
+    def get_success_url(self):
+        return self.request.path
+
+
+class IntegrationBuilderCreateView(LoginRequiredMixin, AdminPermMixin, RedirectView):
+    permanent = False
+
+    def get_redirect_url(self, *args, **kwargs):
+        if pk := self.kwargs.get("pk", False):
+            integration = get_object_or_404(Integration, id=pk)
+        else:
+            integration = Integration.objects.create(
+                manifest_type=Integration.ManifestType.WEBHOOK,
+                integration=Integration.Type.CUSTOM,
+                is_active=False,
+            )
+
+        return reverse("integrations:builder", args=[integration.id])
+
+
+class IntegrationBuilderView(LoginRequiredMixin, AdminPermMixin, DetailView):
+    template_name = "manifest_test.html"
+    model = Integration
+    context_object_name = "integration"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form"] = ManifestFormForm()
+        context["users"] = User.objects.all()
+        context["title"] = _("Integration builder")
+        context["subtitle"] = _("integrations")
+        context["existing_form_items"] = [
+            (ManifestFormForm(initial=form, disabled=True), idx)
+            for idx, form in enumerate(self.object.manifest.get("form", []))
+        ]
+        return context
+
+
+class IntegrationBuilderFormCreateView(
+    LoginRequiredMixin,
+    AdminPermMixin,
+    SingleObjectMixinWithObj,
+    RedirectToSelfMixin,
+    FormView,
+):
+    template_name = "manifest_test/form.html"
+    model = Integration
+    context_object_name = "integration"
+    form_class = ManifestFormForm
+
+    def form_valid(self, form):
+        manifest = self.object.manifest
+        if "form" not in manifest:
+            manifest["form"] = []
+        manifest["form"].append(form.cleaned_data)
+        self.object.manifest = manifest
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["existing_form_items"] = [
+            (ManifestFormForm(initial=form, disabled=True), idx)
+            for idx, form in enumerate(self.object.manifest.get("form", []))
+        ]
+        return context
+
+
+class IntegrationBuilderFormUpdateView(
+    LoginRequiredMixin, AdminPermMixin, SingleObjectMixinWithObj, FormView
+):
+    template_name = "manifest_test/_update_form.html"
+    model = Integration
+    context_object_name = "integration"
+    form_class = ManifestFormForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["initial"] = self.object.manifest["form"][self.kwargs["index"]]
+        return kwargs
+
+    def get_success_url(self):
+        return reverse("integrations:manifest-form-add", args=[self.object.id])
+
+    def form_valid(self, form):
+        manifest = self.object.manifest
+        manifest["form"][self.kwargs["index"]] = form.cleaned_data
+        self.object.manifest = manifest
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["index"] = self.kwargs["index"]
+        return context
+
+
+class IntegrationBuilderFormDeleteView(LoginRequiredMixin, AdminPermMixin, View):
+    def post(self, *args, **kwargs):
+        integration = get_object_or_404(Integration, id=self.kwargs["pk"])
+        manifest = integration.manifest
+        del manifest["form"][self.kwargs["index"]]
+        integration.manifest = manifest
+        integration.save()
+        return HttpResponse()
+
+
+class IntegrationBuilderHeadersUpdateView(
+    LoginRequiredMixin,
+    AdminPermMixin,
+    SingleObjectMixinWithObj,
+    SuccessMessageMixin,
+    RedirectToSelfMixin,
+    FormView,
+):
+    template_name = "manifest_test/headers.html"
+    form_class = ManifestHeadersForm
+    model = Integration
+    success_message = _("Headers have been updated")
+    context_object_name = "integration"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["initial"] = {
+            "headers": convert_object_to_array(self.object.manifest.get("headers", {}))
+        }
+        return kwargs
+
+    def form_valid(self, form):
+        manifest = self.object.manifest
+        manifest["headers"] = convert_array_to_object(form.cleaned_data["headers"])
+        self.object.manifest = manifest
+        self.object.save()
+        return super().form_valid(form)
+
+
+class IntegrationBuilderExistsUpdateView(
+    LoginRequiredMixin,
+    AdminPermMixin,
+    SingleObjectMixinWithObj,
+    SuccessMessageMixin,
+    RedirectToSelfMixin,
+    FormView,
+):
+    template_name = "manifest_test/exists.html"
+    form_class = ManifestExistsForm
+    model = Integration
+    context_object_name = "integration"
+    success_message = _("Exists check has been updated")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["initial"] = self.object.manifest.get("exists", {})
+        return kwargs
+
+    def form_valid(self, form):
+        manifest = self.object.manifest
+        manifest["exists"] = form.cleaned_data
+        self.object.manifest = manifest
+        self.object.save()
+        return super().form_valid(form)
+
+
+class IntegrationBuilderRevokeCreateView(
+    LoginRequiredMixin,
+    AdminPermMixin,
+    RedirectToSelfMixin,
+    SingleObjectMixinWithObj,
+    FormView,
+):
+    template_name = "manifest_test/revoke.html"
+    form_class = ManifestRevokeForm
+    model = Integration
+    context_object_name = "integration"
+
+    def form_valid(self, form):
+        manifest = self.object.manifest
+        if "revoke" not in manifest:
+            manifest["revoke"] = []
+        manifest["revoke"].append(form.cleaned_data)
+        self.object.manifest = manifest
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["existing_form_items"] = [
+            (ManifestRevokeForm(initial=form, disabled=True), idx)
+            for idx, form in enumerate(self.object.manifest.get("revoke", []))
+        ]
+        return context
+
+
+class IntegrationBuilderRevokeUpdateView(
+    LoginRequiredMixin,
+    AdminPermMixin,
+    RedirectToSelfMixin,
+    SingleObjectMixinWithObj,
+    FormView,
+):
+    template_name = "manifest_test/_update_revoke.html"
+    form_class = ManifestRevokeForm
+    model = Integration
+    context_object_name = "integration"
+
+    def get_success_url(self):
+        return reverse("integrations:manifest-revoke-add", args=[self.object.id])
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["initial"] = self.object.manifest["revoke"][self.kwargs["index"]]
+        return kwargs
+
+    def form_valid(self, form):
+        manifest = self.object.manifest
+        manifest["revoke"][self.kwargs["index"]] = form.cleaned_data
+        self.object.manifest = manifest
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["index"] = self.kwargs["index"]
+        return context
+
+
+class IntegrationBuilderRevokeDeleteView(LoginRequiredMixin, AdminPermMixin, View):
+    def post(self, *args, **kwargs):
+        integration = get_object_or_404(Integration, id=self.kwargs["pk"])
+        manifest = integration.manifest
+        del manifest["revoke"][self.kwargs["index"]]
+        integration.manifest = manifest
+        integration.save()
+        return HttpResponse()
+
+
+class IntegrationBuilderInitialDataFormCreateView(
+    LoginRequiredMixin,
+    AdminPermMixin,
+    RedirectToSelfMixin,
+    SingleObjectMixinWithObj,
+    FormView,
+):
+    template_name = "manifest_test/initial_data_form.html"
+    form_class = ManifestInitialDataForm
+    success_message = _("Initial data item has been added")
+    model = Integration
+    context_object_name = "integration"
+
+    def form_valid(self, form):
+        manifest = self.object.manifest
+        if "initial_data_form" not in manifest:
+            manifest["initial_data_form"] = []
+        manifest["initial_data_form"].append(form.cleaned_data)
+        self.object.manifest = manifest
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["existing_form_items"] = [
+            (ManifestInitialDataForm(initial=form, disabled=True), idx)
+            for idx, form in enumerate(
+                self.object.manifest.get("initial_data_form", [])
+            )
+        ]
+        return context
+
+
+class IntegrationBuilderInitialDataFormDeleteView(
+    LoginRequiredMixin, AdminPermMixin, View
+):
+    def post(self, *args, **kwargs):
+        integration = get_object_or_404(Integration, id=self.kwargs["pk"])
+        manifest = integration.manifest
+        # remove value from saved extra args
+        try:
+            del integration.extra_args[
+                manifest["initial_data_form"][self.kwargs["index"]]["id"]
+            ]
+            integration.save()
+        except KeyError:
+            pass
+        del manifest["initial_data_form"][self.kwargs["index"]]
+        integration.manifest = manifest
+        integration.save()
+        return HttpResponse()
+
+
+class IntegrationBuilderUserInfoFormCreateView(
+    LoginRequiredMixin,
+    AdminPermMixin,
+    RedirectToSelfMixin,
+    SingleObjectMixinWithObj,
+    FormView,
+):
+    template_name = "manifest_test/user_info_form.html"
+    form_class = ManifestUserInfoForm
+    success_message = _("User info item has been added")
+    model = Integration
+    context_object_name = "integration"
+
+    def form_valid(self, form):
+        manifest = self.object.manifest
+        if "extra_user_info" not in manifest:
+            manifest["extra_user_info"] = []
+        manifest["extra_user_info"].append(form.cleaned_data)
+        self.object.manifest = manifest
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["existing_form_items"] = [
+            (ManifestUserInfoForm(initial=form, disabled=True), idx)
+            for idx, form in enumerate(self.object.manifest.get("extra_user_info", []))
+        ]
+        return context
+
+
+class IntegrationBuilderUserInfoFormDeleteView(
+    LoginRequiredMixin, AdminPermMixin, View
+):
+    def post(self, *args, **kwargs):
+        integration = get_object_or_404(Integration, id=self.kwargs["pk"])
+        manifest = integration.manifest
+        del manifest["extra_user_info"][self.kwargs["index"]]
+        integration.manifest = manifest
+        integration.save()
+        return HttpResponse()
+
+
+class IntegrationBuilderExecuteCreateView(
+    LoginRequiredMixin,
+    AdminPermMixin,
+    RedirectToSelfMixin,
+    SingleObjectMixinWithObj,
+    FormView,
+):
+    template_name = "manifest_test/execute.html"
+    form_class = ManifestExecuteForm
+    model = Integration
+    context_object_name = "integration"
+
+    def form_valid(self, form):
+        manifest = self.object.manifest
+        if "execute" not in manifest:
+            manifest["execute"] = []
+        manifest["execute"].append(form.cleaned_data)
+        self.object.manifest = manifest
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["existing_form_items"] = [
+            (ManifestExecuteForm(initial=form, disabled=True), idx)
+            for idx, form in enumerate(self.object.manifest.get("execute", []))
+        ]
+        return context
+
+
+class IntegrationBuilderExecuteUpdateView(
+    LoginRequiredMixin,
+    AdminPermMixin,
+    RedirectToSelfMixin,
+    SingleObjectMixinWithObj,
+    FormView,
+):
+    template_name = "manifest_test/_update_execute.html"
+    form_class = ManifestExecuteForm
+    model = Integration
+    context_object_name = "integration"
+
+    def get_success_url(self):
+        return reverse("integrations:manifest-execute-add", args=[self.object.id])
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["initial"] = self.object.manifest["execute"][self.kwargs["index"]]
+        return kwargs
+
+    def form_valid(self, form):
+        manifest = self.object.manifest
+        manifest["execute"][self.kwargs["index"]] = form.cleaned_data
+        self.object.manifest = manifest
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["index"] = self.kwargs["index"]
+        return context
+
+
+class IntegrationBuilderExecuteDeleteView(LoginRequiredMixin, AdminPermMixin, View):
+    def post(self, *args, **kwargs):
+        integration = get_object_or_404(Integration, id=self.kwargs["pk"])
+        manifest = integration.manifest
+        del manifest["execute"][self.kwargs["index"]]
+        integration.manifest = manifest
+        integration.save()
+        return HttpResponse()
+
+
+class IntegrationBuilderTestFormView(LoginRequiredMixin, AdminPermMixin, View):
+    def post(self, *args, **kwargs):
+        integration = get_object_or_404(Integration, id=self.kwargs["pk"])
+        form = integration.config_form()
+        return render(self.request, "manifest_test/test_form.html", {"form": form})
+
+
+class IntegrationBuilderTestExistsView(LoginRequiredMixin, AdminPermMixin, View):
+    def post(self, *args, **kwargs):
+        integration = get_object_or_404(Integration, id=self.kwargs["pk"])
+        try:
+            user = get_user_model().objects.get(id=self.request.POST.get("user", -1))
+        except get_user_model().DoesNotExist:
+            return render(
+                self.request,
+                "manifest_test/exists_form.html",
+                {"exists": "no user selected"},
+            )
+        return render(
+            self.request,
+            "manifest_test/exists_form.html",
+            {"exists": integration.test_user_exists(user)},
+        )

@@ -1,0 +1,27 @@
+{% load crispy_forms_tags %}
+{% load i18n %}
+<div id="form">
+  {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %}">
+      <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+    </div>
+  {% endfor %}
+  <h3>{% trans "Extra user info form" %}</h3>
+  <p>{% trans "When an integration needs extra user info (a notification will be added to add this info). Make sure to 'mock' these values in the right column, for testing purposes." %}</p>
+  {% for item, id in existing_form_items %}
+  <div id="form-{{id}}">
+    {% crispy item %}
+    <div class="row">
+      <form hx-post="{% url 'integrations:manifest-user-info-delete' integration.id id %}" hx-target="#form-{{id}}">
+        <button type="submit" class="btn btn-danger">{% translate "Delete" %}</button>
+      </form>
+    </div>
+    <hr />
+  </div>
+  {% endfor %}
+  <h3>{% trans "Create new field" %}</h3>
+  <form hx-post="{% url 'integrations:manifest-user-info-create' integration.id %}" hx-target="#form">
+    {% crispy form %}
+    <button type="submit" class="btn btn-primary">{% translate "Add" %}</button>
+  </form>
+</div>

@@ -143,6 +143,11 @@ class IntegrationManager(models.Manager):
         )
 
 
+class IntegrationInactiveManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_active=False)
+
+
 class Integration(models.Model):
     class Type(models.IntegerChoices):
         SLACK_BOT = 0, _("Slack bot")
@@ -161,6 +166,9 @@ class Integration(models.Model):
         )
 
     name = models.CharField(max_length=300, default="", blank=True)
+    is_active = models.BooleanField(
+        default=True, help_text="If inactive, it's a test/debug integration"
+    )
     integration = models.IntegerField(choices=Type.choices)
     manifest_type = models.IntegerField(
         choices=ManifestType.choices, null=True, blank=True
@@ -170,7 +178,7 @@ class Integration(models.Model):
     base_url = models.CharField(max_length=22300, default="", blank=True)
     redirect_url = models.CharField(max_length=22300, default="", blank=True)
     account_id = models.CharField(max_length=22300, default="", blank=True)
-    active = models.BooleanField(default=True)
+    active = models.BooleanField(default=True)  # legacy?
     ttl = models.IntegerField(null=True, blank=True)
     expiring = models.DateTimeField(auto_now_add=True, blank=True)
     one_time_auth_code = models.UUIDField(
@@ -302,7 +310,7 @@ class Integration(models.Model):
             post_data = self._replace_vars(json.dumps(data["data"]))
         else:
             post_data = {}
-        if data.get("cast_data_to_json", False):
+        if data.get("cast_data_to_json", True):
             post_data = self.cast_to_json(post_data)
 
         error = ""
@@ -835,6 +843,7 @@ class Integration(models.Model):
         return response
 
     objects = IntegrationManager()
+    inactive = IntegrationInactiveManager()
 
 
 @receiver(post_delete, sender=Integration)

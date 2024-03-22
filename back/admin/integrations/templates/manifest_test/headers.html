@@ -1,0 +1,15 @@
+{% load crispy_forms_tags %}
+{% load i18n %}
+<div id="form_header">
+  {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %}">
+      <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+    </div>
+  {% endfor %}
+  <h3>{% trans "Headers" %}</h3>
+  <p>{% trans "The default headers to send with each request. Can be overwritten through the other parts." %}</p>
+  <form hx-post="{% url 'integrations:manifest-headers-update' integration.id %}" hx-select="#form_header" hx-target="#form_header">
+    {% crispy form %}
+    <button type="submit" class="btn btn-primary">Update headers</button>
+  </form>
+</div>
