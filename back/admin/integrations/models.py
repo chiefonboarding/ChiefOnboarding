@@ -215,6 +215,10 @@ class Integration(models.Model):
         return self.manifest_type == Integration.ManifestType.MANUAL_USER_PROVISIONING
 
     @property
+    def is_sync_users_integration(self):
+        return self.manifest_type == Integration.ManifestType.SYNC_USERS
+
+    @property
     def can_revoke_access(self):
         return len(self.manifest.get("revoke", []))
 
@@ -405,21 +409,21 @@ class Integration(models.Model):
             # TODO: JSON needs to be refactored
             try:
                 json_payload = json.loads(self.clean_response(json_response))
-            except NativeJSONDecodeError:
+            except (NativeJSONDecodeError, TypeError):
                 json_payload = self.clean_response(json_response)
 
             try:
                 json_post_payload = json.loads(
                     self.clean_response(self.cast_to_json(post_data))
                 )
-            except NativeJSONDecodeError:
+            except (NativeJSONDecodeError, TypeError):
                 json_post_payload = self.clean_response(self.cast_to_json(post_data))
 
             try:
                 json_headers_payload = json.loads(
                     self.clean_response(self.headers(data.get("headers", {})))
                 )
-            except NativeJSONDecodeError:
+            except (NativeJSONDecodeError, TypeError):
                 json_headers_payload = self.clean_response(
                     self.headers(data.get("headers", {}))
                 )

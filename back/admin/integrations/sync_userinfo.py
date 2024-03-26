@@ -31,11 +31,13 @@ class SyncUsers(PaginatedResponse):
         elif action == "update":
             self.update_users()
 
-    def update_users(self):
+    def update_users(self, commit=True):
         # Email param is currently hardcoded, no way to change
         users_dict = {u["email"]: u for u in self.users}
         emails = list(users_dict.keys())
 
+        if not commit:
+            return users_dict
         user_objects = get_user_model().objects.filter(email__in=emails)
         for user in user_objects:
             user_info = users_dict.get(user.email)
@@ -45,12 +47,15 @@ class SyncUsers(PaginatedResponse):
 
         get_user_model().objects.bulk_update(user_objects, ["extra_fields"])
 
-    def create_users(self, new_users):
+
+    def create_users(self, new_users, commit=True):
         serializer = UserImportSerializer(data=new_users, many=True)
         valid_ones = []
 
         if serializer.is_valid():
-            serializer.save(is_active=False)
+            serializer.save(is_active=False, commit=commit)
+            if not commit:
+                return serializer.validated_data
         else:
             # if we have errors, then only get the valid ones
             for idx, error in enumerate(serializer.errors):
@@ -60,8 +65,10 @@ class SyncUsers(PaginatedResponse):
                     logger.info(
                         f"Couldn't save {new_users[idx]['email']} due to {error}"
                     )
+            if not commit:
+                return valid_ones
 
-        # push them again through the function to save the users
+        # push them again through the function to save the users that did pass
         if len(valid_ones):
             self.create_users(valid_ones)
 

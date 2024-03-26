@@ -1,0 +1,15 @@
+{% load crispy_forms_tags %}
+{% load i18n %}
+<div id="form_extract_data">
+  {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %}">
+      <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+    </div>
+  {% endfor %}
+  <h3>{% trans "Extract data" %}</h3>
+  <p>{% trans "Additional data that is needed to parse the data to the users" %}</p>
+  <form hx-post="{% url 'integrations:manifest-extra-data-update' integration.id %}" hx-select="#form_extract_data" hx-target="#form_extract_data">
+    {% crispy form %}
+    <button type="submit" class="btn btn-primary">Update extract data</button>
+  </form>
+</div>

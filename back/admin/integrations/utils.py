@@ -10,17 +10,17 @@ def get_value_from_notation(notation, value):
         except TypeError:
             # check if array
             if not isinstance(value, list):
-                raise
+                raise KeyError
 
             try:
                 index = int(notation)
-            except TypeError:
+            except (TypeError, ValueError):
                 # keep errors consistent, we are only expecting a KeyError
                 raise KeyError
 
             try:
                 value = value[index]
-            except IndexError:
+            except (TypeError, ValueError):
                 # keep errors consistent, we are only expecting a KeyError
                 raise KeyError
 

@@ -9,6 +9,7 @@ from django.utils.translation import gettext as _
 from django.views.generic import View
 from django.views.generic.detail import DetailView, SingleObjectMixin
 from django.views.generic.edit import CreateView, FormView
+from admin.integrations.sync_userinfo import SyncUsers
 
 from admin.integrations.models import Integration, IntegrationTracker
 from users.mixins import AdminPermMixin, LoginRequiredMixin
@@ -23,6 +24,12 @@ from .builder_forms import (
     ManifestOauthForm,
     ManifestRevokeForm,
     ManifestUserInfoForm,
+    ManifestExtractDataForm
+)
+from admin.integrations.exceptions import (
+    DataIsNotJSONError,
+    FailedPaginatedResponseError,
+    KeyIsNotInDataError,
 )
 from .utils import convert_array_to_object, convert_object_to_array
 
@@ -81,10 +88,13 @@ class IntegrationBuilderView(LoginRequiredMixin, AdminPermMixin, DetailView):
         context["users"] = User.objects.all()
         context["title"] = _("Integration builder")
         context["subtitle"] = _("integrations")
-        context["existing_form_items"] = [
-            (ManifestFormForm(initial=form, disabled=True), idx)
-            for idx, form in enumerate(self.object.manifest.get("form", []))
-        ]
+        if self.object.is_sync_users_integration:
+            context["form"] = ManifestHeadersForm(initial={"headers": convert_object_to_array(self.object.manifest.get("headers", {}))})
+        else:
+            context["existing_form_items"] = [
+                (ManifestFormForm(initial=form, disabled=True), idx)
+                for idx, form in enumerate(self.object.manifest.get("form", []))
+            ]
         return context
 
 
@@ -523,6 +533,34 @@ class IntegrationBuilderTestView(LoginRequiredMixin, AdminPermMixin, View):
         )
 
 
+class IntegrationBuilderSyncTestView(LoginRequiredMixin, AdminPermMixin, View):
+    def post(self, *args, **kwargs):
+        integration = get_object_or_404(Integration, id=self.kwargs["pk"])
+
+        error = None
+        users = []
+        try:
+            # we are passing in the user who is requesting it, but we likely don't need
+            # them.
+            users = SyncUsers(integration).get_import_user_candidates()
+        except (
+            KeyIsNotInDataError,
+            FailedPaginatedResponseError,
+            DataIsNotJSONError,
+        ) as e:
+            error = e
+
+        tracker = IntegrationTracker.objects.filter(
+            integration=integration
+        ).last()
+
+        return render(
+            self.request,
+            "manifest_test/test_sync.html",
+            {"integration": integration, "tracker": tracker, "users": users, "error": error},
+        )
+
+
 class IntegrationBuilderOauthUpdateView(
     LoginRequiredMixin,
     AdminPermMixin,
@@ -545,6 +583,33 @@ class IntegrationBuilderOauthUpdateView(
     def form_valid(self, form):
         manifest = self.object.manifest
         manifest["oauth"] = form.cleaned_data["oauth"]
+        self.object.manifest = manifest
+        self.object.save()
+        return super().form_valid(form)
+
+
+class IntegrationBuilderExtractDataUpdateView(
+    LoginRequiredMixin,
+    AdminPermMixin,
+    SingleObjectMixinWithObj,
+    SuccessMessageMixin,
+    RedirectToSelfMixin,
+    FormView,
+):
+    template_name = "manifest_test/extract_data.html"
+    form_class = ManifestExtractDataForm
+    model = Integration
+    success_message = _("Extract data has been updated")
+    context_object_name = "integration"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["initial"] = self.object.manifest
+        return kwargs
+
+    def form_valid(self, form):
+        manifest = self.object.manifest
+        manifest |= form.cleaned_data
         self.object.manifest = manifest
         self.object.save()
         return super().form_valid(form)
