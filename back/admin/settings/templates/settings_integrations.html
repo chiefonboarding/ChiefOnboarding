@@ -121,6 +121,12 @@
           <a href="{% url 'integrations:builder-detail' integration.id %}" class="btn btn-primary">
             {% translate "Live edit and test integration" %}
           </a>
+          <form action="{% url 'integrations:make_active' integration.id %}" method="post" style="display:inline-block">
+            {% csrf_token %}
+            <button class="btn btn-primary" style="float: unset">
+              {% translate "Make active" %}
+            </button>
+          </form>
           <a href="{% url 'integrations:delete' integration.id %}" class="btn btn-danger">
             {% translate "Remove" %}
           </a>

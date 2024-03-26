@@ -13,6 +13,11 @@ urlpatterns = [
     ),
     path("update/<int:pk>/", views.IntegrationUpdateView.as_view(), name="update"),
     path(
+        "make_active/<int:pk>/",
+        builder_views.IntegrationBuilderMakeActiveUpdateView.as_view(),
+        name="make_active",
+    ),
+    path(
         "create/google_login/",
         views.IntegrationCreateGoogleLoginView.as_view(),
         name="create-google",
