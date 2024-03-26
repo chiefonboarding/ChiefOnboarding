@@ -259,6 +259,73 @@ class ManifestOauthForm(forms.Form):
         self.helper.form_tag = False
 
 
+class ManifestExtractDataForm(forms.Form):
+    action = forms.ChoiceField(
+        choices=(("create", "create"), ("sync", "sync")),
+        initial="create",
+    )
+    data_from = forms.CharField(
+        max_length=255,
+        initial="",
+        help_text=_(
+            "The property it should use from the response of the url if you need to go deeper into the result."
+        ),
+        required=False,
+    )
+    data_structure = forms.JSONField(
+        initial=dict,
+        help_text=_("How to map the data to the user"),
+        required=True,
+        label="Data structure",
+    )
+    schedule = forms.CharField(
+        max_length=255,
+        initial="",
+        help_text=_("cron type schedule for running this in the background"),
+        required=False,
+    )
+    amount_pages_to_fetch = forms.IntegerField(
+        initial=5,
+        label=_("Paginated response: amount pages to fetch"),
+        help_text=_(
+            "Maximum amount of page to fetch. It will stop earlier if there are no users found anymore."
+        ),
+        required=False,
+    )
+    next_page_token_from = forms.CharField(
+        max_length=255,
+        label=_("Paginated response: Next page token from"),
+        initial="",
+        help_text=_(
+            "The place to look for the next page token. You can use the dot notation to do go deeper into the JSON. If it's not found, it will stop."
+        ),
+        required=False,
+    )
+    next_page = forms.CharField(
+        max_length=255,
+        label=_("Paginated response: Next page url"),
+        initial="",
+        help_text=_(
+            "A fixed url that will be used to fetch the new result in combination with the 'Next page token from'"
+        ),
+        required=False,
+    )
+    next_page_from = forms.CharField(
+        max_length=255,
+        label=_("Paginated response: Next page from"),
+        initial="",
+        help_text=_(
+            "The place to look for the next page url (if not using 'next_page' and 'next_page_token_from'. You can use the dot notation to do go deeper into the JSON. If it's not found, it will stop."
+        ),
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+
+
 class ManifestExistsForm(forms.Form):
     url = forms.URLField(
         max_length=255, help_text=_("The url it should check"), required=False

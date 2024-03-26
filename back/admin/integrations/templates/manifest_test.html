@@ -27,40 +27,70 @@
 <div class="row">
   <div class="col-8">
     <div style="text-align: center">
+      {% if not integration.is_sync_users_integration %}
       <button type="button" hx-get="{% url 'integrations:manifest-form-add' integration.id %}" hx-indicator="#form-loader" class="btn btn-primary menu" hx-target="#modify_component">
         {% translate "Form" %}
       </button>
-      <button type="button" hx-get="{% url 'integrations:manifest-headers-update' integration.id %}" class="btn menu" hx-target="#modify_component">
+      {% endif %}
+      <button type="button" hx-get="{% url 'integrations:manifest-headers-update' integration.id %}" class="btn menu {% if integration.is_sync_users_integration %}btn-primary{% endif %}" hx-target="#modify_component">
         {% translate "Headers" %}
       </button>
+      {% if not integration.is_sync_users_integration %}
       <button type="button" hx-get="{% url 'integrations:manifest-exists-update' integration.id %}" class="btn menu" hx-target="#modify_component">
         {% translate "Exists" %}
       </button>
       <button type="button" hx-get="{% url 'integrations:manifest-revoke-add' integration.id %}" class="btn menu" hx-target="#modify_component">
         {% translate "Revoke" %}
       </button>
+      {% endif %}
       <button type="button" hx-get="{% url 'integrations:manifest-initial-data-create' integration.id %}" class="btn menu" hx-target="#modify_component">
         {% translate "Initial data form" %}
       </button>
+      {% if not integration.is_sync_users_integration %}
       <button type="button" hx-get="{% url 'integrations:manifest-user-info-create' integration.id %}" class="btn menu" hx-target="#modify_component">
         {% translate "User specific info" %}
       </button>
+      {% endif %}
       <button type="button" hx-get="{% url 'integrations:manifest-execute-add' integration.id %}" class="btn menu" hx-target="#modify_component">
         {% translate "Execute" %}
       </button>
       <button type="button" hx-get="{% url 'integrations:manifest-oauth-update' integration.id %}" class="btn menu" hx-target="#modify_component">
         {% translate "Oauth" %}
       </button>
+      {% if integration.is_sync_users_integration %}
+      <button type="button" hx-get="{% url 'integrations:manifest-extra-data-update' integration.id %}" class="btn menu" hx-target="#modify_component">
+        {% translate "Extract data" %}
+      </button>
+      {% endif %}
     </div>
 
     <div class="card mt-3">
       <div class="card-body" id="modify_component">
-        {% include "manifest_test/form.html" %}
+        {% if not integration.is_sync_users_integration %}
+          {% include "manifest_test/form.html" %}
+        {% else %}
+          {% include "manifest_test/headers.html" %}
+        {% endif %}
       </div>
     </div>
   </div>
   <div class="col-4">
     <div style="text-align: center">
+      {% if integration.is_sync_users_integration %}
+      <button type="button" class="btn"
+        hx-post="{% url 'integrations:manifest-test-sync' integration.id %}"
+        hx-target="#test-modals"
+        hx-trigger="click"
+        data-bs-toggle="modal"
+        data-bs-target="#test-modals"
+        aria-label="{% translate "Sync users (won't affect real data)" %}" data-microtip-position="top" role="tooltip">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right:0px">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+          <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+          <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+        </svg>
+      </button>
+      {% else %}
       <button type="button" class="btn"
         hx-post="{% url 'integrations:manifest-test-form' integration.id %}"
         hx-target="#test-modals"
@@ -100,9 +130,13 @@
         aria-label="{% translate "Test revoke" %}" data-microtip-position="top" role="tooltip" hx-post="" class="btn">
         <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-user-x" style="margin-right: 0px"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h3.5" /><path d="M22 22l-5 -5" /><path d="M17 22l5 -5" /></svg>
       </button>
+      {% endif %}
     </div>
     <div class="card mt-3">
       <div class="card-body">
+        {% if integration.is_sync_users_integration %}
+          {% translate "No additional data needed" %}
+        {% else %}
         <h3>{% trans "User and extra fields" %}</h3>
         <p>{% trans "Please select a user to test this integration on and fill in extra fields if they need them" %}</p>
         <label class="form-label">
@@ -153,6 +187,7 @@
             <input type="hidden" id="extra_values" x-bind:value="arr_stringified"/>
           </div>
         </div>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -177,7 +212,7 @@
 <script src="//unpkg.com/alpinejs" defer></script>
 <script>
 document.body.addEventListener('htmx:afterOnLoad', event => {
-  $(".alert").delay(500).fadeOut(300)
+  $(".alert").delay(800).fadeOut(300)
   initSelectize()
   makeJSONPretty()
 })

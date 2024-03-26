@@ -89,6 +89,11 @@ urlpatterns = [
         name="manifest-headers-update",
     ),
     path(
+        "<int:pk>/builder/extract_data/",
+        builder_views.IntegrationBuilderExtractDataUpdateView.as_view(),
+        name="manifest-extra-data-update",
+    ),
+    path(
         "<int:pk>/builder/oauth/",
         builder_views.IntegrationBuilderOauthUpdateView.as_view(),
         name="manifest-oauth-update",
@@ -137,6 +142,11 @@ urlpatterns = [
         "<int:pk>/builder/test_form/",
         builder_views.IntegrationBuilderTestFormView.as_view(),
         name="manifest-test-form",
+    ),
+    path(
+        "<int:pk>/builder/test_sync/",
+        builder_views.IntegrationBuilderSyncTestView.as_view(),
+        name="manifest-test-sync",
     ),
     path(
         "<int:pk>/builder/test/<slug:what>/",
