@@ -52,8 +52,9 @@ class SyncUsers(PaginatedResponse):
         valid_ones = []
 
         if serializer.is_valid():
-            serializer.save(is_active=False, commit=commit)
-            if not commit:
+            if commit:
+                serializer.save(is_active=False)
+            else:
                 return serializer.validated_data
         else:
             # if we have errors, then only get the valid ones

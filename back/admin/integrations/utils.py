@@ -20,7 +20,7 @@ def get_value_from_notation(notation, value):
 
             try:
                 value = value[index]
-            except (TypeError, ValueError):
+            except (TypeError, ValueError, IndexError):
                 # keep errors consistent, we are only expecting a KeyError
                 raise KeyError
 
