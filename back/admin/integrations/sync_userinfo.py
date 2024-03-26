@@ -47,7 +47,6 @@ class SyncUsers(PaginatedResponse):
 
         get_user_model().objects.bulk_update(user_objects, ["extra_fields"])
 
-
     def create_users(self, new_users, commit=True):
         serializer = UserImportSerializer(data=new_users, many=True)
         valid_ones = []

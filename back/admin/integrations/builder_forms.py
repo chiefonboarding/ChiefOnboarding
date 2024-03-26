@@ -258,6 +258,7 @@ class ManifestOauthForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_tag = False
 
+
 class ManifestExtractDataForm(forms.Form):
     action = forms.ChoiceField(
         choices=(("create", "create"), ("sync", "sync")),
@@ -272,14 +273,15 @@ class ManifestExtractDataForm(forms.Form):
         required=False,
     )
     data_structure = forms.JSONField(
-        initial=dict, help_text=_("How to map the data to the user"), required=True, label="Data structure"
+        initial=dict,
+        help_text=_("How to map the data to the user"),
+        required=True,
+        label="Data structure",
     )
     schedule = forms.CharField(
         max_length=255,
         initial="",
-        help_text=_(
-            "cron type schedule for running this in the background"
-        ),
+        help_text=_("cron type schedule for running this in the background"),
         required=False,
     )
     amount_pages_to_fetch = forms.IntegerField(
@@ -318,12 +320,10 @@ class ManifestExtractDataForm(forms.Form):
         required=False,
     )
 
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_tag = False
-
 
 
 class ManifestExistsForm(forms.Form):

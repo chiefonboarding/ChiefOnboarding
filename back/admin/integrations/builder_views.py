@@ -9,27 +9,27 @@ from django.utils.translation import gettext as _
 from django.views.generic import View
 from django.views.generic.detail import DetailView, SingleObjectMixin
 from django.views.generic.edit import CreateView, FormView
-from admin.integrations.sync_userinfo import SyncUsers
 
+from admin.integrations.exceptions import (
+    DataIsNotJSONError,
+    FailedPaginatedResponseError,
+    KeyIsNotInDataError,
+)
 from admin.integrations.models import Integration, IntegrationTracker
+from admin.integrations.sync_userinfo import SyncUsers
 from users.mixins import AdminPermMixin, LoginRequiredMixin
 from users.models import User
 
 from .builder_forms import (
     ManifestExecuteForm,
     ManifestExistsForm,
+    ManifestExtractDataForm,
     ManifestFormForm,
     ManifestHeadersForm,
     ManifestInitialDataForm,
     ManifestOauthForm,
     ManifestRevokeForm,
     ManifestUserInfoForm,
-    ManifestExtractDataForm
-)
-from admin.integrations.exceptions import (
-    DataIsNotJSONError,
-    FailedPaginatedResponseError,
-    KeyIsNotInDataError,
 )
 from .utils import convert_array_to_object, convert_object_to_array
 
@@ -89,7 +89,13 @@ class IntegrationBuilderView(LoginRequiredMixin, AdminPermMixin, DetailView):
         context["title"] = _("Integration builder")
         context["subtitle"] = _("integrations")
         if self.object.is_sync_users_integration:
-            context["form"] = ManifestHeadersForm(initial={"headers": convert_object_to_array(self.object.manifest.get("headers", {}))})
+            context["form"] = ManifestHeadersForm(
+                initial={
+                    "headers": convert_object_to_array(
+                        self.object.manifest.get("headers", {})
+                    )
+                }
+            )
         else:
             context["existing_form_items"] = [
                 (ManifestFormForm(initial=form, disabled=True), idx)
@@ -550,14 +556,17 @@ class IntegrationBuilderSyncTestView(LoginRequiredMixin, AdminPermMixin, View):
         ) as e:
             error = e
 
-        tracker = IntegrationTracker.objects.filter(
-            integration=integration
-        ).last()
+        tracker = IntegrationTracker.objects.filter(integration=integration).last()
 
         return render(
             self.request,
             "manifest_test/test_sync.html",
-            {"integration": integration, "tracker": tracker, "users": users, "error": error},
+            {
+                "integration": integration,
+                "tracker": tracker,
+                "users": users,
+                "error": error,
+            },
         )
 
 
