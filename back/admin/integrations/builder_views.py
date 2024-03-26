@@ -4,11 +4,11 @@ from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic import View
 from django.views.generic.detail import DetailView, SingleObjectMixin
-from django.views.generic.edit import CreateView, FormView
+from django.views.generic.edit import CreateView, FormView, UpdateView
 
 from admin.integrations.exceptions import (
     DataIsNotJSONError,
@@ -64,6 +64,18 @@ class IntegrationBuilderCreateView(LoginRequiredMixin, AdminPermMixin, CreateVie
         context["title"] = _("Create new test integration")
         context["subtitle"] = _("integrations")
         return context
+
+
+class IntegrationBuilderMakeActiveUpdateView(
+    LoginRequiredMixin, AdminPermMixin, UpdateView
+):
+    model = Integration
+    fields = []
+    success_url = reverse_lazy("settings:integrations")
+
+    def form_valid(self, form):
+        form.instance.is_active = True
+        return super().form_valid(form)
 
 
 class IntegrationBuilderView(LoginRequiredMixin, AdminPermMixin, DetailView):
