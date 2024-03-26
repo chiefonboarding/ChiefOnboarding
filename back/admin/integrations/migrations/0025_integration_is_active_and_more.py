@@ -4,21 +4,22 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('integrations', '0024_alter_integrationtracker_integration'),
+        ("integrations", "0024_alter_integrationtracker_integration"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='integration',
-            name='is_active',
-            field=models.BooleanField(default=True, help_text="If inactive, it's a test/debug integration"),
+            model_name="integration",
+            name="is_active",
+            field=models.BooleanField(
+                default=True, help_text="If inactive, it's a test/debug integration"
+            ),
         ),
         migrations.AddField(
-            model_name='integrationtrackerstep',
-            name='expected',
-            field=models.TextField(default=''),
+            model_name="integrationtrackerstep",
+            name="expected",
+            field=models.TextField(default=""),
             preserve_default=False,
         ),
     ]

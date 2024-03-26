@@ -1,17 +1,14 @@
 import json
-from django.views.generic.edit import CreateView
 
 from django.contrib.auth import get_user_model
-from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.generic import View
-from django.views.generic.base import RedirectView
 from django.views.generic.detail import DetailView, SingleObjectMixin
-from django.views.generic.edit import FormView
+from django.views.generic.edit import CreateView, FormView
 
 from admin.integrations.models import Integration, IntegrationTracker
 from users.mixins import AdminPermMixin, LoginRequiredMixin
@@ -23,9 +20,9 @@ from .builder_forms import (
     ManifestFormForm,
     ManifestHeadersForm,
     ManifestInitialDataForm,
+    ManifestOauthForm,
     ManifestRevokeForm,
     ManifestUserInfoForm,
-    ManifestOauthForm
 )
 from .utils import convert_array_to_object, convert_object_to_array
 
@@ -51,7 +48,9 @@ class IntegrationBuilderCreateView(LoginRequiredMixin, AdminPermMixin, CreateVie
         form.instance.is_active = False
         form.instance.manifest = {"execute": []}
         obj = form.save()
-        return HttpResponseRedirect(reverse('integrations:builder-detail', args=[obj.id]))
+        return HttpResponseRedirect(
+            reverse("integrations:builder-detail", args=[obj.id])
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -109,7 +108,11 @@ class IntegrationBuilderFormCreateView(
 
 
 class IntegrationBuilderFormUpdateView(
-    LoginRequiredMixin, AdminPermMixin, SingleObjectMixinWithObj, RedirectToSelfMixin, FormView
+    LoginRequiredMixin,
+    AdminPermMixin,
+    SingleObjectMixinWithObj,
+    RedirectToSelfMixin,
+    FormView,
 ):
     template_name = "manifest_test/_update_form.html"
     model = Integration
@@ -131,8 +134,14 @@ class IntegrationBuilderFormUpdateView(
         manifest["form"][self.kwargs["index"]] = form.cleaned_data
         self.object.manifest = manifest
         self.object.save()
-        form = self.form_class(initial=self.object.manifest["form"][self.kwargs["index"]], disabled=True)
-        return render(self.request, self.template_name, {"form": form, "index": self.kwargs["index"], "integration": self.object})
+        form = self.form_class(
+            initial=self.object.manifest["form"][self.kwargs["index"]], disabled=True
+        )
+        return render(
+            self.request,
+            self.template_name,
+            {"form": form, "index": self.kwargs["index"], "integration": self.object},
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -258,8 +267,14 @@ class IntegrationBuilderRevokeUpdateView(
         manifest["revoke"][self.kwargs["index"]] = form.cleaned_data
         self.object.manifest = manifest
         self.object.save()
-        form = self.form_class(initial=self.object.manifest["execute"][self.kwargs["index"]], disabled=True)
-        return render(self.request, self.template_name, {"form": form, "index": self.kwargs["index"], "integration": self.object})
+        form = self.form_class(
+            initial=self.object.manifest["execute"][self.kwargs["index"]], disabled=True
+        )
+        return render(
+            self.request,
+            self.template_name,
+            {"form": form, "index": self.kwargs["index"], "integration": self.object},
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -425,8 +440,14 @@ class IntegrationBuilderExecuteUpdateView(
         manifest["execute"][self.kwargs["index"]] = form.cleaned_data
         self.object.manifest = manifest
         self.object.save()
-        form = self.form_class(initial=self.object.manifest["execute"][self.kwargs["index"]], disabled=True)
-        return render(self.request, "manifest_test/execute_disabled_form.html", {"form": form, "index": self.kwargs["index"], "integration": self.object})
+        form = self.form_class(
+            initial=self.object.manifest["execute"][self.kwargs["index"]], disabled=True
+        )
+        return render(
+            self.request,
+            "manifest_test/execute_disabled_form.html",
+            {"form": form, "index": self.kwargs["index"], "integration": self.object},
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -453,11 +474,7 @@ class IntegrationBuilderTestFormView(LoginRequiredMixin, AdminPermMixin, View):
 
 class IntegrationBuilderTestView(LoginRequiredMixin, AdminPermMixin, View):
     def post(self, *args, **kwargs):
-        test_options = [
-            "exists",
-            "revoke",
-            "execute"
-        ]
+        test_options = ["exists", "revoke", "execute"]
         test_type = self.kwargs["what"]
         if self.kwargs["what"] not in test_options:
             raise Http404
@@ -481,7 +498,9 @@ class IntegrationBuilderTestView(LoginRequiredMixin, AdminPermMixin, View):
         elif test_type == "revoke":
             result = integration.revoke_user(user)
 
-        tracker = IntegrationTracker.objects.filter(integration=integration, for_user=user).last()
+        tracker = IntegrationTracker.objects.filter(
+            integration=integration, for_user=user
+        ).last()
 
         return render(
             self.request,
@@ -506,9 +525,7 @@ class IntegrationBuilderOauthUpdateView(
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs["initial"] = {
-            "oauth": self.object.manifest.get("oauth", {})
-        }
+        kwargs["initial"] = {"oauth": self.object.manifest.get("oauth", {})}
         return kwargs
 
     def form_valid(self, form):

@@ -487,6 +487,7 @@ class Integration(models.Model):
 
     def user_exists(self, new_hire, save_result=True):
         from users.models import IntegrationUser
+
         if not len(self.manifest.get("exists", [])):
             return None
 

@@ -1,6 +1,8 @@
 import re
-from django.utils.translation import gettext_lazy as _
+
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+
 
 def validate_ID(value):
     pattern = re.compile("^[A-Z0-9_]+$")
@@ -10,6 +12,7 @@ def validate_ID(value):
             params={"value": value},
         )
 
+
 def validate_status_code(status_code_list):
     pattern = re.compile("^[1-5][1-5][1-5]$")
     for value in status_code_list:
@@ -17,6 +20,7 @@ def validate_status_code(status_code_list):
             raise ValidationError(
                 _("Not all values are within the range of 100 and 599"),
             )
+
 
 def validate_continue_if(value):
     if len(value):
@@ -28,6 +32,7 @@ def validate_continue_if(value):
             raise ValidationError(
                 _("Continue if must include `value` as a key."),
             )
+
 
 def validate_polling(value):
     if len(value):

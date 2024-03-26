@@ -50,7 +50,9 @@ class ManifestPollingSerializer(ValidateMixin, serializers.Serializer):
 class ManifestExistSerializer(ValidateMixin, serializers.Serializer):
     url = serializers.CharField()
     expected = serializers.CharField()
-    status_code = serializers.ListField(child=serializers.IntegerField(), required=False)
+    status_code = serializers.ListField(
+        child=serializers.IntegerField(), required=False
+    )
     method = serializers.ChoiceField(
         [
             ("GET", "GET"),
@@ -73,7 +75,9 @@ class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):
             ("PUT", "PUT"),
         ]
     )
-    status_code = serializers.ListField(child=serializers.IntegerField(), required=False)
+    status_code = serializers.ListField(
+        child=serializers.IntegerField(), required=False
+    )
     files = serializers.DictField(child=serializers.CharField(), default=dict)
     save_as_file = serializers.CharField(required=False)
     polling = ManifestPollingSerializer(required=False)
@@ -93,7 +97,9 @@ class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):
 class ManifestRevokeSerializer(ValidateMixin, serializers.Serializer):
     url = serializers.CharField()
     data = serializers.JSONField(required=False, default=dict)
-    status_code = serializers.ListField(child=serializers.IntegerField(), required=False)
+    status_code = serializers.ListField(
+        child=serializers.IntegerField(), required=False
+    )
     headers = serializers.DictField(child=serializers.CharField(), default=dict)
     method = serializers.ChoiceField(
         [
