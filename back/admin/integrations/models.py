@@ -87,11 +87,23 @@ class IntegrationTrackerStep(models.Model):
     method = models.TextField()
     post_data = models.JSONField()
     headers = models.JSONField()
+    expected = models.TextField()
     error = models.TextField()
 
     @property
     def has_succeeded(self):
         return self.status_code >= 200 and self.status_code < 300
+
+    @property
+    def found_expected(self):
+        if self.expected == "":
+            return True
+
+        if self.text_response != "":
+            return self.expected in self.text_response
+        if len(self.json_response):
+            return self.expected in json.dumps(self.json_response)
+        return False
 
     @property
     def pretty_json_response(self):
@@ -143,6 +155,11 @@ class IntegrationManager(models.Manager):
         )
 
 
+class IntegrationInactiveManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_active=False)
+
+
 class Integration(models.Model):
     class Type(models.IntegerChoices):
         SLACK_BOT = 0, _("Slack bot")
@@ -161,6 +178,9 @@ class Integration(models.Model):
         )
 
     name = models.CharField(max_length=300, default="", blank=True)
+    is_active = models.BooleanField(
+        default=True, help_text="If inactive, it's a test/debug integration"
+    )
     integration = models.IntegerField(choices=Type.choices)
     manifest_type = models.IntegerField(
         choices=ManifestType.choices, null=True, blank=True
@@ -170,7 +190,7 @@ class Integration(models.Model):
     base_url = models.CharField(max_length=22300, default="", blank=True)
     redirect_url = models.CharField(max_length=22300, default="", blank=True)
     account_id = models.CharField(max_length=22300, default="", blank=True)
-    active = models.BooleanField(default=True)
+    active = models.BooleanField(default=True)  # legacy?
     ttl = models.IntegerField(null=True, blank=True)
     expiring = models.DateTimeField(auto_now_add=True, blank=True)
     one_time_auth_code = models.UUIDField(
@@ -196,7 +216,7 @@ class Integration(models.Model):
 
     @property
     def can_revoke_access(self):
-        return self.manifest.get("revoke", False)
+        return len(self.manifest.get("revoke", []))
 
     @property
     def update_url(self):
@@ -211,7 +231,6 @@ class Integration(models.Model):
 
     @property
     def secret_values(self):
-        print(self.manifest["initial_data_form"])
         return [
             item
             for item in self.manifest["initial_data_form"]
@@ -282,7 +301,7 @@ class Integration(models.Model):
     def register_manual_integration_run(self, user):
         from users.models import IntegrationUser
 
-        integration_user, created = IntegrationUser.objects.update_or_create(
+        IntegrationUser.objects.update_or_create(
             user=user,
             integration=self,
             defaults={"revoked": user.is_offboarding},
@@ -302,7 +321,7 @@ class Integration(models.Model):
             post_data = self._replace_vars(json.dumps(data["data"]))
         else:
             post_data = {}
-        if data.get("cast_data_to_json", False):
+        if data.get("cast_data_to_json", True):
             post_data = self.cast_to_json(post_data)
 
         error = ""
@@ -366,11 +385,11 @@ class Integration(models.Model):
         except:  # noqa E722
             error = "There was an unexpected error with the request"
 
-        if error == "" and data.get("fail_when_4xx_response_code", True):
-            try:
-                response.raise_for_status()
-            except Exception:
-                error = response.text
+        if response is not None and error == "":
+            if len(data.get("status_code", [])) and str(
+                response.status_code
+            ) not in data.get("status_code", []):
+                error = f"Status code ({response.status_code}) not in allowed list ({data.get('status_code')})"
 
         try:
             json_response = response.json()
@@ -418,6 +437,7 @@ class Integration(models.Model):
                 method=data.get("method", "POST"),
                 post_data=json_post_payload,
                 headers=json_headers_payload,
+                expected=self._replace_vars(data.get("expected", "")),
                 error=self.clean_response(error),
             )
 
@@ -442,7 +462,7 @@ class Integration(models.Model):
 
     @property
     def has_oauth(self):
-        return "oauth" in self.manifest
+        return "oauth" in self.manifest and len(self.manifest.get("oauth", {}))
 
     def headers(self, headers=None):
         if headers is None:
@@ -467,8 +487,11 @@ class Integration(models.Model):
             new_headers[self._replace_vars(key) + ""] = self._replace_vars(value) + ""
         return new_headers
 
-    def user_exists(self, new_hire):
+    def user_exists(self, new_hire, save_result=True):
         from users.models import IntegrationUser
+
+        if not len(self.manifest.get("exists", [])):
+            return None
 
         # check if user has been created manually
         if self.skip_user_provisioning:
@@ -499,36 +522,14 @@ class Integration(models.Model):
         if not success:
             return None
 
-        user_exists = (
-            self._replace_vars(self.manifest["exists"]["expected"]) in response.text
-        )
+        user_exists = self.tracker.steps.last().found_expected
 
-        IntegrationUser.objects.update_or_create(
-            integration=self, user=new_hire, defaults={"revoked": not user_exists}
-        )
+        if save_result:
+            IntegrationUser.objects.update_or_create(
+                integration=self, user=new_hire, defaults={"revoked": not user_exists}
+            )
 
         return user_exists
-
-    def test_user_exists(self, new_hire):
-        self.new_hire = new_hire
-        self.has_user_context = new_hire is not None
-
-        # Renew token if necessary
-        if not self.renew_key():
-            return _("Couldn't renew token")
-
-        success, response = self.run_request(self.manifest["exists"])
-
-        if isinstance(response, str):
-            return _("Error when making the request: %(error)s") % {"error": response}
-
-        user_exists = (
-            self._replace_vars(self.manifest["exists"]["expected"]) in response.text
-        )
-
-        found_user = "FOUND USER" if user_exists else "COULD NOT FIND USER"
-
-        return f"{found_user} in {response.text}"
 
     def needs_user_info(self, user):
         if self.skip_user_provisioning:
@@ -571,7 +572,7 @@ class Integration(models.Model):
         for item in revoke_manifest:
             success, response = self.run_request(item)
 
-            if not success:
+            if not success or not self.tracker.steps.last().found_expected:
                 return False, self.clean_response(response)
 
         return True, ""
@@ -671,6 +672,7 @@ class Integration(models.Model):
             if "name" in item and item["name"] == "generate":
                 self.extra_args[item["id"]] = get_random_string(length=10)
 
+        response = None
         # Run all requests
         for item in self.manifest["execute"]:
             success, response = self.run_request(item)
@@ -835,6 +837,7 @@ class Integration(models.Model):
         return response
 
     objects = IntegrationManager()
+    inactive = IntegrationInactiveManager()
 
 
 @receiver(post_delete, sender=Integration)

@@ -1,0 +1,15 @@
+{% load crispy_forms_tags %}
+{% load i18n %}
+<div id="form">
+  {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %}">
+      <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+    </div>
+  {% endfor %}
+  <h3>{% trans "Exists" %}</h3>
+  <p>{% trans "Check if a user already exists in the third party service. Leave empty to ignore." %}</p>
+  <form hx-post="{% url 'integrations:manifest-exists-update' integration.id %}" hx-target="#form">
+    {% crispy form %}
+    <button type="submit" class="btn btn-primary">{% translate "Update exists" %}</button>
+  </form>
+</div>

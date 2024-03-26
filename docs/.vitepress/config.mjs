@@ -76,8 +76,6 @@ export default defineConfig({
                 { text: 'Initial data form', link: 'integrations/initial-data-form' },
                 { text: 'Post execute notification', link: 'integrations/post-execution-notification' },
                 { text: 'Oauth', link: 'integrations/oauth' },
-                { text: 'Schedule', link: 'integrations/schedule' },
-                { text: 'Paginated response', link: 'integrations/paginated-response' },
               ]
           },
           { 

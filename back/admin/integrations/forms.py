@@ -48,7 +48,7 @@ class IntegrationConfigForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         integration = self.instance
-        form = self.instance.manifest["form"]
+        form = self.instance.manifest.get("form", [])
         self.helper = FormHelper()
         self.helper.form_tag = False
         self.error = None
@@ -61,7 +61,7 @@ class IntegrationConfigForm(forms.ModelForm):
 
             if item["type"] in ["choice", "multiple_choice"]:
                 # If there is a url to fetch the items from then do so
-                if "url" in item:
+                if item.get("url", "") != "":
                     success, response = integration.run_request(item)
                     if not success:
                         self.error = response

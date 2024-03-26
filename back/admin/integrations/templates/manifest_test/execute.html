@@ -1,0 +1,18 @@
+{% load crispy_forms_tags %}
+{% load i18n %}
+<div id="form_form">
+  <h3>{% trans "Execute" %}</h3>
+  <p>{% trans "This will run when the integration gets triggered." %}</p>
+  <div>
+    <div>
+      {% for item, index in existing_form_items %}
+         {% include "manifest_test/execute_disabled_form.html" with form=item %}
+      {% endfor %}
+    </div>
+    <h3> {% translate "Add execute item" %}</h3>
+    <form hx-post="{% url 'integrations:manifest-execute-add' integration.id %}" hx-select="#form_form" hx-target="#form_form">
+      {% crispy form %}
+      <button class="btn btn-primary">{% translate "Add revoke item" %}</button>
+    </form>
+  </div>
+</div>

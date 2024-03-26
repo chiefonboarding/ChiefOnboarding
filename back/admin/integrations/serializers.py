@@ -29,6 +29,13 @@ class ManifestFormSerializer(ValidateMixin, serializers.Serializer):
     data_from = serializers.CharField(required=False)
     choice_value = serializers.CharField(required=False)
     choice_name = serializers.CharField(required=False)
+    options_source = serializers.ChoiceField(
+        [
+            ("fixed list", "fixed list"),
+            ("fetch url", "fetch url"),
+        ],
+        required=False,
+    )
 
 
 class ManifestConditionSerializer(ValidateMixin, serializers.Serializer):
@@ -44,7 +51,9 @@ class ManifestPollingSerializer(ValidateMixin, serializers.Serializer):
 class ManifestExistSerializer(ValidateMixin, serializers.Serializer):
     url = serializers.CharField()
     expected = serializers.CharField()
-    fail_when_4xx_response_code = serializers.BooleanField(required=False)
+    status_code = serializers.ListField(
+        child=serializers.IntegerField(), required=False
+    )
     method = serializers.ChoiceField(
         [
             ("GET", "GET"),
@@ -67,6 +76,9 @@ class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):
             ("PUT", "PUT"),
         ]
     )
+    status_code = serializers.ListField(
+        child=serializers.IntegerField(), required=False
+    )
     files = serializers.DictField(child=serializers.CharField(), default=dict)
     save_as_file = serializers.CharField(required=False)
     polling = ManifestPollingSerializer(required=False)
@@ -86,6 +98,9 @@ class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):
 class ManifestRevokeSerializer(ValidateMixin, serializers.Serializer):
     url = serializers.CharField()
     data = serializers.JSONField(required=False, default=dict)
+    status_code = serializers.ListField(
+        child=serializers.IntegerField(), required=False
+    )
     headers = serializers.DictField(child=serializers.CharField(), default=dict)
     method = serializers.ChoiceField(
         [

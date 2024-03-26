@@ -11,7 +11,10 @@
   {% crispy form %}
   <button type="submit" class="btn btn-primary">{% translate "Submit" %}</button>
 {% else %}
-  {{ form.error }}
+  <h3>{% translate "Form couldn't be rendered because of an error" %}</h3>
+  <pre>
+    {{ form.error }}
+  </pre>
 {% endif %}
 
 

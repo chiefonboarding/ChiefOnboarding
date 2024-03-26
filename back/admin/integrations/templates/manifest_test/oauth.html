@@ -1,0 +1,23 @@
+{% load crispy_forms_tags %}
+{% load i18n %}
+<div id="form_oauth">
+  {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %}">
+      <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+    </div>
+  {% endfor %}
+  <h3>{% trans "OAuth" %}</h3>
+  <p>{% trans "If you need to use OAuth2 to get a token, then you will need to use this. See all settings here: <a href='https://docs.chiefonboarding.com/integrations/oauth.html' target='_blank'>Oauth documentation</a>" %}</p>
+  <form hx-post="{% url 'integrations:manifest-oauth-update' integration.id %}" hx-select="#form_oauth" hx-target="#form_oauth">
+    {% crispy form %}
+    <button type="submit" class="btn btn-primary">{% translate "Update OAuth" %}</button>
+  </form>
+  <div class="pt-2" style="clear:both">
+    <hr>
+  </div>
+  {% if integration.has_oauth %}
+    <a href="{% url 'integrations:oauth' integration.id %}" class="btn btn-primary">
+      {% translate "Connect OAuth" %}
+    </a>
+  {% endif %}
+</div>

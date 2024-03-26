@@ -1,0 +1,36 @@
+{% load crispy_forms_field %}
+{% load i18n %}
+
+<label class="form-label mb-2">
+  {{ field.label }}
+</label>
+<p>
+  <small class="form-text text-muted">{{ field.help_text }}</small>
+</p>
+<div x-data="{ arr: [{{ field.value}}], arr_stringified: JSON.stringify({{field.value}}) }" x-init="$watch('arr', value => arr_stringified = JSON.stringify(arr)); arr_stringified = JSON.stringify(arr)">
+  <template x-for="(obj, index) in arr" :key="index">
+    <div class="row">
+      <div class="col-10">
+        <div class="mb-3">
+          <input type="number" {% if disabled %}disabled{% endif %} x-model="arr[index]" class="textinput form-control" required="" id="id_id">
+        </div>
+      </div>
+      {% if not disabled %}
+      <div class="col-2">
+        <button type="button" class="btn btn-danger" @click="arr.splice(index, 1)">
+           <svg  style="margin-right: 0px" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
+        </button>
+      </div>
+      {% endif %}
+    </div>
+  </template>
+  {% for error in field.errors %}
+  <span style="display:block" class="invalid-feedback mb-2"><strong>{{ error }}</strong></span>
+  {% endfor %}
+  {% if not disabled %}
+  <button type="button" @click="arr.push(200)" class="btn btn-sm btn-primary" style="margin-bottom: 10px; float:unset;">
+    {% translate "Add" %}
+  </button>
+  <input type="hidden" name="{{field.name}}" x-bind:value="arr"/>
+  {% endif %}
+</div>
