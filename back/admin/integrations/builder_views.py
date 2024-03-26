@@ -66,6 +66,17 @@ class IntegrationBuilderView(LoginRequiredMixin, AdminPermMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        manifest = self.object.manifest
+        for form in manifest.get("form", []):
+            options_source = form.get("options_source", None)
+            if options_source is None:
+                if form.get("url", "") == "":
+                    form["options_source"] = "fixed list"
+                else:
+                    form["options_source"] = "fetch url"
+        self.object.manifest = manifest
+        self.object.save()
+
         context["form"] = ManifestFormForm()
         context["users"] = User.objects.all()
         context["title"] = _("Integration builder")
@@ -130,6 +141,9 @@ class IntegrationBuilderFormUpdateView(
         if len(data.get("items", [])):
             data["choice_value"] = "key"
             data["choice_name"] = "value"
+
+        if form.cleaned_data.get("options_source") == "fixed list":
+            form.cleaned_data["url"] = ""
 
         manifest["form"][self.kwargs["index"]] = form.cleaned_data
         self.object.manifest = manifest

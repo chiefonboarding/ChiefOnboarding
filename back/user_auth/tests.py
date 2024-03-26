@@ -266,6 +266,8 @@ def test_authed_view(url, client, new_hire_factory):
     swaps = [
         ["<int:pk>", "1"],
         ["<int:id>", "1"],
+        ["<int:index>", "1"],
+        ["<slug:what>", "revoke"],
         ["<slug:language>", "en"],
         ["<int:type>", "1"],
         ["<slug:type>", "todo"],
