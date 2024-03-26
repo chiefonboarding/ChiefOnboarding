@@ -520,6 +520,7 @@ class Integration(models.Model):
         if not success:
             return None
 
+        print(self.tracker.steps.count())
         user_exists = self.tracker.steps.last().found_expected
 
         if save_result:
