@@ -1,6 +1,9 @@
 # Changelog
 
-## v2.1.0
+## v2.1.1 (2023-03-26)
+* add feature to make test integration active
+
+## v2.1.0 (2023-03-26)
 * Improved live builder for both normal requests and sync options
 * Many bug fixes
 * Moved docs to VitePres
