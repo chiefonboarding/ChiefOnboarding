@@ -5,22 +5,8 @@
   <p>{% trans "This will revoke a user when the integration is triggered in the offboarding sequence or by revoking the user by clicking on the button" %}</p>
   <div>
     <div>
-      {% for item, id in existing_form_items %}
-      <div id="form-{{id}}">
-        {% crispy item %}
-        <div class="row">
-          <div class="col-9"></div>
-          <div class="col-1">
-            <button hx-get="{% url 'integrations:manifest-revoke-update' integration.id id %}" class="btn" hx-target="#form-{{id}}">{% translate "Edit" %}</button>
-          </div>
-          <div class="col-2">
-            <form hx-post="{% url 'integrations:manifest-revoke-delete' integration.id id %}" hx-target="#form-{{id}}" hx-confirm="Are you sure you want to remove this item?">
-              <button type="submit" class="btn btn-danger">{% translate "Delete" %}</button>
-            </form>
-          </div>
-        </div>
-        <hr />
-      </div>
+      {% for item, index in existing_form_items %}
+        {% include "manifest_test/revoke_disabled_form.html" with form=item %}
       {% endfor %}
     </div>
     <h3> Add form item </h3>

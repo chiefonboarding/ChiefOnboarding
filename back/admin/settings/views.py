@@ -331,10 +331,12 @@ class IntegrationsListView(LoginRequiredMixin, AdminPermMixin, TemplateView):
         context["base_url"] = settings.BASE_URL
 
         context["custom_integrations"] = Integration.objects.filter(
-            integration=Integration.Type.CUSTOM
+            integration=Integration.Type.CUSTOM,
+            is_active=True
         )
         context["inactive_integrations"] = Integration.inactive.filter(
-            integration=Integration.Type.CUSTOM
+            integration=Integration.Type.CUSTOM,
+            is_active=False
         )
         context["add_action"] = reverse_lazy("integrations:create")
         return context

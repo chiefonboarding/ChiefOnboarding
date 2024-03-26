@@ -118,7 +118,7 @@
           <a href="{% url 'integrations:update' integration.id %}" class="btn btn-primary">
             {% translate "Update manifest" %}
           </a>
-          <a href="{% url 'integrations:builder' integration.id %}" class="btn btn-primary">
+          <a href="{% url 'integrations:builder-detail' integration.id %}" class="btn btn-primary">
             {% translate "Live edit and test integration" %}
           </a>
           <a href="{% url 'integrations:delete' integration.id %}" class="btn btn-danger">

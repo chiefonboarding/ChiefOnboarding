@@ -84,32 +84,37 @@ urlpatterns = [
         name="manifest-revoke-delete",
     ),
     path(
-        "<int:pk>/builder/headers/",  # manifest pk
+        "<int:pk>/builder/headers/",
         builder_views.IntegrationBuilderHeadersUpdateView.as_view(),
         name="manifest-headers-update",
     ),
     path(
-        "<int:pk>/builder/exists/",  # ManifestExist pk
+        "<int:pk>/builder/oauth/",
+        builder_views.IntegrationBuilderOauthUpdateView.as_view(),
+        name="manifest-oauth-update",
+    ),
+    path(
+        "<int:pk>/builder/exists/",
         builder_views.IntegrationBuilderExistsUpdateView.as_view(),
         name="manifest-exists-update",
     ),
     path(
-        "<int:pk>/builder/manifest_exists_form/create/",  # manifest pk
+        "<int:pk>/builder/manifest_exists_form/create/",
         builder_views.IntegrationBuilderInitialDataFormCreateView.as_view(),
         name="manifest-initial-data-create",
     ),
     path(
-        "<int:pk>/builder/manifest_exists_form/<int:index>/delete/",  # manifest pk, initial_data_form.id
+        "<int:pk>/builder/manifest_exists_form/<int:index>/delete/",
         builder_views.IntegrationBuilderInitialDataFormDeleteView.as_view(),
         name="manifest-initial-data-delete",
     ),
     path(
-        "<int:pk>/builder/user_info_form/create/",  # manifest pk
+        "<int:pk>/builder/user_info_form/create/",
         builder_views.IntegrationBuilderUserInfoFormCreateView.as_view(),
         name="manifest-user-info-create",
     ),
     path(
-        "<int:pk>/builder/user_info_form/<int:index>/delete/",  # manifest pk, user_info_form.id
+        "<int:pk>/builder/user_info_form/<int:index>/delete/",
         builder_views.IntegrationBuilderUserInfoFormDeleteView.as_view(),
         name="manifest-user-info-delete",
     ),
@@ -134,8 +139,8 @@ urlpatterns = [
         name="manifest-test-form",
     ),
     path(
-        "<int:pk>/builder/test_exists/",
-        builder_views.IntegrationBuilderTestExistsView.as_view(),
-        name="manifest-test-exists",
+        "<int:pk>/builder/test/<slug:what>/",
+        builder_views.IntegrationBuilderTestView.as_view(),
+        name="manifest-test",
     ),
 ]

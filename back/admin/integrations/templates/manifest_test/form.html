@@ -5,22 +5,8 @@
   <p>{% trans "The form option is used when this integration gets added to a user or in a sequence to add specific details. For example: you want to create a new user in a third party application, but you want to be able to select to which group they will be added. You can do that with this option." %}</p>
   <div>
     <div>
-      {% for item, id in existing_form_items %}
-      <div id="form-{{id}}">
-        {% crispy item %}
-        <div class="row">
-          <div class="col-9"></div>
-          <div class="col-1">
-            <button hx-get="{% url 'integrations:manifest-form-update' integration.id id %}" class="btn" hx-target="#form-{{id}}">{% translate "Edit" %}</button>
-          </div>
-          <div class="col-2">
-            <form hx-post="{% url 'integrations:manifest-form-delete' integration.id id %}" hx-target="#form-{{id}}" hx-confirm="Are you sure you want to remove this item?">
-              <button type="submit" class="btn btn-danger">{% translate "Delete" %}</button>
-            </form>
-          </div>
-        </div>
-        <hr />
-      </div>
+      {% for item, index in existing_form_items %}
+        {% include "manifest_test/form_disabled_form.html" with form=item %}
       {% endfor %}
     </div>
     <h3> Add form item </h3>

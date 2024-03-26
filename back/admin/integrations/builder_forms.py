@@ -10,6 +10,7 @@ from admin.integrations.utils import (
     prepare_initial_data,
 )
 from admin.templates.forms import FieldWithExtraContext
+from admin.integrations.validators import validate_ID, validate_status_code, validate_continue_if, validate_polling
 
 
 class JSONToDict(forms.JSONField):
@@ -34,6 +35,7 @@ class ManifestFormForm(forms.Form):
         help_text=_(
             "This value can be used in the other calls. Please do not use spaces or weird characters. A single word in capitals is prefered."
         ),
+        validators=[validate_ID]
     )
     name = forms.CharField(
         label="Name", help_text=_("The form label shown to the admin")
@@ -76,6 +78,7 @@ class ManifestFormForm(forms.Form):
         label=_("Request method"),
     )
     data = forms.JSONField(initial=dict, required=False)
+    cast_data_to_json = forms.BooleanField(initial=True, help_text=_("Check this if the data should be send as json. When unchecked, it's send as a string."), required=False)
     headers = JSONToDict(
         initial=list,
         help_text=_("(optionally) This will overwrite the default headers."),
@@ -147,6 +150,7 @@ class ManifestFormForm(forms.Form):
                 ),
                 Div(Field("data_from")),
                 Div(Field("data")),
+                Div(Field("cast_data_to_json")),
                 Div(
                     Div(Field("choice_value"), css_class="col-6"),
                     Div(Field("choice_name"), css_class="col-6"),
@@ -176,6 +180,7 @@ class ManifestRevokeForm(forms.Form):
         required=False,
     )
     data = forms.JSONField(initial=dict, required=False)
+    cast_data_to_json = forms.BooleanField(initial=True, help_text=_("Check this if the data should be send as json. When unchecked, it's send as a string."), required=False)
     expected = forms.CharField(initial="", required=False)
     status_code = SimpleArrayField(
         forms.CharField(max_length=1000), required=False, initial=list
@@ -204,6 +209,7 @@ class ManifestRevokeForm(forms.Form):
                     css_class="row",
                 ),
                 Div(Field("data")),
+                Div(Field("cast_data_to_json")),
                 Div(Field("expected")),
                 IntegerListField("status_code", extra_context={"disabled": disabled}),
                 ValueKeyArrayField("headers", extra_context={"disabled": disabled}),
@@ -226,6 +232,20 @@ class ManifestHeadersForm(forms.Form):
         self.helper.layout = Layout(ValueKeyArrayField("headers"))
 
 
+class ManifestOauthForm(forms.Form):
+    oauth = forms.JSONField(
+        initial=list,
+        help_text=_("OAuth settings"),
+        required=False,
+        label="OAuth"
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+
+
 class ManifestExistsForm(forms.Form):
     url = forms.URLField(
         max_length=255, help_text=_("The url it should check"), required=False
@@ -243,7 +263,8 @@ class ManifestExistsForm(forms.Form):
     )
     expected = forms.CharField(initial="", required=False)
     status_code = SimpleArrayField(
-        forms.CharField(max_length=1000), required=False, initial=[]
+        forms.CharField(max_length=1000), required=False, initial=[],
+        validators=[validate_status_code]
     )
     headers = forms.JSONField(
         initial=list,
@@ -279,6 +300,7 @@ class ManifestInitialDataForm(forms.Form):
         help_text=_(
             "This value can be used in the other calls. Please do not use spaces or weird characters. A single word in capitals is prefered."
         ),
+        validators=[validate_ID]
     )
     name = forms.CharField(
         max_length=255,
@@ -327,6 +349,7 @@ class ManifestUserInfoForm(forms.Form):
         help_text=_(
             "This value can be used in the other calls. Please do not use spaces or weird characters. A single word in capitals is prefered."
         ),
+        validators=[validate_ID]
     )
     name = forms.CharField(max_length=255)
     description = forms.CharField(
@@ -374,6 +397,7 @@ class ManifestExecuteForm(forms.Form):
     status_code = SimpleArrayField(
         forms.CharField(max_length=1000), required=False, initial=[]
     )
+    cast_data_to_json = forms.BooleanField(initial=True, help_text=_("Check this if the data should be send as json. When unchecked, it's send as a string."), required=False)
     headers = forms.JSONField(
         initial=list,
         help_text=_("(optionally) This will overwrite the default headers."),
@@ -391,6 +415,7 @@ class ManifestExecuteForm(forms.Form):
         initial=dict,
         help_text=_("(optionally) set up a condition to block any further requests"),
         required=False,
+        validators=[validate_continue_if]
     )
     polling = forms.JSONField(
         initial=dict,
@@ -398,6 +423,7 @@ class ManifestExecuteForm(forms.Form):
             "(optionally) rerun this request a specific amount of times until it passes"
         ),
         required=False,
+        validators=[validate_polling],
     )
     save_as_file = forms.CharField(
         initial="",
@@ -445,6 +471,7 @@ class ManifestExecuteForm(forms.Form):
                     css_class="row",
                 ),
                 Div(Field("data")),
+                Div(Field("cast_data_to_json")),
                 Div(Field("store_data")),
                 Div(Field("continue_if")),
                 Div(Field("polling")),

@@ -2,7 +2,7 @@
 {% load i18n %}
 
 <label class="form-label mb-2">
-  <b>{{ field.label }}</b>
+  {{ field.label }}
 </label>
 <p>
   <small class="form-text text-muted">{{ field.help_text }}</small>
@@ -24,6 +24,9 @@
       {% endif %}
     </div>
   </template>
+  {% for error in field.errors %}
+  <span style="display:block" class="invalid-feedback mb-2"><strong>{{ error }}</strong></span>
+  {% endfor %}
   {% if not disabled %}
   <button type="button" @click="arr.push(200)" class="btn btn-sm btn-primary" style="margin-bottom: 10px; float:unset;">
     {% translate "Add" %}

@@ -11,6 +11,7 @@
   <a href="{% url 'integrations:update-creds' integration.id %}" class="btn btn-primary mb-4">
     {% translate "Update credentials" %}
   </a>
+  <hr class="mt-0" />
   {% for item, id in existing_form_items %}
   <div id="form-{{id}}">
     {% crispy item %}

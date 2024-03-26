@@ -1,0 +1,23 @@
+{% load i18n %}
+<div class="text-secondary float-end">{% trans "Status code" %}: {{ step.status_code }}</div>
+<h4>{% trans "Method and URL" %}</h4>
+<p>{{ step.method }}: {{ step.url }}</p>
+<h4>{% translate "Response" %}</h4>
+<pre>
+{{ step.pretty_json_response }}
+</pre>
+<h4>{% translate "Post data" %}</h4>
+<pre>
+{{ step.pretty_post_data }}
+</pre>
+<h4>{% translate "Headers" %}</h4>
+<pre>
+{{ step.pretty_headers }}
+</pre>
+{% if step.error != "" %}
+  <h4>{% translate "Error" %}</h4>
+  {{ step.error }}
+{% endif %}
+{% if step.expected %}
+<p>{% translate "Found expected value:" %}{{step.expected}} ({{step.found_expected}})
+{% endif %}
