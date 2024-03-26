@@ -19,5 +19,6 @@
   {{ step.error }}
 {% endif %}
 {% if step.expected %}
-<p>{% translate "Found expected value:" %}{{step.expected}} ({{step.found_expected}})
+<h4 class="mt-2">{% translate "Found value" %}</h4>
+<p>{% translate "Expected value: " %}<pre>{{step.expected}}</pre> (Found: {{step.found_expected}})
 {% endif %}

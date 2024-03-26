@@ -14,7 +14,7 @@ def validate_ID(value):
 
 
 def validate_status_code(status_code_list):
-    pattern = re.compile("^[1-5][1-5][1-5]$")
+    pattern = re.compile("^[0-9][0-9][0-9]$")
     for value in status_code_list:
         if not pattern.match(value):
             raise ValidationError(

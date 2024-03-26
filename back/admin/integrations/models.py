@@ -386,7 +386,9 @@ class Integration(models.Model):
             error = "There was an unexpected error with the request"
 
         if response is not None and error == "":
-            if len(data.get("status_code", [])):
+            if len(data.get("status_code", [])) and str(
+                response.status_code
+            ) not in data.get("status_code", []):
                 error = f"Status code ({response.status_code}) not in allowed list ({data.get('status_code')})"
 
         try:
@@ -520,7 +522,6 @@ class Integration(models.Model):
         if not success:
             return None
 
-        print(self.tracker.steps.count())
         user_exists = self.tracker.steps.last().found_expected
 
         if save_result:

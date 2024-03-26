@@ -34,7 +34,7 @@ class ManifestFormSerializer(ValidateMixin, serializers.Serializer):
             ("fixed list", "fixed list"),
             ("fetch url", "fetch url"),
         ],
-        required=False
+        required=False,
     )
 
 
