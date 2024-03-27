@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.1.2 (2023-03-27)
+* fix bug when replacing items with empty string
+
 ## v2.1.1 (2023-03-26)
 * add feature to make test integration active
 
