@@ -825,7 +825,7 @@ class Integration(models.Model):
                         _("***Secret value for %(name)s***")
                         % {"name": name + "." + inner_name},
                     )
-            else:
+            elif value != "":
                 response = response.replace(
                     str(value), _("***Secret value for %(name)s***") % {"name": name}
                 )
