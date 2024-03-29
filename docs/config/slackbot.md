@@ -48,3 +48,10 @@ settings:
 8. Go back to your Slack bot and go to "App Home". Then scroll down till you see: "Show Tabs". Enable the "message tab" and check the "Allow users to send Slash commands and messages from the messages tab".
 
 That's it!
+
+
+## Importing channels
+
+`SLACK_EXCLUDE_EXT_SHARED_CHANNELS`
+
+Default: `False`. If you don't want to import channels that are being shared with external people, then you can set this to `True` to exclude those.
