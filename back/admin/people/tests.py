@@ -2727,6 +2727,60 @@ def test_employee_toggle_resources(
 
 
 @pytest.mark.django_db
+def test_employee_hardware(
+    client, django_user_model, employee_factory, hardware_factory
+):
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
+
+    employee1 = employee_factory()
+    hardware1 = hardware_factory()
+    hardware2 = hardware_factory(template=False)
+
+    url = reverse("people:add_hardware", args=[employee1.id])
+    response = client.get(url, follow=True)
+
+    assert hardware1.name in response.content.decode()
+    # Only show templates
+    assert hardware2.name not in response.content.decode()
+    assert "Added" not in response.content.decode()
+
+    # Add resource to user
+    employee1.hardware.add(hardware1)
+
+    response = client.get(url, follow=True)
+
+    # Has been added, so change button name
+    assert hardware2.name not in response.content.decode()
+    assert "Added" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_employee_toggle_hardware(
+    client, django_user_model, employee_factory, hardware_factory
+):
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
+
+    hardware1 = hardware_factory()
+    employee1 = employee_factory()
+
+    url = reverse("people:toggle_hardware", args=[employee1.id, hardware1.id])
+    response = client.post(url, follow=True)
+
+    assert "Added" in response.content.decode()
+    assert employee1.hardware.filter(id=hardware1.id).exists()
+
+    # Now remove the item
+    response = client.post(url, follow=True)
+
+    assert "Add" in response.content.decode()
+    assert not employee1.resources.filter(id=hardware1.id).exists()
+
+
+@pytest.mark.django_db
 def test_visibility_import_employees_button(
     client,
     django_user_model,

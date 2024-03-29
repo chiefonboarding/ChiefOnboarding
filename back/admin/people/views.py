@@ -14,6 +14,7 @@ from rest_framework import generics
 from rest_framework.authentication import SessionAuthentication
 
 from admin.admin_tasks.models import AdminTask
+from admin.hardware.models import Hardware
 from admin.integrations.exceptions import (
     DataIsNotJSONError,
     FailedPaginatedResponseError,
@@ -115,6 +116,36 @@ class ColleagueUpdateView(
         context["title"] = new_hire.full_name
         context["subtitle"] = _("Employee")
         return context
+
+
+class ColleagueHardwareView(LoginRequiredMixin, ManagerPermMixin, DetailView):
+    template_name = "add_hardware.html"
+    model = get_user_model()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = context["object"]
+        context["title"] = _("Add new hardware for %(name)s") % {"name": user.full_name}
+        context["subtitle"] = _("Employee")
+        context["object_list"] = Hardware.templates.all()
+        return context
+
+
+class ColleagueToggleHardwareView(LoginRequiredMixin, ManagerPermMixin, View):
+    template_name = "_toggle_button_hardware.html"
+
+    def post(self, request, pk, template_id, *args, **kwargs):
+        context = {}
+        user = get_object_or_404(get_user_model(), id=pk)
+        hardware = get_object_or_404(Hardware, id=template_id, template=True)
+        if user.hardware.filter(id=hardware.id).exists():
+            user.hardware.remove(hardware)
+        else:
+            user.hardware.add(hardware)
+        context["id"] = id
+        context["template"] = hardware
+        context["object"] = user
+        return render(request, self.template_name, context)
 
 
 class ColleagueResourceView(LoginRequiredMixin, ManagerPermMixin, DetailView):

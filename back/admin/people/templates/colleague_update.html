@@ -78,6 +78,11 @@
         </div>
         {% endfor %}
       </div>
+      <div class="card-footer">
+        <a href="{% url 'people:add_hardware' object.id %}" class="btn btn-primary">
+          {% translate "Change" %}
+        </a>
+      </div>
     </div>
   </div>
 </div>
