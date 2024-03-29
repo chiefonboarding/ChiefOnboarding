@@ -169,6 +169,16 @@ urlpatterns = [
         name="add_resource",
     ),
     path(
+        "colleagues/<int:pk>/hardware/",
+        views.ColleagueHardwareView.as_view(),
+        name="add_hardware",
+    ),
+    path(
+        "colleagues/<int:pk>/hardware/<int:template_id>/",
+        views.ColleagueToggleHardwareView.as_view(),
+        name="toggle_hardware",
+    ),
+    path(
         "colleagues/<int:pk>/resource/<int:template_id>/",
         views.ColleagueToggleResourceView.as_view(),
         name="toggle_resource",
