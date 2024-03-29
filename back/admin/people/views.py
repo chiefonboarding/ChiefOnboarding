@@ -14,6 +14,7 @@ from rest_framework import generics
 from rest_framework.authentication import SessionAuthentication
 
 from admin.admin_tasks.models import AdminTask
+from admin.hardware.models import Hardware
 from admin.integrations.exceptions import (
     DataIsNotJSONError,
     FailedPaginatedResponseError,
@@ -34,7 +35,6 @@ from users.mixins import (
     LoginRequiredMixin,
     ManagerPermMixin,
 )
-from admin.hardware.models import Hardware
 from users.models import ToDoUser
 
 from .forms import (
@@ -125,9 +125,7 @@ class ColleagueHardwareView(LoginRequiredMixin, ManagerPermMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = context["object"]
-        context["title"] = _("Add new hardware for %(name)s") % {
-            "name": user.full_name
-        }
+        context["title"] = _("Add new hardware for %(name)s") % {"name": user.full_name}
         context["subtitle"] = _("Employee")
         context["object_list"] = Hardware.templates.all()
         return context

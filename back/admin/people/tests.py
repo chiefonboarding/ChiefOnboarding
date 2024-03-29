@@ -2780,7 +2780,6 @@ def test_employee_toggle_hardware(
     assert not employee1.resources.filter(id=hardware1.id).exists()
 
 
-
 @pytest.mark.django_db
 def test_visibility_import_employees_button(
     client,
