@@ -1,6 +1,14 @@
 # Development
 
-If you want to contribute or just play around with the source code, the first step would be to download the source code. Then run this to get it all up and running: 
+If you want to contribute or just play around with the source code, the first step would be to download the source code. 
+
+Then move the example environment file to the real one:
+
+```
+cp .example_env .env
+```
+
+Then run this to get it all up and running: 
 
 ```bash
 docker-compose up
