@@ -48,3 +48,13 @@ settings:
 8. Go back to your Slack bot and go to "App Home". Then scroll down till you see: "Show Tabs". Enable the "message tab" and check the "Allow users to send Slash commands and messages from the messages tab".
 
 That's it!
+
+
+## Slack channels
+You can import all channels in one go if you click on the "Update Slack channels list" button in the settings.
+In some cases, you might want to avoid this at all costs (if you have thousands of channels). You can do that by setting:
+
+`SLACK_DISABLE_AUTO_UPDATE_CHANNELS` 
+
+Default: `False`. Setting this to `True` will remove the button and disable this option
+

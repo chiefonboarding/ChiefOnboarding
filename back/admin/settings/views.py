@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 from django.utils import translation
@@ -337,6 +337,9 @@ class IntegrationsListView(LoginRequiredMixin, AdminPermMixin, TemplateView):
             integration=Integration.Type.CUSTOM, is_active=False
         )
         context["add_action"] = reverse_lazy("integrations:create")
+        context["disable_update_channels_list"] = (
+            settings.SLACK_DISABLE_AUTO_UPDATE_CHANNELS
+        )
         return context
 
 
@@ -375,6 +378,8 @@ class SlackChannelsUpdateView(LoginRequiredMixin, AdminPermMixin, RedirectView):
     pattern_name = "settings:integrations"
 
     def get(self, request, *args, **kwargs):
+        if settings.SLACK_DISABLE_AUTO_UPDATE_CHANNELS:
+            raise Http404
         SlackChannel.objects.update_channels()
         messages.success(
             request,
@@ -384,3 +389,19 @@ class SlackChannelsUpdateView(LoginRequiredMixin, AdminPermMixin, RedirectView):
             ),
         )
         return super().get(request, *args, **kwargs)
+
+
+class SlackChannelsCreateView(LoginRequiredMixin, AdminPermMixin, CreateView):
+    template_name = "slack_channel_create.html"
+    model = SlackChannel
+    fields = ["name", "is_private"]
+    success_message = _("Slack channel has been added")
+    success_url = reverse_lazy("settings:slack-account-add-channel")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("Slack channels")
+        context["subtitle"] = _("settings")
+        context["button_text"] = _("Enable")
+        context["channels"] = SlackChannel.objects.all()
+        return context
