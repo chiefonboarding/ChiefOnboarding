@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.2.0 (2023-03-29)
+* Option to add hardware to user manually
+* Make development docker setup easier
+* Option to disable the channels update with value `SLACK_DISABLE_AUTO_UPDATE_CHANNELS`
+* Option to manually add Slack channels
+
 ## v2.1.2 (2023-03-27)
 * fix bug when replacing items with empty string
 
