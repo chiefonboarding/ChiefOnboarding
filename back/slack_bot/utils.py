@@ -39,7 +39,11 @@ class Slack:
             )
         except Exception:
             return []
-        return [[x["name"], x["is_private"]] for x in response["channels"]]
+        all_channels = [[x["name"], x["is_private"]] for x in response["channels"]]
+        if settings.SLACK_EXCLUDE_EXT_SHARED_CHANNELS:
+            all_channels = [channel for channel in all_channels if not channel.get("is_ext_shared", False)]
+
+        return all_channels
 
     def get_all_users(self):
         try:

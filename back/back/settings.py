@@ -110,6 +110,7 @@ FAKE_SLACK_API = False
 SLACK_USE_SOCKET = env.bool("SLACK_USE_SOCKET", default=False)
 SLACK_APP_TOKEN = env("SLACK_APP_TOKEN", default="")
 SLACK_BOT_TOKEN = env("SLACK_BOT_TOKEN", default="")
+SLACK_EXCLUDE_EXT_SHARED_CHANNELS = env.bool("SLACK_EXCLUDE_EXT_SHARED_CHANNELS", False)
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
