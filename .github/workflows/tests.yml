@@ -38,7 +38,7 @@ jobs:
         pipenv install --dev --system
     - name: Run migrations
       run: |
-        mv .example_env back/back/.env
+        mv .ci_env back/back/.env
         cd back
         python manage.py migrate
     - name: Test with pytest
