@@ -719,6 +719,38 @@ def test_integration_oauth_callback_view(
 
 
 @pytest.mark.django_db
+@patch(
+    "admin.integrations.models.Integration.run_request",
+    Mock(return_value=(True, Mock(json=lambda: {"access_token": "test"}))),
+)
+def test_integration_oauth_callback_view_with_save_get_params(
+    client, django_user_model, custom_integration_factory
+):
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
+    integration = custom_integration_factory(
+        manifest={
+            "oauth": {
+                "access_token": {"url": "http://localhost:8000/test/"},
+                "authenticate_url": "http://localhost:8000/test/",
+                "store_redirect_parameters": True,
+            }
+        }
+    )
+
+    url = reverse("integrations:oauth-callback", args=[integration.id])
+    client.get(url + "?code=test&somethingelse=blank", follow=True)
+
+    integration.refresh_from_db()
+    assert integration.enabled_oauth
+    assert integration.extra_args["oauth"] == {
+        "access_token": "test",
+        "redirect_params": {"code": "test", "somethingelse": "blank"},
+    }
+
+
+@pytest.mark.django_db
 def test_integration_clean_error_data(custom_integration_factory):
     integration = custom_integration_factory(
         extra_args={

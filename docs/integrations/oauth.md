@@ -17,6 +17,12 @@ Used to refresh the token to get a new one, if this is not added, then it will a
 
 Default: `False`. Enable this is a valid callback won't return a `code` query in the url. In some cases, we don't get it and also not need it.
 
+`store_redirect_parameters`
+
+Default: `False`. Enable this if you want to store whatever the server returns when it redirects you back to the ChiefOnboaring instance.
+
+
+
 
 ## Redirect url
 Most oauth providers will require you to put the redirect url in one of the links. Every integrations has a unique redirect url and you can get the correct one by using:
@@ -30,6 +36,12 @@ When done, you should have gotten credentials to authenticate other urls. If you
 
 ```
 {{ oauth.refresh_token }}
+```
+
+If you enabled the `store_redirect_parameters` value, then you can get the parameters by doing:
+
+```
+{{ oauth.redirect_params.<your value> }}
 ```
 
 
