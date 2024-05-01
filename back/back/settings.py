@@ -382,6 +382,7 @@ LANGUAGES = [
     ("pt", _("Portuguese")),
     ("jp", _("Japanese")),
     ("es", _("Spanish")),
+    ("cs", _("Czech")),
 ]
 LANGUAGE_SESSION_KEY = "chief-language"
 SITE_ROOT = os.path.dirname(os.path.realpath(__name__))
