@@ -635,13 +635,24 @@ def test_new_hire_latest_activity(client, new_hire_factory, django_user_model):
 
 @pytest.mark.django_db
 @freeze_time("2022-05-13 08:00:00")
-def test_send_preboarding_send_menu_option(client, new_hire_factory, django_user_model):
+def test_send_preboarding_send_menu_option(
+    client, new_hire_factory, django_user_model, preboarding_factory
+):
     # Test if send preboarding menu option is available
     # Should only be available before start date
     client.force_login(
         django_user_model.objects.create(role=get_user_model().Role.ADMIN)
     )
     new_hire = new_hire_factory(start_day=datetime.fromisoformat("2022-05-15"))
+
+    url = reverse("people:new_hire", args=[new_hire.id])
+    response = client.get(url)
+
+    # no preboarding items yet
+    assert "Send Preboarding email" not in response.content.decode()
+
+    # add preboarding item
+    new_hire.preboarding.add(preboarding_factory())
 
     url = reverse("people:new_hire", args=[new_hire.id])
     response = client.get(url)
