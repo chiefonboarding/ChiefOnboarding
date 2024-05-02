@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.2.1 (2023-05-02)
+* Chore(deps-dev): bump vite from 5.1.5 to 5.2.8 in /docs (#455)
+* Update dependencies 04 2024 (#460)
+* Chore(deps): bump gunicorn from 21.2.0 to 22.0.0 (#461)
+* Fix timezone on new hire detail page (#465)
+* Add czech language (#464) (thanks to @playtoncz)
+* Remove preboarding button when no preboarding items and fix list content (#467)
+
 ## v2.2.0 (2023-03-29)
 * Option to add hardware to user manually
 * Make development docker setup easier
