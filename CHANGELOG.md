@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.2.2 (2023-06-12)
+* Fix submitting two forms on one page preboarding/todo (#470)
+
 ## v2.2.1 (2023-05-02)
 * Chore(deps-dev): bump vite from 5.1.5 to 5.2.8 in /docs (#455)
 * Update dependencies 04 2024 (#460)
