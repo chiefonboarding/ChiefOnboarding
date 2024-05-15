@@ -2613,7 +2613,7 @@ msgstr "Passwort:"
 #: users/emails.py:180
 #, python-format
 msgid "Welcome to %(name)s!"
-msgstr "Willkomen %(name)s!"
+msgstr "Willkomen bei %(name)s!"
 
 #: users/emails.py:186
 msgid "See pages"
