@@ -17,7 +17,7 @@ At ChiefOnboarding, we base everything around sequences. Sequences are basically
 
 Let's break it down a bit:
 
-Sequences consist of blocks. We currently have 3 types of blocks:
+Sequences consist of blocks. We currently have two types of blocks:
 
 - General blocks
    - Block before the new hire starts
