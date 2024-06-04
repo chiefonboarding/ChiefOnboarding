@@ -544,12 +544,12 @@ msgstr "Typ senden"
 
 #: admin/people/new_hire_views.py:66 users/templates/admin_base.html:59
 msgid "New hires"
-msgstr "Neue Mitarbieter"
+msgstr "Neue Mitarbeiter"
 
 #: admin/people/new_hire_views.py:67 admin/people/new_hire_views.py:85
 #: admin/people/views.py:39
 msgid "people"
-msgstr "Menschen"
+msgstr "Personen"
 
 #: admin/people/new_hire_views.py:79
 msgid "New hire has been created"
@@ -685,7 +685,7 @@ msgstr "Admin-Aufgaben"
 
 #: admin/people/templates/_new_hire_menu.html:149
 msgid "Welcome Messages"
-msgstr "Willkommensnachricht"
+msgstr "Willkommensnachrichten"
 
 #: admin/people/templates/_new_hire_settings_menu.html:4
 #: users/templates/admin_base.html:130
@@ -1010,7 +1010,7 @@ msgstr "Es gibt noch keine Termin-Einträge"
 
 #: admin/people/templates/new_hire_welcome_messages.html:13
 msgid "Welcome messages from colleagues"
-msgstr "Willkommensnachricht von Kollegen"
+msgstr "Willkommensnachrichten von Kollegen"
 
 #: admin/people/templates/new_hire_welcome_messages.html:32
 msgid ""
@@ -1344,11 +1344,11 @@ msgstr "Kommentar"
 
 #: admin/sequences/models.py:394
 msgid "Pick user"
-msgstr "Wähle Benutzter aus"
+msgstr "Wähle Benutzer aus"
 
 #: admin/sequences/models.py:400
 msgid "Send email or Slack message to extra user?"
-msgstr "E-Mail oder Slack-Nachricht an einen weiteren Benutzter senden?"
+msgstr "E-Mail oder Slack-Nachricht an einen weiteren Benutzer senden?"
 
 #: admin/sequences/models.py:539
 msgid "After new hire has started"
@@ -1479,7 +1479,7 @@ msgstr "Zeitzone"
 
 #: admin/settings/forms.py:23
 msgid "Sequences that are preselected for all new hires:"
-msgstr "Abfolgen, die für alle neuen Mitarbeiter vorausgewählt wurden:"
+msgstr "Abfolgen, die für alle neuen Mitarbeiter vorausgewählt sind:"
 
 #: admin/settings/forms.py:52
 msgid "Login options"
@@ -1519,7 +1519,7 @@ msgstr "6-stelliger OTP-Code"
 
 #: admin/settings/forms.py:232
 msgid "This is the code that your 2FA application shows you."
-msgstr "Das ist der Code, den dein 2FA-Antrag dir zeigt."
+msgstr "Das ist der Code, den deine 2FA-App anzeigt."
 
 #: admin/settings/forms.py:248
 msgid "OTP token was not correct. Please wait 30 seconds and then try again"
@@ -1567,7 +1567,7 @@ msgid ""
 "Please scan the code below with your 2FA app of your choice. We recommend "
 "andOTP or Aegis (but you can use Google Authenticator or Authy)."
 msgstr ""
-"Bitte scanne den unten stehenden Code mit einer 2FA-App deiner Wahl. Wir "
+"Bitte scanne den untenstehenden Code mit einer 2FA-App deiner Wahl. Wir "
 "empfehlen andOTP oder Aegis (du kannst aber auch den Google Authenticator "
 "oder Authy verwenden.)"
 
@@ -1687,7 +1687,7 @@ msgstr "Nachricht wurde aktualisiert"
 
 #: admin/settings/views.py:187
 msgid "Update welcome messages"
-msgstr "Willkommensnachricht aktualisieren"
+msgstr "Willkommensnachrichten aktualisieren"
 
 #: admin/settings/views.py:255
 msgid "Your default language has been updated"
@@ -1949,7 +1949,7 @@ msgstr "Akzentfarbe"
 
 #: organization/models.py:47
 msgid "Bot color"
-msgstr "Botfarbe"
+msgstr "Bot-Farbe"
 
 #: organization/models.py:50
 msgid "Logo"
@@ -1957,19 +1957,19 @@ msgstr "Logo"
 
 #: organization/models.py:55
 msgid "Allow users to login with their username and password"
-msgstr "Erlaube Benutzter sich mit ihrem Benutzername und Passwort anzumelden"
+msgstr "Erlaube Benutzer sich mit ihrem Benutzernamen und Passwort anzumelden"
 
 #: organization/models.py:59
 msgid "Allow users to login with their Google account"
-msgstr "Erlaube Benutzter sich mit ihrem Google-Account anzumelden"
+msgstr "Erlaube Benutzer sich mit ihrem Google-Account anzumelden"
 
 #: organization/models.py:62
 msgid "Allow users to login with their Slack account"
-msgstr "Erlaube Benutzter sich mit ihrem Slack-Account anzumelden"
+msgstr "Erlaube Benutzer sich mit ihrem Slack-Account anzumelden"
 
 #: organization/models.py:67
 msgid "Send email to new hire with login credentials"
-msgstr "Sende eine E-Mail mit neuen Anmeldedaten an neuen Mitarbeiter"
+msgstr "Sende eine E-Mail mit den Anmeldedaten an neue Mitarbeiter"
 
 #: organization/models.py:69
 msgid ""
@@ -1981,12 +1981,12 @@ msgstr ""
 
 #: organization/models.py:75
 msgid "Send email to new hire with updates"
-msgstr "Sende eine E-Mail mit Aktualisierungen an neuen Mitarbeiter"
+msgstr "Sende E-Mails mit Aktualisierungen an neue Mitarbeiter"
 
 #: organization/models.py:76
 msgid "Think of new tasks that got assigned, new resources, badges... "
 msgstr ""
-"Überlege dir neue Aufgaben, die zugewiesen wurden, neue Ressourcen, Badges..."
+"Z.B. über neue Aufgaben die zugewiesen wurden, neue Ressourcen, Badges..."
 
 #: organization/models.py:80
 msgid "Send email to new hire when tasks are overdue"
@@ -2015,8 +2015,7 @@ msgstr ""
 #: organization/models.py:102
 msgid "Send a Slack message to the team on the day the new hire starts"
 msgstr ""
-"Sende eine Slack-Nachricht, an dem Tag an dem der neue Mitarbeiter anfängt, "
-"an das Team"
+"Sende eine Slack-Nachricht an das Team, an dem Tag, an dem der neue Mitarbeiter anfängt"
 
 #: organization/models.py:107
 msgid "Create a new hire when they join your Slack team"
@@ -2697,7 +2696,7 @@ msgstr ""
 
 #: users/templates/admin_base.html:54
 msgid "People"
-msgstr "Menschen"
+msgstr "Personen"
 
 #: users/templates/admin_base.html:185
 msgid "Documentation"
