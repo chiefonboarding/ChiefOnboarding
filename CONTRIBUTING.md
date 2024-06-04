@@ -27,7 +27,7 @@ For something that is bigger than a few lines of code changes:
    * Send a pull request 
 
 # How to report a bug
-If you find a security vulnerability, do NOT open an issue. Read [SECURITY.md] for more info on how to report those.
+If you find a security vulnerability, do NOT open an issue. Read [SECURITY.md](SECURITY.md) for more info on how to report those.
 
 When filing an issue, make sure to answer these questions:
 
