@@ -74,6 +74,7 @@ class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):
             ("GET", "GET"),
             ("POST", "POST"),
             ("PUT", "PUT"),
+            ("DELETE", "DELETE"),
         ]
     )
     status_code = serializers.ListField(
@@ -108,6 +109,7 @@ class ManifestRevokeSerializer(ValidateMixin, serializers.Serializer):
             ("GET", "GET"),
             ("POST", "POST"),
             ("PUT", "PUT"),
+            ("DELETE", "DELETE"),
         ]
     )
 
