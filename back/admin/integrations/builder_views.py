@@ -314,7 +314,7 @@ class IntegrationBuilderRevokeUpdateView(
         )
         return render(
             self.request,
-            self.template_name,
+            "manifest_test/revoke_disabled_form.html",
             {"form": form, "index": self.kwargs["index"], "integration": self.object},
         )
 
