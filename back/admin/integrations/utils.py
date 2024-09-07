@@ -37,7 +37,7 @@ def convert_object_to_array(obj):
 
 def prepare_initial_data(obj):
     if isinstance(obj, dict):
-        if obj.get("headers"):
+        if obj.get("headers") and not isinstance(obj["headers"], list):
             obj["headers"] = convert_object_to_array(obj["headers"])
         return obj
 
