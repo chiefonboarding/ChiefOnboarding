@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.2.4 (2024-09-09)
+* Fix not being able to update builder due to unexpected type (#505)
+* Chore(deps): bump cryptography from 43.0.0 to 43.0.1 in /back (#503)
+
 ## v2.2.3 (2024-08-28)
 * Allow DELETE action on revoke in manifest serializer (#502)
 * chore: Deploy to Elestio button updated (#499)
