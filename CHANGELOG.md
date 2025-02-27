@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.2.6 (2025-02-28)
+* Bump dependencies dec 2024
+
 ## v2.2.5 (2024-11-02)
 * Bump dependencies nov 2024
 
