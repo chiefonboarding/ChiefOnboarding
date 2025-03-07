@@ -29,11 +29,17 @@ class AdminTaskUpdateForm(forms.ModelForm):
 
 class AdminTaskCreateForm(forms.ModelForm):
     comment = forms.CharField(label=_("Comment"), max_length=12500)
-    new_hire = forms.ModelChoiceField(label=_("New hire"), queryset=User.new_hires.all())
-    assigned_to = forms.ModelChoiceField(label=_("Assigned to"), queryset=User.admins.all())
-    slack_user = forms.ModelChoiceField(label=_("Slack user"), queryset=User.managers_and_admins.with_slack())
+    new_hire = forms.ModelChoiceField(
+        label=_("New hire"), queryset=User.new_hires.all()
+    )
+    assigned_to = forms.ModelChoiceField(
+        label=_("Assigned to"), queryset=User.admins.all()
+    )
+    slack_user = forms.ModelChoiceField(
+        label=_("Slack user"), queryset=User.managers_and_admins.with_slack()
+    )
     date = forms.DateField(
-        label=_("Date"), 
+        label=_("Date"),
         required=False,
         widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
     )
