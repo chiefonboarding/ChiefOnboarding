@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from users.models import User
 
@@ -27,11 +28,12 @@ class AdminTaskUpdateForm(forms.ModelForm):
 
 
 class AdminTaskCreateForm(forms.ModelForm):
-    comment = forms.CharField(max_length=12500)
-    new_hire = forms.ModelChoiceField(queryset=User.new_hires.all())
-    assigned_to = forms.ModelChoiceField(queryset=User.admins.all())
-    slack_user = forms.ModelChoiceField(queryset=User.managers_and_admins.with_slack())
+    comment = forms.CharField(label=_("Comment"), max_length=12500)
+    new_hire = forms.ModelChoiceField(label=_("New hire"), queryset=User.new_hires.all())
+    assigned_to = forms.ModelChoiceField(label=_("Assigned to"), queryset=User.admins.all())
+    slack_user = forms.ModelChoiceField(label=_("Slack user"), queryset=User.managers_and_admins.with_slack())
     date = forms.DateField(
+        label=_("Date"), 
         required=False,
         widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
     )
