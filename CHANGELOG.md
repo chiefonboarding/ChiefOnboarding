@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.2.7 (2025-03-07)
+* Bump dependencies march 2025 (#527)
+* Update dutch translations and fix admin to do form tranlsations (#526) 
+
 ## v2.2.6 (2025-02-28)
 * Bump dependencies dec 2024
 
