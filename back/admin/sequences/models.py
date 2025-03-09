@@ -54,9 +54,16 @@ class Sequence(models.Model):
     def update_url(self):
         return reverse("sequences:update", args=[self.id])
 
+    def get_icon_template(self):
+        return render_to_string("_sequence_icon.html")
+
     @property
     def is_onboarding(self):
         return self.category == Sequence.Category.ONBOARDING
+
+    @property
+    def is_offboarding(self):
+        return self.category != Sequence.Category.ONBOARDING
 
     def class_name(self):
         return self.__class__.__name__
@@ -145,6 +152,14 @@ class Sequence(models.Model):
                         # We found our match. Amount matches AND the admin_tasks match
                         user_condition = condition
                         break
+
+            elif (
+                sequence_condition.condition_type == Condition.Type.INTEGRATIONS_REVOKED
+            ):
+                user_condition = user.conditions.filter(
+                    condition_type=Condition.Type.INTEGRATIONS_REVOKED
+                ).first()
+
             else:
                 # Condition (always just one) that will be assigned directly (type == 3)
                 # Just run the condition with the new hire
@@ -267,7 +282,7 @@ class ExternalMessage(ContentMixin, models.Model):
         TEXT = 2, _("Text")
 
     class PersonType(models.IntegerChoices):
-        NEWHIRE = 0, _("New hire")
+        NEWHIRE = 0, _("New hire/User to be offboarded")
         MANAGER = 1, _("Manager")
         BUDDY = 2, _("Buddy")
         CUSTOM = 3, _("Custom")
@@ -322,7 +337,6 @@ class ExternalMessage(ContentMixin, models.Model):
         if self.is_slack_message:
             return Notification.Type.SENT_SLACK_MESSAGE
 
-    @property
     def get_icon_template(self):
         if self.is_email_message:
             return render_to_string("_email_icon.html")
@@ -330,6 +344,14 @@ class ExternalMessage(ContentMixin, models.Model):
             return render_to_string("_slack_icon.html")
         if self.is_text_message:
             return render_to_string("_text_icon.html")
+
+    @property
+    def requires_assigned_manager_or_buddy(self):
+        # returns manager, buddy
+        return (
+            self.person_type == ExternalMessage.PersonType.MANAGER,
+            self.person_type == ExternalMessage.PersonType.BUDDY,
+        )
 
     def duplicate(self, change_name=False):
         self.pk = None
@@ -441,7 +463,7 @@ class PendingTextMessage(ExternalMessage):
 
 class PendingAdminTask(models.Model):
     class PersonType(models.IntegerChoices):
-        NEWHIRE = 0, _("New hire")
+        NEWHIRE = 0, _("New hire/User to be offboarded")
         MANAGER = 1, _("Manager")
         BUDDY = 2, _("Buddy")
         CUSTOM = 3, _("Custom")
@@ -501,6 +523,14 @@ class PendingAdminTask(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def requires_assigned_manager_or_buddy(self):
+        # returns manager, buddy
+        return (
+            self.person_type == PendingAdminTask.PersonType.MANAGER,
+            self.person_type == PendingAdminTask.PersonType.BUDDY,
+        )
+
     def get_user(self, new_hire):
         if self.person_type == PendingAdminTask.PersonType.NEWHIRE:
             return new_hire
@@ -531,7 +561,6 @@ class PendingAdminTask(models.Model):
             comment=self.comment,
         )
 
-    @property
     def get_icon_template(self):
         return render_to_string("_admin_task_icon.html")
 
@@ -568,10 +597,17 @@ class IntegrationConfig(models.Model):
     )
 
     @property
+    def requires_assigned_manager_or_buddy(self):
+        # returns manager, buddy
+        return (
+            self.person_type == IntegrationConfig.PersonType.MANAGER,
+            self.person_type == IntegrationConfig.PersonType.BUDDY,
+        )
+
+    @property
     def name(self):
         return self.integration.name
 
-    @property
     def get_icon_template(self):
         return render_to_string("_integration_config.html")
 
@@ -586,23 +622,28 @@ class IntegrationConfig(models.Model):
 
         if not self.integration.skip_user_provisioning:
             # it's an automated integration so just execute it
-            self.integration.execute(user, self.additional_data)
+            if user.is_offboarding and self.integration.can_revoke_access:
+                self.integration.revoke_user(user)
+            else:
+                self.integration.execute(
+                    user, self.additional_data, retry_on_failure=True
+                )
             return
-
-        is_offboarding = user.termination_date is not None
 
         if self.person_type is None:
             # doesn't need extra action, just log
             integration_user, created = IntegrationUser.objects.update_or_create(
                 user=user,
                 integration=self.integration,
-                defaults={"revoked": is_offboarding},
+                defaults={"revoked": user.is_offboarding},
             )
 
             Notification.objects.create(
-                notification_type=Notification.Type.REMOVE_MANUAL_INTEGRATION
-                if is_offboarding
-                else Notification.Type.ADD_MANUAL_INTEGRATION,
+                notification_type=(
+                    Notification.Type.REMOVE_MANUAL_INTEGRATION
+                    if user.is_offboarding
+                    else Notification.Type.ADD_MANUAL_INTEGRATION
+                ),
                 extra_text=self.integration.name,
                 created_for=user,
                 item_id=integration_user.id,
@@ -667,6 +708,7 @@ class ConditionPrefetchManager(models.Manager):
                 Prefetch(
                     "integration_configs", queryset=IntegrationConfig.objects.all()
                 ),
+                Prefetch("hardware", queryset=Hardware.objects.all()),
             )
             .alias_days_order()
             .order_by("days_order", "time")
@@ -680,6 +722,7 @@ class Condition(models.Model):
         BEFORE = 2, _("Before the new hire has started")
         WITHOUT = 3, _("Without trigger")
         ADMIN_TASK = 4, _("Based on one or more admin tasks")
+        INTEGRATIONS_REVOKED = 5, _("When all integrations have been revoked")
 
     sequence = models.ForeignKey(
         Sequence, on_delete=models.CASCADE, null=True, related_name="conditions"
@@ -836,8 +879,6 @@ class Condition(models.Model):
         return self, admin_tasks
 
     def process_condition(self, user, skip_notification=False):
-        # avoid circular import
-
         # Loop over all m2m fields and add the ones that can be easily added
         for field in [
             "to_do",

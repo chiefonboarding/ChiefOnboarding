@@ -6,7 +6,9 @@
   <ul>
 {% endif %}
 {% for item in items %}
+  {% if item.content %}
   <li>{{item.content|safe|personalize:user}}</li>
+  {% endif %}
   {% include "_render_list.html" with items=item.items %}
 {% endfor %}
 {% if blockstyle == 'unordered' and items %}

@@ -5,6 +5,7 @@ from crispy_forms.layout import HTML, Div, Field, Layout
 from django import forms
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from admin.integrations.models import Integration
@@ -46,8 +47,8 @@ class IntegrationConfigForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        integration = Integration.objects.get(id=self.instance.id)
-        form = self.instance.manifest["form"]
+        integration = self.instance
+        form = self.instance.manifest.get("form", [])
         self.helper = FormHelper()
         self.helper.form_tag = False
         self.error = None
@@ -60,7 +61,7 @@ class IntegrationConfigForm(forms.ModelForm):
 
             if item["type"] in ["choice", "multiple_choice"]:
                 # If there is a url to fetch the items from then do so
-                if "url" in item:
+                if item.get("url", "") != "":
                     success, response = integration.run_request(item)
                     if not success:
                         self.error = response
@@ -80,9 +81,11 @@ class IntegrationConfigForm(forms.ModelForm):
                 try:
                     self.fields[item["id"]] = field(
                         label=item["name"],
-                        widget=forms.CheckboxSelectMultiple
-                        if item["type"] == "multiple_choice"
-                        else forms.Select,
+                        widget=(
+                            forms.CheckboxSelectMultiple
+                            if item["type"] == "multiple_choice"
+                            else forms.Select
+                        ),
                         choices=[
                             (
                                 get_value_from_notation(
@@ -101,7 +104,7 @@ class IntegrationConfigForm(forms.ModelForm):
                 except Exception:
                     expected = self._expected_example(item)
 
-                    self.error = (
+                    self.error = mark_safe(
                         f"Form item ({item['name']}) could not be rendered. Format "
                         "was different than expected.<br><h2>Expected format:"
                         f"</h2><pre>{json.dumps(expected, indent=4)}</pre><br><h2>"
@@ -200,7 +203,12 @@ class IntegrationExtraArgsForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         initial_data = self.instance.extra_args
+        filled_secret_values = self.instance.filled_secret_values
         for item in self.instance.manifest["initial_data_form"]:
+            # secret data has been saved, so don't show it again
+            if item in filled_secret_values:
+                continue
+
             self.fields[item["id"]] = forms.CharField(
                 label=item["name"], help_text=item["description"]
             )
@@ -214,7 +222,7 @@ class IntegrationExtraArgsForm(forms.ModelForm):
 
     def save(self):
         integration = self.instance
-        integration.extra_args = self.cleaned_data
+        integration.extra_args.update(self.cleaned_data)
         integration.save()
         return integration
 

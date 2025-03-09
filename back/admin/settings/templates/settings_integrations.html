@@ -16,9 +16,14 @@
         <td>{% trans "Slack bot" %}</td>
         <td style="text-align: right">
           {% if slack_bot is not None %}
+            <a href="{% url "settings:slack-account-add-channel" %}" class="btn btn-primary">
+              {% trans "Manually add Slack channel" %}
+            </a>
+            {% if not disable_update_channels_list %}
             <a href="{% url "settings:slack-account-update-channels" %}" class="btn btn-primary">
               {% trans "Update Slack channels list" %}
             </a>
+            {% endif %}
             <a href="https://slack.com/oauth/v2/authorize?scope=im:history,users:read,chat:write,users:read.email,im:write,im:read,channels:read,groups:read&client_id={{ slack_bot.client_id }}&redirect_uri={{ base_url }}{% url 'integrations:slack' %}" class="btn btn-primary">
               Add to your Slack team
             </a>
@@ -35,7 +40,7 @@
   </table>
 </div>
 </div>
-<div class="card mt-4">
+<div class="card mt-3">
 <div class="table-responsive">
   <table
 		class="table table-vcenter table-nowrap">
@@ -76,4 +81,57 @@
     </tbody>
   </table>
 </div>
+</div>
+<div class="card mt-3">
+<div class="table-responsive">
+  <table
+		class="table table-vcenter table-nowrap">
+    <thead>
+      <tr>
+        <th>{% translate "Inactive/Test integrations" %}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for integration in inactive_integrations %}
+      <tr>
+        <td>{{ integration.name }}</td>
+        <td style="text-align: right">
+          {% if integration.has_oauth and not integration.enabled_oauth %}
+            <a href="{% url 'integrations:oauth' integration.id %}" class="btn btn-{% if integration.enabled_oauth %}success{% else %}primary{% endif %}">
+              {% translate "OAuth" %}
+            </a>
+          {% endif %}
+          {% if "initial_data_form" in integration.manifest %}
+            <a href="{% url 'integrations:update-creds' integration.id %}" class="btn btn-primary">
+              {% translate "Update credentials" %}
+            </a>
+          {% endif %}
+          <a href="{% url 'integrations:update' integration.id %}" class="btn btn-primary">
+            {% translate "Update manifest" %}
+          </a>
+          <a href="{% url 'integrations:builder-detail' integration.id %}" class="btn btn-primary">
+            {% translate "Live edit and test integration" %}
+          </a>
+          <form action="{% url 'integrations:make_active' integration.id %}" method="post" style="display:inline-block">
+            {% csrf_token %}
+            <button class="btn btn-primary" style="float: unset">
+              {% translate "Make active" %}
+            </button>
+          </form>
+          <a href="{% url 'integrations:delete' integration.id %}" class="btn btn-danger">
+            {% translate "Remove" %}
+          </a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="2">{% trans "No test/debug integrations yet" %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>
+<a href="{% url 'integrations:builder' %}" class="btn btn-primary mt-2">{% trans "Create integration from scratch" %}</a>
 {% endblock %}

@@ -1,5 +1,5 @@
 {% extends 'admin_base.html' %}
-{% load i18n %}
+{% load i18n tz %}
 {% load general %}
 
 {% block actions %}
@@ -99,6 +99,8 @@
                           {% endfor %}
                         </div>
                       </h4>
+                      {% elif condition.condition_type == ConditionType.INTEGRATIONS_REVOKED %}
+                        {% blocktranslate %}When all access has been revoked{% endblocktranslate %}
                       {% endif %}
 
                     </div>
@@ -131,7 +133,7 @@
                     {{ notification.get_notification_type_display }}
                   </div>
                 </div>
-                <div class="text-truncate text-muted">{% translate "By" %}{% if notification.created_by %} {{ notification.created_by.full_name }}{% else %} ChiefOnboarding{% endif %} - {{ notification.created }}</div>
+                <div class="text-truncate text-muted">{% translate "By" %}{% if notification.created_by %} {{ notification.created_by.full_name }}{% else %} ChiefOnboarding{% endif %} - {% timezone org.timezone %}{{ notification.created }}{% endtimezone %}</div>
                 {% if notification.can_delete %}
                 <form method="post" action="{% url 'people:remove_sequence' object.id notification.item_id %}">
                   {% csrf_token %}

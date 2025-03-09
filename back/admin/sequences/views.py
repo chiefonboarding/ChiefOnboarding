@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponse
@@ -191,11 +192,19 @@ class SequenceFormView(LoginRequiredMixin, ManagerPermMixin, View):
     HTMX view, this will only get called when the frontend requests a form.
     """
 
-    def get(self, request, template_type, template_pk, *args, **kwargs):
+    def get(self, request, pk, template_type, template_pk, *args, **kwargs):
         # Get a filled custom form based on integration config model
         if template_type == "integrationconfig":
+            seq = get_object_or_404(Sequence, pk=pk)
             template_item = get_object_or_404(IntegrationConfig, id=template_pk)
-            form = template_item.integration.config_form(template_item.additional_data)
+            if seq.is_offboarding and template_item.integration.can_revoke_access:
+                # offboarding sequences with revoke option don't need an extra form here
+                form = forms.Form()
+            else:
+                form = template_item.integration.config_form(
+                    template_item.additional_data
+                )
+
             return render(
                 request,
                 "_item_form.html",
@@ -216,7 +225,12 @@ class SequenceFormView(LoginRequiredMixin, ManagerPermMixin, View):
         # Get a EMPTY custom form (depending on what provision) when it's an integration
         # config like Slack, Asana, Google...
         if form == IntegrationConfigForm:
-            form = template_item.config_form()
+            seq = get_object_or_404(Sequence, pk=pk)
+            if seq.is_offboarding and template_item.can_revoke_access:
+                # offboarding sequences with revoke option don't need an extra form here
+                form = forms.Form()
+            else:
+                form = template_item.config_form()
             return render(
                 request,
                 "_item_form.html",

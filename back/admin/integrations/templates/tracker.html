@@ -1,0 +1,30 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="row">
+  <div class="col-4">
+    <div class="card">
+      <div class="card-body">
+        <h4>{% translate "Integration" %}</h4>
+        <p>{% if object.integration is None %}Test integration{% else %}{{ object.integration.name }}{% endif %}</p>
+        <h4>{% translate "Type" %}</h4>
+        <p>{{ object.get_category_display }}</p>
+        <h4>{% translate "User" %}</h4>
+        <p>{{ object.for_user }}</p>
+        <h4>{% translate "Ran at" %}</h4>
+        <p>{{ object.ran_at }} UTC</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-8">
+    {% for step in object.steps.all %}
+      <div class="card mb-3">
+        <div class="card-body">
+          {% include "tracker_step_details.html" %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

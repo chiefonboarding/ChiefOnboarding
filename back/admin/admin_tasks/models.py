@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.template.loader import render_to_string
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from organization.models import Notification
 from slack_bot.utils import Slack, actions, button, paragraph
@@ -127,7 +127,6 @@ class AdminTask(models.Model):
 
     objects = AminTaskManager()
 
-    @property
     def get_icon_template(self):
         return render_to_string("_admin_task_icon.html")
 

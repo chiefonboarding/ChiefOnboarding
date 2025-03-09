@@ -14,7 +14,7 @@ If you are unsure where to begin contributing to ChiefOnboarding? You can start 
 
 
 # Getting started
-Please read the [docs/ARCHITECT.md](ARCHITECT.md) file first to get a sense of how ChiefOnboarding is set up.
+Please read the [docs/architecture.md](docs/architecture.md) file first to get a sense of how ChiefOnboarding is set up.
 
 For something that is bigger than a few lines of code changes:
 
@@ -27,7 +27,7 @@ For something that is bigger than a few lines of code changes:
    * Send a pull request 
 
 # How to report a bug
-If you find a security vulnerability, do NOT open an issue. Read [SECURITY.md] for more info on how to report those.
+If you find a security vulnerability, do NOT open an issue. Read [SECURITY.md](SECURITY.md) for more info on how to report those.
 
 When filing an issue, make sure to answer these questions:
 

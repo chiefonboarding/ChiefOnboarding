@@ -424,28 +424,32 @@ def test_sequence_detail_view(
         ("pendingemailmessage", PendingEmailMessageForm, PendingEmailMessageFactory),
     ],
 )
-def test_sequence_form_view(client, admin_factory, template_type, form, factory):
+def test_sequence_form_view(
+    client, admin_factory, sequence_factory, template_type, form, factory
+):
     admin = admin_factory()
     client.force_login(admin)
+    sequence = sequence_factory()
 
-    url = reverse("sequences:forms", args=[template_type, 0])
+    url = reverse("sequences:forms", args=[sequence.id, template_type, 0])
     response = client.get(url)
 
     response.context["form"] == form()
 
     item = factory()
-    url = reverse("sequences:forms", args=[template_type, item.id])
+    url = reverse("sequences:forms", args=[sequence.id, template_type, item.id])
     response = client.get(url)
 
     response.context["form"].instance is not None
 
 
 @pytest.mark.django_db
-def test_sequence_unknown_form_view(client, admin_factory):
+def test_sequence_unknown_form_view(client, admin_factory, sequence_factory):
     admin = admin_factory()
     client.force_login(admin)
+    sequence = sequence_factory()
 
-    url = reverse("sequences:forms", args=["badddddge", 0])
+    url = reverse("sequences:forms", args=[sequence.id, "badddddge", 0])
     response = client.get(url)
 
     assert response.status_code == 404
@@ -465,10 +469,11 @@ def test_sequence_unknown_form_view(client, admin_factory):
     ),
 )
 def test_sequence_integration_form_view(
-    client, admin_factory, custom_integration_factory
+    client, admin_factory, custom_integration_factory, sequence_factory
 ):
     admin = admin_factory()
     client.force_login(admin)
+    sequence = sequence_factory()
     integration = custom_integration_factory(
         manifest={
             "form": [
@@ -485,7 +490,7 @@ def test_sequence_integration_form_view(
         }
     )
 
-    url = reverse("sequences:forms", args=["integration", integration.id])
+    url = reverse("sequences:forms", args=[sequence.id, "integration", integration.id])
     response = client.get(url)
 
     assert response.status_code == 200
@@ -712,7 +717,7 @@ def test_sequence_create_manual_custom_integration_form(
     condition = sequence.conditions.all().first()
     client.force_login(admin)
 
-    url = reverse("sequences:forms", args=["integration", integration.id])
+    url = reverse("sequences:forms", args=[sequence.id, "integration", integration.id])
 
     # get form in modal
     response = client.get(url)
@@ -786,10 +791,12 @@ def test_sequence_create_custom_integration_form_input_field(
 def test_integration_invalid_json_format_returned(
     custom_integration_factory,
     admin_factory,
+    sequence_factory,
     client,
 ):
     admin = admin_factory()
     client.force_login(admin)
+    sequence = sequence_factory()
     integration = custom_integration_factory(
         manifest={
             "form": [
@@ -808,7 +815,7 @@ def test_integration_invalid_json_format_returned(
 
     url = reverse(
         "sequences:forms",
-        args=["integration", integration.id],
+        args=[sequence.id, "integration", integration.id],
     )
     response = client.get(url)
     assert '"data": {' in response.content.decode()
@@ -832,7 +839,7 @@ def test_integration_invalid_json_format_returned(
 
     url = reverse(
         "sequences:forms",
-        args=["integration", integration.id],
+        args=[sequence.id, "integration", integration.id],
     )
     response = client.get(url)
     assert "{" in response.content.decode()
@@ -841,7 +848,11 @@ def test_integration_invalid_json_format_returned(
 
 @pytest.mark.django_db
 def test_sequence_open_filled_custom_integration_form(
-    client, admin_factory, custom_integration_factory, integration_config_factory
+    client,
+    admin_factory,
+    custom_integration_factory,
+    integration_config_factory,
+    sequence_factory,
 ):
     integration = custom_integration_factory(
         manifest={
@@ -873,8 +884,12 @@ def test_sequence_open_filled_custom_integration_form(
 
     admin = admin_factory()
     client.force_login(admin)
+    sequence = sequence_factory()
 
-    url = reverse("sequences:forms", args=["integrationconfig", integration_config.id])
+    url = reverse(
+        "sequences:forms",
+        args=[sequence.id, "integrationconfig", integration_config.id],
+    )
     # Create a new to do item
     response = client.get(url)
 
@@ -1570,6 +1585,47 @@ def test_sequence_assign_to_user_merge_admin_task_condition(
 
 
 @pytest.mark.django_db
+def test_sequence_assign_to_user_merge_integrations_revoked_condition(
+    sequence_factory,
+    new_hire_factory,
+    condition_integrations_revoked_factory,
+    to_do_factory,
+    pending_admin_task_factory,
+):
+    # Condition should merge as the condition admin_tasks match with an existing one
+
+    new_hire = new_hire_factory()
+    sequence = sequence_factory()
+    condition = condition_integrations_revoked_factory(sequence=sequence)
+
+    # Condition has two admin task items and will trigger one todo task
+    pending_admin_task1 = pending_admin_task_factory()
+    pending_admin_task2 = pending_admin_task_factory()
+    condition.condition_admin_tasks.set([pending_admin_task1, pending_admin_task2])
+    to_do1 = to_do_factory()
+    condition.to_do.add(to_do1)
+
+    # Add to new hire
+    new_hire.add_sequences([sequence])
+
+    # there is now one condition
+    assert new_hire.conditions.all().count() == 1
+
+    to_do2 = to_do_factory(template=False)
+    to_do3 = to_do_factory()
+
+    condition.to_do.add(to_do2)
+    condition.to_do.add(to_do3)
+
+    # Add again to new hire
+    new_hire.add_sequences([sequence])
+
+    # Condition item was updated and not a new one created
+    assert new_hire.conditions.all().count() == 1
+    assert new_hire.conditions.all().first().to_do.count() == 3
+
+
+@pytest.mark.django_db
 def test_sequence_add_unconditional_item(
     sequence_factory,
     new_hire_factory,
@@ -1630,7 +1686,7 @@ def test_pending_email_message_item(
         pending_email_message.notification_add_type
         == Notification.Type.SENT_EMAIL_MESSAGE
     )
-    assert "mail" in pending_email_message.get_icon_template
+    assert "mail" in pending_email_message.get_icon_template()
 
     # Test variable swapping
     send_sequence_message(new_hire, admin, [], pending_email_message.subject)
@@ -1663,7 +1719,7 @@ def test_pending_text_message_item(pending_text_message_factory):
         pending_text_message.notification_add_type
         == Notification.Type.SENT_TEXT_MESSAGE
     )
-    assert "message" in pending_text_message.get_icon_template
+    assert "message" in pending_text_message.get_icon_template()
 
 
 @pytest.mark.django_db
@@ -1677,7 +1733,7 @@ def test_pending_slack_message_item(pending_slack_message_factory):
         pending_slack_message.notification_add_type
         == Notification.Type.SENT_SLACK_MESSAGE
     )
-    assert "slack" in pending_slack_message.get_icon_template
+    assert "slack" in pending_slack_message.get_icon_template()
 
 
 @pytest.mark.django_db
@@ -1885,6 +1941,60 @@ def test_notification_execute_integration_config(
         assigned_to=admin3,
         manual_integration=integration_config.integration,
     ).exists()
+
+
+@pytest.mark.django_db
+def test_execute_integration_revoke(
+    custom_integration_factory,
+    condition_to_do_factory,
+    employee_factory,
+    integration_config_factory,
+):
+    employee = employee_factory()
+    condition = condition_to_do_factory()
+    integration = custom_integration_factory(
+        manifest={
+            "form": [],
+            "execute": [{"url": "http://localhost:8000/", "method": "get"}],
+            "revoke": [{"url": "http://localhost:8000/", "method": "get"}],
+        }
+    )
+    integration_config = integration_config_factory(integration=integration)
+    condition.add_item(integration_config)
+
+    # integration has revoke part, but employee is not being offboarded
+    with patch(
+        "admin.integrations.models.Integration.execute",
+        Mock(return_value=(True, "")),
+    ) as execute_mock:
+        condition.process_condition(employee)
+        assert execute_mock.called
+
+    # integration has revoke part and employee is being offboarded
+    employee.termination_date = timezone.now()
+    employee.save()
+
+    # revoke part gets triggered
+    with patch(
+        "admin.integrations.models.Integration.revoke_user",
+        Mock(return_value=(True, "")),
+    ) as revoke_user_mock:
+        condition.process_condition(employee)
+        assert revoke_user_mock.called
+
+    integration.manifest = {
+        "form": [],
+        "execute": [{"url": "http://localhost:8000/", "method": "get"}],
+    }
+    integration.save()
+
+    # revoke part is gone, we are back at the execute part
+    with patch(
+        "admin.integrations.models.Integration.execute",
+        Mock(return_value=(True, "")),
+    ) as execute_mock:
+        condition.process_condition(employee)
+        assert execute_mock.called
 
 
 @pytest.mark.django_db

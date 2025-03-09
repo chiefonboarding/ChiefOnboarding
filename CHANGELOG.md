@@ -1,8 +1,71 @@
----
-order: 30
----
-
 # Changelog
+
+## v2.2.7 (2025-03-07)
+* Bump dependencies march 2025 (#527)
+* Update dutch translations and fix admin to do form tranlsations (#526) 
+
+## v2.2.6 (2025-02-28)
+* Bump dependencies dec 2024
+
+## v2.2.5 (2024-11-02)
+* Bump dependencies nov 2024
+
+## v2.2.4 (2024-09-09)
+* Fix not being able to update builder due to unexpected type (#505)
+* Chore(deps): bump cryptography from 43.0.0 to 43.0.1 in /back (#503)
+
+## v2.2.3 (2024-08-28)
+* Allow DELETE action on revoke in manifest serializer (#502)
+* chore: Deploy to Elestio button updated (#499)
+* Chore(deps): bump aiohttp from 3.10.1 to 3.10.2 in /back (#496)
+* Bump dependencies aug 2024 (#495)
+* Chore(deps): bump sentry-sdk from 1.45.0 to 2.8.0 in /back (#494)
+* Chore(deps): bump certifi from 2024.2.2 to 2024.7.4 in /back (#492)
+* Chore(deps): bump djangorestframework from 3.15.1 to 3.15.2 in /back (#489)
+* Chore(deps): bump urllib3 from 2.2.1 to 2.2.2 in /back (#488)
+* Update changelog link (#487)
+* Fix typo in howto.md (#486)
+* Remove unnecessary spaces in welcome messages (#484)
+* Fix link to object storage documentation (#485)
+* German typo fixes (#483)
+* Add link to SECURITY.md file in CONTRIBUTING.md (#482)
+* Fix link to docs/architecture.md file in CONTRIBUTING.md (#481)
+* Chore(deps): bump requests from 2.31.0 to 2.32.0 (#476)
+* Update django.po for german users (#474)
+
+## v2.2.2 (2024-06-12)
+* Fix submitting two forms on one page preboarding/todo (#470)
+
+## v2.2.1 (2024-05-02)
+* Chore(deps-dev): bump vite from 5.1.5 to 5.2.8 in /docs (#455)
+* Update dependencies 04 2024 (#460)
+* Chore(deps): bump gunicorn from 21.2.0 to 22.0.0 (#461)
+* Fix timezone on new hire detail page (#465)
+* Add czech language (#464) (thanks to @playtoncz)
+* Remove preboarding button when no preboarding items and fix list content (#467)
+
+## v2.2.0 (2024-03-29)
+* Option to add hardware to user manually
+* Make development docker setup easier
+* Option to disable the channels update with value `SLACK_DISABLE_AUTO_UPDATE_CHANNELS`
+* Option to manually add Slack channels
+
+## v2.1.2 (2024-03-27)
+* fix bug when replacing items with empty string
+
+## v2.1.1 (2024-03-26)
+* add feature to make test integration active
+
+## v2.1.0 (2024-03-26)
+* Improved live builder for both normal requests and sync options
+* Many bug fixes
+* Moved docs to VitePres
+* Add option to mask secret initial data forms
+* Integration tracker
+* global search
+
+BREAKING CHANGES:
+* integrations now use user defined status_code to check on instead of the raise for 400 exception.
 
 ## v2.0.0
 * Completely new look

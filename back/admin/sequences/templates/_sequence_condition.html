@@ -36,8 +36,10 @@
             {% elif condition.days == 0 %}
               {% blocktranslate with days=condition.days time=condition.time %}On termination day at {{ time }}{% endblocktranslate %}
             {% else %} {# offboarding sequence #}
-              {% blocktranslate with days=condition.days time=condition.time %}{{ days }} workday(s) before termination{% endblocktranslate %}
+              {% blocktranslate with days=condition.days time=condition.time %}{{ days }} workday(s) before termination at {{ time }}{% endblocktranslate %}
             {% endif %}
+          {% elif condition.condition_type == ConditionType.INTEGRATIONS_REVOKED %}
+            {% blocktranslate %}When all access has been revoked{% endblocktranslate %}
           {% else %}
             {% translate "Without any trigger - assign directly" %}
           {% endif %}

@@ -38,6 +38,14 @@ def next_still_form(content, current_index):
         return False
 
 
+@register.filter(name="has_form")
+def has_form(content):
+    """
+    Go through all blocks and check if a form has been added
+    """
+    return any(block["type"] == "form" for block in content["blocks"])
+
+
 @register.filter(name="personalize")
 def personalize(text, user):
     """

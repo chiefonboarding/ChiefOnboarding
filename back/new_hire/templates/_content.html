@@ -4,6 +4,13 @@
 {% load i18n %}
 {% autoescape off %}
 {% with content=content|parse_to_json %}
+{% if content|has_form and not object.completed_form_items %}
+  {% if "preboarding" in request.path %}
+    <form hx-post="{% url 'new_hire:form' object.id 'preboarding' %}">
+  {% else %}
+    <form hx-post="{% url 'new_hire:form' object.id 'to_do' %}">
+  {% endif %}
+{% endif %}
 {% for block in content.blocks %}
   {% if block.type == 'paragraph' %}
     <p> {{ block.data.text|safe|personalize:user}} </p>
@@ -53,20 +60,13 @@
       </figure>
     </div>
   {% endif %}
+
   {% if block.type == 'form' %}
-    {% if block.id in object.completed_form_items %}
+    {% if object.completed_form_items %}
       {% if not content|next_still_form:forloop.counter0 %}
-        {% translate "You have already completed this form" %}
+      <p><b>{% translate "You have already completed this form" %}</b></p>
       {% endif %}
     {% else %}
-      {# Create new form when `form` is new #}
-      {% ifchanged block.type %}
-        {% if "preboarding" in request.path %}
-          <form hx-post="{% url 'new_hire:form' object.id 'preboarding' %}">
-        {% else %}
-          <form hx-post="{% url 'new_hire:form' object.id 'to_do' %}">
-        {% endif %}
-      {% endifchanged %}
       {% if block.data.type == 'input' %}
         <div class="mb-3">
           <label class="form-label">{{ block.data.text|safe|personalize:user }}</label>
@@ -112,12 +112,11 @@
       </div>
       {% endif %}
     {% endif %}
-
-    {% if not content|next_still_form:forloop.counter0 and block.id not in object.completed_form_items or forloop.last and block.id not in object.completed_form_items %}
-      <button class="btn btn-primary mb-2" type="submit">{% translate "Submit" %}</button>
-      </form>
-    {% endif %}
   {% endif %}
 {% endfor %}
+{% if content|has_form and not object.completed_form_items %}
+  <button class="btn btn-primary mb-2" type="submit" style="float:unset; margin-left: 0px">{% translate "Submit" %}</button>
+  </form>
+{% endif %}
 {% endwith %}
 {% endautoescape %}

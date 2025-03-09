@@ -1,0 +1,38 @@
+{% load i18n %}
+<div class="modal-dialog modal-dialog-centered" style="max-width: 800px">
+  <div class="modal-content">
+    <div class="modal-body">
+      <h3> {% translate "Result" %}</h3>
+      <p>
+      {% if error %}
+        {{ error }}
+      {% endif %}
+      {% if result %} {{ result }} {% endif %}
+      <p>
+      <h3> {% translate "Requests" %}</h3>
+      <div class="card">
+        <div class="card-header pb-0">
+          <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs">
+            {% for step in tracker.steps.all %}
+              <li class="nav-item">
+                <a href="#tabs-{{ forloop.counter }}" class="nav-link {% if forloop.counter == 1 %}active{% endif %}" data-bs-toggle="tab">{% translate "Request" %} {{forloop.counter}}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="card-body">
+          <div class="tab-content">
+            {% for step in tracker.steps.all %}
+              <div class="tab-pane {% if forloop.counter == 1 %}active show{% endif %}" id="tabs-{{ forloop.counter }}">
+                {% include "tracker_step_details.html" %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    </div>
+  </div>
+</div>

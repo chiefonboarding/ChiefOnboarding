@@ -6,18 +6,21 @@ import requests
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.generic import View
 from django.views.generic.base import RedirectView
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.views.generic.list import ListView
 
-from users.mixins import AdminPermMixin
+from users.mixins import AdminPermMixin, ManagerPermMixin
 
 from .forms import IntegrationExtraArgsForm, IntegrationForm
-from .models import Integration
+from .models import Integration, IntegrationTracker
 
 
 class IntegrationCreateView(
@@ -56,6 +59,18 @@ class IntegrationUpdateView(
         context["button_text"] = _("Update")
         return context
 
+    def form_valid(self, form):
+        new_initial_data = form.cleaned_data["manifest"].get("initial_data_form", [])
+        old_initial_data = self.get_object().manifest.get("initial_data_form", [])
+
+        # remove keys that don't exist anymore from saved secrets
+        new_initial_data_keys = [item["id"] for item in new_initial_data]
+        for item in old_initial_data:
+            if item["id"] not in new_initial_data_keys:
+                form.instance.extra_args.pop(item["id"], None)
+
+        return super().form_valid(form)
+
 
 class IntegrationDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
     """This is a general delete function for all integrations"""
@@ -74,7 +89,7 @@ class IntegrationDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
 class IntegrationUpdateExtraArgsView(
     LoginRequiredMixin, AdminPermMixin, UpdateView, SuccessMessageMixin
 ):
-    template_name = "token_create.html"
+    template_name = "update_initial_data_form.html"
     form_class = IntegrationExtraArgsForm
     queryset = Integration.objects.filter(integration=Integration.Type.CUSTOM)
     success_message = _("Your config values have been updated!")
@@ -82,10 +97,33 @@ class IntegrationUpdateExtraArgsView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = _("Add new integration")
+        context["title"] = _("Integration settings")
         context["subtitle"] = _("settings")
         context["button_text"] = _("Update")
         return context
+
+
+class IntegrationDeleteExtraArgsView(
+    LoginRequiredMixin, AdminPermMixin, DeleteView, SuccessMessageMixin
+):
+    template_name = "update_initial_data_form.html"
+    queryset = Integration.objects.filter(integration=Integration.Type.CUSTOM)
+    success_message = _("Secret value has been removed")
+    success_url = reverse_lazy("settings:integrations")
+
+    def form_valid(self, form):
+        self.object = self.get_object()
+
+        secret_value = self.kwargs.get("secret")
+        if secret_value not in [
+            item["id"] for item in self.object.filled_secret_values
+        ]:
+            raise Http404
+
+        self.object.extra_args.pop(secret_value)
+        self.object.save()
+        success_url = reverse_lazy("integrations:update-creds", args=[self.object.pk])
+        return HttpResponseRedirect(success_url)
 
 
 class IntegrationOauthRedirectView(LoginRequiredMixin, RedirectView):
@@ -181,3 +219,37 @@ class SlackOAuthView(LoginRequiredMixin, View):
         else:
             messages.error(request, _("Could not get tokens from Slack"))
         return redirect("settings:integrations")
+
+
+class IntegrationTrackerListView(LoginRequiredMixin, ManagerPermMixin, ListView):
+    queryset = (
+        IntegrationTracker.objects.all()
+        .select_related("integration", "for_user")
+        .filter(integration__is_active=True)
+        .order_by("-ran_at")
+    )
+    template_name = "tracker_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("All integration runs")
+        context["subtitle"] = _("integrations")
+        return context
+
+
+class IntegrationTrackerDetailView(LoginRequiredMixin, ManagerPermMixin, DetailView):
+    model = IntegrationTracker
+    template_name = "tracker.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("%(integration)s for %(user)s") % {
+            "integration": (
+                self.object.integration.name
+                if self.object.integration is not None
+                else "Test integration"
+            ),
+            "user": self.object.for_user,
+        }
+        context["subtitle"] = _("integrations")
+        return context

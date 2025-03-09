@@ -1,0 +1,39 @@
+{% extends 'settings_base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block actions %}
+  {% if object %}
+  <a href="{% url 'integrations:builder-detail' object.id %}" class="btn btn-primary">
+      {% translate "Live edit and test" %}
+  </a>
+  {% endif %}
+{% endblock %}
+{% block settings_content %}
+<div class="row" style="min-height: 191px;">
+  <div class="col-5">
+    <div class="card-body">
+      <h3>{% translate "Existing Slack channels" %}</h3>
+      {% if channels|length == 0 %}
+        <p>{% translate "No channels yet" %}</p>
+      {% endif %}
+      <ul>
+        {% for item in channels %}
+        <li>
+          {{ item.name }}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-7">
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-primary">{% translate "Add" %}</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

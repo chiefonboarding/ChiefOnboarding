@@ -1,4 +1,4 @@
-from allauth.mfa import views as allauth_mfa_views
+from allauth.mfa.recovery_codes import views as allauth_mfa_views
 from django.urls import include, path
 
 from . import views
@@ -69,6 +69,11 @@ urlpatterns = [
         "integrations/slack_account/update_channels/",
         views.SlackChannelsUpdateView.as_view(),
         name="slack-account-update-channels",
+    ),
+    path(
+        "integrations/add_channel/",
+        views.SlackChannelsCreateView.as_view(),
+        name="slack-account-add-channel",
     ),
     path(
         "integrations/slack_bot/", views.SlackBotSetupView.as_view(), name="slack-bot"

@@ -1,0 +1,17 @@
+{% load crispy_forms_tags %}
+{% load i18n %}
+<div id="form-{{index}}">
+  {% crispy form %}
+  <div class="row">
+    <div class="col-9"></div>
+    <div class="col-1">
+      <button hx-get="{% url 'integrations:manifest-form-update' integration.id index %}" class="btn" hx-target="#form-{{index}}">{% translate "Edit" %}</button>
+    </div>
+    <div class="col-2">
+      <form hx-post="{% url 'integrations:manifest-form-delete' integration.id index %}" hx-target="#form-{{index}}" hx-confirm="Are you sure you want to remove this item?">
+        <button type="submit" class="btn btn-danger">{% translate "Delete" %}</button>
+      </form>
+    </div>
+  </div>
+  <hr />
+</div>

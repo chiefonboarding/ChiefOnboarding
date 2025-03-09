@@ -4,6 +4,7 @@ import json
 import time
 import uuid
 from datetime import timedelta
+from json.decoder import JSONDecodeError as NativeJSONDecodeError
 
 import requests
 from django.conf import settings
@@ -12,7 +13,8 @@ from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django.template import Context, Template
-from django.urls import reverse_lazy
+from django.template.loader import render_to_string
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
@@ -41,7 +43,79 @@ from admin.integrations.utils import get_value_from_notation
 from misc.fernet_fields import EncryptedTextField
 from misc.fields import EncryptedJSONField
 from organization.models import Notification
-from organization.utils import send_email_with_notification
+from organization.utils import has_manager_or_buddy_tags, send_email_with_notification
+
+
+class IntegrationTracker(models.Model):
+    """Model to track the integrations that ran. Gives insights into error messages"""
+
+    class Category(models.IntegerChoices):
+        EXECUTE = 0, _("Run the execute part")
+        EXISTS = 1, _("Check if user exists")
+        REVOKE = 2, _("Revoke user")
+
+    integration = models.ForeignKey(
+        "integrations.Integration", on_delete=models.CASCADE, null=True
+    )
+    category = models.IntegerField(choices=Category.choices)
+    for_user = models.ForeignKey("users.User", on_delete=models.CASCADE, null=True)
+    ran_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def ran_execute_block(self):
+        return self.category == IntegrationTracker.Category.EXECUTE
+
+    @property
+    def ran_exists_block(self):
+        return self.category == IntegrationTracker.Category.EXISTS
+
+    @property
+    def ran_revoke_block(self):
+        return self.category == IntegrationTracker.Category.REVOKE
+
+
+class IntegrationTrackerStep(models.Model):
+    tracker = models.ForeignKey(
+        "integrations.IntegrationTracker",
+        on_delete=models.CASCADE,
+        related_name="steps",
+    )
+    status_code = models.IntegerField()
+    json_response = models.JSONField()
+    text_response = models.TextField()
+    url = models.TextField()
+    method = models.TextField()
+    post_data = models.JSONField()
+    headers = models.JSONField()
+    expected = models.TextField()
+    error = models.TextField()
+
+    @property
+    def has_succeeded(self):
+        return self.status_code >= 200 and self.status_code < 300
+
+    @property
+    def found_expected(self):
+        if self.expected == "":
+            return True
+
+        if self.text_response != "":
+            return self.expected in self.text_response
+        if len(self.json_response):
+            return self.expected in json.dumps(self.json_response)
+        return False
+
+    @property
+    def pretty_json_response(self):
+        return json.dumps(self.json_response, indent=4)
+
+    @property
+    def pretty_headers(self):
+        return json.dumps(self.headers, indent=4)
+
+    @property
+    def pretty_post_data(self):
+        return json.dumps(self.post_data, indent=4)
 
 
 class IntegrationManager(models.Manager):
@@ -81,6 +155,11 @@ class IntegrationManager(models.Manager):
         )
 
 
+class IntegrationInactiveManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_active=False)
+
+
 class Integration(models.Model):
     class Type(models.IntegerChoices):
         SLACK_BOT = 0, _("Slack bot")
@@ -93,11 +172,15 @@ class Integration(models.Model):
     class ManifestType(models.IntegerChoices):
         WEBHOOK = 0, _("Provision user accounts or trigger webhooks")
         SYNC_USERS = 1, _("Sync users")
-        MANUAL_USER_PROVISIONING = 3, _(
-            "Manual user account provisioning, no manifest required"
+        MANUAL_USER_PROVISIONING = (
+            3,
+            _("Manual user account provisioning, no manifest required"),
         )
 
     name = models.CharField(max_length=300, default="", blank=True)
+    is_active = models.BooleanField(
+        default=True, help_text="If inactive, it's a test/debug integration"
+    )
     integration = models.IntegerField(choices=Type.choices)
     manifest_type = models.IntegerField(
         choices=ManifestType.choices, null=True, blank=True
@@ -107,7 +190,7 @@ class Integration(models.Model):
     base_url = models.CharField(max_length=22300, default="", blank=True)
     redirect_url = models.CharField(max_length=22300, default="", blank=True)
     account_id = models.CharField(max_length=22300, default="", blank=True)
-    active = models.BooleanField(default=True)
+    active = models.BooleanField(default=True)  # legacy?
     ttl = models.IntegerField(null=True, blank=True)
     expiring = models.DateTimeField(auto_now_add=True, blank=True)
     one_time_auth_code = models.UUIDField(
@@ -132,8 +215,46 @@ class Integration(models.Model):
         return self.manifest_type == Integration.ManifestType.MANUAL_USER_PROVISIONING
 
     @property
+    def is_sync_users_integration(self):
+        return self.manifest_type == Integration.ManifestType.SYNC_USERS
+
+    @property
+    def can_revoke_access(self):
+        return len(self.manifest.get("revoke", []))
+
+    @property
+    def update_url(self):
+        return reverse("integrations:update", args=[self.id])
+
+    def get_icon_template(self):
+        return render_to_string("_integration_config.html")
+
+    @property
     def schedule_name(self):
         return f"User sync for integration: {self.id}"
+
+    @property
+    def secret_values(self):
+        return [
+            item
+            for item in self.manifest["initial_data_form"]
+            if item.get("secret", False) and item.get("name") != "generate"
+        ]
+
+    @property
+    def missing_secret_values(self):
+        return [
+            item for item in self.secret_values if item["id"] not in self.extra_args
+        ]
+
+    @property
+    def filled_secret_values(self):
+        return [item for item in self.secret_values if item["id"] in self.extra_args]
+
+    @property
+    def requires_assigned_manager_or_buddy(self):
+        # returns manager, buddy
+        return has_manager_or_buddy_tags(self.manifest)
 
     def clean(self):
         if not self.manifest or self.skip_user_provisioning:
@@ -184,11 +305,19 @@ class Integration(models.Model):
     def register_manual_integration_run(self, user):
         from users.models import IntegrationUser
 
-        integration_user, created = IntegrationUser.objects.update_or_create(
+        IntegrationUser.objects.update_or_create(
             user=user,
             integration=self,
-            defaults={"revoked": user.termination_date is not None},
+            defaults={"revoked": user.is_offboarding},
         )
+
+    def cast_to_json(self, value):
+        try:
+            value = json.loads(value)
+        except Exception:
+            pass
+
+        return value
 
     def run_request(self, data):
         url = self._replace_vars(data["url"])
@@ -196,11 +325,10 @@ class Integration(models.Model):
             post_data = self._replace_vars(json.dumps(data["data"]))
         else:
             post_data = {}
-        if data.get("cast_data_to_json", False):
-            try:
-                post_data = json.loads(post_data)
-            except Exception:
-                pass
+        if data.get("cast_data_to_json", True):
+            post_data = self.cast_to_json(post_data)
+
+        error = ""
 
         # extract files from locally saved files and send them with the request
         files_to_send = {}
@@ -208,11 +336,26 @@ class Integration(models.Model):
             try:
                 files_to_send[field_name] = (file_name, self.params["files"][file_name])
             except KeyError:
-                return (
-                    False,
-                    f"{file_name} could not be found in the locally saved files",
-                )
+                error = f"{file_name} could not be found in the locally saved files"
+                if hasattr(self, "tracker"):
+                    IntegrationTrackerStep.objects.create(
+                        status_code=0,
+                        tracker=self.tracker,
+                        json_response={},
+                        text_response=error,
+                        url=self.clean_response(url),
+                        method=data.get("method", "POST"),
+                        post_data=json.loads(
+                            self.clean_response(self.cast_to_json(post_data))
+                        ),
+                        headers=json.loads(
+                            self.clean_response(self.headers(data.get("headers", {})))
+                        ),
+                        error=error,
+                    )
+                return False, error
 
+        response = None
         try:
             response = requests.request(
                 data.get("method", "POST"),
@@ -223,42 +366,96 @@ class Integration(models.Model):
                 timeout=120,
             )
         except (InvalidJSONError, JSONDecodeError):
-            return False, "JSON is invalid"
+            error = "JSON is invalid"
 
         except HTTPError:
-            return False, "An HTTP error occurred"
+            error = "An HTTP error occurred"
 
         except SSLError:
-            return False, "An SSL error occurred"
+            error = "An SSL error occurred"
 
         except Timeout:
-            return False, "The request timed out"
+            error = "The request timed out"
 
         except (URLRequired, MissingSchema, InvalidSchema, InvalidURL):
-            return False, "The url is invalid"
+            error = "The url is invalid"
 
         except TooManyRedirects:
-            return False, "There are too many redirects"
+            error = "There are too many redirects"
 
         except InvalidHeader:
-            return False, "The header is invalid"
+            error = "The header is invalid"
 
         except:  # noqa E722
-            return False, "There was an unexpected error with the request"
+            error = "There was an unexpected error with the request"
 
-        if data.get("fail_when_4xx_response_code", True):
+        if response is not None and error == "":
+            if len(data.get("status_code", [])) and str(
+                response.status_code
+            ) not in data.get("status_code", []):
+                error = f"Status code ({response.status_code}) not in allowed list ({data.get('status_code')})"
+
+        try:
+            json_response = response.json()
+            text_response = ""
+        except:  # noqa E722
+            json_response = {}
+            if error:
+                text_response = error
+            else:
+                text_response = response.text
+
+        if hasattr(self, "tracker"):
+            # TODO: JSON needs to be refactored
             try:
-                response.raise_for_status()
-            except Exception:
-                return False, response.text
+                json_payload = json.loads(self.clean_response(json_response))
+            except (NativeJSONDecodeError, TypeError):
+                json_payload = self.clean_response(json_response)
+
+            try:
+                json_post_payload = json.loads(
+                    self.clean_response(self.cast_to_json(post_data))
+                )
+            except (NativeJSONDecodeError, TypeError):
+                json_post_payload = self.clean_response(self.cast_to_json(post_data))
+
+            try:
+                json_headers_payload = json.loads(
+                    self.clean_response(self.headers(data.get("headers", {})))
+                )
+            except (NativeJSONDecodeError, TypeError):
+                json_headers_payload = self.clean_response(
+                    self.headers(data.get("headers", {}))
+                )
+
+            IntegrationTrackerStep.objects.create(
+                status_code=0 if response is None else response.status_code,
+                tracker=self.tracker,
+                json_response=json_payload,
+                text_response=(
+                    "Cannot display, could be file"
+                    if data.get("save_as_file", False)
+                    else self.clean_response(text_response)
+                ),
+                url=self.clean_response(url),
+                method=data.get("method", "POST"),
+                post_data=json_post_payload,
+                headers=json_headers_payload,
+                expected=self._replace_vars(data.get("expected", "")),
+                error=self.clean_response(error),
+            )
+
+        if error:
+            return False, error
 
         return True, response
 
     def _replace_vars(self, text):
         params = {} if not hasattr(self, "params") else self.params
-        params["redirect_url"] = settings.BASE_URL + reverse_lazy(
-            "integrations:oauth-callback", args=[self.id]
-        )
+        if self.pk is not None:
+            params["redirect_url"] = settings.BASE_URL + reverse_lazy(
+                "integrations:oauth-callback", args=[self.id]
+            )
         if hasattr(self, "new_hire") and self.new_hire is not None:
             text = self.new_hire.personalize(text, self.extra_args | params)
             return text
@@ -269,7 +466,7 @@ class Integration(models.Model):
 
     @property
     def has_oauth(self):
-        return "oauth" in self.manifest
+        return "oauth" in self.manifest and len(self.manifest.get("oauth", {}))
 
     def headers(self, headers=None):
         if headers is None:
@@ -294,11 +491,14 @@ class Integration(models.Model):
             new_headers[self._replace_vars(key) + ""] = self._replace_vars(value) + ""
         return new_headers
 
-    def user_exists(self, new_hire):
+    def user_exists(self, new_hire, save_result=True):
+        from users.models import IntegrationUser
+
+        if not len(self.manifest.get("exists", [])):
+            return None
+
         # check if user has been created manually
         if self.skip_user_provisioning:
-            from users.models import IntegrationUser
-
             try:
                 user_integration = IntegrationUser.objects.get(
                     user=new_hire, integration=self
@@ -307,6 +507,12 @@ class Integration(models.Model):
                 return False
 
             return not user_integration.revoked
+
+        self.tracker = IntegrationTracker.objects.create(
+            category=IntegrationTracker.Category.EXISTS,
+            integration=self,
+            for_user=new_hire,
+        )
 
         self.new_hire = new_hire
         self.has_user_context = new_hire is not None
@@ -320,7 +526,14 @@ class Integration(models.Model):
         if not success:
             return None
 
-        return self._replace_vars(self.manifest["exists"]["expected"]) in response.text
+        user_exists = self.tracker.steps.last().found_expected
+
+        if save_result:
+            IntegrationUser.objects.update_or_create(
+                integration=self, user=new_hire, defaults={"revoked": not user_exists}
+            )
+
+        return user_exists
 
     def needs_user_info(self, user):
         if self.skip_user_provisioning:
@@ -354,11 +567,16 @@ class Integration(models.Model):
 
         # add extra fields directly to params
         self.params = self.new_hire.extra_fields
+        self.tracker = IntegrationTracker.objects.create(
+            category=IntegrationTracker.Category.REVOKE,
+            integration=self if self.pk is not None else None,
+            for_user=self.new_hire,
+        )
 
         for item in revoke_manifest:
             success, response = self.run_request(item)
 
-            if not success:
+            if not success or not self.tracker.steps.last().found_expected:
                 return False, self.clean_response(response)
 
         return True, ""
@@ -389,6 +607,13 @@ class Integration(models.Model):
                     seconds=response.json()["expires_in"]
                 )
             self.save(update_fields=["expiring", "extra_args"])
+            if hasattr(self, "tracker"):
+                # we need to clean the last step as we now probably got new secret keys
+                # that need to be masked
+                last_step = self.tracker.steps.last()
+                last_step.json_response = self.clean_response(last_step.json_response)
+                last_step.save()
+
         return success
 
     def _check_condition(self, response, condition):
@@ -425,12 +650,18 @@ class Integration(models.Model):
         # if exceeding the max amounts, then fail
         return False, response
 
-    def execute(self, new_hire=None, params=None):
+    def execute(self, new_hire=None, params=None, retry_on_failure=False):
         self.params = params or {}
         self.params["responses"] = []
         self.params["files"] = {}
         self.new_hire = new_hire
         self.has_user_context = new_hire is not None
+
+        self.tracker = IntegrationTracker.objects.create(
+            category=IntegrationTracker.Category.EXECUTE,
+            integration=self if self.pk is not None else None,
+            for_user=self.new_hire,
+        )
 
         if self.has_user_context:
             self.params |= new_hire.extra_fields
@@ -445,6 +676,7 @@ class Integration(models.Model):
             if "name" in item and item["name"] == "generate":
                 self.extra_args[item["id"]] = get_random_string(length=10)
 
+        response = None
         # Run all requests
         for item in self.manifest["execute"]:
             success, response = self.run_request(item)
@@ -478,8 +710,8 @@ class Integration(models.Model):
                         created_for=new_hire,
                         description=f"Execute url ({item['url']}): {response}",
                     )
-                # Retry url in one hour
-                try:
+                if retry_on_failure:
+                    # Retry url in one hour
                     schedule(
                         "admin.integrations.tasks.retry_integration",
                         new_hire.id,
@@ -491,10 +723,6 @@ class Integration(models.Model):
                         next_run=timezone.now() + timedelta(hours=1),
                         schedule_type=Schedule.ONCE,
                     )
-                except:  # noqa E722
-                    # Only errors when item gets added another time, so we can safely
-                    # let it pass.
-                    pass
                 return False, response
 
             # save if file, so we can reuse later
@@ -582,17 +810,38 @@ class Integration(models.Model):
 
         return IntegrationConfigForm(instance=self, data=data)
 
-    def clean_response(self, response):
-        # if json, then convert to string to make it easier to replace values
-        response = str(response)
+    def clean_response(self, response) -> str:
+        if isinstance(response, dict):
+            try:
+                response = json.dumps(response)
+            except ValueError:
+                response = str(response)
+
         for name, value in self.extra_args.items():
-            response = response.replace(
-                str(value), _("***Secret value for %(name)s***") % {"name": name}
-            )
+            if isinstance(value, dict):
+                for inner_name, inner_value in value.items():
+                    response = response.replace(
+                        str(inner_value),
+                        _("***Secret value for %(name)s***")
+                        % {"name": name + "." + inner_name},
+                    )
+            elif value != "":
+                response = response.replace(
+                    str(value), _("***Secret value for %(name)s***") % {"name": name}
+                )
+
+            if name == "Authorization" and value.startswith("Basic"):
+                response.replace(
+                    base64.b64encode(value.split(" ", 1)[1].encode("ascii")).decode(
+                        "ascii"
+                    ),
+                    "BASE64 ENCODED SECRET",
+                )
 
         return response
 
     objects = IntegrationManager()
+    inactive = IntegrationInactiveManager()
 
 
 @receiver(post_delete, sender=Integration)

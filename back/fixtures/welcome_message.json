@@ -12,7 +12,7 @@
   "model": "organization.welcomemessage",
   "pk": 2,
   "fields": {
-    "message": " We hebben een online webpagina voor u gemaakt om ons beter te leren kennen.  Klik op de onderstaande knop om het te zien!",
+    "message": "We hebben een online webpagina voor u gemaakt om ons beter te leren kennen.  Klik op de onderstaande knop om het te zien!",
     "language": "nl",
     "message_type": 0
   }
@@ -21,7 +21,7 @@
   "model": "organization.welcomemessage",
   "pk": 3,
   "fields": {
-    "message": " Nous avons mis en place une page Web en ligne qui vous permettra de vous familiariser un peu plus avec vous et de vous int\u00e9grer facilement.  Cliquez sur le bouton ci-dessous pour le voir!",
+    "message": "Nous avons mis en place une page Web en ligne qui vous permettra de vous familiariser un peu plus avec vous et de vous int\u00e9grer facilement.  Cliquez sur le bouton ci-dessous pour le voir!",
     "language": "fr",
     "message_type": 0
   }
@@ -30,7 +30,7 @@
   "model": "organization.welcomemessage",
   "pk": 4,
   "fields": {
-    "message": " Wir haben eine Online-Webseite eingerichtet, damit Sie sich ein wenig mit uns vertraut machen und reibungslos einsteigen k\u00f6nnen.  Klicken Sie auf die Schaltfl\u00e4che unten, um sie anzuzeigen!",
+    "message": "Wir haben eine Online-Webseite eingerichtet, damit Sie sich ein wenig mit uns vertraut machen und reibungslos einsteigen k\u00f6nnen.  Klicken Sie auf die Schaltfl\u00e4che unten, um sie anzuzeigen!",
     "language": "de",
     "message_type": 0
   }
@@ -39,7 +39,7 @@
   "model": "organization.welcomemessage",
   "pk": 5,
   "fields": {
-    "message": " Bize biraz daha a\u015fina olman\u0131z ve sizi sorunsuz bir \u015fekilde kullanman\u0131z i\u00e7in bir \u00e7evrimi\u00e7i web sayfas\u0131 haz\u0131rlad\u0131k.  G\u00f6rmek i\u00e7in a\u015fa\u011f\u0131daki d\u00fc\u011fmeye t\u0131klay\u0131n!",
+    "message": "Bize biraz daha a\u015fina olman\u0131z ve sizi sorunsuz bir \u015fekilde kullanman\u0131z i\u00e7in bir \u00e7evrimi\u00e7i web sayfas\u0131 haz\u0131rlad\u0131k.  G\u00f6rmek i\u00e7in a\u015fa\u011f\u0131daki d\u00fc\u011fmeye t\u0131klay\u0131n!",
     "language": "tr",
     "message_type": 0
   }
@@ -48,7 +48,7 @@
   "model": "organization.welcomemessage",
   "pk": 6,
   "fields": {
-    "message": " Criamos uma p\u00e1gina da Web on-line para voc\u00ea se familiarizar um pouco com voc\u00ea e incorpor\u00e1-la sem problemas.  Clique no bot\u00e3o abaixo para ver!",
+    "message": "Criamos uma p\u00e1gina da Web on-line para voc\u00ea se familiarizar um pouco com voc\u00ea e incorpor\u00e1-la sem problemas.  Clique no bot\u00e3o abaixo para ver!",
     "language": "pt",
     "message_type": 0
   }
@@ -57,7 +57,7 @@
   "model": "organization.welcomemessage",
   "pk": 7,
   "fields": {
-    "message": " Configuramos una p\u00e1gina web en l\u00ednea para que usted se familiarice un poco m\u00e1s con nosotros y lo incorpore sin problemas.  Haga clic en el bot\u00f3n de abajo para verlo.",
+    "message": "Configuramos una p\u00e1gina web en l\u00ednea para que usted se familiarice un poco m\u00e1s con nosotros y lo incorpore sin problemas.  Haga clic en el bot\u00f3n de abajo para verlo.",
     "language": "es",
     "message_type": 0
   }
@@ -75,7 +75,7 @@
   "model": "organization.welcomemessage",
   "pk": 9,
   "fields": {
-    "message": " We hebben een online webpagina voor u opgezet om ons wat beter te leren kennen en u vlot te kunnen inwerken. Uw inloggegevens zijn:",
+    "message": "We hebben een online webpagina voor u opgezet om ons wat beter te leren kennen en u vlot te kunnen inwerken. Uw inloggegevens zijn:",
     "language": "nl",
     "message_type": 1
   }
@@ -84,7 +84,7 @@
   "model": "organization.welcomemessage",
   "pk": 10,
   "fields": {
-    "message": " Nous avons mis en place une page Web en ligne pour que vous puissiez vous familiariser davantage avec nous et vous int\u00e9grer facilement. Vos identifiants de connexion sont:",
+    "message": "Nous avons mis en place une page Web en ligne pour que vous puissiez vous familiariser davantage avec nous et vous int\u00e9grer facilement. Vos identifiants de connexion sont:",
     "language": "fr",
     "message_type": 1
   }
@@ -93,7 +93,7 @@
   "model": "organization.welcomemessage",
   "pk": 11,
   "fields": {
-    "message": " Wir haben eine Online-Webseite eingerichtet, damit Sie sich ein wenig mit uns vertraut machen und reibungslos mit uns in Kontakt treten k\u00f6nnen. Ihre Anmeldeinformationen lauten:",
+    "message": "Wir haben eine Online-Webseite eingerichtet, damit Sie sich ein wenig mit uns vertraut machen und reibungslos mit uns in Kontakt treten k\u00f6nnen. Ihre Anmeldeinformationen lauten:",
     "language": "de",
     "message_type": 1
   }
@@ -102,7 +102,7 @@
   "model": "organization.welcomemessage",
   "pk": 12,
   "fields": {
-    "message": " Bize biraz daha a\u015fina olman\u0131z ve sizi sorunsuz bir \u015fekilde kullanman\u0131z i\u00e7in bir \u00e7evrimi\u00e7i web sayfas\u0131 haz\u0131rlad\u0131k. Giri\u015f bilgileriniz:",
+    "message": "Bize biraz daha a\u015fina olman\u0131z ve sizi sorunsuz bir \u015fekilde kullanman\u0131z i\u00e7in bir \u00e7evrimi\u00e7i web sayfas\u0131 haz\u0131rlad\u0131k. Giri\u015f bilgileriniz:",
     "language": "tr",
     "message_type": 1
   }
@@ -111,7 +111,7 @@
   "model": "organization.welcomemessage",
   "pk": 13,
   "fields": {
-    "message": " Criamos uma p\u00e1gina da Web on-line para voc\u00ea se familiarizar um pouco com voc\u00ea e fazer com que voc\u00ea se integre sem problemas. Suas credenciais de login s\u00e3o:",
+    "message": "Criamos uma p\u00e1gina da Web on-line para voc\u00ea se familiarizar um pouco com voc\u00ea e fazer com que voc\u00ea se integre sem problemas. Suas credenciais de login s\u00e3o:",
     "language": "pt",
     "message_type": 1
   }
@@ -120,7 +120,7 @@
   "model": "organization.welcomemessage",
   "pk": 14,
   "fields": {
-    "message": " Creamos una p\u00e1gina web en l\u00ednea para que usted se familiarice un poco m\u00e1s con nosotros y lo incorpore sin problemas. Sus credenciales de inicio de sesi\u00f3n son:",
+    "message": "Creamos una p\u00e1gina web en l\u00ednea para que usted se familiarice un poco m\u00e1s con nosotros y lo incorpore sin problemas. Sus credenciales de inicio de sesi\u00f3n son:",
     "language": "es",
     "message_type": 1
   }

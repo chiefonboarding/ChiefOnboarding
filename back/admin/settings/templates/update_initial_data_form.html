@@ -1,0 +1,49 @@
+{% extends 'settings_base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block actions %}
+  {% if object %}
+  <a href="{% url 'integrations:builder-detail' object.id %}" class="btn btn-primary">
+      {% translate "Live edit and test" %}
+  </a>
+  {% endif %}
+{% endblock %}
+{% block settings_content %}
+  <div class="card-body">
+    {% if form.fields %}
+      <form method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-primary">{% if button_text %}{{ button_text }}{% else %}{% translate "Submit" %}{% endif %}</button>
+      </form>
+    {% else %}
+    <p>{% translate "There are no items that can be changed" %}</p>
+    {% endif %}
+  </div>
+
+{% if object.filled_secret_values %}
+</div>
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">{% translate "Secret values" %}</h3>
+  </div>
+  <div class="card-body">
+    <p> {% translate "Secret values that have already been saved. You can remove them to re-enter them" %}</p>
+    {% for item in object.filled_secret_values %}
+    <div class="row">
+      <div class="col-6">
+        <p style="margin-top:8px">{{ item.id }}</p>
+      </div>
+      <div class="col-6">
+        <form action="{% url "integrations:delete-creds" object.id item.id %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">{% translate "Delete" %}</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% endblock %}

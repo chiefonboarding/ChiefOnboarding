@@ -10,13 +10,17 @@ from django.db.models import CheckConstraint, Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template import Context, Template
+from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property, lazy
 from django.utils.translation import gettext_lazy as _
+from django_q.tasks import async_task
 
 from admin.appointments.models import Appointment
 from admin.badges.models import Badge
 from admin.hardware.models import Hardware
+from admin.integrations.models import Integration
 from admin.introductions.models import Introduction
 from admin.preboarding.models import Preboarding
 from admin.resources.models import CourseAnswer, Resource
@@ -191,6 +195,7 @@ class User(AbstractBaseUser):
         blank=True,
         help_text=_("Last day of working"),
     )
+    ran_integrations_condition = models.BooleanField(default=False)
     unique_url = models.CharField(max_length=250, unique=True)
     extra_fields = models.JSONField(default=dict)
 
@@ -235,9 +240,24 @@ class User(AbstractBaseUser):
             )
         ]
 
+    @property
+    def name(self):
+        # used for search
+        return self.full_name
+
     @cached_property
     def full_name(self):
         return f"{self.first_name} {self.last_name}".strip()
+
+    @property
+    def update_url(self):
+        if self.role == User.Role.NEWHIRE:
+            return reverse("people:new_hire", args=[self.id])
+        else:
+            return reverse("people:colleague", args=[self.id])
+
+    def get_icon_template(self):
+        return render_to_string("_user_icon.html")
 
     @cached_property
     def progress(self):
@@ -253,6 +273,10 @@ class User(AbstractBaseUser):
         if len(self.last_name):
             initial_characters += self.last_name[0]
         return initial_characters
+
+    @property
+    def is_offboarding(self):
+        return self.termination_date is not None
 
     @property
     def has_slack_account(self):
@@ -292,6 +316,61 @@ class User(AbstractBaseUser):
             for item in extra_user_info
             if item["id"] not in self.extra_fields.keys()
         ]
+
+    def requires_manager_or_buddy(self):
+        has_buddy = self.buddy_id is not None
+        has_manager = self.manager_id is not None
+        # end early if both are already filled
+        if has_buddy and has_manager:
+            return {"manager": False, "buddy": False}
+        # not all items have to be checked. Introductions for example, doesn't have a
+        # content field.
+        to_check = [
+            "to_do",
+            "resources",
+            "appointments",
+            "badges",
+            "hardware",
+            "external_messages",
+            "admin_tasks",
+            "preboarding",
+            "integration_configs",
+        ]
+        requires_manager = False
+        requires_buddy = False
+        for item in self.conditions.prefetched().prefetch_related(
+            "integration_configs__integration"
+        ):
+            for field in to_check:
+                condition_attribute = getattr(item, field)
+                for i in condition_attribute.all():
+                    if (
+                        field == "integration_configs"
+                        and i.integration.manifest_type
+                        == Integration.ManifestType.WEBHOOK
+                    ):
+                        (
+                            item_requires_manager,
+                            item_requires_buddy,
+                        ) = i.integration.requires_assigned_manager_or_buddy
+                    else:
+                        (
+                            item_requires_manager,
+                            item_requires_buddy,
+                        ) = i.requires_assigned_manager_or_buddy
+
+                    if item_requires_manager and not has_manager:
+                        requires_manager = True
+                    if item_requires_buddy and not has_buddy:
+                        requires_buddy = True
+
+                    # stop if we either have a user or if assigned user is required
+                    if (requires_manager or has_manager) and (
+                        requires_buddy or has_buddy
+                    ):
+                        break
+
+        return {"manager": requires_manager, "buddy": requires_buddy}
 
     def update_progress(self):
         all_to_do_ids = list(
@@ -482,8 +561,6 @@ class User(AbstractBaseUser):
         return ", ".join(all_access)
 
     def check_integration_access(self):
-        from admin.integrations.models import Integration
-
         items = {}
         for integration_user in IntegrationUser.objects.filter(user=self):
             items[integration_user.integration.name] = not integration_user.revoked
@@ -732,3 +809,33 @@ class IntegrationUser(models.Model):
 
     class Meta:
         unique_together = ["user", "integration"]
+
+    def save(self, *args, **kwargs):
+        integration_user = super().save(*args, **kwargs)
+        user = self.user
+        if (
+            user.is_offboarding
+            and not user.ran_integrations_condition
+            and user.conditions.filter(
+                condition_type=Condition.Type.INTEGRATIONS_REVOKED
+            ).exists()
+            and not IntegrationUser.objects.filter(user=user, revoked=False).exists()
+        ):
+            from admin.sequences.tasks import process_condition
+
+            integration_revoked_condition = user.conditions.get(
+                condition_type=Condition.Type.INTEGRATIONS_REVOKED
+            )
+            async_task(
+                process_condition,
+                integration_revoked_condition.id,
+                user.id,
+                task_name=(
+                    f"Process condition: {integration_revoked_condition.id} for "
+                    f"{user.full_name} - all integrations revoked"
+                ),
+            )
+            user.ran_integrations_condition = True
+            user.save()
+
+        return integration_user

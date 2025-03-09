@@ -1,0 +1,12 @@
+{% load i18n %}
+<div class="mt-2">
+  <label for="id_method" class="form-label">
+    {% trans "Request method" %}
+  </label>
+  <select v-model="{{method_location}}" class="form-select disable-selectize" id="method">
+    <option value="GET">GET</option>
+    <option value="POST">POST</option>
+    <option value="PUT">PUT</option>
+    <option value="DELETE">DELETE</option>
+  </select>
+</div>

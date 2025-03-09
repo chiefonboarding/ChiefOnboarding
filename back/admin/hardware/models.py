@@ -35,23 +35,23 @@ class Hardware(BaseItem):
     )
 
     def remove_or_add_to_user(self, user):
-        add = user.termination_date is None
+        add = not user.is_offboarding
         if add:
             user.hardware.add(self)
         else:
             user.hardware.remove(self)
 
         Notification.objects.create(
-            notification_type=self.notification_add_type
-            if add
-            else self.notification_remove_type,
+            notification_type=(
+                self.notification_add_type if add else self.notification_remove_type
+            ),
             extra_text=self.name,
             created_for=user,
             item_id=self.id,
         )
 
     def execute(self, user):
-        add = user.termination_date is None
+        add = not user.is_offboarding
 
         if self.person_type is None:
             # no person assigned, so add directly
@@ -81,7 +81,6 @@ class Hardware(BaseItem):
             hardware=self,
         )
 
-    @property
     def get_icon_template(self):
         return render_to_string("_hardware_icon.html")
 

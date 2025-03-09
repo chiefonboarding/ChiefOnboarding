@@ -198,6 +198,8 @@ class UserToggleAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Vie
         needs_user_info = integration.needs_user_info(user)
         if integration.user_exists(user):
             success, error = integration.revoke_user(user)
+            if error:
+                created = None
         else:
             success, error = integration.execute(user)
             created = True

@@ -58,6 +58,7 @@ CSRF_TRUSTED_ORIGINS = env.list(
 INSTALLED_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
+    "django.contrib.postgres",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
@@ -105,13 +106,11 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # ALLAUTH config
 ACCOUNT_ADAPTER = "users.adapter.UserAdapter"
-ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_EMAIL_REQUIRED = True
 # We don't allow signups, so this is not necessary
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_MAX_EMAIL_ADDRESSES = 1
-ACCOUNT_LOGIN_ATTEMPTS_LIMIT = env.int("LOGIN_ATTEMPTS_LIMIT", default=10)
-ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = env.int("LOGIN_ATTEMPTS_TIMEOUT", default=300)
 ACCOUNT_PRESERVE_USERNAME_CASING = False  # lowercases username (email) value
 ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_USER_MODEL_USERNAME_FIELD = "email"
@@ -157,6 +156,9 @@ FAKE_SLACK_API = False
 SLACK_USE_SOCKET = env.bool("SLACK_USE_SOCKET", default=False)
 SLACK_APP_TOKEN = env("SLACK_APP_TOKEN", default="")
 SLACK_BOT_TOKEN = env("SLACK_BOT_TOKEN", default="")
+SLACK_DISABLE_AUTO_UPDATE_CHANNELS = env.bool(
+    "SLACK_DISABLE_AUTO_UPDATE_CHANNELS", default=False
+)
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -429,6 +431,7 @@ LANGUAGES = [
     ("pt", _("Portuguese")),
     ("jp", _("Japanese")),
     ("es", _("Spanish")),
+    ("cs", _("Czech")),
 ]
 LANGUAGE_SESSION_KEY = "chief-language"
 SITE_ROOT = os.path.dirname(os.path.realpath(__name__))

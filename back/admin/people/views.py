@@ -15,7 +15,9 @@ from rest_framework import generics
 from rest_framework.authentication import SessionAuthentication
 
 from admin.admin_tasks.models import AdminTask
+from admin.hardware.models import Hardware
 from admin.integrations.exceptions import (
+    DataIsNotJSONError,
     FailedPaginatedResponseError,
     KeyIsNotInDataError,
 )
@@ -84,7 +86,6 @@ class ColleagueCreateView(
     model = get_user_model()
     form_class = ColleagueCreateForm
     success_message = _("Colleague has been added")
-    context_object_name = "object"
     success_url = reverse_lazy("people:colleagues")
 
     def form_valid(self, form):
@@ -105,7 +106,6 @@ class ColleagueUpdateView(
     model = get_user_model()
     form_class = ColleagueUpdateForm
     success_message = _("Employee has been updated")
-    context_object_name = "object"
 
     def get_success_url(self):
         return self.request.path
@@ -118,10 +118,39 @@ class ColleagueUpdateView(
         return context
 
 
+class ColleagueHardwareView(LoginRequiredMixin, ManagerPermMixin, DetailView):
+    template_name = "add_hardware.html"
+    model = get_user_model()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = context["object"]
+        context["title"] = _("Add new hardware for %(name)s") % {"name": user.full_name}
+        context["subtitle"] = _("Employee")
+        context["object_list"] = Hardware.templates.all()
+        return context
+
+
+class ColleagueToggleHardwareView(LoginRequiredMixin, ManagerPermMixin, View):
+    template_name = "_toggle_button_hardware.html"
+
+    def post(self, request, pk, template_id, *args, **kwargs):
+        context = {}
+        user = get_object_or_404(get_user_model(), id=pk)
+        hardware = get_object_or_404(Hardware, id=template_id, template=True)
+        if user.hardware.filter(id=hardware.id).exists():
+            user.hardware.remove(hardware)
+        else:
+            user.hardware.add(hardware)
+        context["id"] = id
+        context["template"] = hardware
+        context["object"] = user
+        return render(request, self.template_name, context)
+
+
 class ColleagueResourceView(LoginRequiredMixin, ManagerPermMixin, DetailView):
     template_name = "add_resources.html"
     model = get_user_model()
-    context_object_name = "object"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -317,6 +346,13 @@ class AddOffboardingSequenceView(
         # delete all previous conditions (from being a new hire)
         employee.conditions.all().delete()
 
+        # TODO: should become a background worker at some point
+        for integration in Integration.objects.filter(
+            manifest_type=Integration.ManifestType.WEBHOOK,
+            manifest__exists__isnull=False,
+        ):
+            integration.user_exists(employee)
+
         sequences = Sequence.offboarding.filter(id__in=sequence_ids)
         employee.add_sequences(sequences)
 
@@ -351,7 +387,6 @@ class ColleagueOffboardingSequenceView(
 ):
     template_name = "offboarding_detail.html"
     queryset = get_user_model().offboarding.all()
-    context_object_name = "object"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -413,7 +448,11 @@ class ColleagueImportFetchUsersHXView(LoginRequiredMixin, AdminPermMixin, View):
             # we are passing in the user who is requesting it, but we likely don't need
             # them.
             users = SyncUsers(integration).get_import_user_candidates()
-        except (KeyIsNotInDataError, FailedPaginatedResponseError) as e:
+        except (
+            KeyIsNotInDataError,
+            FailedPaginatedResponseError,
+            DataIsNotJSONError,
+        ) as e:
             return render(request, "_import_user_table.html", {"error": e})
 
         return render(

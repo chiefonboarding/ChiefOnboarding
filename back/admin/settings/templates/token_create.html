@@ -2,7 +2,13 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 
-{% block actions %}{% endblock %}
+{% block actions %}
+  {% if object %}
+  <a href="{% url 'integrations:builder-detail' object.id %}" class="btn btn-primary">
+      {% translate "Live edit and test" %}
+  </a>
+  {% endif %}
+{% endblock %}
 {% block settings_content %}
   <div class="card-body">
     <form method="post">

@@ -32,6 +32,11 @@ urlpatterns = [
         name="new_hire_admin_tasks",
     ),
     path(
+        "new_hire/<int:pk>/admin_tasks/<int:admin_task_pk>/complete",
+        new_hire_views.CompleteAdminTaskView.as_view(),
+        name="new_hire_admin_task_complete",
+    ),
+    path(
         "new_hire/<int:pk>/forms/",
         new_hire_views.NewHireFormsView.as_view(),
         name="new_hire_forms",
@@ -162,6 +167,16 @@ urlpatterns = [
         "colleagues/<int:pk>/resource/",
         views.ColleagueResourceView.as_view(),
         name="add_resource",
+    ),
+    path(
+        "colleagues/<int:pk>/hardware/",
+        views.ColleagueHardwareView.as_view(),
+        name="add_hardware",
+    ),
+    path(
+        "colleagues/<int:pk>/hardware/<int:template_id>/",
+        views.ColleagueToggleHardwareView.as_view(),
+        name="toggle_hardware",
     ),
     path(
         "colleagues/<int:pk>/resource/<int:template_id>/",

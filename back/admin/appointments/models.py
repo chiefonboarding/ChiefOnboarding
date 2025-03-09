@@ -17,7 +17,6 @@ class Appointment(BaseItem):
     def __str__(self):
         return self.name
 
-    @property
     def get_icon_template(self):
         return render_to_string("_appointment_icon.html")
 

@@ -509,7 +509,8 @@
                         "text": "What's a little fun fact about you?",
                         "type": "input"
                     },
-                    "type": "form"
+                    "type": "form",
+                    "id": "lksdf"
                 },
                 {
                     "data": {
@@ -524,14 +525,16 @@
                         "text": "Macbook",
                         "type": "select"
                     },
-                    "type": "form"
+                    "type": "form",
+                    "id": "mac-lks"
                 },
                 {
                     "data": {
                         "text": "Dell",
                         "type": "select"
                     },
-                    "type": "form"
+                    "type": "form",
+                    "id": "mac-lkslksd"
                 },
                 {
                     "data": {
@@ -545,7 +548,8 @@
                         "text": "Please upload a profile picture here",
                         "type": "upload"
                     },
-                    "type": "form"
+                    "type": "form",
+                    "id": "mac-lkjsdl"
                 }
             ]
         },
@@ -575,21 +579,24 @@
                         "text": "What did you like about the process?",
                         "type": "text"
                     },
-                    "type": "form"
+                    "type": "form",
+                    "id": "lsdf"
                 },
                 {
                     "data": {
                         "text": "What did you NOT like about the process?",
                         "type": "text"
                     },
-                    "type": "form"
+                    "type": "form",
+                    "id": "lksd233"
                 },
                 {
                     "data": {
                         "text": "Other thoughts?",
                         "type": "text"
                     },
-                    "type": "form"
+                    "type": "form",
+                    "id": "clkwlksd233"
                 }
             ]
         },

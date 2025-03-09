@@ -1,0 +1,37 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="col-12">
+  <div class="card">
+    <div class="table-responsive">
+      <table
+          class="table table-vcenter table-nowrap">
+        <thead>
+          <tr>
+            <th>{% translate "Name" %}</th>
+            <th>{% translate "Action" %}</th>
+            <th>{% translate "Ran for user" %}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for integration_run in object_list %}
+          <tr>
+            <td>{% if integration_run.integration is None %}Test integration{% else %}{{ integration_run.integration.name }}{% endif %}</td>
+            <td>{{ integration_run.get_category_display }}</td>
+            <td>{{ integration_run.for_user }}</td>
+            <td class="text-end"><a href="{% url 'integrations:tracker' integration_run.id %}" class="btn">Check steps</a></td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3">{% trans "No items available" %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% include "_paginator.html" %}
+    </div>
+  </div>
+</div>
+{% endblock %}

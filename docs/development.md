@@ -1,12 +1,16 @@
----
-order: 70
----
-
 # Development
 
-If you want to contribute or just play around with the source code, the first step would be to download the source code. Then run this to get it all up and running: 
+If you want to contribute or just play around with the source code, the first step would be to download the source code. 
+
+Then move the example environment file to the real one:
 
 ```
+cp .example_env .env
+```
+
+Then run this to get it all up and running: 
+
+```bash
 docker-compose up
 ```
 
@@ -17,7 +21,7 @@ Once it's ready, go to [http://0.0.0.0:8000](http://0.0.0.0:8000) and you should
 ## Enable better logging
 If you want to start developing/debugging and need more verbose log messages, then you can enable debug log messages with this environment setting:
 
-```
+```ini
 DEBUG_LOGGING = True
 ```
 
@@ -27,7 +31,7 @@ If you want to add a new language, then you will have to follow these steps:
 
 Replace `lang` with the shortname of your language (e.g. `nl`, `en`, or `es`) in the command below
 
-```
+```bash
 docker-compose run --rm web django-admin makemessages -l lang
 ```
 
@@ -39,6 +43,6 @@ Up next, you will need to add the language to the list of languages. Go to `back
 ## Updating existing translations
 Simply run this command and it will update all current translations:
 
-```
-docker-compose run --rm web django-admin makemessages -l tr -l pt -l nl -l jp -l fr -l es -l de
+```bash
+docker-compose run --rm web django-admin makemessages -a
 ```

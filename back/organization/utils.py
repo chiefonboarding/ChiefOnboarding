@@ -1,3 +1,4 @@
+import json
 import smtplib
 
 from anymail.exceptions import (
@@ -57,3 +58,20 @@ def send_email_with_notification(
             created_for=created_for,
             extra_text=subject,
         )
+
+
+def has_manager_or_buddy_tags(content_json):
+    if content_json is None:
+        return False, False
+
+    # convert to string and then remove all spaces, so we can easily match
+    content_str = json.dumps(content_json)
+    content_str_no_spaces = "".join(content_str.split())
+
+    manager_tags = ["{{manager}}", "{{manager_email}}"]
+    buddy_tags = ["{{buddy}}", "{{buddy_email}}"]
+
+    requires_manager = any([tag in content_str_no_spaces for tag in manager_tags])
+    requires_buddy = any([tag in content_str_no_spaces for tag in buddy_tags])
+
+    return requires_manager, requires_buddy

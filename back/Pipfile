@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 boto3 = "*" # Uploading files to AWS compatible endpoints -- might remove (only used once)
 cryptography = "*" # Necessary for fernet fields
-Django = "*"
+Django = "<5"
 django-anymail = "*" # Sending mails through multiple providers
 django-axes = "*" # Blocking bots/bruteforce
 django-crispy-forms  = "*" # Making forms better
@@ -24,18 +24,17 @@ croniter = "*" # Needed for django-q scheduled tasks
 slack-bolt = "*"
 django-q2 = "*" # Background tasks
 psycopg = {extras = ["binary"], version = "*"}
-django-allauth = {extras = ["mfa"], version = "*"}
+django-allauth = {extras = ["mfa", "socialaccount"], version = "*"}
 
 [dev-packages]
 coverage = "*"
 pytest = "*"
 pytest-cov = "*"
 pytest-django = "*"
-black = "*"
 pytest-factoryboy = "*"
 freezegun = "*"
 django-debug-toolbar = "*"
 ruff = "*"
 
 [requires]
-python_version = "3.11.4"
+python_version = "3.11"

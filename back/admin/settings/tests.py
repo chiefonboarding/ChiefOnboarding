@@ -4,6 +4,7 @@ import pytest
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
+from django.test import override_settings
 from django.urls import reverse
 from django_q.models import Schedule
 
@@ -318,7 +319,8 @@ def test_totp_views(client, admin_factory):
     assert "TOTP 2FA" in response.content.decode()
 
     with patch(
-        "allauth.account.decorators.did_recently_authenticate", Mock(return_value=True)
+        "allauth.account.internal.flows.reauthentication.did_recently_authenticate",
+        Mock(return_value=True),
     ):
         response = client.get(reverse("settings:mfa_activate_totp"))
         assert "To protect your account with two-factor" in response.content.decode()
@@ -512,9 +514,58 @@ def test_slack_channels_update_view(client, admin_factory):
     client.force_login(admin_user1)
     Integration.objects.create(integration=Integration.Type.SLACK_BOT)
 
+    # button is visible
+    url = reverse("settings:integrations")
+    response = client.get(url)
+
+    assert "Update Slack channels list" in response.content.decode()
+
     url = reverse("settings:slack-account-update-channels")
     response = client.get(url)
 
     assert "Newly added channels have been added." not in response.content.decode()
     assert SlackChannel.objects.all().count() == 3
     assert SlackChannel.objects.filter(name="general", is_private=False).exists()
+
+
+@pytest.mark.django_db
+@override_settings(SLACK_DISABLE_AUTO_UPDATE_CHANNELS=True)
+def test_disable_slack_channels_update_view(client, admin_factory):
+    admin_user1 = admin_factory()
+    client.force_login(admin_user1)
+    Integration.objects.create(integration=Integration.Type.SLACK_BOT)
+
+    # button is not visible
+    url = reverse("settings:integrations")
+    response = client.get(url)
+
+    assert "Update Slack channels list" not in response.content.decode()
+
+    url = reverse("settings:slack-account-update-channels")
+    response = client.get(url)
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_manually_add_slack_channels(client, admin_factory):
+    admin_user1 = admin_factory()
+    client.force_login(admin_user1)
+    Integration.objects.create(integration=Integration.Type.SLACK_BOT)
+
+    SlackChannel.objects.create(name="test_channel")
+    url = reverse("settings:slack-account-add-channel")
+    response = client.get(url)
+
+    # channel shows up
+    assert "test_channel" in response.content.decode()
+
+    # add channel
+    url = reverse("settings:slack-account-add-channel")
+    response = client.post(
+        url, data={"name": "test2_channel", "is_private": True}, follow=True
+    )
+
+    assert "test2_channel" in response.content.decode()
+    # general is created by default
+    assert SlackChannel.objects.all().count() == 3

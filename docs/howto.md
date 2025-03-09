@@ -1,7 +1,6 @@
 ---
-order: 90
+outline: deep
 ---
-
 # How to / Demo
 
 At ChiefOnboarding, we currently don't do demos with potential customers. Demos take a lot of time and are quite similar between potential customers. You all come with the same goal, right? Improving your onboarding process. 
@@ -18,7 +17,7 @@ At ChiefOnboarding, we base everything around sequences. Sequences are basically
 
 Let's break it down a bit:
 
-Sequences consist of blocks. We currently have 3 types of blocks:
+Sequences consist of blocks. We currently have two types of blocks:
 
 - General blocks
    - Block before the new hire starts
@@ -185,7 +184,7 @@ Let's look at each form field:
 Once created, you can choose to send the new hire's preboarding email. This one is not sent automatically, as you might want to make changes before you send it (this will be implemented as part of the sequences later on though).
 
 #### Using the API
-Please go to the [API doc page](/API/) for instructions on how to set this up.
+Please go to the [API doc page](/api.html) for instructions on how to set this up.
 
 #### Automatically adding new hires when they join Slack (with or without manual approval)
 In the settings, there is now the option to enable 'automatic new hire creation from people joining Slack'. When a new hire joins Slack, ChiefOnboarding will get notified and it will automatically create a new hire account for them. It will also assign one or more default sequences to the new hire. No manual action is needed here - everything is automated.

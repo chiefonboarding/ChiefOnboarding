@@ -73,7 +73,6 @@ class NewHireAddView(
     template_name = "new_hire_add.html"
     model = get_user_model()
     form_class = NewHireAddForm
-    context_object_name = "object"
     success_message = _("New hire has been created")
     success_url = reverse_lazy("people:new_hires")
 
@@ -303,7 +302,6 @@ class NewHireSendLoginEmailView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin
 class NewHireSequenceView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "new_hire_detail.html"
     model = get_user_model()
-    context_object_name = "object"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -349,7 +347,6 @@ class NewHireProfileView(
     model = get_user_model()
     form_class = NewHireProfileForm
     success_message = _("New hire has been updated")
-    context_object_name = "object"
 
     def get_success_url(self):
         return self.request.path
@@ -480,7 +477,6 @@ class NewHireAdminTasksView(
 class NewHireFormsView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "new_hire_forms.html"
     model = get_user_model()
-    context_object_name = "object"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -504,7 +500,6 @@ class NewHireFormsView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailV
 class NewHireProgressView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "new_hire_progress.html"
     model = get_user_model()
-    context_object_name = "object"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -559,7 +554,6 @@ class NewHireRemindView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, View):
 class NewHireReopenTaskView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, FormView):
     template_name = "new_hire_reopen_task.html"
     form_class = RemindMessageForm
-    context_object_name = "object"
 
     def dispatch(self, *args, **kwargs):
         if self.request.user.is_authenticated:
@@ -622,7 +616,6 @@ class NewHireCourseAnswersView(
 ):
     template_name = "new_hire_course_answers.html"
     model = get_user_model()
-    context_object_name = "object"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -638,7 +631,6 @@ class NewHireCourseAnswersView(
 class NewHireTasksView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "new_hire_tasks.html"
     model = get_user_model()
-    context_object_name = "object"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -650,7 +642,6 @@ class NewHireTasksView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailV
 class NewHireTaskListView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "new_hire_add_task.html"
     model = get_user_model()
-    context_object_name = "object"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -673,7 +664,6 @@ class NewHireToggleTaskView(
     LoginRequiredMixin, IsAdminOrNewHireManagerMixin, TemplateView
 ):
     template_name = "_toggle_button_new_hire_template.html"
-    context_object_name = "object"
 
     def post(self, request, pk, template_id, type):
         user = get_object_or_404(get_user_model(), id=pk)
@@ -711,5 +701,16 @@ class NewHireDeleteView(
     template_name = "new_hire_delete.html"
     queryset = get_user_model().new_hires.all()
     success_url = reverse_lazy("people:new_hires")
-    context_object_name = "object"
     success_message = _("New hire has been removed")
+
+
+class CompleteAdminTaskView(
+    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView
+):
+    def post(self, request, pk, admin_task_pk, *args, **kwargs):
+        task = get_object_or_404(AdminTask, id=admin_task_pk)
+        task.mark_completed()
+
+        messages.success(request, _("The admin task was successfully completed"))
+
+        return redirect("people:new_hire_admin_tasks", pk=pk)

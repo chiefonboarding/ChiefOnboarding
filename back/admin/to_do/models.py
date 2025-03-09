@@ -24,7 +24,6 @@ class ToDo(BaseItem):
         on_delete=models.SET_NULL,
     )
 
-    @property
     def get_icon_template(self):
         return render_to_string("_todo_icon.html")
 

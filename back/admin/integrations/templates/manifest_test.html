@@ -1,0 +1,286 @@
+{% extends 'admin_base.html' %}
+{% load i18n static %}
+{% load crispy_forms_tags %}
+
+{% block extra_css %}
+<style>
+  .htmx-indicator{
+      display:none;
+      transition: opacity 500ms ease-in;
+  }
+  .htmx-request .htmx-indicator{
+      display: block;
+  }
+  .htmx-request.htmx-indicator{
+      display: block;
+  }
+  #modify_component pre {
+    height: 100px;
+  }
+</style>
+{% endblock %}
+
+{% block actions %}
+{% endblock %}
+{% block content %}
+
+<div class="row">
+  <div class="col-8">
+    <div style="text-align: center">
+      {% if not integration.is_sync_users_integration %}
+      <button type="button" hx-get="{% url 'integrations:manifest-form-add' integration.id %}" hx-indicator="#form-loader" class="btn btn-primary menu" hx-target="#modify_component">
+        {% translate "Form" %}
+      </button>
+      {% endif %}
+      <button type="button" hx-get="{% url 'integrations:manifest-headers-update' integration.id %}" class="btn menu {% if integration.is_sync_users_integration %}btn-primary{% endif %}" hx-target="#modify_component">
+        {% translate "Headers" %}
+      </button>
+      {% if not integration.is_sync_users_integration %}
+      <button type="button" hx-get="{% url 'integrations:manifest-exists-update' integration.id %}" class="btn menu" hx-target="#modify_component">
+        {% translate "Exists" %}
+      </button>
+      <button type="button" hx-get="{% url 'integrations:manifest-revoke-add' integration.id %}" class="btn menu" hx-target="#modify_component">
+        {% translate "Revoke" %}
+      </button>
+      {% endif %}
+      <button type="button" hx-get="{% url 'integrations:manifest-initial-data-create' integration.id %}" class="btn menu" hx-target="#modify_component">
+        {% translate "Initial data form" %}
+      </button>
+      {% if not integration.is_sync_users_integration %}
+      <button type="button" hx-get="{% url 'integrations:manifest-user-info-create' integration.id %}" class="btn menu" hx-target="#modify_component">
+        {% translate "User specific info" %}
+      </button>
+      {% endif %}
+      <button type="button" hx-get="{% url 'integrations:manifest-execute-add' integration.id %}" class="btn menu" hx-target="#modify_component">
+        {% translate "Execute" %}
+      </button>
+      <button type="button" hx-get="{% url 'integrations:manifest-oauth-update' integration.id %}" class="btn menu" hx-target="#modify_component">
+        {% translate "Oauth" %}
+      </button>
+      {% if integration.is_sync_users_integration %}
+      <button type="button" hx-get="{% url 'integrations:manifest-extra-data-update' integration.id %}" class="btn menu" hx-target="#modify_component">
+        {% translate "Extract data" %}
+      </button>
+      {% endif %}
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-body" id="modify_component">
+        {% if not integration.is_sync_users_integration %}
+          {% include "manifest_test/form.html" %}
+        {% else %}
+          {% include "manifest_test/headers.html" %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-4">
+    <div style="text-align: center">
+      {% if integration.is_sync_users_integration %}
+      <button type="button" class="btn"
+        hx-post="{% url 'integrations:manifest-test-sync' integration.id %}"
+        hx-target="#test-modals"
+        hx-trigger="click"
+        data-bs-toggle="modal"
+        data-bs-target="#test-modals"
+        aria-label="{% translate "Sync users (won't affect real data)" %}" data-microtip-position="top" role="tooltip">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right:0px">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+          <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+          <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+        </svg>
+      </button>
+      {% else %}
+      <button type="button" class="btn"
+        hx-post="{% url 'integrations:manifest-test-form' integration.id %}"
+        hx-target="#test-modals"
+        hx-trigger="click"
+        data-bs-toggle="modal"
+        data-bs-target="#test-modals"
+        aria-label="{% translate "Test form" %}" data-microtip-position="top" role="tooltip">
+        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-forms" style="margin-right:0px"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3a3 3 0 0 0 -3 3v12a3 3 0 0 0 3 3" /><path d="M6 3a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3" /><path d="M13 7h7a1 1 0 0 1 1 1v8a1 1 0 0 1 -1 1h-7" /><path d="M5 7h-1a1 1 0 0 0 -1 1v8a1 1 0 0 0 1 1h1" /><path d="M17 12h.01" /><path d="M13 12h.01" /></svg>
+      </button>
+      <button type="button"
+        hx-post="{% url 'integrations:manifest-test' integration.id 'exists' %}"
+        hx-vals="js:{user: $('#id_user').val(), extra_values: $('#extra_values').val()}"
+        hx-target="#test-modals"
+        hx-trigger="click"
+        data-bs-toggle="modal"
+        data-bs-target="#test-modals"
+        class="btn" aria-label="{% translate "Test user exist" %}" data-microtip-position="top" role="tooltip">
+        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-user-scan" style="margin-right: 0px"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 9a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M4 8v-2a2 2 0 0 1 2 -2h2" /><path d="M4 16v2a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v2" /><path d="M16 20h2a2 2 0 0 0 2 -2v-2" /><path d="M8 16a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2" /></svg>
+      </button>
+      <button type="button"
+        hx-post="{% url 'integrations:manifest-test' integration.id 'execute' %}"
+        hx-vals="js:{user: $('#id_user').val(), extra_values: $('#extra_values').val()}"
+        hx-target="#test-modals"
+        hx-trigger="click"
+        data-bs-toggle="modal"
+        data-bs-target="#test-modals"
+        class="btn" aria-label="{% translate "Test execute" %}" data-microtip-position="top" role="tooltip">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-bolt" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0px"><path stroke="none" d="M0 0h24v24H0z" fill="none" style="margin-right: 0px"></path><path d="M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11"></path></svg>
+      </button>
+      <button type="button"
+        hx-post="{% url 'integrations:manifest-test' integration.id 'revoke' %}"
+        hx-vals="js:{user: $('#id_user').val(), extra_values: $('#extra_values').val()}"
+        hx-target="#test-modals"
+        hx-trigger="click"
+        data-bs-toggle="modal"
+        data-bs-target="#test-modals"
+        aria-label="{% translate "Test revoke" %}" data-microtip-position="top" role="tooltip" hx-post="" class="btn">
+        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-user-x" style="margin-right: 0px"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h3.5" /><path d="M22 22l-5 -5" /><path d="M17 22l5 -5" /></svg>
+      </button>
+      {% endif %}
+    </div>
+    <div class="card mt-3">
+      <div class="card-body">
+        {% if integration.is_sync_users_integration %}
+          {% translate "No additional data needed" %}
+        {% else %}
+        <h3>{% trans "User and extra fields" %}</h3>
+        <p>{% trans "Please select a user to test this integration on and fill in extra fields if they need them" %}</p>
+        <label class="form-label">
+          {% trans "User" %}
+        </label>
+        <select class="form-select" id="id_user">
+          {% for user in users %}
+          <option value="{{ user.id }}">{{ user.full_name }}</option>
+          {% endfor %}
+        </select>
+        <div class="mb-2 mt-2">
+
+          <label class="form-label mb-2">
+            <b>{% translate "Extra user fields and form field values" %}</b>
+          </label>
+          <p>
+            <small class="form-text text-muted">{% translate "Fields that are defined under 'User specific info' and 'Form' can be specified here for the selected user (won't be saved)" %}</small>
+          </p>
+          <div x-data="{ arr: [], arr_stringified: JSON.stringify([]) }" x-init="$watch('arr', value => arr_stringified = JSON.stringify(arr)); arr_stringified = JSON.stringify(arr)">
+            <template x-for="(obj, index) in arr">
+              <div class="row">
+                <div class="col-5">
+                  <div class="mb-3">
+                    <label class="form-label">
+                      {% translate "Key" %}
+                    </label>
+                    <input type="text" x-model="obj.key" class="textinput form-control" required="" id="id_id">
+                  </div>
+                </div>
+                <div class="col-5">
+                  <div class="mb-3">
+                    <label class="form-label">
+                      {% translate "Value" %}
+                    </label>
+                    <input type="text" x-model="obj.value" class="textinput form-control" required="" id="id_id">
+                  </div>
+                </div>
+                <div class="col-2">
+                  <button type="button" class="btn btn-danger" style="margin-top: 26px;" @click="arr.splice(index, 1)">
+                     <svg  style="margin-right: 0px" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
+                  </button>
+                </div>
+              </div>
+            </template>
+            <button type="button" @click="arr.push({key: '', value: ''})" class="btn btn-sm btn-primary" style="margin-bottom: 10px; float:unset;">
+              {% translate "Add" %}
+            </button>
+            <input type="hidden" id="extra_values" x-bind:value="arr_stringified"/>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+<div id="test-modals"
+    class="modal modal-blur fade"
+    style="display: none"
+    aria-hidden="false"
+    data-bs-backdrop="true"
+    tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="p-4 text-center">
+            <div id="form-loader" class="spinner-border"></div>
+          </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="//unpkg.com/alpinejs" defer></script>
+<script>
+document.body.addEventListener('htmx:afterOnLoad', event => {
+  $(".alert").delay(800).fadeOut(300)
+  initSelectize()
+  makeJSONPretty()
+})
+
+function makeJSONPretty() {
+  $("textarea[name=data], textarea[name=store_data], textarea[name=continue_if], textarea[name=polling], textarea[name=files], textarea[name=oauth]").each(function(){
+      this.value = JSON.stringify(JSON.parse(this.value), null, 4);
+  })
+}
+makeJSONPretty()
+
+// FOR FORMS
+// Change when form type changes
+$(document).on('change', "#id_type", function() {
+  let secondPart = $(this).parent().parent().parent().children().eq(1)
+  let form = $(this).parent().parent().parent().parent()
+  if (this.value == "choice"){
+    secondPart.removeClass("d-none")
+  } else {
+    secondPart.addClass("d-none")
+  }
+  if (this.value == "choice"){
+    if (secondPart.find("#id_options_source").value == "fixed list") {
+      form.children("div").eq(2).addClass("d-none")
+      form.children("div").eq(3).removeClass("d-none")
+    } else {
+      form.children("div").eq(2).removeClass("d-none")
+      form.children("div").eq(3).addClass("d-none")
+    }
+  } else {
+    form.children("div").eq(2).addClass("d-none")
+    form.children("div").eq(3).addClass("d-none")
+  }
+})
+
+// FOR FORMS
+// Change when form option changes
+$(document).on('change', "#id_options_source", function() {
+  let form = $(this).parent().parent().parent().parent()
+  if (this.value == "fixed list"){
+    form.children("div").eq(2).removeClass("d-none")
+    form.children("div").eq(3).addClass("d-none")
+  } else {
+    form.children("div").eq(2).addClass("d-none")
+    form.children("div").eq(3).removeClass("d-none")
+  }
+})
+
+$(".menu").on('click', function(event){
+  $(".menu").removeClass("btn-primary")
+  $(this).addClass("btn-primary")
+});
+
+
+var myModalEl = document.getElementById('test-modals')
+myModalEl.addEventListener('hidden.bs.modal', function (event) {
+    $("#test-modals").html(
+        `<div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="p-4 text-center">
+            <div id="form-loader" class="spinner-border"></div>
+          </div>
+        </div>
+    </div>
+    `)
+
+})
+
+
+</script>
+{% endblock %}

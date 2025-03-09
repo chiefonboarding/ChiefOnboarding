@@ -34,7 +34,7 @@ urlpatterns = [
         name="template_condition",
     ),
     path(
-        "forms/<slug:template_type>/<int:template_pk>/",
+        "<int:pk>/forms/<slug:template_type>/<int:template_pk>/",
         views.SequenceFormView.as_view(),
         name="forms",
     ),

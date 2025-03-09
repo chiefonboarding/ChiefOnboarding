@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="{% static 'css/theme.css' %}">
     <link rel="stylesheet" href="{% static 'css/selectize-bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/microtip.min.css' %}">
+    {% block extra_css %}
+    {% endblock %}
   </head>
   <body class="antialiased">
     <div class="wrapper">
@@ -21,6 +23,17 @@
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="navbar-nav flex-row order-md-last">
+          <div class="input-icon" style="margin-top: 5px; margin-right: 10px;">
+            <input class="form-control d-inline-block" id="q" hx-target="#search" hx-swap="outerHTML" placeholder="Search..." name="q" hx-get="{% url 'organization:search' %}" hx-params="q" hx-trigger="keyup delay:500ms changed" hx-indicator="#search-spinner">
+             <span class="input-icon-addon requesting" id="search-spinner">
+               <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
+             </span>
+            </div>
+            <div class="nav-item dropdown d-none d-md-flex me-3">
+              <a href="{% url 'integrations:trackers' %}" class="nav-link d-flex lh-1 text-reset p-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-bolt" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11" /></svg>
+              </a>
+            </div>
             <div class="nav-item dropdown d-none d-md-flex me-3">
               <a href="{% url 'organization:notifications' %}" class="nav-link d-flex lh-1 text-reset p-0">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6" /><path d="M9 17v1a3 3 0 0 0 6 0v-1" /></svg>
@@ -31,14 +44,14 @@
             </div>
             <div class="nav-item dropdown">
               <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
-                {% include "_profile_image.html" %}
+                {% include "_profile_image.html" with user=request.user %}
                 <div class="d-none d-xl-block ps-2">
-                  <div>{{ user.full_name }}</div>
-                  <div class="mt-1 small text-muted">{{ user.get_role_display }}</div>
+                  <div>{{ request.user.full_name }}</div>
+                  <div class="mt-1 small text-muted">{{ request.user.get_role_display }}</div>
                 </div>
               </a>
               <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <form method="post" action="{% url 'logout' %}">
+                <form method="post" action="{% url 'account_logout' %}">
                   {% csrf_token %}
                   <button class="dropdown-item">{% translate "Logout" %}</button>
                 </form>
@@ -51,7 +64,7 @@
                 <li class="nav-item dropdown {% if 'people' in request.path %}active{% endif %}">
                   <a class="nav-link dropdown-toggle " href="#navbar-people" data-bs-toggle="dropdown" role="button" aria-expanded="false" >
                     <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/star -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-users" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="9" cy="7" r="4"></circle><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path><path d="M21 21v-2a4 4 0 0 0 -3 -3.85"></path></svg> </span>
+                      {% include "_user_icon.html" %}
                     </span>
                     <span class="nav-link-title">
                       {% translate "People" %}
@@ -106,7 +119,7 @@
 
                   <a class="nav-link dropdown-toggle" href="#navbar-sequences" data-bs-toggle="dropdown" role="button" aria-expanded="false" >
                     <span class="nav-link-icon d-md-none d-lg-inline-block">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-subtask" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><line x1="6" y1="9" x2="12" y2="9"></line><line x1="4" y1="5" x2="8" y2="5"></line><path d="M6 5v11a1 1 0 0 0 1 1h5"></path><rect x="12" y="7" width="8" height="4" rx="1"></rect> <rect x="12" y="15" width="8" height="4" rx="1"></rect></svg>
+                      {% include "_sequence_icon.html" %}
                     </span>
                     <span class="nav-link-title">
                       {% translate "Sequences" %}
@@ -140,7 +153,7 @@
                   </div>
                 </li>
                 <li class="nav-item {% if 'settings' in request.path %}active{% endif %}">
-                  <a class="nav-link" href="{% if user.is_admin %}{% url 'settings:general' %}{% else %}{% url 'settings:personal-language' %}{% endif %}" role="button" aria-expanded="false">
+                  <a class="nav-link" href="{% if request.user.is_admin %}{% url 'settings:general' %}{% else %}{% url 'settings:personal-language' %}{% endif %}" role="button" aria-expanded="false">
                     <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/star -->
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-settings" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                     </span>
@@ -155,6 +168,7 @@
         </div>
       </header>
       <div class="page-wrapper">
+        <div id="search"></div>
         <div class="container-xl">
           <!-- Page title -->
           <div class="page-header d-print-none">
@@ -216,7 +230,7 @@
                     <a href="https://chiefonboarding.com" class="link-secondary">{% translate "ChiefOnboarding" %}</a>
                   </li>
                   <li class="list-inline-item">
-                    <a href="https://docs.chiefonboarding.com/changelog" class="link-secondary">v2.0.0</a>
+                    <a href="https://github.com/chiefonboarding/ChiefOnboarding/blob/master/CHANGELOG.md" class="link-secondary">v2.2.7</a>
                   </li>
                 </ul>
               </div>
@@ -249,7 +263,7 @@
     </script>
     <script defer>
       function initSelectize(prefix="") {
-        $(prefix + ' select:not(.multi-with-add):not(.add)').selectize()
+        $(prefix + ' select:not(.multi-with-add):not(.add):not(.disable-selectize)').selectize()
         $(prefix + ' .multi-with-add').selectize({ create: true })
         $(prefix + ' .add').selectize({ create: true })
       }
@@ -420,6 +434,10 @@
           $("#add-condition-form #div_id_condition_to_do").parent().addClass("d-none")
           $("#div_id_condition_admin_tasks").parent().addClass("d-none")
           $("#div_id_days").parent().removeClass("d-none")
+        } else if (option == 5) {
+          $("#add-condition-form #div_id_condition_to_do").parent().addClass("d-none")
+          $("#div_id_condition_admin_tasks").parent().addClass("d-none")
+          $("#div_id_days").parent().addClass("d-none")
         } else {
           $("#add-condition-form #div_id_condition_to_do").parent().addClass("d-none")
           $("#div_id_condition_admin_tasks").parent().removeClass("d-none")
