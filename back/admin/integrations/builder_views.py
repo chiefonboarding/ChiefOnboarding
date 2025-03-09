@@ -1,6 +1,7 @@
 import json
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
@@ -17,7 +18,7 @@ from admin.integrations.exceptions import (
 )
 from admin.integrations.models import Integration, IntegrationTracker
 from admin.integrations.sync_userinfo import SyncUsers
-from users.mixins import AdminPermMixin, LoginRequiredMixin
+from users.mixins import AdminPermMixin
 from users.models import User
 
 from .builder_forms import (

@@ -1,4 +1,5 @@
-from django.urls import path
+from allauth.mfa.recovery_codes import views as allauth_mfa_views
+from django.urls import include, path
 
 from . import views
 
@@ -11,7 +12,48 @@ urlpatterns = [
         views.PersonalLanguageUpdateView.as_view(),
         name="personal-language",
     ),
-    path("personal/otp/", views.OTPView.as_view(), name="personal-otp"),
+    path(
+        "personal/2fa/",
+        include(
+            [
+                path("", views.TOTPIndexView.as_view(), name="totp"),
+                path(
+                    "totp/",
+                    include(
+                        [
+                            path(
+                                "activate/",
+                                views.TOTPActivateView.as_view(),
+                                name="mfa_activate_totp",
+                            ),
+                            path(
+                                "deactivate/",
+                                views.TOTPDeactivateView.as_view(),
+                                name="mfa_deactivate_totp",
+                            ),
+                        ]
+                    ),
+                ),
+                path(
+                    "recovery-codes/",
+                    include(
+                        [
+                            path(
+                                "generate/",
+                                views.TOTPGenerateRecoveryCodesView.as_view(),
+                                name="mfa_generate_recovery_codes",
+                            ),
+                            path(
+                                "download/",
+                                allauth_mfa_views.download_recovery_codes,
+                                name="mfa_download_recovery_codes",
+                            ),
+                        ]
+                    ),
+                ),
+            ]
+        ),
+    ),
     path(
         "welcome_message/<slug:language>/<int:type>/",
         views.WelcomeMessageUpdateView.as_view(),

@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
@@ -10,10 +11,7 @@ from django.views.generic.edit import DeleteView
 
 from admin.integrations.forms import IntegrationExtraUserInfoForm
 from admin.integrations.models import Integration
-from users.mixins import (
-    IsAdminOrNewHireManagerMixin,
-    LoginRequiredMixin,
-)
+from users.mixins import IsAdminOrNewHireManagerMixin
 from users.models import IntegrationUser
 
 

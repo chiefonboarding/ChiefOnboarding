@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.views.generic.base import TemplateView
 
@@ -11,7 +12,7 @@ from admin.resources.models import Resource
 from admin.sequences.models import Sequence
 from admin.to_do.models import ToDo
 from organization.models import TemplateManager
-from users.mixins import LoginRequiredMixin, ManagerPermMixin
+from users.mixins import ManagerPermMixin
 from users.models import User
 
 

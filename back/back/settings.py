@@ -65,7 +65,6 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "users",
     "organization",
-    "user_auth",
     "misc",
     "back",
     # admin
@@ -93,6 +92,11 @@ INSTALLED_APPS = [
     "anymail",
     "django_q",
     "crispy_forms",
+    # allauth
+    "allauth",
+    "allauth.mfa",
+    "allauth.account",
+    "allauth.socialaccount",
 ]
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
@@ -100,10 +104,52 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-# Login Defaults
+# ALLAUTH config
+ACCOUNT_ADAPTER = "users.adapter.UserAdapter"
+ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_EMAIL_REQUIRED = True
+# We don't allow signups, so this is not necessary
+ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_MAX_EMAIL_ADDRESSES = 1
+ACCOUNT_PRESERVE_USERNAME_CASING = False  # lowercases username (email) value
+ACCOUNT_SESSION_REMEMBER = True
+ACCOUNT_USER_MODEL_USERNAME_FIELD = "email"
+MFA_TOTP_ISSUER = env("CHIEFONBOARDING_NAME", default="ChiefOnboarding")
+# social
+SOCIALACCOUNT_AUTO_SIGNUP = False
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+
+SOCIALACCOUNT_PROVIDERS = {}
+
+if env.bool("ALLOW_GOOGLE_SSO", False):
+    INSTALLED_APPS += ["allauth.socialaccount.providers.google"]
+    SOCIALACCOUNT_PROVIDERS["google"] = {
+        "APPS": [
+            {
+                "client_id": env.str("GOOGLE_SSO_CLIENT_ID", ""),
+                "secret": env.str("GOOGLE_SSO_SECRET", ""),
+                "key": "",
+            },
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "offline",
+        },
+        "OAUTH_PKCE_ENABLED": True,
+    }
+
+if env.bool("ALLOW_OIDC", False):
+    INSTALLED_APPS += ["allauth.socialaccount.providers.openid_connect"]
+    SOCIALACCOUNT_PROVIDERS["openid_connect"] = {
+        "APPS": env.list("OPENID_CONNECT_CONFIG", []),
+    }
+
+ALLOW_CREDENTIALS_LOGIN = env.bool("ALLOW_CREDENTIALS_LOGIN", True)
+
+# DJANGO login config
 LOGIN_REDIRECT_URL = "logged_in_user_redirect"
-LOGOUT_REDIRECT_URL = "login"
-LOGIN_URL = "login"
+LOGOUT_REDIRECT_URL = "account_login"
+LOGIN_URL = "account_login"
 
 RUNNING_TESTS = "pytest" in sys.modules
 FAKE_SLACK_API = False
@@ -127,6 +173,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "users.middleware.language_middleware",
     "axes.middleware.AxesMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 # Django Debug Bar
@@ -321,6 +368,8 @@ AUTHENTICATION_BACKENDS = [
     "axes.backends.AxesBackend",
     # Django ModelBackend is the default authentication backend.
     "django.contrib.auth.backends.ModelBackend",
+    # `allauth` specific authentication methods, such as login by email
+    "allauth.account.auth_backends.AuthenticationBackend",
 ]
 AXES_ENABLED = env.bool("AXES_ENABLED", default=True)
 AXES_FAILURE_LIMIT = env.int("AXES_FAILURE_LIMIT", default=10)

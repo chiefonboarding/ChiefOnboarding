@@ -1,0 +1,35 @@
+{% extends 'settings_base.html' %}
+{% load i18n allauth %}
+{% load crispy_forms_tags %}
+{% block settings_content %}
+  {% include '_personal_tabs.html' %}
+  <div class="card-body">
+    {% if authenticators.totp %}
+      <p>{% translate "Authentication using an authenticator app is active." %}</p>
+    {% else %}
+      <p>{% translate "An authenticator app is not active." %}</p>
+    {% endif %}
+    {% if authenticators.totp %}
+      <a href="{% url 'settings:mfa_deactivate_totp' %}" class="btn btn-danger">{% translate "Deactivate" %}</a>
+    {% else %}
+      <a href="{% url 'settings:mfa_activate_totp' %}" class="btn btn-primary">{% translate "Activate" %}</a>
+    {% endif %}
+    {% if authenticators.totp %}
+      {% with total_count=authenticators.recovery_codes.generate_codes|length unused_count=authenticators.recovery_codes.get_unused_codes|length %}
+        <h2 class="page-title mt-4">{% translate "Recovery Codes" %}</h2>
+        {% if authenticators.recovery_codes %}
+            <p>
+                {% blocktranslate count unused_count=unused_count %}There is {{ unused_count }} out of {{ total_count }} recovery codes available.{% plural %}There are {{ unused_count }} out of {{ total_count }} recovery codes available.{% endblocktranslate %}
+            </p>
+        {% else %}
+            <p>{% translate "No recovery codes set up." %}</p>
+        {% endif %}
+
+        {% if unused_count %}
+          <a href="{% url 'settings:mfa_download_recovery_codes' %}" class="btn btn-primary">{% translate "Download codes" %}</a>
+        {% endif %}
+        <a href="{% url 'settings:mfa_generate_recovery_codes' %}" class="btn">{% translate "Generate new codes" %}</a>
+      {% endwith %}
+    {% endif %}
+  </div>
+{% endblock %}

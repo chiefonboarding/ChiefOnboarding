@@ -1,13 +1,14 @@
-import uuid
 from datetime import datetime, timedelta
 
-import pyotp
 import pytz
+from allauth.account.models import EmailAddress
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 from django.db.models import CheckConstraint, Q
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.template import Context, Template
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -25,7 +26,6 @@ from admin.preboarding.models import Preboarding
 from admin.resources.models import CourseAnswer, Resource
 from admin.sequences.models import Condition
 from admin.to_do.models import ToDo
-from misc.fernet_fields import EncryptedTextField
 from misc.models import File
 from organization.models import Notification
 from slack_bot.utils import Slack, paragraph
@@ -165,8 +165,6 @@ class User(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_introduced_to_colleagues = models.BooleanField(default=False)
     sent_preboarding_details = models.BooleanField(default=False)
-    totp_secret = EncryptedTextField(blank=True)
-    requires_otp = models.BooleanField(default=False)
     seen_updates = models.DateTimeField(auto_now_add=True)
     # new hire specific
     completed_tasks = models.IntegerField(default=0)
@@ -406,7 +404,6 @@ class User(AbstractBaseUser):
     def save(self, *args, **kwargs):
         self.email = self.email.lower()
         if not self.pk:
-            self.totp_secret = pyotp.random_base32()
             while True:
                 unique_string = get_random_string(length=8)
                 if not User.objects.filter(unique_url=unique_string).exists():
@@ -573,23 +570,6 @@ class User(AbstractBaseUser):
 
         return items
 
-    def reset_otp_recovery_keys(self):
-        self.user_otp.all().delete()
-        newItems = [OTPRecoveryKey(user=self) for x in range(10)]
-        OTPRecoveryKey.objects.bulk_create(newItems)
-        return self.user_otp.all().values_list("key", flat=True)
-
-    def check_otp_recovery_key(self, totp_input):
-        otp_recovery_key = None
-        for i in OTPRecoveryKey.objects.filter(is_used=False, user=self):
-            if i.key == totp_input:
-                otp_recovery_key = i
-                break
-        if otp_recovery_key is not None:
-            otp_recovery_key.is_used = True
-            otp_recovery_key.save()
-        return otp_recovery_key
-
     @property
     def is_admin_or_manager(self):
         return self.role in [get_user_model().Role.ADMIN, get_user_model().Role.MANAGER]
@@ -604,6 +584,16 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return "%s" % self.full_name
+
+
+@receiver(post_save, sender=User)
+def verify_email_address_allauth(sender, instance, created, **kwargs):
+    # We don't need to validate the email address as it's entered by an admin/manager.
+    # Signing up is permanently disabled.
+    if created:
+        EmailAddress.objects.create(
+            user=instance, email=instance.email, verified=True, primary=True
+        )
 
 
 class ToDoUserManager(models.Manager):
@@ -849,11 +839,3 @@ class IntegrationUser(models.Model):
             user.save()
 
         return integration_user
-
-
-class OTPRecoveryKey(models.Model):
-    user = models.ForeignKey(
-        get_user_model(), related_name="user_otp", on_delete=models.CASCADE
-    )
-    key = EncryptedTextField(default=uuid.uuid4)
-    is_used = models.BooleanField(default=False)

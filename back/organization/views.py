@@ -3,6 +3,7 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core import management
 from django.db import transaction
 from django.http import Http404
@@ -22,7 +23,7 @@ from misc.models import File
 from misc.s3 import S3
 from misc.serializers import FileSerializer
 from slack_bot.models import SlackChannel
-from users.mixins import AdminPermMixin, LoginRequiredMixin
+from users.mixins import AdminPermMixin
 from users.models import User
 
 from .forms import InitalAdminAccountForm
@@ -137,4 +138,4 @@ class InitialSetupView(CreateView):
         demo_user.start_day = timezone.now().date() + timedelta(days=5)
         demo_user.save()
 
-        return redirect("login")
+        return redirect("account_login")

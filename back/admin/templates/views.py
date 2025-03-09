@@ -1,9 +1,10 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import View
 
 from admin.sequences.models import Sequence
 from admin.templates.utils import get_templates_model
-from users.mixins import LoginRequiredMixin, ManagerPermMixin
+from users.mixins import ManagerPermMixin
 
 
 class TemplateDuplicateView(LoginRequiredMixin, ManagerPermMixin, View):

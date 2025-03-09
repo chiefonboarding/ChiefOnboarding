@@ -1,17 +1,22 @@
-import pyotp
+from allauth.account.decorators import reauthentication_required
+from allauth.mfa.base.views import IndexView
+from allauth.mfa.recovery_codes.views import GenerateRecoveryCodesView
+from allauth.mfa.totp.views import ActivateTOTPView, DeactivateTOTPView
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import translation
+from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 from django.views import View
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
-from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 from twilio.rest import Client
 
@@ -24,13 +29,12 @@ from users.emails import (
     send_new_hire_credentials,
     send_new_hire_preboarding,
 )
-from users.mixins import AdminPermMixin, LoginRequiredMixin, ManagerPermMixin
+from users.mixins import AdminPermMixin, ManagerPermMixin
 
 from .forms import (
     AdministratorsCreateForm,
     AdministratorsUpdateForm,
     OrganizationGeneralForm,
-    OTPVerificationForm,
     SlackSettingsForm,
     WelcomeMessagesUpdateForm,
 )
@@ -280,36 +284,43 @@ class PersonalLanguageUpdateView(
         return context
 
 
-class OTPView(LoginRequiredMixin, ManagerPermMixin, FormView):
-    template_name = "personal_otp.html"
-    form_class = OTPVerificationForm
+class TOTPIndexView(LoginRequiredMixin, ManagerPermMixin, IndexView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("TOTP 2FA")
+        context["subtitle"] = _("settings")
+        return context
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["user"] = self.request.user
-        return kwargs
 
-    def form_valid(self, form):
-        user = self.request.user
-        user.requires_otp = True
-        user.save()
-        keys = user.reset_otp_recovery_keys()
-        return render(
-            self.request,
-            "personal_otp.html",
-            {"title": _("TOTP 2FA"), "subtitle": _("settings"), "keys": keys},
-        )
+@method_decorator(reauthentication_required, name="dispatch")
+class TOTPActivateView(ManagerPermMixin, ActivateTOTPView):
+    success_url = reverse_lazy("settings:totp")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.request.user
-        if not user.requires_otp:
-            context["otp_url"] = pyotp.totp.TOTP(user.totp_secret).provisioning_uri(
-                name=user.email, issuer_name="ChiefOnboarding"
-            )
-        context["title"] = (
-            _("Enable TOTP 2FA") if not user.requires_otp else _("TOTP 2FA")
-        )
+        context["title"] = _("TOTP 2FA")
+        context["subtitle"] = _("settings")
+        return context
+
+
+class TOTPDeactivateView(LoginRequiredMixin, ManagerPermMixin, DeactivateTOTPView):
+    success_url = reverse_lazy("settings:totp")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("TOTP 2FA")
+        context["subtitle"] = _("settings")
+        return context
+
+
+class TOTPGenerateRecoveryCodesView(
+    LoginRequiredMixin, ManagerPermMixin, GenerateRecoveryCodesView
+):
+    success_url = reverse_lazy("settings:totp")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("TOTP 2FA")
         context["subtitle"] = _("settings")
         return context
 

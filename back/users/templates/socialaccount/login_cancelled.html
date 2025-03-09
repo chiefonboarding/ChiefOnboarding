@@ -1,0 +1,18 @@
+{% extends 'no_login_base.html' %}
+{% load i18n %}
+{% load allauth account socialaccount %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="card card-md">
+  <div class="card-body">
+    <div class="mb-2">
+      <h2 class="page-title">{% trans "Login Cancelled" %}</h2>
+      {% url 'account_login' as login_url %}
+      <p>
+        {% blocktrans %}You decided to cancel logging in to our site using one of your existing accounts. If this was a mistake, please proceed to <a href="{{login_url}}">sign in</a>.{% endblocktrans %}
+      </p>
+    </div>
+  </div>
+</form>
+{% endblock %}

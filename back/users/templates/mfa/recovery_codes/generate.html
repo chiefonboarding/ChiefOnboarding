@@ -1,0 +1,23 @@
+{% extends 'settings_base.html' %}
+{% load i18n allauth %}
+{% load crispy_forms_tags %}
+{% block settings_content %}
+  <div class="card-body">
+    <p>
+      {% blocktranslate %}You are about to generate a new set of recovery codes for your account.{% endblocktranslate %}
+      {% if unused_code_count %}
+        {% blocktranslate %}This action will invalidate your existing codes.{% endblocktranslate %}
+      {% endif %}
+      {% blocktranslate %}Are you sure?{% endblocktranslate %}
+    </p>
+    {% element form method="post" action=action_url no_visible_fields=True %}
+      {% slot body %}
+        {% csrf_token %}
+        {{ form|crispy }}
+      {% endslot %}
+      {% slot actions %}
+        <button class="btn {% if unused_code_count %}btn-danger{% endif %}">{% translate "Generate" %}</button>
+      {% endslot %}
+    {% endelement %}
+  </div>
+{% endblock %}

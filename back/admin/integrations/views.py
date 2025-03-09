@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 
 import requests
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
@@ -16,7 +17,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
-from users.mixins import AdminPermMixin, LoginRequiredMixin, ManagerPermMixin
+from users.mixins import AdminPermMixin, ManagerPermMixin
 
 from .forms import IntegrationExtraArgsForm, IntegrationForm
 from .models import Integration, IntegrationTracker
@@ -40,27 +41,6 @@ class IntegrationCreateView(
     def form_valid(self, form):
         form.instance.integration = Integration.Type.CUSTOM
         return super().form_valid(form)
-
-
-class IntegrationCreateGoogleLoginView(
-    LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin
-):
-    template_name = "token_create.html"
-    fields = ["client_id", "client_secret"]
-    queryset = Integration.objects.filter(integration=Integration.Type.GOOGLE_LOGIN)
-    success_message = _("Integration has been updated!")
-    success_url = reverse_lazy("settings:integrations")
-
-    def form_valid(self, form):
-        form.instance.integration = Integration.Type.GOOGLE_LOGIN
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("Change Google login credentials")
-        context["subtitle"] = _("settings")
-        context["button_text"] = _("Update")
-        return context
 
 
 class IntegrationUpdateView(

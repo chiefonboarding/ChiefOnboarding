@@ -13,7 +13,6 @@ from .models import (
     Department,
     IntegrationUser,
     NewHireWelcomeMessage,
-    OTPRecoveryKey,
     PreboardingUser,
     ResourceUser,
     ToDoUser,
@@ -70,11 +69,6 @@ class EmployeeFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = User
-
-
-class OTPRecoveryKeyFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = OTPRecoveryKey
 
 
 class NewHireWelcomeMessageFactory(factory.django.DjangoModelFactory):
