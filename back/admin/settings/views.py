@@ -29,6 +29,7 @@ from users.mixins import AdminPermMixin, LoginRequiredMixin, ManagerPermMixin
 from .forms import (
     AdministratorsCreateForm,
     AdministratorsUpdateForm,
+    AISettingsForm,
     OrganizationGeneralForm,
     OTPVerificationForm,
     SlackSettingsForm,
@@ -276,6 +277,24 @@ class PersonalLanguageUpdateView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = _("Update your default language")
+        context["subtitle"] = _("settings")
+        return context
+
+
+class AISettingsUpdateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+):
+    template_name = "org_general_update.html"
+    form_class = AISettingsForm
+    success_url = reverse_lazy("settings:ai-settings")
+    success_message = _("AI settings have been updated")
+
+    def get_object(self):
+        return Organization.object.get()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("AI Content Generation")
         context["subtitle"] = _("settings")
         return context
 

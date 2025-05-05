@@ -157,6 +157,24 @@ class Organization(models.Model):
         default=list,
         help_text="Emails which get ignored by the importer",
     )
+    ai_api_key = models.CharField(
+        verbose_name=_("AI API Key"),
+        max_length=255,
+        blank=True,
+        help_text=_("API key for AI content generation (e.g., OpenAI API key)"),
+    )
+    ai_default_context = models.TextField(
+        verbose_name=_("AI Default Context"),
+        blank=True,
+        help_text=_("Default context for AI content generation (e.g., 'You are writing content for an employee onboarding platform')"),
+    )
+    ai_default_tone = models.CharField(
+        verbose_name=_("AI Default Tone"),
+        max_length=100,
+        blank=True,
+        default="professional and friendly",
+        help_text=_("Default tone for AI content generation (e.g., 'professional', 'friendly', 'casual')"),
+    )
 
     object = ObjectManager()
     objects = models.Manager()

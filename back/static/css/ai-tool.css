@@ -1,0 +1,89 @@
+.ce-ai-tool {
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.ce-ai-tool__variables-help {
+  margin-bottom: 10px;
+  color: #6c757d;
+}
+
+.ce-ai-tool__variable {
+  background-color: #e9ecef;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 12px;
+  cursor: pointer;
+  display: inline-block;
+  margin: 2px;
+  border: 1px solid #ced4da;
+  transition: all 0.2s ease;
+}
+
+.ce-ai-tool__variable:hover {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.ce-ai-tool__prompt {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.ce-ai-tool__generate {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.ce-ai-tool__generate:hover {
+  background-color: #5a6268;
+}
+
+.ce-ai-tool__generate:disabled {
+  background-color: #adb5bd;
+  cursor: not-allowed;
+}
+
+.ce-ai-tool__loading {
+  margin: 10px 0;
+  font-style: italic;
+  color: #6c757d;
+}
+
+.ce-ai-tool__content {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 10px;
+  background-color: white;
+  min-height: 100px;
+  margin-bottom: 10px;
+}
+
+.ce-ai-tool__use-content {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 5px;
+  width: 100%;
+}
+
+.ce-ai-tool__use-content:hover {
+  background-color: #218838;
+}

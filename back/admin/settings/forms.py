@@ -239,6 +239,35 @@ class WelcomeMessagesUpdateForm(forms.ModelForm):
         }
 
 
+class AISettingsForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field("ai_api_key"),
+            Field("ai_default_context"),
+            Field("ai_default_tone"),
+            Submit(name="submit", value="Update"),
+        )
+
+    class Meta:
+        model = Organization
+        fields = [
+            "ai_api_key",
+            "ai_default_context",
+            "ai_default_tone",
+        ]
+        widgets = {
+            "ai_api_key": forms.PasswordInput(render_value=True),
+            "ai_default_context": forms.Textarea(attrs={"rows": 4}),
+        }
+        help_texts = {
+            "ai_api_key": _("API key for AI content generation (e.g., OpenAI API key)"),
+            "ai_default_context": _("Default context for AI content generation (e.g., 'You are writing content for an employee onboarding platform')"),
+            "ai_default_tone": _("Default tone for AI content generation (e.g., 'professional', 'friendly', 'casual')"),
+        }
+
+
 class OTPVerificationForm(forms.Form):
     otp = forms.CharField(
         label=_("6 digit OTP code"),
