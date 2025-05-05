@@ -137,7 +137,8 @@ function initResource() {
         chapters: [],
         chapter: { content: [] },
         parent: undefined,
-        isImporting: false
+        isImporting: false,
+        importStatus: ''
       }
     },
     mounted () {
@@ -204,6 +205,63 @@ function initResource() {
         // from https://stackoverflow.com/a/6860916
         return "temp-" + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
       },
+      // Helper function to show toast notifications
+      showToast(message, type = 'info') {
+        // Create toast container if it doesn't exist
+        let toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) {
+          toastContainer = document.createElement('div');
+          toastContainer.id = 'toast-container';
+          toastContainer.style.position = 'fixed';
+          toastContainer.style.top = '20px';
+          toastContainer.style.right = '20px';
+          toastContainer.style.zIndex = '9999';
+          document.body.appendChild(toastContainer);
+        }
+
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `toast show bg-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'info'}`;
+        toast.style.minWidth = '300px';
+        toast.style.marginBottom = '10px';
+        toast.style.color = 'white';
+        toast.style.padding = '15px';
+        toast.style.borderRadius = '4px';
+        toast.style.boxShadow = '0 0.5rem 1rem rgba(0, 0, 0, 0.15)';
+
+        toast.innerHTML = `
+          <div class="d-flex">
+            <div class="toast-body">
+              ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        `;
+
+        // Add close button functionality
+        const closeButton = toast.querySelector('.btn-close');
+        closeButton.addEventListener('click', () => {
+          toastContainer.removeChild(toast);
+        });
+
+        // Add toast to container
+        toastContainer.appendChild(toast);
+
+        // Auto-remove after 5 seconds for info/success messages
+        if (type !== 'error') {
+          setTimeout(() => {
+            if (toastContainer.contains(toast)) {
+              toastContainer.removeChild(toast);
+            }
+          }, 5000);
+        }
+      },
+
+      // Update status message in the import button
+      updateImportStatus(message) {
+        this.importStatus = message;
+      },
+
       importQuestionsFromPDF() {
         // Create a file input element
         const fileInput = document.createElement('input');
@@ -219,7 +277,7 @@ function initResource() {
 
             // Check file size (limit to 10MB)
             if (file.size > 10 * 1024 * 1024) {
-              alert('File is too large. Please select a PDF smaller than 10MB.');
+              this.showToast('File is too large. Please select a PDF smaller than 10MB.', 'error');
               document.body.removeChild(fileInput);
               return;
             }
@@ -230,19 +288,41 @@ function initResource() {
 
             // Show loading state
             this.isImporting = true;
+            this.importStatus = 'Uploading PDF...';
+            this.showToast(`Processing PDF: ${file.name}`, 'info');
 
             try {
               // Get CSRF token
               const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-              // Send the PDF to the server
+              // Send the PDF to the server with a longer timeout
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 minute timeout
+
+              // Show progress updates
+              let progressInterval = setInterval(() => {
+                if (this.importStatus === 'Uploading PDF...') {
+                  this.updateImportStatus('Extracting text from PDF...');
+                } else if (this.importStatus === 'Extracting text from PDF...') {
+                  this.updateImportStatus('Generating questions...');
+                } else if (this.importStatus === 'Generating questions...') {
+                  this.updateImportStatus('Still working...');
+                } else if (this.importStatus === 'Still working...') {
+                  this.updateImportStatus('Almost there...');
+                }
+              }, 8000);
+
               const response = await fetch('/api/pdf-extract-questions/', {
                 method: 'POST',
                 body: formData,
                 headers: {
                   'X-CSRFToken': csrfToken,
                 },
+                signal: controller.signal
               });
+
+              // Clear the progress interval
+              clearInterval(progressInterval);
 
               if (!response.ok) {
                 const errorData = await response.json();
@@ -263,15 +343,27 @@ function initResource() {
                   this.chapter.content.blocks.push(question);
                 });
 
-                alert(`Successfully imported ${data.questions.length} questions from the PDF.`);
+                this.showToast(`Successfully imported ${data.questions.length} questions from the PDF.`, 'success');
               } else {
-                alert('No questions were found in the PDF. Try a different file or generate questions with AI instead.');
+                this.showToast('No questions were found in the PDF. Try a different file or generate questions with AI instead.', 'error');
               }
             } catch (error) {
               console.error('Error importing questions:', error);
-              alert(`Failed to import questions: ${error.message || 'Unknown error'}`);
+
+              // Clear the timeout if it exists
+              if (timeoutId) clearTimeout(timeoutId);
+
+              // Provide more specific error messages
+              if (error.name === 'AbortError') {
+                this.showToast('The request timed out. The PDF may be too large or complex. Try a smaller PDF or one with fewer pages.', 'error');
+              } else if (error.message && error.message.includes('AI API key not configured')) {
+                this.showToast('The AI API key is not configured. Please contact your administrator.', 'error');
+              } else {
+                this.showToast(`Failed to import questions: ${error.message || 'Unknown error'}`, 'error');
+              }
             } finally {
               this.isImporting = false;
+              this.importStatus = '';
               document.body.removeChild(fileInput);
             }
           }

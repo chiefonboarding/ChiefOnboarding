@@ -36,7 +36,7 @@ def extract_questions_from_pdf(request):
             temp_file_path = temp_file.name
 
         # Get organization settings for OpenAI API key
-        org = Organization.object.get()
+        org = Organization.objects.get()
         api_key = org.ai_api_key
 
         if not api_key:
@@ -81,7 +81,35 @@ def extract_questions_from_pdf(request):
             with open(temp_file_path, "rb") as pdf_file:
                 pdf_base64 = base64.b64encode(pdf_file.read()).decode('utf-8')
 
+            # Check if the PDF is very large
+            pdf_size_mb = len(pdf_base64) / (1024 * 1024)
+            logger.info(f"PDF size: {pdf_size_mb:.2f} MB")
+
+            # Use a simpler approach for large PDFs
+            if pdf_size_mb > 4:
+                logger.info("Large PDF detected, using simplified processing")
+                # For large PDFs, we'll use pdfplumber to extract text and process with GPT-4
+                # This should already have been attempted above, but we'll try with a different prompt
+                with pdfplumber.open(temp_file_path) as pdf:
+                    logger.info(f"Processing large PDF with {len(pdf.pages)} pages")
+                    # Process first 10 pages only if there are many pages
+                    max_pages = min(len(pdf.pages), 10)
+                    pdf_text = ""
+                    for i in range(max_pages):
+                        page_text = pdf.pages[i].extract_text()
+                        if page_text:
+                            pdf_text += f"--- Page {i+1} ---\n{page_text}\n\n"
+
+                if pdf_text.strip():
+                    logger.info(f"Extracted {len(pdf_text)} characters from first {max_pages} pages")
+                    # Use GPT-4 with a more focused prompt for large PDFs
+                    questions = extract_questions_simple(pdf_text, api_key)
+                    if questions and len(questions) > 0:
+                        logger.info(f"Successfully extracted {len(questions)} questions from large PDF")
+                        return JsonResponse({'questions': questions})
+
             # Use OpenAI's Vision API to analyze the PDF
+            logger.info(f"Sending PDF to Vision API (size: {len(pdf_base64)} bytes)")
             vision_questions = extract_questions_with_vision_api(pdf_base64, api_key)
 
             if vision_questions and len(vision_questions) > 0:
@@ -109,14 +137,22 @@ def extract_questions_with_vision_api(pdf_base64, api_key):
     try:
         # Prepare the prompt for OpenAI Vision API
         system_prompt = (
-            "You are a helpful assistant that extracts multiple-choice questions from PDF documents. "
-            "For each question, identify the question text and all possible options. "
+            "You are a helpful assistant that extracts items from PDF documents and converts them into multiple-choice questions. "
+            "Your task is to identify ALL items that should be answered, checked off, or confirmed, including: "
+            "- Explicit questions "
+            "- Checklist items "
+            "- Procedural instructions "
+            "- Safety checks "
+            "- Any other items that require confirmation or response "
+            "For each item, create a question and provide 3-5 possible answer options. "
             "Format your response as a JSON array of objects, where each object has "
             "\"content\" (the question text) and \"items\" (an array of option texts). "
-            "Process the entire document and extract ALL questions you can find."
+            "Process the entire document and extract items from ALL pages. "
+            "Make sure to thoroughly analyze every page of the document."
         )
 
         # Call OpenAI Vision API
+        logger.info("Calling Vision API with improved prompt for extracting all types of items")
         response = requests.post(
             'https://api.openai.com/v1/chat/completions',
             headers={
@@ -130,7 +166,7 @@ def extract_questions_with_vision_api(pdf_base64, api_key):
                     {
                         'role': 'user',
                         'content': [
-                            {'type': 'text', 'text': 'Extract all multiple-choice questions from this PDF document. If there are no clear questions, create appropriate multiple-choice questions based on the key concepts in the document.'},
+                            {'type': 'text', 'text': 'Extract all checklist items, procedural instructions, and questions from this document, even if they are not phrased as questions. Convert each item into a multiple-choice question with 3-5 options. Make sure to process ALL pages of the document, not just the first page. Group items by section if applicable.'},
                             {
                                 'type': 'image_url',
                                 'image_url': {
@@ -144,7 +180,7 @@ def extract_questions_with_vision_api(pdf_base64, api_key):
                 'temperature': 0.3,
                 'max_tokens': 4000
             },
-            timeout=120
+            timeout=180  # Increased timeout for larger PDFs
         )
 
         response_data = response.json()
@@ -218,19 +254,30 @@ def extract_questions_simple(text, api_key):
     Use a simpler, more direct approach to extract questions from text
     """
     try:
+        # Log the number of pages in the text
+        page_count = text.count("--- Page")
+        logger.info(f"Extracting questions from text with {page_count} pages")
+
         # Prepare the prompt for OpenAI
         system_prompt = (
-            "You are a helpful assistant that extracts questions from text. "
-            "Your task is to identify ALL questions in the text and format them as multiple-choice questions. "
+            "You are a helpful assistant that extracts items from text and converts them into multiple-choice questions. "
+            "Your task is to identify ALL items that should be answered, checked off, or confirmed, including: "
+            "- Explicit questions "
+            "- Checklist items "
+            "- Procedural instructions "
+            "- Safety checks "
+            "- Any other items that require confirmation or response "
+            "For each item, create a question and provide 3-5 possible answer options. "
             "Format your response as a JSON array of objects, where each object has "
             "\"content\" (the question text) and \"items\" (an array of 3-5 possible answers as strings). "
-            "Focus ONLY on extracting questions that are explicitly stated in the text. "
-            "If no questions are found, create 3-5 multiple-choice questions based on the key concepts in the text."
+            "Make sure to process ALL pages in the document, not just the first page."
         )
 
         user_prompt = (
-            "Extract ALL questions from the following text. "
-            "The text is divided into pages with '--- Page X ---' markers.\n\n"
+            "Extract all checklist items, procedural instructions, and questions from the following multi-page text, "
+            "even if they are not phrased as questions. Convert each item into a multiple-choice question with 3-5 options. "
+            "The text is divided into pages with '--- Page X ---' markers. "
+            "Make sure to process ALL pages, not just the first one. Group items by section if applicable.\n\n"
             f"{text}"
         )
 
@@ -250,7 +297,7 @@ def extract_questions_simple(text, api_key):
                 'temperature': 0.2,  # Lower temperature for more focused extraction
                 'max_tokens': 4000
             },
-            timeout=60
+            timeout=120  # Increased timeout for larger documents
         )
 
         response_data = response.json()
@@ -322,21 +369,30 @@ def extract_questions_simple(text, api_key):
 def extract_questions_with_openai(text, api_key):
     """Use OpenAI to extract questions and options from text"""
     try:
+        # Log the number of pages in the text
+        page_count = text.count("--- Page")
+        logger.info(f"Extracting questions with OpenAI from text with {page_count} pages")
+
         # Prepare the prompt for OpenAI
         system_prompt = (
-            "You are a helpful assistant that extracts multiple-choice questions from text. "
-            "For each question, identify the question text and all possible options. "
+            "You are a helpful assistant that extracts items from text and converts them into multiple-choice questions. "
+            "Your task is to identify ALL items that should be answered, checked off, or confirmed, including: "
+            "- Explicit questions "
+            "- Checklist items "
+            "- Procedural instructions "
+            "- Safety checks "
+            "- Any other items that require confirmation or response "
+            "For each item, create a question and provide 3-5 possible answer options. "
             "Format your response as a JSON array of objects, where each object has "
             "\"content\" (the question text) and \"items\" (an array of option texts). "
-            "Process the entire text and extract ALL questions you can find, even if there are many pages."
+            "Process the entire text and extract items from ALL pages."
         )
 
         user_prompt = (
-            "Extract ALL multiple-choice questions from the following multi-page text. "
-            "Make sure to process the entire text and extract every question. "
-            "If there are no clear questions, create appropriate multiple-choice questions "
-            "based on the key concepts in the text. "
-            "The text is divided into pages with '--- Page X ---' markers.\n\n"
+            "Extract all checklist items, procedural instructions, and questions from the following multi-page text, "
+            "even if they are not phrased as questions. Convert each item into a multiple-choice question with 3-5 options. "
+            "Make sure to process the entire text and extract items from ALL pages. "
+            "The text is divided into pages with '--- Page X ---' markers. Group items by section if applicable.\n\n"
             f"{text}"
         )
 
@@ -355,7 +411,7 @@ def extract_questions_with_openai(text, api_key):
                 'temperature': 0.3,
                 'max_tokens': 4000
             },
-            timeout=60
+            timeout=120  # Increased timeout for larger documents
         )
 
         response_data = response.json()

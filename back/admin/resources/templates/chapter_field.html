@@ -58,11 +58,12 @@
           <div class="mt-3">
             <a class="btn btn-primary" role="button" @click="addQuestion">{% translate "Add question" %}</a>
 
-            <!-- Add this button for PDF import -->
+            <!-- Add this button for PDF import with dynamic status -->
             <a class="btn btn-secondary ms-2" role="button" @click="importQuestionsFromPDF" :class="{ 'disabled': isImporting }">
               <span v-if="isImporting">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                {% translate "Importing..." %}
+                <span v-if="importStatus">{{ importStatus }}</span>
+                <span v-else>{% translate "Importing..." %}</span>
               </span>
               <span v-else>{% translate "Import from PDF" %}</span>
             </a>
