@@ -136,7 +136,8 @@ function initResource() {
       return {
         chapters: [],
         chapter: { content: [] },
-        parent: undefined
+        parent: undefined,
+        isImporting: false
       }
     },
     mounted () {
@@ -202,6 +203,82 @@ function initResource() {
       getRandomString () {
         // from https://stackoverflow.com/a/6860916
         return "temp-" + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
+      },
+      importQuestionsFromPDF() {
+        // Create a file input element
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'application/pdf';
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
+
+        // Handle file selection
+        fileInput.addEventListener('change', async (event) => {
+          if (event.target.files.length > 0) {
+            const file = event.target.files[0];
+
+            // Check file size (limit to 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+              alert('File is too large. Please select a PDF smaller than 10MB.');
+              document.body.removeChild(fileInput);
+              return;
+            }
+
+            // Create form data
+            const formData = new FormData();
+            formData.append('pdf_file', file);
+
+            // Show loading state
+            this.isImporting = true;
+
+            try {
+              // Get CSRF token
+              const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+              // Send the PDF to the server
+              const response = await fetch('/api/pdf-extract-questions/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                  'X-CSRFToken': csrfToken,
+                },
+              });
+
+              if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to process PDF');
+              }
+
+              const data = await response.json();
+
+              // Add the extracted questions to the current chapter
+              if (data.questions && data.questions.length > 0) {
+                // If the chapter doesn't have a content.blocks array, initialize it
+                if (!this.chapter.content.blocks) {
+                  this.chapter.content.blocks = [];
+                }
+
+                // Add each question to the chapter
+                data.questions.forEach(question => {
+                  this.chapter.content.blocks.push(question);
+                });
+
+                alert(`Successfully imported ${data.questions.length} questions from the PDF.`);
+              } else {
+                alert('No questions were found in the PDF. Try a different file or generate questions with AI instead.');
+              }
+            } catch (error) {
+              console.error('Error importing questions:', error);
+              alert(`Failed to import questions: ${error.message || 'Unknown error'}`);
+            } finally {
+              this.isImporting = false;
+              document.body.removeChild(fileInput);
+            }
+          }
+        });
+
+        // Trigger the file input click
+        fileInput.click();
       }
     }
   })
