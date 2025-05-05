@@ -60,6 +60,9 @@ function initResource() {
               },
             }
           }
+        },
+        aiContent: {
+          class: AITool,
         }
       },
       onChange: function (value) {
@@ -183,14 +186,202 @@ function initResource() {
         }
         return null
       },
-      addQuestion () {
+      addQuestion (questionType = 'multiple_choice') {
         const uniqueId = this.getRandomString()
-        this.chapter.content.blocks.push({
+
+        // Base question structure
+        let questionObj = {
           'content': "",
-          'items': [{ 'id': uniqueId, 'text': '' }],
+          'question_type': questionType,
           'type': 'question',
-          'answer': uniqueId
-        })
+          'id': uniqueId
+        }
+
+        // Add type-specific properties
+        this.addQuestionTypeProperties(questionObj, questionType, uniqueId)
+
+        // Add the question to the chapter
+        this.chapter.content.blocks.push(questionObj)
+
+        // Force Vue to update the UI
+        this.$forceUpdate();
+
+        // Show a toast notification
+        this.showToast(`Added new ${questionType.replace('_', ' ')} question`, 'success')
+      },
+
+      // Add type-specific properties to a question based on its type
+      addQuestionTypeProperties(questionObj, questionType, uniqueId = null) {
+        if (questionType === 'multiple_choice') {
+          // If changing from another type to multiple choice, initialize items array
+          if (!questionObj.items || !Array.isArray(questionObj.items) || questionObj.items.length === 0) {
+            const optionId = uniqueId || this.getRandomString()
+            questionObj.items = [{ 'id': optionId, 'text': '' }]
+            questionObj.answer = optionId
+          }
+        } else if (questionType === 'file_upload') {
+          questionObj.allowed_extensions = '.pdf,.doc,.docx,.txt'
+          questionObj.max_file_size = 5 // MB
+          questionObj.required = true
+          questionObj.validation_message = 'Please upload a valid file'
+        } else if (questionType === 'photo_upload') {
+          questionObj.allowed_extensions = '.jpg,.jpeg,.png,.gif'
+          questionObj.max_file_size = 5 // MB
+          questionObj.required = true
+          questionObj.validation_message = 'Please upload a valid image'
+        } else if (questionType === 'fill_in_blank') {
+          questionObj.correct_answer = ''
+          questionObj.case_sensitive = false
+          questionObj.placeholder = 'Fill in your answer'
+          // Add a hint to the content if it's empty
+          if (!questionObj.content) {
+            questionObj.content = 'The capital of France is XXXX.'
+          }
+        } else if (questionType === 'free_text') {
+          questionObj.min_length = 0
+          questionObj.max_length = 1000
+          questionObj.placeholder = 'Enter your answer here...'
+        } else if (questionType === 'rating_scale') {
+          questionObj.min_rating = 1
+          questionObj.max_rating = 5
+          questionObj.step = 1
+          questionObj.show_labels = true
+          questionObj.min_label = 'Poor'
+          questionObj.max_label = 'Excellent'
+        } else if (questionType === 'date_picker') {
+          questionObj.min_date = ''  // Optional min date in YYYY-MM-DD format
+          questionObj.max_date = ''  // Optional max date in YYYY-MM-DD format
+          questionObj.required = true
+          questionObj.placeholder = 'Select a date'
+        } else if (questionType === 'checkbox_list') {
+          // If changing from another type to checkbox list, initialize items array
+          if (!questionObj.items || !Array.isArray(questionObj.items) || questionObj.items.length === 0) {
+            const optionId = uniqueId || this.getRandomString()
+            questionObj.items = [{ 'id': optionId, 'text': '' }]
+          }
+          questionObj.selected_items = []  // Array to store selected item IDs
+          questionObj.min_selections = 0   // Minimum number of selections required
+          questionObj.max_selections = 0   // Maximum number of selections allowed (0 = unlimited)
+        }
+
+        return questionObj
+      },
+
+      // Handle changing a question's type
+      changeQuestionType(question, newType) {
+        console.log("Changing question type from", question.question_type, "to", newType);
+        console.log("Question before:", JSON.stringify(question));
+
+        // Store the question content and ID
+        const content = question.content
+        const id = question.id
+
+        // Create a temporary copy of the question to work with
+        const tempQuestion = { ...question };
+
+        // Remove type-specific properties from the old type
+        if (tempQuestion.question_type === 'multiple_choice' || !tempQuestion.question_type) {
+          // Keep items and answer for now, will be removed if not needed
+          console.log("Removing multiple choice properties if needed");
+        } else if (tempQuestion.question_type === 'file_upload' || tempQuestion.question_type === 'photo_upload') {
+          console.log("Removing file/photo upload properties");
+          delete tempQuestion.allowed_extensions
+          delete tempQuestion.max_file_size
+          delete tempQuestion.required
+          delete tempQuestion.validation_message
+        } else if (tempQuestion.question_type === 'fill_in_blank') {
+          console.log("Removing fill in blank properties");
+          delete tempQuestion.correct_answer
+          delete tempQuestion.case_sensitive
+          delete tempQuestion.placeholder
+        } else if (tempQuestion.question_type === 'free_text') {
+          console.log("Removing free text properties");
+          delete tempQuestion.min_length
+          delete tempQuestion.max_length
+          delete tempQuestion.placeholder
+        } else if (tempQuestion.question_type === 'rating_scale') {
+          console.log("Removing rating scale properties");
+          delete tempQuestion.min_rating
+          delete tempQuestion.max_rating
+          delete tempQuestion.step
+          delete tempQuestion.show_labels
+          delete tempQuestion.min_label
+          delete tempQuestion.max_label
+        } else if (tempQuestion.question_type === 'date_picker') {
+          console.log("Removing date picker properties");
+          delete tempQuestion.min_date
+          delete tempQuestion.max_date
+          delete tempQuestion.required
+          delete tempQuestion.placeholder
+        } else if (tempQuestion.question_type === 'checkbox_list') {
+          console.log("Removing checkbox list properties");
+          // Keep items for now, will be removed if not needed
+          delete tempQuestion.selected_items
+          delete tempQuestion.min_selections
+          delete tempQuestion.max_selections
+        }
+
+        // If changing from multiple choice or checkbox list to another type that doesn't use items, remove items
+        if ((newType !== 'multiple_choice' && newType !== 'checkbox_list') &&
+            (tempQuestion.question_type === 'multiple_choice' || tempQuestion.question_type === 'checkbox_list' || !tempQuestion.question_type)) {
+          console.log("Removing items array");
+          delete tempQuestion.items
+          delete tempQuestion.answer
+          delete tempQuestion.selected_items
+        }
+
+        // Update the question type
+        tempQuestion.question_type = newType
+
+        // Add properties for the new type
+        this.addQuestionTypeProperties(tempQuestion, newType)
+
+        // Preserve the question content and ID
+        tempQuestion.content = content
+        tempQuestion.id = id
+
+        // Force Vue to recognize the change by replacing the entire question object
+        // This is necessary to ensure the UI updates correctly
+        Object.keys(question).forEach(key => {
+          delete question[key];
+        });
+
+        Object.keys(tempQuestion).forEach(key => {
+          question[key] = tempQuestion[key];
+        });
+
+        console.log("Question after:", JSON.stringify(question));
+
+        // Show a toast notification
+        this.showToast(`Question type changed to ${newType}`, 'info')
+
+        // Force Vue to update the UI
+        this.$forceUpdate();
+      },
+
+      // Validate file upload based on question settings
+      validateFileUpload(file, allowedExtensions, maxFileSize) {
+        // Check file size
+        if (file.size > maxFileSize * 1024 * 1024) {
+          return {
+            valid: false,
+            message: `File is too large. Maximum size is ${maxFileSize}MB.`
+          }
+        }
+
+        // Check file extension
+        const fileName = file.name;
+        const fileExt = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
+        const allowedExts = allowedExtensions.split(',');
+
+        if (!allowedExts.includes(fileExt)) {
+          return {
+            valid: false,
+            message: `Invalid file type. Allowed types: ${allowedExtensions}`
+          }
+        }
+
+        return { valid: true }
       },
       addOption (items) {
         items.push({ 'text': '', 'id': this.getRandomString() })
@@ -205,6 +396,31 @@ function initResource() {
         // from https://stackoverflow.com/a/6860916
         return "temp-" + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
       },
+      // Generate an array of ratings for the rating scale preview
+      getRatingRange(question) {
+        const min = parseInt(question.min_rating) || 1;
+        const max = parseInt(question.max_rating) || 5;
+        const ratings = [];
+
+        for (let i = min; i <= max; i++) {
+          ratings.push(i);
+        }
+
+        return ratings;
+      },
+
+      // Format the fill-in-blank question preview by highlighting the blank
+      formatFillInBlankPreview(text) {
+        if (!text) return '';
+
+        // Replace XXXX or [blank] with a styled input placeholder
+        const formattedText = text
+          .replace(/XXXX/g, '<span class="bg-light border px-4 py-1 rounded">_____</span>')
+          .replace(/\[blank\]/g, '<span class="bg-light border px-4 py-1 rounded">_____</span>');
+
+        return formattedText;
+      },
+
       // Helper function to show toast notifications
       showToast(message, type = 'info') {
         // Create toast container if it doesn't exist
