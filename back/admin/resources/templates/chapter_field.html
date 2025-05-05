@@ -32,7 +32,18 @@
         <div v-show="chapter.type === 0" id="element"></div>
         <div v-show="chapter.type === 1"><p class="mb-0">{% translate "Folders can't have content" %}</p></div>
         <div v-show="chapter.type === 2">
-          <div class="mb-3" v-for="(item, idx) in chapter.content.blocks" :key="item.id">
+          <div v-for="(item, idx) in chapter.content.blocks" :key="item.id" class="mb-4">
+            <!-- Question divider with number -->
+            <div class="d-flex align-items-center mb-3" v-if="idx > 0">
+              <hr class="flex-grow-1 border-2">
+              <div class="badge bg-primary mx-2 fs-6">Question <span v-text="idx + 1"></span></div>
+              <hr class="flex-grow-1 border-2">
+            </div>
+            <div v-else class="d-flex align-items-center mb-3">
+              <div class="badge bg-primary mx-2 fs-6">Question <span v-text="idx + 1"></span></div>
+              <hr class="flex-grow-1 border-2">
+            </div>
+
             <div class="row g-2">
               <div class="col">
                 <label class="form-label">{% translate "The question you want to ask:" %}</label>
@@ -42,21 +53,306 @@
                 <button class="btn btn-danger" style="margin-top: 28px;" @click="removeQuestion(idx)">X</button>
               </div>
             </div>
-            <div class="form-check" v-for="(option, optionIdx) in item.items" :key="option.id">
-              <div class="row g-2">
-                <div class="col">
-                  <input class="form-check-input" type="radio" placeholder="option..." :name="'name' + option.id" v-model="item.answer" :value="option.id" @click="item.answer = option.id" style="margin-top: 10px;">
-                  <input type="text" class="form-control mt-1" v-model="option.text" name="example-text-input" placeholder="option...">
-                </div>
-                <div class="col-auto">
-                  <button class="btn btn-danger" style="margin-top: 4px;" @click="removeOption(idx, optionIdx)">X</button>
+
+            <!-- Question type selector -->
+            <div class="row g-2 mb-3">
+              <div class="col">
+                <label class="form-label">{% translate "Question type:" %}</label>
+                <div class="dropdown">
+                  <button class="btn btn-secondary dropdown-toggle" type="button" id="questionTypeDropdown{{idx}}" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span v-if="!item.question_type || item.question_type === 'multiple_choice'">{% translate "Multiple Choice" %}</span>
+                    <span v-else-if="item.question_type === 'file_upload'">{% translate "File Upload" %}</span>
+                    <span v-else-if="item.question_type === 'photo_upload'">{% translate "Photo Upload" %}</span>
+                    <span v-else-if="item.question_type === 'fill_in_blank'">{% translate "Fill in the Blank" %}</span>
+                    <span v-else-if="item.question_type === 'free_text'">{% translate "Free Text" %}</span>
+                    <span v-else-if="item.question_type === 'rating_scale'">{% translate "Rating Scale" %}</span>
+                    <span v-else-if="item.question_type === 'date_picker'">{% translate "Date Picker" %}</span>
+                    <span v-else-if="item.question_type === 'checkbox_list'">{% translate "Checkbox List" %}</span>
+                    <span v-else>{{ item.question_type }}</span>
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="questionTypeDropdown{{idx}}">
+                    <li><a class="dropdown-item" href="#" @click.prevent="changeQuestionType(item, 'multiple_choice')">{% translate "Multiple Choice" %}</a></li>
+                    <li><a class="dropdown-item" href="#" @click.prevent="changeQuestionType(item, 'file_upload')">{% translate "File Upload" %}</a></li>
+                    <li><a class="dropdown-item" href="#" @click.prevent="changeQuestionType(item, 'photo_upload')">{% translate "Photo Upload" %}</a></li>
+                    <li><a class="dropdown-item" href="#" @click.prevent="changeQuestionType(item, 'fill_in_blank')">{% translate "Fill in the Blank" %}</a></li>
+                    <li><a class="dropdown-item" href="#" @click.prevent="changeQuestionType(item, 'free_text')">{% translate "Free Text" %}</a></li>
+                    <li><a class="dropdown-item" href="#" @click.prevent="changeQuestionType(item, 'rating_scale')">{% translate "Rating Scale" %}</a></li>
+                    <li><a class="dropdown-item" href="#" @click.prevent="changeQuestionType(item, 'date_picker')">{% translate "Date Picker" %}</a></li>
+                    <li><a class="dropdown-item" href="#" @click.prevent="changeQuestionType(item, 'checkbox_list')">{% translate "Checkbox List" %}</a></li>
+                  </ul>
                 </div>
               </div>
             </div>
-            <a class="btn btn-primary" style="float:unset" role="button" @click="addOption(item.items)">{% translate "Add option" %}</a>
+
+            <!-- Multiple Choice options -->
+            <div v-if="!item.question_type || item.question_type === 'multiple_choice'">
+              <div class="form-check" v-for="(option, optionIdx) in item.items" :key="option.id">
+                <div class="row g-2">
+                  <div class="col">
+                    <input class="form-check-input" type="radio" placeholder="option..." :name="'name' + option.id" v-model="item.answer" :value="option.id" @click="item.answer = option.id" style="margin-top: 10px;">
+                    <input type="text" class="form-control mt-1" v-model="option.text" name="example-text-input" placeholder="option...">
+                  </div>
+                  <div class="col-auto">
+                    <button class="btn btn-danger" style="margin-top: 4px;" @click="removeOption(idx, optionIdx)">X</button>
+                  </div>
+                </div>
+              </div>
+              <a class="btn btn-primary" style="float:unset" role="button" @click="addOption(item.items)">{% translate "Add option" %}</a>
+            </div>
+
+            <!-- File Upload options -->
+            <div v-if="item.question_type === 'file_upload'" class="mb-3">
+              <div class="row g-2">
+                <div class="col">
+                  <label class="form-label">{% translate "Allowed file extensions:" %}</label>
+                  <input type="text" class="form-control" v-model="item.allowed_extensions" placeholder=".pdf,.doc,.docx,.txt">
+                </div>
+                <div class="col">
+                  <label class="form-label">{% translate "Max file size (MB):" %}</label>
+                  <input type="number" class="form-control" v-model="item.max_file_size" min="1" max="20">
+                </div>
+              </div>
+              <div class="row g-2 mt-2">
+                <div class="col">
+                  <label class="form-label">{% translate "Validation message:" %}</label>
+                  <input type="text" class="form-control" v-model="item.validation_message" placeholder="Please upload a valid file">
+                </div>
+                <div class="col-auto" style="margin-top: 32px;">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" v-model="item.required" id="fileRequired">
+                    <label class="form-check-label" for="fileRequired">
+                      {% translate "Required" %}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Photo Upload options -->
+            <div v-if="item.question_type === 'photo_upload'" class="mb-3">
+              <div class="row g-2">
+                <div class="col">
+                  <label class="form-label">{% translate "Allowed image formats:" %}</label>
+                  <input type="text" class="form-control" v-model="item.allowed_extensions" placeholder=".jpg,.jpeg,.png,.gif">
+                </div>
+                <div class="col">
+                  <label class="form-label">{% translate "Max file size (MB):" %}</label>
+                  <input type="number" class="form-control" v-model="item.max_file_size" min="1" max="10">
+                </div>
+              </div>
+              <div class="row g-2 mt-2">
+                <div class="col">
+                  <label class="form-label">{% translate "Validation message:" %}</label>
+                  <input type="text" class="form-control" v-model="item.validation_message" placeholder="Please upload a valid image">
+                </div>
+                <div class="col-auto" style="margin-top: 32px;">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" v-model="item.required" id="photoRequired">
+                    <label class="form-check-label" for="photoRequired">
+                      {% translate "Required" %}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fill in the Blank options -->
+            <div v-if="item.question_type === 'fill_in_blank'" class="mb-3">
+              <div class="alert alert-info">
+                <h4 class="alert-heading">{% translate "How to use Fill in the Blank" %}</h4>
+                <p>{% translate "In your question text above, use <strong>XXXX</strong> or <strong>[blank]</strong> to indicate where the blank should appear." %}</p>
+                <p class="mb-0">{% translate "Example: 'The capital of France is XXXX' or 'The capital of France is [blank]'" %}</p>
+              </div>
+
+              <div class="row g-2">
+                <div class="col">
+                  <label class="form-label">{% translate "Correct answer:" %}</label>
+                  <input type="text" class="form-control" v-model="item.correct_answer" placeholder="Enter the correct answer">
+                </div>
+                <div class="col-auto" style="margin-top: 32px;">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" v-model="item.case_sensitive" id="caseSensitive{{idx}}">
+                    <label class="form-check-label" for="caseSensitive{{idx}}">
+                      {% translate "Case sensitive" %}
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Preview of how the question will appear -->
+              <div class="mt-3 p-3 bg-light rounded">
+                <label class="form-label">{% translate "Preview:" %}</label>
+                <div v-if="item.content">
+                  <p v-html="formatFillInBlankPreview(item.content)"></p>
+                  <div class="input-group mt-2" style="max-width: 300px;">
+                    <input type="text" class="form-control" :placeholder="item.placeholder || 'Fill in your answer'" disabled>
+                    <button class="btn btn-outline-secondary" type="button" disabled>Submit</button>
+                  </div>
+                </div>
+                <div v-else>
+                  <p class="text-muted">{% translate "Enter a question with XXXX or [blank] to see the preview" %}</p>
+                </div>
+              </div>
+
+              <div class="row g-2 mt-3">
+                <div class="col">
+                  <label class="form-label">{% translate "Placeholder text:" %}</label>
+                  <input type="text" class="form-control" v-model="item.placeholder" placeholder="Fill in your answer">
+                </div>
+              </div>
+            </div>
+
+            <!-- Free Text options -->
+            <div v-if="item.question_type === 'free_text'" class="mb-3">
+              <div class="row g-2">
+                <div class="col">
+                  <label class="form-label">{% translate "Placeholder text:" %}</label>
+                  <input type="text" class="form-control" v-model="item.placeholder" placeholder="Enter your answer here...">
+                </div>
+              </div>
+              <div class="row g-2 mt-2">
+                <div class="col">
+                  <label class="form-label">{% translate "Min length:" %}</label>
+                  <input type="number" class="form-control" v-model="item.min_length" min="0" max="1000">
+                </div>
+                <div class="col">
+                  <label class="form-label">{% translate "Max length:" %}</label>
+                  <input type="number" class="form-control" v-model="item.max_length" min="1" max="5000">
+                </div>
+              </div>
+            </div>
+
+            <!-- Rating Scale options -->
+            <div v-if="item.question_type === 'rating_scale'" class="mb-3">
+              <div class="row g-2">
+                <div class="col">
+                  <label class="form-label">{% translate "Min rating:" %}</label>
+                  <input type="number" class="form-control" v-model="item.min_rating" min="0" max="10">
+                </div>
+                <div class="col">
+                  <label class="form-label">{% translate "Max rating:" %}</label>
+                  <input type="number" class="form-control" v-model="item.max_rating" min="1" max="10">
+                </div>
+                <div class="col">
+                  <label class="form-label">{% translate "Step:" %}</label>
+                  <input type="number" class="form-control" v-model="item.step" min="0.1" max="1" step="0.1">
+                </div>
+              </div>
+              <div class="row g-2 mt-2">
+                <div class="col-auto" style="margin-top: 32px;">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" v-model="item.show_labels" id="showLabels{{idx}}">
+                    <label class="form-check-label" for="showLabels{{idx}}">
+                      {% translate "Show labels" %}
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="row g-2 mt-2" v-if="item.show_labels">
+                <div class="col">
+                  <label class="form-label">{% translate "Min label:" %}</label>
+                  <input type="text" class="form-control" v-model="item.min_label" placeholder="Poor">
+                </div>
+                <div class="col">
+                  <label class="form-label">{% translate "Max label:" %}</label>
+                  <input type="text" class="form-control" v-model="item.max_label" placeholder="Excellent">
+                </div>
+              </div>
+              <!-- Preview of the rating scale -->
+              <div class="mt-3 p-3 bg-light rounded">
+                <label class="form-label">{% translate "Preview:" %}</label>
+                <div class="d-flex justify-content-between mb-2" v-if="item.show_labels">
+                  <small>{{ item.min_label }}</small>
+                  <small>{{ item.max_label }}</small>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <button v-for="rating in getRatingRange(item)"
+                          type="button"
+                          class="btn btn-outline-secondary"
+                          style="margin: 0 2px;">
+                    {{ rating }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Date Picker options -->
+            <div v-if="item.question_type === 'date_picker'" class="mb-3">
+              <div class="row g-2">
+                <div class="col">
+                  <label class="form-label">{% translate "Min date (optional):" %}</label>
+                  <input type="date" class="form-control" v-model="item.min_date">
+                </div>
+                <div class="col">
+                  <label class="form-label">{% translate "Max date (optional):" %}</label>
+                  <input type="date" class="form-control" v-model="item.max_date">
+                </div>
+              </div>
+              <div class="row g-2 mt-2">
+                <div class="col">
+                  <label class="form-label">{% translate "Placeholder:" %}</label>
+                  <input type="text" class="form-control" v-model="item.placeholder" placeholder="Select a date">
+                </div>
+                <div class="col-auto" style="margin-top: 32px;">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" v-model="item.required" id="dateRequired{{idx}}">
+                    <label class="form-check-label" for="dateRequired{{idx}}">
+                      {% translate "Required" %}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Checkbox List options -->
+            <div v-if="item.question_type === 'checkbox_list'" class="mb-3">
+              <div class="form-check" v-for="(option, optionIdx) in item.items" :key="option.id">
+                <div class="row g-2">
+                  <div class="col">
+                    <input class="form-check-input" type="checkbox" :id="'checkbox-' + option.id"
+                           :value="option.id"
+                           v-model="item.selected_items"
+                           style="margin-top: 10px;">
+                    <input type="text" class="form-control mt-1" v-model="option.text" placeholder="option...">
+                  </div>
+                  <div class="col-auto">
+                    <button class="btn btn-danger" style="margin-top: 4px;" @click="removeOption(idx, optionIdx)">X</button>
+                  </div>
+                </div>
+              </div>
+              <a class="btn btn-primary" style="float:unset" role="button" @click="addOption(item.items)">{% translate "Add option" %}</a>
+
+              <div class="row g-2 mt-3">
+                <div class="col">
+                  <label class="form-label">{% translate "Min selections:" %}</label>
+                  <input type="number" class="form-control" v-model="item.min_selections" min="0" :max="item.items ? item.items.length : 10">
+                  <small class="form-text text-muted">{% translate "0 = no minimum" %}</small>
+                </div>
+                <div class="col">
+                  <label class="form-label">{% translate "Max selections:" %}</label>
+                  <input type="number" class="form-control" v-model="item.max_selections" min="0" :max="item.items ? item.items.length : 10">
+                  <small class="form-text text-muted">{% translate "0 = no maximum" %}</small>
+                </div>
+              </div>
+            </div>
           </div>
+
           <div class="mt-3">
-            <a class="btn btn-primary" role="button" @click="addQuestion">{% translate "Add question" %}</a>
+            <div class="dropdown d-inline-block">
+              <button class="btn btn-primary dropdown-toggle" type="button" id="addQuestionDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                {% translate "Add question" %}
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="addQuestionDropdown">
+                <li><a class="dropdown-item" href="#" @click.prevent="addQuestion('multiple_choice')">{% translate "Multiple Choice" %}</a></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="addQuestion('file_upload')">{% translate "File Upload" %}</a></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="addQuestion('photo_upload')">{% translate "Photo Upload" %}</a></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="addQuestion('fill_in_blank')">{% translate "Fill in the Blank" %}</a></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="addQuestion('free_text')">{% translate "Free Text" %}</a></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="addQuestion('rating_scale')">{% translate "Rating Scale" %}</a></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="addQuestion('date_picker')">{% translate "Date Picker" %}</a></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="addQuestion('checkbox_list')">{% translate "Checkbox List" %}</a></li>
+              </ul>
+            </div>
 
             <!-- Add this button for PDF import with dynamic status -->
             <a class="btn btn-secondary ms-2" role="button" @click="importQuestionsFromPDF" :class="{ 'disabled': isImporting }">
