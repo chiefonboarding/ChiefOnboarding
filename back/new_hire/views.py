@@ -414,14 +414,56 @@ class CourseAnswerView(LoginRequiredMixin, FormView):
         return form_class(items=chapter.content["blocks"], **self.get_form_kwargs())
 
     def form_valid(self, form):
+        import os
+        import uuid
+        from django.conf import settings
+        from django.core.files.storage import default_storage
+        from django.core.files.base import ContentFile
+
         resource_user = get_object_or_404(
             ResourceUser, resource__pk=self.kwargs.get("pk", -1), user=self.request.user
         )
         chapter = get_object_or_404(Chapter, id=self.kwargs.get("chapter", -1))
+
+        # Process the form data
+        processed_answers = {}
+
+        for field_name, value in form.cleaned_data.items():
+            # Get the question index from the field name (format: "item-{idx}")
+            idx = int(field_name.split('-')[1])
+            question = chapter.content["blocks"][idx]
+            question_type = question.get('question_type', 'multiple_choice')
+
+            if question_type in ['file_upload', 'photo_upload'] and value:
+                # Handle file uploads
+                file_obj = value
+                original_name = file_obj.name
+
+                # Generate a unique filename
+                ext = os.path.splitext(original_name)[1]
+                unique_filename = f"{uuid.uuid4()}{ext}"
+
+                # Define the path where the file will be stored
+                relative_path = f"course_answers/{resource_user.user.id}/{chapter.id}/{unique_filename}"
+
+                # Save the file
+                path = default_storage.save(relative_path, ContentFile(file_obj.read()))
+
+                # Store file information in the answer
+                processed_answers[field_name] = {
+                    'type': question_type,
+                    'filename': original_name,
+                    'path': path,
+                    'url': default_storage.url(path)
+                }
+            else:
+                # For other question types, just store the value
+                processed_answers[field_name] = value
+
         # Create a course answer object from the answers and then add it to the
         # resource user item
         course_answers = CourseAnswer.objects.create(
-            chapter=chapter, answers=form.cleaned_data
+            chapter=chapter, answers=processed_answers
         )
         resource_user.answers.add(course_answers)
         return HttpResponse(headers={"HX-Refresh": "true"})

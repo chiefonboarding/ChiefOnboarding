@@ -16,20 +16,146 @@
     {% for chapter in resource_user.resource.chapters.all %}
       {% if chapter.type == 2 %}
         {% for item in chapter.content.blocks %}
-          <div class="mb-3">
-            <label class="form-label requiredField">{{ item.content }}</label>
-            <div>
-              {% for option in item.items %}
-              <div class="form-check">
-                <input type="radio" disabled class="form-check-input" name="item-0" value="temp-d52b" id="id_item-0_0" {% if item.answer == option.id %}checked{% endif %} >
-                <label for="id_item-0_0" class="form-check-label">
-                  {{ option.text }}
-                </label>
+          <div class="card mb-4">
+            <div class="card-header">
+              <h4 class="card-title">{{ item.content }}</h4>
+              <div class="card-subtitle text-muted">
+                {% if item.question_type %}
+                  {% if item.question_type == 'multiple_choice' %}
+                    {% translate "Multiple Choice Question" %}
+                  {% elif item.question_type == 'file_upload' %}
+                    {% translate "File Upload Question" %}
+                  {% elif item.question_type == 'photo_upload' %}
+                    {% translate "Photo Upload Question" %}
+                  {% elif item.question_type == 'fill_in_blank' %}
+                    {% translate "Fill in the Blank Question" %}
+                  {% elif item.question_type == 'free_text' %}
+                    {% translate "Free Text Question" %}
+                  {% elif item.question_type == 'rating_scale' %}
+                    {% translate "Rating Scale Question" %}
+                  {% elif item.question_type == 'date_picker' %}
+                    {% translate "Date Picker Question" %}
+                  {% elif item.question_type == 'checkbox_list' %}
+                    {% translate "Checkbox List Question" %}
+                  {% else %}
+                    {{ item.question_type }}
+                  {% endif %}
+                {% else %}
+                  {% translate "Multiple Choice Question" %}
+                {% endif %}
               </div>
-              {% endfor %}
+            </div>
+            <div class="card-body">
+              <!-- Question display based on type -->
+              {% if not item.question_type or item.question_type == 'multiple_choice' %}
+                <div class="mb-3">
+                  <div>
+                    {% for option in item.items %}
+                    <div class="form-check">
+                      <input type="radio" disabled class="form-check-input" name="item-{{ forloop.parentloop.counter0 }}" value="{{ option.id }}" id="id_item-{{ forloop.parentloop.counter0 }}_{{ forloop.counter0 }}" {% if item.answer == option.id %}checked{% endif %} >
+                      <label for="id_item-{{ forloop.parentloop.counter0 }}_{{ forloop.counter0 }}" class="form-check-label">
+                        {{ option.text }}
+                      </label>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% elif item.question_type == 'file_upload' %}
+                <div class="mb-3">
+                  <p class="text-muted">
+                    {% translate "Allowed file types:" %} {{ item.allowed_extensions }}
+                    {% if item.max_file_size %}
+                      ({% translate "Max size:" %} {{ item.max_file_size }}MB)
+                    {% endif %}
+                  </p>
+                </div>
+              {% elif item.question_type == 'photo_upload' %}
+                <div class="mb-3">
+                  <p class="text-muted">
+                    {% translate "Allowed image formats:" %} {{ item.allowed_extensions }}
+                    {% if item.max_file_size %}
+                      ({% translate "Max size:" %} {{ item.max_file_size }}MB)
+                    {% endif %}
+                  </p>
+                </div>
+              {% elif item.question_type == 'fill_in_blank' %}
+                <div class="mb-3">
+                  <p class="text-muted">
+                    {% if item.case_sensitive %}
+                      {% translate "Case sensitive answer required" %}
+                    {% else %}
+                      {% translate "Case insensitive answer accepted" %}
+                    {% endif %}
+                  </p>
+                </div>
+              {% elif item.question_type == 'free_text' %}
+                <div class="mb-3">
+                  <p class="text-muted">
+                    {% if item.min_length %}
+                      {% translate "Minimum length:" %} {{ item.min_length }}
+                    {% endif %}
+                    {% if item.max_length %}
+                      {% translate "Maximum length:" %} {{ item.max_length }}
+                    {% endif %}
+                  </p>
+                </div>
+              {% elif item.question_type == 'rating_scale' %}
+                <div class="mb-3">
+                  <p class="text-muted">
+                    {% translate "Rating scale from" %} {{ item.min_rating }} {% translate "to" %} {{ item.max_rating }}
+                    {% if item.show_labels %}
+                      ({{ item.min_label }} - {{ item.max_label }})
+                    {% endif %}
+                  </p>
+                </div>
+              {% elif item.question_type == 'date_picker' %}
+                <div class="mb-3">
+                  <p class="text-muted">
+                    {% if item.min_date or item.max_date %}
+                      {% if item.min_date %}
+                        {% translate "Minimum date:" %} {{ item.min_date }}
+                      {% endif %}
+                      {% if item.max_date %}
+                        {% translate "Maximum date:" %} {{ item.max_date }}
+                      {% endif %}
+                    {% else %}
+                      {% translate "No date restrictions" %}
+                    {% endif %}
+                  </p>
+                </div>
+              {% elif item.question_type == 'checkbox_list' %}
+                <div class="mb-3">
+                  <p class="text-muted">
+                    {% translate "Multiple selection allowed" %}
+                    {% if item.min_selections > 0 %}
+                      ({% translate "Min selections:" %} {{ item.min_selections }})
+                    {% endif %}
+                    {% if item.max_selections > 0 %}
+                      ({% translate "Max selections:" %} {{ item.max_selections }})
+                    {% endif %}
+                  </p>
+                  <div>
+                    {% for option in item.items %}
+                    <div class="form-check">
+                      <input type="checkbox" disabled class="form-check-input" id="checkbox-{{ option.id }}">
+                      <label for="checkbox-{{ option.id }}" class="form-check-label">
+                        {{ option.text }}
+                      </label>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endif %}
+
+              <!-- Answer display -->
+              <div class="mt-3">
+                <h5>{% translate "Answer given by new hire:" %}</h5>
+                <div class="answer-content">
+                  {% get_user_answer_by_chapter resource_user chapter forloop.counter0 %}
+                </div>
+              </div>
             </div>
           </div>
-          <b> {% translate "Answer given by new hire: " %}{% get_user_answer_by_chapter resource_user chapter forloop.counter0 %} </b>
         {% endfor %}
       {% endif %}
     {% endfor %}
