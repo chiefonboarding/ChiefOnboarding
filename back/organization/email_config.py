@@ -9,31 +9,62 @@ from anymail.backends.sendinblue import EmailBackend as SendinblueBackend
 
 # Custom backend for MailerSend
 class MailerSendBackend:
-    def __init__(self, api_key=None, **kwargs):
+    def __init__(self, api_key=None, fail_silently=False, **kwargs):
         self.api_key = api_key
+        self.fail_silently = fail_silently
         self.kwargs = kwargs
 
     def __call__(self, **kwargs):
-        from anymail.message import AnymailMessage
-        from anymail.backends.base import BasePayload
-
         # Configure Anymail with MailerSend settings
         settings.ANYMAIL = {
             "MAILERSEND_API_KEY": self.api_key,
         }
 
         # Return a custom backend that uses the MailerSend API
-        return MailerSendEmailBackend()
+        return MailerSendEmailBackend(fail_silently=self.fail_silently)
 
 class MailerSendEmailBackend:
-    def __init__(self):
+    def __init__(self, fail_silently=False, **kwargs):
         from django.core.mail.backends.base import BaseEmailBackend
-        self.backend = BaseEmailBackend()
+        self.fail_silently = fail_silently
+        self._connection = None
+        self._lock = None
+
+    def open(self):
+        """
+        Ensure we have an API key for MailerSend.
+        """
+        if self._connection:
+            return True
+
+        try:
+            # Check if we have an API key
+            api_key = settings.ANYMAIL.get("MAILERSEND_API_KEY")
+            if not api_key:
+                raise ValueError("MailerSend API key is required")
+
+            self._connection = True
+            return True
+        except Exception as e:
+            if not self.fail_silently:
+                raise
+            return False
+
+    def close(self):
+        """
+        Close the connection to the API.
+        """
+        self._connection = None
 
     def send_messages(self, email_messages):
         """Send messages using the MailerSend API."""
         if not email_messages:
             return 0
+
+        # Make sure we have a connection
+        if not self._connection:
+            if not self.open():
+                return 0
 
         count = 0
         for message in email_messages:
@@ -41,7 +72,7 @@ class MailerSendEmailBackend:
                 self._send(message)
                 count += 1
             except Exception as e:
-                if not getattr(message, 'fail_silently', False):
+                if not self.fail_silently:
                     raise
         return count
 
@@ -82,7 +113,7 @@ class MailerSendEmailBackend:
         }
 
         # Add HTML or plain text content
-        if message.content_subtype == "html":
+        if hasattr(message, 'content_subtype') and message.content_subtype == "html":
             data["html"] = message.body
         else:
             data["text"] = message.body
@@ -157,6 +188,7 @@ def get_email_backend():
         elif org.email_provider == 'mailersend':
             return MailerSendBackend(
                 api_key=org.mailersend_api_key,
+                fail_silently=False,
             )()
     except Exception:
         # If there's any error, fall back to environment settings
