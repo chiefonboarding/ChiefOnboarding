@@ -8,7 +8,8 @@
     <div class="card">
       <ul class="list-group">
         <a href="{% url 'settings:general' %}"><li class="list-group-item{% if 'general' in request.path %} active{% endif %}" aria-current="true">{% translate "General" %}</li></a>
-        <a href="{% url 'settings:email' %}"><li class="list-group-item{% if 'email' in request.path %} active{% endif %}" aria-current="true">{% translate "Email" %}</li></a>
+        <a href="{% url 'settings:email' %}"><li class="list-group-item{% if 'email' in request.path and not 'email-templates' in request.path %} active{% endif %}" aria-current="true">{% translate "Email" %}</li></a>
+        <a href="{% url 'settings:email-templates' %}"><li class="list-group-item{% if 'email-templates' in request.path %} active{% endif %}" aria-current="true">{% translate "Email Templates" %}</li></a>
         <a href="{% url 'settings:slack' %}"><li class="list-group-item{% if 'slack' in request.path %} active{% endif %}" aria-current="true">{% translate "Slack bot" %}</li></a>
         <a href="{% url 'settings:welcome-message' "en" 0 %}"><li class="list-group-item{% if 'welcome_message' in request.path %} active{% endif %}">{% translate "Welcome messages" %}</li></a>
         <a href="{% url 'settings:ai-settings' %}"><li class="list-group-item{% if 'ai-settings' in request.path %} active{% endif %}">{% translate "AI Content" %}</li></a>

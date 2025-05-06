@@ -12,8 +12,9 @@ from django.utils.translation import gettext_lazy as _
 from django_q.models import Schedule
 
 from admin.integrations.models import Integration
-from admin.templates.forms import UploadField
+from admin.templates.forms import UploadField, WYSIWYGField
 from organization.models import Organization, WelcomeMessage
+from admin.settings.models import EmailTemplate
 
 
 class OrganizationGeneralForm(forms.ModelForm):
@@ -596,3 +597,60 @@ class TestEmailForm(forms.Form):
             Field("message"),
             Submit(name="submit", value=_("Send Test Email")),
         )
+
+
+class EmailTemplateForm(forms.ModelForm):
+    content = WYSIWYGField()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+
+        layout = Layout(
+            Div(
+                Div(
+                    Field("name"),
+                    Field("subject"),
+                    Field("category"),
+                    Field("description"),
+                    HTML(
+                        '<div class="alert alert-info mt-3">'
+                        '<h4 class="alert-heading">Available Variables</h4>'
+                        '<p>You can use the following variables in your email templates:</p>'
+                        '<ul>'
+                        '<li><code>{{ first_name }}</code> - New hire\'s first name</li>'
+                        '<li><code>{{ last_name }}</code> - New hire\'s last name</li>'
+                        '<li><code>{{ position }}</code> - New hire\'s position</li>'
+                        '<li><code>{{ department }}</code> - New hire\'s department</li>'
+                        '<li><code>{{ manager }}</code> - New hire\'s manager name</li>'
+                        '<li><code>{{ manager_email }}</code> - New hire\'s manager email</li>'
+                        '<li><code>{{ buddy }}</code> - New hire\'s buddy name</li>'
+                        '<li><code>{{ buddy_email }}</code> - New hire\'s buddy email</li>'
+                        '<li><code>{{ start }}</code> - New hire\'s start date</li>'
+                        '</ul>'
+                        '</div>'
+                    ),
+                    css_class="col-4",
+                ),
+                Div(
+                    WYSIWYGField("content"),
+                    css_class="col-8",
+                ),
+                css_class="row",
+            ),
+            Submit(name="submit", value=_("Save Template")),
+        )
+        self.helper.layout = layout
+
+    class Meta:
+        model = EmailTemplate
+        fields = ["name", "subject", "category", "description", "content"]
+        widgets = {
+            "description": forms.Textarea(attrs={"rows": 3}),
+        }
+        help_texts = {
+            "name": _("Internal name for this template"),
+            "subject": _("Subject line for the email. You can use variables here too, e.g., 'Welcome {{ first_name }}!'"),
+            "description": _("Internal description of when this template should be used"),
+        }

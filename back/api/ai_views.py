@@ -20,6 +20,7 @@ def generate_ai_content(request):
     try:
         data = json.loads(request.body)
         prompt = data.get('prompt', '')
+        content_type = data.get('content_type', 'general')  # 'general', 'email', etc.
 
         if not prompt:
             return JsonResponse({'error': 'Prompt is required'}, status=400)
@@ -35,7 +36,22 @@ def generate_ai_content(request):
 
         # Prepare system message with context and tone
         system_message = f"{default_context} Write in a {default_tone} tone. "
-        system_message += "The content may include variables like {{first_name}}, {{last_name}}, {{position}}, {{department}}, {{manager}}, and {{buddy}} which will be replaced with actual user data."
+
+        # Add content type specific instructions
+        if content_type == 'email':
+            system_message += (
+                "You are generating content for an email template. "
+                "Create professional, well-structured email content that is clear, concise, and engaging. "
+                "Format the content appropriately for an email with proper greeting, body, and closing. "
+                "The content should be suitable for HTML email format. "
+            )
+
+        # Add information about variables
+        system_message += (
+            "The content may include variables like {{first_name}}, {{last_name}}, {{position}}, "
+            "{{department}}, {{manager}}, {{manager_email}}, {{buddy}}, {{buddy_email}}, and {{start}} "
+            "which will be replaced with actual user data. Use these variables appropriately to personalize the content."
+        )
 
         # Call OpenAI API
         try:
@@ -52,17 +68,36 @@ def generate_ai_content(request):
                         {'role': 'user', 'content': prompt}
                     ],
                     'temperature': 0.7,
-                    'max_tokens': 500
+                    'max_tokens': 800  # Increased for email templates which might be longer
                 },
-                timeout=10
+                timeout=15  # Increased timeout for longer content
             )
 
             response_data = response.json()
 
             if 'choices' in response_data and len(response_data['choices']) > 0:
                 content = response_data['choices'][0]['message']['content']
+
                 # Format content as HTML paragraphs
-                formatted_content = '<p>' + content.replace('\n\n', '</p><p>').replace('\n', '<br>') + '</p>'
+                # More sophisticated formatting for email content
+                if content_type == 'email':
+                    # Split by double newlines to identify paragraphs
+                    paragraphs = content.split('\n\n')
+                    formatted_paragraphs = []
+
+                    for paragraph in paragraphs:
+                        # Check if this is a greeting or signature line (typically shorter)
+                        if len(paragraph.strip()) < 50 and ('Hello' in paragraph or 'Hi' in paragraph or 'Dear' in paragraph or 'Regards' in paragraph or 'Sincerely' in paragraph):
+                            formatted_paragraphs.append(f'<p>{paragraph.replace("\n", "<br>")}</p>')
+                        else:
+                            # Regular paragraph
+                            formatted_paragraphs.append(f'<p>{paragraph.replace("\n", "<br>")}</p>')
+
+                    formatted_content = ''.join(formatted_paragraphs)
+                else:
+                    # Standard formatting for other content types
+                    formatted_content = '<p>' + content.replace('\n\n', '</p><p>').replace('\n', '<br>') + '</p>'
+
                 return JsonResponse({'content': formatted_content})
             else:
                 logger.error(f"Unexpected API response: {response_data}")

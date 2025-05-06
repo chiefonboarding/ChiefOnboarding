@@ -1,0 +1,221 @@
+{% extends 'settings_base.html' %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block actions %}
+<div class="col-auto ms-auto d-print-none">
+  <div class="btn-list">
+    <a href="{% url 'settings:email-templates' %}" class="btn btn-outline-primary d-none d-sm-inline-block">
+      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <line x1="5" y1="12" x2="11" y2="18"></line>
+        <line x1="5" y1="12" x2="11" y2="6"></line>
+      </svg>
+      {% translate "Back to templates" %}
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block settings_content %}
+<div class="card-body">
+  <p>{% translate "Create or edit an email template. Use the AI content generation tool to quickly create professional email content." %}</p>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% crispy form %}
+    <div class="form-footer">
+      <button type="submit" class="btn btn-primary">{% translate "Save template" %}</button>
+    </div>
+  </form>
+
+  <div class="mt-4">
+    <h3>{% translate "Preview" %}</h3>
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+          <span class="preview-subject">{% translate "Email Subject Preview" %}</span>
+        </div>
+        <div>
+          <button type="button" id="preview-button" class="btn btn-primary">
+            {% translate "Generate Preview" %}
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div id="email-preview">
+          <div class="alert alert-info">
+            {% translate "Click 'Generate Preview' to see how your email will look with sample data." %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the WYSIWYG editor
+    initWYSIWYGEditor();
+
+    // Add AI content generation specific to emails
+    const aiPromptSuggestions = [
+      {
+        title: "{% translate 'Welcome Email' %}",
+        prompt: "{% translate 'Write a professional welcome email for a new employee joining our company. Include a warm greeting, brief company introduction, and what they can expect on their first day. Use variables like {{first_name}}, {{position}}, {{department}}, and {{manager}} where appropriate.' %}"
+      },
+      {
+        title: "{% translate 'Task Reminder' %}",
+        prompt: "{% translate 'Write a friendly reminder email about completing an important task. The tone should be encouraging but convey the importance of completing the task on time. Use variables like {{first_name}} and {{manager}} where appropriate.' %}"
+      },
+      {
+        title: "{% translate 'Meeting Invitation' %}",
+        prompt: "{% translate 'Write a professional email inviting someone to a meeting. Include placeholders for the meeting topic, date, time, and location/link. Use variables like {{first_name}} and {{department}} where appropriate.' %}"
+      },
+      {
+        title: "{% translate 'Introduction to Buddy' %}",
+        prompt: "{% translate 'Write an email introducing a new hire to their buddy. Explain the buddy\'s role in helping them get settled. Use variables like {{first_name}}, {{buddy}}, and {{buddy_email}} where appropriate.' %}"
+      },
+      {
+        title: "{% translate 'First Day Instructions' %}",
+        prompt: "{% translate 'Write detailed instructions for a new hire\'s first day, including where to go, what time to arrive, what to bring, and who will greet them. Use variables like {{first_name}}, {{manager}}, and {{start}} where appropriate.' %}"
+      }
+    ];
+
+    // Create the prompt suggestions UI
+    const suggestionsContainer = document.createElement('div');
+    suggestionsContainer.className = 'ai-prompt-suggestions mb-3';
+    suggestionsContainer.innerHTML = `
+      <h4 class="mb-2">{% translate 'Email Template Suggestions' %}</h4>
+      <p class="text-muted">{% translate 'Click a suggestion to use it as your AI prompt. The AI will generate email content based on your selection.' %}</p>
+      <div class="d-flex flex-wrap gap-2">
+        ${aiPromptSuggestions.map(suggestion => `
+          <button type="button" class="btn btn-sm btn-outline-secondary prompt-suggestion"
+                  data-prompt="${suggestion.prompt}">
+            ${suggestion.title}
+          </button>
+        `).join('')}
+      </div>
+    `;
+
+    // Find the AI tool in the editor (if it exists) and insert suggestions before it
+    const aiToolElement = document.querySelector('.ce-ai-tool');
+    if (aiToolElement) {
+      aiToolElement.parentNode.insertBefore(suggestionsContainer, aiToolElement);
+
+      // Add click handlers for the suggestion buttons
+      document.querySelectorAll('.prompt-suggestion').forEach(button => {
+        button.addEventListener('click', function() {
+          const promptInput = document.querySelector('.ce-ai-tool__prompt');
+          if (promptInput) {
+            promptInput.value = this.dataset.prompt;
+            // Focus the input
+            promptInput.focus();
+          }
+        });
+      });
+
+      // Add a note about email variables to the AI tool
+      const variablesNote = document.createElement('div');
+      variablesNote.className = 'alert alert-info mt-3';
+      variablesNote.innerHTML = `
+        <h5>{% translate 'Tips for Email Templates' %}</h5>
+        <ul>
+          <li>{% translate 'Use variables like {{first_name}} to personalize your emails' %}</li>
+          <li>{% translate 'Keep emails concise and focused on a single purpose' %}</li>
+          <li>{% translate 'Include a clear call-to-action when needed' %}</li>
+          <li>{% translate 'Preview your email before saving to ensure it looks good' %}</li>
+        </ul>
+      `;
+
+      // Insert after the AI tool
+      aiToolElement.parentNode.insertBefore(variablesNote, aiToolElement.nextSibling);
+    }
+
+    // Add preview functionality
+    const previewButton = document.getElementById('preview-button');
+    if (previewButton) {
+      previewButton.addEventListener('click', async function() {
+        // Get the current content from the editor
+        const editor = document.querySelector('.codex-editor');
+        if (!editor || !editor.codex || !editor.codex.editor) {
+          alert('{% translate "Editor not initialized. Please save your changes first." %}');
+          return;
+        }
+
+        // Show loading state
+        const previewContainer = document.getElementById('email-preview');
+        previewContainer.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">{% translate "Generating preview..." %}</p></div>';
+
+        try {
+          // Get the current content from the editor
+          const editorData = await editor.codex.editor.save();
+
+          // Get the subject from the form
+          const subjectInput = document.querySelector('input[name="subject"]');
+          const subject = subjectInput ? subjectInput.value : 'Sample Subject';
+
+          // Get CSRF token
+          const getCookie = (name) => {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+          };
+          const csrfToken = getCookie('csrftoken');
+
+          // Call the preview API
+          const response = await fetch('{% url "settings:email-templates-preview" %}', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrfToken,
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+              content: editorData,
+              subject: subject
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error('{% translate "Failed to generate preview" %}');
+          }
+
+          const data = await response.json();
+
+          // Update the subject preview
+          const subjectPreview = document.querySelector('.preview-subject');
+          if (subjectPreview) {
+            subjectPreview.textContent = data.subject || 'Sample Subject';
+          }
+
+          // Update the preview container with the HTML content
+          previewContainer.innerHTML = `
+            <div class="email-preview-container">
+              <iframe id="email-preview-frame" style="width: 100%; height: 500px; border: 1px solid #ddd;"></iframe>
+            </div>
+          `;
+
+          // Insert the HTML content into the iframe
+          const iframe = document.getElementById('email-preview-frame');
+          iframe.onload = function() {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            iframeDoc.open();
+            iframeDoc.write(data.html_content);
+            iframeDoc.close();
+          };
+          iframe.onload();
+
+        } catch (error) {
+          console.error('Preview error:', error);
+          previewContainer.innerHTML = `<div class="alert alert-danger">${error.message || '{% translate "An error occurred while generating the preview." %}'}</div>`;
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

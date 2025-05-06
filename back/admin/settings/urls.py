@@ -1,6 +1,7 @@
 from django.urls import path
 
 from . import views
+from . import email_template_views
 
 app_name = "settings"
 urlpatterns = [
@@ -56,5 +57,31 @@ urlpatterns = [
         "administrators/<int:pk>/delete/",
         views.AdministratorDeleteView.as_view(),
         name="administrators-delete",
+    ),
+    # Email templates
+    path(
+        "email-templates/",
+        email_template_views.EmailTemplateListView.as_view(),
+        name="email-templates",
+    ),
+    path(
+        "email-templates/create/",
+        email_template_views.EmailTemplateCreateView.as_view(),
+        name="email-templates-create",
+    ),
+    path(
+        "email-templates/<int:pk>/update/",
+        email_template_views.EmailTemplateUpdateView.as_view(),
+        name="email-templates-update",
+    ),
+    path(
+        "email-templates/<int:pk>/delete/",
+        email_template_views.EmailTemplateDeleteView.as_view(),
+        name="email-templates-delete",
+    ),
+    path(
+        "email-templates/preview/",
+        email_template_views.preview_email_template,
+        name="email-templates-preview",
     ),
 ]

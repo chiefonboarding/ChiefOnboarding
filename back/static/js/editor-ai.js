@@ -249,6 +249,12 @@ class AITool {
       // Show a message while we're waiting for the API response
       this.nodes.contentContainer.innerHTML = '<p>Generating content, please wait...</p>';
 
+      // Determine content type based on the current page
+      let contentType = 'general';
+      if (window.location.pathname.includes('email-templates')) {
+        contentType = 'email';
+      }
+
       const response = await fetch('/api/ai-content-generate/', {
         method: 'POST',
         headers: {
@@ -257,7 +263,10 @@ class AITool {
           'X-Requested-With': 'XMLHttpRequest'
         },
         credentials: 'same-origin', // Use same-origin for session cookies
-        body: JSON.stringify({ prompt })
+        body: JSON.stringify({
+          prompt,
+          content_type: contentType
+        })
       });
 
       if (!response.ok) {
