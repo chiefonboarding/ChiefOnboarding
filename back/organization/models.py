@@ -206,6 +206,130 @@ class Organization(models.Model):
         blank=True,
     )
 
+    # Email provider settings
+    email_provider = models.CharField(
+        verbose_name=_("Email Provider"),
+        max_length=20,
+        choices=[
+            ('smtp', _('SMTP')),
+            ('mailgun', _('Mailgun')),
+            ('mailjet', _('Mailjet')),
+            ('mandrill', _('Mandrill')),
+            ('postmark', _('Postmark')),
+            ('sendgrid', _('SendGrid')),
+            ('sendinblue', _('Sendinblue')),
+            ('mailersend', _('MailerSend')),
+        ],
+        default='',
+        blank=True,
+        help_text=_("Select which email provider to use for sending emails"),
+    )
+    default_from_email = models.CharField(
+        verbose_name=_("Default From Email"),
+        max_length=255,
+        default="",
+        blank=True,
+        help_text=_("The email address that will be used as the sender (e.g., 'onboarding@yourcompany.com' or 'Your Company <onboarding@yourcompany.com>')"),
+    )
+
+    # SMTP settings
+    email_host = models.CharField(
+        verbose_name=_("SMTP Host"),
+        max_length=255,
+        default="",
+        blank=True,
+        help_text=_("SMTP server hostname (e.g., 'smtp.gmail.com')"),
+    )
+    email_port = models.IntegerField(
+        verbose_name=_("SMTP Port"),
+        default=587,
+        blank=True,
+        null=True,
+        help_text=_("SMTP server port (usually 25, 465, or 587)"),
+    )
+    email_host_user = models.CharField(
+        verbose_name=_("SMTP Username"),
+        max_length=255,
+        default="",
+        blank=True,
+        help_text=_("SMTP server username"),
+    )
+    email_host_password = models.CharField(
+        verbose_name=_("SMTP Password"),
+        max_length=255,
+        default="",
+        blank=True,
+        help_text=_("SMTP server password"),
+    )
+    email_use_tls = models.BooleanField(
+        verbose_name=_("Use TLS"),
+        default=True,
+        help_text=_("Use TLS encryption for SMTP connection"),
+    )
+    email_use_ssl = models.BooleanField(
+        verbose_name=_("Use SSL"),
+        default=False,
+        help_text=_("Use SSL encryption for SMTP connection (don't enable both TLS and SSL)"),
+    )
+
+    # Provider-specific settings
+    mailgun_api_key = models.CharField(
+        verbose_name=_("Mailgun API Key"),
+        max_length=255,
+        default="",
+        blank=True,
+    )
+    mailgun_domain = models.CharField(
+        verbose_name=_("Mailgun Domain"),
+        max_length=255,
+        default="",
+        blank=True,
+    )
+    mailjet_api_key = models.CharField(
+        verbose_name=_("Mailjet API Key"),
+        max_length=255,
+        default="",
+        blank=True,
+    )
+    mailjet_secret_key = models.CharField(
+        verbose_name=_("Mailjet Secret Key"),
+        max_length=255,
+        default="",
+        blank=True,
+    )
+    mandrill_api_key = models.CharField(
+        verbose_name=_("Mandrill API Key"),
+        max_length=255,
+        default="",
+        blank=True,
+    )
+    postmark_server_token = models.CharField(
+        verbose_name=_("Postmark Server Token"),
+        max_length=255,
+        default="",
+        blank=True,
+    )
+    sendgrid_api_key = models.CharField(
+        verbose_name=_("SendGrid API Key"),
+        max_length=255,
+        default="",
+        blank=True,
+    )
+    sendinblue_api_key = models.CharField(
+        verbose_name=_("Sendinblue API Key"),
+        max_length=255,
+        default="",
+        blank=True,
+    )
+
+    # MailerSend settings
+    mailersend_api_key = models.CharField(
+        verbose_name=_("MailerSend API Key"),
+        max_length=255,
+        default="",
+        blank=True,
+    )
+
     object = ObjectManager()
     objects = models.Manager()
 

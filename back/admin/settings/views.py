@@ -317,6 +317,34 @@ class EmailSettingsUpdateView(
         context["subtitle"] = _("settings")
         return context
 
+    def form_valid(self, form):
+        """
+        When the form is valid, reload the email settings.
+        """
+        response = super().form_valid(form)
+
+        # Reload email settings
+        from organization.email_config import get_email_backend, get_default_from_email
+        from django.conf import settings
+
+        try:
+            # Try to get the email backend from the database
+            email_backend = get_email_backend()
+            if email_backend:
+                # Replace the default email backend with our custom one
+                settings.EMAIL_BACKEND = email_backend
+
+            # Try to get the default from email from the database
+            default_from_email = get_default_from_email()
+            if default_from_email:
+                # Replace the default from email with our custom one
+                settings.DEFAULT_FROM_EMAIL = default_from_email
+        except Exception:
+            # If there's any error, just use the environment settings
+            pass
+
+        return response
+
 
 class OTPView(LoginRequiredMixin, ManagerPermMixin, FormView):
     template_name = "personal_otp.html"

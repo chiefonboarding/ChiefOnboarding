@@ -272,6 +272,8 @@ class EmailSettingsForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
+
+        # Create the base layout
         self.helper.layout = Layout(
             HTML("<h3 class='card-title'>" + _("Email Notifications") + "</h3>"),
             Field("new_hire_email"),
@@ -280,37 +282,258 @@ class EmailSettingsForm(forms.ModelForm):
             Field("email_admin_task_notifications"),
             Field("email_admin_task_comments"),
             Field("email_admin_updates"),
+
             HTML("<h3 class='card-title mt-4'>" + _("Email Customization") + "</h3>"),
             Field("email_from_name"),
             Field("email_signature"),
             Field("custom_email_template"),
+
+            HTML("<h3 class='card-title mt-4'>" + _("Email Provider Configuration") + "</h3>"),
+            Field("email_provider"),
+            Field("default_from_email"),
+
+            # SMTP Settings
+            Div(
+                HTML("<h4 class='card-subtitle mt-3'>" + _("SMTP Settings") + "</h4>"),
+                Field("email_host"),
+                Field("email_port"),
+                Field("email_host_user"),
+                Field("email_host_password"),
+                Field("email_use_tls"),
+                Field("email_use_ssl"),
+                css_class="email-provider-settings smtp-settings",
+            ),
+
+            # Mailgun Settings
+            Div(
+                HTML("<h4 class='card-subtitle mt-3'>" + _("Mailgun Settings") + "</h4>"),
+                Field("mailgun_api_key"),
+                Field("mailgun_domain"),
+                css_class="email-provider-settings mailgun-settings",
+            ),
+
+            # Mailjet Settings
+            Div(
+                HTML("<h4 class='card-subtitle mt-3'>" + _("Mailjet Settings") + "</h4>"),
+                Field("mailjet_api_key"),
+                Field("mailjet_secret_key"),
+                css_class="email-provider-settings mailjet-settings",
+            ),
+
+            # Mandrill Settings
+            Div(
+                HTML("<h4 class='card-subtitle mt-3'>" + _("Mandrill Settings") + "</h4>"),
+                Field("mandrill_api_key"),
+                css_class="email-provider-settings mandrill-settings",
+            ),
+
+            # Postmark Settings
+            Div(
+                HTML("<h4 class='card-subtitle mt-3'>" + _("Postmark Settings") + "</h4>"),
+                Field("postmark_server_token"),
+                css_class="email-provider-settings postmark-settings",
+            ),
+
+            # SendGrid Settings
+            Div(
+                HTML("<h4 class='card-subtitle mt-3'>" + _("SendGrid Settings") + "</h4>"),
+                Field("sendgrid_api_key"),
+                css_class="email-provider-settings sendgrid-settings",
+            ),
+
+            # Sendinblue Settings
+            Div(
+                HTML("<h4 class='card-subtitle mt-3'>" + _("Sendinblue Settings") + "</h4>"),
+                Field("sendinblue_api_key"),
+                css_class="email-provider-settings sendinblue-settings",
+            ),
+
+            # MailerSend Settings
+            Div(
+                HTML("<h4 class='card-subtitle mt-3'>" + _("MailerSend Settings") + "</h4>"),
+                Field("mailersend_api_key"),
+                css_class="email-provider-settings mailersend-settings",
+            ),
+
+            HTML("""
+            <script>
+                // Wacht tot het document volledig geladen is
+                window.addEventListener('load', function() {
+                    // Zoek het email provider selectieveld
+                    const providerSelect = document.getElementById('id_email_provider');
+                    if (!providerSelect) {
+                        console.error('Email provider select field not found');
+                        return;
+                    }
+
+                    // Zoek alle provider-specifieke instellingen
+                    const allSettings = document.querySelectorAll('.email-provider-settings');
+                    if (allSettings.length === 0) {
+                        console.error('Provider settings not found');
+                        return;
+                    }
+
+                    console.log('Found ' + allSettings.length + ' provider settings sections');
+
+                    function updateVisibleSettings() {
+                        console.log('Updating visible settings for provider: ' + providerSelect.value);
+
+                        // Verberg eerst alle instellingen
+                        allSettings.forEach(el => {
+                            el.style.display = 'none';
+                            console.log('Hiding: ' + el.className);
+                        });
+
+                        // Toon de instellingen voor de geselecteerde provider
+                        const selectedProvider = providerSelect.value;
+                        if (selectedProvider) {
+                            const selectedSettings = document.querySelector('.' + selectedProvider + '-settings');
+                            if (selectedSettings) {
+                                console.log('Showing: ' + selectedSettings.className);
+                                selectedSettings.style.display = 'block';
+                            } else {
+                                console.error('Settings for provider ' + selectedProvider + ' not found');
+                            }
+                        }
+                    }
+
+                    // Voer de update direct uit
+                    updateVisibleSettings();
+
+                    // Update wanneer de selectie verandert
+                    providerSelect.addEventListener('change', updateVisibleSettings);
+
+                    // Voeg een knop toe om de instellingen handmatig te vernieuwen
+                    const refreshButton = document.createElement('button');
+                    refreshButton.type = 'button';
+                    refreshButton.className = 'btn btn-sm btn-secondary mt-2';
+                    refreshButton.textContent = 'Vernieuw velden';
+                    refreshButton.onclick = updateVisibleSettings;
+
+                    // Voeg de knop toe na het selectieveld
+                    providerSelect.parentNode.appendChild(refreshButton);
+                });
+            </script>
+            """),
+
             Submit(name="submit", value="Update"),
         )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        provider = cleaned_data.get('email_provider')
+
+        # Validate that the required fields for the selected provider are filled
+        if provider == 'smtp':
+            if not cleaned_data.get('email_host'):
+                self.add_error('email_host', _('SMTP Host is required when using SMTP'))
+            if not cleaned_data.get('email_port'):
+                self.add_error('email_port', _('SMTP Port is required when using SMTP'))
+        elif provider == 'mailgun':
+            if not cleaned_data.get('mailgun_api_key'):
+                self.add_error('mailgun_api_key', _('API Key is required when using Mailgun'))
+            if not cleaned_data.get('mailgun_domain'):
+                self.add_error('mailgun_domain', _('Domain is required when using Mailgun'))
+        elif provider == 'mailjet':
+            if not cleaned_data.get('mailjet_api_key'):
+                self.add_error('mailjet_api_key', _('API Key is required when using Mailjet'))
+            if not cleaned_data.get('mailjet_secret_key'):
+                self.add_error('mailjet_secret_key', _('Secret Key is required when using Mailjet'))
+        elif provider == 'mandrill':
+            if not cleaned_data.get('mandrill_api_key'):
+                self.add_error('mandrill_api_key', _('API Key is required when using Mandrill'))
+        elif provider == 'postmark':
+            if not cleaned_data.get('postmark_server_token'):
+                self.add_error('postmark_server_token', _('Server Token is required when using Postmark'))
+        elif provider == 'sendgrid':
+            if not cleaned_data.get('sendgrid_api_key'):
+                self.add_error('sendgrid_api_key', _('API Key is required when using SendGrid'))
+        elif provider == 'sendinblue':
+            if not cleaned_data.get('sendinblue_api_key'):
+                self.add_error('sendinblue_api_key', _('API Key is required when using Sendinblue'))
+        elif provider == 'mailersend':
+            if not cleaned_data.get('mailersend_api_key'):
+                self.add_error('mailersend_api_key', _('API Key is required when using MailerSend'))
+
+        # Validate that both TLS and SSL are not enabled at the same time for SMTP
+        if provider == 'smtp' and cleaned_data.get('email_use_tls') and cleaned_data.get('email_use_ssl'):
+            self.add_error('email_use_tls', _('You cannot enable both TLS and SSL at the same time'))
+            self.add_error('email_use_ssl', _('You cannot enable both TLS and SSL at the same time'))
+
+        return cleaned_data
 
     class Meta:
         model = Organization
         fields = [
+            # Email notifications
             "new_hire_email",
             "new_hire_email_reminders",
             "new_hire_email_overdue_reminders",
             "email_admin_task_notifications",
             "email_admin_task_comments",
             "email_admin_updates",
+
+            # Email customization
             "email_from_name",
             "email_signature",
             "custom_email_template",
+
+            # Email provider configuration
+            "email_provider",
+            "default_from_email",
+
+            # SMTP settings
+            "email_host",
+            "email_port",
+            "email_host_user",
+            "email_host_password",
+            "email_use_tls",
+            "email_use_ssl",
+
+            # Provider-specific settings
+            "mailgun_api_key",
+            "mailgun_domain",
+            "mailjet_api_key",
+            "mailjet_secret_key",
+            "mandrill_api_key",
+            "postmark_server_token",
+            "sendgrid_api_key",
+            "sendinblue_api_key",
+            "mailersend_api_key",
         ]
         widgets = {
             "email_signature": forms.Textarea(attrs={"rows": 4}),
             "custom_email_template": forms.Textarea(attrs={"rows": 10}),
+            "email_host_password": forms.PasswordInput(render_value=True),
+            "mailgun_api_key": forms.PasswordInput(render_value=True),
+            "mailjet_api_key": forms.PasswordInput(render_value=True),
+            "mailjet_secret_key": forms.PasswordInput(render_value=True),
+            "mandrill_api_key": forms.PasswordInput(render_value=True),
+            "postmark_server_token": forms.PasswordInput(render_value=True),
+            "sendgrid_api_key": forms.PasswordInput(render_value=True),
+            "sendinblue_api_key": forms.PasswordInput(render_value=True),
+            "mailersend_api_key": forms.PasswordInput(render_value=True),
         }
         help_texts = {
+            # Email customization help texts
             "email_from_name": _("If left empty, the default from email address from your environment settings will be used."),
             "email_signature": _("This signature will be added to all outgoing emails. HTML is supported."),
             "custom_email_template": _(
                 "Leave blank to use the default template. "
                 "See documentation if you want to use your own."
             ),
+
+            # Email provider help texts
+            "email_provider": _("Select which email provider to use for sending emails"),
+            "default_from_email": _("The email address that will be used as the sender (e.g., 'onboarding@yourcompany.com' or 'Your Company <onboarding@yourcompany.com>')"),
+
+            # SMTP help texts
+            "email_host": _("SMTP server hostname (e.g., 'smtp.gmail.com')"),
+            "email_port": _("SMTP server port (usually 25, 465, or 587)"),
+            "email_host_user": _("SMTP server username"),
+            "email_host_password": _("SMTP server password"),
+            "email_use_tls": _("Use TLS encryption for SMTP connection"),
+            "email_use_ssl": _("Use SSL encryption for SMTP connection (don't enable both TLS and SSL)"),
         }
 
 
