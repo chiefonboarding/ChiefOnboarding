@@ -42,6 +42,16 @@ class Sequence(models.Model):
     name = models.CharField(verbose_name=_("Name"), max_length=240)
     auto_add = models.BooleanField(default=False)
     category = models.IntegerField(choices=Category.choices)
+    manager_sequence = models.BooleanField(
+        default=False,
+        verbose_name=_("Manager sequence"),
+        help_text=_("If enabled, this sequence will be automatically assigned to new managers")
+    )
+    active = models.BooleanField(
+        default=True,
+        verbose_name=_("Active"),
+        help_text=_("If disabled, this sequence will not be automatically assigned")
+    )
 
     objects = models.Manager()
     onboarding = OnboardingSequenceManager()

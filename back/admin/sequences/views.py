@@ -94,7 +94,7 @@ class SequenceView(LoginRequiredMixin, ManagerPermMixin, DetailView):
 
 class SequenceNameUpdateView(LoginRequiredMixin, ManagerPermMixin, BaseUpdateView):
     """
-    Updates the name of the sequence when the user ends typing.
+    Updates the name, manager_sequence, and active fields of the sequence.
 
     HTMX view.
     """
@@ -103,6 +103,8 @@ class SequenceNameUpdateView(LoginRequiredMixin, ManagerPermMixin, BaseUpdateVie
     model = Sequence
     fields = [
         "name",
+        "manager_sequence",
+        "active",
     ]
 
     def form_valid(self, form):

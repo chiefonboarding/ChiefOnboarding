@@ -35,6 +35,19 @@ class LoginRedirectView(LoginWithMFARequiredMixin, View):
             check_admin_first_login(request.user)
 
         if request.user.is_admin_or_manager:
+            # Check if this is a new manager that needs onboarding
+            if request.user.role == get_user_model().Role.MANAGER:
+                # Check if the manager has any sequences assigned
+                if not request.user.sequences.exists():
+                    # Assign manager onboarding sequences
+                    from admin.sequences.models import Sequence
+                    manager_sequences = Sequence.objects.filter(
+                        manager_sequence=True,
+                        active=True
+                    )
+                    for sequence in manager_sequences:
+                        request.user.add_sequence(sequence)
+
             return redirect("admin:new_hires")
         elif request.user.role == get_user_model().Role.NEWHIRE:
             return redirect("new_hire:todos")
