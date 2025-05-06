@@ -88,15 +88,15 @@ def generate_ai_content(request):
                     for paragraph in paragraphs:
                         # Check if this is a greeting or signature line (typically shorter)
                         if len(paragraph.strip()) < 50 and ('Hello' in paragraph or 'Hi' in paragraph or 'Dear' in paragraph or 'Regards' in paragraph or 'Sincerely' in paragraph):
-                            formatted_paragraphs.append(f'<p>{paragraph.replace("\n", "<br>")}</p>')
+                            formatted_paragraphs.append(f'<p>{paragraph.replace(chr(10), "<br>")}</p>')
                         else:
                             # Regular paragraph
-                            formatted_paragraphs.append(f'<p>{paragraph.replace("\n", "<br>")}</p>')
+                            formatted_paragraphs.append(f'<p>{paragraph.replace(chr(10), "<br>")}</p>')
 
                     formatted_content = ''.join(formatted_paragraphs)
                 else:
                     # Standard formatting for other content types
-                    formatted_content = '<p>' + content.replace('\n\n', '</p><p>').replace('\n', '<br>') + '</p>'
+                    formatted_content = '<p>' + content.replace('\n\n', '</p><p>').replace(chr(10), '<br>') + '</p>'
 
                 return JsonResponse({'content': formatted_content})
             else:
