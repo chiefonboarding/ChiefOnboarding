@@ -24,6 +24,7 @@ croniter = "*" # Needed for django-q scheduled tasks
 slack-bolt = "*"
 django-q2 = "*" # Background tasks
 psycopg = {extras = ["binary"], version = "*"}
+pdfplumber = "*" # PDF text extraction
 
 [dev-packages]
 coverage = "*"
