@@ -11,6 +11,7 @@ WORKDIR /app
 COPY ./back/ .
 COPY ./back/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 RUN pipenv install --system
+RUN pip install pdfplumber
 RUN django-admin compilemessages
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
