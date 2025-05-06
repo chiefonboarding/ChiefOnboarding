@@ -1,12 +1,32 @@
 {% extends 'settings_base.html' %}
 {% load crispy_forms_tags %}
 {% load i18n %}
+{% load static %}
 
 {% block actions %}
   {% if 'email' in request.path and 'test' not in request.path %}
     <a href="{% url 'settings:email-test' %}" class="btn btn-primary">
       {% translate "Test Email Configuration" %}
     </a>
+  {% endif %}
+
+  {% if actions %}
+    {% for action in actions %}
+      <a href="{{ action.url }}" class="btn btn-primary">
+        {% if action.icon %}
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-{{ action.icon }}" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+          {% if action.icon == 'arrow-right-arrow-left' %}
+          <path d="M21 7l-18 0"></path>
+          <path d="M6 10l-3 -3l3 -3"></path>
+          <path d="M3 17l18 0"></path>
+          <path d="M18 14l3 3l-3 3"></path>
+          {% endif %}
+        </svg>
+        {% endif %}
+        {{ action.text }}
+      </a>
+    {% endfor %}
   {% endif %}
 {% endblock %}
 
@@ -17,6 +37,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/logo_toggle.js' %}"></script>
 <script>
   // disable two options when not "make new user automatically"
   $("#id_auto_create_user").on('change', function() {
