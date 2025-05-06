@@ -56,7 +56,16 @@ class OrganizationGeneralForm(forms.ModelForm):
                     css_class="col-6",
                 ),
                 Div(
-                    UploadField("logo", extra_context={"file": self.instance.logo}),
+                    HTML("<h3 class='card-title mt-3'>" + _("Logo") + "</h3>"),
+                    HTML("<div class='mb-3'><div class='form-check form-check-inline'><input class='form-check-input' type='radio' name='logo_type' id='logo_type_file' value='file' " + ("checked" if not self.instance.logo_url else "") + "><label class='form-check-label' for='logo_type_file'>" + _("Upload file") + "</label></div><div class='form-check form-check-inline'><input class='form-check-input' type='radio' name='logo_type' id='logo_type_url' value='url' " + ("checked" if self.instance.logo_url else "") + "><label class='form-check-label' for='logo_type_url'>" + _("Use URL") + "</label></div></div>"),
+                    Div(
+                        UploadField("logo", extra_context={"file": self.instance.logo}),
+                        css_class="logo-file-upload " + ("d-none" if self.instance.logo_url else ""),
+                    ),
+                    Div(
+                        Field("logo_url"),
+                        css_class="logo-url-input " + ("d-none" if not self.instance.logo_url else ""),
+                    ),
                     Field("base_color"),
                     Field("accent_color"),
                     Field("custom_email_template"),
@@ -94,6 +103,7 @@ class OrganizationGeneralForm(forms.ModelForm):
             "base_color",
             "accent_color",
             "logo",
+            "logo_url",
             "google_login",
             "oidc_login",
             "new_hire_email",
@@ -266,6 +276,118 @@ class AISettingsForm(forms.ModelForm):
             "ai_api_key": _("API key for AI content generation (e.g., OpenAI API key)"),
             "ai_default_context": _("Default context for AI content generation (e.g., 'You are writing content for an employee onboarding platform')"),
             "ai_default_tone": _("Default tone for AI content generation (e.g., 'professional', 'friendly', 'casual')"),
+        }
+
+
+class StorageSettingsForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+
+        # Create the base layout
+        self.helper.layout = Layout(
+            HTML("<h3 class='card-title'>" + _("Storage Configuration") + "</h3>"),
+            Field("storage_provider"),
+
+            # S3 Settings
+            Div(
+                HTML("<h4 class='card-subtitle mt-3'>" + _("S3 Settings") + "</h4>"),
+                Field("s3_endpoint_url"),
+                Field("s3_access_key"),
+                Field("s3_secret_key"),
+                Field("s3_bucket_name"),
+                Field("s3_region"),
+                css_class="storage-provider-settings s3-settings",
+            ),
+
+            HTML("""
+            <script>
+                // Wait until the document is fully loaded
+                window.addEventListener('load', function() {
+                    // Find the storage provider select field
+                    const providerSelect = document.getElementById('id_storage_provider');
+                    if (!providerSelect) {
+                        console.error('Storage provider select field not found');
+                        return;
+                    }
+
+                    // Find all provider-specific settings
+                    const allSettings = document.querySelectorAll('.storage-provider-settings');
+                    if (allSettings.length === 0) {
+                        console.error('Provider settings not found');
+                        return;
+                    }
+
+                    console.log('Found ' + allSettings.length + ' provider settings sections');
+
+                    function updateVisibleSettings() {
+                        console.log('Updating visible settings for provider: ' + providerSelect.value);
+
+                        // Hide all settings first
+                        allSettings.forEach(el => {
+                            el.style.display = 'none';
+                            console.log('Hiding: ' + el.className);
+                        });
+
+                        // Show settings for the selected provider
+                        const selectedProvider = providerSelect.value;
+                        if (selectedProvider) {
+                            const selectedSettings = document.querySelector('.' + selectedProvider + '-settings');
+                            if (selectedSettings) {
+                                console.log('Showing: ' + selectedSettings.className);
+                                selectedSettings.style.display = 'block';
+                            } else {
+                                console.error('Settings for provider ' + selectedProvider + ' not found');
+                            }
+                        }
+                    }
+
+                    // Run the update immediately
+                    updateVisibleSettings();
+
+                    // Update when the selection changes
+                    providerSelect.addEventListener('change', updateVisibleSettings);
+                });
+            </script>
+            """),
+
+            Submit(name="submit", value="Update"),
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        provider = cleaned_data.get('storage_provider')
+
+        # Validate that the required fields for S3 are filled if S3 is selected
+        if provider == 's3':
+            if not cleaned_data.get('s3_endpoint_url'):
+                self.add_error('s3_endpoint_url', _('S3 Endpoint URL is required when using S3'))
+            if not cleaned_data.get('s3_access_key'):
+                self.add_error('s3_access_key', _('S3 Access Key is required when using S3'))
+            if not cleaned_data.get('s3_secret_key'):
+                self.add_error('s3_secret_key', _('S3 Secret Key is required when using S3'))
+            if not cleaned_data.get('s3_bucket_name'):
+                self.add_error('s3_bucket_name', _('S3 Bucket Name is required when using S3'))
+            if not cleaned_data.get('s3_region'):
+                self.add_error('s3_region', _('S3 Region is required when using S3'))
+
+        return cleaned_data
+
+    class Meta:
+        model = Organization
+        fields = [
+            # Storage provider
+            "storage_provider",
+
+            # S3 settings
+            "s3_endpoint_url",
+            "s3_access_key",
+            "s3_secret_key",
+            "s3_bucket_name",
+            "s3_region",
+        ]
+        widgets = {
+            "s3_secret_key": forms.PasswordInput(render_value=True),
         }
 
 

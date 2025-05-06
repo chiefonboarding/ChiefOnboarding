@@ -50,6 +50,13 @@ class Organization(models.Model):
     logo = models.ForeignKey(
         File, verbose_name=_("Logo"), on_delete=models.CASCADE, null=True
     )
+    logo_url = models.URLField(
+        verbose_name=_("Logo URL"),
+        max_length=500,
+        blank=True,
+        default="",
+        help_text=_("URL to an external logo image. This will be used instead of an uploaded logo if provided.")
+    )
 
     # login options
     credentials_login = models.BooleanField(
@@ -205,6 +212,55 @@ class Organization(models.Model):
         max_length=255,
         default="",
         blank=True,
+    )
+
+    # Storage settings
+    storage_provider = models.CharField(
+        verbose_name=_("Storage Provider"),
+        max_length=20,
+        choices=[
+            ('local', _('Local Storage')),
+            ('s3', _('Amazon S3 or Compatible')),
+        ],
+        default='local',
+        help_text=_("Select which storage provider to use for file uploads"),
+    )
+
+    # S3 settings
+    s3_endpoint_url = models.CharField(
+        verbose_name=_("S3 Endpoint URL"),
+        max_length=255,
+        default="https://s3.amazonaws.com",
+        blank=True,
+        help_text=_("The endpoint URL for S3 or S3-compatible storage (e.g., 'https://s3.amazonaws.com')"),
+    )
+    s3_access_key = models.CharField(
+        verbose_name=_("S3 Access Key"),
+        max_length=255,
+        default="",
+        blank=True,
+        help_text=_("Access key for S3 or S3-compatible storage"),
+    )
+    s3_secret_key = models.CharField(
+        verbose_name=_("S3 Secret Key"),
+        max_length=255,
+        default="",
+        blank=True,
+        help_text=_("Secret key for S3 or S3-compatible storage"),
+    )
+    s3_bucket_name = models.CharField(
+        verbose_name=_("S3 Bucket Name"),
+        max_length=255,
+        default="",
+        blank=True,
+        help_text=_("Bucket name for S3 or S3-compatible storage"),
+    )
+    s3_region = models.CharField(
+        verbose_name=_("S3 Region"),
+        max_length=255,
+        default="us-east-1",
+        blank=True,
+        help_text=_("Region for S3 or S3-compatible storage (e.g., 'us-east-1')"),
     )
 
     # Email provider settings
@@ -381,6 +437,11 @@ class Organization(models.Model):
 
     @cached_property
     def get_logo_url(self):
+        # First check if a logo URL is set
+        if self.logo_url:
+            return self.logo_url
+
+        # If no URL is set, check for an uploaded logo file
         if self.logo is None:
             return ""
 
