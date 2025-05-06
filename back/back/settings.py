@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     "admin.people",
     "admin.settings",
     "admin.hardware",
+    "admin.admin_onboarding",
     # new hires
     "new_hire",
     # slack
@@ -157,6 +158,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "organization.context_processor.org_include",
+                "admin.admin_onboarding.context_processors.admin_onboarding_processor",
             ],
         },
     },

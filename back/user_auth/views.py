@@ -18,6 +18,7 @@ from django.utils.translation import gettext as _
 from django.views.generic import View
 from django.views.generic.edit import FormView
 
+from admin.admin_onboarding.utils import check_admin_first_login
 from admin.integrations.models import Integration
 from admin.settings.forms import OTPVerificationForm
 from organization.models import Organization
@@ -28,6 +29,11 @@ logger = logging.getLogger(__name__)
 
 class LoginRedirectView(LoginWithMFARequiredMixin, View):
     def get(self, request, *args, **kwargs):
+        # Check if this is an admin's first login
+        if request.user.is_admin:
+            # If this is the admin's first login, set up onboarding
+            check_admin_first_login(request.user)
+
         if request.user.is_admin_or_manager:
             return redirect("admin:new_hires")
         elif request.user.role == get_user_model().Role.NEWHIRE:

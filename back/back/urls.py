@@ -3,6 +3,7 @@ from django.urls import include, path
 from django.views.generic.base import TemplateView
 
 import user_auth
+from admin.admin_onboarding import urls as admin_onboarding_urls
 from admin.admin_tasks import urls as admin_tasks_urls
 from admin.appointments import urls as appointment_urls
 from admin.badges import urls as badge_urls
@@ -40,6 +41,7 @@ urlpatterns = [
     path("admin/settings/", include(settings_urls)),
     path("admin/tasks/", include(admin_tasks_urls)),
     path("admin/templates/", include(template_urls)),
+    path("admin/onboarding/", include(admin_onboarding_urls)),
     path("admin/templates/todo/", include(to_do_urls)),
     path("admin/templates/hardware/", include(hardware_urls)),
     path("admin/templates/introductions/", include(intro_urls)),
