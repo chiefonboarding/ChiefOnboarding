@@ -60,10 +60,23 @@ class MailerSendEmailBackend:
         for to_email in message.to:
             recipients.append({"email": to_email})
 
+        # Process the from_email field
+        from_email = message.from_email
+        from_name = None
+
+        # Check if from_email contains a name part
+        if '<' in from_email and '>' in from_email:
+            # Format is "Name <email@example.com>"
+            from_name = from_email.split('<')[0].strip()
+            from_email = from_email.split('<')[1].split('>')[0].strip()
+
+        # Prepare the from data
+        from_data = {"email": from_email}
+        if from_name:
+            from_data["name"] = from_name
+
         data = {
-            "from": {
-                "email": message.from_email,
-            },
+            "from": from_data,
             "to": recipients,
             "subject": message.subject,
         }
