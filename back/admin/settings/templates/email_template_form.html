@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 {% load i18n %}
 
-{% block actions %}
+{% block settings_actions %}
 <div class="btn-list">
   <a href="{% url 'settings:email-templates' %}" class="btn btn-outline-primary d-none d-sm-inline-block">
     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -56,15 +56,6 @@
 {% block extra_js %}
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Remove duplicate "Back to templates" button if it exists
-    const backButtons = document.querySelectorAll('a[href="{% url "settings:email-templates" %}"]');
-    if (backButtons.length > 1) {
-      // Keep only the first button
-      for (let i = 1; i < backButtons.length; i++) {
-        backButtons[i].parentNode.removeChild(backButtons[i]);
-      }
-    }
-
     // Initialize the WYSIWYG editor
     initWYSIWYGEditor();
 
