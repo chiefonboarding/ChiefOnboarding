@@ -227,7 +227,7 @@ REST_FRAMEWORK = {
 
 
 # API
-API_ACCESS = env.bool("API_ACCESS", default=DEBUG or RUNNING_TESTS)
+API_ACCESS = env.bool("API_ACCESS", default=True)  # Always enable API access
 if API_ACCESS:
     INSTALLED_APPS += ["rest_framework.authtoken", "api"]
 
