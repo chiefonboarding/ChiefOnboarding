@@ -9,6 +9,10 @@ urlpatterns = [
     path("slack/", views.SlackSettingsUpdateView.as_view(), name="slack"),
     path("email/", views.EmailSettingsUpdateView.as_view(), name="email"),
     path("email/test/", views.TestEmailView.as_view(), name="email-test"),
+    path("storage/", views.StorageSettingsUpdateView.as_view(), name="storage"),
+    path("storage/migrate/", views.StorageMigrationView.as_view(), name="storage-migrate"),
+    path("storage/migrate/local-to-s3/", views.StorageMigrateLocalToS3View.as_view(), name="storage-migrate-local-to-s3"),
+    path("storage/migrate/s3-to-local/", views.StorageMigrateS3ToLocalView.as_view(), name="storage-migrate-s3-to-local"),
     path("ai-settings/", views.AISettingsUpdateView.as_view(), name="ai-settings"),
     path(
         "personal/language/",
