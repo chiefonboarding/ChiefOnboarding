@@ -298,24 +298,40 @@ class ColleagueTogglePortalAccessView(LoginRequiredMixin, ManagerPermMixin, View
 
     def post(self, request, pk, *args, **kwargs):
         context = {}
-        user = get_object_or_404(
-            get_user_model(), pk=pk, role=get_user_model().Role.OTHER
-        )
-        context["colleague"] = user
-        context["url_name"] = "people:toggle-portal-access"
+        try:
+            # Eerst proberen we de gebruiker op te halen met de rol OTHER
+            user = get_object_or_404(
+                get_user_model(), pk=pk, role=get_user_model().Role.OTHER
+            )
 
-        user.is_active = not user.is_active
-        user.save()
+            context["colleague"] = user
+            context["url_name"] = "people:toggle-portal-access"
 
-        if user.is_active:
-            button_name = _("Revoke access")
-            email_new_admin_cred(user)
-        else:
-            button_name = _("Give access")
+            user.is_active = not user.is_active
+            user.save()
 
-        context["button_name"] = button_name
-        context["exists"] = user.is_active
-        return render(request, self.template_name, context)
+            if user.is_active:
+                button_name = _("Revoke access")
+                email_new_admin_cred(user)
+            else:
+                button_name = _("Give access")
+
+            context["button_name"] = button_name
+            context["exists"] = user.is_active
+            return render(request, self.template_name, context)
+
+        except Http404:
+            # Als de gebruiker niet de rol OTHER heeft, sturen we een duidelijke foutmelding
+            user = get_object_or_404(get_user_model(), pk=pk)
+
+            # Bepaal de rol van de gebruiker
+            role_name = user.get_role_display()
+
+            # Stuur een foutmelding terug
+            return HttpResponse(
+                f"<div class='alert alert-danger'>Portal access can only be toggled for users with the 'Other' role. This user has the '{role_name}' role.</div>",
+                status=400
+            )
 
 
 class AddOffboardingSequenceView(
