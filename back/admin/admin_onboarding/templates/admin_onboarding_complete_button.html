@@ -1,0 +1,7 @@
+{% load i18n %}
+<form method="post" action="{% url 'admin_onboarding:complete' %}" class="d-inline">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-success">
+    {% translate "Mark Admin Onboarding as Completed" %}
+  </button>
+</form>

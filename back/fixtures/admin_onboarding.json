@@ -1,0 +1,378 @@
+[
+  {
+    "model": "sequences.sequence",
+    "pk": 100,
+    "fields": {
+      "name": "Admin Onboarding",
+      "auto_add": false,
+      "category": 0
+    }
+  },
+  {
+    "model": "resources.resource",
+    "pk": 100,
+    "fields": {
+      "name": "Welkom bij ChiefOnboarding",
+      "tags": "[\"admin\", \"onboarding\"]",
+      "created": "2023-01-01T00:00:00.000Z",
+      "updated": "2023-01-01T00:00:00.000Z",
+      "template": true,
+      "category": null,
+      "course": false,
+      "on_day": 1,
+      "remove_on_complete": false
+    }
+  },
+  {
+    "model": "resources.chapter",
+    "pk": 100,
+    "fields": {
+      "resource": 100,
+      "parent_chapter": null,
+      "name": "Welkom bij ChiefOnboarding",
+      "content": {
+        "time": 0,
+        "blocks": [
+          {
+            "data": {
+              "text": "# Welkom bij ChiefOnboarding!\n\nBedankt voor het kiezen van ChiefOnboarding voor uw onboarding behoeften. Deze gids zal u helpen om snel aan de slag te gaan met het platform en u vertrouwd te maken met de belangrijkste functies."
+            },
+            "type": "paragraph"
+          },
+          {
+            "data": {
+              "text": "## Wat is ChiefOnboarding?\n\nChiefOnboarding is een open-source platform voor het onboarden van nieuwe medewerkers. Het helpt u bij het stroomlijnen van de ervaring van nieuwe medewerkers door middel van gestructureerde sequenties, resources, en taken."
+            },
+            "type": "paragraph"
+          },
+          {
+            "data": {
+              "text": "## Belangrijkste functies\n\n- **Sequenties**: Tijdlijnen die de onboarding-reis van een nieuwe medewerker in kaart brengen\n- **Templates**: Herbruikbare items zoals taken, resources, en introducties\n- **Integraties**: Verbind met andere tools en services\n- **Meertalige ondersteuning**: Ondersteunt meerdere talen voor een wereldwijde werkplek"
+            },
+            "type": "paragraph"
+          }
+        ]
+      },
+      "type": 0,
+      "order": 0
+    }
+  },
+  {
+    "model": "resources.chapter",
+    "pk": 101,
+    "fields": {
+      "resource": 100,
+      "parent_chapter": null,
+      "name": "Dashboard Navigatie",
+      "content": {
+        "time": 0,
+        "blocks": [
+          {
+            "data": {
+              "text": "# Dashboard Navigatie\n\nHet ChiefOnboarding dashboard is ontworpen om u eenvoudig toegang te geven tot alle functies die u nodig heeft. Hier is een overzicht van de belangrijkste navigatie-elementen:"
+            },
+            "type": "paragraph"
+          },
+          {
+            "data": {
+              "text": "## Hoofdmenu\n\n- **Mensen**: Beheer nieuwe medewerkers, collega's en administrators\n- **Taken**: Bekijk en beheer administratieve taken\n- **Templates**: Maak en beheer herbruikbare onboarding-items\n- **Sequenties**: Bouw onboarding-tijdlijnen voor nieuwe medewerkers\n- **Instellingen**: Configureer uw organisatie en persoonlijke voorkeuren"
+            },
+            "type": "paragraph"
+          },
+          {
+            "data": {
+              "text": "Neem de tijd om door elk van deze secties te navigeren om vertrouwd te raken met de interface."
+            },
+            "type": "paragraph"
+          }
+        ]
+      },
+      "type": 0,
+      "order": 1
+    }
+  },
+  {
+    "model": "resources.chapter",
+    "pk": 102,
+    "fields": {
+      "resource": 100,
+      "parent_chapter": null,
+      "name": "Kernconcepten",
+      "content": {
+        "time": 0,
+        "blocks": [
+          {
+            "data": {
+              "text": "# Kernconcepten\n\nOm ChiefOnboarding effectief te gebruiken, is het belangrijk om de kernconcepten te begrijpen:"
+            },
+            "type": "paragraph"
+          },
+          {
+            "data": {
+              "text": "## Sequenties\n\nSequenties zijn tijdlijnen die bepalen wanneer en welke items aan nieuwe medewerkers worden toegewezen. Ze kunnen worden geactiveerd op basis van tijd (voor of na de startdatum) of na het voltooien van een taak."
+            },
+            "type": "paragraph"
+          },
+          {
+            "data": {
+              "text": "## Templates\n\nTemplates zijn herbruikbare items die u kunt toevoegen aan sequenties, waaronder:\n\n- **Taken**: Acties die nieuwe medewerkers moeten voltooien\n- **Resources**: Kennis en informatie voor nieuwe medewerkers\n- **Introducties**: Stelt nieuwe medewerkers voor aan teamleden\n- **Badges**: Beloningen voor het voltooien van mijlpalen"
+            },
+            "type": "paragraph"
+          },
+          {
+            "data": {
+              "text": "## Condities\n\nCondities bepalen wanneer items worden toegewezen aan nieuwe medewerkers:\n\n- **Voor start**: Items worden toegewezen vóór de startdatum\n- **Na start**: Items worden toegewezen na de startdatum\n- **Na voltooien taak**: Items worden toegewezen nadat een specifieke taak is voltooid"
+            },
+            "type": "paragraph"
+          }
+        ]
+      },
+      "type": 0,
+      "order": 2
+    }
+  },
+  {
+    "model": "to_do.todo",
+    "pk": 100,
+    "fields": {
+      "name": "Configureer uw organisatie-instellingen",
+      "tags": "[\"admin\", \"setup\"]",
+      "created": "2023-01-01T00:00:00.000Z",
+      "updated": "2023-01-01T00:00:00.000Z",
+      "template": true,
+      "content": {
+        "time": 0,
+        "blocks": [
+          {
+            "data": {
+              "text": "# Configureer uw organisatie-instellingen\n\nLaten we beginnen met het configureren van uw organisatie-instellingen. Dit helpt bij het personaliseren van het platform voor uw specifieke behoeften."
+            },
+            "type": "paragraph"
+          },
+          {
+            "data": {
+              "text": "## Stappen:\n\n1. Ga naar **Instellingen** in het hoofdmenu\n2. Klik op **Algemeen**\n3. Werk de volgende instellingen bij:\n   - Organisatienaam\n   - Logo (indien gewenst)\n   - Kleuren (indien gewenst)\n   - Taal- en tijdzone-voorkeuren\n4. Klik op **Bijwerken** om uw wijzigingen op te slaan"
+            },
+            "type": "paragraph"
+          },
+          {
+            "data": {
+              "text": "Dit zorgt ervoor dat uw ChiefOnboarding-omgeving is aangepast aan uw organisatie."
+            },
+            "type": "paragraph"
+          }
+        ]
+      },
+      "due_on_day": 1,
+      "send_back": false,
+      "slack_channel": null
+    }
+  },
+  {
+    "model": "to_do.todo",
+    "pk": 101,
+    "fields": {
+      "name": "Maak uw eerste template",
+      "tags": "[\"admin\", \"setup\"]",
+      "created": "2023-01-01T00:00:00.000Z",
+      "updated": "2023-01-01T00:00:00.000Z",
+      "template": true,
+      "content": {
+        "time": 0,
+        "blocks": [
+          {
+            "data": {
+              "text": "# Maak uw eerste template\n\nTemplates zijn de bouwstenen van uw onboarding-proces. Laten we een eenvoudige taak maken die u later kunt toevoegen aan een sequentie."
+            },
+            "type": "paragraph"
+          },
+          {
+            "data": {
+              "text": "## Stappen:\n\n1. Ga naar **Templates** in het hoofdmenu\n2. Kies **Taken**\n3. Klik op de **Toevoegen** knop\n4. Vul de volgende velden in:\n   - Naam: \"Welkom bij het team\"\n   - Tags: \"welkom\"\n   - Inhoud: Voeg een welkomstbericht toe voor nieuwe medewerkers\n5. Klik op **Opslaan**"
+            },
+            "type": "paragraph"
+          },
+          {
+            "data": {
+              "text": "Gefeliciteerd! U heeft uw eerste template gemaakt. Deze kan nu worden toegevoegd aan een sequentie."
+            },
+            "type": "paragraph"
+          }
+        ]
+      },
+      "due_on_day": 1,
+      "send_back": false,
+      "slack_channel": null
+    }
+  },
+  {
+    "model": "to_do.todo",
+    "pk": 102,
+    "fields": {
+      "name": "Bouw een eenvoudige sequentie",
+      "tags": "[\"admin\", \"setup\"]",
+      "created": "2023-01-01T00:00:00.000Z",
+      "updated": "2023-01-01T00:00:00.000Z",
+      "template": true,
+      "content": {
+        "time": 0,
+        "blocks": [
+          {
+            "data": {
+              "text": "# Bouw een eenvoudige sequentie\n\nNu u een template heeft gemaakt, laten we een sequentie bouwen om deze toe te wijzen aan nieuwe medewerkers."
+            },
+            "type": "paragraph"
+          },
+          {
+            "data": {
+              "text": "## Stappen:\n\n1. Ga naar **Sequenties** in het hoofdmenu\n2. Klik op de **Toevoegen** knop\n3. Geef uw sequentie een naam, bijvoorbeeld \"Basis Onboarding\"\n4. Voeg een conditie toe (bijvoorbeeld \"Na start\")\n5. Voeg de taak \"Welkom bij het team\" toe aan deze conditie\n6. Klik op **Opslaan**"
+            },
+            "type": "paragraph"
+          },
+          {
+            "data": {
+              "text": "U heeft nu een eenvoudige sequentie gemaakt die kan worden toegewezen aan nieuwe medewerkers."
+            },
+            "type": "paragraph"
+          }
+        ]
+      },
+      "due_on_day": 2,
+      "send_back": false,
+      "slack_channel": null
+    }
+  },
+  {
+    "model": "to_do.todo",
+    "pk": 103,
+    "fields": {
+      "name": "Voeg een testmedewerker toe",
+      "tags": "[\"admin\", \"setup\"]",
+      "created": "2023-01-01T00:00:00.000Z",
+      "updated": "2023-01-01T00:00:00.000Z",
+      "template": true,
+      "content": {
+        "time": 0,
+        "blocks": [
+          {
+            "data": {
+              "text": "# Voeg een testmedewerker toe\n\nLaten we een testmedewerker toevoegen om te zien hoe het onboarding-proces werkt."
+            },
+            "type": "paragraph"
+          },
+          {
+            "data": {
+              "text": "## Stappen:\n\n1. Ga naar **Mensen** in het hoofdmenu\n2. Klik op **Nieuwe medewerker toevoegen**\n3. Vul de vereiste velden in:\n   - Voornaam en achternaam\n   - E-mailadres\n   - Startdatum\n4. Selecteer de \"Basis Onboarding\" sequentie die u eerder heeft gemaakt\n5. Klik op **Opslaan**"
+            },
+            "type": "paragraph"
+          },
+          {
+            "data": {
+              "text": "U kunt nu zien hoe de sequentie wordt toegepast op de nieuwe medewerker. Dit is een goede manier om uw onboarding-proces te testen voordat u het gebruikt voor echte nieuwe medewerkers."
+            },
+            "type": "paragraph"
+          }
+        ]
+      },
+      "due_on_day": 3,
+      "send_back": false,
+      "slack_channel": null
+    }
+  },
+  {
+    "model": "sequences.condition",
+    "pk": 100,
+    "fields": {
+      "sequence": 100,
+      "condition_type": 3,
+      "days": 0,
+      "time": "08:00:00",
+      "condition_to_do": [],
+      "to_do": [
+        100
+      ],
+      "badges": [],
+      "resources": [
+        100
+      ],
+      "admin_tasks": [],
+      "external_messages": [],
+      "introductions": [],
+      "preboarding": [],
+      "appointments": [],
+      "integration_configs": []
+    }
+  },
+  {
+    "model": "sequences.condition",
+    "pk": 101,
+    "fields": {
+      "sequence": 100,
+      "condition_type": 1,
+      "days": 0,
+      "time": "08:00:00",
+      "condition_to_do": [
+        100
+      ],
+      "to_do": [
+        101
+      ],
+      "badges": [],
+      "resources": [],
+      "admin_tasks": [],
+      "external_messages": [],
+      "introductions": [],
+      "preboarding": [],
+      "appointments": [],
+      "integration_configs": []
+    }
+  },
+  {
+    "model": "sequences.condition",
+    "pk": 102,
+    "fields": {
+      "sequence": 100,
+      "condition_type": 1,
+      "days": 0,
+      "time": "08:00:00",
+      "condition_to_do": [
+        101
+      ],
+      "to_do": [
+        102
+      ],
+      "badges": [],
+      "resources": [],
+      "admin_tasks": [],
+      "external_messages": [],
+      "introductions": [],
+      "preboarding": [],
+      "appointments": [],
+      "integration_configs": []
+    }
+  },
+  {
+    "model": "sequences.condition",
+    "pk": 103,
+    "fields": {
+      "sequence": 100,
+      "condition_type": 1,
+      "days": 0,
+      "time": "08:00:00",
+      "condition_to_do": [
+        102
+      ],
+      "to_do": [
+        103
+      ],
+      "badges": [],
+      "resources": [],
+      "admin_tasks": [],
+      "external_messages": [],
+      "introductions": [],
+      "preboarding": [],
+      "appointments": [],
+      "integration_configs": []
+    }
+  }
+]
