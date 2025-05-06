@@ -38,9 +38,14 @@ def send_email_notification_to_external_person(admin_task):
 
 
 def send_email_new_assigned_admin(admin_task):
+    org = Organization.object.get()
+
+    # Check if email notifications for admin tasks are enabled
+    if not org.email_admin_task_notifications:
+        return
+
     translation.activate(admin_task.new_hire.language)
     subject = _("A task has been assigned to you!")
-    org = Organization.object.get()
     content = [
         {
             "type": "paragraph",
@@ -76,11 +81,16 @@ def send_email_new_assigned_admin(admin_task):
 
 
 def send_email_new_comment(comment):
+    org = Organization.object.get()
+
+    # Check if email notifications for admin task comments are enabled
+    if not org.email_admin_task_comments:
+        return
+
     translation.activate(comment.admin_task.assigned_to.language)
     subject = _("Someone added something to task: %(task_name)s") % {
         "task_name": comment.admin_task.name
     }
-    org = Organization.object.get()
     content = [
         {
             "type": "paragraph",

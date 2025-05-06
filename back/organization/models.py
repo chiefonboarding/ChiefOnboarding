@@ -176,6 +176,36 @@ class Organization(models.Model):
         help_text=_("Default tone for AI content generation (e.g., 'professional', 'friendly', 'casual')"),
     )
 
+    # Email settings
+    email_admin_task_notifications = models.BooleanField(
+        verbose_name=_("Send email notifications for admin tasks"),
+        help_text=_("Notify administrators when they are assigned tasks or when tasks are updated"),
+        default=True,
+    )
+    email_admin_task_comments = models.BooleanField(
+        verbose_name=_("Send email notifications for admin task comments"),
+        help_text=_("Notify administrators when someone comments on their tasks"),
+        default=True,
+    )
+    email_admin_updates = models.BooleanField(
+        verbose_name=_("Send email notifications for system updates"),
+        help_text=_("Notify administrators about important system updates and changes"),
+        default=True,
+    )
+    email_signature = models.TextField(
+        verbose_name=_("Email signature"),
+        help_text=_("This signature will be added to all outgoing emails"),
+        default="",
+        blank=True,
+    )
+    email_from_name = models.CharField(
+        verbose_name=_("Email 'From' name"),
+        help_text=_("The name that will appear in the 'From' field of emails (e.g., 'Your Company Onboarding')"),
+        max_length=255,
+        default="",
+        blank=True,
+    )
+
     object = ObjectManager()
     objects = models.Manager()
 
@@ -207,6 +237,17 @@ class Organization(models.Model):
         return us_tz.normalize(local.astimezone(us_tz))
 
     def create_email(self, context):
+        # Add email signature to context if it exists
+        if self.email_signature and self.email_signature.strip():
+            if 'content' in context and isinstance(context['content'], list):
+                # Add signature as a new content block
+                context['content'].append({
+                    "type": "paragraph",
+                    "data": {
+                        "text": self.email_signature
+                    }
+                })
+
         if self.custom_email_template == "":
             return render_to_string("email/base.html", context)
         else:

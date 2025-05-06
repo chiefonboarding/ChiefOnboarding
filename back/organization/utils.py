@@ -15,11 +15,27 @@ from organization.models import Notification
 def send_email_with_notification(
     subject, to, notification_type, html_message="", message="", created_for=None
 ):
+    # Get organization to check for custom from_email
+    from organization.models import Organization
+    org = Organization.object.get()
+
+    # Use custom from_email if set, otherwise use default
+    from_email = settings.DEFAULT_FROM_EMAIL
+    if org.email_from_name and org.email_from_name.strip():
+        # Format as "Custom Name <email@domain.com>"
+        if '<' in from_email and '>' in from_email:
+            # Already has format "Name <email>"
+            email_part = from_email.split('<')[1]
+            from_email = f"{org.email_from_name} <{email_part}"
+        else:
+            # Just an email address
+            from_email = f"{org.email_from_name} <{from_email}>"
+
     try:
         send_mail(
             subject,
             message,
-            settings.DEFAULT_FROM_EMAIL,
+            from_email,
             [to],
             html_message=html_message,
             fail_silently=False,

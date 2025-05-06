@@ -30,6 +30,7 @@ from .forms import (
     AdministratorsCreateForm,
     AdministratorsUpdateForm,
     AISettingsForm,
+    EmailSettingsForm,
     OrganizationGeneralForm,
     OTPVerificationForm,
     SlackSettingsForm,
@@ -295,6 +296,24 @@ class AISettingsUpdateView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = _("AI Content Generation")
+        context["subtitle"] = _("settings")
+        return context
+
+
+class EmailSettingsUpdateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+):
+    template_name = "org_general_update.html"
+    form_class = EmailSettingsForm
+    success_url = reverse_lazy("settings:email")
+    success_message = _("Email settings have been updated")
+
+    def get_object(self):
+        return Organization.object.get()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("Email Settings")
         context["subtitle"] = _("settings")
         return context
 

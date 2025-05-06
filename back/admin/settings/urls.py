@@ -6,6 +6,7 @@ app_name = "settings"
 urlpatterns = [
     path("general/", views.OrganizationGeneralUpdateView.as_view(), name="general"),
     path("slack/", views.SlackSettingsUpdateView.as_view(), name="slack"),
+    path("email/", views.EmailSettingsUpdateView.as_view(), name="email"),
     path("ai-settings/", views.AISettingsUpdateView.as_view(), name="ai-settings"),
     path(
         "personal/language/",

@@ -268,6 +268,52 @@ class AISettingsForm(forms.ModelForm):
         }
 
 
+class EmailSettingsForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            HTML("<h3 class='card-title'>" + _("Email Notifications") + "</h3>"),
+            Field("new_hire_email"),
+            Field("new_hire_email_reminders"),
+            Field("new_hire_email_overdue_reminders"),
+            Field("email_admin_task_notifications"),
+            Field("email_admin_task_comments"),
+            Field("email_admin_updates"),
+            HTML("<h3 class='card-title mt-4'>" + _("Email Customization") + "</h3>"),
+            Field("email_from_name"),
+            Field("email_signature"),
+            Field("custom_email_template"),
+            Submit(name="submit", value="Update"),
+        )
+
+    class Meta:
+        model = Organization
+        fields = [
+            "new_hire_email",
+            "new_hire_email_reminders",
+            "new_hire_email_overdue_reminders",
+            "email_admin_task_notifications",
+            "email_admin_task_comments",
+            "email_admin_updates",
+            "email_from_name",
+            "email_signature",
+            "custom_email_template",
+        ]
+        widgets = {
+            "email_signature": forms.Textarea(attrs={"rows": 4}),
+            "custom_email_template": forms.Textarea(attrs={"rows": 10}),
+        }
+        help_texts = {
+            "email_from_name": _("If left empty, the default from email address from your environment settings will be used."),
+            "email_signature": _("This signature will be added to all outgoing emails. HTML is supported."),
+            "custom_email_template": _(
+                "Leave blank to use the default template. "
+                "See documentation if you want to use your own."
+            ),
+        }
+
+
 class OTPVerificationForm(forms.Form):
     otp = forms.CharField(
         label=_("6 digit OTP code"),
