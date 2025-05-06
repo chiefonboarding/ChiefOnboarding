@@ -7,6 +7,7 @@ urlpatterns = [
     path("general/", views.OrganizationGeneralUpdateView.as_view(), name="general"),
     path("slack/", views.SlackSettingsUpdateView.as_view(), name="slack"),
     path("email/", views.EmailSettingsUpdateView.as_view(), name="email"),
+    path("email/test/", views.TestEmailView.as_view(), name="email-test"),
     path("ai-settings/", views.AISettingsUpdateView.as_view(), name="ai-settings"),
     path(
         "personal/language/",

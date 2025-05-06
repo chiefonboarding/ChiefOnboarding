@@ -1,7 +1,6 @@
 {% extends 'admin_base.html' %}
 {% load i18n %}
 
-{% block actions %}{% endblock %}
 {% block content %}
 <div class="row">
   {% if user.is_admin %}
@@ -22,6 +21,15 @@
   {% endif %}
   <div class="col-{% if user.is_admin %}10{% else %}12{% endif %}">
     <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+          <h3 class="card-title">{{ title }}</h3>
+          {% if subtitle %}<div class="text-muted">{{ subtitle }}</div>{% endif %}
+        </div>
+        <div>
+          {% block actions %}{% endblock %}
+        </div>
+      </div>
       {% block settings_content %}
       {% endblock %}
     </div>

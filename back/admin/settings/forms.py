@@ -563,3 +563,36 @@ class OTPVerificationForm(forms.Form):
 
         cache.set(f"{self.user.email}_totp_passed", "true", 30)
         return otp
+
+
+class TestEmailForm(forms.Form):
+    recipient = forms.EmailField(
+        label=_("Recipient Email"),
+        required=True,
+        help_text=_("Email address to send the test email to"),
+    )
+
+    subject = forms.CharField(
+        label=_("Subject"),
+        required=True,
+        initial=_("Test Email from ChiefOnboarding"),
+        help_text=_("Subject of the test email"),
+    )
+
+    message = forms.CharField(
+        label=_("Message"),
+        required=True,
+        widget=forms.Textarea(attrs={"rows": 4}),
+        initial=_("This is a test email from ChiefOnboarding to verify your email configuration."),
+        help_text=_("Content of the test email"),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field("recipient"),
+            Field("subject"),
+            Field("message"),
+            Submit(name="submit", value=_("Send Test Email")),
+        )

@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 from django.utils import translation
@@ -14,6 +14,11 @@ from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
 from django.views.generic.list import ListView
 from twilio.rest import Client
+import json
+import logging
+import smtplib
+import traceback
+from anymail.exceptions import AnymailAPIError, AnymailInvalidAddress, AnymailRecipientsRefused
 
 from admin.integrations.models import Integration
 from organization.models import Notification, Organization, WelcomeMessage
@@ -34,6 +39,7 @@ from .forms import (
     OrganizationGeneralForm,
     OTPVerificationForm,
     SlackSettingsForm,
+    TestEmailForm,
     WelcomeMessagesUpdateForm,
 )
 
@@ -471,3 +477,110 @@ class SlackChannelsCreateView(LoginRequiredMixin, AdminPermMixin, CreateView):
         context["button_text"] = _("Enable")
         context["channels"] = SlackChannel.objects.all()
         return context
+
+
+class TestEmailView(LoginRequiredMixin, AdminPermMixin, FormView):
+    template_name = "email_test.html"
+    form_class = TestEmailForm
+    success_url = reverse_lazy("settings:email")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("Test Email Configuration")
+        context["subtitle"] = _("settings")
+        return context
+
+    def form_valid(self, form):
+        # Get the form data
+        recipient = form.cleaned_data["recipient"]
+        subject = form.cleaned_data["subject"]
+        message = form.cleaned_data["message"]
+
+        # Create a log to capture the email sending process
+        log_entries = []
+        log_entries.append(_("Starting email test..."))
+
+        # Get the organization
+        org = Organization.object.get()
+        log_entries.append(_("Using organization: {}").format(org.name))
+
+        # Get the email configuration
+        try:
+            # Import the email backend configuration
+            from organization.email_config import get_email_backend, get_default_from_email
+
+            # Log the email provider being used
+            log_entries.append(_("Email provider: {}").format(org.email_provider or "Default from environment"))
+
+            # Get the email backend
+            email_backend = get_email_backend()
+            if email_backend:
+                log_entries.append(_("Using custom email backend from database settings"))
+            else:
+                log_entries.append(_("Using default email backend from environment settings: {}").format(settings.EMAIL_BACKEND))
+
+            # Get the from email
+            from_email = get_default_from_email()
+            log_entries.append(_("From email: {}").format(from_email))
+
+            # Create HTML message
+            html_message = org.create_email({
+                "org": org,
+                "content": [{"type": "paragraph", "data": {"text": message}}],
+                "user": self.request.user
+            })
+
+            log_entries.append(_("Attempting to send email to: {}").format(recipient))
+
+            # Try to send the email
+            try:
+                from django.core.mail import send_mail
+
+                send_mail(
+                    subject=subject,
+                    message=message,
+                    from_email=from_email,
+                    recipient_list=[recipient],
+                    html_message=html_message,
+                    fail_silently=False,
+                )
+
+                log_entries.append(_("Email sent successfully!"))
+                messages.success(self.request, _("Test email sent successfully to {}").format(recipient))
+
+            except AnymailRecipientsRefused as e:
+                error_msg = _("Error: Recipients refused - {}").format(str(e))
+                log_entries.append(error_msg)
+                messages.error(self.request, error_msg)
+
+            except AnymailAPIError as e:
+                error_msg = _("Error: API error - {}").format(str(e))
+                log_entries.append(error_msg)
+                messages.error(self.request, error_msg)
+
+            except AnymailInvalidAddress as e:
+                error_msg = _("Error: Invalid address - {}").format(str(e))
+                log_entries.append(error_msg)
+                messages.error(self.request, error_msg)
+
+            except smtplib.SMTPException as e:
+                error_msg = _("Error: SMTP error - {}").format(str(e))
+                log_entries.append(error_msg)
+                messages.error(self.request, error_msg)
+
+            except Exception as e:
+                error_msg = _("Error: Unexpected error - {}").format(str(e))
+                log_entries.append(error_msg)
+                log_entries.append(traceback.format_exc())
+                messages.error(self.request, error_msg)
+
+        except Exception as e:
+            error_msg = _("Error configuring email backend: {}").format(str(e))
+            log_entries.append(error_msg)
+            log_entries.append(traceback.format_exc())
+            messages.error(self.request, error_msg)
+
+        # Store the log in the session for display
+        self.request.session['email_test_log'] = log_entries
+
+        return super().form_valid(form)

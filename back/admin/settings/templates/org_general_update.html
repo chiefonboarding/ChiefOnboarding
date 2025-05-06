@@ -1,7 +1,15 @@
 {% extends 'settings_base.html' %}
 {% load crispy_forms_tags %}
+{% load i18n %}
 
-{% block actions %}{% endblock %}
+{% block actions %}
+  {% if 'email' in request.path and 'test' not in request.path %}
+    <a href="{% url 'settings:email-test' %}" class="btn btn-primary">
+      {% translate "Test Email Configuration" %}
+    </a>
+  {% endif %}
+{% endblock %}
+
 {% block settings_content %}
   <div class="card-body">
     {% crispy form %}

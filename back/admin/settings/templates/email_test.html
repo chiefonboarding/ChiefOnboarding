@@ -1,0 +1,39 @@
+{% extends 'settings_base.html' %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block actions %}{% endblock %}
+{% block settings_content %}
+  <div class="card-body">
+    <p>{% translate "Use this form to test your email configuration. A test email will be sent to the specified address." %}</p>
+    <p>{% translate "The test will show detailed information about the email sending process, including any errors that occur." %}</p>
+    
+    {% crispy form %}
+    
+    {% if request.session.email_test_log %}
+      <div class="mt-4">
+        <h4>{% translate "Email Test Results" %}</h4>
+        <div class="card">
+          <div class="card-body">
+            <pre class="log-output">{% for log_entry in request.session.email_test_log %}{{ log_entry }}
+{% endfor %}</pre>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .log-output {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+</style>
+{% endblock %}
