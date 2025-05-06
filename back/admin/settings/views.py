@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils import translation
 from django.utils.translation import gettext as _
@@ -39,6 +39,7 @@ from .forms import (
     OrganizationGeneralForm,
     OTPVerificationForm,
     SlackSettingsForm,
+    StorageSettingsForm,
     TestEmailForm,
     WelcomeMessagesUpdateForm,
 )
@@ -304,6 +305,260 @@ class AISettingsUpdateView(
         context["title"] = _("AI Content Generation")
         context["subtitle"] = _("settings")
         return context
+
+
+class StorageSettingsUpdateView(
+    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
+):
+    template_name = "org_general_update.html"
+    form_class = StorageSettingsForm
+    success_url = reverse_lazy("settings:storage")
+    success_message = _("Storage settings have been updated")
+
+    def get_object(self):
+        return Organization.object.get()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("Media Storage")
+        context["subtitle"] = _("settings")
+
+        # Add a button to the migration tool
+        context["actions"] = [
+            {
+                "url": reverse_lazy("settings:storage-migrate"),
+                "text": _("Migration Tool"),
+                "icon": "arrow-right-arrow-left",
+            }
+        ]
+
+        return context
+
+    def form_valid(self, form):
+        """
+        When the form is valid, update the S3 settings in the environment.
+        """
+        response = super().form_valid(form)
+
+        # Update S3 settings in the environment
+        org = self.object
+        if org.storage_provider == 's3':
+            # Set S3 environment variables
+            import os
+            os.environ['AWS_S3_ENDPOINT_URL'] = org.s3_endpoint_url
+            os.environ['AWS_ACCESS_KEY_ID'] = org.s3_access_key
+            os.environ['AWS_SECRET_ACCESS_KEY'] = org.s3_secret_key
+            os.environ['AWS_STORAGE_BUCKET_NAME'] = org.s3_bucket_name
+            os.environ['AWS_DEFAULT_REGION'] = org.s3_region
+        else:
+            # Clear S3 environment variables
+            import os
+            os.environ['AWS_STORAGE_BUCKET_NAME'] = ''
+
+        return response
+
+
+class StorageMigrationView(LoginRequiredMixin, AdminPermMixin, TemplateView):
+    template_name = "storage_migration.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("Storage Migration")
+        context["subtitle"] = _("settings")
+
+        # Get migration log from session if available
+        if 'migration_log' in self.request.session:
+            context['migration_log'] = self.request.session['migration_log']
+            # Clear the log after displaying it
+            del self.request.session['migration_log']
+            self.request.session.modified = True
+
+        return context
+
+
+class StorageMigrateLocalToS3View(LoginRequiredMixin, AdminPermMixin, View):
+    def post(self, request):
+        # Initialize log
+        log = [_("Starting migration from local storage to S3...")]
+
+        try:
+            # Get organization settings
+            org = Organization.object.get()
+
+            # Check if S3 is configured
+            if org.storage_provider != 's3' or not org.s3_bucket_name:
+                log.append(_("Error: S3 is not configured. Please configure S3 first."))
+                request.session['migration_log'] = log
+                return redirect('settings:storage-migrate')
+
+            # Import necessary modules
+            import os
+            from django.conf import settings
+            from misc.models import File
+            from misc.s3 import S3
+
+            # Initialize S3 client
+            s3 = S3()
+
+            # Check if S3 is properly configured
+            if not s3.use_s3:
+                log.append(_("Error: S3 client could not be initialized. Check your S3 configuration."))
+                request.session['migration_log'] = log
+                return redirect('settings:storage-migrate')
+
+            # Get all files from the database
+            files = File.objects.all()
+            log.append(_("Found {} files in the database.").format(len(files)))
+
+            # Get the local storage path
+            media_root = getattr(settings, 'MEDIA_ROOT', os.path.join(settings.BASE_DIR, 'media'))
+            local_s3_path = os.path.join(media_root, 'local_s3')
+
+            # Migrate each file
+            migrated_count = 0
+            error_count = 0
+
+            for file in files:
+                try:
+                    # Check if the file exists locally
+                    local_path = os.path.join(local_s3_path, file.file)
+                    if not os.path.exists(local_path):
+                        log.append(_("Warning: File not found locally: {}").format(file.file))
+                        error_count += 1
+                        continue
+
+                    # Upload the file to S3
+                    with open(local_path, 'rb') as f:
+                        s3.client.put_object(
+                            Bucket=org.s3_bucket_name,
+                            Key=file.file,
+                            Body=f.read()
+                        )
+
+                    migrated_count += 1
+
+                    # Log every 10 files
+                    if migrated_count % 10 == 0:
+                        log.append(_("Migrated {} files...").format(migrated_count))
+
+                except Exception as e:
+                    log.append(_("Error migrating file {}: {}").format(file.file, str(e)))
+                    error_count += 1
+
+            # Log the final results
+            log.append(_("Migration completed. Successfully migrated {} files. Errors: {}.").format(
+                migrated_count, error_count
+            ))
+
+        except Exception as e:
+            log.append(_("Error during migration: {}").format(str(e)))
+
+        # Store the log in the session
+        request.session['migration_log'] = log
+        return redirect('settings:storage-migrate')
+
+
+class StorageMigrateS3ToLocalView(LoginRequiredMixin, AdminPermMixin, View):
+    def post(self, request):
+        # Initialize log
+        log = [_("Starting migration from S3 to local storage...")]
+
+        try:
+            # Get organization settings
+            org = Organization.object.get()
+
+            # Import necessary modules
+            import os
+            from django.conf import settings
+            from misc.models import File
+            from misc.s3 import S3
+
+            # Initialize S3 client with environment variables
+            # We need to temporarily set the environment variables to ensure S3 is used
+            old_bucket = os.environ.get('AWS_STORAGE_BUCKET_NAME', '')
+
+            if org.storage_provider == 's3' and org.s3_bucket_name:
+                # Set S3 environment variables
+                os.environ['AWS_S3_ENDPOINT_URL'] = org.s3_endpoint_url
+                os.environ['AWS_ACCESS_KEY_ID'] = org.s3_access_key
+                os.environ['AWS_SECRET_ACCESS_KEY'] = org.s3_secret_key
+                os.environ['AWS_STORAGE_BUCKET_NAME'] = org.s3_bucket_name
+                os.environ['AWS_DEFAULT_REGION'] = org.s3_region
+            else:
+                log.append(_("Error: S3 is not configured. Cannot migrate from S3."))
+                request.session['migration_log'] = log
+                return redirect('settings:storage-migrate')
+
+            # Initialize S3 client
+            s3 = S3()
+
+            # Check if S3 is properly configured
+            if not s3.use_s3:
+                log.append(_("Error: S3 client could not be initialized. Check your S3 configuration."))
+                # Restore environment variable
+                os.environ['AWS_STORAGE_BUCKET_NAME'] = old_bucket
+                request.session['migration_log'] = log
+                return redirect('settings:storage-migrate')
+
+            # Get all files from the database
+            files = File.objects.all()
+            log.append(_("Found {} files in the database.").format(len(files)))
+
+            # Get the local storage path
+            media_root = getattr(settings, 'MEDIA_ROOT', os.path.join(settings.BASE_DIR, 'media'))
+            local_s3_path = os.path.join(media_root, 'local_s3')
+
+            # Ensure the local storage directory exists
+            os.makedirs(local_s3_path, exist_ok=True)
+
+            # Migrate each file
+            migrated_count = 0
+            error_count = 0
+
+            for file in files:
+                try:
+                    # Create the directory structure
+                    file_dir = os.path.dirname(os.path.join(local_s3_path, file.file))
+                    os.makedirs(file_dir, exist_ok=True)
+
+                    # Download the file from S3
+                    local_path = os.path.join(local_s3_path, file.file)
+
+                    try:
+                        s3.client.download_file(
+                            Bucket=org.s3_bucket_name,
+                            Key=file.file,
+                            Filename=local_path
+                        )
+
+                        migrated_count += 1
+
+                        # Log every 10 files
+                        if migrated_count % 10 == 0:
+                            log.append(_("Migrated {} files...").format(migrated_count))
+
+                    except Exception as e:
+                        log.append(_("Error downloading file {}: {}").format(file.file, str(e)))
+                        error_count += 1
+
+                except Exception as e:
+                    log.append(_("Error migrating file {}: {}").format(file.file, str(e)))
+                    error_count += 1
+
+            # Log the final results
+            log.append(_("Migration completed. Successfully migrated {} files. Errors: {}.").format(
+                migrated_count, error_count
+            ))
+
+            # Restore environment variable
+            os.environ['AWS_STORAGE_BUCKET_NAME'] = old_bucket
+
+        except Exception as e:
+            log.append(_("Error during migration: {}").format(str(e)))
+
+        # Store the log in the session
+        request.session['migration_log'] = log
+        return redirect('settings:storage-migrate')
 
 
 class EmailSettingsUpdateView(

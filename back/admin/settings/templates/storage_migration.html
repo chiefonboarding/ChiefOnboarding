@@ -1,0 +1,56 @@
+{% extends 'settings_base.html' %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block settings_content %}
+<div class="card-body">
+  <div class="alert alert-info">
+    <h4 class="alert-title">{% translate "Storage Migration Tool" %}</h4>
+    <p>{% translate "This tool helps you migrate files between storage providers. Use it when you change your storage provider from local to S3 or vice versa." %}</p>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">{% translate "Migrate from Local to S3" %}</h3>
+        </div>
+        <div class="card-body">
+          <p>{% translate "This will copy all files from your local storage to S3. Make sure you have configured S3 correctly before proceeding." %}</p>
+          <form method="post" action="{% url 'settings:storage-migrate-local-to-s3' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">{% translate "Start Migration" %}</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">{% translate "Migrate from S3 to Local" %}</h3>
+        </div>
+        <div class="card-body">
+          <p>{% translate "This will download all files from S3 to your local storage. This might take a while depending on the number and size of files." %}</p>
+          <form method="post" action="{% url 'settings:storage-migrate-s3-to-local' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">{% translate "Start Migration" %}</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if migration_log %}
+  <div class="mt-4">
+    <h4>{% translate "Migration Log" %}</h4>
+    <div class="card">
+      <div class="card-body">
+        <pre class="log-output">{% for log_entry in migration_log %}{{ log_entry }}
+{% endfor %}</pre>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
