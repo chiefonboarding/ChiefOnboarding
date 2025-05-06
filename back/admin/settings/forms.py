@@ -775,3 +775,85 @@ class EmailTemplateForm(forms.ModelForm):
             "subject": _("Subject line for the email. You can use variables here too, e.g., 'Welcome {{ first_name }}!'"),
             "description": _("Internal description of when this template should be used"),
         }
+
+
+class StorageSettingsForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            HTML("<h3 class='card-title'>" + _("Storage Provider") + "</h3>"),
+            Field("storage_provider"),
+
+            # S3 Settings
+            Div(
+                HTML("<h4 class='card-subtitle mt-3'>" + _("S3 Settings") + "</h4>"),
+                Field("s3_endpoint_url"),
+                Field("s3_access_key"),
+                Field("s3_secret_key"),
+                Field("s3_bucket_name"),
+                Field("s3_region"),
+                css_class="s3-settings",
+                id="s3-settings",
+            ),
+
+            HTML("""
+            <script>
+                // Wait until the document is fully loaded
+                window.addEventListener('load', function() {
+                    // Find the storage provider select field
+                    const providerSelect = document.getElementById('id_storage_provider');
+                    if (!providerSelect) {
+                        console.error('Storage provider select field not found');
+                        return;
+                    }
+
+                    // Find the S3 settings section
+                    const s3Settings = document.getElementById('s3-settings');
+                    if (!s3Settings) {
+                        console.error('S3 settings section not found');
+                        return;
+                    }
+
+                    function updateVisibleSettings() {
+                        // Show or hide S3 settings based on the selected provider
+                        if (providerSelect.value === 's3') {
+                            s3Settings.style.display = 'block';
+                        } else {
+                            s3Settings.style.display = 'none';
+                        }
+                    }
+
+                    // Run the update immediately
+                    updateVisibleSettings();
+
+                    // Update when the selection changes
+                    providerSelect.addEventListener('change', updateVisibleSettings);
+                });
+            </script>
+            """),
+
+            Submit(name="submit", value="Update"),
+        )
+
+    class Meta:
+        model = Organization
+        fields = [
+            "storage_provider",
+            "s3_endpoint_url",
+            "s3_access_key",
+            "s3_secret_key",
+            "s3_bucket_name",
+            "s3_region",
+        ]
+        widgets = {
+            "s3_secret_key": forms.PasswordInput(render_value=True),
+        }
+        help_texts = {
+            "storage_provider": _("Select which storage provider to use for file uploads"),
+            "s3_endpoint_url": _("The endpoint URL for S3 or S3-compatible storage (e.g., 'https://s3.amazonaws.com')"),
+            "s3_access_key": _("Access key for S3 or S3-compatible storage"),
+            "s3_secret_key": _("Secret key for S3 or S3-compatible storage"),
+            "s3_bucket_name": _("Bucket name for S3 or S3-compatible storage"),
+            "s3_region": _("Region for S3 or S3-compatible storage (e.g., 'us-east-1')"),
+        }
