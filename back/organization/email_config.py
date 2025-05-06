@@ -1,11 +1,5 @@
 from django.conf import settings
-from django.core.mail.backends.smtp import EmailBackend as SMTPBackend
-from anymail.backends.mailgun import EmailBackend as MailgunBackend
-from anymail.backends.mailjet import EmailBackend as MailjetBackend
-from anymail.backends.mandrill import EmailBackend as MandrillBackend
-from anymail.backends.postmark import EmailBackend as PostmarkBackend
-from anymail.backends.sendgrid import EmailBackend as SendgridBackend
-from anymail.backends.sendinblue import EmailBackend as SendinblueBackend
+from django.core.mail.backends.base import BaseEmailBackend
 
 # Custom backend for MailerSend
 class MailerSendBackend:
@@ -23,10 +17,12 @@ class MailerSendBackend:
         # Return a custom backend that uses the MailerSend API
         return MailerSendEmailBackend(fail_silently=self.fail_silently)
 
-class MailerSendEmailBackend:
+class MailerSendEmailBackend(BaseEmailBackend):
+    """
+    A Django email backend for MailerSend.
+    """
     def __init__(self, fail_silently=False, **kwargs):
-        from django.core.mail.backends.base import BaseEmailBackend
-        self.fail_silently = fail_silently
+        super().__init__(fail_silently=fail_silently, **kwargs)
         self._connection = None
         self._lock = None
 
@@ -47,7 +43,7 @@ class MailerSendEmailBackend:
             return True
         except Exception as e:
             if not self.fail_silently:
-                raise
+                raise e
             return False
 
     def close(self):
@@ -73,7 +69,7 @@ class MailerSendEmailBackend:
                 count += 1
             except Exception as e:
                 if not self.fail_silently:
-                    raise
+                    raise e
         return count
 
     def _send(self, message):
@@ -150,46 +146,48 @@ def get_email_backend():
 
         # Configure the email backend based on the selected provider
         if org.email_provider == 'smtp':
-            return SMTPBackend(
-                host=org.email_host,
-                port=org.email_port,
-                username=org.email_host_user,
-                password=org.email_host_password,
-                use_tls=org.email_use_tls,
-                use_ssl=org.email_use_ssl,
-                fail_silently=False,
-            )
+            # For SMTP, we need to return the backend instance with configuration
+            return "django.core.mail.backends.smtp.EmailBackend"
         elif org.email_provider == 'mailgun':
-            return MailgunBackend(
-                api_key=org.mailgun_api_key,
-                sender_domain=org.mailgun_domain,
-            )
+            # For Anymail backends, we return the path to the backend class
+            settings.ANYMAIL = {
+                "MAILGUN_API_KEY": org.mailgun_api_key,
+                "MAILGUN_SENDER_DOMAIN": org.mailgun_domain,
+            }
+            return "anymail.backends.mailgun.EmailBackend"
         elif org.email_provider == 'mailjet':
-            return MailjetBackend(
-                api_key=org.mailjet_api_key,
-                secret_key=org.mailjet_secret_key,
-            )
+            settings.ANYMAIL = {
+                "MAILJET_API_KEY": org.mailjet_api_key,
+                "MAILJET_SECRET_KEY": org.mailjet_secret_key,
+            }
+            return "anymail.backends.mailjet.EmailBackend"
         elif org.email_provider == 'mandrill':
-            return MandrillBackend(
-                api_key=org.mandrill_api_key,
-            )
+            settings.ANYMAIL = {
+                "MANDRILL_API_KEY": org.mandrill_api_key,
+            }
+            return "anymail.backends.mandrill.EmailBackend"
         elif org.email_provider == 'postmark':
-            return PostmarkBackend(
-                server_token=org.postmark_server_token,
-            )
+            settings.ANYMAIL = {
+                "POSTMARK_SERVER_TOKEN": org.postmark_server_token,
+            }
+            return "anymail.backends.postmark.EmailBackend"
         elif org.email_provider == 'sendgrid':
-            return SendgridBackend(
-                api_key=org.sendgrid_api_key,
-            )
+            settings.ANYMAIL = {
+                "SENDGRID_API_KEY": org.sendgrid_api_key,
+            }
+            return "anymail.backends.sendgrid.EmailBackend"
         elif org.email_provider == 'sendinblue':
-            return SendinblueBackend(
-                api_key=org.sendinblue_api_key,
-            )
+            settings.ANYMAIL = {
+                "SENDINBLUE_API_KEY": org.sendinblue_api_key,
+            }
+            return "anymail.backends.sendinblue.EmailBackend"
         elif org.email_provider == 'mailersend':
-            return MailerSendBackend(
-                api_key=org.mailersend_api_key,
-                fail_silently=False,
-            )()
+            # For MailerSend, we need to configure the API key
+            settings.ANYMAIL = {
+                "MAILERSEND_API_KEY": org.mailersend_api_key,
+            }
+            # Return the path to our custom backend
+            return "organization.email_config.MailerSendEmailBackend"
     except Exception:
         # If there's any error, fall back to environment settings
         return None
