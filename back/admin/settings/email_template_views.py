@@ -110,7 +110,7 @@ def preview_email_template(request):
 
         # Get the organization
         from organization.models import Organization
-        org = Organization.object.get()
+        org = Organization.objects.get()
 
         # Convert the template content to the format expected by create_email
         content_blocks = []

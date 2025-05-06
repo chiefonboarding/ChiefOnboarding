@@ -639,7 +639,6 @@ class EmailTemplateForm(forms.ModelForm):
                 ),
                 css_class="row",
             ),
-            Submit(name="submit", value=_("Save Template")),
         )
         self.helper.layout = layout
 
