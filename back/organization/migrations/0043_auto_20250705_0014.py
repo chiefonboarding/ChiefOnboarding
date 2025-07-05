@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
         )
 
     dependencies = [
-        ("organization", "0041_alter_organization_timezone"),
+        ("organization", "0042_alter_organization_timezone"),
     ]
 
     operations = [
