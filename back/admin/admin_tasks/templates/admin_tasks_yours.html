@@ -7,7 +7,7 @@
   <div class="card-header">
     <h3 class="card-title">{% translate "Your tasks" %}</h3>
   </div>
-  <table class="table table-responsive table-vcenter text-nowrap">
+  <table class="table table-responsive table-vcenter">
     <thead>
       <tr>
         <th>{% translate "For new hire" %}</th>
@@ -23,7 +23,7 @@
           {% include "_table_user.html" with user=task.new_hire %}
         </td>
         <td>
-          <div class="text-truncate">
+          <div class="text-truncate" style="max-width: 600px">
             {{ task.name }}
           </div>
         </td>
