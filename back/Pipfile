@@ -8,7 +8,7 @@ boto3 = "*" # Uploading files to AWS compatible endpoints -- might remove (only 
 cryptography = "*" # Necessary for fernet fields
 Django = "<5"
 django-anymail = "*" # Sending mails through multiple providers
-django-axes = "*" # Blocking bots/bruteforce
+django-axes = { extras = ["ipware"], version = "*" } # Blocking bots/bruteforce
 django-crispy-forms  = "*" # Making forms better
 django-environ = "*" # Getting environment variables
 djangorestframework = "*" # Needed for API endpoints
