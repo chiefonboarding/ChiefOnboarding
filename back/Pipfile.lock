@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "e079f5bed33e1fbd6490f6e4d16b090a1f2d7a365c1a40ec6ff8f083c2b26cec"
+            "sha256": "ead1f53167fde61c6b8580db2951a32dc68687049917e6e522b1c3b9fc1266c4"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -416,11 +416,13 @@
             "version": "==13.0"
         },
         "django-axes": {
+            "extras": [
+                "ipware"
+            ],
             "hashes": [
                 "sha256:7ddc55f21b704b7e9b3e793a75deac01ff16cb67f561649b04336e1e96980035",
                 "sha256:f95b6ae67fd77d44cc688818cef174914c4ad98c48daf65020b6f03f37220e45"
             ],
-            "index": "pypi",
             "markers": "python_version >= '3.9'",
             "version": "==8.0.0"
         },
@@ -441,6 +443,14 @@
             "index": "pypi",
             "markers": "python_version >= '3.9' and python_version < '4'",
             "version": "==0.12.0"
+        },
+        "django-ipware": {
+            "hashes": [
+                "sha256:d9ec43d2bf7cdf216fed8d494a084deb5761a54860a53b2e74346a4f384cff47",
+                "sha256:db16bbee920f661ae7f678e4270460c85850f03c6761a4eaeb489bdc91f64709"
+            ],
+            "markers": "python_version >= '3.8'",
+            "version": "==7.0.1"
         },
         "django-picklefield": {
             "hashes": [
@@ -953,6 +963,14 @@
             ],
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2'",
             "version": "==2.9.0.post0"
+        },
+        "python-ipware": {
+            "hashes": [
+                "sha256:9117b1c4dddcb5d5ca49e6a9617de2fc66aec2ef35394563ac4eecabdf58c062",
+                "sha256:fc936e6e7ec9fcc107f9315df40658f468ac72f739482a707181742882e36b60"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==3.0.0"
         },
         "pytz": {
             "hashes": [
