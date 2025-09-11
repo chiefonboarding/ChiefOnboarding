@@ -22,6 +22,7 @@
             <th>{% translate "Task" %}</th>
             <th>{% translate "Due in" %}</th>
             <th>{% translate "Action" %}</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -30,7 +31,7 @@
             <td>
               {% include "_table_user.html" with user=task.assigned_to %}
             </td>
-            <td>
+            <td style="max-width: 470px;">
               <div class="text-truncate">
                 {{ task.name }}
               </div>
@@ -43,6 +44,11 @@
                   {% include "_mark_complete_icon.html" %}
                 </button>
               </form>
+            </td>
+            <td>
+              <a href="{% url 'admin_tasks:detail' task.id %}" class="btn btn-white">
+                {% trans "View" %}
+              </a>
             </td>
           </tr>
           {% empty %}
