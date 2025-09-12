@@ -27,13 +27,14 @@
         <h3 class="card-title">{% translate "What's up next..." %}</h3>
       </div>
       <div class="card-body">
-        <ul class="list list-timeline">
+        <ul class="timeline">
           {# only show preboarding if before first day #}
           {% if object.workday == 0 and object.preboarding.all|length %}
-            <li>
-              <div class="list-timeline-icon bg-twitter">
+            <li class="timeline-event">
+              <div class="timeline-event-icon">
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-stack-front"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 4l-8 4l8 4l8 -4l-8 -4" fill="currentColor" /><path d="M8 14l-4 2l8 4l8 -4l-4 -2" /><path d="M8 10l-4 2l8 4l8 -4l-4 -2" /></svg>
               </div>
-              <div class="list-timeline-content pt-0" style="margin-top: -5px">
+              <div class="timeline-event-card pt-0" style="margin-top: -5px">
                 <div class="card">
                   <div class="card-header">
                     <h4 class="card-title">{% translate "Before first day" %}</h4>
@@ -61,10 +62,11 @@
             {% for condition in conditions %}
               {% show_highlighted_date_card conditions forloop.counter0 object.start_day as show_start %}
               {% if show_start %}
-                <li>
-                  <div class="list-timeline-icon">
+                <li class="timeline-event">
+                  <div class="timeline-event-icon">
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-player-play"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 4v16l13 -8z" /></svg>
                   </div>
-                  <div class="list-timeline-content pt-0" style="margin-top: -5px">
+                  <div class="timeline-event-card pt-0" style="margin-top: -5px">
                     <div class="card">
                       <div class="card-header">
                         <h4 class="card-title">{% blocktranslate with start_day=object.start_day %}{{ start_day }} - New hire's first day!{% endblocktranslate %}</h4>
@@ -73,10 +75,11 @@
                   </div>
                 </li>
               {% endif %}
-              <li>
-                <div class="list-timeline-icon">
+              <li class="timeline-event">
+                <div class="timeline-event-icon">
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-right"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l14 0" /><path d="M13 18l6 -6" /><path d="M13 6l6 6" /></svg>
                 </div>
-                <div class="list-timeline-content pt-0" style="margin-top: -5px">
+                <div class="timeline-event-card pt-0" style="margin-top: -5px">
                   <div class="card">
                     <div class="card-header">
                       {% if condition.condition_type == ConditionType.AFTER or condition.condition_type == ConditionType.BEFORE %}

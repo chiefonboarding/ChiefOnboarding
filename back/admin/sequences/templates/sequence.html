@@ -48,14 +48,15 @@
                  </span>
         </div>
         <div class="card-body" id="timeline" hx-trigger="reload-sequence from:body" hx-select="#timeline" hx-get="{% url 'sequences:update' object.id %}" hx-swap="outerHTML">
-          <ul class="list list-timeline">
+          <ul class="timeline">
             {# only show unconditioned #}
-            <li>
-              <div class="list-timeline-icon bg-twitter">
+            <li class="timeline-event">
+              <div class="timeline-event-icon">
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-stack-front"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 4l-8 4l8 4l8 -4l-8 -4" fill="currentColor" /><path d="M8 14l-4 2l8 4l8 -4l-4 -2" /><path d="M8 10l-4 2l8 4l8 -4l-4 -2" /></svg>
               </div>
               {% for condition in conditions %}
                 {% if condition.condition_type == ConditionType.WITHOUT %}
-                <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
+                <div class="timeline-event-card pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
                   {% include '_sequence_condition.html' with condition=condition disable_delete=True %}
                 </div>
                 {% endif %}
@@ -65,10 +66,11 @@
             {# before start day #}
             {% for condition in conditions %}
               {% if condition.condition_type == ConditionType.BEFORE %}
-                <li>
-                  <div class="list-timeline-icon">
+                <li class="timeline-event">
+                  <div class="timeline-event-icon">
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-left"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l14 0" /><path d="M5 12l6 6" /><path d="M5 12l6 -6" /></svg>
                   </div>
-                  <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
+                  <div class="timeline-event-card pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
                     {% include '_sequence_condition.html' %}
                   </div>
                 </li>
@@ -77,10 +79,11 @@
 
             {% for condition in conditions %}
               {% if condition.condition_type == ConditionType.AFTER %}
-                <li>
-                  <div class="list-timeline-icon">
+                <li class="timeline-event">
+                  <div class="timeline-event-icon">
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-right"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l14 0" /><path d="M13 18l6 -6" /><path d="M13 6l6 6" /></svg>
                   </div>
-                  <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
+                  <div class="timeline-event-card pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
                     {% include '_sequence_condition.html' %}
                   </div>
                 </li>
@@ -89,10 +92,11 @@
 
             {% for condition in conditions %}
               {% if condition.condition_type == ConditionType.TODO %}
-                <li>
-                  <div class="list-timeline-icon">
+                <li class="timeline-event">
+                  <div class="timeline-event-icon">
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>
                   </div>
-                  <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
+                  <div class="timeline-event-card pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
                     {% include '_sequence_condition.html' %}
                   </div>
                 </li>
@@ -101,10 +105,11 @@
 
             {% for condition in conditions %}
               {% if condition.condition_type == ConditionType.ADMIN_TASK %}
-                <li>
-                  <div class="list-timeline-icon">
+                <li class="timeline-event">
+                  <div class="timeline-event-icon">
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>
                   </div>
-                  <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
+                  <div class="timeline-event-card pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
                     {% include '_sequence_condition.html' %}
                   </div>
                 </li>
@@ -113,10 +118,11 @@
 
             {% for condition in conditions %}
               {% if condition.condition_type == ConditionType.INTEGRATIONS_REVOKED %}
-                <li>
-                  <div class="list-timeline-icon">
+                <li class="timeline-event">
+                  <div class="timeline-event-icon">
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-bolt"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11" /></svg>
                   </div>
-                  <div class="list-timeline-content pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
+                  <div class="timeline-event-card pt-0" style="margin-top: -5px" id="condition-{{condition.id}}">
                     {% include '_sequence_condition.html' %}
                   </div>
                 </li>
