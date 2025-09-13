@@ -12,9 +12,11 @@
     <link rel="stylesheet" href="{% static 'css/theme.css' %}">
     <link rel="stylesheet" href="{% static 'css/selectize-bootstrap.min.css' %}">
     <style>
-      .btn-primary, .btn-outline-primary, .btn-ghost-primary, .btn-primary:hover, .btn-outline-primary:hover, .btn-ghost-primary:hover {
-        --tblr-btn-color: {{ org.base_color_rgb }};
-        --tblr-btn-color-darker: {{ org.base_color_rgb }};
+      .btn-primary, .btn-outline-primary, .btn-ghost-primary, .btn-primary:hover, .btn-outline-primary:hover, .btn-ghost-primary:hover, .border-primary {
+        --tblr-primary: rgb({{ org.base_color_rgb }});
+        --tblr-btn-hover-bg: rgb({{ org.base_color_rgb }});
+        --tblr-primary-rgb: {{ org.base_color_rgb }};
+        --tblr-primary-darker: rgb({{ org.base_color_rgb }});
       }
       a, a:hover, a:focus {
         color: rgb({{ org.base_color_rgb }})

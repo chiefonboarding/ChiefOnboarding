@@ -50,6 +50,7 @@ class NewHireDashboard(LoginRequiredMixin, TemplateView):
             )
             .select_related("to_do")
             .defer("to_do__content")
+            .order_by("to_do__due_on_day")
         )
 
         # Group items by amount work days

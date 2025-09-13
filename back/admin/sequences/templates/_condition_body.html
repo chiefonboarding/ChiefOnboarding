@@ -5,7 +5,7 @@
 
 {# FOR NEW HIRES #}
 {% if condition.external_new_hire|length or condition.to_do.all|length or condition.preboarding.all|length or condition.badges.all|length or condition.integration_configs.all|length or condition.resources.all|length or condition.introductions.all|length %}
-<span class="badge bg-azure mb-2">{% if is_new_hire %}{% translate "new hire" %}{% else %}{% translate "employee" %}{% endif %}</span>
+<span class="badge bg-azure-lt text-azure-lt-fg mb-2">{% if is_new_hire %}{% translate "new hire" %}{% else %}{% translate "employee" %}{% endif %}</span>
 {% endif %}
 {% for item in condition.preboarding.all %}
   {% include '_condition_line_item.html' with type='preboarding' %}
@@ -40,7 +40,7 @@
 
 {# FOR ADMINS #}
 {% if condition.external_admin|length or condition.admin_tasks.all|length or condition.hardware.all|length %}
-<span class="badge bg-orange mb-2">{% translate "admins" %}</span>
+<span class="badge bg-orange-lt text-orange-lt-fg mb-2">{% translate "admins" %}</span>
 {% endif %}
 {% for item in condition.admin_tasks.all %}
   {% include '_condition_line_item.html' with type='pendingadmintask' %}

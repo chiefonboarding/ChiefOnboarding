@@ -74,6 +74,7 @@ class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):
             ("GET", "GET"),
             ("POST", "POST"),
             ("PUT", "PUT"),
+            ("PATCH", "PATCH"),
             ("DELETE", "DELETE"),
         ]
     )
@@ -109,6 +110,7 @@ class ManifestRevokeSerializer(ValidateMixin, serializers.Serializer):
             ("GET", "GET"),
             ("POST", "POST"),
             ("PUT", "PUT"),
+            ("PATCH", "PATCH"),
             ("DELETE", "DELETE"),
         ]
     )
