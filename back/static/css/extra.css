@@ -1,0 +1,80 @@
+.form-select {
+  padding: unset !important;
+  border: unset !important;
+}
+.requesting {
+  opacity: 0;
+}
+.htmx-request.requesting, .htmx-request .requesting {
+  opacity: 1;
+  margin-left:5px;
+}
+.requesting.alsodisplay {
+  opacity: 0;
+  display:none;
+}
+
+.htmx-request.alsodisplay.requesting, .htmx-request.alsodisplay .requesting {
+  opacity: 1;
+  display:inline-block;
+  margin-left:5px;
+}
+.seq-icons svg {
+  margin: 0 -0.5rem 0 -.5rem !important;
+}
+.allowed-to-drop {
+  background-color: blue
+}
+/* selectize */
+.selectize-control {
+  padding: 0;
+  max-height: 39px;
+}
+.selectize-input {
+  padding: 8.5px 1rem !important;
+  border-radius: var(--tblr-border-radius) !important;
+  box-shadow: var(--tblr-shadow-input) !important;
+  border: var(--tblr-border-width) solid var(--tblr-border-color) !important;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+}
+select {
+  display: none !important;
+}
+.selectize-dropdown {
+  z-index: 10000000;
+}
+.modal-dialog.modal-lg {
+  max-width: 1118px !important;
+}
+form .btn {
+  float:right;
+  margin-left: 5px;
+}
+form .form-footer .btn {
+  margin-bottom: 14px;
+}
+
+form .upload-field .btn {
+  float: unset !important;
+  margin-left: unset !important;
+}
+
+/* editor js extra styling */
+.border-left {
+  border-left: 4px solid gray;
+  padding-left: 10px;
+  margin-bottom: 0px;
+  padding-bottom: 0px;
+}
+
+.select-template .btn {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+body {
+  background-color: #f4f6fa;
+}
+.table {
+  margin-bottom: 0px;
+}
