@@ -538,7 +538,7 @@ def test_new_hire_to_do_sequence_item(
     url = reverse("people:new_hire", args=[new_hire1.id])
     response = client.get(url)
 
-    assert '"badge bg-blue-lt mt-1"' in response.content.decode()
+    assert '"badge bg-blue-lt text-blue-lt-fg mt-1"' in response.content.decode()
     assert "bg-green-lt" not in response.content.decode()
 
     to_do_user.completed = True

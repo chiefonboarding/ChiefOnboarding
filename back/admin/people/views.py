@@ -504,5 +504,5 @@ class ColleagueImportAddUsersView(LoginRequiredMixin, generics.CreateAPIView):
             "Admins and managers will receive an email shortly."
         )
         return HttpResponse(
-            f"<div class='alert alert-success'><p>{success_message}</p></div>"
+            f"<div class='alert alert-success'>{success_message}</div>"
         )

@@ -27,10 +27,15 @@
 }
 /* selectize */
 .selectize-control {
-    padding: 0;
+  padding: 0;
+  max-height: 39px;
 }
 .selectize-input {
-    border: none;
+  padding: 8.5px 1rem !important;
+  border-radius: var(--tblr-border-radius) !important;
+  box-shadow: var(--tblr-shadow-input) !important;
+  border: var(--tblr-border-width) solid var(--tblr-border-color) !important;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
 }
 select {
   display: none !important;

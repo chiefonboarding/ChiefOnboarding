@@ -180,7 +180,7 @@
               <!-- Page title actions -->
               {% for message in messages %}
               <div class="alert alert-success" style="color: black;">
-                <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {{ message }}
               </div>
             {% endfor %}
               {% block actions %}
