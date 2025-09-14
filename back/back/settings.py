@@ -149,13 +149,6 @@ if env.bool("ALLOW_GOOGLE_SSO", False):
         "OAUTH_PKCE_ENABLED": True,
     }
 
-if env.bool("ALLOW_OIDC", False):
-    INSTALLED_APPS += ["allauth.socialaccount.providers.openid_connect"]
-    SOCIALACCOUNT_PROVIDERS["openid_connect"] = {
-        "APPS": env.list("OPENID_CONNECT_CONFIG", []),
-    }
-
-
 # DJANGO login config
 LOGIN_REDIRECT_URL = "logged_in_user_redirect"
 LOGOUT_REDIRECT_URL = "account_login"
@@ -477,23 +470,3 @@ if env.bool("DEBUG_LOGGING", default=False):
             "root": {"level": "DEBUG", "handlers": ["console"]},
         },
     }
-
-
-# OIDC
-OIDC_LOGIN_DISPLAY = env("OIDC_LOGIN_DISPLAY", default="Custom-OIDC")
-OIDC_CLIENT_ID = env("OIDC_CLIENT_ID", default="")
-OIDC_CLIENT_SECRET = env("OIDC_CLIENT_SECRET", default="")
-OIDC_AUTHORIZATION_URL = env("OIDC_AUTHORIZATION_URL", default="")
-OIDC_TOKEN_URL = env("OIDC_TOKEN_URL", default="")
-OIDC_USERINFO_URL = env("OIDC_USERINFO_URL", default="")
-OIDC_SCOPES = env("OIDC_SCOPES", default="openid email name profile")
-OIDC_LOGOUT_URL = env("OIDC_LOGOUT_URL", default="")
-OIDC_FORCE_AUTHN = env.bool("OIDC_FORCE_AUTHN", default=False)
-OIDC_ROLE_ADMIN_PATTERN = env("OIDC_ROLE_ADMIN_PATTERN", default="^cn=Administrators.*")
-OIDC_ROLE_MANAGER_PATTERN = env("OIDC_ROLE_MANAGER_PATTERN", default="^cn=Managers.*")
-OIDC_ROLE_NEW_HIRE_PATTERN = env("OIDC_ROLE_NEW_HIRE_PATTERN", default="^cn=Newhires.*")
-OIDC_ROLE_DEFAULT = env.int("OIDC_DEFAULT_ROLE", "3")
-OIDC_ROLE_UPDATING = env.bool("OIDC_ROLE_UPDATING", True)
-OIDC_ROLE_PATH_IN_RETURN = env("OIDC_ROLE_PATH_IN_RETURN", default="zoneinfo").split(
-    "."
-)
