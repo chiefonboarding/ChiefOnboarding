@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
@@ -8,7 +6,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
-from django.utils import translation
+from django.utils import timezone, translation
 from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
@@ -525,7 +523,7 @@ class NewHireRemindView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, View):
         template_user_model = apps.get_model("users", template_type)
 
         template_user_obj = template_user_model.objects.get(pk=template_pk)
-        template_user_obj.reminded = datetime.now()
+        template_user_obj.reminded = timezone.now()
         template_user_obj.save()
 
         translation.activate(template_user_obj.user.language)

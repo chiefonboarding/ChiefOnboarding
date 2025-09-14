@@ -3,6 +3,7 @@ import datetime
 import pytest
 from django.contrib import auth
 from django.urls import reverse
+from django.utils import timezone
 from freezegun import freeze_time
 
 from admin.admin_tasks.models import AdminTask
@@ -718,11 +719,11 @@ def test_course_form_view(client, new_hire_factory, resource_user_factory):
 @pytest.mark.django_db
 def test_seen_notifications(client, new_hire_factory):
     new_hire = new_hire_factory()
-    new_hire.seen_updates = datetime.datetime.now() - datetime.timedelta(days=2)
+    new_hire.seen_updates = timezone.now() - datetime.timedelta(days=2)
     new_hire.save()
     client.force_login(new_hire)
 
-    current_date_time = datetime.datetime.now()
+    current_date_time = timezone.now()
     assert new_hire.seen_updates.day != current_date_time.day
 
     url = reverse("new_hire:seen-updates")
