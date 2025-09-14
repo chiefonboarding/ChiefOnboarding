@@ -149,7 +149,7 @@ class SeenUpdatesView(LoginRequiredMixin, View):
     """
 
     def get(self, request, *args, **kwargs):
-        request.user.seen_updates = datetime.now()
+        request.user.seen_updates = timezone.now()
         request.user.save()
         return HttpResponse()
 

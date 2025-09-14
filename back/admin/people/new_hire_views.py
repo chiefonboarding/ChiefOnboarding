@@ -16,6 +16,7 @@ from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateVi
 from django.views.generic.list import ListView
 from django_q.tasks import async_task
 from twilio.rest import Client
+from django.utils import timezone
 
 from admin.admin_tasks.models import AdminTask
 from admin.integrations.forms import IntegrationExtraUserInfoForm
@@ -525,7 +526,7 @@ class NewHireRemindView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, View):
         template_user_model = apps.get_model("users", template_type)
 
         template_user_obj = template_user_model.objects.get(pk=template_pk)
-        template_user_obj.reminded = datetime.now()
+        template_user_obj.reminded = timezone.now()
         template_user_obj.save()
 
         translation.activate(template_user_obj.user.language)

@@ -70,6 +70,7 @@ class ManifestFormForm(forms.Form):
         max_length=255,
         help_text=_("The url it should fetch the options from."),
         required=False,
+        assume_scheme="https"
     )
     method = forms.ChoiceField(
         choices=(
@@ -177,6 +178,7 @@ class ManifestRevokeForm(forms.Form):
         max_length=255,
         help_text=_("The url it should fetch the options from."),
         required=False,
+        assume_scheme="https"
     )
     method = forms.ChoiceField(
         choices=(
@@ -329,7 +331,7 @@ class ManifestExtractDataForm(forms.Form):
 
 class ManifestExistsForm(forms.Form):
     url = forms.URLField(
-        max_length=255, help_text=_("The url it should check"), required=False
+        max_length=255, help_text=_("The url it should check"), required=False, assume_scheme="https"
     )
     method = forms.ChoiceField(
         choices=(
@@ -464,7 +466,7 @@ class ManifestUserInfoForm(forms.Form):
 
 class ManifestExecuteForm(forms.Form):
     url = forms.URLField(
-        max_length=255, help_text=_("The url it should trigger"), required=False
+        max_length=255, help_text=_("The url it should trigger"), required=False, assume_scheme="https"
     )
     method = forms.ChoiceField(
         choices=(
