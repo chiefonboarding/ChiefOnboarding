@@ -106,13 +106,8 @@ class InitialSetupView(CreateView):
             raise Http404
         return super().dispatch(*args, **kwargs)
 
-    def form_invalid(self, form):
-        print("INVALID")
-        print(form.errors)
-
     @transaction.atomic
     def form_valid(self, form):
-        print("GOT HERE")
         org = Organization.objects.create(
             name=form.cleaned_data["name"],
             timezone=form.cleaned_data["timezone"],

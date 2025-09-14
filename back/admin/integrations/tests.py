@@ -1278,5 +1278,4 @@ def test_integration_tracker(
     response = client.get(url)
 
     assert integration.name + " for " + new_hire.full_name in response.content.decode()
-    print(response.content.decode())
     assert "not_found" in response.content.decode()

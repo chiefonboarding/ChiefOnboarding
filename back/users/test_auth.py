@@ -25,8 +25,7 @@ def test_login_data_validation(email, password, logged_in, client, new_hire_fact
 
     url = reverse("account_login")
     data = {"login": email, "password": password}
-    response = client.post(url, data=data, follow=True)
-    print(response.content.decode())
+    client.post(url, data=data, follow=True)
     user = auth.get_user(client)
     assert user.is_authenticated == logged_in
 
@@ -50,7 +49,6 @@ def test_redirect_after_login(role, redirect_url, client, new_hire_factory):
     data = {"login": new_hire.email, "password": "strong_pass"}
     response = client.post(url, data=data, follow=True)
     user = auth.get_user(client)
-    print(response.content.decode())
     assert user.is_authenticated
     assert redirect_url == response.redirect_chain[-1][0]
 
