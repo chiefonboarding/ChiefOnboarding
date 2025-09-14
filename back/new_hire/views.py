@@ -1,4 +1,3 @@
-from datetime import datetime
 
 from axes.decorators import axes_dispatch
 from django.contrib import messages

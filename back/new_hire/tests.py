@@ -3,8 +3,8 @@ import datetime
 import pytest
 from django.contrib import auth
 from django.urls import reverse
-from freezegun import freeze_time
 from django.utils import timezone
+from freezegun import freeze_time
 
 from admin.admin_tasks.models import AdminTask
 from admin.sequences.models import Condition

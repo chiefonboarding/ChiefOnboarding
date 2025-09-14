@@ -153,7 +153,7 @@ class ConditionToDoFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Condition
-        skip_postgeneration_save=True
+        skip_postgeneration_save = True
 
     @factory.post_generation
     def condition_to_do(obj, create, extracted, **kwargs):
@@ -194,7 +194,7 @@ class SequenceFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Sequence
-        skip_postgeneration_save=True
+        skip_postgeneration_save = True
 
     @factory.post_generation
     def conditions(obj, create, extracted, **kwargs):
