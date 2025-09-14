@@ -1,11 +1,7 @@
 from allauth.account.decorators import reauthentication_required
-from allauth.mfa.base.views import IndexView
-from allauth.mfa.recovery_codes.views import GenerateRecoveryCodesView
-from allauth.mfa.totp.views import ActivateTOTPView, DeactivateTOTPView
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -31,6 +27,16 @@ from users.emails import (
 )
 from users.mixins import AdminPermMixin, ManagerPermMixin
 
+if settings.ALLOW_LOGIN_WITH_CREDENTIALS:
+    from allauth.mfa.base.views import IndexView
+    from allauth.mfa.recovery_codes.views import GenerateRecoveryCodesView
+    from allauth.mfa.totp.views import ActivateTOTPView, DeactivateTOTPView
+else:
+    ActivateTOTPView = TemplateView
+    DeactivateTOTPView = TemplateView
+    IndexView = TemplateView
+    GenerateRecoveryCodesView = TemplateView
+
 from .forms import (
     AdministratorsCreateForm,
     AdministratorsUpdateForm,
@@ -40,9 +46,7 @@ from .forms import (
 )
 
 
-class OrganizationGeneralUpdateView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
-):
+class OrganizationGeneralUpdateView(AdminPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "org_general_update.html"
     form_class = OrganizationGeneralForm
     success_url = reverse_lazy("settings:general")
@@ -66,9 +70,7 @@ class OrganizationGeneralUpdateView(
         return context
 
 
-class SlackSettingsUpdateView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
-):
+class SlackSettingsUpdateView(AdminPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "org_general_update.html"
     form_class = SlackSettingsForm
     success_url = reverse_lazy("settings:slack")
@@ -84,7 +86,7 @@ class SlackSettingsUpdateView(
         return context
 
 
-class AdministratorListView(LoginRequiredMixin, AdminPermMixin, ListView):
+class AdministratorListView(AdminPermMixin, ListView):
     template_name = "settings_admins.html"
     queryset = get_user_model().managers_and_admins.all()
 
@@ -96,9 +98,7 @@ class AdministratorListView(LoginRequiredMixin, AdminPermMixin, ListView):
         return context
 
 
-class AdministratorCreateView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
-):
+class AdministratorCreateView(AdminPermMixin, SuccessMessageMixin, CreateView):
     template_name = "settings_admins_create.html"
     queryset = get_user_model().managers_and_admins.all()
     form_class = AdministratorsCreateForm
@@ -136,9 +136,7 @@ class AdministratorCreateView(
         return context
 
 
-class AdministratorUpdateView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
-):
+class AdministratorUpdateView(AdminPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "settings_admins_update.html"
     queryset = get_user_model().managers_and_admins.all()
     form_class = AdministratorsUpdateForm
@@ -152,9 +150,7 @@ class AdministratorUpdateView(
         return context
 
 
-class AdministratorDeleteView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, DeleteView
-):
+class AdministratorDeleteView(AdminPermMixin, SuccessMessageMixin, DeleteView):
     """
     Doesn't actually delete the administrator, it just migrates them to a normal user
     account.
@@ -174,9 +170,7 @@ class AdministratorDeleteView(
         return HttpResponseRedirect(success_url)
 
 
-class WelcomeMessageUpdateView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
-):
+class WelcomeMessageUpdateView(AdminPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "org_welcome_message_update.html"
     form_class = WelcomeMessagesUpdateForm
     success_message = _("Message has been updated")
@@ -198,9 +192,7 @@ class WelcomeMessageUpdateView(
         return context
 
 
-class WelcomeMessageSendTestMessageView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, View
-):
+class WelcomeMessageSendTestMessageView(AdminPermMixin, SuccessMessageMixin, View):
     def post(self, request, **kwargs):
         message_type = self.kwargs.get("type")
         language = self.kwargs.get("language")
@@ -255,9 +247,7 @@ class WelcomeMessageSendTestMessageView(
         return HttpResponse(headers={"HX-Trigger": "reload-page"})
 
 
-class PersonalLanguageUpdateView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, UpdateView
-):
+class PersonalLanguageUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "personal_language_update.html"
     model = get_user_model()
     fields = [
@@ -284,7 +274,7 @@ class PersonalLanguageUpdateView(
         return context
 
 
-class TOTPIndexView(LoginRequiredMixin, ManagerPermMixin, IndexView):
+class TOTPIndexView(ManagerPermMixin, IndexView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = _("TOTP 2FA")
@@ -303,7 +293,7 @@ class TOTPActivateView(ManagerPermMixin, ActivateTOTPView):
         return context
 
 
-class TOTPDeactivateView(LoginRequiredMixin, ManagerPermMixin, DeactivateTOTPView):
+class TOTPDeactivateView(ManagerPermMixin, DeactivateTOTPView):
     success_url = reverse_lazy("settings:totp")
 
     def get_context_data(self, **kwargs):
@@ -313,9 +303,7 @@ class TOTPDeactivateView(LoginRequiredMixin, ManagerPermMixin, DeactivateTOTPVie
         return context
 
 
-class TOTPGenerateRecoveryCodesView(
-    LoginRequiredMixin, ManagerPermMixin, GenerateRecoveryCodesView
-):
+class TOTPGenerateRecoveryCodesView(ManagerPermMixin, GenerateRecoveryCodesView):
     success_url = reverse_lazy("settings:totp")
 
     def get_context_data(self, **kwargs):
@@ -325,7 +313,7 @@ class TOTPGenerateRecoveryCodesView(
         return context
 
 
-class IntegrationsListView(LoginRequiredMixin, AdminPermMixin, TemplateView):
+class IntegrationsListView(AdminPermMixin, TemplateView):
     template_name = "settings_integrations.html"
 
     def get_context_data(self, **kwargs):
@@ -334,9 +322,6 @@ class IntegrationsListView(LoginRequiredMixin, AdminPermMixin, TemplateView):
         context["subtitle"] = _("settings")
         context["slack_bot"] = Integration.objects.filter(
             integration=Integration.Type.SLACK_BOT, active=True
-        ).first()
-        context["google_login"] = Integration.objects.filter(
-            integration=Integration.Type.GOOGLE_LOGIN, active=True
         ).first()
         context["slack_bot_environ"] = settings.SLACK_APP_TOKEN != ""
         context["base_url"] = settings.BASE_URL
@@ -354,9 +339,7 @@ class IntegrationsListView(LoginRequiredMixin, AdminPermMixin, TemplateView):
         return context
 
 
-class SlackBotSetupView(
-    LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin
-):
+class SlackBotSetupView(AdminPermMixin, CreateView, SuccessMessageMixin):
     template_name = "token_create.html"
     model = Integration
     fields = [
@@ -384,7 +367,7 @@ class SlackBotSetupView(
         return super().form_valid(form)
 
 
-class SlackChannelsUpdateView(LoginRequiredMixin, AdminPermMixin, RedirectView):
+class SlackChannelsUpdateView(AdminPermMixin, RedirectView):
     permanent = False
     pattern_name = "settings:integrations"
 
@@ -402,7 +385,7 @@ class SlackChannelsUpdateView(LoginRequiredMixin, AdminPermMixin, RedirectView):
         return super().get(request, *args, **kwargs)
 
 
-class SlackChannelsCreateView(LoginRequiredMixin, AdminPermMixin, CreateView):
+class SlackChannelsCreateView(AdminPermMixin, CreateView):
     template_name = "slack_channel_create.html"
     model = SlackChannel
     fields = ["name", "is_private"]

@@ -3,7 +3,7 @@ from datetime import datetime
 from axes.decorators import axes_dispatch
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login, signals
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_not_required
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -30,7 +30,7 @@ from users.models import (
 from .forms import QuestionsForm
 
 
-class NewHireDashboard(LoginRequiredMixin, TemplateView):
+class NewHireDashboard(TemplateView):
     template_name = "new_hire_to_dos.html"
 
     def get_context_data(self, **kwargs):
@@ -88,14 +88,14 @@ class NewHireDashboard(LoginRequiredMixin, TemplateView):
         return context
 
 
-class ToDoDetailView(LoginRequiredMixin, DetailView):
+class ToDoDetailView(DetailView):
     template_name = "new_hire_to_do.html"
 
     def get_queryset(self):
         return ToDoUser.objects.filter(user=self.request.user)
 
 
-class ToDoCompleteView(LoginRequiredMixin, View):
+class ToDoCompleteView(View):
     def post(self, request, pk, *args, **kwargs):
         to_do_user = get_object_or_404(ToDoUser, pk=pk, user=self.request.user)
         to_do_user.mark_completed()
@@ -108,7 +108,7 @@ class ToDoCompleteView(LoginRequiredMixin, View):
         return redirect("new_hire:todos")
 
 
-class FormSubmitView(LoginRequiredMixin, View):
+class FormSubmitView(View):
     """
     HTMX: Submit form that user filled in
     """
@@ -141,7 +141,7 @@ class FormSubmitView(LoginRequiredMixin, View):
         return HttpResponse(_("You have submitted this form successfully"))
 
 
-class SeenUpdatesView(LoginRequiredMixin, View):
+class SeenUpdatesView(View):
     """
     When user click on the notification icon to list all notifications, it will update
     the last seen updates prop. This way, the red marker on the notification icon will
@@ -155,7 +155,8 @@ class SeenUpdatesView(LoginRequiredMixin, View):
 
 
 @method_decorator(axes_dispatch, name="dispatch")
-class SlackToDoFormView(LoginRequiredMixin, TemplateView):
+@method_decorator(login_not_required, name="dispatch")
+class SlackToDoFormView(TemplateView):
     template_name = "slack_form.html"
 
     def dispatch(self, *args, **kwargs):
@@ -195,7 +196,8 @@ class SlackToDoFormView(LoginRequiredMixin, TemplateView):
 
 
 @method_decorator(axes_dispatch, name="dispatch")
-class PreboardingShortURLRedirectView(LoginRequiredMixin, RedirectView):
+@method_decorator(login_not_required, name="dispatch")
+class PreboardingShortURLRedirectView(RedirectView):
     pattern_name = "new_hire:preboarding"
 
     def dispatch(self, *args, **kwargs):
@@ -234,7 +236,7 @@ class PreboardingShortURLRedirectView(LoginRequiredMixin, RedirectView):
         return reverse("new_hire:preboarding", args=[preboarding_user.first().id])
 
 
-class PreboardingDetailView(LoginRequiredMixin, DetailView):
+class PreboardingDetailView(DetailView):
     template_name = "new_hire_preboarding.html"
     model = PreboardingUser
 
@@ -242,8 +244,7 @@ class PreboardingDetailView(LoginRequiredMixin, DetailView):
         # Make sure user is authenticated to view this object
         if self.request.user.is_authenticated:
             get_object_or_404(PreboardingUser, user=self.request.user, id=kwargs["pk"])
-        # If user is not authenticated, then the default LoginRequiredMixin will catch
-        # it
+        # If user is not authenticated, then the default authentication required middleware will catch it
         return super().dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -280,14 +281,14 @@ class PreboardingDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class ColleagueListView(LoginRequiredMixin, ListView):
+class ColleagueListView(ListView):
     template_name = "new_hire_colleagues.html"
     model = User
     paginate_by = 20
     ordering = ["first_name", "last_name"]
 
 
-class ColleagueSearchView(LoginRequiredMixin, ListView):
+class ColleagueSearchView(ListView):
     """
     HTMX: Search for colleagues that fit search criteria.
     """
@@ -305,7 +306,7 @@ class ColleagueSearchView(LoginRequiredMixin, ListView):
         ) | get_user_model().objects.filter(last_name__icontains=search)
 
 
-class ResourceListView(LoginRequiredMixin, ListView):
+class ResourceListView(ListView):
     template_name = "new_hire_resources.html"
 
     def get_queryset(self):
@@ -317,7 +318,7 @@ class ResourceListView(LoginRequiredMixin, ListView):
         )
 
 
-class ResourceSearchView(LoginRequiredMixin, View):
+class ResourceSearchView(View):
     """
     HTMX: Search for resources that fit search criteria. Name and text.
     """
@@ -327,7 +328,7 @@ class ResourceSearchView(LoginRequiredMixin, View):
         return render(request, "_new_hire_resources_search.html", {"results": results})
 
 
-class ResourceDetailView(LoginRequiredMixin, DetailView):
+class ResourceDetailView(DetailView):
     template_name = "new_hire_resource_detail.html"
     model = Resource
 
@@ -372,7 +373,7 @@ class ResourceDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class CourseNextStepView(LoginRequiredMixin, View):
+class CourseNextStepView(View):
     def post(self, request, pk, *args, **kwargs):
         resource_user = get_object_or_404(ResourceUser, pk=pk, user=request.user)
         chapter = resource_user.add_step()
@@ -391,7 +392,7 @@ class CourseNextStepView(LoginRequiredMixin, View):
         )
 
 
-class CourseAnswerView(LoginRequiredMixin, FormView):
+class CourseAnswerView(FormView):
     template_name = "_question_form.html"
     form_class = QuestionsForm
 

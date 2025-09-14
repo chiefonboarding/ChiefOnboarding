@@ -6,15 +6,15 @@
 {% block content %}
 {% for message in messages %}
 <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} mb-2">
-  <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+  {{ message }}
 </div>
 {% endfor %}
 <div class="card card-md">
-  {% if allow_credentials_login %}
     <div class="card-body">
+    {% if not SOCIALACCOUNT_ONLY %}
       <form method="post">
         {% csrf_token %}
-        <div class="mb-2">
+        <div>
           {{ form|crispy }}
           {% if redirect_field_value %}
               <input type="hidden"
@@ -22,12 +22,23 @@
                      value="{{ redirect_field_value }}" />
           {% endif %}
         </div>
-        <div class="form-footer">
-          <button type="submit" class="btn btn-primary w-100">{% translate "Log in" %}</button>
-        </div>
+        <button type="submit" class="btn btn-primary w-100">{% translate "Log in" %}</button>
       </form>
+    {% endif %}
+    {% if SOCIALACCOUNT_ENABLED %}
+    {% get_providers as socialaccount_providers %}
+      {% if socialaccount_providers %}
+          {% if not SOCIALACCOUNT_ONLY %}
+              <hr/>
+              <h2>{% translate "Or use a third-party" %}</h2>
+          {% endif %}
+          {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+          {% include "socialaccount/snippets/login_extra.html" %}
+      {% elif SOCIALACCOUNT_ONLY %}
+        <p> {% trans "Please allow logging in with credentials or set up a third party" %}</p>
+      {% endif %}
+      {% include "socialaccount/snippets/login.html" %}
+    {% endif %}
     </div>
-  {% endif %}
-  {% include "socialaccount/snippets/login.html" %}
-</form>
+</div>
 {% endblock %}

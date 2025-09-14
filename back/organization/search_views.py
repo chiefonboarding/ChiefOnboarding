@@ -1,4 +1,3 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.views.generic.base import TemplateView
 
@@ -16,7 +15,7 @@ from users.mixins import ManagerPermMixin
 from users.models import User
 
 
-class SearchHXView(LoginRequiredMixin, ManagerPermMixin, TemplateView):
+class SearchHXView(ManagerPermMixin, TemplateView):
     template_name = "search_results.html"
 
     def get_context_data(self, **kwargs):

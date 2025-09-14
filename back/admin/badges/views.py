@@ -1,4 +1,3 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
@@ -11,7 +10,7 @@ from .forms import BadgeForm
 from .models import Badge
 
 
-class BadgeListView(LoginRequiredMixin, ManagerPermMixin, ListView):
+class BadgeListView(ManagerPermMixin, ListView):
     template_name = "templates.html"
     queryset = Badge.templates.all().order_by("name")
     paginate_by = 10
@@ -24,9 +23,7 @@ class BadgeListView(LoginRequiredMixin, ManagerPermMixin, ListView):
         return context
 
 
-class BadgeCreateView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, CreateView
-):
+class BadgeCreateView(ManagerPermMixin, SuccessMessageMixin, CreateView):
     template_name = "template_update.html"
     form_class = BadgeForm
     success_url = reverse_lazy("badges:list")
@@ -39,9 +36,7 @@ class BadgeCreateView(
         return context
 
 
-class BadgeUpdateView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, UpdateView
-):
+class BadgeUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "template_update.html"
     form_class = BadgeForm
     success_url = reverse_lazy("badges:list")
@@ -55,9 +50,7 @@ class BadgeUpdateView(
         return context
 
 
-class BadgeDeleteView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, DeleteView
-):
+class BadgeDeleteView(ManagerPermMixin, SuccessMessageMixin, DeleteView):
     queryset = Badge.objects.all()
     success_url = reverse_lazy("badges:list")
     success_message = _("badge item has been removed")

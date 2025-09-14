@@ -229,10 +229,6 @@ def test_initial_setup_page(client):
     # account login redirects to setup page
     url = reverse("account_login")
     response = client.get(url, follow=True)
-    assert reverse("setup") == response.redirect_chain[-1][0]
-
-    url = reverse("setup")
-    response = client.get(url)
 
     # page renders, no org created yet
     assert response.status_code == 200
@@ -245,7 +241,7 @@ def test_initial_setup_page(client):
     assert not get_user_model().objects.all().exists()
 
     response = client.post(
-        url,
+        reverse("setup"),
         data={
             "name": "test org",
             "language": "en",

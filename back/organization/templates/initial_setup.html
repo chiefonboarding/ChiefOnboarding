@@ -4,9 +4,11 @@
 {% block extra_head %}
 <style>
   /* the button would be blank without this as the org (which defines the color) is not created yet */
-  .btn-primary, .btn-outline-primary, .btn-ghost-primary, .btn-primary:hover, .btn-outline-primary:hover, .btn-ghost-primary:hover {
-    --tblr-btn-color: 153, 131, 92;
-    --tblr-btn-color-darker: 153, 131, 92;
+  .btn-primary, .btn-outline-primary, .btn-ghost-primary, .btn-primary:hover, .btn-outline-primary:hover, .btn-ghost-primary:hover, .border-primary {
+    --tblr-primary: rgb(153, 131, 92);
+    --tblr-btn-hover-bg: rgb(153, 131, 92);
+    --tblr-primary-rgb: rgb(153, 131, 92);
+    --tblr-primary-darker: rgb(153, 131, 92);
   }
 </style>
 {% endblock %}

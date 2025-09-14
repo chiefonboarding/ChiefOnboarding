@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -38,7 +37,7 @@ from .forms import (
 )
 
 
-class SequenceListView(LoginRequiredMixin, ManagerPermMixin, ListView):
+class SequenceListView(ManagerPermMixin, ListView):
     """
     Lists all onboarding sequences in a table.
     """
@@ -55,7 +54,7 @@ class SequenceListView(LoginRequiredMixin, ManagerPermMixin, ListView):
         return context
 
 
-class SequenceCreateView(LoginRequiredMixin, ManagerPermMixin, RedirectView):
+class SequenceCreateView(ManagerPermMixin, RedirectView):
     """
     Creates a new sequences, also adds a default (empty) sequence for unconditional
     items. Redirects user back to the newly created sequence.
@@ -73,7 +72,7 @@ class SequenceCreateView(LoginRequiredMixin, ManagerPermMixin, RedirectView):
         return seq.update_url
 
 
-class SequenceView(LoginRequiredMixin, ManagerPermMixin, DetailView):
+class SequenceView(ManagerPermMixin, DetailView):
     """
     Shows one sequence to the user. This includes a list of `ToDo` items for on the
     right side (the others will be loaded on click).
@@ -93,7 +92,7 @@ class SequenceView(LoginRequiredMixin, ManagerPermMixin, DetailView):
         return context
 
 
-class SequenceNameUpdateView(LoginRequiredMixin, ManagerPermMixin, BaseUpdateView):
+class SequenceNameUpdateView(ManagerPermMixin, BaseUpdateView):
     """
     Updates the name of the sequence when the user ends typing.
 
@@ -111,7 +110,7 @@ class SequenceNameUpdateView(LoginRequiredMixin, ManagerPermMixin, BaseUpdateVie
         return HttpResponse()
 
 
-class SequenceConditionBase(LoginRequiredMixin, ManagerPermMixin):
+class SequenceConditionBase(ManagerPermMixin):
     template_name = "_condition_form.html"
     model = Condition
     new = True
@@ -174,7 +173,7 @@ class SequenceConditionUpdateView(SequenceConditionBase, UpdateView):
     pass
 
 
-class SendTestMessageView(LoginRequiredMixin, ManagerPermMixin, View):
+class SendTestMessageView(ManagerPermMixin, View):
     def post(self, request, template_pk, *args, **kwargs):
         external_message = get_object_or_404(ExternalMessage, pk=template_pk)
         external_message.person_type = ExternalMessage.PersonType.CUSTOM
@@ -184,7 +183,7 @@ class SendTestMessageView(LoginRequiredMixin, ManagerPermMixin, View):
         return HttpResponse()
 
 
-class SequenceFormView(LoginRequiredMixin, ManagerPermMixin, View):
+class SequenceFormView(ManagerPermMixin, View):
     """
     Get form when clicking on a line in a condition or dragging non-template, either
     empty or filled in form.
@@ -242,7 +241,7 @@ class SequenceFormView(LoginRequiredMixin, ManagerPermMixin, View):
         )
 
 
-class SequenceFormUpdateView(LoginRequiredMixin, ManagerPermMixin, View):
+class SequenceFormUpdateView(ManagerPermMixin, View):
     """
     Update or create a specific line item (template or not) in a condition item (excl.
     Integration config)
@@ -309,9 +308,7 @@ class SequenceFormUpdateView(LoginRequiredMixin, ManagerPermMixin, View):
         return HttpResponse(headers={"HX-Trigger": "reload-sequence"})
 
 
-class SequenceFormUpdateIntegrationConfigView(
-    LoginRequiredMixin, ManagerPermMixin, View
-):
+class SequenceFormUpdateIntegrationConfigView(ManagerPermMixin, View):
     """
     This will update or create an integration config object
 
@@ -362,7 +359,7 @@ class SequenceFormUpdateIntegrationConfigView(
         return HttpResponse(headers={"HX-Trigger": "reload-sequence"})
 
 
-class SequenceConditionItemView(LoginRequiredMixin, ManagerPermMixin, View):
+class SequenceConditionItemView(ManagerPermMixin, View):
     """
     This will delete or add a template item to a condition
 
@@ -398,7 +395,7 @@ class SequenceConditionItemView(LoginRequiredMixin, ManagerPermMixin, View):
         )
 
 
-class SequenceConditionDeleteView(LoginRequiredMixin, ManagerPermMixin, View):
+class SequenceConditionDeleteView(ManagerPermMixin, View):
     """
     Delete an entire condition
 
@@ -418,9 +415,7 @@ class SequenceConditionDeleteView(LoginRequiredMixin, ManagerPermMixin, View):
         return HttpResponse()
 
 
-class SequenceDeleteView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, DeleteView
-):
+class SequenceDeleteView(ManagerPermMixin, SuccessMessageMixin, DeleteView):
     """
     Delete an entire sequence
 
@@ -432,7 +427,7 @@ class SequenceDeleteView(
     success_message = _("Sequence item has been removed")
 
 
-class SequenceDefaultTemplatesView(LoginRequiredMixin, ManagerPermMixin, ListView):
+class SequenceDefaultTemplatesView(ManagerPermMixin, ListView):
     """
     Get a list of all available template items to drop in the sequence
 

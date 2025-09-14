@@ -94,10 +94,17 @@ INSTALLED_APPS = [
     "crispy_forms",
     # allauth
     "allauth",
-    "allauth.mfa",
     "allauth.account",
     "allauth.socialaccount",
 ]
+
+# custom
+ALLOW_LOGIN_WITH_CREDENTIALS = env.bool("ALLOW_LOGIN_WITH_CREDENTIALS", True)
+# allauth
+SOCIALACCOUNT_ONLY = not ALLOW_LOGIN_WITH_CREDENTIALS
+
+if ALLOW_LOGIN_WITH_CREDENTIALS:
+    INSTALLED_APPS += ["allauth.mfa"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
@@ -107,7 +114,11 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 # ALLAUTH config
 ACCOUNT_ADAPTER = "users.adapter.UserAdapter"
 ACCOUNT_LOGIN_METHODS = {"email"}
-ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_SIGNUP_FIELDS = [
+    "email*",
+    "password1*",
+    "password2*",
+]  # not used, but needed for allauth
 # We don't allow signups, so this is not necessary
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_MAX_EMAIL_ADDRESSES = 1
@@ -144,12 +155,12 @@ if env.bool("ALLOW_OIDC", False):
         "APPS": env.list("OPENID_CONNECT_CONFIG", []),
     }
 
-ALLOW_CREDENTIALS_LOGIN = env.bool("ALLOW_CREDENTIALS_LOGIN", True)
 
 # DJANGO login config
 LOGIN_REDIRECT_URL = "logged_in_user_redirect"
 LOGOUT_REDIRECT_URL = "account_login"
 LOGIN_URL = "account_login"
+
 
 RUNNING_TESTS = "pytest" in sys.modules
 FAKE_SLACK_API = False
@@ -166,9 +177,11 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "organization.middleware.HealthCheckMiddleware",
+    "organization.middleware.SetupOrgMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.auth.middleware.LoginRequiredMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "users.middleware.language_middleware",

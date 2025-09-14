@@ -6,7 +6,7 @@
     {% load allauth socialaccount %}
     {% get_providers as socialaccount_providers %}
     {% if socialaccount_providers %}
-      {% if not allow_credentials_login %}
+      {% if not allow_login_with_credentials %}
         <div class="hr-text">or</div>
       {% endif %}
         <div class="card-body">

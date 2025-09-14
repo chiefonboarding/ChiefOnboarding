@@ -1,4 +1,3 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
@@ -13,7 +12,7 @@ from .forms import IntroductionForm
 from .models import Introduction
 
 
-class IntroductionListView(LoginRequiredMixin, ManagerPermMixin, ListView):
+class IntroductionListView(ManagerPermMixin, ListView):
     template_name = "templates.html"
     queryset = Introduction.templates.all().order_by("name")
     paginate_by = 10
@@ -26,9 +25,7 @@ class IntroductionListView(LoginRequiredMixin, ManagerPermMixin, ListView):
         return context
 
 
-class IntroductionCreateView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, CreateView
-):
+class IntroductionCreateView(ManagerPermMixin, SuccessMessageMixin, CreateView):
     template_name = "intro_update.html"
     form_class = IntroductionForm
     success_url = reverse_lazy("introductions:list")
@@ -41,9 +38,7 @@ class IntroductionCreateView(
         return context
 
 
-class IntroductionColleaguePreviewView(
-    LoginRequiredMixin, ManagerPermMixin, DetailView
-):
+class IntroductionColleaguePreviewView(ManagerPermMixin, DetailView):
     template_name = "_colleague_intro.html"
     model = User
 
@@ -53,9 +48,7 @@ class IntroductionColleaguePreviewView(
         return context
 
 
-class IntroductionUpdateView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, UpdateView
-):
+class IntroductionUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "intro_update.html"
     form_class = IntroductionForm
     success_url = reverse_lazy("introductions:list")
@@ -69,9 +62,7 @@ class IntroductionUpdateView(
         return context
 
 
-class IntroductionDeleteView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, DeleteView
-):
+class IntroductionDeleteView(ManagerPermMixin, SuccessMessageMixin, DeleteView):
     queryset = Introduction.objects.all()
     success_url = reverse_lazy("introductions:list")
     success_message = _("Introduction item has been removed")

@@ -69,8 +69,6 @@ class OrganizationGeneralForm(forms.ModelForm):
             "base_color",
             "accent_color",
             "logo",
-            "google_login",
-            "oidc_login",
             "new_hire_email",
             "new_hire_email_reminders",
             "new_hire_email_overdue_reminders",

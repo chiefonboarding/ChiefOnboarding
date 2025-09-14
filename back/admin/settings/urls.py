@@ -1,7 +1,15 @@
-from allauth.mfa.recovery_codes import views as allauth_mfa_views
+from django.conf import settings
 from django.urls import include, path
 
 from . import views
+
+if settings.ALLOW_LOGIN_WITH_CREDENTIALS:
+    from allauth.mfa.recovery_codes.views import download_recovery_codes
+else:
+
+    def download_recovery_codes():
+        pass
+
 
 app_name = "settings"
 urlpatterns = [
@@ -45,7 +53,7 @@ urlpatterns = [
                             ),
                             path(
                                 "download/",
-                                allauth_mfa_views.download_recovery_codes,
+                                download_recovery_codes,
                                 name="mfa_download_recovery_codes",
                             ),
                         ]

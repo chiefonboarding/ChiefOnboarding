@@ -1,4 +1,3 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic.list import ListView
@@ -7,7 +6,7 @@ from admin.sequences.models import Sequence
 from users.mixins import ManagerPermMixin
 
 
-class OffboardingSequenceListView(LoginRequiredMixin, ManagerPermMixin, ListView):
+class OffboardingSequenceListView(ManagerPermMixin, ListView):
     """
     Lists all onboarding sequences in a table.
     """

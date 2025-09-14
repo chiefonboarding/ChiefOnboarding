@@ -31,7 +31,6 @@ def test_update_org_settings(client, django_user_model):
         "timezone": "Europe/Amsterdam",
         "base_color": "#FFFFFF",
         "accent_color": "#FFFFF",
-        "credentials_login": True,
     }
 
     response = client.post(url, data=data, follow=True)
@@ -325,7 +324,9 @@ def test_totp_views(client, admin_factory):
         response = client.get(reverse("settings:mfa_activate_totp"))
         assert "To protect your account with two-factor" in response.content.decode()
 
-        with patch("allauth.mfa.totp.validate_totp_code", Mock(return_value=True)):
+        with patch(
+            "allauth.mfa.totp.internal.auth.validate_totp_code", Mock(return_value=True)
+        ):
             response = client.post(
                 reverse("settings:mfa_activate_totp"),
                 {
@@ -342,7 +343,8 @@ def test_totp_views(client, admin_factory):
     )
 
     with patch(
-        "allauth.account.decorators.did_recently_authenticate", Mock(return_value=True)
+        "allauth.account.internal.flows.reauthentication.did_recently_authenticate",
+        Mock(return_value=True),
     ):
         response = client.get(reverse("settings:mfa_deactivate_totp"))
         assert "Deactivate" in response.content.decode()

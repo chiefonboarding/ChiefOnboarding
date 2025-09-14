@@ -1,4 +1,3 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
@@ -11,7 +10,7 @@ from .forms import AppointmentForm
 from .models import Appointment
 
 
-class AppointmentListView(LoginRequiredMixin, ManagerPermMixin, ListView):
+class AppointmentListView(ManagerPermMixin, ListView):
     template_name = "templates.html"
     queryset = Appointment.templates.all().order_by("name")
     paginate_by = 10
@@ -24,9 +23,7 @@ class AppointmentListView(LoginRequiredMixin, ManagerPermMixin, ListView):
         return context
 
 
-class AppointmentCreateView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, CreateView
-):
+class AppointmentCreateView(ManagerPermMixin, SuccessMessageMixin, CreateView):
     template_name = "template_update.html"
     form_class = AppointmentForm
     success_url = reverse_lazy("appointments:list")
@@ -39,9 +36,7 @@ class AppointmentCreateView(
         return context
 
 
-class AppointmentUpdateView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, UpdateView
-):
+class AppointmentUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "template_update.html"
     form_class = AppointmentForm
     success_url = reverse_lazy("appointments:list")
@@ -55,9 +50,7 @@ class AppointmentUpdateView(
         return context
 
 
-class AppointmentDeleteView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, DeleteView
-):
+class AppointmentDeleteView(ManagerPermMixin, SuccessMessageMixin, DeleteView):
     queryset = Appointment.objects.all()
     success_url = reverse_lazy("appointments:list")
     success_message = _("Appointment item has been removed")

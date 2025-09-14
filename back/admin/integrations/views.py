@@ -4,7 +4,6 @@ from urllib.parse import urlparse
 
 import requests
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
@@ -23,9 +22,7 @@ from .forms import IntegrationExtraArgsForm, IntegrationForm
 from .models import Integration, IntegrationTracker
 
 
-class IntegrationCreateView(
-    LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin
-):
+class IntegrationCreateView(AdminPermMixin, CreateView, SuccessMessageMixin):
     template_name = "token_create.html"
     form_class = IntegrationForm
     success_message = _("Integration has been created!")
@@ -43,9 +40,7 @@ class IntegrationCreateView(
         return super().form_valid(form)
 
 
-class IntegrationUpdateView(
-    LoginRequiredMixin, AdminPermMixin, UpdateView, SuccessMessageMixin
-):
+class IntegrationUpdateView(AdminPermMixin, UpdateView, SuccessMessageMixin):
     template_name = "token_create.html"
     form_class = IntegrationForm
     queryset = Integration.objects.filter(integration=Integration.Type.CUSTOM)
@@ -72,7 +67,7 @@ class IntegrationUpdateView(
         return super().form_valid(form)
 
 
-class IntegrationDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
+class IntegrationDeleteView(AdminPermMixin, DeleteView):
     """This is a general delete function for all integrations"""
 
     template_name = "integration-delete.html"
@@ -86,9 +81,7 @@ class IntegrationDeleteView(LoginRequiredMixin, AdminPermMixin, DeleteView):
         return context
 
 
-class IntegrationUpdateExtraArgsView(
-    LoginRequiredMixin, AdminPermMixin, UpdateView, SuccessMessageMixin
-):
+class IntegrationUpdateExtraArgsView(AdminPermMixin, UpdateView, SuccessMessageMixin):
     template_name = "update_initial_data_form.html"
     form_class = IntegrationExtraArgsForm
     queryset = Integration.objects.filter(integration=Integration.Type.CUSTOM)
@@ -103,9 +96,7 @@ class IntegrationUpdateExtraArgsView(
         return context
 
 
-class IntegrationDeleteExtraArgsView(
-    LoginRequiredMixin, AdminPermMixin, DeleteView, SuccessMessageMixin
-):
+class IntegrationDeleteExtraArgsView(AdminPermMixin, DeleteView, SuccessMessageMixin):
     template_name = "update_initial_data_form.html"
     queryset = Integration.objects.filter(integration=Integration.Type.CUSTOM)
     success_message = _("Secret value has been removed")
@@ -126,7 +117,7 @@ class IntegrationDeleteExtraArgsView(
         return HttpResponseRedirect(success_url)
 
 
-class IntegrationOauthRedirectView(LoginRequiredMixin, RedirectView):
+class IntegrationOauthRedirectView(RedirectView):
     permanent = False
 
     def get_redirect_url(self, pk, *args, **kwargs):
@@ -141,7 +132,7 @@ class IntegrationOauthRedirectView(LoginRequiredMixin, RedirectView):
         )
 
 
-class IntegrationOauthCallbackView(LoginRequiredMixin, RedirectView):
+class IntegrationOauthCallbackView(RedirectView):
     permanent = False
 
     def get_redirect_url(self, pk, *args, **kwargs):
@@ -183,7 +174,7 @@ class IntegrationOauthCallbackView(LoginRequiredMixin, RedirectView):
         return reverse_lazy("settings:integrations")
 
 
-class SlackOAuthView(LoginRequiredMixin, View):
+class SlackOAuthView(View):
     def get(self, request):
         access_token, _dummy = Integration.objects.get_or_create(
             integration=Integration.Type.SLACK_BOT
@@ -221,7 +212,7 @@ class SlackOAuthView(LoginRequiredMixin, View):
         return redirect("settings:integrations")
 
 
-class IntegrationTrackerListView(LoginRequiredMixin, ManagerPermMixin, ListView):
+class IntegrationTrackerListView(ManagerPermMixin, ListView):
     queryset = (
         IntegrationTracker.objects.all()
         .select_related("integration", "for_user")
@@ -237,7 +228,7 @@ class IntegrationTrackerListView(LoginRequiredMixin, ManagerPermMixin, ListView)
         return context
 
 
-class IntegrationTrackerDetailView(LoginRequiredMixin, ManagerPermMixin, DetailView):
+class IntegrationTrackerDetailView(ManagerPermMixin, DetailView):
     model = IntegrationTracker
     template_name = "tracker.html"
 

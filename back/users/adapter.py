@@ -2,7 +2,6 @@ import logging
 import re
 
 from allauth.account.adapter import DefaultAccountAdapter
-from allauth.mfa.adapter import DefaultMFAAdapter
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from cryptography.fernet import Fernet
 from django.conf import settings
@@ -12,6 +11,12 @@ from django.utils.encoding import force_bytes, force_str
 from admin.integrations.utils import get_value_from_notation
 
 logger = logging.getLogger(__name__)
+
+
+if settings.ALLOW_LOGIN_WITH_CREDENTIALS:
+    from allauth.mfa.adapter import DefaultMFAAdapter
+else:
+    DefaultMFAAdapter = DefaultAccountAdapter
 
 
 class UserAdapter(DefaultAccountAdapter):
