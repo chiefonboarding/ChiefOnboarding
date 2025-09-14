@@ -34,6 +34,7 @@ pytest-factoryboy = "*"
 freezegun = "*"
 django-debug-toolbar = "*"
 ruff = "*"
+pytest-xdist = "*"
 
 [requires]
 python_version = "3.13"

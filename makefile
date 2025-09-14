@@ -11,7 +11,7 @@ shell:
 	docker compose run --rm web python manage.py shell
 
 test:
-	docker compose run --rm web pytest
+	docker compose run --rm web pytest -n auto
 
 bash:
 	docker compose run --rm web bash

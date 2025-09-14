@@ -141,7 +141,7 @@ def test_create_task_with_extra_slack_message(
                     "type": "button",
                     "text": {"type": "plain_text", "text": "I have completed this"},
                     "style": "primary",
-                    "value": "7",
+                    "value": str(AdminTask.objects.first().pk),
                     "action_id": "admin_task:complete",
                 }
             ],
@@ -222,7 +222,7 @@ def test_create_admin_task_for_different_user_slack_message(
                     "type": "button",
                     "text": {"type": "plain_text", "text": "I have completed this"},
                     "style": "primary",
-                    "value": "9",
+                    "value": str(AdminTask.objects.first().pk),
                     "action_id": "admin_task:complete",
                 }
             ],
@@ -368,7 +368,7 @@ def test_admin_task_comment_on_not_owned_task(
     assert "Hi, this is a new comment" in mailoutbox[0].alternatives[0][0]
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 def test_admin_task_comment_on_not_owned_task_slack_message(
     settings, client, admin_factory, admin_task_factory, mailoutbox
 ):
@@ -404,7 +404,7 @@ def test_admin_task_comment_on_not_owned_task_slack_message(
                     "type": "button",
                     "text": {"type": "plain_text", "text": "I have completed this"},
                     "style": "primary",
-                    "value": "9",
+                    "value": str(task1.pk),
                     "action_id": "admin_task:complete",
                 }
             ],
