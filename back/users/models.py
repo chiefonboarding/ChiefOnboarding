@@ -249,7 +249,7 @@ class User(AbstractBaseUser):
     class Meta:
         constraints = [
             CheckConstraint(
-                check=~Q(unique_url=""),
+                condition=~Q(unique_url=""),
                 name="unique_url_not_empty",
             )
         ]

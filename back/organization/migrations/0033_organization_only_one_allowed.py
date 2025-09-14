@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="organization",
             constraint=models.CheckConstraint(
-                check=models.Q(("id", 1)), name="only_one_allowed"
+                condition=models.Q(("id", 1)), name="only_one_allowed"
             ),
         ),
     ]
