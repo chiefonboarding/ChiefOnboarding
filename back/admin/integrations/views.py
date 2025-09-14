@@ -192,6 +192,9 @@ class IntegrationOauthCallbackView(LoginRequiredMixin, RedirectView):
             return reverse_lazy("settings:integrations")
 
         integration.extra_args["oauth"] = response.json()
+        if integration.manifest["oauth"].get("store_redirect_parameters", False):
+            integration.extra_args["oauth"]["redirect_params"] = self.request.GET
+
         if "expires_in" in response.json():
             integration.expiring = timezone.now() + timedelta(
                 seconds=response.json()["expires_in"]
