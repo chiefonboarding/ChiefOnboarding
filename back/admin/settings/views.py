@@ -17,6 +17,7 @@ from django.views.generic.list import ListView
 from twilio.rest import Client
 
 from admin.integrations.models import Integration
+from admin.settings.decorators import requires_credentials_login
 from organization.models import Notification, Organization, WelcomeMessage
 from slack_bot.models import SlackChannel
 from slack_bot.utils import Slack, actions, button, paragraph
@@ -274,6 +275,7 @@ class PersonalLanguageUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateVi
         return context
 
 
+@method_decorator(requires_credentials_login, name="dispatch")
 class TOTPIndexView(ManagerPermMixin, IndexView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -282,6 +284,7 @@ class TOTPIndexView(ManagerPermMixin, IndexView):
         return context
 
 
+@method_decorator(requires_credentials_login, name="dispatch")
 @method_decorator(reauthentication_required, name="dispatch")
 class TOTPActivateView(ManagerPermMixin, ActivateTOTPView):
     success_url = reverse_lazy("settings:totp")
@@ -303,6 +306,7 @@ class TOTPDeactivateView(ManagerPermMixin, DeactivateTOTPView):
         return context
 
 
+@method_decorator(requires_credentials_login, name="dispatch")
 class TOTPGenerateRecoveryCodesView(ManagerPermMixin, GenerateRecoveryCodesView):
     success_url = reverse_lazy("settings:totp")
 

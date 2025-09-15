@@ -7,7 +7,7 @@
     {% get_providers as socialaccount_providers %}
     {% if socialaccount_providers %}
       {% if not SOCIALACCOUNT_ONLY %}
-        <div class="hr-text">or</div>
+        <div class="hr-text">{% trans "or" %}</div>
       {% endif %}
         {% for provider in socialaccount_providers %}
             {% if provider.id == "openid" %}
@@ -17,7 +17,7 @@
                         <div class="col">
                           <form method="POST" action="{{ href }}">
                             <button class="btn btn-white w-100">
-                              Log in with {{ brand.name }}
+                              {% trans "Log in with" %} {{ brand.name }}
                             </button>
                           </form>
                         </div>
@@ -30,7 +30,7 @@
                 <form method="POST" action="{{ href }}">
                   {% csrf_token %}
                   <button class="btn btn-white w-100">
-                    Log in with {{provider.name}}
+                    {% trans "Log in with" %} {{provider.name}}
                   </button>
                 </form>
               </div>

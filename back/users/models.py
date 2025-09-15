@@ -1,14 +1,11 @@
 from datetime import datetime, timedelta
 
 import pytz
-from allauth.account.models import EmailAddress
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 from django.db.models import CheckConstraint, Q
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.template import Context, Template
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -596,16 +593,6 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return "%s" % self.full_name
-
-
-@receiver(post_save, sender=User)
-def verify_email_address_allauth(sender, instance, created, **kwargs):
-    # We don't need to validate the email address as it's entered by an admin/manager.
-    # Signing up is permanently disabled.
-    if created:
-        EmailAddress.objects.create(
-            user=instance, email=instance.email, verified=True, primary=True
-        )
 
 
 class ToDoUserManager(models.Manager):

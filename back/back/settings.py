@@ -113,6 +113,8 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # ALLAUTH config
 ACCOUNT_ADAPTER = "users.adapter.UserAdapter"
+SOCIALACCOUNT_ADAPTER = "users.adapter.SocialAccountAdapter"
+MFA_ADAPTER = "users.adapter.MFAAdapter"
 ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_SIGNUP_FIELDS = [
     "email*",
@@ -127,11 +129,12 @@ ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_USER_MODEL_USERNAME_FIELD = "email"
 MFA_TOTP_ISSUER = env("CHIEFONBOARDING_NAME", default="ChiefOnboarding")
 # social
-SOCIALACCOUNT_AUTO_SIGNUP = False
+SOCIALACCOUNT_AUTO_SIGNUP = env.bool("SSO_AUTO_CREATE_USER", default=False)
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_EMAIL_REQUIRED = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 
-SOCIALACCOUNT_PROVIDERS = {}
+SOCIALACCOUNT_PROVIDERS = env.dict("SSO_PROVIDERS", default={})
 
 if env.bool("ALLOW_GOOGLE_SSO", False):
     INSTALLED_APPS += ["allauth.socialaccount.providers.google"]
@@ -149,11 +152,15 @@ if env.bool("ALLOW_GOOGLE_SSO", False):
         "OAUTH_PKCE_ENABLED": True,
     }
 
+OIDC_ROLE_PATH_IN_RETURN = env("OIDC_ROLE_PATH_IN_RETURN", default="")
+OIDC_ROLE_ADMIN_PATTERN = env("OIDC_ROLE_ADMIN_PATTERN", default="^cn=Administrators.*")
+OIDC_ROLE_MANAGER_PATTERN = env("OIDC_ROLE_MANAGER_PATTERN", default="^cn=Managers.*")
+OIDC_ROLE_NEW_HIRE_PATTERN = env("OIDC_ROLE_NEW_HIRE_PATTERN", default="^cn=Newhires.*")
+
 # DJANGO login config
 LOGIN_REDIRECT_URL = "logged_in_user_redirect"
 LOGOUT_REDIRECT_URL = "account_login"
 LOGIN_URL = "account_login"
-
 
 RUNNING_TESTS = "pytest" in sys.modules
 FAKE_SLACK_API = False

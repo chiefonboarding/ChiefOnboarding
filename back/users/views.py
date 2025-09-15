@@ -9,6 +9,5 @@ class LoginRedirectView(View):
             return redirect("admin:new_hires")
         elif request.user.role == get_user_model().Role.NEWHIRE:
             return redirect("new_hire:todos")
-
         else:
             return redirect("new_hire:colleagues")

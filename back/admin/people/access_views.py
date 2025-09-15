@@ -1,3 +1,4 @@
+from allauth.account.models import EmailAddress
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
@@ -56,6 +57,10 @@ class UserDeleteView(IsAdminOrNewHireManagerMixin, SuccessMessageMixin, DeleteVi
             user=self.object, revoked=False
         ).select_related("integration")
         return context
+
+    def form_valid(self, form):
+        EmailAddress.objects.filter(user=self.object).delete()
+        return super().form_valid(form)
 
 
 class UserRevokeAllAccessView(IsAdminOrNewHireManagerMixin, SuccessMessageMixin, View):

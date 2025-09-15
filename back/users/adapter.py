@@ -35,6 +35,9 @@ class MFAAdapter(DefaultMFAAdapter):
 
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
+    def is_open_for_signup(self, request, sociallogin):
+        return settings.SOCIALACCOUNT_AUTO_SIGNUP
+
     def _get_user_role(self, raw_role_data):
         roles = {
             get_user_model().Role.ADMIN: settings.OIDC_ROLE_ADMIN_PATTERN,
@@ -54,7 +57,6 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         if settings.OIDC_ROLE_PATH_IN_RETURN == "":
             # set default to OTHER
             user.role = get_user_model().Role.OTHER
-            user.save(update_fields=["role"])
             return user
 
         try:
@@ -66,6 +68,4 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
             raw_role_data = ""
 
         user.role = self._get_user_role(raw_role_data)
-        user.save(update_fields=["role"])
-
         return user

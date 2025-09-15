@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.shortcuts import get_object_or_404
 
 
 class ManagerPermMixin(UserPassesTestMixin):
@@ -15,5 +14,8 @@ class AdminPermMixin(UserPassesTestMixin):
 
 class IsAdminOrNewHireManagerMixin(UserPassesTestMixin):
     def test_func(self):
-        new_hire = get_object_or_404(get_user_model(), id=self.kwargs.get("pk", -1))
+        try:
+            new_hire = get_user_model().objects.get(id=self.kwargs.get("pk", -1))
+        except get_user_model().DoesNotExist:
+            return False
         return self.request.user.is_admin or new_hire.manager == self.request.user

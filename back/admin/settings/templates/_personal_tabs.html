@@ -3,7 +3,9 @@
   <li class="nav-item">
     <a href="{% url 'settings:personal-language' %}" class="nav-link {% if 'language' in request.path %} active{% endif %}">{% translate "Language" %}</a>
   </li>
-  <li class="nav-item">
-    <a href="{% url 'settings:totp' %}" class="nav-link {% if '2fa' in request.path %} active{% endif %}">{% translate "Two-factor authentication" %}</a>
-  </li>
+  {% if SOCIALACCOUNT_ONLY %} 
+    <li class="nav-item">
+      <a href="{% url 'settings:totp' %}" class="nav-link {% if '2fa' in request.path %} active{% endif %}">{% translate "Two-factor authentication" %}</a>
+    </li>
+  {% endif %}
 </ul>
