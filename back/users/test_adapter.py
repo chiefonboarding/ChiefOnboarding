@@ -48,6 +48,7 @@ def test_populate_user(employee_factory):
         "details": {"zoneinfo": "Administrators test"},
     }
     user = SocialAccountAdapter().populate_user(None, sociallogin, data)
+    # saving happens elsewhere, so force save here
+    user.save()
     assert get_user_model().objects.count() == 1
     assert get_user_model().objects.first().role == get_user_model().Role.ADMIN
-    assert user.role == get_user_model().Role.ADMIN

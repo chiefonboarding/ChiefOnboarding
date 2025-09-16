@@ -9,6 +9,7 @@ from django.contrib.auth import get_user_model
 from django.utils.encoding import force_bytes, force_str
 
 from admin.integrations.utils import get_value_from_notation
+from misc import hkdf
 
 logger = logging.getLogger(__name__)
 
@@ -27,11 +28,16 @@ class UserAdapter(DefaultAccountAdapter):
 class MFAAdapter(DefaultMFAAdapter):
     def encrypt(self, text: str) -> str:
         # encrypt with secret key
-        return Fernet(settings.SECRET_KEY).encrypt(force_bytes(text))
+        return (
+            Fernet(hkdf.derive_fernet_key(settings.SECRET_KEY))
+            .encrypt(force_bytes(text))
+            .decode()
+        )
 
     def decrypt(self, encrypted_text: str) -> str:
-        value = bytes(encrypted_text)
-        return force_str(Fernet(settings.SECRET_KEY).decrypt(value))
+        return force_str(
+            Fernet(hkdf.derive_fernet_key(settings.SECRET_KEY)).decrypt(encrypted_text)
+        )
 
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
