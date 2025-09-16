@@ -157,6 +157,11 @@ OIDC_ROLE_ADMIN_PATTERN = env("OIDC_ROLE_ADMIN_PATTERN", default="^cn=Administra
 OIDC_ROLE_MANAGER_PATTERN = env("OIDC_ROLE_MANAGER_PATTERN", default="^cn=Managers.*")
 OIDC_ROLE_NEW_HIRE_PATTERN = env("OIDC_ROLE_NEW_HIRE_PATTERN", default="^cn=Newhires.*")
 
+if env("OIDC_CLIENT_ID", default="") != "":
+    # for migration/legacy purposes. Make sure everyone migrates to the allauth setup
+    raise Exception("You need to configure OIDC differently. Please read the docs")
+
+
 # DJANGO login config
 LOGIN_REDIRECT_URL = "logged_in_user_redirect"
 LOGOUT_REDIRECT_URL = "account_login"
