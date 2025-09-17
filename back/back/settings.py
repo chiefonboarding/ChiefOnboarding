@@ -136,7 +136,7 @@ SOCIALACCOUNT_EMAIL_REQUIRED = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 
 SOCIALACCOUNT_PROVIDERS = literal_eval(env("SSO_PROVIDERS", default="{}"))
-ALLAUTH_PROVIDERS = env.list("ALLAUTH_PROVIDERS", [])
+ALLAUTH_PROVIDERS = env.list("ALLAUTH_PROVIDERS", default=[])
 if ALLAUTH_PROVIDERS:
     for provider in ALLAUTH_PROVIDERS:
         INSTALLED_APPS += ["allauth.socialaccount.providers." + provider]
