@@ -24,7 +24,8 @@ class Migration(migrations.Migration):
             [
                 EmailAddress(user=user, email=user.email, verified=True, primary=True)
                 for user in get_user_model().objects.all()
-            ]
+            ],
+            ignore_conflicts=True,
         )
 
         if Authenticator is None:
@@ -52,7 +53,7 @@ class Migration(migrations.Migration):
                     },
                 )
             )
-        Authenticator.objects.bulk_create(authenticators)
+        Authenticator.objects.bulk_create(authenticators, ignore_conflicts=True)
 
     dependencies = [
         ("users", "0041_alter_user_timezone"),
