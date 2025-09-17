@@ -2,7 +2,7 @@
 
 Please read the allauth docs here: [OIDC setup config](https://docs.allauth.org/en/latest/socialaccount/providers/openid_connect.html)
 
-You can add that config in your environment variables under `SSO_PROVIDERS` (dict).
+You can add that config in your environment variables under `SSO_PROVIDERS` (dict). Due to security reasons, your openid connect server must return the `email_verified` parameter in the response or you can force it by default through the setting `"VERIFIED_EMAIL": True` in the `SSO_PROVIDERS` dict.
 
 ## Role Mapping
 
