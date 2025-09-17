@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 import sys
+from ast import literal_eval
 
 import environ
 from django.utils.translation import gettext_lazy as _
@@ -134,7 +135,7 @@ SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_EMAIL_REQUIRED = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 
-SOCIALACCOUNT_PROVIDERS = env.dict("SSO_PROVIDERS", default={})
+SOCIALACCOUNT_PROVIDERS = literal_eval(env("SSO_PROVIDERS", default="{}"))
 
 if env.bool("ALLOW_GOOGLE_SSO", False):
     INSTALLED_APPS += ["allauth.socialaccount.providers.google"]
