@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
         for user in User.objects.filter(requires_otp=True):
             authenticators.append(
                 Authenticator(
-                    user=user,
+                    user_id=user.id,
                     type=Authenticator.Type.TOTP,
                     data={"secret": encrypt(user.totp_secret)},
                 )
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
             otp_keys = user.user_otp.filter(is_used=False).values_list("key", flat=True)
             authenticators.append(
                 Authenticator(
-                    user=user,
+                    user_id=user.id,
                     type=Authenticator.Type.RECOVERY_CODES,
                     data={
                         "seed": encrypt(user.totp_secret),
