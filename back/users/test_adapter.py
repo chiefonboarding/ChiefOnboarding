@@ -1,5 +1,5 @@
 import pytest
-from allauth.socialaccount.models import SocialLogin
+from allauth.socialaccount.models import SocialAccount, SocialLogin
 from django.contrib.auth import get_user_model
 from django.test import override_settings
 
@@ -12,21 +12,21 @@ from .adapter import SocialAccountAdapter
 @override_settings(OIDC_ROLE_NEW_HIRE_PATTERN="^Newhire.*")
 def test_get_user_role():
     assert (
-        SocialAccountAdapter()._get_user_role("Administrators test")
+        SocialAccountAdapter()._get_user_role(["Administrators test"])
         == get_user_model().Role.ADMIN
     )
     assert (
-        SocialAccountAdapter()._get_user_role("Manager test")
+        SocialAccountAdapter()._get_user_role(["Manager test"])
         == get_user_model().Role.MANAGER
     )
     assert (
-        SocialAccountAdapter()._get_user_role("Newhire test")
+        SocialAccountAdapter()._get_user_role(["Newhire test"])
         == get_user_model().Role.NEWHIRE
     )
 
     # intentional typo
     assert (
-        SocialAccountAdapter()._get_user_role("Maanager test")
+        SocialAccountAdapter()._get_user_role(["Maanager test"])
         == get_user_model().Role.OTHER
     )
 
@@ -38,7 +38,19 @@ def test_get_user_role():
 @override_settings(OIDC_ROLE_PATH_IN_RETURN="details.zoneinfo")
 def test_populate_user(employee_factory):
     employee = employee_factory()
-    sociallogin = SocialLogin(user=employee)
+    account = SocialAccount(
+        user=employee,
+        extra_data={
+            "id_token": {
+                "first_name": "John",
+                "last_name": "Do",
+                "email": "John@chiefonboarding.com",
+                "username": "john@chiefonboarding.com",
+                "details": {"zoneinfo": "Administrators test"},
+            }
+        },
+    )
+    sociallogin = SocialLogin(user=employee, account=account)
 
     data = {
         "first_name": "John",
