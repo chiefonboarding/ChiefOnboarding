@@ -37,12 +37,13 @@ The default is a "other", this is a user with only access to the colleagues and 
 ## Configuration example
 Here's the updated configuration example:
 
-```ini
-SOCIALACCOUNT_PROVIDERS={"openid_connect": {"OAUTH_PKCE_ENABLED": True, "APPS": [{"provider_id": "other-server",...}]}}
+```
+SOCIALACCOUNT_PROVIDERS={"openid_connect": {"APPS": [{"provider_id": "other-server",...}]}}
 SSO_AUTO_CREATE_USER=True # disable this if you don't want to create new users, you can ignore the ones below in that case
 OIDC_ROLE_NEW_HIRE_PATTERN='^cn=Newhires.*'
 OIDC_ROLE_ADMIN_PATTERN='^cn=Administrators.*'
 OIDC_ROLE_MANAGER_PATTERN='^cn=Managers.*'
 OIDC_ROLE_PATH_IN_RETURN='groups'
+ALLAUTH_PROVIDERS="openid_connect"
 ```
 

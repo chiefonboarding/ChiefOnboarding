@@ -51,14 +51,16 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
             get_user_model().Role.NEWHIRE: settings.OIDC_ROLE_NEW_HIRE_PATTERN,
         }
         for role, pattern in roles.items():
-            if re.search(rf"{pattern}", raw_role_data):
-                return role
+            for raw_role in raw_role_data:
+                if re.search(rf"{pattern}", raw_role):
+                    return role
 
         # if no matches, then make them "other"
         return get_user_model().Role.OTHER
 
     def populate_user(self, request, sociallogin, data):
         user = super().populate_user(request, sociallogin, data)
+        full_data = sociallogin.account.extra_data["id_token"]
 
         if settings.OIDC_ROLE_PATH_IN_RETURN == "":
             # set default to OTHER
@@ -67,11 +69,14 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
 
         try:
             raw_role_data = get_value_from_notation(
-                settings.OIDC_ROLE_PATH_IN_RETURN, data
+                settings.OIDC_ROLE_PATH_IN_RETURN, full_data
             )
         except KeyError:
             logger.info("OIDC: Path does not exist in the given data")
             raw_role_data = ""
+
+        if isinstance(raw_role_data, str):
+            raw_role_data = [raw_role_data]
 
         user.role = self._get_user_role(raw_role_data)
         return user

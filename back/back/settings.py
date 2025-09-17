@@ -136,6 +136,11 @@ SOCIALACCOUNT_EMAIL_REQUIRED = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 
 SOCIALACCOUNT_PROVIDERS = literal_eval(env("SSO_PROVIDERS", default="{}"))
+ALLAUTH_PROVIDERS = env.list("ALLAUTH_PROVIDERS", [])
+if ALLAUTH_PROVIDERS:
+    for provider in ALLAUTH_PROVIDERS:
+        INSTALLED_APPS += ["allauth.socialaccount.providers." + provider]
+
 
 if env.bool("ALLOW_GOOGLE_SSO", False):
     INSTALLED_APPS += ["allauth.socialaccount.providers.google"]
