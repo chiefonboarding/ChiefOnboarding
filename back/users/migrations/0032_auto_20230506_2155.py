@@ -46,7 +46,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="user",
             constraint=models.CheckConstraint(
-                check=models.Q(("unique_url", ""), _negated=True),
+                condition=models.Q(("unique_url", ""), _negated=True),
                 name="unique_url_not_empty",
             ),
         ),

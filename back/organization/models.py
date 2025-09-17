@@ -151,7 +151,7 @@ class Organization(models.Model):
         # a little hacky, but works fine to prevent multiple orgs
         constraints = [
             CheckConstraint(
-                check=Q(id=1),
+                condition=Q(id=1),
                 name="only_one_allowed",
             ),
         ]

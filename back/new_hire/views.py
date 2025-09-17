@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from axes.decorators import axes_dispatch
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login, signals
@@ -149,7 +147,7 @@ class SeenUpdatesView(View):
     """
 
     def get(self, request, *args, **kwargs):
-        request.user.seen_updates = datetime.now()
+        request.user.seen_updates = timezone.now()
         request.user.save()
         return HttpResponse()
 

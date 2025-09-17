@@ -36,6 +36,7 @@ class ResourceFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Resource
+        skip_postgeneration_save = True
 
     @factory.post_generation
     def chapters(obj, create, extracted, **kwargs):
@@ -75,6 +76,7 @@ class ResourceWithLevelDeepChaptersFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Resource
+        skip_postgeneration_save = True
 
     @factory.post_generation
     def chapters(obj, create, extracted, **kwargs):
