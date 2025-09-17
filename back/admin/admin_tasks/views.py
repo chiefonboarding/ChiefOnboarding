@@ -7,13 +7,13 @@ from django.views.generic.detail import BaseDetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
-from users.mixins import LoginRequiredMixin, ManagerPermMixin
+from users.mixins import ManagerPermMixin
 
 from .forms import AdminTaskCommentForm, AdminTaskCreateForm, AdminTaskUpdateForm
 from .models import AdminTask, AdminTaskComment
 
 
-class MyAdminTasksListView(LoginRequiredMixin, ManagerPermMixin, ListView):
+class MyAdminTasksListView(ManagerPermMixin, ListView):
     template_name = "admin_tasks_yours.html"
     paginate_by = 10
 
@@ -30,7 +30,7 @@ class MyAdminTasksListView(LoginRequiredMixin, ManagerPermMixin, ListView):
         return context
 
 
-class AllAdminTasksListView(LoginRequiredMixin, ManagerPermMixin, ListView):
+class AllAdminTasksListView(ManagerPermMixin, ListView):
     template_name = "admin_tasks_all.html"
     paginate_by = 10
 
@@ -45,7 +45,7 @@ class AllAdminTasksListView(LoginRequiredMixin, ManagerPermMixin, ListView):
         return context
 
 
-class AdminTaskCompleteView(LoginRequiredMixin, ManagerPermMixin, BaseDetailView):
+class AdminTaskCompleteView(ManagerPermMixin, BaseDetailView):
     model = AdminTask
 
     def post(self, request, *args, **kwargs):
@@ -54,9 +54,7 @@ class AdminTaskCompleteView(LoginRequiredMixin, ManagerPermMixin, BaseDetailView
         return redirect("admin_tasks:detail", pk=admin_task.id)
 
 
-class AdminTasksCreateView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, CreateView
-):
+class AdminTasksCreateView(ManagerPermMixin, SuccessMessageMixin, CreateView):
     template_name = "admin_tasks_create.html"
     form_class = AdminTaskCreateForm
     model = AdminTask
@@ -85,9 +83,7 @@ class AdminTasksCreateView(
         return context
 
 
-class AdminTasksUpdateView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, UpdateView
-):
+class AdminTasksUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "admin_tasks_detail.html"
     form_class = AdminTaskUpdateForm
     model = AdminTask
@@ -117,9 +113,7 @@ class AdminTasksUpdateView(
         return super().form_valid(form)
 
 
-class AdminTasksCommentCreateView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, CreateView
-):
+class AdminTasksCommentCreateView(ManagerPermMixin, SuccessMessageMixin, CreateView):
     template_name = "admin_tasks_detail.html"
     model = AdminTaskComment
     fields = [

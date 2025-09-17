@@ -36,19 +36,6 @@
             </a>
           {% endif %}
       </tr>
-      <tr>
-        <td>{% trans "Google login" %}</td>
-        <td style="text-align: right">
-          {% if google_login is not None %}
-            <a href="{% url 'integrations:delete' google_login.id %}" class="btn btn-danger">
-              {% translate "Remove" %}
-            </a>
-          {% else %}
-            <a href="{% url "integrations:create-google" %}" class="btn btn-primary">
-              {% translate "Enable" %}
-            </a>
-          {% endif %}
-      </tr>
     </tbody>
   </table>
 </div>

@@ -27,8 +27,6 @@
         "is_active": true,
         "is_introduced_to_colleagues": false,
         "sent_preboarding_details": false,
-        "totp_secret": "",
-        "requires_otp": false,
         "seen_updates": "2021-04-02T00:00:00Z",
         "completed_tasks": 0,
         "total_tasks": 0,

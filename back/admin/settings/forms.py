@@ -1,17 +1,12 @@
-import pyotp
 import pytz
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Div, Field, Layout, Submit
+from crispy_forms.layout import Div, Field, Layout, Submit
 from django import forms
-from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.cache import cache
-from django.core.exceptions import ValidationError
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_q.models import Schedule
 
-from admin.integrations.models import Integration
 from admin.templates.forms import UploadField
 from organization.models import Organization, WelcomeMessage
 
@@ -50,8 +45,6 @@ class OrganizationGeneralForm(forms.ModelForm):
                     Field("new_hire_email_reminders"),
                     Field("new_hire_email_overdue_reminders"),
                     Field("default_sequences"),
-                    HTML("<h3 class='card-title mt-3'>" + _("Login options") + "</h3>"),
-                    Field("credentials_login"),
                     css_class="col-6",
                 ),
                 Div(
@@ -67,23 +60,6 @@ class OrganizationGeneralForm(forms.ModelForm):
         )
         self.helper.layout = layout
 
-        # Only show if google login has been enabled
-        if Integration.objects.filter(
-            integration=Integration.Type.GOOGLE_LOGIN
-        ).exists():
-            layout[0][0].extend(
-                [
-                    Field("google_login"),
-                ]
-            )
-        # Only show if OIDC client has been enabled
-        if settings.OIDC_CLIENT_ID:
-            layout[0][0].extend(
-                [
-                    Field("oidc_login"),
-                ]
-            )
-
     class Meta:
         model = Organization
         fields = [
@@ -93,29 +69,11 @@ class OrganizationGeneralForm(forms.ModelForm):
             "base_color",
             "accent_color",
             "logo",
-            "google_login",
-            "oidc_login",
             "new_hire_email",
             "new_hire_email_reminders",
             "new_hire_email_overdue_reminders",
-            "credentials_login",
             "custom_email_template",
         ]
-
-    def clean(self):
-        credentials_login = self.cleaned_data["credentials_login"]
-        google_login = False
-        if (
-            "google_login" in self.cleaned_data
-            and Integration.objects.filter(
-                integration=Integration.Type.GOOGLE_LOGIN
-            ).exists()
-        ):
-            google_login = self.cleaned_data["google_login"]
-        oidc_login = self.cleaned_data.get("oidc_login", False)
-        if not any([credentials_login, google_login, oidc_login]):
-            raise ValidationError(_("You must enable at least one login option"))
-        return self.cleaned_data
 
 
 class SlackSettingsForm(forms.ModelForm):
@@ -237,31 +195,3 @@ class WelcomeMessagesUpdateForm(forms.ModelForm):
                 )
             )
         }
-
-
-class OTPVerificationForm(forms.Form):
-    otp = forms.CharField(
-        label=_("6 digit OTP code"),
-        help_text=_("This is the code that your 2FA application shows you."),
-        max_length=6,
-    )
-
-    def __init__(self, user, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user = user
-
-    def clean_otp(self):
-        otp = self.cleaned_data["otp"]
-        totp = pyotp.TOTP(self.user.totp_secret)
-        valid = totp.verify(otp)
-        # Check if token is correct and block replay attacks
-        if not valid and cache.get(f"{self.user.email}_totp_passed") is None:
-            raise ValidationError(
-                _(
-                    "OTP token was not correct. Please wait 30 seconds and then try "
-                    "again"
-                )
-            )
-
-        cache.set(f"{self.user.email}_totp_passed", "true", 30)
-        return otp

@@ -4,13 +4,13 @@ from django.utils.translation import gettext as _
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
-from users.mixins import LoginRequiredMixin, ManagerPermMixin
+from users.mixins import ManagerPermMixin
 
 from .forms import ResourceForm
 from .models import Resource
 
 
-class ResourceListView(LoginRequiredMixin, ManagerPermMixin, ListView):
+class ResourceListView(ManagerPermMixin, ListView):
     template_name = "templates.html"
     queryset = Resource.templates.all().order_by("name")
     paginate_by = 10
@@ -23,9 +23,7 @@ class ResourceListView(LoginRequiredMixin, ManagerPermMixin, ListView):
         return context
 
 
-class ResourceCreateView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, CreateView
-):
+class ResourceCreateView(ManagerPermMixin, SuccessMessageMixin, CreateView):
     template_name = "resource_update.html"
     form_class = ResourceForm
     success_url = reverse_lazy("resources:list")
@@ -38,9 +36,7 @@ class ResourceCreateView(
         return context
 
 
-class ResourceUpdateView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, UpdateView
-):
+class ResourceUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "resource_update.html"
     form_class = ResourceForm
     success_url = reverse_lazy("resources:list")
@@ -54,9 +50,7 @@ class ResourceUpdateView(
         return context
 
 
-class ResourceDeleteView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, DeleteView
-):
+class ResourceDeleteView(ManagerPermMixin, SuccessMessageMixin, DeleteView):
     queryset = Resource.objects.all()
     success_url = reverse_lazy("resources:list")
     success_message = _("Resource item has been removed")

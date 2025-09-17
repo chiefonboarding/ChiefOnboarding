@@ -1,3 +1,4 @@
+from allauth.account.models import EmailAddress
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
@@ -10,14 +11,11 @@ from django.views.generic.edit import DeleteView
 
 from admin.integrations.forms import IntegrationExtraUserInfoForm
 from admin.integrations.models import Integration
-from users.mixins import (
-    IsAdminOrNewHireManagerMixin,
-    LoginRequiredMixin,
-)
+from users.mixins import IsAdminOrNewHireManagerMixin
 from users.models import IntegrationUser
 
 
-class NewHireAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
+class NewHireAccessView(IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "new_hire_access.html"
     model = get_user_model()
 
@@ -30,7 +28,7 @@ class NewHireAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Detail
         return context
 
 
-class ColleagueAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
+class ColleagueAccessView(IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "colleague_access.html"
     model = get_user_model()
 
@@ -43,9 +41,7 @@ class ColleagueAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Deta
         return context
 
 
-class UserDeleteView(
-    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, SuccessMessageMixin, DeleteView
-):
+class UserDeleteView(IsAdminOrNewHireManagerMixin, SuccessMessageMixin, DeleteView):
     template_name = "user_delete.html"
     queryset = get_user_model().objects.all()
     success_url = reverse_lazy("people:new_hires")
@@ -62,10 +58,12 @@ class UserDeleteView(
         ).select_related("integration")
         return context
 
+    def form_valid(self, form):
+        EmailAddress.objects.filter(user=self.object).delete()
+        return super().form_valid(form)
 
-class UserRevokeAllAccessView(
-    LoginRequiredMixin, IsAdminOrNewHireManagerMixin, SuccessMessageMixin, View
-):
+
+class UserRevokeAllAccessView(IsAdminOrNewHireManagerMixin, SuccessMessageMixin, View):
     def post(self, request, *args, **kwargs):
         user = get_object_or_404(get_user_model(), id=self.kwargs.get("pk", -1))
         for integration in Integration.objects.filter(
@@ -82,7 +80,7 @@ class UserRevokeAllAccessView(
         return redirect("people:delete", user.id)
 
 
-class UserCheckAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
+class UserCheckAccessView(IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "_user_access_card.html"
     model = get_user_model()
 
@@ -104,7 +102,7 @@ class UserCheckAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Deta
         return context
 
 
-class UserGiveAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, DetailView):
+class UserGiveAccessView(IsAdminOrNewHireManagerMixin, DetailView):
     template_name = "give_user_access.html"
     model = get_user_model()
 
@@ -169,7 +167,7 @@ class UserGiveAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, Detai
         return context
 
 
-class UserToggleAccessView(LoginRequiredMixin, IsAdminOrNewHireManagerMixin, View):
+class UserToggleAccessView(IsAdminOrNewHireManagerMixin, View):
     def post(self, request, *args, **kwargs):
         integration = get_object_or_404(
             Integration, id=self.kwargs.get("integration_id", -1)

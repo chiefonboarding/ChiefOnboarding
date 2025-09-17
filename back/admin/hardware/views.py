@@ -6,10 +6,10 @@ from django.views.generic.list import ListView
 
 from admin.hardware.forms import HardwareForm
 from admin.hardware.models import Hardware
-from users.mixins import LoginRequiredMixin, ManagerPermMixin
+from users.mixins import ManagerPermMixin
 
 
-class HardwareListView(LoginRequiredMixin, ManagerPermMixin, ListView):
+class HardwareListView(ManagerPermMixin, ListView):
     template_name = "templates.html"
     queryset = Hardware.templates.all().order_by("name").defer("content")
     paginate_by = 10
@@ -22,9 +22,7 @@ class HardwareListView(LoginRequiredMixin, ManagerPermMixin, ListView):
         return context
 
 
-class HardwareCreateView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, CreateView
-):
+class HardwareCreateView(ManagerPermMixin, SuccessMessageMixin, CreateView):
     template_name = "template_update.html"
     form_class = HardwareForm
     success_url = reverse_lazy("hardware:list")
@@ -37,9 +35,7 @@ class HardwareCreateView(
         return context
 
 
-class HardwareUpdateView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, UpdateView
-):
+class HardwareUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "template_update.html"
     form_class = HardwareForm
     success_url = reverse_lazy("hardware:list")
@@ -53,9 +49,7 @@ class HardwareUpdateView(
         return context
 
 
-class HardwareDeleteView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, DeleteView
-):
+class HardwareDeleteView(ManagerPermMixin, SuccessMessageMixin, DeleteView):
     queryset = Hardware.objects.all()
     success_url = reverse_lazy("hardware:list")
     success_message = _("Hardware item has been removed")

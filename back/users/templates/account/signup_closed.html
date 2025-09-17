@@ -1,0 +1,17 @@
+{% extends 'no_login_base.html' %}
+{% load i18n %}
+{% load allauth account socialaccount %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="card card-md">
+  <div class="card-body">
+    <div class="mb-2">
+      <h2 class="page-title">{% trans "Your account doesn't exist" %}</h2>
+      <p>
+        {% trans "Please reach out to an admin to create your account. Accounts are not created automatically." %}
+      </p>
+    </div>
+  </div>
+</form>
+{% endblock %}

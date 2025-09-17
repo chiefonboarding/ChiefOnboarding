@@ -163,10 +163,6 @@ class IntegrationInactiveManager(models.Manager):
 class Integration(models.Model):
     class Type(models.IntegerChoices):
         SLACK_BOT = 0, _("Slack bot")
-        SLACK_ACCOUNT_CREATION = 1, _("Slack account creation")  # legacy
-        GOOGLE_ACCOUNT_CREATION = 2, _("Google account creation")  # legacy
-        GOOGLE_LOGIN = 3, _("Google Login")
-        ASANA = 4, _("Asana")  # legacy
         CUSTOM = 10, _("Custom")
 
     class ManifestType(models.IntegerChoices):
