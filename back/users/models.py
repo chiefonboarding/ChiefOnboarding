@@ -27,16 +27,14 @@ from misc.models import File
 from organization.models import Notification
 from slack_bot.utils import Slack, paragraph
 
-from .utils import CompletedFormCheck
+from .utils import CompletedFormCheck, parse_array_to_string
 
 
 class Department(models.Model):
     """
     Department that has been attached to a user
-    At the moment, only one department per user
     """
-
-    name = models.TextField()
+    name = models.CharField(max_length=255)
 
     def __str__(self):
         return "%s" % self.name
@@ -156,6 +154,7 @@ class User(AbstractBaseUser):
     department = models.ForeignKey(
         Department, verbose_name=_("Department"), on_delete=models.SET_NULL, null=True
     )
+    departments = models.ManyToManyField(Department, blank=True, related_name="users")
     language = models.CharField(
         verbose_name=_("Language"),
         default="en",
@@ -522,13 +521,11 @@ class User(AbstractBaseUser):
         if extra_values is None:
             extra_values = {}
         t = Template(text)
-        department = ""
+        department = parse_array_to_string(self.departments.values_list("name", flat=True))
         manager = ""
         manager_email = ""
         buddy = ""
         buddy_email = ""
-        if self.department is not None:
-            department = self.department.name
         if self.manager is not None:
             manager = self.manager.full_name
             manager_email = self.manager.email
@@ -582,6 +579,10 @@ class User(AbstractBaseUser):
     @property
     def is_admin_or_manager(self):
         return self.role in [get_user_model().Role.ADMIN, get_user_model().Role.MANAGER]
+
+    @property
+    def is_manager(self):
+        return self.role == get_user_model().Role.MANAGER
 
     @property
     def is_admin(self):

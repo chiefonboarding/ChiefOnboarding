@@ -15,6 +15,7 @@ class PreboardingForm(TagModelForm):
             Div(
                 Div(
                     Field("name"),
+                    Field("departments"),
                     MultiSelectField("tags"),
                     css_class="col-4",
                 ),
@@ -25,4 +26,4 @@ class PreboardingForm(TagModelForm):
 
     class Meta:
         model = Preboarding
-        exclude = ("template", "picture")
+        fields = ("content", "name", "tags", "departments")

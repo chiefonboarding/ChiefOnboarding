@@ -89,8 +89,12 @@ class ResourceForm(TagModelForm):
                     css_class="col-6",
                 ),
                 Div(
+                    MultiSelectField("departments"),
+                    css_class="col-3",
+                ),
+                Div(
                     MultiSelectField("tags"),
-                    css_class="col-6",
+                    css_class="col-3",
                 ),
                 css_class="row",
             ),
@@ -134,7 +138,7 @@ class ResourceForm(TagModelForm):
 
     class Meta:
         model = Resource
-        fields = ("name", "tags", "category", "course", "on_day", "remove_on_complete")
+        fields = ("name", "tags", "category", "course", "on_day", "remove_on_complete", "departments")
         help_texts = {
             "course": _("When enabled, new hires will have to walk through this"),
             "remove_on_complete": _(

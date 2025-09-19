@@ -26,6 +26,7 @@ class ToDoForm(TagModelForm):
                 Div(
                     Field("name"),
                     Field("due_on_day"),
+                    Field("departments"),
                     MultiSelectField("tags"),
                     css_class="col-4",
                 ),
@@ -61,7 +62,7 @@ class ToDoForm(TagModelForm):
 
     class Meta:
         model = ToDo
-        exclude = ("template",)
+        fields = ("content", "due_on_day", "send_back", "slack_channel", "tags", "departments", "name")
         help_texts = {
             "send_back": _(
                 "Let your new hire now that the answers are going to be shared with the"

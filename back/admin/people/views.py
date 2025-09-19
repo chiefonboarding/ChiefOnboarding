@@ -1,3 +1,4 @@
+from admin.people.selectors import get_colleagues_for_user, get_offboarding_colleagues_for_user
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponse
@@ -49,9 +50,11 @@ from .forms import (
 
 class ColleagueListView(ManagerPermMixin, ListView):
     template_name = "colleagues.html"
-    queryset = get_user_model().objects.all()
     paginate_by = 20
     ordering = ["first_name", "last_name"]
+
+    def get_queryset(self):
+        return get_colleagues_for_user(self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -67,9 +70,11 @@ class ColleagueListView(ManagerPermMixin, ListView):
 
 class OffboardingColleagueListView(ManagerPermMixin, ListView):
     template_name = "offboarding.html"
-    queryset = get_user_model().offboarding.all()
     paginate_by = 20
     ordering = ["termination_date", "email"]
+
+    def get_queryset(self):
+        return get_offboarding_colleagues_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -313,7 +318,7 @@ class ColleagueTogglePortalAccessView(ManagerPermMixin, View):
         return render(request, self.template_name, context)
 
 
-class AddOffboardingSequenceView(AdminPermMixin, SuccessMessageMixin, UpdateView):
+class AddOffboardingSequenceView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "add_offboarding_sequence.html"
     form_class = OffboardingSequenceChoiceForm
     model = get_user_model()

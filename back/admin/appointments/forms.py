@@ -27,6 +27,7 @@ class AppointmentForm(TagModelForm):
             Div(
                 Div(
                     Field("name"),
+                    Field("departments"),
                     MultiSelectField("tags"),
                     Field("fixed_date"),
                     Div(
@@ -62,7 +63,7 @@ class AppointmentForm(TagModelForm):
 
     class Meta:
         model = Appointment
-        exclude = ("template",)
+        fields = ("fixed_date", "on_day", "time", "date", "name", "tags", "content", "departments")
         widgets = {
             "time": forms.TimeInput(attrs={"type": "time", "step": 300}),
         }
