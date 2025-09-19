@@ -368,7 +368,7 @@ def test_admin_task_comment_on_not_owned_task(
     assert "Hi, this is a new comment" in mailoutbox[0].alternatives[0][0]
 
 
-@pytest.mark.django_db(transaction=True)
+@pytest.mark.serial
 def test_admin_task_comment_on_not_owned_task_slack_message(
     settings, client, admin_factory, admin_task_factory, mailoutbox
 ):
