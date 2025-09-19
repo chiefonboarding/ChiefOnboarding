@@ -1890,7 +1890,6 @@ def test_new_hire_access_per_integration_config_form(
 
     # Check that form is present
     assert "Personal email address" in response.content.decode()
-    print(response.content.decode())
     assert "Select team to add user to" in response.content.decode()
     assert (
         '<select name="TEAM_ID" class="select form-select" id="id_TEAM_ID"> <option value="test_team">test team</option>'  # noqa
@@ -2652,8 +2651,8 @@ def test_employee_can_only_login_with_access(
 ):
     employee1 = employee_factory()
 
-    url = reverse("login")
-    data = {"username": employee1.email, "password": "test"}
+    url = reverse("account_login")
+    data = {"login": employee1.email, "password": "test"}
     client.post(url, data=data, follow=True)
 
     user = auth.get_user(client)
@@ -2676,7 +2675,7 @@ def test_employee_can_only_login_with_access(
     assert not user.is_authenticated
 
     # Try logging in again with employee account
-    url = reverse("login")
+    url = reverse("account_login")
     client.post(url, data=data, follow=True)
 
     user = auth.get_user(client)

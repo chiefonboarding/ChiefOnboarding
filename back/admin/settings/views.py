@@ -1,21 +1,23 @@
-import pyotp
+from allauth.account.decorators import reauthentication_required
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import translation
+from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 from django.views import View
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
-from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 from twilio.rest import Client
 
 from admin.integrations.models import Integration
+from admin.settings.decorators import requires_credentials_login
 from organization.models import Notification, Organization, WelcomeMessage
 from slack_bot.models import SlackChannel
 from slack_bot.utils import Slack, actions, button, paragraph
@@ -24,21 +26,28 @@ from users.emails import (
     send_new_hire_credentials,
     send_new_hire_preboarding,
 )
-from users.mixins import AdminPermMixin, LoginRequiredMixin, ManagerPermMixin
+from users.mixins import AdminPermMixin, ManagerPermMixin
+
+if settings.ALLOW_LOGIN_WITH_CREDENTIALS:
+    from allauth.mfa.base.views import IndexView
+    from allauth.mfa.recovery_codes.views import GenerateRecoveryCodesView
+    from allauth.mfa.totp.views import ActivateTOTPView, DeactivateTOTPView
+else:
+    ActivateTOTPView = TemplateView
+    DeactivateTOTPView = TemplateView
+    IndexView = TemplateView
+    GenerateRecoveryCodesView = TemplateView
 
 from .forms import (
     AdministratorsCreateForm,
     AdministratorsUpdateForm,
     OrganizationGeneralForm,
-    OTPVerificationForm,
     SlackSettingsForm,
     WelcomeMessagesUpdateForm,
 )
 
 
-class OrganizationGeneralUpdateView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
-):
+class OrganizationGeneralUpdateView(AdminPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "org_general_update.html"
     form_class = OrganizationGeneralForm
     success_url = reverse_lazy("settings:general")
@@ -62,9 +71,7 @@ class OrganizationGeneralUpdateView(
         return context
 
 
-class SlackSettingsUpdateView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
-):
+class SlackSettingsUpdateView(AdminPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "org_general_update.html"
     form_class = SlackSettingsForm
     success_url = reverse_lazy("settings:slack")
@@ -80,7 +87,7 @@ class SlackSettingsUpdateView(
         return context
 
 
-class AdministratorListView(LoginRequiredMixin, AdminPermMixin, ListView):
+class AdministratorListView(AdminPermMixin, ListView):
     template_name = "settings_admins.html"
     queryset = get_user_model().managers_and_admins.all()
 
@@ -92,9 +99,7 @@ class AdministratorListView(LoginRequiredMixin, AdminPermMixin, ListView):
         return context
 
 
-class AdministratorCreateView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, CreateView
-):
+class AdministratorCreateView(AdminPermMixin, SuccessMessageMixin, CreateView):
     template_name = "settings_admins_create.html"
     queryset = get_user_model().managers_and_admins.all()
     form_class = AdministratorsCreateForm
@@ -132,9 +137,7 @@ class AdministratorCreateView(
         return context
 
 
-class AdministratorUpdateView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
-):
+class AdministratorUpdateView(AdminPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "settings_admins_update.html"
     queryset = get_user_model().managers_and_admins.all()
     form_class = AdministratorsUpdateForm
@@ -148,9 +151,7 @@ class AdministratorUpdateView(
         return context
 
 
-class AdministratorDeleteView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, DeleteView
-):
+class AdministratorDeleteView(AdminPermMixin, SuccessMessageMixin, DeleteView):
     """
     Doesn't actually delete the administrator, it just migrates them to a normal user
     account.
@@ -170,9 +171,7 @@ class AdministratorDeleteView(
         return HttpResponseRedirect(success_url)
 
 
-class WelcomeMessageUpdateView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, UpdateView
-):
+class WelcomeMessageUpdateView(AdminPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "org_welcome_message_update.html"
     form_class = WelcomeMessagesUpdateForm
     success_message = _("Message has been updated")
@@ -194,9 +193,7 @@ class WelcomeMessageUpdateView(
         return context
 
 
-class WelcomeMessageSendTestMessageView(
-    LoginRequiredMixin, AdminPermMixin, SuccessMessageMixin, View
-):
+class WelcomeMessageSendTestMessageView(AdminPermMixin, SuccessMessageMixin, View):
     def post(self, request, **kwargs):
         message_type = self.kwargs.get("type")
         language = self.kwargs.get("language")
@@ -251,9 +248,7 @@ class WelcomeMessageSendTestMessageView(
         return HttpResponse(headers={"HX-Trigger": "reload-page"})
 
 
-class PersonalLanguageUpdateView(
-    LoginRequiredMixin, ManagerPermMixin, SuccessMessageMixin, UpdateView
-):
+class PersonalLanguageUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "personal_language_update.html"
     model = get_user_model()
     fields = [
@@ -280,41 +275,49 @@ class PersonalLanguageUpdateView(
         return context
 
 
-class OTPView(LoginRequiredMixin, ManagerPermMixin, FormView):
-    template_name = "personal_otp.html"
-    form_class = OTPVerificationForm
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["user"] = self.request.user
-        return kwargs
-
-    def form_valid(self, form):
-        user = self.request.user
-        user.requires_otp = True
-        user.save()
-        keys = user.reset_otp_recovery_keys()
-        return render(
-            self.request,
-            "personal_otp.html",
-            {"title": _("TOTP 2FA"), "subtitle": _("settings"), "keys": keys},
-        )
-
+@method_decorator(requires_credentials_login, name="dispatch")
+class TOTPIndexView(ManagerPermMixin, IndexView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.request.user
-        if not user.requires_otp:
-            context["otp_url"] = pyotp.totp.TOTP(user.totp_secret).provisioning_uri(
-                name=user.email, issuer_name="ChiefOnboarding"
-            )
-        context["title"] = (
-            _("Enable TOTP 2FA") if not user.requires_otp else _("TOTP 2FA")
-        )
+        context["title"] = _("TOTP 2FA")
         context["subtitle"] = _("settings")
         return context
 
 
-class IntegrationsListView(LoginRequiredMixin, AdminPermMixin, TemplateView):
+@method_decorator(requires_credentials_login, name="dispatch")
+@method_decorator(reauthentication_required, name="dispatch")
+class TOTPActivateView(ManagerPermMixin, ActivateTOTPView):
+    success_url = reverse_lazy("settings:totp")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("TOTP 2FA")
+        context["subtitle"] = _("settings")
+        return context
+
+
+class TOTPDeactivateView(ManagerPermMixin, DeactivateTOTPView):
+    success_url = reverse_lazy("settings:totp")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("TOTP 2FA")
+        context["subtitle"] = _("settings")
+        return context
+
+
+@method_decorator(requires_credentials_login, name="dispatch")
+class TOTPGenerateRecoveryCodesView(ManagerPermMixin, GenerateRecoveryCodesView):
+    success_url = reverse_lazy("settings:totp")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("TOTP 2FA")
+        context["subtitle"] = _("settings")
+        return context
+
+
+class IntegrationsListView(AdminPermMixin, TemplateView):
     template_name = "settings_integrations.html"
 
     def get_context_data(self, **kwargs):
@@ -323,9 +326,6 @@ class IntegrationsListView(LoginRequiredMixin, AdminPermMixin, TemplateView):
         context["subtitle"] = _("settings")
         context["slack_bot"] = Integration.objects.filter(
             integration=Integration.Type.SLACK_BOT, active=True
-        ).first()
-        context["google_login"] = Integration.objects.filter(
-            integration=Integration.Type.GOOGLE_LOGIN, active=True
         ).first()
         context["slack_bot_environ"] = settings.SLACK_APP_TOKEN != ""
         context["base_url"] = settings.BASE_URL
@@ -343,9 +343,7 @@ class IntegrationsListView(LoginRequiredMixin, AdminPermMixin, TemplateView):
         return context
 
 
-class SlackBotSetupView(
-    LoginRequiredMixin, AdminPermMixin, CreateView, SuccessMessageMixin
-):
+class SlackBotSetupView(AdminPermMixin, CreateView, SuccessMessageMixin):
     template_name = "token_create.html"
     model = Integration
     fields = [
@@ -373,7 +371,7 @@ class SlackBotSetupView(
         return super().form_valid(form)
 
 
-class SlackChannelsUpdateView(LoginRequiredMixin, AdminPermMixin, RedirectView):
+class SlackChannelsUpdateView(AdminPermMixin, RedirectView):
     permanent = False
     pattern_name = "settings:integrations"
 
@@ -391,7 +389,7 @@ class SlackChannelsUpdateView(LoginRequiredMixin, AdminPermMixin, RedirectView):
         return super().get(request, *args, **kwargs)
 
 
-class SlackChannelsCreateView(LoginRequiredMixin, AdminPermMixin, CreateView):
+class SlackChannelsCreateView(AdminPermMixin, CreateView):
     template_name = "slack_channel_create.html"
     model = SlackChannel
     fields = ["name", "is_private"]

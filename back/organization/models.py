@@ -51,20 +51,6 @@ class Organization(models.Model):
         File, verbose_name=_("Logo"), on_delete=models.CASCADE, null=True
     )
 
-    # login options
-    credentials_login = models.BooleanField(
-        verbose_name=_("Allow users to login with their username and password"),
-        default=True,
-    )
-    google_login = models.BooleanField(
-        verbose_name=_("Allow users to login with their Google account"), default=False
-    )
-    slack_login = models.BooleanField(
-        verbose_name=_("Allow users to login with their Slack account"), default=False
-    )
-    oidc_login = models.BooleanField(
-        verbose_name=_("Allow users to login with OIDC"), default=False
-    )
     # additional settings
     new_hire_email = models.BooleanField(
         verbose_name=_("Send email to new hire with login credentials"),

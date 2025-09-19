@@ -1056,8 +1056,7 @@ def test_sequence_default_templates_integrations(
     url = reverse("sequences:template_list", args=[sequence.id])
     custom_integration_factory()
     custom_integration_factory()
-    integration_factory(integration=Integration.Type.SLACK_ACCOUNT_CREATION)
-    integration_factory(integration=Integration.Type.GOOGLE_LOGIN)
+    integration_factory(integration=Integration.Type.SLACK_BOT)
 
     response = client.get(url + "?type=integration")
 

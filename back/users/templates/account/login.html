@@ -1,0 +1,30 @@
+{% extends 'no_login_base.html' %}
+{% load i18n %}
+{% load allauth account socialaccount %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+{% for message in messages %}
+<div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} mb-2">
+  {{ message }}
+</div>
+{% endfor %}
+<div class="card card-md">
+  <div class="card-body">
+    {% if not SOCIALACCOUNT_ONLY %}
+      <form method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        {% if redirect_field_value %}
+            <input type="hidden"
+                   name="{{ redirect_field_name }}"
+                   value="{{ redirect_field_value }}" />
+        {% endif %}
+        <button type="submit" class="btn btn-primary w-100">{% translate "Log in" %}</button>
+        <div style="clear:both"></div>
+      </form>
+    {% endif %}
+    {% include "socialaccount/snippets/login.html" %}
+  </div>
+</div>
+{% endblock %}

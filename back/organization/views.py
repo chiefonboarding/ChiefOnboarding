@@ -3,12 +3,14 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_not_required
 from django.core import management
 from django.db import transaction
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
 from django.utils.crypto import get_random_string
+from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
@@ -22,7 +24,7 @@ from misc.models import File
 from misc.s3 import S3
 from misc.serializers import FileSerializer
 from slack_bot.models import SlackChannel
-from users.mixins import AdminPermMixin, LoginRequiredMixin
+from users.mixins import AdminPermMixin
 from users.models import User
 
 from .forms import InitalAdminAccountForm
@@ -81,7 +83,7 @@ class FileView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class NotificationListView(LoginRequiredMixin, AdminPermMixin, ListView):
+class NotificationListView(AdminPermMixin, ListView):
     template_name = "notifications.html"
     queryset = Notification.objects.all().select_related("created_by", "created_for")
     paginate_by = 40
@@ -93,6 +95,7 @@ class NotificationListView(LoginRequiredMixin, AdminPermMixin, ListView):
         return context
 
 
+@method_decorator(login_not_required, name="dispatch")
 class InitialSetupView(CreateView):
     template_name = "initial_setup.html"
     form_class = InitalAdminAccountForm
@@ -112,7 +115,6 @@ class InitialSetupView(CreateView):
             slack_default_channel=SlackChannel.objects.get(name="general"),
         )
         admin_user = get_user_model().objects.create(
-            # TODO: switch to script with factory boy instead of json files
             first_name=form.cleaned_data["first_name"],
             last_name=form.cleaned_data["last_name"],
             email=form.cleaned_data["email"],
@@ -137,4 +139,4 @@ class InitialSetupView(CreateView):
         demo_user.start_day = timezone.now().date() + timedelta(days=5)
         demo_user.save()
 
-        return redirect("login")
+        return redirect("account_login")

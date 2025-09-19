@@ -226,8 +226,9 @@ def test_notification_can_delete(notification_factory):
 @pytest.mark.no_run_around_tests
 @pytest.mark.django_db(reset_sequences=True)
 def test_initial_setup_page(client):
-    url = reverse("setup")
-    response = client.get(url)
+    # account login redirects to setup page
+    url = reverse("account_login")
+    response = client.get(url, follow=True)
 
     # page renders, no org created yet
     assert response.status_code == 200
@@ -240,7 +241,7 @@ def test_initial_setup_page(client):
     assert not get_user_model().objects.all().exists()
 
     response = client.post(
-        url,
+        reverse("setup"),
         data={
             "name": "test org",
             "language": "en",

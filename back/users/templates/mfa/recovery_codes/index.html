@@ -1,0 +1,13 @@
+{% extends 'settings_base.html' %}
+{% load i18n allauth %}
+{% block settings_content %}
+  <div class="card-body">
+    <p>
+      {% blocktranslate count unused_count=unused_codes|length %}There is {{ unused_count }} out of {{ total_count }} recovery codes available.{% plural %}There are {{ unused_count }} out of {{ total_count }} recovery codes available.{% endblocktranslate %}
+    </p>
+    {% if unused_codes %}
+      <a href="{% url 'settings:mfa_download_recovery_codes' %}" class="btn btn-primary">{% translate "Download codes" %}</a>
+    {% endif %}
+    <a href="{% url 'settings:mfa_generate_recovery_codes' %}" class="btn">{% translate "Generate new codes" %}</a>
+  </div>
+{% endblock %}

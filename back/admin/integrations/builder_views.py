@@ -17,7 +17,7 @@ from admin.integrations.exceptions import (
 )
 from admin.integrations.models import Integration, IntegrationTracker
 from admin.integrations.sync_userinfo import SyncUsers
-from users.mixins import AdminPermMixin, LoginRequiredMixin
+from users.mixins import AdminPermMixin
 from users.models import User
 
 from .builder_forms import (
@@ -45,7 +45,7 @@ class RedirectToSelfMixin:
         return self.request.path
 
 
-class IntegrationBuilderCreateView(LoginRequiredMixin, AdminPermMixin, CreateView):
+class IntegrationBuilderCreateView(AdminPermMixin, CreateView):
     template_name = "token_create.html"
     model = Integration
     fields = ["name", "manifest_type"]
@@ -66,9 +66,7 @@ class IntegrationBuilderCreateView(LoginRequiredMixin, AdminPermMixin, CreateVie
         return context
 
 
-class IntegrationBuilderMakeActiveUpdateView(
-    LoginRequiredMixin, AdminPermMixin, UpdateView
-):
+class IntegrationBuilderMakeActiveUpdateView(AdminPermMixin, UpdateView):
     model = Integration
     fields = []
     success_url = reverse_lazy("settings:integrations")
@@ -78,7 +76,7 @@ class IntegrationBuilderMakeActiveUpdateView(
         return super().form_valid(form)
 
 
-class IntegrationBuilderView(LoginRequiredMixin, AdminPermMixin, DetailView):
+class IntegrationBuilderView(AdminPermMixin, DetailView):
     template_name = "manifest_test.html"
     model = Integration
     context_object_name = "integration"
@@ -117,7 +115,6 @@ class IntegrationBuilderView(LoginRequiredMixin, AdminPermMixin, DetailView):
 
 
 class IntegrationBuilderFormCreateView(
-    LoginRequiredMixin,
     AdminPermMixin,
     SingleObjectMixinWithObj,
     RedirectToSelfMixin,
@@ -147,7 +144,6 @@ class IntegrationBuilderFormCreateView(
 
 
 class IntegrationBuilderFormUpdateView(
-    LoginRequiredMixin,
     AdminPermMixin,
     SingleObjectMixinWithObj,
     RedirectToSelfMixin,
@@ -191,7 +187,7 @@ class IntegrationBuilderFormUpdateView(
         return context
 
 
-class IntegrationBuilderFormDeleteView(LoginRequiredMixin, AdminPermMixin, View):
+class IntegrationBuilderFormDeleteView(AdminPermMixin, View):
     def post(self, *args, **kwargs):
         integration = get_object_or_404(Integration, id=self.kwargs["pk"])
         manifest = integration.manifest
@@ -202,7 +198,6 @@ class IntegrationBuilderFormDeleteView(LoginRequiredMixin, AdminPermMixin, View)
 
 
 class IntegrationBuilderHeadersUpdateView(
-    LoginRequiredMixin,
     AdminPermMixin,
     SingleObjectMixinWithObj,
     SuccessMessageMixin,
@@ -231,7 +226,6 @@ class IntegrationBuilderHeadersUpdateView(
 
 
 class IntegrationBuilderExistsUpdateView(
-    LoginRequiredMixin,
     AdminPermMixin,
     SingleObjectMixinWithObj,
     SuccessMessageMixin,
@@ -258,7 +252,6 @@ class IntegrationBuilderExistsUpdateView(
 
 
 class IntegrationBuilderRevokeCreateView(
-    LoginRequiredMixin,
     AdminPermMixin,
     RedirectToSelfMixin,
     SingleObjectMixinWithObj,
@@ -288,7 +281,6 @@ class IntegrationBuilderRevokeCreateView(
 
 
 class IntegrationBuilderRevokeUpdateView(
-    LoginRequiredMixin,
     AdminPermMixin,
     RedirectToSelfMixin,
     SingleObjectMixinWithObj,
@@ -324,7 +316,7 @@ class IntegrationBuilderRevokeUpdateView(
         return context
 
 
-class IntegrationBuilderRevokeDeleteView(LoginRequiredMixin, AdminPermMixin, View):
+class IntegrationBuilderRevokeDeleteView(AdminPermMixin, View):
     def post(self, *args, **kwargs):
         integration = get_object_or_404(Integration, id=self.kwargs["pk"])
         manifest = integration.manifest
@@ -335,7 +327,6 @@ class IntegrationBuilderRevokeDeleteView(LoginRequiredMixin, AdminPermMixin, Vie
 
 
 class IntegrationBuilderInitialDataFormCreateView(
-    LoginRequiredMixin,
     AdminPermMixin,
     RedirectToSelfMixin,
     SingleObjectMixinWithObj,
@@ -367,9 +358,7 @@ class IntegrationBuilderInitialDataFormCreateView(
         return context
 
 
-class IntegrationBuilderInitialDataFormDeleteView(
-    LoginRequiredMixin, AdminPermMixin, View
-):
+class IntegrationBuilderInitialDataFormDeleteView(AdminPermMixin, View):
     def post(self, *args, **kwargs):
         integration = get_object_or_404(Integration, id=self.kwargs["pk"])
         manifest = integration.manifest
@@ -388,7 +377,6 @@ class IntegrationBuilderInitialDataFormDeleteView(
 
 
 class IntegrationBuilderUserInfoFormCreateView(
-    LoginRequiredMixin,
     AdminPermMixin,
     RedirectToSelfMixin,
     SingleObjectMixinWithObj,
@@ -418,9 +406,7 @@ class IntegrationBuilderUserInfoFormCreateView(
         return context
 
 
-class IntegrationBuilderUserInfoFormDeleteView(
-    LoginRequiredMixin, AdminPermMixin, View
-):
+class IntegrationBuilderUserInfoFormDeleteView(AdminPermMixin, View):
     def post(self, *args, **kwargs):
         integration = get_object_or_404(Integration, id=self.kwargs["pk"])
         manifest = integration.manifest
@@ -431,7 +417,6 @@ class IntegrationBuilderUserInfoFormDeleteView(
 
 
 class IntegrationBuilderExecuteCreateView(
-    LoginRequiredMixin,
     AdminPermMixin,
     RedirectToSelfMixin,
     SingleObjectMixinWithObj,
@@ -461,7 +446,6 @@ class IntegrationBuilderExecuteCreateView(
 
 
 class IntegrationBuilderExecuteUpdateView(
-    LoginRequiredMixin,
     AdminPermMixin,
     RedirectToSelfMixin,
     SingleObjectMixinWithObj,
@@ -497,7 +481,7 @@ class IntegrationBuilderExecuteUpdateView(
         return context
 
 
-class IntegrationBuilderExecuteDeleteView(LoginRequiredMixin, AdminPermMixin, View):
+class IntegrationBuilderExecuteDeleteView(AdminPermMixin, View):
     def post(self, *args, **kwargs):
         integration = get_object_or_404(Integration, id=self.kwargs["pk"])
         manifest = integration.manifest
@@ -507,14 +491,14 @@ class IntegrationBuilderExecuteDeleteView(LoginRequiredMixin, AdminPermMixin, Vi
         return HttpResponse()
 
 
-class IntegrationBuilderTestFormView(LoginRequiredMixin, AdminPermMixin, View):
+class IntegrationBuilderTestFormView(AdminPermMixin, View):
     def post(self, *args, **kwargs):
         integration = get_object_or_404(Integration, id=self.kwargs["pk"])
         form = integration.config_form()
         return render(self.request, "manifest_test/test_form.html", {"form": form})
 
 
-class IntegrationBuilderTestView(LoginRequiredMixin, AdminPermMixin, View):
+class IntegrationBuilderTestView(AdminPermMixin, View):
     def post(self, *args, **kwargs):
         test_options = ["exists", "revoke", "execute"]
         test_type = self.kwargs["what"]
@@ -551,7 +535,7 @@ class IntegrationBuilderTestView(LoginRequiredMixin, AdminPermMixin, View):
         )
 
 
-class IntegrationBuilderSyncTestView(LoginRequiredMixin, AdminPermMixin, View):
+class IntegrationBuilderSyncTestView(AdminPermMixin, View):
     def post(self, *args, **kwargs):
         integration = get_object_or_404(Integration, id=self.kwargs["pk"])
 
@@ -583,7 +567,6 @@ class IntegrationBuilderSyncTestView(LoginRequiredMixin, AdminPermMixin, View):
 
 
 class IntegrationBuilderOauthUpdateView(
-    LoginRequiredMixin,
     AdminPermMixin,
     SingleObjectMixinWithObj,
     SuccessMessageMixin,
@@ -610,7 +593,6 @@ class IntegrationBuilderOauthUpdateView(
 
 
 class IntegrationBuilderExtractDataUpdateView(
-    LoginRequiredMixin,
     AdminPermMixin,
     SingleObjectMixinWithObj,
     SuccessMessageMixin,

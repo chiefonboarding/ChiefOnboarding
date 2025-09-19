@@ -11,11 +11,11 @@ from admin.resources.models import Resource
 from admin.sequences.models import Sequence
 from admin.to_do.models import ToDo
 from organization.models import TemplateManager
-from users.mixins import LoginRequiredMixin, ManagerPermMixin
+from users.mixins import ManagerPermMixin
 from users.models import User
 
 
-class SearchHXView(LoginRequiredMixin, ManagerPermMixin, TemplateView):
+class SearchHXView(ManagerPermMixin, TemplateView):
     template_name = "search_results.html"
 
     def get_context_data(self, **kwargs):

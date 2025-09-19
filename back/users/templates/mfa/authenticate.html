@@ -1,0 +1,22 @@
+{% extends 'no_login_base.html' %}
+{% load i18n %}
+{% load allauth account socialaccount %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+{% for message in messages %}
+<div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} mb-2">
+  <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+</div>
+{% endfor %}
+<form class="card card-md" method="POST" action="{% url 'mfa_authenticate' %}">
+  {% csrf_token %}
+  <div class="card-body">
+    <p>{% blocktranslate %}Your account is protected by two-factor authentication. Please enter an authenticator code:{% endblocktranslate %}</p>
+    <div class="mb-2">
+      {{ form|crispy }}
+      <button type="submit" class="btn btn-primary w-100">{% translate "Sign in" %}</button>
+    </div>
+  </div>
+</div>
+{% endblock %}

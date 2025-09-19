@@ -9,7 +9,7 @@ from django.urls import reverse
 from django_q.models import Schedule
 
 from admin.integrations.models import Integration
-from organization.models import Notification, Organization, WelcomeMessage
+from organization.models import Notification, WelcomeMessage
 from slack_bot.models import SlackChannel
 
 
@@ -31,7 +31,6 @@ def test_update_org_settings(client, django_user_model):
         "timezone": "Europe/Amsterdam",
         "base_color": "#FFFFFF",
         "accent_color": "#FFFFF",
-        "credentials_login": True,
     }
 
     response = client.post(url, data=data, follow=True)
@@ -41,60 +40,6 @@ def test_update_org_settings(client, django_user_model):
     assert "English" in response.content.decode()
     assert "Europe/Amsterdam" in response.content.decode()
     assert "#FFFFFF" in response.content.decode()
-
-
-@pytest.mark.django_db
-def test_update_org_settings_min_one_login_method(client, django_user_model):
-    client.force_login(
-        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
-    )
-
-    url = reverse("settings:general")
-    response = client.get(url)
-
-    # Google login is not available
-    assert "Google account" not in response.content.decode()
-
-    data = {
-        "name": "test",
-        "language": "en",
-        "timezone": "UTC",
-        "base_color": "#FFFFF",
-        "accent_color": "#FFFFF",
-        "credentials_login": False,
-    }
-
-    response = client.post(url, data=data, follow=True)
-
-    org = Organization.object.get()
-
-    # Did not update
-    assert org.credentials_login
-    assert "You must enable at least one login option" in response.content.decode()
-
-    # Create Google login integration
-    Integration.objects.create(integration=Integration.Type.GOOGLE_LOGIN)
-
-    response = client.get(url)
-    # Google login is  available
-    assert "Google" in response.content.decode()
-
-    data = {
-        "name": "test",
-        "language": "en",
-        "timezone": "UTC",
-        "base_color": "#FFFFF",
-        "accent_color": "#FFFFF",
-        "credentials_login": False,
-        "google_login": True,
-    }
-    response = client.post(url, data=data, follow=True)
-
-    org.refresh_from_db()
-
-    assert "You must enable at least one login option" not in response.content.decode()
-    assert not org.credentials_login
-    assert org.google_login
 
 
 @pytest.mark.django_db
@@ -360,6 +305,55 @@ def test_language_update(client, admin_factory):
 
 
 @pytest.mark.django_db
+def test_totp_views(client, admin_factory):
+    # just some lightweight tests, these are covered by allauth anyway
+    admin_user1 = admin_factory()
+    client.force_login(admin_user1)
+
+    url = reverse("settings:totp")
+    response = client.get(url)
+
+    assert response.status_code == 200
+    assert "Activate" in response.content.decode()
+    assert "TOTP 2FA" in response.content.decode()
+
+    with patch(
+        "allauth.account.internal.flows.reauthentication.did_recently_authenticate",
+        Mock(return_value=True),
+    ):
+        response = client.get(reverse("settings:mfa_activate_totp"))
+        assert "To protect your account with two-factor" in response.content.decode()
+
+        with patch(
+            "allauth.mfa.totp.internal.auth.validate_totp_code", Mock(return_value=True)
+        ):
+            response = client.post(
+                reverse("settings:mfa_activate_totp"),
+                {
+                    "code": "123",
+                },
+                follow=True,
+            )
+
+    url = reverse("settings:totp")
+    response = client.get(url)
+    assert (
+        "Authentication using an authenticator app is active."
+        in response.content.decode()
+    )
+
+    with patch(
+        "allauth.account.internal.flows.reauthentication.did_recently_authenticate",
+        Mock(return_value=True),
+    ):
+        response = client.get(reverse("settings:mfa_deactivate_totp"))
+        assert "Deactivate" in response.content.decode()
+
+        response = client.get(reverse("settings:mfa_generate_recovery_codes"))
+        assert "You are about to generate a new" in response.content.decode()
+
+
+@pytest.mark.django_db
 def test_sending_test_preboarding_message(
     client, admin_factory, mailoutbox, welcome_message_factory
 ):
@@ -472,57 +466,6 @@ def test_sending_test_colleague_welcome_message(
             ],
         },
     ]
-
-
-@pytest.mark.django_db
-def test_otp_view(client, admin_factory):
-    admin_user1 = admin_factory()
-    client.force_login(admin_user1)
-
-    url = reverse("settings:personal-otp")
-    response = client.get(url)
-
-    assert "Please scan the code below" in response.content.decode()
-
-    # Secret is necessary to set up TOTP
-    assert admin_user1.totp_secret in response.content.decode()
-    assert "6 digit OTP code" in response.content.decode()
-
-
-@pytest.mark.django_db
-@patch("pyotp.TOTP.verify", Mock(return_value=False))
-def test_enable_otp_view_wrong_otp(client, admin_factory):
-    admin_user1 = admin_factory()
-    client.force_login(admin_user1)
-
-    url = reverse("settings:personal-otp")
-    response = client.post(url, {"otp": 223456}, follow=True)
-
-    admin_user1.refresh_from_db()
-
-    assert not admin_user1.requires_otp
-    assert "OTP token was not correct." in response.content.decode()
-
-
-@pytest.mark.django_db
-@patch("pyotp.TOTP.verify", Mock(return_value=True))
-def test_enable_otp_view_correct_otp(client, admin_factory):
-    admin_user1 = admin_factory()
-    client.force_login(admin_user1)
-
-    url = reverse("settings:personal-otp")
-    response = client.post(url, {"otp": 223456}, follow=True)
-
-    admin_user1.refresh_from_db()
-
-    assert "Please copy and save the keys below. These will only show once"
-    assert len(response.context["keys"]) == 10
-    assert admin_user1.requires_otp
-    assert "OTP token was not correct." not in response.content.decode()
-
-    response = client.get(url)
-
-    assert "OTP has been enabled for your account" not in response.content.decode()
 
 
 @pytest.mark.django_db
