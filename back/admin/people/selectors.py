@@ -1,24 +1,31 @@
-from typing import Optional
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+
 from users.models import User
-from django.http import Http404
+
 
 def get_new_hires_for_user(*, user: User):
     if user.is_admin:
         return get_user_model().new_hires.all()
     else:
-        return get_user_model().new_hires.filter(Q(department__isnull=True) | Q(department__in=user.departments.all())) 
+        return get_user_model().new_hires.filter(
+            Q(department__isnull=True) | Q(department__in=user.departments.all())
+        )
+
 
 def get_colleagues_for_user(*, user: User):
     if user.is_admin:
         return get_user_model().objects.all()
     else:
-        return get_user_model().objects.filter(Q(department__isnull=True) | Q(department__in=user.departments.all())) 
+        return get_user_model().objects.filter(
+            Q(department__isnull=True) | Q(department__in=user.departments.all())
+        )
+
 
 def get_offboarding_colleagues_for_user(*, user: User):
     if user.is_admin:
         return get_user_model().offboarding.all()
     else:
-        return get_user_model().offboarding.filter(Q(department__isnull=True) | Q(department__in=user.departments.all())) 
-
+        return get_user_model().offboarding.filter(
+            Q(department__isnull=True) | Q(department__in=user.departments.all())
+        )

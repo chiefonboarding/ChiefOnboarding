@@ -63,7 +63,16 @@ class AppointmentForm(TagModelForm):
 
     class Meta:
         model = Appointment
-        fields = ("fixed_date", "on_day", "time", "date", "name", "tags", "content", "departments")
+        fields = (
+            "fixed_date",
+            "on_day",
+            "time",
+            "date",
+            "name",
+            "tags",
+            "content",
+            "departments",
+        )
         widgets = {
             "time": forms.TimeInput(attrs={"type": "time", "step": 300}),
         }

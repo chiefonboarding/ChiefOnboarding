@@ -44,7 +44,14 @@ class HardwareForm(TagModelForm):
 
     class Meta:
         model = Hardware
-        fields = ("name", "person_type", "assigned_to", "tags", "content", "departments")
+        fields = (
+            "name",
+            "person_type",
+            "assigned_to",
+            "tags",
+            "content",
+            "departments",
+        )
 
     def clean(self):
         cleaned_data = super().clean()

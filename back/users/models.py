@@ -34,6 +34,7 @@ class Department(models.Model):
     """
     Department that has been attached to a user
     """
+
     name = models.CharField(max_length=255)
 
     def __str__(self):
@@ -521,7 +522,9 @@ class User(AbstractBaseUser):
         if extra_values is None:
             extra_values = {}
         t = Template(text)
-        department = parse_array_to_string(self.departments.values_list("name", flat=True))
+        department = parse_array_to_string(
+            self.departments.values_list("name", flat=True)
+        )
         manager = ""
         manager_email = ""
         buddy = ""

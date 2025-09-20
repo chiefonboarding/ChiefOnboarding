@@ -4,16 +4,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('preboarding', '0014_remove_preboarding_form'),
-        ('users', '0044_alter_user_departments'),
+        ("preboarding", "0014_remove_preboarding_form"),
+        ("users", "0044_alter_user_departments"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='preboarding',
-            name='departments',
-            field=models.ManyToManyField(blank=True, to='users.department'),
+            model_name="preboarding",
+            name="departments",
+            field=models.ManyToManyField(blank=True, to="users.department"),
         ),
     ]

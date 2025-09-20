@@ -10,12 +10,10 @@ from django.utils.translation import gettext_lazy as _
 from admin.integrations.models import Integration
 from admin.sequences.models import Sequence
 from admin.templates.forms import (
-    ModelChoiceFieldWithCreate,
     MultiSelectField,
     UploadField,
 )
 from organization.models import Organization
-from users.models import Department
 
 
 class NewHireAddForm(forms.ModelForm):
@@ -38,9 +36,6 @@ class NewHireAddForm(forms.ModelForm):
         label=_("Start date"),
         required=True,
         widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
-    )
-    departments = forms.ModelMultipleChoiceField(
-        queryset=Department.objects.all(), to_field_name="name", required=False
     )
 
     def __init__(self, *args, **kwargs):
@@ -163,9 +158,6 @@ class NewHireProfileForm(forms.ModelForm):
         required=False,
         label=_("Manager"),
     )
-    departments = forms.ModelMultipleChoiceField(
-        queryset=Department.objects.all(), to_field_name="name", required=False
-    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -246,9 +238,6 @@ class NewHireProfileForm(forms.ModelForm):
 
 
 class ColleagueUpdateForm(forms.ModelForm):
-    departments = forms.ModelMultipleChoiceField(
-        queryset=Department.objects.all(), to_field_name="name", required=False
-    )
     birthday = forms.DateField(
         widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
         required=False,
@@ -304,10 +293,6 @@ class ColleagueUpdateForm(forms.ModelForm):
 
 
 class ColleagueCreateForm(forms.ModelForm):
-    departments = forms.ModelMultipleChoiceField(
-        queryset=Department.objects.all(), to_field_name="name", required=False
-    )
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()

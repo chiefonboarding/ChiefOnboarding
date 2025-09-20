@@ -1,5 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 
+
 class CompletedFormCheck:
     @property
     def completed_form_items(self):

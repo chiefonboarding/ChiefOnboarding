@@ -228,4 +228,14 @@ urlpatterns = [
         views.ColleagueImportAddUsersView.as_view(),
         name="import-create",
     ),
+    path(
+        "colleagues/departments/",
+        views.DepartmentListView.as_view(),
+        name="departments",
+    ),
+    path(
+        "colleagues/departments/create/",
+        views.DepartmentCreateView.as_view(),
+        name="department_create",
+    ),
 ]

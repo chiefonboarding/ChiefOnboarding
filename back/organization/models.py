@@ -217,7 +217,9 @@ class WelcomeMessage(models.Model):
 
 class TemplateManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().prefetch_related("departments").filter(template=True)
+        return (
+            super().get_queryset().prefetch_related("departments").filter(template=True)
+        )
 
     def defer_content(self):
         if "content" in self.model._meta.get_fields():
@@ -240,7 +242,11 @@ class BaseItem(ContentMixin, models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     template = models.BooleanField(default=True)
-    departments = models.ManyToManyField("users.Department", blank=True, help_text=_("Leave empty to make it available for all managers/admins"))
+    departments = models.ManyToManyField(
+        "users.Department",
+        blank=True,
+        help_text=_("Leave empty to make it available for all managers/admins"),
+    )
 
     objects = ObjectsManager()
     templates = TemplateManager()

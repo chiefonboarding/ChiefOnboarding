@@ -4,16 +4,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('to_do', '0020_alter_todo_due_on_day'),
-        ('users', '0044_alter_user_departments'),
+        ("to_do", "0020_alter_todo_due_on_day"),
+        ("users", "0044_alter_user_departments"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='todo',
-            name='departments',
-            field=models.ManyToManyField(blank=True, to='users.department'),
+            model_name="todo",
+            name="departments",
+            field=models.ManyToManyField(blank=True, to="users.department"),
         ),
     ]

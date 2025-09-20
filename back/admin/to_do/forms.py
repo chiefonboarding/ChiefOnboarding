@@ -62,7 +62,15 @@ class ToDoForm(TagModelForm):
 
     class Meta:
         model = ToDo
-        fields = ("content", "due_on_day", "send_back", "slack_channel", "tags", "departments", "name")
+        fields = (
+            "content",
+            "due_on_day",
+            "send_back",
+            "slack_channel",
+            "tags",
+            "departments",
+            "name",
+        )
         help_texts = {
             "send_back": _(
                 "Let your new hire now that the answers are going to be shared with the"

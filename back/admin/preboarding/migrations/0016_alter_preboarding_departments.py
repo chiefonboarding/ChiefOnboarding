@@ -4,16 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('preboarding', '0015_preboarding_departments'),
-        ('users', '0044_alter_user_departments'),
+        ("preboarding", "0015_preboarding_departments"),
+        ("users", "0044_alter_user_departments"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='preboarding',
-            name='departments',
-            field=models.ManyToManyField(blank=True, help_text='Leave empty to make it available for all managers/admins', to='users.department'),
+            model_name="preboarding",
+            name="departments",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="Leave empty to make it available for all managers/admins",
+                to="users.department",
+            ),
         ),
     ]

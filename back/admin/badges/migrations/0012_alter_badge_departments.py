@@ -4,16 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('badges', '0011_badge_departments'),
-        ('users', '0044_alter_user_departments'),
+        ("badges", "0011_badge_departments"),
+        ("users", "0044_alter_user_departments"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='badge',
-            name='departments',
-            field=models.ManyToManyField(blank=True, help_text='Leave empty to make it available for all managers/admins', to='users.department'),
+            model_name="badge",
+            name="departments",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="Leave empty to make it available for all managers/admins",
+                to="users.department",
+            ),
         ),
     ]

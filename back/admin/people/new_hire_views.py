@@ -1,4 +1,3 @@
-from admin.people.selectors import get_new_hires_for_user
 from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
@@ -19,6 +18,7 @@ from twilio.rest import Client
 from admin.admin_tasks.models import AdminTask
 from admin.integrations.forms import IntegrationExtraUserInfoForm
 from admin.notes.models import Note
+from admin.people.selectors import get_new_hires_for_user
 from admin.sequences.models import Condition, Sequence
 from admin.templates.utils import get_templates_model, get_user_field
 from organization.models import Notification, Organization, WelcomeMessage

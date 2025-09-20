@@ -138,7 +138,15 @@ class ResourceForm(TagModelForm):
 
     class Meta:
         model = Resource
-        fields = ("name", "tags", "category", "course", "on_day", "remove_on_complete", "departments")
+        fields = (
+            "name",
+            "tags",
+            "category",
+            "course",
+            "on_day",
+            "remove_on_complete",
+            "departments",
+        )
         help_texts = {
             "course": _("When enabled, new hires will have to walk through this"),
             "remove_on_complete": _(
