@@ -20,6 +20,7 @@ class BadgeForm(TagModelForm):
             Div(
                 Div(
                     Field("name"),
+                    Field("departments"),
                     MultiSelectField("tags"),
                     UploadField("image", extra_context={"file": self.instance.image}),
                     css_class="col-4",
@@ -31,4 +32,4 @@ class BadgeForm(TagModelForm):
 
     class Meta:
         model = Badge
-        exclude = ("template",)
+        fields = ("image", "content", "name", "tags", "departments")

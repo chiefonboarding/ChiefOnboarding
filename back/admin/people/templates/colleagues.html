@@ -33,6 +33,7 @@
           <tr>
             <th>{% translate "Name" %}</th>
             <th>{% translate "Position" %}</th>
+            <th>{% translate "Departments" %}</th>
             <th></th>
           </tr>
         </thead>
@@ -44,6 +45,13 @@
             </td>
             <td>
               {{ colleague.position }}
+            </td>
+            <td>
+              {% for department in colleague.departments.all %}
+                <span class="badge bg-blue-lt text-blue-lt-fg">{{ department }}</span>
+              {% empty %}
+                {% trans "Not in a department" %}
+              {% endfor %}
             </td>
             <td class="text-end">
               {% if slack_active %}

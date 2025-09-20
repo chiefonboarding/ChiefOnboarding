@@ -10,12 +10,10 @@ from django.utils.translation import gettext_lazy as _
 from admin.integrations.models import Integration
 from admin.sequences.models import Sequence
 from admin.templates.forms import (
-    ModelChoiceFieldWithCreate,
     MultiSelectField,
     UploadField,
 )
 from organization.models import Organization
-from users.models import Department
 
 
 class NewHireAddForm(forms.ModelForm):
@@ -39,15 +37,11 @@ class NewHireAddForm(forms.ModelForm):
         required=True,
         widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
     )
-    department = ModelChoiceFieldWithCreate(
-        queryset=Department.objects.all(), to_field_name="name", required=False
-    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["buddy"].required = False
         self.fields["manager"].required = False
-        self.fields["department"].required = False
         self.fields["profile_image"].required = False
         self.fields["language"].initial = Organization.object.get().language
         self.fields["timezone"].initial = Organization.object.get().timezone
@@ -96,7 +90,7 @@ class NewHireAddForm(forms.ModelForm):
                 css_class="row",
             ),
             Div(
-                Div(Field("department", css_class="add"), css_class="col-6"),
+                Div(Field("departments"), css_class="col-6"),
                 Div(
                     UploadField(
                         "profile_image",
@@ -143,7 +137,7 @@ class NewHireAddForm(forms.ModelForm):
             "language",
             "buddy",
             "manager",
-            "department",
+            "departments",
             "profile_image",
         )
 
@@ -164,14 +158,10 @@ class NewHireProfileForm(forms.ModelForm):
         required=False,
         label=_("Manager"),
     )
-    department = ModelChoiceFieldWithCreate(
-        queryset=Department.objects.all(), to_field_name="name", required=False
-    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.fields["department"].required = False
         self.fields["profile_image"].required = False
         if self.instance is not None:
             # Fallback option: we are now filtering on admins and managers, but people
@@ -206,7 +196,7 @@ class NewHireProfileForm(forms.ModelForm):
                 css_class="row",
             ),
             Div(
-                Div(Field("department", css_class="add"), css_class="col-6"),
+                Div(Field("departments"), css_class="col-6"),
                 Div(
                     UploadField(
                         "profile_image",
@@ -242,15 +232,12 @@ class NewHireProfileForm(forms.ModelForm):
             "language",
             "buddy",
             "manager",
-            "department",
+            "departments",
             "profile_image",
         )
 
 
 class ColleagueUpdateForm(forms.ModelForm):
-    department = ModelChoiceFieldWithCreate(
-        queryset=Department.objects.all(), to_field_name="name", required=False
-    )
     birthday = forms.DateField(
         widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
         required=False,
@@ -269,7 +256,7 @@ class ColleagueUpdateForm(forms.ModelForm):
             Div(
                 Div(Field("email"), css_class="col-12"),
                 Div(Field("position"), css_class="col-12"),
-                Div(Field("department", css_class="add"), css_class="col-12"),
+                Div(Field("departments", css_class="add"), css_class="col-12"),
                 Div(Field("phone"), css_class="col-12"),
                 Div(Field("birthday"), css_class="col-12"),
                 Div(Field("message"), css_class="col-12"),
@@ -291,7 +278,7 @@ class ColleagueUpdateForm(forms.ModelForm):
             "first_name",
             "last_name",
             "position",
-            "department",
+            "departments",
             "birthday",
             "email",
             "phone",
@@ -306,10 +293,6 @@ class ColleagueUpdateForm(forms.ModelForm):
 
 
 class ColleagueCreateForm(forms.ModelForm):
-    department = ModelChoiceFieldWithCreate(
-        queryset=Department.objects.all(), to_field_name="name", required=False
-    )
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -325,7 +308,7 @@ class ColleagueCreateForm(forms.ModelForm):
             Div(
                 Div(Field("email"), css_class="col-12"),
                 Div(Field("position"), css_class="col-12"),
-                Div(Field("department", css_class="add"), css_class="col-12"),
+                Div(Field("departments", css_class="add"), css_class="col-12"),
                 Div(Field("phone"), css_class="col-12"),
                 Div(Field("message"), css_class="col-12"),
                 Div(Field("facebook"), css_class="col-12"),
@@ -346,7 +329,7 @@ class ColleagueCreateForm(forms.ModelForm):
             "first_name",
             "last_name",
             "position",
-            "department",
+            "departments",
             "email",
             "phone",
             "message",

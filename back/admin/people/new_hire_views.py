@@ -18,6 +18,7 @@ from twilio.rest import Client
 from admin.admin_tasks.models import AdminTask
 from admin.integrations.forms import IntegrationExtraUserInfoForm
 from admin.notes.models import Note
+from admin.people.selectors import get_new_hires_for_user
 from admin.sequences.models import Condition, Sequence
 from admin.templates.utils import get_templates_model, get_user_field
 from organization.models import Notification, Organization, WelcomeMessage
@@ -51,10 +52,7 @@ class NewHireListView(ManagerPermMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        all_new_hires = get_user_model().new_hires.all().order_by("-start_day")
-        if self.request.user.is_admin:
-            return all_new_hires
-        return all_new_hires.filter(manager=self.request.user)
+        return get_new_hires_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

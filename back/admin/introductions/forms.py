@@ -15,6 +15,7 @@ class IntroductionForm(TagModelForm):
             Div(
                 Div(
                     Field("name"),
+                    Field("departments"),
                     MultiSelectField("tags"),
                     Field("intro_person"),
                     css_class="col-12",
@@ -25,4 +26,4 @@ class IntroductionForm(TagModelForm):
 
     class Meta:
         model = Introduction
-        exclude = ("template",)
+        fields = ("intro_person", "name", "tags", "departments")

@@ -22,6 +22,10 @@ from admin.integrations.exceptions import (
 )
 from admin.integrations.models import Integration
 from admin.integrations.sync_userinfo import SyncUsers
+from admin.people.selectors import (
+    get_colleagues_for_user,
+    get_offboarding_colleagues_for_user,
+)
 from admin.people.serializers import UserImportSerializer
 from admin.resources.models import Resource
 from admin.sequences.models import Condition, Sequence
@@ -30,11 +34,12 @@ from organization.models import Organization, WelcomeMessage
 from slack_bot.utils import Slack, actions, button, paragraph
 from users.emails import email_new_admin_cred
 from users.mixins import (
+    AdminOrManagerPermMixin,
     AdminPermMixin,
     IsAdminOrNewHireManagerMixin,
     ManagerPermMixin,
 )
-from users.models import ToDoUser
+from users.models import Department, ToDoUser
 
 from .forms import (
     ColleagueCreateForm,
@@ -49,9 +54,11 @@ from .forms import (
 
 class ColleagueListView(ManagerPermMixin, ListView):
     template_name = "colleagues.html"
-    queryset = get_user_model().objects.all()
     paginate_by = 20
     ordering = ["first_name", "last_name"]
+
+    def get_queryset(self):
+        return get_colleagues_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -67,9 +74,11 @@ class ColleagueListView(ManagerPermMixin, ListView):
 
 class OffboardingColleagueListView(ManagerPermMixin, ListView):
     template_name = "offboarding.html"
-    queryset = get_user_model().offboarding.all()
     paginate_by = 20
     ordering = ["termination_date", "email"]
+
+    def get_queryset(self):
+        return get_offboarding_colleagues_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -313,7 +322,7 @@ class ColleagueTogglePortalAccessView(ManagerPermMixin, View):
         return render(request, self.template_name, context)
 
 
-class AddOffboardingSequenceView(AdminPermMixin, SuccessMessageMixin, UpdateView):
+class AddOffboardingSequenceView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "add_offboarding_sequence.html"
     form_class = OffboardingSequenceChoiceForm
     model = get_user_model()
@@ -495,3 +504,31 @@ class ColleagueImportAddUsersView(generics.CreateAPIView):
             "Admins and managers will receive an email shortly."
         )
         return HttpResponse(f"<div class='alert alert-success'>{success_message}</div>")
+
+
+class DepartmentListView(AdminOrManagerPermMixin, ListView):
+    template_name = "departments.html"
+    paginate_by = 20
+    model = Department
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("Roles and departments")
+        context["subtitle"] = _("people")
+        return context
+
+
+class DepartmentCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
+    template_name = "department_create.html"
+    model = Department
+    fields = [
+        "name",
+    ]
+    success_message = _("Department has been created")
+    success_url = reverse_lazy("people:departments")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("Roles and departments")
+        context["subtitle"] = _("people")
+        return context
