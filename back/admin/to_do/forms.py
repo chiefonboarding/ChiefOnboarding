@@ -4,11 +4,12 @@ from django.utils.translation import gettext_lazy as _
 
 from admin.integrations.models import Integration
 from admin.templates.forms import MultiSelectField, TagModelForm, WYSIWYGField
+from misc.mixins import FilterDepartmentFieldByUserMixin
 
 from .models import ToDo
 
 
-class ToDoForm(TagModelForm):
+class ToDoForm(FilterDepartmentFieldByUserMixin, TagModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()

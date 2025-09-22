@@ -215,23 +215,27 @@ class WelcomeMessage(models.Model):
     message_type = models.IntegerField(choices=Type.choices, default=Type.PREBOARDING)
 
 
-class TemplateManager(models.Manager):
-    def get_queryset(self):
-        return (
-            super().get_queryset().prefetch_related("departments").filter(template=True)
-        )
-
-    def defer_content(self):
-        if "content" in self.model._meta.get_fields():
-            return self.get_queryset().defer("content")
-        return self.get_queryset()
+class FilteredForAdminQuerySet(models.QuerySet):
+    def for_user(self, user):
+        if user.is_manager:
+            return self.filter(Q(departments__isnull=True) | Q(departments__in=user.departments.all()))
+        else:
+            return self
 
 
 class ObjectsManager(models.Manager):
-    def defer_content(self):
-        if "content" in super().model._meta.get_fields():
-            return super().get_queryset().defer("content")
-        return super().get_queryset()
+    def get_queryset(self):
+        return (
+            FilteredForAdminQuerySet(self.model, using=self._db).prefetch_related("departments")
+        )
+
+    def for_user(self, user):
+        return self.get_queryset().for_user(user)
+
+
+class TemplateManager(ObjectsManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(template=True)
 
 
 class BaseItem(ContentMixin, models.Model):
@@ -253,6 +257,7 @@ class BaseItem(ContentMixin, models.Model):
 
     class Meta:
         abstract = True
+        ordering = ("name",)
 
     @property
     def requires_assigned_manager_or_buddy(self):

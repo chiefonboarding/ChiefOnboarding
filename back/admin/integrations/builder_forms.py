@@ -1,3 +1,4 @@
+from admin.integrations.models import Integration
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, Layout
 from django import forms
@@ -15,6 +16,7 @@ from admin.integrations.validators import (
     validate_status_code,
 )
 from admin.templates.forms import FieldWithExtraContext
+from misc.mixins import FilterDepartmentFieldByUserMixin
 
 
 class JSONToDict(forms.JSONField):

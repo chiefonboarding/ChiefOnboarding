@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
+from django.db.models import Q
 
 from organization.models import Notification
 from slack_bot.utils import Slack, actions, button, paragraph
@@ -13,7 +14,23 @@ from .emails import (
 )
 
 
-class AminTaskManager(models.Manager):
+
+class FilteredForAdminQuerySet(models.QuerySet):
+    def for_user(self, user):
+        if user.is_manager:
+            return self.filter(Q(new_hire__departments__isnull=True) | Q(new_hire__departments__in=user.departments.all()))
+        else:
+            return self
+
+class AdminTaskManager(models.Manager):
+    def for_user(self, user):
+        return self.get_queryset().for_user(user)
+
+    def get_queryset(self):
+        return (
+            FilteredForAdminQuerySet(self.model, using=self._db)
+        )
+
     def create_admin_task(
         self,
         new_hire,
@@ -125,7 +142,7 @@ class AdminTask(models.Model):
         help_text=_("Only set if generated based on hardware."),
     )
 
-    objects = AminTaskManager()
+    objects = AdminTaskManager()
 
     def get_icon_template(self):
         return render_to_string("_admin_task_icon.html")

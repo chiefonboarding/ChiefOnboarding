@@ -1,5 +1,7 @@
 from misc.models import File
+from django.db.models import Q
 from misc.urlparser import URLParser
+from users.selectors import get_available_departments_for_user
 
 
 class ContentMixin:
@@ -222,3 +224,24 @@ class ContentMixin:
                     }
             slack_blocks.append(slack_block)
         return slack_blocks
+
+class FormWithUserContextMixin:
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+class FilterDepartmentFieldByUserMixin:
+    def __init__(self, *args, **kwargs):
+        from users.models import Department
+        user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
+
+        available_departments = get_available_departments_for_user(user=user) 
+
+        # also include existing ones
+        initial_departments = self.initial.get('departments', [])
+        self.fields["departments"].queryset = Department.objects.filter(
+            Q(pk__in=available_departments.values_list('pk', flat=True)) |
+            Q(pk__in=[d.pk for d in initial_departments])
+        ).distinct()

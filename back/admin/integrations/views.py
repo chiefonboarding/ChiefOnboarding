@@ -16,13 +16,14 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
+from misc.mixins import FormWithUserContextMixin
 from users.mixins import AdminPermMixin, ManagerPermMixin
 
 from .forms import IntegrationExtraArgsForm, IntegrationForm
 from .models import Integration, IntegrationTracker
 
 
-class IntegrationCreateView(AdminPermMixin, CreateView, SuccessMessageMixin):
+class IntegrationCreateView(AdminPermMixin, FormWithUserContextMixin, CreateView, SuccessMessageMixin):
     template_name = "token_create.html"
     form_class = IntegrationForm
     success_message = _("Integration has been created!")

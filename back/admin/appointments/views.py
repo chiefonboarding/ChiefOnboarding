@@ -1,19 +1,22 @@
+from admin.appointments.selectors import get_appointment_templates_for_user
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
-from users.mixins import ManagerPermMixin
+from misc.mixins import FormWithUserContextMixin
+from users.mixins import AdminOrManagerPermMixin
 
 from .forms import AppointmentForm
-from .models import Appointment
 
 
-class AppointmentListView(ManagerPermMixin, ListView):
+class AppointmentListView(AdminOrManagerPermMixin, ListView):
     template_name = "templates.html"
-    queryset = Appointment.templates.all().order_by("name")
     paginate_by = 10
+
+    def get_queryset(self):
+        return get_appointment_templates_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -23,7 +26,7 @@ class AppointmentListView(ManagerPermMixin, ListView):
         return context
 
 
-class AppointmentCreateView(ManagerPermMixin, SuccessMessageMixin, CreateView):
+class AppointmentCreateView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView):
     template_name = "template_update.html"
     form_class = AppointmentForm
     success_url = reverse_lazy("appointments:list")
@@ -36,12 +39,14 @@ class AppointmentCreateView(ManagerPermMixin, SuccessMessageMixin, CreateView):
         return context
 
 
-class AppointmentUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
+class AppointmentUpdateView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView):
     template_name = "template_update.html"
     form_class = AppointmentForm
     success_url = reverse_lazy("appointments:list")
-    queryset = Appointment.templates.all()
     success_message = _("Appointment item has been updated")
+    
+    def get_queryset(self):
+        return get_appointment_templates_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -50,7 +55,9 @@ class AppointmentUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
         return context
 
 
-class AppointmentDeleteView(ManagerPermMixin, SuccessMessageMixin, DeleteView):
-    queryset = Appointment.objects.all()
+class AppointmentDeleteView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, DeleteView):
     success_url = reverse_lazy("appointments:list")
     success_message = _("Appointment item has been removed")
+
+    def get_queryset(self):
+        return get_appointment_templates_for_user(user=self.request.user)

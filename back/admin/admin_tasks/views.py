@@ -1,3 +1,4 @@
+from admin.admin_tasks.selectors import get_admin_tasks_for_department, get_admin_tasks_for_user
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
@@ -7,18 +8,19 @@ from django.views.generic.detail import BaseDetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
-from users.mixins import ManagerPermMixin
+from misc.mixins import FormWithUserContextMixin
+from users.mixins import AdminOrManagerPermMixin
 
 from .forms import AdminTaskCommentForm, AdminTaskCreateForm, AdminTaskUpdateForm
 from .models import AdminTask, AdminTaskComment
 
 
-class MyAdminTasksListView(ManagerPermMixin, ListView):
+class MyAdminTasksListView(AdminOrManagerPermMixin, ListView):
     template_name = "admin_tasks_yours.html"
     paginate_by = 10
 
     def get_queryset(self):
-        return AdminTask.objects.filter(assigned_to=self.request.user).select_related(
+        return get_admin_tasks_for_user(user=self.request.user).select_related(
             "new_hire", "assigned_to"
         )
 
@@ -30,12 +32,12 @@ class MyAdminTasksListView(ManagerPermMixin, ListView):
         return context
 
 
-class AllAdminTasksListView(ManagerPermMixin, ListView):
+class AllAdminTasksListView(AdminOrManagerPermMixin, ListView):
     template_name = "admin_tasks_all.html"
     paginate_by = 10
 
     def get_queryset(self):
-        return AdminTask.objects.all().select_related("new_hire", "assigned_to")
+        return get_admin_tasks_for_department(user=self.request.user).select_related("new_hire", "assigned_to")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -45,8 +47,9 @@ class AllAdminTasksListView(ManagerPermMixin, ListView):
         return context
 
 
-class AdminTaskCompleteView(ManagerPermMixin, BaseDetailView):
-    model = AdminTask
+class AdminTaskCompleteView(AdminOrManagerPermMixin, BaseDetailView):
+    def get_queryset(self):
+        return get_admin_tasks_for_department(user=self.request.user)
 
     def post(self, request, *args, **kwargs):
         admin_task = self.get_object()
@@ -54,7 +57,7 @@ class AdminTaskCompleteView(ManagerPermMixin, BaseDetailView):
         return redirect("admin_tasks:detail", pk=admin_task.id)
 
 
-class AdminTasksCreateView(ManagerPermMixin, SuccessMessageMixin, CreateView):
+class AdminTasksCreateView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView):
     template_name = "admin_tasks_create.html"
     form_class = AdminTaskCreateForm
     model = AdminTask
@@ -83,18 +86,26 @@ class AdminTasksCreateView(ManagerPermMixin, SuccessMessageMixin, CreateView):
         return context
 
 
-class AdminTasksUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
+class AdminTasksUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "admin_tasks_detail.html"
     form_class = AdminTaskUpdateForm
     model = AdminTask
     success_message = _("Task has been updated")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.get_object().new_hire
+        return kwargs
+
+    def get_queryset(self):
+        return get_admin_tasks_for_department(user=self.request.user)
 
     def get_success_url(self):
         return self.request.path
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        task = get_object_or_404(AdminTask, pk=self.kwargs.get("pk"))
+        task = self.get_object()
         context["object"] = task
         context["title"] = _("Task: %(name)s") % {"name": task.name}
         context["subtitle"] = _("Tasks")
@@ -103,7 +114,8 @@ class AdminTasksUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
 
     def form_valid(self, form):
         # send email/bot message to newly assigned person
-        initial_assigned_to = AdminTask.objects.get(id=form.instance.id).assigned_to
+        task = self.get_object()
+        initial_assigned_to = task.assigned_to
         form.save()
         if (
             form.cleaned_data["assigned_to"] != initial_assigned_to
@@ -113,7 +125,7 @@ class AdminTasksUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
         return super().form_valid(form)
 
 
-class AdminTasksCommentCreateView(ManagerPermMixin, SuccessMessageMixin, CreateView):
+class AdminTasksCommentCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
     template_name = "admin_tasks_detail.html"
     model = AdminTaskComment
     fields = [
@@ -122,11 +134,10 @@ class AdminTasksCommentCreateView(ManagerPermMixin, SuccessMessageMixin, CreateV
     success_message = _("Comment has been posted")
 
     def get_success_url(self):
-        task = get_object_or_404(AdminTask, pk=self.kwargs.get("pk"))
-        return reverse("admin_tasks:detail", args=[task.id])
+        return reverse("admin_tasks:detail", args=[self.object.admin_task.id])
 
     def form_valid(self, form):
-        task = get_object_or_404(AdminTask, pk=self.kwargs.get("pk"))
+        task = get_object_or_404(get_admin_tasks_for_department(user=self.request.user), pk=self.kwargs.get("pk"))
         # Can't post comments when item is completed
         if task.completed:
             raise Http404

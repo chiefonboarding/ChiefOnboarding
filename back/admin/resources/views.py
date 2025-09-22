@@ -1,19 +1,23 @@
+from admin.resources.selectors import get_resource_templates_for_user
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
-from users.mixins import ManagerPermMixin
+from misc.mixins import FormWithUserContextMixin
+from users.mixins import AdminOrManagerPermMixin
 
 from .forms import ResourceForm
 from .models import Resource
 
 
-class ResourceListView(ManagerPermMixin, ListView):
+class ResourceListView(AdminOrManagerPermMixin, ListView):
     template_name = "templates.html"
-    queryset = Resource.templates.all().order_by("name")
     paginate_by = 10
+
+    def get_queryset(self):
+        return get_resource_templates_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -23,7 +27,7 @@ class ResourceListView(ManagerPermMixin, ListView):
         return context
 
 
-class ResourceCreateView(ManagerPermMixin, SuccessMessageMixin, CreateView):
+class ResourceCreateView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView):
     template_name = "resource_update.html"
     form_class = ResourceForm
     success_url = reverse_lazy("resources:list")
@@ -36,12 +40,14 @@ class ResourceCreateView(ManagerPermMixin, SuccessMessageMixin, CreateView):
         return context
 
 
-class ResourceUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
+class ResourceUpdateView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView):
     template_name = "resource_update.html"
     form_class = ResourceForm
     success_url = reverse_lazy("resources:list")
-    queryset = Resource.templates.all()
     success_message = _("Resource item has been updated")
+
+    def get_queryset(self):
+        return get_resource_templates_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -50,7 +56,9 @@ class ResourceUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
         return context
 
 
-class ResourceDeleteView(ManagerPermMixin, SuccessMessageMixin, DeleteView):
-    queryset = Resource.objects.all()
+class ResourceDeleteView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, DeleteView):
     success_url = reverse_lazy("resources:list")
     success_message = _("Resource item has been removed")
+
+    def get_queryset(self):
+        return get_resource_templates_for_user(user=self.request.user)

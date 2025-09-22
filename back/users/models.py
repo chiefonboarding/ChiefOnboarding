@@ -167,8 +167,8 @@ class User(AbstractBaseUser):
         choices=Role.choices,
         default=3,
         help_text=_(
-            "An administrator has access to everything. A manager has only access to "
-            "their new hires and their tasks."
+            "An administrator has access to everything. A manager has no access to settings and only access to "
+            "the items in their departments"
         ),
     )
     is_active = models.BooleanField(default=True)

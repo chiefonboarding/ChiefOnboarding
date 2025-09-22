@@ -33,6 +33,7 @@ from users.emails import (
     send_reminder_email,
 )
 from users.mixins import (
+    AdminOrManagerPermMixin,
     IsAdminOrNewHireManagerMixin,
     ManagerPermMixin,
 )
@@ -47,7 +48,7 @@ from .forms import (
 )
 
 
-class NewHireListView(ManagerPermMixin, ListView):
+class NewHireListView(AdminOrManagerPermMixin, ListView):
     template_name = "new_hires.html"
     paginate_by = 10
 
@@ -62,7 +63,7 @@ class NewHireListView(ManagerPermMixin, ListView):
         return context
 
 
-class NewHireAddView(ManagerPermMixin, SuccessMessageMixin, CreateView):
+class NewHireAddView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
     template_name = "new_hire_add.html"
     model = get_user_model()
     form_class = NewHireAddForm
@@ -628,7 +629,7 @@ class NewHireTaskListView(IsAdminOrNewHireManagerMixin, DetailView):
             "name": self.object.full_name
         }
         context["subtitle"] = _("new hire")
-        context["object_list"] = templates_model.templates.defer_content().all()
+        context["object_list"] = templates_model.templates.all()
         context["user_items"] = getattr(
             self.object, get_user_field(self.kwargs.get("type", ""))
         ).values_list("id", flat=True)

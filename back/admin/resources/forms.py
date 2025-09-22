@@ -10,6 +10,7 @@ from admin.templates.forms import (
     MultiSelectField,
     TagModelForm,
 )
+from misc.mixins import FilterDepartmentFieldByUserMixin
 
 from .models import Category, Chapter, Resource
 from .serializers import ChapterSerializer
@@ -19,7 +20,7 @@ class ChapterField(FieldWithExtraContext):
     template = "chapter_field.html"
 
 
-class ResourceForm(TagModelForm):
+class ResourceForm(FilterDepartmentFieldByUserMixin, TagModelForm):
     category = ModelChoiceFieldWithCreate(
         label=_("Category"),
         queryset=Category.objects.all(),

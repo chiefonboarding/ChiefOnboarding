@@ -4,11 +4,12 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from admin.templates.forms import MultiSelectField, TagModelForm, WYSIWYGField
+from misc.mixins import FilterDepartmentFieldByUserMixin
 
 from .models import Appointment
 
 
-class AppointmentForm(TagModelForm):
+class AppointmentForm(FilterDepartmentFieldByUserMixin, TagModelForm):
     content = WYSIWYGField()
     date = forms.DateField(
         label=_("Date"),

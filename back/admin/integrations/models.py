@@ -42,7 +42,7 @@ from admin.integrations.serializers import (
 from admin.integrations.utils import get_value_from_notation
 from misc.fernet_fields import EncryptedTextField
 from misc.fields import EncryptedJSONField
-from organization.models import Notification
+from organization.models import FilteredForAdminQuerySet, Notification
 from organization.utils import has_manager_or_buddy_tags, send_email_with_notification
 
 
@@ -120,7 +120,12 @@ class IntegrationTrackerStep(models.Model):
 
 class IntegrationManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset()
+        return (
+            FilteredForAdminQuerySet(self.model, using=self._db)
+        )
+
+    def for_user(self, user):
+        return self.get_queryset().for_user(user)
 
     def sequence_integration_options(self):
         # any webhooks and account provisioning
@@ -155,7 +160,7 @@ class IntegrationManager(models.Manager):
         )
 
 
-class IntegrationInactiveManager(models.Manager):
+class IntegrationInactiveManager(IntegrationManager):
     def get_queryset(self):
         return super().get_queryset().filter(is_active=False)
 
@@ -178,6 +183,11 @@ class Integration(models.Model):
         default=True, help_text="If inactive, it's a test/debug integration"
     )
     integration = models.IntegerField(choices=Type.choices)
+    departments = models.ManyToManyField(
+        "users.Department",
+        blank=True,
+        help_text=_("Leave empty to make it available to all managers"),
+    )
     manifest_type = models.IntegerField(
         choices=ManifestType.choices, null=True, blank=True
     )
