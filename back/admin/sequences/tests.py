@@ -434,7 +434,7 @@ def test_sequence_form_view(
     url = reverse("sequences:forms", args=[sequence.id, template_type, 0])
     response = client.get(url)
 
-    response.context["form"] == form()
+    response.context["form"] == form(user=admin)
 
     item = factory()
     url = reverse("sequences:forms", args=[sequence.id, template_type, item.id])
@@ -532,8 +532,7 @@ def test_sequence_update_form_view(
     # Since 'template' was not provided, it will now have two items
     assert ToDo.objects.all().count() == 2
     # The second one is now not a template
-    new_to_do = ToDo.objects.last()
-    assert not new_to_do.template
+    new_to_do = ToDo.objects.get(template=False)
     assert new_to_do.name == "new todo"
 
     # New item should be added to condition
@@ -569,7 +568,7 @@ def test_sequence_update_form_view(
     )
 
     assert ToDo.objects.all().count() == 3
-    new_to_do = ToDo.objects.last()
+    new_to_do = ToDo.objects.order_by("id").last()
 
     assert to_do.template
     assert not new_to_do.template

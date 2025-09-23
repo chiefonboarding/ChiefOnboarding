@@ -55,7 +55,7 @@ class AppointmentUpdateView(AdminOrManagerPermMixin, FormWithUserContextMixin, S
         return context
 
 
-class AppointmentDeleteView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, DeleteView):
+class AppointmentDeleteView(AdminOrManagerPermMixin, SuccessMessageMixin, DeleteView):
     success_url = reverse_lazy("appointments:list")
     success_message = _("Appointment item has been removed")
 

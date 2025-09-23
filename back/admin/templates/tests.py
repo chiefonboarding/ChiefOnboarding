@@ -76,7 +76,7 @@ def test_templates_crud(
 
     # Get first object of template
     object_model = apps.get_model(app, model)
-    obj = object_model.objects.first()
+    obj = object_model.objects.get(template=True)
 
     # Check list page again
     response = client.get(url)

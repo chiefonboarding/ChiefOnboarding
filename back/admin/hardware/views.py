@@ -57,7 +57,7 @@ class HardwareUpdateView(AdminOrManagerPermMixin, FormWithUserContextMixin, Succ
         return context
 
 
-class HardwareDeleteView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, DeleteView):
+class HardwareDeleteView(AdminOrManagerPermMixin, SuccessMessageMixin, DeleteView):
     success_url = reverse_lazy("hardware:list")
     success_message = _("Hardware item has been removed")
 

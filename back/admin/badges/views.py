@@ -58,7 +58,7 @@ class BadgeUpdateView(AdminOrManagerPermMixin, FormWithUserContextMixin, Success
         return context
 
 
-class BadgeDeleteView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, DeleteView):
+class BadgeDeleteView(AdminOrManagerPermMixin, SuccessMessageMixin, DeleteView):
     success_url = reverse_lazy("badges:list")
     success_message = _("badge item has been removed")
 

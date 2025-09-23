@@ -11,11 +11,11 @@ from admin.resources.models import Resource
 from admin.sequences.models import Sequence
 from admin.to_do.models import ToDo
 from organization.models import TemplateManager
-from users.mixins import ManagerPermMixin
+from users.mixins import AdminOrManagerPermMixin
 from users.models import User
 
 
-class SearchHXView(ManagerPermMixin, TemplateView):
+class SearchHXView(AdminOrManagerPermMixin, TemplateView):
     template_name = "search_results.html"
 
     def get_context_data(self, **kwargs):
@@ -45,9 +45,9 @@ class SearchHXView(ManagerPermMixin, TemplateView):
             elif hasattr(model, "templates") and isinstance(
                 model.template, TemplateManager
             ):
-                objects = model.templates.filter(name__search=query)
+                objects = model.templates.for_user(user=self.request.user).filter(name__search=query)
             else:
-                objects = model.objects.filter(name__search=query)
+                objects = model.objects.for_user(user=self.request.user).filter(name__search=query)
             results += [
                 {"name": obj.name, "url": obj.update_url, "icon": obj.get_icon_template}
                 for obj in objects

@@ -1,3 +1,4 @@
+from admin.sequences.selectors import get_onboarding_sequences_for_user
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, Layout, Submit
 from django import forms
@@ -13,6 +14,7 @@ from admin.templates.forms import (
     MultiSelectField,
     UploadField,
 )
+from misc.mixins import FilterDepartmentFieldByUserMixin
 from organization.models import Organization
 
 
@@ -237,7 +239,7 @@ class NewHireProfileForm(forms.ModelForm):
         )
 
 
-class ColleagueUpdateForm(forms.ModelForm):
+class ColleagueUpdateForm(FilterDepartmentFieldByUserMixin, forms.ModelForm):
     birthday = forms.DateField(
         widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
         required=False,
@@ -256,7 +258,7 @@ class ColleagueUpdateForm(forms.ModelForm):
             Div(
                 Div(Field("email"), css_class="col-12"),
                 Div(Field("position"), css_class="col-12"),
-                Div(Field("departments", css_class="add"), css_class="col-12"),
+                Div(Field("departments"), css_class="col-12"),
                 Div(Field("phone"), css_class="col-12"),
                 Div(Field("birthday"), css_class="col-12"),
                 Div(Field("message"), css_class="col-12"),
@@ -292,7 +294,7 @@ class ColleagueUpdateForm(forms.ModelForm):
         )
 
 
-class ColleagueCreateForm(forms.ModelForm):
+class ColleagueCreateForm(FilterDepartmentFieldByUserMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -308,7 +310,7 @@ class ColleagueCreateForm(forms.ModelForm):
             Div(
                 Div(Field("email"), css_class="col-12"),
                 Div(Field("position"), css_class="col-12"),
-                Div(Field("departments", css_class="add"), css_class="col-12"),
+                Div(Field("departments"), css_class="col-12"),
                 Div(Field("phone"), css_class="col-12"),
                 Div(Field("message"), css_class="col-12"),
                 Div(Field("facebook"), css_class="col-12"),
@@ -346,8 +348,13 @@ class OnboardingSequenceChoiceForm(forms.Form):
     sequences = forms.ModelMultipleChoiceField(
         label=_("Select sequences you want to add "),
         widget=forms.CheckboxSelectMultiple,
-        queryset=Sequence.onboarding.all(),
+        queryset=Sequence.objects.none(),
     )
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
+        self.fields["sequences"].queryset = get_onboarding_sequences_for_user(user=user)
 
 
 class OffboardingSequenceChoiceForm(forms.ModelForm):

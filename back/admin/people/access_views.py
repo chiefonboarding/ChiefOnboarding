@@ -1,3 +1,4 @@
+from admin.people.selectors import get_colleagues_for_user, get_new_hires_for_user
 from allauth.account.models import EmailAddress
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -11,13 +12,15 @@ from django.views.generic.edit import DeleteView
 
 from admin.integrations.forms import IntegrationExtraUserInfoForm
 from admin.integrations.models import Integration
-from users.mixins import IsAdminOrNewHireManagerMixin
+from users.mixins import AdminOrManagerPermMixin
 from users.models import IntegrationUser
 
 
-class NewHireAccessView(IsAdminOrNewHireManagerMixin, DetailView):
+class NewHireAccessView(AdminOrManagerPermMixin, DetailView):
     template_name = "new_hire_access.html"
-    model = get_user_model()
+
+    def get_queryset(self):
+        return get_new_hires_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -28,9 +31,11 @@ class NewHireAccessView(IsAdminOrNewHireManagerMixin, DetailView):
         return context
 
 
-class ColleagueAccessView(IsAdminOrNewHireManagerMixin, DetailView):
+class ColleagueAccessView(AdminOrManagerPermMixin, DetailView):
     template_name = "colleague_access.html"
-    model = get_user_model()
+
+    def get_queryset(self):
+        return get_colleagues_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -41,11 +46,13 @@ class ColleagueAccessView(IsAdminOrNewHireManagerMixin, DetailView):
         return context
 
 
-class UserDeleteView(IsAdminOrNewHireManagerMixin, SuccessMessageMixin, DeleteView):
+class UserDeleteView(AdminOrManagerPermMixin, SuccessMessageMixin, DeleteView):
     template_name = "user_delete.html"
-    queryset = get_user_model().objects.all()
     success_url = reverse_lazy("people:new_hires")
     success_message = _("User has been removed")
+
+    def get_queryset(self):
+        return get_colleagues_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -63,9 +70,9 @@ class UserDeleteView(IsAdminOrNewHireManagerMixin, SuccessMessageMixin, DeleteVi
         return super().form_valid(form)
 
 
-class UserRevokeAllAccessView(IsAdminOrNewHireManagerMixin, SuccessMessageMixin, View):
+class UserRevokeAllAccessView(AdminOrManagerPermMixin, SuccessMessageMixin, View):
     def post(self, request, *args, **kwargs):
-        user = get_object_or_404(get_user_model(), id=self.kwargs.get("pk", -1))
+        user = get_object_or_404(get_new_hires_for_user(user=self.request.user), id=self.kwargs.get("pk", -1))
         for integration in Integration.objects.filter(
             manifest_type=Integration.ManifestType.WEBHOOK,
             manifest__revoke__isnull=False,
@@ -80,9 +87,11 @@ class UserRevokeAllAccessView(IsAdminOrNewHireManagerMixin, SuccessMessageMixin,
         return redirect("people:delete", user.id)
 
 
-class UserCheckAccessView(IsAdminOrNewHireManagerMixin, DetailView):
+class UserCheckAccessView(AdminOrManagerPermMixin, DetailView):
     template_name = "_user_access_card.html"
-    model = get_user_model()
+
+    def get_queryset(self):
+        return get_colleagues_for_user(user=self.request.user)
 
     def get_template_names(self):
         if "compact" in self.request.path:
@@ -102,9 +111,11 @@ class UserCheckAccessView(IsAdminOrNewHireManagerMixin, DetailView):
         return context
 
 
-class UserGiveAccessView(IsAdminOrNewHireManagerMixin, DetailView):
+class UserGiveAccessView(AdminOrManagerPermMixin, DetailView):
     template_name = "give_user_access.html"
-    model = get_user_model()
+
+    def get_queryset(self):
+        return get_colleagues_for_user(user=self.request.user)
 
     def post(self, request, *args, **kwargs):
         integration = get_object_or_404(
@@ -113,7 +124,6 @@ class UserGiveAccessView(IsAdminOrNewHireManagerMixin, DetailView):
         user = self.get_object()
 
         integration_config_form = integration.config_form(request.POST)
-
         user_details_form = IntegrationExtraUserInfoForm(
             data=request.POST,
             instance=user,
@@ -167,12 +177,12 @@ class UserGiveAccessView(IsAdminOrNewHireManagerMixin, DetailView):
         return context
 
 
-class UserToggleAccessView(IsAdminOrNewHireManagerMixin, View):
+class UserToggleAccessView(AdminOrManagerPermMixin, View):
     def post(self, request, *args, **kwargs):
         integration = get_object_or_404(
             Integration, id=self.kwargs.get("integration_id", -1)
         )
-        user = get_object_or_404(get_user_model(), id=self.kwargs.get("pk", -1))
+        user = get_object_or_404(get_new_hires_for_user(user=self.request.user), id=self.kwargs.get("pk", -1))
 
         # user added/revoked access manually, so just log it being revoked/added
         if integration.skip_user_provisioning:

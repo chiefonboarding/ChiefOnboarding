@@ -26,6 +26,7 @@ class CompletedFormCheck:
 
 
 def parse_array_to_string(words):
+    words = list(words)
     if not words:
         return ""
     if len(words) == 1:

@@ -56,7 +56,7 @@ class ResourceUpdateView(AdminOrManagerPermMixin, FormWithUserContextMixin, Succ
         return context
 
 
-class ResourceDeleteView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, DeleteView):
+class ResourceDeleteView(AdminOrManagerPermMixin, SuccessMessageMixin, DeleteView):
     success_url = reverse_lazy("resources:list")
     success_message = _("Resource item has been removed")
 

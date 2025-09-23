@@ -1,19 +1,21 @@
+from admin.sequences.selectors import get_offboarding_sequences_for_user, get_onboarding_sequences_for_user
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic.list import ListView
 
-from admin.sequences.models import Sequence
-from users.mixins import ManagerPermMixin
+from users.mixins import AdminOrManagerPermMixin
 
 
-class OffboardingSequenceListView(ManagerPermMixin, ListView):
+class OffboardingSequenceListView(AdminOrManagerPermMixin, ListView):
     """
     Lists all onboarding sequences in a table.
     """
 
     template_name = "templates.html"
-    queryset = Sequence.offboarding.all().order_by("name")
     paginate_by = 10
+
+    def get_queryset(self):
+        return get_offboarding_sequences_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

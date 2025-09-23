@@ -173,7 +173,7 @@ class PrettyJSONEncoder(json.JSONEncoder):
         super().__init__(*args, indent=4, **kwargs)
 
 
-class IntegrationForm(forms.ModelForm):
+class IntegrationForm(FilterDepartmentFieldByUserMixin, forms.ModelForm):
     """Form used to register a new integration through the settings"""
 
     manifest = forms.JSONField(encoder=PrettyJSONEncoder, required=False, initial=dict)

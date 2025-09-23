@@ -181,7 +181,7 @@ def test_personalize(
         manager=manager,
         buddy=buddy,
         position="developer",
-        department=department,
+        departments=[department],
     )
     # add integrations
     i_u1 = integration_user_factory(user=new_hire, revoked=True)

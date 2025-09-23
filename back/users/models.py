@@ -152,9 +152,6 @@ class User(AbstractBaseUser):
         max_length=1000,
         choices=[(x, x) for x in pytz.common_timezones],
     )
-    department = models.ForeignKey(
-        Department, verbose_name=_("Department"), on_delete=models.SET_NULL, null=True
-    )
     departments = models.ManyToManyField(Department, blank=True, related_name="users")
     language = models.CharField(
         verbose_name=_("Language"),

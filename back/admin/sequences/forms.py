@@ -174,7 +174,7 @@ class PendingAdminTaskForm(forms.ModelForm):
         widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["option"].initial = PendingAdminTask.Notification.NO
         self.fields["comment"].required = True
@@ -230,7 +230,7 @@ class PendingAdminTaskForm(forms.ModelForm):
 
 
 class PendingSlackMessageForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_tag = False
@@ -278,7 +278,7 @@ class PendingSlackMessageForm(forms.ModelForm):
 
 
 class PendingTextMessageForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_tag = False
@@ -318,7 +318,7 @@ class PendingTextMessageForm(forms.ModelForm):
 
 
 class PendingEmailMessageForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_tag = False
