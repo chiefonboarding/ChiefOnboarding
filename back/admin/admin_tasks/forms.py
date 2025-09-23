@@ -52,9 +52,9 @@ class AdminTaskCreateForm(forms.ModelForm):
         user = kwargs.pop("user")
         super().__init__(*args, **kwargs)
         self.fields["option"].initial = 0
-        self.fields[
-            "new_hire"
-        ].queryset = get_all_new_hires_for_departments_of_user(user=user)
+        self.fields["new_hire"].queryset = get_all_new_hires_for_departments_of_user(
+            user=user
+        )
         self.fields[
             "assigned_to"
         ].queryset = get_all_managers_and_admins_for_departments_of_user(user=user)
@@ -77,5 +77,3 @@ class AdminTaskCreateForm(forms.ModelForm):
             "slack_user",
             "email",
         ]
-
-
