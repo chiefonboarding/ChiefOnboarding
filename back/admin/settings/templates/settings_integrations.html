@@ -53,7 +53,7 @@
     <tbody>
       {% for integration in custom_integrations %}
       <tr>
-        <td>{{ integration.name }}{% for dep in integration.departments.all %}<span class="badge bg-blue-lt text-blue-lt-fg" style="margin-left: 10px">{{ dep.name }}</span>{% endfor %}</td></td>
+        <td>{{ integration.name }}{% for dep in integration.departments.all %}<span class="badge bg-blue-lt text-blue-lt-fg" style="margin-left: 10px">{{ dep.name }}</span>{% endfor %}</td>
             
         <td style="text-align: right">
           {% if integration.has_oauth and not integration.enabled_oauth %}

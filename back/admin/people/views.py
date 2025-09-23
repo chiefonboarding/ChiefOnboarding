@@ -40,7 +40,7 @@ from users.mixins import (
     AdminOrManagerPermMixin,
     AdminPermMixin,
 )
-from users.models import ToDoUser
+from users.models import Department, ToDoUser
 from users.selectors import (
     get_all_offboarding_users_for_departments_of_user,
     get_available_departments_for_user,
@@ -552,14 +552,12 @@ class DepartmentListView(AdminOrManagerPermMixin, ListView):
 
 class DepartmentCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
     template_name = "department_create.html"
+    model = Department
     fields = [
         "name",
     ]
     success_message = _("Department has been created")
     success_url = reverse_lazy("people:departments")
-
-    def get_queryset(self):
-        return get_available_departments_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
