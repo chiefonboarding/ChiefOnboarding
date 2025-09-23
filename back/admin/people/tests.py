@@ -1286,7 +1286,12 @@ def test_new_hire_course_answers_list(
 
 @pytest.mark.django_db
 def test_new_hire_reopen_todo(
-    client, settings, manager_factory, to_do_user_factory, department_factory, mailoutbox
+    client,
+    settings,
+    manager_factory,
+    to_do_user_factory,
+    department_factory,
+    mailoutbox,
 ):
     manager1 = manager_factory()
     manager2 = manager_factory(departments=[department_factory()])

@@ -19,13 +19,14 @@ from .models import (
     User,
 )
 
+
 class BaseUserFactory(factory.django.DjangoModelFactory):
     first_name = FuzzyText()
     last_name = FuzzyText()
 
     class Meta:
         model = User
-        skip_postgeneration_save=True
+        skip_postgeneration_save = True
 
     @factory.post_generation
     def departments(obj, create, extracted, **kwargs):
@@ -48,6 +49,7 @@ class NewHireFactory(BaseUserFactory):
     start_day = factory.LazyFunction(lambda: datetime.datetime.now().date())
     email = factory.Sequence(lambda n: "fake_new_hire_{}@example.com".format(n))
 
+
 class AdminFactory(BaseUserFactory):
     role = get_user_model().Role.ADMIN
     email = factory.Sequence(lambda n: "fake_admin_{}@example.com".format(n))
@@ -56,6 +58,7 @@ class AdminFactory(BaseUserFactory):
 class ManagerFactory(BaseUserFactory):
     role = get_user_model().Role.MANAGER
     email = factory.Sequence(lambda n: "fake_manager_{}@example.com".format(n))
+
 
 class EmployeeFactory(BaseUserFactory):
     is_active = False

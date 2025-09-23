@@ -1,5 +1,3 @@
-from admin.admin_tasks.selectors import get_admin_tasks_for_user
-from admin.sequences.selectors import get_sequences_for_user
 from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
@@ -15,15 +13,17 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
 from django.views.generic.list import ListView
 from django_q.tasks import async_task
-from misc.mixins import FormWithUserContextMixin
 from twilio.rest import Client
 
 from admin.admin_tasks.models import AdminTask
+from admin.admin_tasks.selectors import get_admin_tasks_for_user
 from admin.integrations.forms import IntegrationExtraUserInfoForm
 from admin.notes.models import Note
 from admin.people.selectors import get_colleagues_for_user, get_new_hires_for_user
 from admin.sequences.models import Condition, Sequence
+from admin.sequences.selectors import get_sequences_for_user
 from admin.templates.utils import get_templates_model, get_user_field
+from misc.mixins import FormWithUserContextMixin
 from organization.models import Notification, Organization, WelcomeMessage
 from slack_bot.slack_resource import SlackResource
 from slack_bot.slack_to_do import SlackToDo
@@ -153,7 +153,9 @@ class NewHireSendPreboardingNotificationView(AdminOrManagerPermMixin, FormView):
     form_class = PreboardingSendForm
 
     def form_valid(self, form):
-        new_hire = get_object_or_404(get_new_hires_for_user(user=self.request.user), id=self.kwargs.get("pk", -1))
+        new_hire = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), id=self.kwargs.get("pk", -1)
+        )
         if form.cleaned_data["send_type"] == "email":
             send_new_hire_preboarding(new_hire, form.cleaned_data["email"])
         else:
@@ -173,19 +175,25 @@ class NewHireSendPreboardingNotificationView(AdminOrManagerPermMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user_id = self.kwargs.get("pk", -1)
-        new_hire = get_object_or_404(get_new_hires_for_user(user=self.request.user), id=user_id)
+        new_hire = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), id=user_id
+        )
         context["title"] = new_hire.full_name
         context["subtitle"] = "new hire"
         return context
 
 
-class NewHireAddSequenceView(AdminOrManagerPermMixin, FormWithUserContextMixin, FormView):
+class NewHireAddSequenceView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, FormView
+):
     template_name = "new_hire_add_sequence.html"
     form_class = OnboardingSequenceChoiceForm
 
     def form_valid(self, form):
         user_id = self.kwargs.get("pk", -1)
-        new_hire = get_object_or_404(get_new_hires_for_user(user=self.request.user), id=user_id)
+        new_hire = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), id=user_id
+        )
         sequences = Sequence.objects.filter(id__in=form.cleaned_data["sequences"])
         new_hire.add_sequences(sequences)
         messages.success(
@@ -231,7 +239,9 @@ class NewHireAddSequenceView(AdminOrManagerPermMixin, FormWithUserContextMixin, 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user_id = self.kwargs.get("pk", -1)
-        new_hire = get_object_or_404(get_new_hires_for_user(user=self.request.user), id=user_id)
+        new_hire = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), id=user_id
+        )
         context["title"] = new_hire.full_name
         context["subtitle"] = "new hire"
         return context
@@ -239,8 +249,12 @@ class NewHireAddSequenceView(AdminOrManagerPermMixin, FormWithUserContextMixin, 
 
 class NewHireRemoveSequenceView(AdminOrManagerPermMixin, View):
     def post(self, request, pk, sequence_pk, *args, **kwargs):
-        sequence = get_object_or_404(get_sequences_for_user(user=self.request.user), id=sequence_pk)
-        new_hire = get_object_or_404(get_new_hires_for_user(user=self.request.user), id=pk)
+        sequence = get_object_or_404(
+            get_sequences_for_user(user=self.request.user), id=sequence_pk
+        )
+        new_hire = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), id=pk
+        )
         new_hire.remove_sequence(sequence)
 
         # Update user amount and completed
@@ -258,7 +272,9 @@ class NewHireTriggerConditionView(AdminOrManagerPermMixin, TemplateView):
         condition = get_object_or_404(Condition, id=condition_pk)
         if condition.sequence not in get_sequences_for_user(user=self.request.user):
             raise Http404
-        new_hire = get_object_or_404(get_colleagues_for_user(user=self.request.user), id=pk)
+        new_hire = get_object_or_404(
+            get_colleagues_for_user(user=self.request.user), id=pk
+        )
         condition.process_condition(new_hire, skip_notification=True)
 
         # Update user amount completed
@@ -284,7 +300,9 @@ class NewHireTriggerConditionView(AdminOrManagerPermMixin, TemplateView):
 
 class NewHireSendLoginEmailView(AdminOrManagerPermMixin, View):
     def post(self, request, pk, *args, **kwargs):
-        new_hire = get_object_or_404(get_new_hires_for_user(user=self.request.user), id=pk)
+        new_hire = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), id=pk
+        )
         send_new_hire_credentials(new_hire.id)
         messages.success(request, _("Sent email to new hire"))
         return redirect("people:new_hire", pk=new_hire.id)
@@ -354,9 +372,7 @@ class NewHireProfileView(SuccessMessageMixin, AdminOrManagerPermMixin, UpdateVie
 
 class NewHireMigrateToNormalAccountView(AdminOrManagerPermMixin, View):
     def post(self, request, pk, *args, **kwargs):
-        user = get_object_or_404(
-            get_new_hires_for_user(user=request.user), id=pk
-        )
+        user = get_object_or_404(get_new_hires_for_user(user=request.user), id=pk)
         user.role = 3
         user.save()
         messages.info(request, _("New hire is now a normal account."))
@@ -404,14 +420,18 @@ class NewHireNotesView(
         return self.request.path
 
     def form_valid(self, form):
-        new_hire = get_object_or_404(get_new_hires_for_user(user=self.request.user), pk=self.kwargs.get("pk"))
+        new_hire = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), pk=self.kwargs.get("pk")
+        )
         form.instance.admin = self.request.user
         form.instance.new_hire = new_hire
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        new_hire = get_object_or_404(get_new_hires_for_user(user=self.request.user), pk=self.kwargs.get("pk"))
+        new_hire = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), pk=self.kwargs.get("pk")
+        )
         context["object"] = new_hire
         context["title"] = new_hire.full_name
         context["subtitle"] = _("new hire")
@@ -427,7 +447,9 @@ class NewHireWelcomeMessagesView(AdminOrManagerPermMixin, ListView):
     template_name = "new_hire_welcome_messages.html"
 
     def get_queryset(self):
-        new_hire = get_object_or_404(get_new_hires_for_user(user=self.request.user), pk=self.kwargs.get("pk"))
+        new_hire = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), pk=self.kwargs.get("pk")
+        )
         return (
             NewHireWelcomeMessage.objects.filter(new_hire=new_hire)
             .order_by("-id")
@@ -436,7 +458,9 @@ class NewHireWelcomeMessagesView(AdminOrManagerPermMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        new_hire = get_object_or_404(get_new_hires_for_user(user=self.request.user), pk=self.kwargs.get("pk"))
+        new_hire = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), pk=self.kwargs.get("pk")
+        )
         context["object"] = new_hire
         context["title"] = new_hire.full_name
         context["subtitle"] = _("new hire")
@@ -448,7 +472,9 @@ class NewHireAdminTasksView(AdminOrManagerPermMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        new_hire = get_object_or_404(get_new_hires_for_user(user=self.request.user), pk=self.kwargs.get("pk"))
+        new_hire = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), pk=self.kwargs.get("pk")
+        )
         context["object"] = new_hire
         context["title"] = new_hire.full_name
         context["subtitle"] = _("new hire")
@@ -510,7 +536,9 @@ class NewHireProgressView(AdminOrManagerPermMixin, DetailView):
 
 class NewHireRemindView(AdminOrManagerPermMixin, View):
     def post(self, request, pk, template_type, template_pk, *args, **kwargs):
-        get_object_or_404(get_new_hires_for_user(user=self.request.user), pk=self.kwargs.get("pk"))
+        get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), pk=self.kwargs.get("pk")
+        )
         if template_type not in ["todouser", "resourceuser"]:
             raise Http404
 
@@ -548,7 +576,9 @@ class NewHireReopenTaskView(AdminOrManagerPermMixin, FormView):
     form_class = RemindMessageForm
 
     def dispatch(self, *args, **kwargs):
-        get_object_or_404(get_new_hires_for_user(user=self.request.user), pk=self.kwargs.get("pk"))
+        get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), pk=self.kwargs.get("pk")
+        )
         if self.request.user.is_authenticated:
             template_type = self.kwargs.get("template_type", "")
             if template_type not in ["todouser", "resourceuser"]:
@@ -702,7 +732,9 @@ class NewHireDeleteView(AdminOrManagerPermMixin, SuccessMessageMixin, DeleteView
 class CompleteAdminTaskView(AdminOrManagerPermMixin, DetailView):
     def post(self, request, pk, admin_task_pk, *args, **kwargs):
         get_object_or_404(get_new_hires_for_user(user=self.request.user), id=pk)
-        task = get_object_or_404(get_admin_tasks_for_user(user=self.request.user), id=admin_task_pk)
+        task = get_object_or_404(
+            get_admin_tasks_for_user(user=self.request.user), id=admin_task_pk
+        )
         task.mark_completed()
 
         messages.success(request, _("The admin task was successfully completed"))

@@ -4,20 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sequences', '0045_alter_condition_condition_type'),
-        ('users', '0045_alter_user_role'),
+        ("sequences", "0045_alter_condition_condition_type"),
+        ("users", "0045_alter_user_role"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='sequence',
-            options={'ordering': ('name',)},
+            name="sequence",
+            options={"ordering": ("name",)},
         ),
         migrations.AddField(
-            model_name='sequence',
-            name='departments',
-            field=models.ManyToManyField(blank=True, help_text='Leave empty to make it available to all managers', to='users.department'),
+            model_name="sequence",
+            name="departments",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="Leave empty to make it available to all managers",
+                to="users.department",
+            ),
         ),
     ]

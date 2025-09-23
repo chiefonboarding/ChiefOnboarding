@@ -26,7 +26,7 @@ from users.emails import (
     send_new_hire_credentials,
     send_new_hire_preboarding,
 )
-from users.mixins import AdminPermMixin, AdminOrManagerPermMixin
+from users.mixins import AdminOrManagerPermMixin, AdminPermMixin
 
 if settings.ALLOW_LOGIN_WITH_CREDENTIALS:
     from allauth.mfa.base.views import IndexView
@@ -248,7 +248,9 @@ class WelcomeMessageSendTestMessageView(AdminPermMixin, SuccessMessageMixin, Vie
         return HttpResponse(headers={"HX-Trigger": "reload-page"})
 
 
-class PersonalLanguageUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView):
+class PersonalLanguageUpdateView(
+    AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "personal_language_update.html"
     model = get_user_model()
     fields = [

@@ -1,8 +1,10 @@
-from admin.sequences.selectors import get_offboarding_sequences_for_user, get_onboarding_sequences_for_user
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic.list import ListView
 
+from admin.sequences.selectors import (
+    get_offboarding_sequences_for_user,
+)
 from users.mixins import AdminOrManagerPermMixin
 
 

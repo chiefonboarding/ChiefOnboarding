@@ -1,10 +1,10 @@
-from admin.badges.selectors import get_badge_templates_for_user
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
+from admin.badges.selectors import get_badge_templates_for_user
 from misc.mixins import FormWithUserContextMixin
 from users.mixins import AdminOrManagerPermMixin
 
@@ -26,7 +26,9 @@ class BadgeListView(AdminOrManagerPermMixin, ListView):
         return context
 
 
-class BadgeCreateView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView):
+class BadgeCreateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView
+):
     template_name = "template_update.html"
     form_class = BadgeForm
     success_url = reverse_lazy("badges:list")
@@ -42,7 +44,9 @@ class BadgeCreateView(AdminOrManagerPermMixin, FormWithUserContextMixin, Success
         return context
 
 
-class BadgeUpdateView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView):
+class BadgeUpdateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "template_update.html"
     form_class = BadgeForm
     success_url = reverse_lazy("badges:list")

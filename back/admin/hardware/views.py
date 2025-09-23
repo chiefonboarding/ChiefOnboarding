@@ -1,4 +1,3 @@
-from admin.hardware.selectors import get_hardware_templates_for_user
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
@@ -6,6 +5,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
 from admin.hardware.forms import HardwareForm
+from admin.hardware.selectors import get_hardware_templates_for_user
 from misc.mixins import FormWithUserContextMixin
 from users.mixins import AdminOrManagerPermMixin
 
@@ -25,7 +25,9 @@ class HardwareListView(AdminOrManagerPermMixin, ListView):
         return context
 
 
-class HardwareCreateView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView):
+class HardwareCreateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView
+):
     template_name = "template_update.html"
     form_class = HardwareForm
     success_url = reverse_lazy("hardware:list")
@@ -41,7 +43,9 @@ class HardwareCreateView(AdminOrManagerPermMixin, FormWithUserContextMixin, Succ
         return context
 
 
-class HardwareUpdateView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView):
+class HardwareUpdateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "template_update.html"
     form_class = HardwareForm
     success_url = reverse_lazy("hardware:list")

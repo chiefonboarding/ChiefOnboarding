@@ -1,4 +1,3 @@
-from admin.introductions.selectors import get_intro_templates_for_user
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
@@ -6,6 +5,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
+from admin.introductions.selectors import get_intro_templates_for_user
 from misc.mixins import FormWithUserContextMixin
 from users.mixins import AdminOrManagerPermMixin
 from users.models import User
@@ -28,7 +28,9 @@ class IntroductionListView(AdminOrManagerPermMixin, ListView):
         return context
 
 
-class IntroductionCreateView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView):
+class IntroductionCreateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView
+):
     template_name = "intro_update.html"
     form_class = IntroductionForm
     success_url = reverse_lazy("introductions:list")
@@ -51,7 +53,9 @@ class IntroductionColleaguePreviewView(AdminOrManagerPermMixin, DetailView):
         return context
 
 
-class IntroductionUpdateView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView):
+class IntroductionUpdateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "intro_update.html"
     form_class = IntroductionForm
     success_url = reverse_lazy("introductions:list")

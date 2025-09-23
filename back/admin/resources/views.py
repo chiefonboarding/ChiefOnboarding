@@ -1,15 +1,14 @@
-from admin.resources.selectors import get_resource_templates_for_user
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
+from admin.resources.selectors import get_resource_templates_for_user
 from misc.mixins import FormWithUserContextMixin
 from users.mixins import AdminOrManagerPermMixin
 
 from .forms import ResourceForm
-from .models import Resource
 
 
 class ResourceListView(AdminOrManagerPermMixin, ListView):
@@ -27,7 +26,9 @@ class ResourceListView(AdminOrManagerPermMixin, ListView):
         return context
 
 
-class ResourceCreateView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView):
+class ResourceCreateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView
+):
     template_name = "resource_update.html"
     form_class = ResourceForm
     success_url = reverse_lazy("resources:list")
@@ -40,7 +41,9 @@ class ResourceCreateView(AdminOrManagerPermMixin, FormWithUserContextMixin, Succ
         return context
 
 
-class ResourceUpdateView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView):
+class ResourceUpdateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "resource_update.html"
     form_class = ResourceForm
     success_url = reverse_lazy("resources:list")

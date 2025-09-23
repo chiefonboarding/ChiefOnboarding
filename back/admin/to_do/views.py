@@ -1,11 +1,10 @@
-from admin.to_do.models import ToDo
-from admin.to_do.selectors import get_to_do_templates_for_user
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
+from admin.to_do.selectors import get_to_do_templates_for_user
 from misc.mixins import FormWithUserContextMixin
 from users.mixins import AdminOrManagerPermMixin
 
@@ -27,7 +26,9 @@ class ToDoListView(AdminOrManagerPermMixin, ListView):
         return context
 
 
-class ToDoCreateView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView):
+class ToDoCreateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView
+):
     template_name = "template_update.html"
     form_class = ToDoForm
     success_url = reverse_lazy("todo:list")
@@ -40,7 +41,9 @@ class ToDoCreateView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessM
         return context
 
 
-class ToDoUpdateView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView):
+class ToDoUpdateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "template_update.html"
     form_class = ToDoForm
     success_url = reverse_lazy("todo:list")

@@ -1,10 +1,10 @@
-from admin.appointments.selectors import get_appointment_templates_for_user
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
+from admin.appointments.selectors import get_appointment_templates_for_user
 from misc.mixins import FormWithUserContextMixin
 from users.mixins import AdminOrManagerPermMixin
 
@@ -26,7 +26,9 @@ class AppointmentListView(AdminOrManagerPermMixin, ListView):
         return context
 
 
-class AppointmentCreateView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView):
+class AppointmentCreateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView
+):
     template_name = "template_update.html"
     form_class = AppointmentForm
     success_url = reverse_lazy("appointments:list")
@@ -39,12 +41,14 @@ class AppointmentCreateView(AdminOrManagerPermMixin, FormWithUserContextMixin, S
         return context
 
 
-class AppointmentUpdateView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView):
+class AppointmentUpdateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "template_update.html"
     form_class = AppointmentForm
     success_url = reverse_lazy("appointments:list")
     success_message = _("Appointment item has been updated")
-    
+
     def get_queryset(self):
         return get_appointment_templates_for_user(user=self.request.user)
 

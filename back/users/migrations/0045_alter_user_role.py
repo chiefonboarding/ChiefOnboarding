@@ -4,15 +4,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('users', '0044_alter_user_departments'),
+        ("users", "0044_alter_user_departments"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='user',
-            name='role',
-            field=models.IntegerField(choices=[(0, 'New hire'), (1, 'Administrator'), (2, 'Manager'), (3, 'Other')], default=3, help_text='An administrator has access to everything. A manager has no access to settings and only access to the items in their departments', verbose_name='Role'),
+            model_name="user",
+            name="role",
+            field=models.IntegerField(
+                choices=[
+                    (0, "New hire"),
+                    (1, "Administrator"),
+                    (2, "Manager"),
+                    (3, "Other"),
+                ],
+                default=3,
+                help_text="An administrator has access to everything. A manager has no access to settings and only access to the items in their departments",
+                verbose_name="Role",
+            ),
         ),
     ]

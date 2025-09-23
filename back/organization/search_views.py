@@ -45,9 +45,13 @@ class SearchHXView(AdminOrManagerPermMixin, TemplateView):
             elif hasattr(model, "templates") and isinstance(
                 model.template, TemplateManager
             ):
-                objects = model.templates.for_user(user=self.request.user).filter(name__search=query)
+                objects = model.templates.for_user(user=self.request.user).filter(
+                    name__search=query
+                )
             else:
-                objects = model.objects.for_user(user=self.request.user).filter(name__search=query)
+                objects = model.objects.for_user(user=self.request.user).filter(
+                    name__search=query
+                )
             results += [
                 {"name": obj.name, "url": obj.update_url, "icon": obj.get_icon_template}
                 for obj in objects

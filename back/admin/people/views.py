@@ -1,5 +1,3 @@
-from admin.hardware.selectors import get_hardware_templates_for_user
-from admin.resources.selectors import get_resource_templates_for_user
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponse
@@ -12,12 +10,12 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 from django_q.tasks import async_task
-from misc.mixins import FormWithUserContextMixin
 from rest_framework import generics
 from rest_framework.authentication import SessionAuthentication
 
 from admin.admin_tasks.models import AdminTask
 from admin.hardware.models import Hardware
+from admin.hardware.selectors import get_hardware_templates_for_user
 from admin.integrations.exceptions import (
     DataIsNotJSONError,
     FailedPaginatedResponseError,
@@ -31,17 +29,22 @@ from admin.people.selectors import (
 )
 from admin.people.serializers import UserImportSerializer
 from admin.resources.models import Resource
+from admin.resources.selectors import get_resource_templates_for_user
 from admin.sequences.models import Condition, Sequence
 from api.permissions import AdminPermission
+from misc.mixins import FormWithUserContextMixin
 from organization.models import Organization, WelcomeMessage
 from slack_bot.utils import Slack, actions, button, paragraph
 from users.emails import email_new_admin_cred
 from users.mixins import (
-    AdminPermMixin,
     AdminOrManagerPermMixin,
+    AdminPermMixin,
 )
-from users.models import Department, ToDoUser
-from users.selectors import get_all_offboarding_users_for_departments_of_user, get_available_departments_for_user
+from users.models import ToDoUser
+from users.selectors import (
+    get_all_offboarding_users_for_departments_of_user,
+    get_available_departments_for_user,
+)
 
 from .forms import (
     ColleagueCreateForm,
@@ -89,7 +92,9 @@ class OffboardingColleagueListView(AdminOrManagerPermMixin, ListView):
         return context
 
 
-class ColleagueCreateView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView):
+class ColleagueCreateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView
+):
     template_name = "colleague_create.html"
     model = get_user_model()
     form_class = ColleagueCreateForm
@@ -107,7 +112,9 @@ class ColleagueCreateView(AdminOrManagerPermMixin, FormWithUserContextMixin, Suc
         return context
 
 
-class ColleagueUpdateView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView):
+class ColleagueUpdateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "colleague_update.html"
     model = get_user_model()
     form_class = ColleagueUpdateForm
@@ -148,7 +155,11 @@ class ColleagueToggleHardwareView(AdminOrManagerPermMixin, View):
     def post(self, request, pk, template_id, *args, **kwargs):
         context = {}
         user = get_object_or_404(get_colleagues_for_user(user=request.user), id=pk)
-        hardware = get_object_or_404(get_hardware_templates_for_user(user=request.user), id=template_id, template=True)
+        hardware = get_object_or_404(
+            get_hardware_templates_for_user(user=request.user),
+            id=template_id,
+            template=True,
+        )
         if user.hardware.filter(id=hardware.id).exists():
             user.hardware.remove(hardware)
         else:
@@ -182,7 +193,9 @@ class ColleagueToggleResourceView(AdminOrManagerPermMixin, View):
     def post(self, request, pk, template_id, *args, **kwargs):
         context = {}
         user = get_object_or_404(get_colleagues_for_user(user=self.request.user), id=pk)
-        resource = get_object_or_404(get_resource_templates_for_user(user=self.request.user), id=template_id)
+        resource = get_object_or_404(
+            get_resource_templates_for_user(user=self.request.user), id=template_id
+        )
         if user.resources.filter(id=resource.id).exists():
             user.resources.remove(resource)
         else:
@@ -312,7 +325,9 @@ class ColleagueTogglePortalAccessView(AdminOrManagerPermMixin, View):
     def post(self, request, pk, *args, **kwargs):
         context = {}
         user = get_object_or_404(
-            get_colleagues_for_user(user=self.request.user), pk=pk, role=get_user_model().Role.OTHER
+            get_colleagues_for_user(user=self.request.user),
+            pk=pk,
+            role=get_user_model().Role.OTHER,
         )
         context["colleague"] = user
         context["url_name"] = "people:toggle-portal-access"
@@ -331,7 +346,9 @@ class ColleagueTogglePortalAccessView(AdminOrManagerPermMixin, View):
         return render(request, self.template_name, context)
 
 
-class AddOffboardingSequenceView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView):
+class AddOffboardingSequenceView(
+    AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "add_offboarding_sequence.html"
     form_class = OffboardingSequenceChoiceForm
 

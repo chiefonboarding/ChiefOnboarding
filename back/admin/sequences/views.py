@@ -1,4 +1,3 @@
-from admin.sequences.selectors import get_onboarding_sequences_for_user, get_sequences_for_user
 from django import forms
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponse
@@ -23,6 +22,10 @@ from admin.sequences.models import (
     ExternalMessage,
     IntegrationConfig,
     Sequence,
+)
+from admin.sequences.selectors import (
+    get_onboarding_sequences_for_user,
+    get_sequences_for_user,
 )
 from admin.sequences.utils import get_sequence_model_form, get_sequence_templates_model
 from admin.templates.utils import get_templates_model
@@ -88,9 +91,13 @@ class SequenceView(AdminOrManagerPermMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["title"] = _("Sequence")
         context["subtitle"] = ""
-        context["object_list"] = ToDo.templates.for_user(user=self.request.user).defer("content")
+        context["object_list"] = ToDo.templates.for_user(user=self.request.user).defer(
+            "content"
+        )
         context["condition_form"] = ConditionForm(sequence=self.object)
-        context["todos"] = ToDo.templates.for_user(user=self.request.user).defer("content")
+        context["todos"] = ToDo.templates.for_user(user=self.request.user).defer(
+            "content"
+        )
         context["conditions"] = self.object.conditions.prefetched()
         return context
 
@@ -148,7 +155,9 @@ class SequenceConditionBase(AdminOrManagerPermMixin):
         context = super().get_context_data(**kwargs)
         context["object"] = self.sequence
         context["condition_form"] = context["form"]
-        context["todos"] = ToDo.templates.for_user(user=self.request.user).defer("content")
+        context["todos"] = ToDo.templates.for_user(user=self.request.user).defer(
+            "content"
+        )
         return context
 
 
@@ -222,7 +231,9 @@ class SequenceFormView(AdminOrManagerPermMixin, View):
         # If template_pk is 0, then it shows an empty form
         if template_pk != 0:
             templates_model = get_sequence_templates_model(template_type)
-            template_item = get_object_or_404(templates_model.objects.for_user(user=request.user), id=template_pk)
+            template_item = get_object_or_404(
+                templates_model.objects.for_user(user=request.user), id=template_pk
+            )
 
         # Get a EMPTY custom form (depending on what provision) when it's an integration
         # config like Slack, Asana, Google...
@@ -240,7 +251,9 @@ class SequenceFormView(AdminOrManagerPermMixin, View):
             )
 
         return render(
-            request, "_item_form.html", {"form": form(instance=template_item, user=request.user)}
+            request,
+            "_item_form.html",
+            {"form": form(instance=template_item, user=request.user)},
         )
 
 
@@ -266,7 +279,9 @@ class SequenceFormUpdateView(AdminOrManagerPermMixin, View):
         template_item = None
         if template_pk != 0:
             templates_model = get_sequence_templates_model(template_type)
-            template_item = get_object_or_404(templates_model.objects.for_user(user=request.user), id=template_pk)
+            template_item = get_object_or_404(
+                templates_model.objects.for_user(user=request.user), id=template_pk
+            )
 
         # Push instance and data through form and save it
         # Check if original item was template or doesn't exist (is new), if so, then
@@ -276,7 +291,9 @@ class SequenceFormUpdateView(AdminOrManagerPermMixin, View):
         ):
             item_form = form(request.POST, user=self.request.user)
         else:
-            item_form = form(instance=template_item, data=request.POST, user=self.request.user)
+            item_form = form(
+                instance=template_item, data=request.POST, user=self.request.user
+            )
 
         if item_form.is_valid():
             obj = item_form.save()
@@ -377,14 +394,18 @@ class SequenceConditionItemView(AdminOrManagerPermMixin, View):
     def delete(self, request, pk, type, template_pk, *args, **kwargs):
         condition = get_object_or_404(Condition, id=pk)
         templates_model = get_sequence_templates_model(type)
-        template_item = get_object_or_404(templates_model.objects.for_user(user=request.user), id=template_pk)
+        template_item = get_object_or_404(
+            templates_model.objects.for_user(user=request.user), id=template_pk
+        )
         condition.remove_item(template_item)
         return HttpResponse()
 
     def post(self, request, pk, type, template_pk, *args, **kwargs):
         condition = get_object_or_404(Condition, id=pk)
         templates_model = get_sequence_templates_model(type)
-        template_item = get_object_or_404(templates_model.objects.for_user(user=request.user), id=template_pk)
+        template_item = get_object_or_404(
+            templates_model.objects.for_user(user=request.user), id=template_pk
+        )
         condition.add_item(template_item)
         condition = Condition.objects.prefetched().filter(id=condition.id).first()
         return render(
@@ -409,7 +430,9 @@ class SequenceConditionDeleteView(AdminOrManagerPermMixin, View):
     """
 
     def delete(self, request, pk, condition_pk, *args, **kwargs):
-        sequence = get_object_or_404(get_sequences_for_user(user=self.request.user), id=pk)
+        sequence = get_object_or_404(
+            get_sequences_for_user(user=self.request.user), id=pk
+        )
         condition = get_object_or_404(Condition, id=condition_pk, sequence=sequence)
         # Can never delete the unconditioned condition
         if condition.condition_type == Condition.Type.WITHOUT:
@@ -458,6 +481,8 @@ class SequenceDefaultTemplatesView(AdminOrManagerPermMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["sequence"] = get_object_or_404(get_sequences_for_user(user=self.request.user), id=self.kwargs.get("pk", -1))
+        context["sequence"] = get_object_or_404(
+            get_sequences_for_user(user=self.request.user), id=self.kwargs.get("pk", -1)
+        )
         context["active"] = self.request.GET.get("type", "")
         return context

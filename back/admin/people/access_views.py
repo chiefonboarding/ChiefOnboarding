@@ -1,4 +1,3 @@
-from admin.people.selectors import get_colleagues_for_user, get_new_hires_for_user
 from allauth.account.models import EmailAddress
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -12,6 +11,7 @@ from django.views.generic.edit import DeleteView
 
 from admin.integrations.forms import IntegrationExtraUserInfoForm
 from admin.integrations.models import Integration
+from admin.people.selectors import get_colleagues_for_user, get_new_hires_for_user
 from users.mixins import AdminOrManagerPermMixin
 from users.models import IntegrationUser
 
@@ -72,7 +72,9 @@ class UserDeleteView(AdminOrManagerPermMixin, SuccessMessageMixin, DeleteView):
 
 class UserRevokeAllAccessView(AdminOrManagerPermMixin, SuccessMessageMixin, View):
     def post(self, request, *args, **kwargs):
-        user = get_object_or_404(get_new_hires_for_user(user=self.request.user), id=self.kwargs.get("pk", -1))
+        user = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), id=self.kwargs.get("pk", -1)
+        )
         for integration in Integration.objects.filter(
             manifest_type=Integration.ManifestType.WEBHOOK,
             manifest__revoke__isnull=False,
@@ -182,7 +184,9 @@ class UserToggleAccessView(AdminOrManagerPermMixin, View):
         integration = get_object_or_404(
             Integration, id=self.kwargs.get("integration_id", -1)
         )
-        user = get_object_or_404(get_new_hires_for_user(user=self.request.user), id=self.kwargs.get("pk", -1))
+        user = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), id=self.kwargs.get("pk", -1)
+        )
 
         # user added/revoked access manually, so just log it being revoked/added
         if integration.skip_user_provisioning:

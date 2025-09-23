@@ -1,4 +1,3 @@
-from admin.sequences.selectors import get_onboarding_sequences_for_user
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, Layout, Submit
 from django import forms
@@ -10,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 from admin.integrations.models import Integration
 from admin.sequences.models import Sequence
+from admin.sequences.selectors import get_onboarding_sequences_for_user
 from admin.templates.forms import (
     MultiSelectField,
     UploadField,
@@ -352,7 +352,7 @@ class OnboardingSequenceChoiceForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user')
+        user = kwargs.pop("user")
         super().__init__(*args, **kwargs)
         self.fields["sequences"].queryset = get_onboarding_sequences_for_user(user=user)
 

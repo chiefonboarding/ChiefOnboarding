@@ -218,15 +218,17 @@ class WelcomeMessage(models.Model):
 class FilteredForAdminQuerySet(models.QuerySet):
     def for_user(self, user):
         if user.is_manager:
-            return self.filter(Q(departments__isnull=True) | Q(departments__in=user.departments.all()))
+            return self.filter(
+                Q(departments__isnull=True) | Q(departments__in=user.departments.all())
+            )
         else:
             return self
 
 
 class ObjectsManager(models.Manager):
     def get_queryset(self):
-        return (
-            FilteredForAdminQuerySet(self.model, using=self._db).prefetch_related("departments")
+        return FilteredForAdminQuerySet(self.model, using=self._db).prefetch_related(
+            "departments"
         )
 
     def for_user(self, user):

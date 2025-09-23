@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('preboarding', '0016_alter_preboarding_departments'),
+        ("preboarding", "0016_alter_preboarding_departments"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='preboarding',
-            options={'ordering': ('name',)},
+            name="preboarding",
+            options={"ordering": ("name",)},
         ),
     ]

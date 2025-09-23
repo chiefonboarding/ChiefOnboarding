@@ -120,9 +120,7 @@ class IntegrationTrackerStep(models.Model):
 
 class IntegrationManager(models.Manager):
     def get_queryset(self):
-        return (
-            FilteredForAdminQuerySet(self.model, using=self._db)
-        )
+        return FilteredForAdminQuerySet(self.model, using=self._db)
 
     def for_user(self, user):
         return self.get_queryset().for_user(user)

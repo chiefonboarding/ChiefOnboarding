@@ -1,10 +1,10 @@
-from admin.preboarding.selectors import get_preboarding_templates_for_user
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
+from admin.preboarding.selectors import get_preboarding_templates_for_user
 from misc.mixins import FormWithUserContextMixin
 from users.mixins import AdminOrManagerPermMixin
 
@@ -26,7 +26,9 @@ class PreboardingListView(AdminOrManagerPermMixin, ListView):
         return context
 
 
-class PreboardingCreateView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView):
+class PreboardingCreateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView
+):
     template_name = "template_update.html"
     form_class = PreboardingForm
     success_url = reverse_lazy("preboarding:list")
@@ -39,7 +41,9 @@ class PreboardingCreateView(AdminOrManagerPermMixin, FormWithUserContextMixin, S
         return context
 
 
-class PreboardingUpdateView(AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView):
+class PreboardingUpdateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "template_update.html"
     form_class = PreboardingForm
     success_url = reverse_lazy("preboarding:list")

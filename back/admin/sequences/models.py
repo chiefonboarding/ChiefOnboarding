@@ -486,6 +486,7 @@ class PendingAdminTaskManager(models.Manager):
         # just return all as we filter on sequence
         return self.get_queryset()
 
+
 class PendingAdminTask(models.Model):
     class PersonType(models.IntegerChoices):
         NEWHIRE = 0, _("New hire/User to be offboarded")
@@ -544,7 +545,7 @@ class PendingAdminTask(models.Model):
             "functions (like duplicate)"
         ),
     )
-    
+
     objects = PendingAdminTaskManager()
 
     def __str__(self):

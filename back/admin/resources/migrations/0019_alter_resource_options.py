@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('resources', '0018_alter_resource_departments'),
+        ("resources", "0018_alter_resource_departments"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='resource',
-            options={'ordering': ('name',)},
+            name="resource",
+            options={"ordering": ("name",)},
         ),
     ]
