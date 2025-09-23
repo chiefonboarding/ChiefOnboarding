@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 from admin.templates.forms import MultiSelectField, WYSIWYGField
 from admin.to_do.models import ToDo
+from misc.mixins import FilterDepartmentFieldByUserMixin
 from users.models import User
 
 from .models import (
@@ -15,7 +16,16 @@ from .models import (
     PendingEmailMessage,
     PendingSlackMessage,
     PendingTextMessage,
+    Sequence,
 )
+
+
+class DepartmentForm(FilterDepartmentFieldByUserMixin, forms.ModelForm):
+    class Meta:
+        model = Sequence
+        fields = [
+            "departments",
+        ]
 
 
 class ConditionForm(forms.ModelForm):

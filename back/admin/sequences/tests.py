@@ -134,6 +134,24 @@ def test_sequence_update_name_view(client, admin_factory, sequence_factory):
     assert sequence1.name == "test"
     assert response.status_code == 200
 
+@pytest.mark.django_db
+def test_sequence_update_department_view(client, admin_factory, sequence_factory, department_factory):
+    admin = admin_factory()
+    client.force_login(admin)
+
+    sequence1 = sequence_factory()
+    department1 = department_factory()
+
+    assert sequence1.departments.all().count() == 0
+
+    url = reverse("sequences:update_departments", args=[sequence1.id])
+    response = client.post(url, {"departments": [department1.id]}, follow=True)
+
+    sequence1.refresh_from_db()
+    assert sequence1.departments.all().count() == 1
+    assert response.status_code == 200
+
+
 
 @pytest.mark.django_db
 def test_sequence_create_condition_success_view(

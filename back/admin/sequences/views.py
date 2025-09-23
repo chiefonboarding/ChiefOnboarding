@@ -30,10 +30,12 @@ from admin.sequences.selectors import (
 from admin.sequences.utils import get_sequence_model_form, get_sequence_templates_model
 from admin.templates.utils import get_templates_model
 from admin.to_do.models import ToDo
+from misc.mixins import FormWithUserContextMixin
 from users.mixins import AdminOrManagerPermMixin
 
 from .forms import (
     ConditionForm,
+    DepartmentForm,
     OffboardingConditionForm,
     PendingEmailMessageForm,
     PendingSlackMessageForm,
@@ -95,6 +97,9 @@ class SequenceView(AdminOrManagerPermMixin, DetailView):
             "content"
         )
         context["condition_form"] = ConditionForm(sequence=self.object)
+        context["department_form"] = DepartmentForm(
+            instance=self.object, user=self.request.user
+        )
         context["todos"] = ToDo.templates.for_user(user=self.request.user).defer(
             "content"
         )
@@ -110,10 +115,30 @@ class SequenceNameUpdateView(AdminOrManagerPermMixin, BaseUpdateView):
     """
 
     template_name = "_sequence_templates_list.html"
-    model = Sequence
-    fields = [
-        "name",
-    ]
+    fields = ["name"]
+
+    def get_queryset(self):
+        return get_sequences_for_user(user=self.request.user)
+
+    def form_valid(self, form):
+        form.save()
+        return HttpResponse()
+
+
+class SequenceDepartmentsUpdateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, BaseUpdateView
+):
+    """
+    Updates the department of the sequence when the user selects/deselects one.
+
+    HTMX view.
+    """
+
+    template_name = "_sequence_templates_list.html"
+    form_class = DepartmentForm
+
+    def get_queryset(self):
+        return get_sequences_for_user(user=self.request.user)
 
     def form_valid(self, form):
         form.save()
