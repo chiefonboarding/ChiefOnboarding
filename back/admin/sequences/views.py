@@ -96,7 +96,9 @@ class SequenceView(AdminOrManagerPermMixin, DetailView):
         context["object_list"] = ToDo.templates.for_user(user=self.request.user).defer(
             "content"
         )
-        context["condition_form"] = ConditionForm(sequence=self.object)
+        context["condition_form"] = ConditionForm(
+            sequence=self.object, user=self.request.user
+        )
         context["department_form"] = DepartmentForm(
             instance=self.object, user=self.request.user
         )
@@ -168,6 +170,7 @@ class SequenceConditionBase(AdminOrManagerPermMixin):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["sequence"] = self.sequence
+        kwargs["user"] = self.request.user
         return kwargs
 
     def form_valid(self, form):

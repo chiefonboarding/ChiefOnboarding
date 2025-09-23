@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 from admin.templates.forms import MultiSelectField, WYSIWYGField
 from admin.to_do.models import ToDo
+from admin.to_do.selectors import get_to_do_templates_for_user
 from misc.mixins import FilterDepartmentFieldByUserMixin
 from users.models import User
 
@@ -30,18 +31,19 @@ class DepartmentForm(FilterDepartmentFieldByUserMixin, forms.ModelForm):
 
 class ConditionForm(forms.ModelForm):
     condition_to_do = forms.ModelMultipleChoiceField(
-        queryset=ToDo.templates.all(),
+        queryset=ToDo.objects.none(),
         to_field_name="id",
         required=False,
     )
     condition_admin_tasks = forms.ModelMultipleChoiceField(
-        queryset=PendingAdminTask.objects.all(),
+        queryset=PendingAdminTask.objects.none(),
         to_field_name="id",
         required=False,
     )
 
     def __init__(self, *args, **kwargs):
         sequence = kwargs.pop("sequence")
+        user = kwargs.pop("user")
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_tag = False
@@ -63,7 +65,9 @@ class ConditionForm(forms.ModelForm):
         )
         self.fields["time"].required = False
         self.fields["days"].required = False
-        self.fields["condition_to_do"].required = False
+        self.fields["condition_to_do"].queryset = get_to_do_templates_for_user(
+            user=user
+        )
         pending_tasks = PendingAdminTask.objects.filter(condition__sequence=sequence)
         self.fields["condition_admin_tasks"].queryset = pending_tasks
         # Remove last option, which will only be one of
