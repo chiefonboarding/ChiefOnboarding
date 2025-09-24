@@ -3651,7 +3651,7 @@ msgstr "Bericht is geüpdatet. Jouw bericht: \""
 
 #: user_auth/templates/email/reset.html:2
 msgid "Reset your password!"
-msgstr "Rest jouw wachtwoord!"
+msgstr "Reset jouw wachtwoord!"
 
 #: user_auth/templates/email/reset.html:3
 msgid "Use this link to change your password:"
