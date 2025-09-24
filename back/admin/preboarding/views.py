@@ -4,13 +4,13 @@ from django.utils.translation import gettext as _
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
-from users.mixins import ManagerPermMixin
+from users.mixins import AdminOrManagerPermMixin
 
 from .forms import PreboardingForm
 from .models import Preboarding
 
 
-class PreboardingListView(ManagerPermMixin, ListView):
+class PreboardingListView(AdminOrManagerPermMixin, ListView):
     template_name = "templates.html"
     queryset = Preboarding.templates.all().order_by("name")
     paginate_by = 10
@@ -23,7 +23,7 @@ class PreboardingListView(ManagerPermMixin, ListView):
         return context
 
 
-class PreboardingCreateView(ManagerPermMixin, SuccessMessageMixin, CreateView):
+class PreboardingCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
     template_name = "template_update.html"
     form_class = PreboardingForm
     success_url = reverse_lazy("preboarding:list")
@@ -36,7 +36,7 @@ class PreboardingCreateView(ManagerPermMixin, SuccessMessageMixin, CreateView):
         return context
 
 
-class PreboardingUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
+class PreboardingUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "template_update.html"
     form_class = PreboardingForm
     success_url = reverse_lazy("preboarding:list")
@@ -50,7 +50,7 @@ class PreboardingUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
         return context
 
 
-class PreboardingDeleteView(ManagerPermMixin, SuccessMessageMixin, DeleteView):
+class PreboardingDeleteView(AdminOrManagerPermMixin, SuccessMessageMixin, DeleteView):
     queryset = Preboarding.objects.all()
     success_url = reverse_lazy("preboarding:list")
     success_message = _("Sequence item has been removed")

@@ -33,7 +33,7 @@ from users.emails import (
 )
 from users.mixins import (
     IsAdminOrNewHireManagerMixin,
-    ManagerPermMixin,
+    AdminOrManagerPermMixin,
 )
 from users.models import NewHireWelcomeMessage, PreboardingUser, ResourceUser, ToDoUser
 
@@ -46,7 +46,7 @@ from .forms import (
 )
 
 
-class NewHireListView(ManagerPermMixin, ListView):
+class NewHireListView(AdminOrManagerPermMixin, ListView):
     template_name = "new_hires.html"
     paginate_by = 10
 
@@ -64,7 +64,7 @@ class NewHireListView(ManagerPermMixin, ListView):
         return context
 
 
-class NewHireAddView(ManagerPermMixin, SuccessMessageMixin, CreateView):
+class NewHireAddView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
     template_name = "new_hire_add.html"
     model = get_user_model()
     form_class = NewHireAddForm

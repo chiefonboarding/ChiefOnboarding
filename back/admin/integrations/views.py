@@ -16,7 +16,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
-from users.mixins import AdminPermMixin, ManagerPermMixin
+from users.mixins import AdminPermMixin, AdminOrManagerPermMixin
 
 from .forms import IntegrationExtraArgsForm, IntegrationForm
 from .models import Integration, IntegrationTracker
@@ -212,7 +212,7 @@ class SlackOAuthView(View):
         return redirect("settings:integrations")
 
 
-class IntegrationTrackerListView(ManagerPermMixin, ListView):
+class IntegrationTrackerListView(AdminOrManagerPermMixin, ListView):
     queryset = (
         IntegrationTracker.objects.all()
         .select_related("integration", "for_user")
@@ -228,7 +228,7 @@ class IntegrationTrackerListView(ManagerPermMixin, ListView):
         return context
 
 
-class IntegrationTrackerDetailView(ManagerPermMixin, DetailView):
+class IntegrationTrackerDetailView(AdminOrManagerPermMixin, DetailView):
     model = IntegrationTracker
     template_name = "tracker.html"
 
