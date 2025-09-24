@@ -498,7 +498,9 @@ class SequenceDefaultTemplatesView(AdminOrManagerPermMixin, ListView):
     def get_queryset(self):
         template_type = self.request.GET.get("type", "")
         if template_type == "integration":
-            return Integration.objects.sequence_integration_options()
+            return Integration.objects.sequence_integration_options(
+                user=self.request.user
+            )
 
         if get_templates_model(template_type) is None:
             # if type does not exist, then return empty queryset

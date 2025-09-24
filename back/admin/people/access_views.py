@@ -27,7 +27,9 @@ class NewHireAccessView(AdminOrManagerPermMixin, DetailView):
         context["title"] = self.object.full_name
         context["subtitle"] = _("new hire")
         context["loading"] = True
-        context["integrations"] = Integration.objects.account_provision_options()
+        context["integrations"] = Integration.objects.account_provision_options(
+            user=self.request.user
+        )
         return context
 
 
@@ -42,7 +44,9 @@ class ColleagueAccessView(AdminOrManagerPermMixin, DetailView):
         context["title"] = self.object.full_name
         context["subtitle"] = _("Employee")
         context["loading"] = True
-        context["integrations"] = Integration.objects.account_provision_options()
+        context["integrations"] = Integration.objects.account_provision_options(
+            user=self.request.user
+        )
         return context
 
 
@@ -56,7 +60,9 @@ class UserDeleteView(AdminOrManagerPermMixin, SuccessMessageMixin, DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        provision_options = Integration.objects.account_provision_options()
+        provision_options = Integration.objects.account_provision_options(
+            user=self.request.user
+        )
         context["automated_provisioned_items"] = provision_options.exclude(
             manifest_type=Integration.ManifestType.MANUAL_USER_PROVISIONING
         )

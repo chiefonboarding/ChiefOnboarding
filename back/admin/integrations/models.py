@@ -125,19 +125,23 @@ class IntegrationManager(models.Manager):
     def for_user(self, user):
         return self.get_queryset().for_user(user)
 
-    def sequence_integration_options(self):
+    def sequence_integration_options(self, user):
         # any webhooks and account provisioning
-        return self.get_queryset().filter(
-            integration=Integration.Type.CUSTOM,
-            manifest_type__in=[
-                Integration.ManifestType.WEBHOOK,
-                Integration.ManifestType.MANUAL_USER_PROVISIONING,
-            ],
+        return (
+            self.get_queryset()
+            .for_user(user=user)
+            .filter(
+                integration=Integration.Type.CUSTOM,
+                manifest_type__in=[
+                    Integration.ManifestType.WEBHOOK,
+                    Integration.ManifestType.MANUAL_USER_PROVISIONING,
+                ],
+            )
         )
 
-    def account_provision_options(self):
+    def account_provision_options(self, user):
         # only account provisioning (no general webhooks)
-        return self.get_queryset().filter(
+        return self.get_queryset().for_user(user=user).filter(
             integration=Integration.Type.CUSTOM,
             manifest_type=Integration.ManifestType.WEBHOOK,
             manifest__exists__isnull=False,
@@ -147,7 +151,7 @@ class IntegrationManager(models.Manager):
         )
 
     def import_users_options(self):
-        # only import user items
+        # only import user items - admin function
         return (
             self.get_queryset()
             .filter(
