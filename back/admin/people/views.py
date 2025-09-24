@@ -30,9 +30,9 @@ from organization.models import Organization, WelcomeMessage
 from slack_bot.utils import Slack, actions, button, paragraph
 from users.emails import email_new_admin_cred
 from users.mixins import (
+    AdminOrManagerPermMixin,
     AdminPermMixin,
     IsAdminOrNewHireManagerMixin,
-    AdminOrManagerPermMixin,
 )
 from users.models import ToDoUser
 

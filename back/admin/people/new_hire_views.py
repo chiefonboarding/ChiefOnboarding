@@ -32,8 +32,8 @@ from users.emails import (
     send_reminder_email,
 )
 from users.mixins import (
-    IsAdminOrNewHireManagerMixin,
     AdminOrManagerPermMixin,
+    IsAdminOrNewHireManagerMixin,
 )
 from users.models import NewHireWelcomeMessage, PreboardingUser, ResourceUser, ToDoUser
 

@@ -113,7 +113,9 @@ class AdminTasksUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateV
         return super().form_valid(form)
 
 
-class AdminTasksCommentCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
+class AdminTasksCommentCreateView(
+    AdminOrManagerPermMixin, SuccessMessageMixin, CreateView
+):
     template_name = "admin_tasks_detail.html"
     model = AdminTaskComment
     fields = [

@@ -16,7 +16,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
-from users.mixins import AdminPermMixin, AdminOrManagerPermMixin
+from users.mixins import AdminOrManagerPermMixin, AdminPermMixin
 
 from .forms import IntegrationExtraArgsForm, IntegrationForm
 from .models import Integration, IntegrationTracker
