@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import UserPassesTestMixin
 
 
-class ManagerPermMixin(UserPassesTestMixin):
+class AdminOrManagerPermMixin(UserPassesTestMixin):
     def test_func(self):
         return self.request.user.is_admin_or_manager
 

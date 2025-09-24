@@ -26,7 +26,7 @@ from users.emails import (
     send_new_hire_credentials,
     send_new_hire_preboarding,
 )
-from users.mixins import AdminPermMixin, ManagerPermMixin
+from users.mixins import AdminOrManagerPermMixin, AdminPermMixin
 
 if settings.ALLOW_LOGIN_WITH_CREDENTIALS:
     from allauth.mfa.base.views import IndexView
@@ -248,7 +248,9 @@ class WelcomeMessageSendTestMessageView(AdminPermMixin, SuccessMessageMixin, Vie
         return HttpResponse(headers={"HX-Trigger": "reload-page"})
 
 
-class PersonalLanguageUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
+class PersonalLanguageUpdateView(
+    AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "personal_language_update.html"
     model = get_user_model()
     fields = [
@@ -276,7 +278,7 @@ class PersonalLanguageUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateVi
 
 
 @method_decorator(requires_credentials_login, name="dispatch")
-class TOTPIndexView(ManagerPermMixin, IndexView):
+class TOTPIndexView(AdminOrManagerPermMixin, IndexView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = _("TOTP 2FA")
@@ -286,7 +288,7 @@ class TOTPIndexView(ManagerPermMixin, IndexView):
 
 @method_decorator(requires_credentials_login, name="dispatch")
 @method_decorator(reauthentication_required, name="dispatch")
-class TOTPActivateView(ManagerPermMixin, ActivateTOTPView):
+class TOTPActivateView(AdminOrManagerPermMixin, ActivateTOTPView):
     success_url = reverse_lazy("settings:totp")
 
     def get_context_data(self, **kwargs):
@@ -296,7 +298,7 @@ class TOTPActivateView(ManagerPermMixin, ActivateTOTPView):
         return context
 
 
-class TOTPDeactivateView(ManagerPermMixin, DeactivateTOTPView):
+class TOTPDeactivateView(AdminOrManagerPermMixin, DeactivateTOTPView):
     success_url = reverse_lazy("settings:totp")
 
     def get_context_data(self, **kwargs):
@@ -307,7 +309,7 @@ class TOTPDeactivateView(ManagerPermMixin, DeactivateTOTPView):
 
 
 @method_decorator(requires_credentials_login, name="dispatch")
-class TOTPGenerateRecoveryCodesView(ManagerPermMixin, GenerateRecoveryCodesView):
+class TOTPGenerateRecoveryCodesView(AdminOrManagerPermMixin, GenerateRecoveryCodesView):
     success_url = reverse_lazy("settings:totp")
 
     def get_context_data(self, **kwargs):

@@ -4,13 +4,13 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
-from users.mixins import ManagerPermMixin
+from users.mixins import AdminOrManagerPermMixin
 
 from .forms import ToDoForm
 from .models import ToDo
 
 
-class ToDoListView(ManagerPermMixin, ListView):
+class ToDoListView(AdminOrManagerPermMixin, ListView):
     template_name = "templates.html"
     queryset = ToDo.templates.all().order_by("name").defer("content")
     paginate_by = 10
@@ -23,7 +23,7 @@ class ToDoListView(ManagerPermMixin, ListView):
         return context
 
 
-class ToDoCreateView(ManagerPermMixin, SuccessMessageMixin, CreateView):
+class ToDoCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
     template_name = "template_update.html"
     form_class = ToDoForm
     success_url = reverse_lazy("todo:list")
@@ -36,7 +36,7 @@ class ToDoCreateView(ManagerPermMixin, SuccessMessageMixin, CreateView):
         return context
 
 
-class ToDoUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
+class ToDoUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "template_update.html"
     form_class = ToDoForm
     success_url = reverse_lazy("todo:list")
@@ -50,7 +50,7 @@ class ToDoUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
         return context
 
 
-class ToDoDeleteView(ManagerPermMixin, SuccessMessageMixin, DeleteView):
+class ToDoDeleteView(AdminOrManagerPermMixin, SuccessMessageMixin, DeleteView):
     queryset = ToDo.objects.all()
     success_url = reverse_lazy("todo:list")
     success_message = _("To do item has been removed")

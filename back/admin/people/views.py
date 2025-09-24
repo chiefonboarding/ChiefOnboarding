@@ -30,9 +30,9 @@ from organization.models import Organization, WelcomeMessage
 from slack_bot.utils import Slack, actions, button, paragraph
 from users.emails import email_new_admin_cred
 from users.mixins import (
+    AdminOrManagerPermMixin,
     AdminPermMixin,
     IsAdminOrNewHireManagerMixin,
-    ManagerPermMixin,
 )
 from users.models import ToDoUser
 
@@ -47,7 +47,7 @@ from .forms import (
 # See new_hire_views.py for new hire functions!
 
 
-class ColleagueListView(ManagerPermMixin, ListView):
+class ColleagueListView(AdminOrManagerPermMixin, ListView):
     template_name = "colleagues.html"
     queryset = get_user_model().objects.all()
     paginate_by = 20
@@ -65,7 +65,7 @@ class ColleagueListView(ManagerPermMixin, ListView):
         return context
 
 
-class OffboardingColleagueListView(ManagerPermMixin, ListView):
+class OffboardingColleagueListView(AdminOrManagerPermMixin, ListView):
     template_name = "offboarding.html"
     queryset = get_user_model().offboarding.all()
     paginate_by = 20
@@ -78,7 +78,7 @@ class OffboardingColleagueListView(ManagerPermMixin, ListView):
         return context
 
 
-class ColleagueCreateView(ManagerPermMixin, SuccessMessageMixin, CreateView):
+class ColleagueCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
     template_name = "colleague_create.html"
     model = get_user_model()
     form_class = ColleagueCreateForm
@@ -96,7 +96,7 @@ class ColleagueCreateView(ManagerPermMixin, SuccessMessageMixin, CreateView):
         return context
 
 
-class ColleagueUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
+class ColleagueUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "colleague_update.html"
     model = get_user_model()
     form_class = ColleagueUpdateForm
@@ -113,7 +113,7 @@ class ColleagueUpdateView(ManagerPermMixin, SuccessMessageMixin, UpdateView):
         return context
 
 
-class ColleagueHardwareView(ManagerPermMixin, DetailView):
+class ColleagueHardwareView(AdminOrManagerPermMixin, DetailView):
     template_name = "add_hardware.html"
     model = get_user_model()
 
@@ -126,7 +126,7 @@ class ColleagueHardwareView(ManagerPermMixin, DetailView):
         return context
 
 
-class ColleagueToggleHardwareView(ManagerPermMixin, View):
+class ColleagueToggleHardwareView(AdminOrManagerPermMixin, View):
     template_name = "_toggle_button_hardware.html"
 
     def post(self, request, pk, template_id, *args, **kwargs):
@@ -143,7 +143,7 @@ class ColleagueToggleHardwareView(ManagerPermMixin, View):
         return render(request, self.template_name, context)
 
 
-class ColleagueResourceView(ManagerPermMixin, DetailView):
+class ColleagueResourceView(AdminOrManagerPermMixin, DetailView):
     template_name = "add_resources.html"
     model = get_user_model()
 
@@ -158,7 +158,7 @@ class ColleagueResourceView(ManagerPermMixin, DetailView):
         return context
 
 
-class ColleagueToggleResourceView(ManagerPermMixin, View):
+class ColleagueToggleResourceView(AdminOrManagerPermMixin, View):
     template_name = "_toggle_button_resources.html"
 
     def post(self, request, pk, template_id, *args, **kwargs):
@@ -175,7 +175,7 @@ class ColleagueToggleResourceView(ManagerPermMixin, View):
         return render(request, self.template_name, context)
 
 
-class ColleagueSyncSlack(ManagerPermMixin, View):
+class ColleagueSyncSlack(AdminOrManagerPermMixin, View):
     def get(self, request, *args, **kwargs):
         slack_users = Slack().get_all_users()
 
@@ -233,7 +233,7 @@ class ColleagueSyncSlack(ManagerPermMixin, View):
         return HttpResponse(headers={"HX-Refresh": "true"})
 
 
-class ColleagueGiveSlackAccessView(ManagerPermMixin, View):
+class ColleagueGiveSlackAccessView(AdminOrManagerPermMixin, View):
     template_name = "_toggle_colleague_access.html"
 
     def post(self, request, pk, *args, **kwargs):
@@ -288,7 +288,7 @@ class ColleagueGiveSlackAccessView(ManagerPermMixin, View):
         return render(request, self.template_name, context)
 
 
-class ColleagueTogglePortalAccessView(ManagerPermMixin, View):
+class ColleagueTogglePortalAccessView(AdminOrManagerPermMixin, View):
     template_name = "_toggle_colleague_access.html"
 
     def post(self, request, pk, *args, **kwargs):

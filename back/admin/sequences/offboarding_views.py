@@ -3,10 +3,10 @@ from django.utils.translation import gettext as _
 from django.views.generic.list import ListView
 
 from admin.sequences.models import Sequence
-from users.mixins import ManagerPermMixin
+from users.mixins import AdminOrManagerPermMixin
 
 
-class OffboardingSequenceListView(ManagerPermMixin, ListView):
+class OffboardingSequenceListView(AdminOrManagerPermMixin, ListView):
     """
     Lists all onboarding sequences in a table.
     """
