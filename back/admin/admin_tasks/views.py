@@ -120,8 +120,7 @@ class AdminTasksUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateV
 
     def form_valid(self, form):
         # send email/bot message to newly assigned person
-        task = self.get_object()
-        initial_assigned_to = task.assigned_to
+        initial_assigned_to = self.object.assigned_to
         form.save()
         if (
             form.cleaned_data["assigned_to"] != initial_assigned_to
