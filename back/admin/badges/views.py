@@ -35,9 +35,6 @@ class BadgeCreateView(
     success_url = reverse_lazy("badges:list")
     success_message = _("badge item has been updated")
 
-    def get_queryset(self):
-        return get_badge_templates_for_user(user=self.request.user)
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = _("Create badge item")
