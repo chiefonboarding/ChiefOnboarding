@@ -17,7 +17,7 @@ class ToDoListView(AdminOrManagerPermMixin, ListView):
     paginate_by = settings.TODO_PAGINATE_BY
 
     def get_queryset(self):
-        return get_to_do_templates_for_user(user=self.request.user)
+        return get_to_do_templates_for_user(user=self.request.user).defer("content")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
