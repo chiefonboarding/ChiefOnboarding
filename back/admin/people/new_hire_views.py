@@ -49,7 +49,7 @@ from .forms import (
 
 class NewHireListView(AdminOrManagerPermMixin, ListView):
     template_name = "new_hires.html"
-    paginate_by = 10
+    paginate_by = settings.NEW_HIRE_PAGINATE_BY
 
     def get_queryset(self):
         return get_new_hires_for_user(user=self.request.user)

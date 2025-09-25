@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
@@ -13,7 +14,7 @@ from .forms import AppointmentForm
 
 class AppointmentListView(AdminOrManagerPermMixin, ListView):
     template_name = "templates.html"
-    paginate_by = 10
+    paginate_by = settings.APPOINTMENT_PAGINATE_BY
 
     def get_queryset(self):
         return get_appointment_templates_for_user(user=self.request.user)
