@@ -578,19 +578,19 @@ class User(AbstractBaseUser):
 
     @property
     def is_admin_or_manager(self):
-        return self.role in [get_user_model().Role.ADMIN, get_user_model().Role.MANAGER]
+        return self.role in [User.Role.ADMIN, User.Role.MANAGER]
 
     @property
     def is_manager(self):
-        return self.role == get_user_model().Role.MANAGER
+        return self.role == User.Role.MANAGER
 
     @property
     def is_admin(self):
-        return self.role == get_user_model().Role.ADMIN
+        return self.role == User.Role.ADMIN
 
     @property
     def is_new_hire(self):
-        return self.role == get_user_model().Role.NEWHIRE
+        return self.role == User.Role.NEWHIRE
 
     def __str__(self):
         return "%s" % self.full_name
