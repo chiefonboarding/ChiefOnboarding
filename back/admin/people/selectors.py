@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.db.models import Q
 
 from users.models import User
@@ -6,38 +5,26 @@ from users.models import User
 
 def get_new_hires_for_user(*, user: User):
     if user.is_admin:
-        return get_user_model().new_hires.all()
+        return User.new_hires.all()
     else:
-        return (
-            get_user_model()
-            .new_hires.filter(
-                Q(departments__isnull=True) | Q(departments__in=user.departments.all())
-            )
-            .distinct()
-        )
+        return User.new_hires.filter(
+            Q(departments__isnull=True) | Q(departments__in=user.departments.all())
+        ).distinct()
 
 
 def get_colleagues_for_user(*, user: User):
     if user.is_admin:
-        return get_user_model().objects.all()
+        return User.objects.all()
     else:
-        return (
-            get_user_model()
-            .objects.filter(
-                Q(departments__isnull=True) | Q(departments__in=user.departments.all())
-            )
-            .distinct()
-        )
+        return User.objects.filter(
+            Q(departments__isnull=True) | Q(departments__in=user.departments.all())
+        ).distinct()
 
 
 def get_offboarding_colleagues_for_user(*, user: User):
     if user.is_admin:
-        return get_user_model().offboarding.all()
+        return User.offboarding.all()
     else:
-        return (
-            get_user_model()
-            .offboarding.filter(
-                Q(departments__isnull=True) | Q(departments__in=user.departments.all())
-            )
-            .distinct()
-        )
+        return User.offboarding.filter(
+            Q(departments__isnull=True) | Q(departments__in=user.departments.all())
+        ).distinct()
