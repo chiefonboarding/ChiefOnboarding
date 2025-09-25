@@ -14,7 +14,7 @@ from .emails import (
 )
 
 
-class FilteredForAdminQuerySet(models.QuerySet):
+class FilteredForManagerQuerySet(models.QuerySet):
     def for_user(self, user):
         if user.is_manager:
             return self.filter(
@@ -30,7 +30,7 @@ class AdminTaskManager(models.Manager):
         return self.get_queryset().for_user(user)
 
     def get_queryset(self):
-        return FilteredForAdminQuerySet(self.model, using=self._db)
+        return FilteredForManagerQuerySet(self.model, using=self._db)
 
     def create_admin_task(
         self,

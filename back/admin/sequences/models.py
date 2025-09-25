@@ -19,14 +19,14 @@ from admin.sequences.querysets import ConditionQuerySet
 from admin.to_do.models import ToDo
 from misc.fields import ContentJSONField, EncryptedJSONField
 from misc.mixins import ContentMixin
-from organization.models import FilteredForAdminQuerySet, Notification
+from organization.models import FilteredForManagerQuerySet, Notification
 from slack_bot.models import SlackChannel
 from slack_bot.utils import Slack
 
 
 class SequenceManager(models.Manager):
     def get_queryset(self):
-        return FilteredForAdminQuerySet(self.model, using=self._db)
+        return FilteredForManagerQuerySet(self.model, using=self._db)
 
     def for_user(self, user):
         return self.get_queryset().for_user(user)

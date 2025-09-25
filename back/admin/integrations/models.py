@@ -42,7 +42,7 @@ from admin.integrations.serializers import (
 from admin.integrations.utils import get_value_from_notation
 from misc.fernet_fields import EncryptedTextField
 from misc.fields import EncryptedJSONField
-from organization.models import FilteredForAdminQuerySet, Notification
+from organization.models import FilteredForManagerQuerySet, Notification
 from organization.utils import has_manager_or_buddy_tags, send_email_with_notification
 
 
@@ -120,7 +120,7 @@ class IntegrationTrackerStep(models.Model):
 
 class IntegrationManager(models.Manager):
     def get_queryset(self):
-        return FilteredForAdminQuerySet(self.model, using=self._db)
+        return FilteredForManagerQuerySet(self.model, using=self._db)
 
     def for_user(self, user):
         return self.get_queryset().for_user(user)

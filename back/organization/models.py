@@ -215,7 +215,7 @@ class WelcomeMessage(models.Model):
     message_type = models.IntegerField(choices=Type.choices, default=Type.PREBOARDING)
 
 
-class FilteredForAdminQuerySet(models.QuerySet):
+class FilteredForManagerQuerySet(models.QuerySet):
     def for_user(self, user):
         if user.is_manager:
             return self.filter(
@@ -227,7 +227,7 @@ class FilteredForAdminQuerySet(models.QuerySet):
 
 class ObjectsManager(models.Manager):
     def get_queryset(self):
-        return FilteredForAdminQuerySet(self.model, using=self._db).prefetch_related(
+        return FilteredForManagerQuerySet(self.model, using=self._db).prefetch_related(
             "departments"
         )
 
