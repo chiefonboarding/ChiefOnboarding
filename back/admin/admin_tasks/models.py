@@ -20,7 +20,7 @@ class FilteredForManagerQuerySet(models.QuerySet):
             return self.filter(
                 Q(new_hire__departments__isnull=True)
                 | Q(new_hire__departments__in=user.departments.all())
-            )
+            ).discint()
         else:
             return self
 

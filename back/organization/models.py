@@ -220,7 +220,7 @@ class FilteredForManagerQuerySet(models.QuerySet):
         if user.is_manager:
             return self.filter(
                 Q(departments__isnull=True) | Q(departments__in=user.departments.all())
-            )
+            ).distinct()
         return self
 
 
