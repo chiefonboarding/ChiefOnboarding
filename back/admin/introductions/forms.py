@@ -3,13 +3,18 @@ from crispy_forms.layout import Div, Field, Layout
 
 from admin.templates.forms import MultiSelectField, TagModelForm
 from misc.mixins import FilterDepartmentFieldByUserMixin
+from users.selectors import get_all_users_for_departments_of_user
 
 from .models import Introduction
 
 
 class IntroductionForm(FilterDepartmentFieldByUserMixin, TagModelForm):
     def __init__(self, *args, **kwargs):
+        user = kwargs.get("user")
         super().__init__(*args, **kwargs)
+        self.fields["intro_person"].queryset = get_all_users_for_departments_of_user(
+            user=user
+        )
         self.helper = FormHelper()
         self.helper.form_tag = False
         self.helper.layout = Layout(
@@ -27,4 +32,4 @@ class IntroductionForm(FilterDepartmentFieldByUserMixin, TagModelForm):
 
     class Meta:
         model = Introduction
-        fields = ("intro_person", "name", "tags", "departments")
+        fields = ("name", "intro_person", "departments", "tags")

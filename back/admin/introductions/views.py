@@ -9,7 +9,7 @@ from django.views.generic.list import ListView
 from admin.introductions.selectors import get_intro_templates_for_user
 from misc.mixins import FormWithUserContextMixin
 from users.mixins import AdminOrManagerPermMixin
-from users.models import User
+from users.selectors import get_all_users_for_departments_of_user
 
 from .forms import IntroductionForm
 
@@ -46,7 +46,9 @@ class IntroductionCreateView(
 
 class IntroductionColleaguePreviewView(AdminOrManagerPermMixin, DetailView):
     template_name = "_colleague_intro.html"
-    model = User
+
+    def get_queryset(self):
+        return get_all_users_for_departments_of_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

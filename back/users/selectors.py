@@ -21,6 +21,10 @@ def get_departments_query(*, user):
     return Q(departments__isnull=True) | Q(departments__in=deps)
 
 
+def get_all_users_for_departments_of_user(*, user):
+    return get_user_model().objects.filter(get_departments_query(user=user))
+
+
 def get_all_managers_and_admins_for_departments_of_user(*, user):
     return get_user_model().managers_and_admins.filter(get_departments_query(user=user))
 
