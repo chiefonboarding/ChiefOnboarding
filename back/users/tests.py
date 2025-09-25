@@ -9,6 +9,7 @@ from freezegun import freeze_time
 from admin.sequences.models import IntegrationConfig
 from organization.models import Organization
 from users.tasks import hourly_check_for_new_hire_send_credentials
+from users.utils import parse_array_to_string
 
 from .models import User
 
@@ -530,3 +531,35 @@ def test_integration_user_trigger(
 
     # another item from sequence won't be here
     assert employee.to_do.count() == 1
+
+
+@pytest.mark.django_db
+def test_departments_format(employee_factory, department_factory):
+    emp1 = employee_factory()
+    dep1 = department_factory(name="test1")
+    dep2 = department_factory(name="test2")
+    dep3 = department_factory(name="test3")
+
+    # no departments
+    assert parse_array_to_string(emp1.departments.values_list("name", flat=True)) == ""
+
+    # one department
+    emp1.departments.add(dep1)
+    assert (
+        parse_array_to_string(emp1.departments.values_list("name", flat=True))
+        == "test1"
+    )
+
+    # add second one
+    emp1.departments.add(dep2)
+    assert (
+        parse_array_to_string(emp1.departments.values_list("name", flat=True))
+        == "test1 and test2"
+    )
+
+    # add third one
+    emp1.departments.add(dep3)
+    assert (
+        parse_array_to_string(emp1.departments.values_list("name", flat=True))
+        == "test1, test2 and test3"
+    )
