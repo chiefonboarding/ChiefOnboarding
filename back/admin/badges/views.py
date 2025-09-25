@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
@@ -13,7 +14,7 @@ from .models import Badge
 class BadgeListView(AdminOrManagerPermMixin, ListView):
     template_name = "templates.html"
     queryset = Badge.templates.all().order_by("name")
-    paginate_by = 10
+    paginate_by = settings.BADGE_PAGINATE_BY
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
