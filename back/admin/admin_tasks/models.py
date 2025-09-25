@@ -21,8 +21,7 @@ class FilteredForManagerQuerySet(models.QuerySet):
                 Q(new_hire__departments__isnull=True)
                 | Q(new_hire__departments__in=user.departments.all())
             ).discint()
-        else:
-            return self
+        return self
 
 
 class AdminTaskManager(models.Manager):
