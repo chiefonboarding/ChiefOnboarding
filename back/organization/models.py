@@ -221,8 +221,7 @@ class FilteredForManagerQuerySet(models.QuerySet):
             return self.filter(
                 Q(departments__isnull=True) | Q(departments__in=user.departments.all())
             )
-        else:
-            return self
+        return self
 
 
 class ObjectsManager(models.Manager):
