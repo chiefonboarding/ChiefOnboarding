@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
@@ -15,7 +16,7 @@ from .models import AdminTask, AdminTaskComment
 
 class MyAdminTasksListView(AdminOrManagerPermMixin, ListView):
     template_name = "admin_tasks_yours.html"
-    paginate_by = 10
+    paginate_by = settings.ADMINTASK_PAGINATE_BY
 
     def get_queryset(self):
         return AdminTask.objects.filter(assigned_to=self.request.user).select_related(
@@ -32,7 +33,7 @@ class MyAdminTasksListView(AdminOrManagerPermMixin, ListView):
 
 class AllAdminTasksListView(AdminOrManagerPermMixin, ListView):
     template_name = "admin_tasks_all.html"
-    paginate_by = 10
+    paginate_by = settings.ADMINTASK_PAGINATE_BY
 
     def get_queryset(self):
         return AdminTask.objects.all().select_related("new_hire", "assigned_to")

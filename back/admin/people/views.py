@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponse
@@ -50,7 +51,7 @@ from .forms import (
 class ColleagueListView(AdminOrManagerPermMixin, ListView):
     template_name = "colleagues.html"
     queryset = get_user_model().objects.all()
-    paginate_by = 20
+    paginate_by = settings.COLLEAGUE_PAGINATE_BY
     ordering = ["first_name", "last_name"]
 
     def get_context_data(self, **kwargs):
@@ -68,7 +69,7 @@ class ColleagueListView(AdminOrManagerPermMixin, ListView):
 class OffboardingColleagueListView(AdminOrManagerPermMixin, ListView):
     template_name = "offboarding.html"
     queryset = get_user_model().offboarding.all()
-    paginate_by = 20
+    paginate_by = settings.OFFBOARDING_USERS_PAGINATE_BY
     ordering = ["termination_date", "email"]
 
     def get_context_data(self, **kwargs):

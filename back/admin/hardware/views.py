@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
@@ -12,7 +13,7 @@ from users.mixins import AdminOrManagerPermMixin
 class HardwareListView(AdminOrManagerPermMixin, ListView):
     template_name = "templates.html"
     queryset = Hardware.templates.all().order_by("name").defer("content")
-    paginate_by = 10
+    paginate_by = settings.HARDWARE_PAGINATE_BY
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

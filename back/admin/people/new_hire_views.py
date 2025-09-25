@@ -48,7 +48,7 @@ from .forms import (
 
 class NewHireListView(AdminOrManagerPermMixin, ListView):
     template_name = "new_hires.html"
-    paginate_by = 10
+    paginate_by = settings.NEW_HIRE_PAGINATE_BY
 
     def get_queryset(self):
         all_new_hires = get_user_model().new_hires.all().order_by("-start_day")

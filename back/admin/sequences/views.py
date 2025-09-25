@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -44,7 +45,7 @@ class SequenceListView(AdminOrManagerPermMixin, ListView):
 
     template_name = "templates.html"
     queryset = Sequence.onboarding.all().order_by("name")
-    paginate_by = 10
+    paginate_by = settings.SEQUENCE_PAGINATE_BY
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

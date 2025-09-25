@@ -282,7 +282,6 @@ class PreboardingDetailView(DetailView):
 class ColleagueListView(ListView):
     template_name = "new_hire_colleagues.html"
     model = User
-    paginate_by = 20
     ordering = ["first_name", "last_name"]
 
 
