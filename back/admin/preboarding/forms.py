@@ -2,12 +2,12 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, Layout
 
 from admin.templates.forms import MultiSelectField, TagModelForm, WYSIWYGField
-from misc.mixins import FilterDepartmentFieldByUserMixin
+from misc.mixins import FilterDepartmentsFieldByUserMixin
 
 from .models import Preboarding
 
 
-class PreboardingForm(FilterDepartmentFieldByUserMixin, TagModelForm):
+class PreboardingForm(FilterDepartmentsFieldByUserMixin, TagModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()

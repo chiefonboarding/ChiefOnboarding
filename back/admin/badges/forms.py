@@ -7,12 +7,12 @@ from admin.templates.forms import (
     UploadField,
     WYSIWYGField,
 )
-from misc.mixins import FilterDepartmentFieldByUserMixin
+from misc.mixins import FilterDepartmentsFieldByUserMixin
 
 from .models import Badge
 
 
-class BadgeForm(FilterDepartmentFieldByUserMixin, TagModelForm):
+class BadgeForm(FilterDepartmentsFieldByUserMixin, TagModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()

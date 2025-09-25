@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from admin.templates.forms import MultiSelectField, WYSIWYGField
 from admin.to_do.models import ToDo
 from admin.to_do.selectors import get_to_do_templates_for_user
-from misc.mixins import FilterDepartmentFieldByUserMixin
+from misc.mixins import FilterDepartmentsFieldByUserMixin
 from users.models import User
 
 from .models import (
@@ -21,7 +21,7 @@ from .models import (
 )
 
 
-class DepartmentForm(FilterDepartmentFieldByUserMixin, forms.ModelForm):
+class DepartmentForm(FilterDepartmentsFieldByUserMixin, forms.ModelForm):
     class Meta:
         model = Sequence
         fields = [

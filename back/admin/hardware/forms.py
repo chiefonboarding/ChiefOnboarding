@@ -4,10 +4,10 @@ from django.utils.translation import gettext_lazy as _
 
 from admin.hardware.models import Hardware
 from admin.templates.forms import MultiSelectField, TagModelForm, WYSIWYGField
-from misc.mixins import FilterDepartmentFieldByUserMixin
+from misc.mixins import FilterDepartmentsFieldByUserMixin
 
 
-class HardwareForm(FilterDepartmentFieldByUserMixin, TagModelForm):
+class HardwareForm(FilterDepartmentsFieldByUserMixin, TagModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()

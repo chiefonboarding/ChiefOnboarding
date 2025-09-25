@@ -14,7 +14,7 @@ from admin.templates.forms import (
     MultiSelectField,
     UploadField,
 )
-from misc.mixins import FilterDepartmentFieldByUserMixin
+from misc.mixins import FilterDepartmentsFieldByUserMixin
 from organization.models import Organization
 
 
@@ -239,7 +239,7 @@ class NewHireProfileForm(forms.ModelForm):
         )
 
 
-class ColleagueUpdateForm(FilterDepartmentFieldByUserMixin, forms.ModelForm):
+class ColleagueUpdateForm(FilterDepartmentsFieldByUserMixin, forms.ModelForm):
     birthday = forms.DateField(
         widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
         required=False,
@@ -294,7 +294,7 @@ class ColleagueUpdateForm(FilterDepartmentFieldByUserMixin, forms.ModelForm):
         )
 
 
-class ColleagueCreateForm(FilterDepartmentFieldByUserMixin, forms.ModelForm):
+class ColleagueCreateForm(FilterDepartmentsFieldByUserMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()

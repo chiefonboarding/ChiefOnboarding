@@ -234,7 +234,7 @@ class FormWithUserContextMixin:
         return kwargs
 
 
-class FilterDepartmentFieldByUserMixin:
+class FilterDepartmentsFieldByUserMixin:
     def __init__(self, *args, **kwargs):
         from users.models import Department
 
