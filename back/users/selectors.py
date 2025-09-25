@@ -7,8 +7,7 @@ def get_available_departments_for_user(*, user):
 
     if user.is_admin:
         return Department.objects.all()
-    else:
-        return user.departments.all()
+    return user.departments.all()
 
 
 def get_departments_query(*, user):
