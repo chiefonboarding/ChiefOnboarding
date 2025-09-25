@@ -19,12 +19,6 @@ class AdminTaskCommentForm(forms.ModelForm):
 
 
 class AdminTaskUpdateForm(forms.ModelForm):
-    date = forms.DateField(
-        label=_("Date"),
-        required=False,
-        widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
-    )
-
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         instance = getattr(self, "instance", None)
@@ -38,15 +32,13 @@ class AdminTaskUpdateForm(forms.ModelForm):
     class Meta:
         model = AdminTask
         fields = ["name", "assigned_to", "date", "priority"]
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
+        }
 
 
 class AdminTaskCreateForm(forms.ModelForm):
     comment = forms.CharField(label=_("Comment"), max_length=12500)
-    date = forms.DateField(
-        label=_("Date"),
-        required=False,
-        widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
-    )
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop("user")
@@ -77,3 +69,6 @@ class AdminTaskCreateForm(forms.ModelForm):
             "slack_user",
             "email",
         ]
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
+        }
