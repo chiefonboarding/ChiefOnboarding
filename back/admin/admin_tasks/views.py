@@ -113,9 +113,7 @@ class AdminTasksUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateV
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        task = self.get_object()
-        context["object"] = task
-        context["title"] = _("Task: %(name)s") % {"name": task.name}
+        context["title"] = _("Task: %(name)s") % {"name": self.object.name}
         context["subtitle"] = _("Tasks")
         context["comment_form"] = AdminTaskCommentForm
         return context
