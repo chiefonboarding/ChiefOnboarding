@@ -1286,9 +1286,15 @@ def test_new_hire_course_answers_list(
 
 @pytest.mark.django_db
 def test_new_hire_reopen_todo(
-    client, settings, manager_factory, to_do_user_factory, mailoutbox
+    client,
+    settings,
+    manager_factory,
+    to_do_user_factory,
+    department_factory,
+    mailoutbox,
 ):
     manager1 = manager_factory()
+    manager2 = manager_factory(departments=[department_factory()])
     client.force_login(manager1)
     to_do_user1 = to_do_user_factory()
 
@@ -1300,16 +1306,14 @@ def test_new_hire_reopen_todo(
     response = client.get(url, follow=True)
     assert response.status_code == 404
 
-    # not a valid user (admin or manager of new hire)
+    # not a valid user (different department)
     url = reverse(
-        "people:new_hire_reopen", args=[to_do_user1.user.id, "todouser", to_do_user1.id]
+        "people:new_hire_reopen", args=[manager2.id, "todouser", to_do_user1.id]
     )
     response = client.get(url, follow=True)
-    assert response.status_code == 403
+    assert response.status_code == 404
 
-    to_do_user1.user.manager = manager1
-    to_do_user1.user.save()
-
+    # now use the normal user
     url = reverse(
         "people:new_hire_reopen", args=[to_do_user1.user.id, "todouser", to_do_user1.id]
     )

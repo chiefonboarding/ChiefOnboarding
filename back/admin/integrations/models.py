@@ -42,7 +42,7 @@ from admin.integrations.serializers import (
 from admin.integrations.utils import get_value_from_notation
 from misc.fernet_fields import EncryptedTextField
 from misc.fields import EncryptedJSONField
-from organization.models import Notification
+from organization.models import FilteredForManagerQuerySet, Notification
 from organization.utils import has_manager_or_buddy_tags, send_email_with_notification
 
 
@@ -120,21 +120,28 @@ class IntegrationTrackerStep(models.Model):
 
 class IntegrationManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset()
+        return FilteredForManagerQuerySet(self.model, using=self._db)
 
-    def sequence_integration_options(self):
+    def for_user(self, user):
+        return self.get_queryset().for_user(user)
+
+    def sequence_integration_options(self, user):
         # any webhooks and account provisioning
-        return self.get_queryset().filter(
-            integration=Integration.Type.CUSTOM,
-            manifest_type__in=[
-                Integration.ManifestType.WEBHOOK,
-                Integration.ManifestType.MANUAL_USER_PROVISIONING,
-            ],
+        return (
+            self.get_queryset()
+            .for_user(user=user)
+            .filter(
+                integration=Integration.Type.CUSTOM,
+                manifest_type__in=[
+                    Integration.ManifestType.WEBHOOK,
+                    Integration.ManifestType.MANUAL_USER_PROVISIONING,
+                ],
+            )
         )
 
-    def account_provision_options(self):
+    def account_provision_options(self, user):
         # only account provisioning (no general webhooks)
-        return self.get_queryset().filter(
+        return self.get_queryset().for_user(user=user).filter(
             integration=Integration.Type.CUSTOM,
             manifest_type=Integration.ManifestType.WEBHOOK,
             manifest__exists__isnull=False,
@@ -144,7 +151,7 @@ class IntegrationManager(models.Manager):
         )
 
     def import_users_options(self):
-        # only import user items
+        # only import user items - admin function
         return (
             self.get_queryset()
             .filter(
@@ -155,7 +162,7 @@ class IntegrationManager(models.Manager):
         )
 
 
-class IntegrationInactiveManager(models.Manager):
+class IntegrationInactiveManager(IntegrationManager):
     def get_queryset(self):
         return super().get_queryset().filter(is_active=False)
 
@@ -178,6 +185,11 @@ class Integration(models.Model):
         default=True, help_text="If inactive, it's a test/debug integration"
     )
     integration = models.IntegerField(choices=Type.choices)
+    departments = models.ManyToManyField(
+        "users.Department",
+        blank=True,
+        help_text=_("Leave empty to make it available to all managers"),
+    )
     manifest_type = models.IntegerField(
         choices=ManifestType.choices, null=True, blank=True
     )
