@@ -1,5 +1,49 @@
 # Changelog
 
+## v2.3.0 (2025-10-07)
+** PLEASE TAKE A BACKUP BEFORE RUNNING THIS UPGRADE. THIS IS A MAJOR UPDATE **
+In short: Django and Python upgrades (Django 4.2 -> 5.2 and Python 3.11 -> 3.13), as well as the migration of the auth system to allauth to support more OIDC providers.
+
+BREAKING CHANGES: 
+- If you are using Google SSO, then you should set the keys in your environment variables:
+  - `ALLOW_GOOGLE_SSO` to `True` (default is `False`)
+  - `GOOGLE_SSO_CLIENT_ID`
+  - `GOOGLE_SSO_SECRET`
+  This used to be a config in the settings of the app.
+- If you only want to allow to login through SSO, then you should set `ALLOW_LOGIN_WITH_CREDENTIALS` to `False` (default `True`). This used to be a dashboard setting. 
+- If you want to auto create users through SSO, then you should set `SSO_AUTO_CREATE_USE` to `True` (default `False`). 
+- `OIDC_ROLE_UPDATING` is removed and temporarily not supported. Roles will not update once set. 
+- `OIDC_ROLE_PATH_IN_RETURN` default is now set to an empty string instead of `zoneinfo`.
+- `OIDC_LOGIN_DISPLAY` has been removed. Please use the new OIDC settings from the docs.
+- `OIDC_CLIENT_ID` has been removed. Please use the new OIDC settings from the docs.
+- `OIDC_CLIENT_SECRET` has been removed. Please use the new OIDC settings from the docs.
+- `OIDC_AUTHORIZATION_URL` has been removed. Please use the new OIDC settings from the docs.
+- `OIDC_TOKEN_URL` has been removed. Please use the new OIDC settings from the docs.
+- `OIDC_USERINFO_URL` has been removed. Please use the new OIDC settings from the docs.
+- `OIDC_SCOPES` has been removed. Please use the new OIDC settings from the docs.
+- `OIDC_LOGOUT_URL` has been removed. Please use the new OIDC settings from the docs.
+- `OIDC_FORCE_AUTHN` has been removed. Please use the new OIDC settings from the docs.
+
+* Update dependencies July 2025 (#554)
+* Fix table overflow issue on admin task pages (#556)
+* Fix missing Japanese and Czech welcome messages (#555)
+* Fix to do items not correctly sorted for new hire (#557)
+* Add patch method to execute and revoke integration (#559)
+* Add ipware for correctly blocking users when behind proxy (#560)
+* Add makefile (#562)
+* Fix responsiveness issues (#563)
+* Add view button on new hire admin tasks and fix layout (#567)
+* Update dependencies Sept 2025 - migrate python from 3.11 to 3.13 (#569)
+* Update theme - cosmetic updates (#568)
+* Fix deprecation warnings (#570)
+* Implement allauth for authentication (#387)
+* Fix password recovery mail (#574)
+* Rename manager perm mixin (#575)
+* Remove docker compose version (#576)
+* Configure paginate by (#577)
+* Switch from runtime.txt to .python-version (#578)
+
+
 ## v2.2.7 (2025-03-07)
 * Bump dependencies march 2025 (#527)
 * Update dutch translations and fix admin to do form tranlsations (#526) 
