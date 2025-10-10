@@ -435,6 +435,7 @@ if not env.bool("DEBUG", default=False) and not env.bool(
 ):
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    ACCOUNT_DEFAULT_HTTP_PROTOCOL = True
 
 FIXTURE_DIRS = ["fixtures"]
 
