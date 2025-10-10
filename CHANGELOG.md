@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.3.1 (2025-10-10)
+* Update dependencies okt 2025 (#580)
+* Force HTTPS for urls allauth (#581)
+
 ## v2.3.0 (2025-10-07)
 ** PLEASE TAKE A BACKUP BEFORE RUNNING THIS UPGRADE. THIS IS A MAJOR UPDATE **
 In short: Django and Python upgrades (Django 4.2 -> 5.2 and Python 3.11 -> 3.13), as well as the migration of the auth system to allauth to support more OIDC providers.
