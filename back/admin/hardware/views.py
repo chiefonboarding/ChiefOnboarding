@@ -34,9 +34,6 @@ class HardwareCreateView(
     success_url = reverse_lazy("hardware:list")
     success_message = _("Hardware item has been created")
 
-    def get_queryset(self):
-        return get_hardware_templates_for_user(user=self.request.user)
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = _("Create hardware item")
