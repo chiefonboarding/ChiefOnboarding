@@ -1,14 +1,16 @@
 import factory
 from factory.fuzzy import FuzzyText
-from misc.mixins import DepartmentsPostGenerationMixin
 from pytest_factoryboy import register
 
 from admin.introductions.models import Introduction
+from misc.mixins import DepartmentsPostGenerationMixin
 from users.factories import EmployeeFactory
 
 
 @register
-class IntroductionFactory(factory.django.DjangoModelFactory, DepartmentsPostGenerationMixin):
+class IntroductionFactory(
+    factory.django.DjangoModelFactory, DepartmentsPostGenerationMixin
+):
     name = FuzzyText()
     intro_person = factory.SubFactory(EmployeeFactory)
 

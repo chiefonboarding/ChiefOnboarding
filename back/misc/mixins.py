@@ -1,11 +1,11 @@
 import factory
+from django.core.exceptions import ValidationError
 from django.db.models import Q
+from django.utils.translation import gettext_lazy as _
 
 from misc.models import File
 from misc.urlparser import URLParser
 from users.selectors import get_available_departments_for_user
-from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
 
 
 class ContentMixin:
@@ -258,11 +258,17 @@ class FilterDepartmentsFieldByUserMixin:
 
         new_departments = self.cleaned_data["departments"]
         available_departments = get_available_departments_for_user(user=self.user)
-        initial_departments = Department.objects.filter(pk__in=[d.pk for d in self.initial.get("departments", [])])
-        not_owned_departments = initial_departments.exclude(pk__in=available_departments.values_list("pk", flat=True))
+        initial_departments = Department.objects.filter(
+            pk__in=[d.pk for d in self.initial.get("departments", [])]
+        )
+        not_owned_departments = initial_departments.exclude(
+            pk__in=available_departments.values_list("pk", flat=True)
+        )
         for d in not_owned_departments:
             if d not in new_departments:
-                raise ValidationError(_("You cannot remove a department that you are not part of"))
+                raise ValidationError(
+                    _("You cannot remove a department that you are not part of")
+                )
         return new_departments
 
 

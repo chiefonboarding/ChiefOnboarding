@@ -3,7 +3,6 @@ from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
-from users.factories import DepartmentFactory
 from admin.appointments.factories import AppointmentFactory  # noqa
 from admin.badges.factories import BadgeFactory  # noqa
 from admin.hardware.factories import HardwareFactory  # noqa
@@ -12,6 +11,7 @@ from admin.preboarding.factories import PreboardingFactory  # noqa
 from admin.resources.factories import ResourceFactory  # noqa
 from admin.sequences.models import Sequence  # noqa
 from admin.to_do.factories import ToDoFactory  # noqa
+from users.factories import DepartmentFactory
 
 
 @pytest.mark.django_db
@@ -180,19 +180,30 @@ def test_departments_mixin_cannot_remove_unassigned_dep(
         "due_on_day": 1,
     }
     response = client.post(to_do.update_url, data, follow=True)
-    assert "You cannot remove a department that you are not part of" in response.content.decode()
+    assert (
+        "You cannot remove a department that you are not part of"
+        in response.content.decode()
+    )
 
     # only other dep passes
     data["departments"] = [not_part_of_dep.id]
     response = client.post(to_do.update_url, data, follow=True)
-    assert "You cannot remove a department that you are not part of" not in response.content.decode()
+    assert (
+        "You cannot remove a department that you are not part of"
+        not in response.content.decode()
+    )
 
     # admin can remove any departments
     response = client.post(to_do.update_url, data, follow=True)
 
-    admin = django_user_model.objects.create(role=get_user_model().Role.ADMIN, email="test@example.com")
+    admin = django_user_model.objects.create(
+        role=get_user_model().Role.ADMIN, email="test@example.com"
+    )
     client.force_login(admin)
 
     data["departments"] = [not_part_of_dep.id]
     response = client.post(to_do.update_url, data, follow=True)
-    assert "You cannot remove a department that you are not part of" not in response.content.decode()
+    assert (
+        "You cannot remove a department that you are not part of"
+        not in response.content.decode()
+    )
