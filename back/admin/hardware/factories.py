@@ -1,12 +1,13 @@
 import factory
 from factory.fuzzy import FuzzyText
+from misc.mixins import DepartmentsPostGenerationMixin
 from pytest_factoryboy import register
 
 from admin.hardware.models import Hardware
 
 
 @register
-class HardwareFactory(factory.django.DjangoModelFactory):
+class HardwareFactory(factory.django.DjangoModelFactory, DepartmentsPostGenerationMixin):
     name = FuzzyText()
     content = {
         "time": 0,
