@@ -19,3 +19,4 @@ class ToDoFactory(DepartmentsPostGenerationMixin, factory.django.DjangoModelFact
 
     class Meta:
         model = ToDo
+        skip_postgeneration_save = True

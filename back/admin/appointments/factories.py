@@ -14,3 +14,4 @@ class AppointmentFactory(
 
     class Meta:
         model = Appointment
+        skip_postgeneration_save = True

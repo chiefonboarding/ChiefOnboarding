@@ -23,3 +23,4 @@ class HardwareFactory(
 
     class Meta:
         model = Hardware
+        skip_postgeneration_save = True

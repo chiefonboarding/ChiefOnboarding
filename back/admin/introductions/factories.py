@@ -16,3 +16,4 @@ class IntroductionFactory(
 
     class Meta:
         model = Introduction
+        skip_postgeneration_save = True

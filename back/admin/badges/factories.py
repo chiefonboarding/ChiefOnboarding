@@ -19,3 +19,4 @@ class BadgeFactory(factory.django.DjangoModelFactory, DepartmentsPostGenerationM
 
     class Meta:
         model = Badge
+        skip_postgeneration_save = True

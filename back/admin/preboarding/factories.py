@@ -14,3 +14,4 @@ class PreboardingFactory(
 
     class Meta:
         model = Preboarding
+        skip_postgeneration_save = True
