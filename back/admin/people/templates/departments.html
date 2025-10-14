@@ -1,4 +1,5 @@
 {% extends 'admin_base.html' %}
+{% load static crispy_forms_tags %}
 {% load i18n %}
 
 {% block actions %}
@@ -8,33 +9,62 @@
 {% endblock %}
 
 {% block content %}
-<div class="col-12">
-  <div class="card">
-    <div class="table-responsive">
-      <table class="table card-table table-vcenter text-nowrap">
-        <thead>
-          <tr>
-            <th>{% translate "Name" %}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for department in object_list %}
-          <tr>
-            <td>
-              {{ department.name }}
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td>
-              {% trans "You haven't created any departments yet" %}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+<div class="row">
+  <div class="col-12">
+    <div class="alert alert-warning" role="alert">
+      {% translate "All changes will be saved automatically." %}
     </div>
-    {% include "_paginator.html" %}
+  </div>
+  <div class="col-7">
+    {% for department in departments %}
+    <div class="card mb-4">
+      <div class="card-header">
+        <div class="col-11">
+          <h3 class="card-title">{{ department }}</h3>
+        </div>
+        <div class="col-1 text-end">
+          <a class="btn btn-azure btn-sm" href="{% url "people:department_update" department.pk %}">
+            {% include "_edit_icon.html" %}
+          </a>
+        </div>
+      </div>
+      <div class="card-body">
+        <div hx-trigger="reload-sequence from:body" hx-select="#timeline" hx-get="" hx-swap="outerHTML">
+          {% for sequence in department.sequences.all %}
+            {{ sequence.name }}
+          {% endfor %}
+          {% for role in department.roles.all %}
+            <h3 class="card-title">{% trans "Role: " %} {{ role }}</h3>
+          {% endfor %}
+          {% if department.sequences.all|length == 0 and department.roles.all|length == 0 %}
+            {% trans "No sequences added yet to this department" %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="col-5">
+    <div class="card seq-icons sticky-top" id="template-list" style="max-height: calc(44rem + 10px)">
+      <div class="card-header">
+        <h3 class="card-title">{% translate "Users" %}</h3>
+      </div>
+      <div class="card-body card-body-scrollable card-body-scrollable-shadow">
+        <div class="divide-y">
+          {% for user in users %}
+          <div>
+            <div class="row" draggable="true" style="cursor:grab" data-id="{{user.id}}">
+              <div class="col">
+                <div class="text-truncate">
+                  <p style="margin-bottom:0px">{{ user.full_name }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}

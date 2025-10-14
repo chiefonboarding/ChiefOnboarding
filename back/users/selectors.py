@@ -9,6 +9,12 @@ def get_available_departments_for_user(*, user):
         return Department.objects.all()
     return user.departments.all()
 
+def get_available_roles_for_user(*, user):
+    from users.models import Role
+
+    departments = get_available_departments_for_user(user=user)
+    return Role.objects.filter(department__in=departments)
+
 
 def get_departments_query(*, user):
     from users.models import Department

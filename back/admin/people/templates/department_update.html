@@ -1,0 +1,49 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row justify-content-md-center">
+  <div class="col-md-8 col-12">
+    <div class="card mt-3">
+      <div class="card-header">
+        <h3 class="card-title">{{ object.name }}</h3>
+      </div>
+      <div class="card-body">
+        <form action="." method="post">
+          {% csrf_token %}
+          {{ form|crispy }}
+          <button type="submit" class="btn btn-primary">{% trans "Update" %}</button>
+        </form>
+      </div>
+    </div>
+    <div class="card mt-3">
+      <div class="card-header">
+        <h3 class="card-title">{% trans "Roles" %}</h3>
+      </div>
+      <div class="card-body">
+        <div class="divide-y">
+          {% for role in department.roles.all %}
+          <div class="row">
+            <div class="col">
+              <p style="margin-bottom:0px">{{ role }}</p>
+            </div>
+            <div class="col">
+              <div class="text-end">
+                <a class="btn btn-azure btn-sm" href="{% url "people:department_role_update" department.pk role.pk %}">
+                  {% include "_edit_icon.html" %}
+                </a>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <a class="btn btn-primary mt-4" href="{% url "people:department_role_create" department.pk %}">
+          {% trans "Add" %}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

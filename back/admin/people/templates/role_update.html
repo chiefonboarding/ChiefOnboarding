@@ -1,0 +1,23 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row justify-content-md-center">
+  <div class="col-md-8 col-12">
+    <div class="card mt-3">
+      <div class="card-header">
+        <h3 class="card-title">{{ object.name }}</h3>
+      </div>
+      <div class="card-body">
+        <form action="." method="post">
+          {% csrf_token %}
+          {{ form|crispy }}
+          <button type="submit" class="btn btn-primary">{% trans "Update" %}</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
