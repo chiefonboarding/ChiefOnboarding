@@ -595,6 +595,17 @@ class DepartmentRoleCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, Cre
         return context
 
 
+class AddUserToRoleView(AdminOrManagerPermMixin, SuccessMessageMixin, View):
+
+    def post(self, request, role_pk, user_pk, **kwargs):
+        print(get_available_roles_for_user(user=request.user))
+        role = get_object_or_404(get_available_roles_for_user(user=request.user), id=role_pk)
+        user = get_object_or_404(get_all_users_for_departments_of_user(user=request.user), id=user_pk)
+
+        role.users.add(user)
+        return render(request, "departments.html", {"departments": get_available_departments_for_user(user=self.request.user)})
+
+
 class DepartmentUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "department_update.html"
     fields = [

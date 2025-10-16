@@ -249,6 +249,11 @@ urlpatterns = [
         name="department_role_create",
     ),
     path(
+        "colleagues/role/<int:role_pk>/user/<int:user_pk>/",
+        views.AddUserToRoleView.as_view(),
+        name="add_user_to_role",
+    ),
+    path(
         "colleagues/departments/<int:department_pk>/roles/<int:pk>/update/",
         views.DepartmentRoleUpdateView.as_view(),
         name="department_role_update",

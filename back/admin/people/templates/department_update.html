@@ -36,6 +36,8 @@
               </div>
             </div>
           </div>
+          {% empty %}
+          <p class="mb-0">{% trans "No roles added yet" %}</p>
           {% endfor %}
         </div>
         <a class="btn btn-primary mt-4" href="{% url "people:department_role_create" department.pk %}">

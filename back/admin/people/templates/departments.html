@@ -3,6 +3,9 @@
 {% load i18n %}
 
 {% block actions %}
+  <div class="alert alert-warning mb-0" role="alert">
+    {% translate "All changes will be saved automatically." %}
+  </div>
   <a href="{% url 'people:department_create' %}" class="btn btn-primary">
     {% trans "Add" %}
   </a>
@@ -11,11 +14,8 @@
 {% block content %}
 <div class="row">
   <div class="col-12">
-    <div class="alert alert-warning" role="alert">
-      {% translate "All changes will be saved automatically." %}
-    </div>
   </div>
-  <div class="col-7">
+  <div class="col-7" id="departments-list">
     {% for department in departments %}
     <div class="card mb-4">
       <div class="card-header">
@@ -30,14 +30,31 @@
       </div>
       <div class="card-body">
         <div hx-trigger="reload-sequence from:body" hx-select="#timeline" hx-get="" hx-swap="outerHTML">
-          {% for sequence in department.sequences.all %}
-            {{ sequence.name }}
-          {% endfor %}
           {% for role in department.roles.all %}
-            <h3 class="card-title">{% trans "Role: " %} {{ role }}</h3>
+            <div class="drop mb-2" data-role-id="{{role.id}}">
+              <h3 class="card-title mb-0">{{ role }}</h3>
+              {% if role.users.all|length %}
+                  <ul class="list-group list-group-flush">
+                  {% for user in role.users.all %}
+                    <li class="list-group-item" style="padding: 4px;">
+                      {% if user.profile_image is not None %}
+                      <span class="avatar me-2 avatar-xs" style="background-image: url({{ user.profile_image.get_url }})"></span>
+                      {% else %}
+                      <span class="avatar me-2 avatar-xs">{{ user.initials }}</span>
+                      {% endif %}
+                      {{ user.name }}
+                    </li>
+                  {% endfor %}
+                  </ul>
+              {% else %}
+                {% trans "No users have been added to this role yet." %}
+              {% endif %}
+            </div>
           {% endfor %}
-          {% if department.sequences.all|length == 0 and department.roles.all|length == 0 %}
-            {% trans "No sequences added yet to this department" %}
+          {% if department.roles.all|length == 0 %}
+            {% trans "No roles have been added to this department yet." %}
+            <br/>
+            <a type="submit" class="btn btn-primary btn-sm mt-2" href="{% url "people:department_role_create" department.id %}">{% trans "Add role" %}</a>
           {% endif %}
         </div>
       </div>
@@ -53,7 +70,7 @@
         <div class="divide-y">
           {% for user in users %}
           <div>
-            <div class="row" draggable="true" style="cursor:grab" data-id="{{user.id}}">
+            <div class="row" draggable="true" style="cursor:grab" data-user-id="{{user.id}}">
               <div class="col">
                 <div class="text-truncate">
                   <p style="margin-bottom:0px">{{ user.full_name }}</p>
@@ -68,3 +85,101 @@
   </div>
 </div>
 {% endblock %}
+
+{% block extra_css %}
+<style>
+  .drop {
+    border-left: 2px solid transparent;
+    transform: translateX(0);
+    padding-left: 0px;
+    transition:
+      transform 0.2s ease,
+      border-left-color 0.1s ease;
+      padding-left 0.3s ease;
+  }
+  .drop.droppable {
+    transform: translateX(5px);
+    border-left-color: color-mix(in srgb,var(--tblr-primary) 10%,transparent);
+    padding-left: 10px;
+  }
+</style>
+{% endblock extra_css %}
+{% block extra_js %}
+<script>
+
+var dragged;
+var draggedToElement;
+
+function markAsDroppable(element) {
+  $(element).addClass("droppable");
+}
+
+function removeDroppableClasses() {
+  $('.droppable, .not_droppable').removeClass('droppable not_droppable');
+}
+
+document.addEventListener("dragstart", function( event ) {
+  dragged = event.target;
+  event.target.style.opacity = .5;
+
+  $('.drop').each((index, element) => {
+    markAsDroppable(element);
+  });
+}, false);
+
+document.addEventListener("drop", function( event ) {
+  // prevent default action
+  event.preventDefault()
+
+  const droppedPlace = event.target.closest(".drop")
+  draggedToElement = droppedPlace
+
+  if (Boolean(droppedPlace)) {
+    console.log(dragged.dataset)
+    const userId = dragged.dataset.userId
+    const roleId = droppedPlace.dataset.roleId
+
+    htmx.ajax('POST', `/admin/people/colleagues/role/${roleId}/user/${userId}/`, {
+      select: "#departments-list", 
+      target: "#departments-list",
+    })
+  }
+}, false)
+
+document.addEventListener("dragover", function( event ) {
+  // prevent default action
+  event.preventDefault();
+  event.stopPropagation();
+  const droppedPlace = event.target.closest(".drop")
+  if (Boolean(droppedPlace)) {
+    const type = dragged.dataset.type;
+    droppedPlace.style.backgroundColor='rgb(239, 242, 246)';
+  }
+}, false);
+
+document.addEventListener("dragend", function( event ) {
+  removeDroppableClasses();
+  event.target.style.opacity = "";
+  if (typeof event.target.closest !== "function") {
+      return
+  }
+  if (Boolean(draggedToElement)) {
+    draggedToElement.style.backgroundColor='white';
+  }
+}, false);
+
+document.addEventListener("dragleave", function( event ) {
+  // prevent default action
+  event.preventDefault();
+  event.stopPropagation();
+  if (typeof event.target.closest !== "function") {
+      return
+  }
+  const droppedPlace = event.target.closest(".drop")
+  if (Boolean(droppedPlace)) {
+    const droppedPlace = event.target.closest(".drop")
+    droppedPlace.style.backgroundColor='white';
+  }
+}, false);
+</script>
+{% endblock extra_js %}
