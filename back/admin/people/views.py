@@ -603,7 +603,7 @@ class AddUserToRoleView(AdminOrManagerPermMixin, SuccessMessageMixin, View):
         user = get_object_or_404(get_all_users_for_departments_of_user(user=request.user), id=user_pk)
 
         role.users.add(user)
-        return render(request, "departments.html", {"departments": get_available_departments_for_user(user=self.request.user)})
+        return render(request, "_departments_list.html", {"departments": get_available_departments_for_user(user=self.request.user)})
 
 
 class DepartmentUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView):

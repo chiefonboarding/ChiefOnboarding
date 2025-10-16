@@ -15,51 +15,8 @@
 <div class="row">
   <div class="col-12">
   </div>
-  <div class="col-7" id="departments-list">
-    {% for department in departments %}
-    <div class="card mb-4">
-      <div class="card-header">
-        <div class="col-11">
-          <h3 class="card-title">{{ department }}</h3>
-        </div>
-        <div class="col-1 text-end">
-          <a class="btn btn-azure btn-sm" href="{% url "people:department_update" department.pk %}">
-            {% include "_edit_icon.html" %}
-          </a>
-        </div>
-      </div>
-      <div class="card-body">
-        <div hx-trigger="reload-sequence from:body" hx-select="#timeline" hx-get="" hx-swap="outerHTML">
-          {% for role in department.roles.all %}
-            <div class="drop mb-2" data-role-id="{{role.id}}">
-              <h3 class="card-title mb-0">{{ role }}</h3>
-              {% if role.users.all|length %}
-                  <ul class="list-group list-group-flush">
-                  {% for user in role.users.all %}
-                    <li class="list-group-item" style="padding: 4px;">
-                      {% if user.profile_image is not None %}
-                      <span class="avatar me-2 avatar-xs" style="background-image: url({{ user.profile_image.get_url }})"></span>
-                      {% else %}
-                      <span class="avatar me-2 avatar-xs">{{ user.initials }}</span>
-                      {% endif %}
-                      {{ user.name }}
-                    </li>
-                  {% endfor %}
-                  </ul>
-              {% else %}
-                {% trans "No users have been added to this role yet." %}
-              {% endif %}
-            </div>
-          {% endfor %}
-          {% if department.roles.all|length == 0 %}
-            {% trans "No roles have been added to this department yet." %}
-            <br/>
-            <a type="submit" class="btn btn-primary btn-sm mt-2" href="{% url "people:department_role_create" department.id %}">{% trans "Add role" %}</a>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-    {% endfor %}
+  <div class="col-7" id="departmentslist">
+    {% include "_departments_list.html" %}
   </div>
   <div class="col-5">
     <div class="card seq-icons sticky-top" id="template-list" style="max-height: calc(44rem + 10px)">
@@ -140,8 +97,7 @@ document.addEventListener("drop", function( event ) {
     const roleId = droppedPlace.dataset.roleId
 
     htmx.ajax('POST', `/admin/people/colleagues/role/${roleId}/user/${userId}/`, {
-      select: "#departments-list", 
-      target: "#departments-list",
+      target: "#departmentslist",
     })
   }
 }, false)
