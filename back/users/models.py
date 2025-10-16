@@ -34,8 +34,11 @@ class Role(models.Model):
     """
     Role within a department. Roles are unique to every department.
     """
+
     name = models.CharField(max_length=255)
-    department = models.ForeignKey("users.Department", related_name="roles", on_delete=models.PROTECT)
+    department = models.ForeignKey(
+        "users.Department", related_name="roles", on_delete=models.PROTECT
+    )
     sequences = models.ManyToManyField("sequences.Sequence", related_name="roles")
     users = models.ManyToManyField("users.User", related_name="users")
 

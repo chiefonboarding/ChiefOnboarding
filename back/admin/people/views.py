@@ -571,7 +571,9 @@ class DepartmentCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateV
         return context
 
 
-class DepartmentRoleCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
+class DepartmentRoleCreateView(
+    AdminOrManagerPermMixin, SuccessMessageMixin, CreateView
+):
     template_name = "role_create.html"
     model = Role
     fields = [
@@ -581,7 +583,10 @@ class DepartmentRoleCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, Cre
     success_url = reverse_lazy("people:departments")
 
     def dispatch(self, *args, **kwargs):
-        self.department = get_object_or_404(get_available_departments_for_user(user=self.request.user), id=self.kwargs.get("pk"))
+        self.department = get_object_or_404(
+            get_available_departments_for_user(user=self.request.user),
+            id=self.kwargs.get("pk"),
+        )
         return super().dispatch(*args, **kwargs)
 
     def form_valid(self, form):
@@ -596,14 +601,21 @@ class DepartmentRoleCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, Cre
 
 
 class AddUserToRoleView(AdminOrManagerPermMixin, SuccessMessageMixin, View):
-
     def post(self, request, role_pk, user_pk, **kwargs):
         print(get_available_roles_for_user(user=request.user))
-        role = get_object_or_404(get_available_roles_for_user(user=request.user), id=role_pk)
-        user = get_object_or_404(get_all_users_for_departments_of_user(user=request.user), id=user_pk)
+        role = get_object_or_404(
+            get_available_roles_for_user(user=request.user), id=role_pk
+        )
+        user = get_object_or_404(
+            get_all_users_for_departments_of_user(user=request.user), id=user_pk
+        )
 
         role.users.add(user)
-        return render(request, "_departments_list.html", {"departments": get_available_departments_for_user(user=self.request.user)})
+        return render(
+            request,
+            "_departments_list.html",
+            {"departments": get_available_departments_for_user(user=self.request.user)},
+        )
 
 
 class DepartmentUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView):
@@ -615,7 +627,7 @@ class DepartmentUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateV
     success_url = reverse_lazy("people:departments")
 
     def get_queryset(self):
-        return get_available_departments_for_user(user=self.request.user) 
+        return get_available_departments_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -624,7 +636,9 @@ class DepartmentUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateV
         return context
 
 
-class DepartmentRoleUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView):
+class DepartmentRoleUpdateView(
+    AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "role_update.html"
     fields = [
         "name",
@@ -633,7 +647,7 @@ class DepartmentRoleUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, Upd
     success_url = reverse_lazy("people:departments")
 
     def get_queryset(self):
-        return get_available_roles_for_user(user=self.request.user) 
+        return get_available_roles_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

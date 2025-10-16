@@ -9,6 +9,7 @@ def get_available_departments_for_user(*, user):
         return Department.objects.all()
     return user.departments.all()
 
+
 def get_available_roles_for_user(*, user):
     from users.models import Role
 
@@ -31,20 +32,29 @@ def get_all_users_for_departments_of_user(*, user):
 
 
 def get_all_managers_and_admins_for_departments_of_user(*, user):
-    return get_user_model().managers_and_admins.filter(get_departments_query(user=user)).distinct()
+    return (
+        get_user_model()
+        .managers_and_admins.filter(get_departments_query(user=user))
+        .distinct()
+    )
 
 
 def get_all_new_hires_for_departments_of_user(*, user):
-    return get_user_model().new_hires.filter(get_departments_query(user=user)).distinct()
+    return (
+        get_user_model().new_hires.filter(get_departments_query(user=user)).distinct()
+    )
 
 
 def get_all_managers_and_admins_for_departments_of_user_with_slack(*, user):
     return (
         get_user_model()
         .managers_and_admins.with_slack()
-        .filter(get_departments_query(user=user)).distinct()
+        .filter(get_departments_query(user=user))
+        .distinct()
     )
 
 
 def get_all_offboarding_users_for_departments_of_user(*, user):
-    return get_user_model().offboarding.filter(get_departments_query(user=user)).distinct()
+    return (
+        get_user_model().offboarding.filter(get_departments_query(user=user)).distinct()
+    )
