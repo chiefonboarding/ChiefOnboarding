@@ -159,21 +159,25 @@ def test_add_user_to_role_in_department(
     client.force_login(user)
 
     dep = department_factory()
+    dep2 = department_factory()
     role = role_factory(department=dep, name="testrole")
     user.departments.add(dep)
 
     user1 = new_hire_factory(departments=[dep])
-    user2 = new_hire_factory()
+    user2 = new_hire_factory(departments=[dep2])
     user3 = manager_factory(departments=[dep])
+    # not part of any departments, so available everywhere
+    user4 = manager_factory()
 
     url = reverse("people:departments")
     response = client.get(url)
 
-    # user1 and user3 are part of their own org, so they will show up
+    # user1 and user3 are part of their own dep, so they will show up. user4 is not part of an dep, so shows up as well
     assert user1.name in response.content.decode()
     assert user3.name in response.content.decode()
-    # user 2 is not part, so doesn't show up
-    assert user2.name in response.content.decode()
+    assert user4.name in response.content.decode()
+    # user 2 is part of different dep, so doesn't show up
+    assert user2.name not in response.content.decode()
 
     # user is not part of role
     assert user not in role.users.all()

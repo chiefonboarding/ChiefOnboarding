@@ -21,7 +21,9 @@ class DepartmentListView(AdminOrManagerPermMixin, ListView):
     context_object_name = "departments"
 
     def get_queryset(self):
-        return get_available_departments_for_user(user=self.request.user)
+        return get_available_departments_for_user(
+            user=self.request.user
+        ).prefetch_related("roles__users")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

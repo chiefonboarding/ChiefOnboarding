@@ -39,6 +39,7 @@
         </div>
       </div>
     </div>
+    <div class="text-center mt-2"><p>{% trans "Drag and drop the users in the roles you want them to be part of." %}</p></div>
   </div>
 </div>
 {% endblock %}
@@ -51,8 +52,8 @@
     padding-left: 0px;
     transition:
       transform 0.2s ease,
-      border-left-color 0.1s ease;
-      padding-left 0.3s ease;
+      border-left-color 0.1s ease,
+      padding-left 0.3s ease
   }
   .drop.droppable {
     transform: translateX(5px);
@@ -108,7 +109,6 @@ document.addEventListener("dragover", function( event ) {
   event.stopPropagation();
   const droppedPlace = event.target.closest(".drop")
   if (Boolean(droppedPlace)) {
-    const type = dragged.dataset.type;
     droppedPlace.style.backgroundColor='rgb(239, 242, 246)';
   }
 }, false);
