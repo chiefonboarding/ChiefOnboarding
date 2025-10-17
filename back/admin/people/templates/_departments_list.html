@@ -1,4 +1,3 @@
-{% load static crispy_forms_tags %}
 {% load i18n %}
 
 {% for department in departments %}
@@ -19,7 +18,6 @@
         <h3 class="card-title mb-2">{{ role }}</h3>
         {% if role.users.all|length %}
             <ul class="list-group list-group-flush">
-
             {% for user in role.users.all %}
               <li class="list-group-item" style="padding: 4px;">
                 {% if user.profile_image is not None %}

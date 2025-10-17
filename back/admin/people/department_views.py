@@ -97,7 +97,7 @@ class AddUserToRoleView(AdminOrManagerPermMixin, SuccessMessageMixin, View):
         return render(
             request,
             "_departments_list.html",
-            {"departments": get_available_departments_for_user(user=self.request.user)},
+            {"departments": get_available_departments_for_user(user=self.request.user).prefetch_related("roles__users")},
         )
 
 
