@@ -15,6 +15,7 @@ from .models import (
     NewHireWelcomeMessage,
     PreboardingUser,
     ResourceUser,
+    Role,
     ToDoUser,
     User,
 )
@@ -42,6 +43,14 @@ class DepartmentFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Department
+
+
+class RoleFactory(factory.django.DjangoModelFactory):
+    name = FuzzyText()
+    department = factory.SubFactory(DepartmentFactory)
+
+    class Meta:
+        model = Role
 
 
 class NewHireFactory(BaseUserFactory):

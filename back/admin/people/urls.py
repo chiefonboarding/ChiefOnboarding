@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import access_views, new_hire_views, views
+from . import access_views, department_views, new_hire_views, views
 
 app_name = "people"
 urlpatterns = [
@@ -230,32 +230,32 @@ urlpatterns = [
     ),
     path(
         "colleagues/departments/",
-        views.DepartmentListView.as_view(),
+        department_views.DepartmentListView.as_view(),
         name="departments",
     ),
     path(
         "colleagues/departments/create/",
-        views.DepartmentCreateView.as_view(),
+        department_views.DepartmentCreateView.as_view(),
         name="department_create",
     ),
     path(
         "colleagues/departments/<int:pk>/update/",
-        views.DepartmentUpdateView.as_view(),
+        department_views.DepartmentUpdateView.as_view(),
         name="department_update",
     ),
     path(
         "colleagues/departments/<int:pk>/roles/add/",
-        views.DepartmentRoleCreateView.as_view(),
+        department_views.DepartmentRoleCreateView.as_view(),
         name="department_role_create",
     ),
     path(
         "colleagues/role/<int:role_pk>/user/<int:user_pk>/",
-        views.AddUserToRoleView.as_view(),
+        department_views.AddUserToRoleView.as_view(),
         name="add_user_to_role",
     ),
     path(
         "colleagues/departments/<int:department_pk>/roles/<int:pk>/update/",
-        views.DepartmentRoleUpdateView.as_view(),
+        department_views.DepartmentRoleUpdateView.as_view(),
         name="department_role_update",
     ),
 ]

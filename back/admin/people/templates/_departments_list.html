@@ -43,4 +43,10 @@
     {% endif %}
   </div>
 </div>
+{% empty %}
+<div class="card mb-4">
+  <div class="card-header">
+    {% trans "There are no departments yet." %}
+  </div>
+</div>
 {% endfor %}
