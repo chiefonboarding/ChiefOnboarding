@@ -17,7 +17,6 @@ from users.selectors import (
 
 class DepartmentListView(AdminOrManagerPermMixin, ListView):
     template_name = "departments.html"
-    paginate_by = 20
     context_object_name = "departments"
 
     def get_queryset(self):
