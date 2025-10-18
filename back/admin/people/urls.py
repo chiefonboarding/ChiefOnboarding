@@ -258,4 +258,14 @@ urlpatterns = [
         department_views.DepartmentRoleUpdateView.as_view(),
         name="department_role_update",
     ),
+    path(
+        "colleagues/departments/seq/",
+        department_views.DepartmentSequenceListView.as_view(),
+        name="departments_sequences",
+    ),
+    path(
+        "colleagues/role/<int:role_pk>/seq/<int:seq_pk>/",
+        department_views.AddSequenceToRoleView.as_view(),
+        name="add_seq_to_role",
+    ),
 ]
