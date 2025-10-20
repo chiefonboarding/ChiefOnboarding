@@ -25,6 +25,8 @@ slack-bolt = "*"
 django-q2 = "*" # Background tasks
 psycopg = {extras = ["binary"], version = "*"}
 django-allauth = {extras = ["mfa", "socialaccount"], version = "*"}
+openai = "*" # OpenAI API for AI assistant
+drf-spectacular = "*" # OpenAPI/Swagger documentation
 
 [dev-packages]
 coverage = "*"

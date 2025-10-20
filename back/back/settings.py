@@ -87,8 +87,11 @@ INSTALLED_APPS = [
     "new_hire",
     # slack
     "slack_bot",
+    # AI assistant
+    "ai_assistant",
     # external
     "rest_framework",
+    "drf_spectacular",
     "axes",
     "anymail",
     "django_q",
@@ -506,3 +509,19 @@ PREBOARDING_PAGINATE_BY = env.int("PREBOARDING_PAGINATE_BY", DEFAULT_PAGINATE_BY
 RESOURCE_PAGINATE_BY = env.int("RESOURCE_PAGINATE_BY", DEFAULT_PAGINATE_BY)
 SEQUENCE_PAGINATE_BY = env.int("SEQUENCE_PAGINATE_BY", DEFAULT_PAGINATE_BY)
 TODO_PAGINATE_BY = env.int("TODO_PAGINATE_BY", DEFAULT_PAGINATE_BY)
+
+
+# OpenAI Configuration
+OPENAI_API_KEY = env('OPENAI_API_KEY', default='')
+
+# DRF Spectacular Settings
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'ChiefOnboarding API',
+    'DESCRIPTION': 'API for ChiefOnboarding employee onboarding system',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
