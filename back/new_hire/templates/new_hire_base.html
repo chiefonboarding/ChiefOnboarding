@@ -48,13 +48,15 @@
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
             <span class="navbar-toggler-icon"></span>
           </button>
-          {% if org.get_logo_url != "" %}
           <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
             <a href=".">
-              <img src="{{ org.get_logo_url }}" class="navbar-brand-image" width="110" height="32">
+              {% if org.get_logo_url != "" %}
+              <img src="{{ org.get_logo_url }}" class="navbar-brand-image" alt="WorkForce Services" height="32">
+              {% else %}
+              <img src="{% static 'logos.png' %}" class="navbar-brand-image" alt="WorkForce Services" height="32">
+              {% endif %}
             </a>
           </h1>
-          {% endif %}
           <div class="navbar-nav flex-row order-md-last">
             <div class="nav-item dropdown d-none d-md-flex me-3" onclick="updateSeen()">
               <div class="dropdown">

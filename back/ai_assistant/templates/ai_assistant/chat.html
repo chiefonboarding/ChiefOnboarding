@@ -1,0 +1,281 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="container-xl">
+        <div class="page-header d-print-none">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="page-title">
+                        🤖 AI Assistant
+                    </h2>
+                    <div class="text-muted mt-1">Ask me to help you manage ChiefOnboarding</div>
+                </div>
+                <div class="col-auto ms-auto d-print-none">
+                    <button type="button" class="btn btn-outline-danger" id="resetBtn">
+                        {% translate "Reset Conversation" %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body" style="height: 60vh; overflow-y: auto;" id="chatContainer">
+                            <div class="text-center text-muted py-5" id="emptyState">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-message-chatbot mb-3" width="48" height="48" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z" />
+                                    <path d="M9.5 9h.01" />
+                                    <path d="M14.5 9h.01" />
+                                    <path d="M9.5 13a3.5 3.5 0 0 0 5 0" />
+                                </svg>
+                                <h3>{% translate "Start a conversation" %}</h3>
+                                <p>{% translate "Try asking:" %}</p>
+                                <ul class="list-unstyled">
+                                    <li><em>"List all new hires"</em></li>
+                                    <li><em>"Create a new hire named John Doe"</em></li>
+                                    <li><em>"Show me all available sequences"</em></li>
+                                    <li><em>"Add the onboarding sequence to john@example.com"</em></li>
+                                </ul>
+                            </div>
+                            <div id="messagesContainer"></div>
+                        </div>
+                        <div class="card-footer">
+                            <form id="chatForm">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="messageInput" placeholder="{% translate 'Type your message...' %}" autocomplete="off" required>
+                                    <button class="btn btn-primary" type="submit" id="sendBtn">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                                            <path d="M21 3l-6.5 18a0.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a0.55 .55 0 0 1 0 -1l18 -6.5"></path>
+                                        </svg>
+                                        {% translate "Send" %}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.message {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: flex-start;
+}
+
+.message.user {
+    justify-content: flex-end;
+}
+
+.message.assistant {
+    justify-content: flex-start;
+}
+
+.message-content {
+    max-width: 70%;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    word-wrap: break-word;
+}
+
+.message.user .message-content {
+    background-color: #0054a6;
+    color: white;
+}
+
+.message.assistant .message-content {
+    background-color: #f1f3f5;
+    color: #212529;
+}
+
+.message-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    margin: 0 0.5rem;
+}
+
+.message.user .message-avatar {
+    order: 2;
+    background-color: #0054a6;
+    color: white;
+}
+
+.message.assistant .message-avatar {
+    order: 1;
+    background-color: #f1f3f5;
+}
+
+.typing-indicator {
+    display: none;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.typing-indicator.active {
+    display: flex;
+}
+
+.typing-indicator span {
+    height: 8px;
+    width: 8px;
+    background-color: #adb5bd;
+    border-radius: 50%;
+    display: inline-block;
+    margin: 0 2px;
+    animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+@keyframes typing {
+    0%, 60%, 100% {
+        transform: translateY(0);
+    }
+    30% {
+        transform: translateY(-10px);
+    }
+}
+</style>
+
+<script>
+const chatForm = document.getElementById('chatForm');
+const messageInput = document.getElementById('messageInput');
+const messagesContainer = document.getElementById('messagesContainer');
+const emptyState = document.getElementById('emptyState');
+const chatContainer = document.getElementById('chatContainer');
+const sendBtn = document.getElementById('sendBtn');
+const resetBtn = document.getElementById('resetBtn');
+
+function addMessage(content, role) {
+    emptyState.style.display = 'none';
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${role}`;
+    
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.textContent = role === 'user' ? '👤' : '🤖';
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+    contentDiv.textContent = content;
+    
+    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(contentDiv);
+    
+    messagesContainer.appendChild(messageDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function showTypingIndicator() {
+    const indicator = document.createElement('div');
+    indicator.className = 'typing-indicator active';
+    indicator.id = 'typingIndicator';
+    indicator.innerHTML = `
+        <div class="message-avatar" style="background-color: #f1f3f5;">🤖</div>
+        <div style="display: flex; align-items: center; background-color: #f1f3f5; padding: 0.75rem 1rem; border-radius: 0.5rem;">
+            <span></span><span></span><span></span>
+        </div>
+    `;
+    messagesContainer.appendChild(indicator);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function hideTypingIndicator() {
+    const indicator = document.getElementById('typingIndicator');
+    if (indicator) {
+        indicator.remove();
+    }
+}
+
+chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const message = messageInput.value.trim();
+    if (!message) return;
+    
+    addMessage(message, 'user');
+    messageInput.value = '';
+    
+    sendBtn.disabled = true;
+    messageInput.disabled = true;
+    showTypingIndicator();
+    
+    try {
+        const response = await fetch('{% url "ai_assistant:chat" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ message })
+        });
+        
+        const data = await response.json();
+        
+        hideTypingIndicator();
+        
+        if (data.success) {
+            addMessage(data.response, 'assistant');
+        } else {
+            addMessage(`Error: ${data.error}`, 'assistant');
+        }
+    } catch (error) {
+        hideTypingIndicator();
+        addMessage(`Error: ${error.message}`, 'assistant');
+    } finally {
+        sendBtn.disabled = false;
+        messageInput.disabled = false;
+        messageInput.focus();
+    }
+});
+
+resetBtn.addEventListener('click', async () => {
+    if (!confirm('Are you sure you want to reset the conversation?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('{% url "ai_assistant:reset" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            messagesContainer.innerHTML = '';
+            emptyState.style.display = 'block';
+        }
+    } catch (error) {
+        alert(`Error resetting conversation: ${error.message}`);
+    }
+});
+</script>
+{% endblock %}

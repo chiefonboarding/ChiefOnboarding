@@ -1,6 +1,11 @@
 from django.conf import settings
 from django.urls import include, path
 from django.views.generic.base import TemplateView
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
 
 from admin.admin_tasks import urls as admin_tasks_urls
 from admin.appointments import urls as appointment_urls
@@ -15,6 +20,7 @@ from admin.sequences import urls as sequences_urls
 from admin.settings import urls as settings_urls
 from admin.templates import urls as template_urls
 from admin.to_do import urls as to_do_urls
+from ai_assistant import urls as ai_assistant_urls
 from api import urls as public_api_urls
 from new_hire import urls as new_hire_urls
 from organization import urls as org_urls
@@ -45,6 +51,18 @@ urlpatterns = [
     path("admin/sequences/", include(sequences_urls)),
     path("api/slack/", include(slack_urls)),
     path("admin/integrations/", include(integrations_urls)),
+    path("admin/ai-assistant/", include(ai_assistant_urls)),
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path(
+        "api/schema/swagger-ui/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
+    ),
+    path(
+        "api/schema/redoc/",
+        SpectacularRedocView.as_view(url_name="schema"),
+        name="redoc",
+    ),
 ]
 
 # API
