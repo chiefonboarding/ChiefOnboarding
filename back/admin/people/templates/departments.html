@@ -59,6 +59,9 @@
     border-left-color: color-mix(in srgb,var(--tblr-primary) 10%,transparent);
     padding-left: 10px;
   }
+  .drop.droppable.drag-hover {
+    background-color: rgb(239, 242, 246)
+  }
 </style>
 {% endblock extra_css %}
 {% block extra_js %}
@@ -73,8 +76,6 @@ function markAsDroppable(element) {
 
 document.addEventListener("dragstart", function( event ) {
   dragged = event.target;
-  event.target.style.opacity = .5;
-
   $('.drop').each((index, element) => {
     markAsDroppable(element);
   });
@@ -95,7 +96,7 @@ document.addEventListener("drop", function( event ) {
       target: "#departmentslist",
     })
   }
-}, false)
+})
 
 document.addEventListener("dragover", function( event ) {
   // prevent default action
@@ -103,15 +104,13 @@ document.addEventListener("dragover", function( event ) {
   event.stopPropagation();
   const droppedPlace = event.target.closest(".drop")
   if (droppedPlace) {
-    droppedPlace.style.backgroundColor='rgb(239, 242, 246)';
+    droppedPlace.classList.add("drag-hover");
   }
-}, false);
+});
 
 document.addEventListener("dragend", function( event ) {
-  removeDroppableClasses();
-  event.target.style.opacity = "";
   if (draggedToElement) {
-    draggedToElement.style.backgroundColor='white';
+    draggedToElement.classList.remove("drag-hover");
   }
 });
 
@@ -122,7 +121,7 @@ document.addEventListener("dragleave", function( event ) {
   const droppedPlace = event.target.closest(".drop")
   if (droppedPlace) {
     const droppedPlace = event.target.closest(".drop")
-    droppedPlace.style.backgroundColor='white';
+    droppedPlace.classList.remove("drag-hover");
   }
 });
 </script>
