@@ -10,7 +10,7 @@
         <h3 class="card-title">{{ object.name }}</h3>
       </div>
       <div class="card-body">
-        <form action="." method="post">
+        <form method="post">
           {% csrf_token %}
           {{ form|crispy }}
           <button type="submit" class="btn btn-primary">{% trans "Update" %}</button>
@@ -26,7 +26,7 @@
           {% for role in department.roles.all %}
           <div class="row">
             <div class="col">
-              <p style="margin-bottom:0px">{{ role }}</p>
+              <p class="mb-0">{{ role }}</p>
             </div>
             <div class="col">
               <div class="text-end">

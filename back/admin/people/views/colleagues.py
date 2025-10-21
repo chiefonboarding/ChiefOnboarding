@@ -24,6 +24,13 @@ from admin.integrations.exceptions import (
 )
 from admin.integrations.models import Integration
 from admin.integrations.sync_userinfo import SyncUsers
+from admin.people.forms import (
+    ColleagueCreateForm,
+    ColleagueUpdateForm,
+    EmailIgnoreForm,
+    OffboardingSequenceChoiceForm,
+    UserRoleForm,
+)
 from admin.people.selectors import (
     get_colleagues_for_user,
     get_offboarding_colleagues_for_user,
@@ -45,16 +52,6 @@ from users.models import ToDoUser
 from users.selectors import (
     get_all_offboarding_users_for_departments_of_user,
 )
-
-from .forms import (
-    ColleagueCreateForm,
-    ColleagueUpdateForm,
-    EmailIgnoreForm,
-    OffboardingSequenceChoiceForm,
-    UserRoleForm,
-)
-
-# See new_hire_views.py for new hire functions!
 
 
 class ColleagueListView(AdminOrManagerPermMixin, ListView):

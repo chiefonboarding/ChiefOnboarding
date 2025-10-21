@@ -11,11 +11,11 @@ from admin.to_do.factories import ToDoFactory
 
 from .models import (
     Department,
+    DepartmentRole,
     IntegrationUser,
     NewHireWelcomeMessage,
     PreboardingUser,
     ResourceUser,
-    Role,
     ToDoUser,
     User,
 )
@@ -45,12 +45,12 @@ class DepartmentFactory(factory.django.DjangoModelFactory):
         model = Department
 
 
-class RoleFactory(factory.django.DjangoModelFactory):
+class DepartmentRoleFactory(factory.django.DjangoModelFactory):
     name = FuzzyText()
     department = factory.SubFactory(DepartmentFactory)
 
     class Meta:
-        model = Role
+        model = DepartmentRole
 
 
 class NewHireFactory(BaseUserFactory):

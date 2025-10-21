@@ -1,5 +1,4 @@
 {% extends 'admin_base.html' %}
-{% load static crispy_forms_tags %}
 {% load i18n %}
 
 {% block actions %}
@@ -46,7 +45,7 @@
             <div class="row" draggable="true" style="cursor:grab" data-item-id="{{user.id}}">
               <div class="col">
                 <div class="text-truncate">
-                  <p style="margin-bottom:0px">{{ user.full_name }}</p>
+                  <p class="mb-0">{{ user.full_name }}</p>
                 </div>
               </div>
             </div>
@@ -95,30 +94,27 @@
     border-left-color: color-mix(in srgb,var(--tblr-primary) 10%,transparent);
     padding-left: 10px;
   }
+  .drop.droppable.drag-hover {
+    background-color: rgb(239, 242, 246)
+  }
 </style>
 {% endblock extra_css %}
 {% block extra_js %}
 <script>
 
-var dragged;
-var draggedToElement;
+let dragged;
+let draggedToElement;
 
 function markAsDroppable(element) {
   $(element).addClass("droppable");
 }
 
-function removeDroppableClasses() {
-  $('.droppable, .not_droppable').removeClass('droppable not_droppable');
-}
-
 document.addEventListener("dragstart", function( event ) {
   dragged = event.target;
-  event.target.style.opacity = .5;
-
   $('.drop').each((index, element) => {
     markAsDroppable(element);
   });
-}, false);
+});
 
 document.addEventListener("drop", function( event ) {
   // prevent default action
@@ -127,56 +123,42 @@ document.addEventListener("drop", function( event ) {
   const droppedPlace = event.target.closest(".drop")
   draggedToElement = droppedPlace
 
-  if (Boolean(droppedPlace)) {
-    console.log(dragged.dataset)
+  if (droppedPlace) {
     const itemId = dragged.dataset.itemId
     const roleId = droppedPlace.dataset.roleId
 
-    {% if users %}
-    htmx.ajax('POST', `/admin/people/colleagues/role/${roleId}/user/${itemId}/`, {
+    let urlPart = "{% if users %}user{% else %}seq{% endif %}"
+    htmx.ajax('POST', `/admin/people/colleagues/role/${roleId}/${url}/${itemId}/`, {
       target: "#departmentslist",
     })
-    {% else %}
-    htmx.ajax('POST', `/admin/people/colleagues/role/${roleId}/seq/${itemId}/`, {
-      target: "#departmentslist",
-    })
-    {% endif %}
   }
-}, false)
+})
 
 document.addEventListener("dragover", function( event ) {
   // prevent default action
   event.preventDefault();
   event.stopPropagation();
   const droppedPlace = event.target.closest(".drop")
-  if (Boolean(droppedPlace)) {
-    droppedPlace.style.backgroundColor='rgb(239, 242, 246)';
+  if (droppedPlace) {
+    droppedPlace.classList.add("drag-hover");
   }
-}, false);
+});
 
 document.addEventListener("dragend", function( event ) {
-  removeDroppableClasses();
-  event.target.style.opacity = "";
-  if (typeof event.target.closest !== "function") {
-      return
+  if (draggedToElement) {
+    draggedToElement.classList.remove("drag-hover");
   }
-  if (Boolean(draggedToElement)) {
-    draggedToElement.style.backgroundColor='white';
-  }
-}, false);
+});
 
 document.addEventListener("dragleave", function( event ) {
   // prevent default action
   event.preventDefault();
   event.stopPropagation();
-  if (typeof event.target.closest !== "function") {
-      return
-  }
   const droppedPlace = event.target.closest(".drop")
-  if (Boolean(droppedPlace)) {
+  if (droppedPlace) {
     const droppedPlace = event.target.closest(".drop")
-    droppedPlace.style.backgroundColor='white';
+    droppedPlace.classList.remove("drag-hover");
   }
-}, false);
+});
 </script>
 {% endblock extra_js %}

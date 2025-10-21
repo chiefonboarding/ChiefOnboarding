@@ -30,7 +30,7 @@ from slack_bot.utils import Slack, paragraph
 from .utils import CompletedFormCheck, parse_array_to_string
 
 
-class Role(models.Model):
+class DepartmentRole(models.Model):
     """
     Role within a department. Roles are unique to every department.
     """
@@ -39,8 +39,10 @@ class Role(models.Model):
     department = models.ForeignKey(
         "users.Department", related_name="roles", on_delete=models.PROTECT
     )
-    sequences = models.ManyToManyField("sequences.Sequence", related_name="roles")
-    users = models.ManyToManyField("users.User", related_name="users")
+    sequences = models.ManyToManyField(
+        "sequences.Sequence", related_name="roles", blank=True
+    )
+    users = models.ManyToManyField("users.User", related_name="department_roles")
 
     class Meta:
         ordering = ("name",)
@@ -54,8 +56,10 @@ class Department(models.Model):
     Department that has been attached to a user
     """
 
-    name = models.CharField(max_length=255)
-    sequences = models.ManyToManyField("sequences.Sequence", related_name="+")
+    name = models.CharField(max_length=255, unique=True)
+    sequences = models.ManyToManyField(
+        "sequences.Sequence", related_name="+", blank=True
+    )
 
     class Meta:
         ordering = ("name",)

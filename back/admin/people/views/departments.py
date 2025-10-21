@@ -11,7 +11,7 @@ from admin.sequences.selectors import (
     get_sequences_for_user,
 )
 from users.mixins import AdminOrManagerPermMixin
-from users.models import Department, Role
+from users.models import Department, DepartmentRole
 from users.selectors import (
     get_all_users_for_departments_of_user,
     get_available_departments_for_user,
@@ -61,8 +61,8 @@ class DepartmentCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateV
 class DepartmentRoleCreateView(
     AdminOrManagerPermMixin, SuccessMessageMixin, CreateView
 ):
-    template_name = "role_create.html"
-    model = Role
+    template_name = "role_form.html"
+    model = DepartmentRole
     fields = [
         "name",
     ]
@@ -129,7 +129,7 @@ class DepartmentUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateV
 class DepartmentRoleUpdateView(
     AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView
 ):
-    template_name = "role_update.html"
+    template_name = "role_form.html"
     fields = [
         "name",
     ]

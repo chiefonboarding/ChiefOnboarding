@@ -45,6 +45,7 @@ from organization.factories import (
 from users.factories import (
     AdminFactory,
     DepartmentFactory,
+    DepartmentRoleFactory,
     EmployeeFactory,
     IntegrationUserFactory,
     ManagerFactory,
@@ -52,7 +53,6 @@ from users.factories import (
     NewHireWelcomeMessageFactory,
     PreboardingUserFactory,
     ResourceUserFactory,
-    RoleFactory,
     ToDoUserFactory,
 )
 
@@ -78,7 +78,7 @@ def run_around_tests(request, settings):
 
 
 register(DepartmentFactory)
-register(RoleFactory)
+register(DepartmentRoleFactory)
 register(NewHireFactory)
 register(AdminFactory)
 register(ManagerFactory)
