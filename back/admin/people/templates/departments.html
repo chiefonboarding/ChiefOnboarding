@@ -56,7 +56,7 @@
             <div class="row" draggable="true" style="cursor:grab" data-item-id="{{sequence.id}}">
               <div class="col">
                 <div class="text-truncate">
-                  <p style="margin-bottom:0px">{{ sequence.name }}</p>
+                  <p style="mb-0">{{ sequence.name }}</p>
                 </div>
               </div>
             </div>
@@ -127,7 +127,7 @@ document.addEventListener("drop", function( event ) {
     const itemId = dragged.dataset.itemId
     const roleId = droppedPlace.dataset.roleId
 
-    let urlPart = "{% if users %}user{% else %}seq{% endif %}"
+    const urlPart = "{% if users %}user{% else %}seq{% endif %}"
     htmx.ajax('POST', `/admin/people/colleagues/role/${roleId}/${urlPart}/${itemId}/`, {
       target: "#departmentslist",
     })
