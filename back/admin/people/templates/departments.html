@@ -128,7 +128,7 @@ document.addEventListener("drop", function( event ) {
     const roleId = droppedPlace.dataset.roleId
 
     let urlPart = "{% if users %}user{% else %}seq{% endif %}"
-    htmx.ajax('POST', `/admin/people/colleagues/role/${roleId}/${url}/${itemId}/`, {
+    htmx.ajax('POST', `/admin/people/colleagues/role/${roleId}/${urlPart}/${itemId}/`, {
       target: "#departmentslist",
     })
   }

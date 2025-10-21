@@ -8,6 +8,7 @@ from admin.introductions.factories import IntroductionFactory
 from admin.preboarding.factories import PreboardingFactory
 from admin.resources.factories import ResourceFactory
 from admin.to_do.factories import ToDoFactory
+from misc.mixins import DepartmentsPostGenerationMixin
 from users.factories import AdminFactory, EmployeeFactory
 
 from .models import (
@@ -188,7 +189,9 @@ class ConditionIntegrationsRevokedFactory(factory.django.DjangoModelFactory):
         model = Condition
 
 
-class SequenceFactory(factory.django.DjangoModelFactory):
+class SequenceFactory(
+    DepartmentsPostGenerationMixin, factory.django.DjangoModelFactory
+):
     name = FuzzyText()
     category = Sequence.Category.ONBOARDING
 
