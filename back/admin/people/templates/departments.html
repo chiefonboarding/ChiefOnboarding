@@ -1,5 +1,4 @@
 {% extends 'admin_base.html' %}
-{% load static crispy_forms_tags %}
 {% load i18n %}
 
 {% block actions %}
@@ -30,7 +29,7 @@
             <div class="row" draggable="true" style="cursor:grab" data-user-id="{{user.id}}">
               <div class="col">
                 <div class="text-truncate">
-                  <p style="margin-bottom:0px">{{ user.full_name }}</p>
+                  <p class="mb-0">{{ user.full_name }}</p>
                 </div>
               </div>
             </div>
@@ -65,15 +64,11 @@
 {% block extra_js %}
 <script>
 
-var dragged;
-var draggedToElement;
+let dragged;
+let draggedToElement;
 
 function markAsDroppable(element) {
   $(element).addClass("droppable");
-}
-
-function removeDroppableClasses() {
-  $('.droppable, .not_droppable').removeClass('droppable not_droppable');
 }
 
 document.addEventListener("dragstart", function( event ) {
@@ -83,7 +78,7 @@ document.addEventListener("dragstart", function( event ) {
   $('.drop').each((index, element) => {
     markAsDroppable(element);
   });
-}, false);
+});
 
 document.addEventListener("drop", function( event ) {
   // prevent default action
@@ -92,8 +87,7 @@ document.addEventListener("drop", function( event ) {
   const droppedPlace = event.target.closest(".drop")
   draggedToElement = droppedPlace
 
-  if (Boolean(droppedPlace)) {
-    console.log(dragged.dataset)
+  if (droppedPlace) {
     const userId = dragged.dataset.userId
     const roleId = droppedPlace.dataset.roleId
 
@@ -108,7 +102,7 @@ document.addEventListener("dragover", function( event ) {
   event.preventDefault();
   event.stopPropagation();
   const droppedPlace = event.target.closest(".drop")
-  if (Boolean(droppedPlace)) {
+  if (droppedPlace) {
     droppedPlace.style.backgroundColor='rgb(239, 242, 246)';
   }
 }, false);
@@ -116,26 +110,20 @@ document.addEventListener("dragover", function( event ) {
 document.addEventListener("dragend", function( event ) {
   removeDroppableClasses();
   event.target.style.opacity = "";
-  if (typeof event.target.closest !== "function") {
-      return
-  }
-  if (Boolean(draggedToElement)) {
+  if (draggedToElement) {
     draggedToElement.style.backgroundColor='white';
   }
-}, false);
+});
 
 document.addEventListener("dragleave", function( event ) {
   // prevent default action
   event.preventDefault();
   event.stopPropagation();
-  if (typeof event.target.closest !== "function") {
-      return
-  }
   const droppedPlace = event.target.closest(".drop")
-  if (Boolean(droppedPlace)) {
+  if (droppedPlace) {
     const droppedPlace = event.target.closest(".drop")
     droppedPlace.style.backgroundColor='white';
   }
-}, false);
+});
 </script>
 {% endblock extra_js %}

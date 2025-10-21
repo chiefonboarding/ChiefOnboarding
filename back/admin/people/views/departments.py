@@ -7,7 +7,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from users.mixins import AdminOrManagerPermMixin
-from users.models import Department, Role
+from users.models import Department, DepartmentRole
 from users.selectors import (
     get_all_users_for_departments_of_user,
     get_available_departments_for_user,
@@ -57,8 +57,8 @@ class DepartmentCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateV
 class DepartmentRoleCreateView(
     AdminOrManagerPermMixin, SuccessMessageMixin, CreateView
 ):
-    template_name = "role_create.html"
-    model = Role
+    template_name = "role_form.html"
+    model = DepartmentRole
     fields = [
         "name",
     ]
@@ -96,7 +96,11 @@ class AddUserToRoleView(AdminOrManagerPermMixin, SuccessMessageMixin, View):
         return render(
             request,
             "_departments_list.html",
-            {"departments": get_available_departments_for_user(user=self.request.user).prefetch_related("roles__users")},
+            {
+                "departments": get_available_departments_for_user(
+                    user=self.request.user
+                ).prefetch_related("roles__users")
+            },
         )
 
 
@@ -121,7 +125,7 @@ class DepartmentUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateV
 class DepartmentRoleUpdateView(
     AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView
 ):
-    template_name = "role_update.html"
+    template_name = "role_form.html"
     fields = [
         "name",
     ]

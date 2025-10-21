@@ -19,6 +19,13 @@ from admin.admin_tasks.models import AdminTask
 from admin.admin_tasks.selectors import get_admin_tasks_for_user
 from admin.integrations.forms import IntegrationExtraUserInfoForm
 from admin.notes.models import Note
+from admin.people.forms import (
+    NewHireAddForm,
+    NewHireProfileForm,
+    OnboardingSequenceChoiceForm,
+    PreboardingSendForm,
+    RemindMessageForm,
+)
 from admin.people.selectors import get_colleagues_for_user, get_new_hires_for_user
 from admin.sequences.models import Condition, Sequence
 from admin.sequences.selectors import get_sequences_for_user
@@ -37,14 +44,6 @@ from users.emails import (
 )
 from users.mixins import AdminOrManagerPermMixin
 from users.models import NewHireWelcomeMessage, PreboardingUser, ResourceUser, ToDoUser
-
-from .forms import (
-    NewHireAddForm,
-    NewHireProfileForm,
-    OnboardingSequenceChoiceForm,
-    PreboardingSendForm,
-    RemindMessageForm,
-)
 
 
 class NewHireListView(AdminOrManagerPermMixin, ListView):

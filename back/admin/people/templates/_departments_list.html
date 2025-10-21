@@ -19,7 +19,7 @@
         {% if role.users.all|length %}
             <ul class="list-group list-group-flush">
             {% for user in role.users.all %}
-              <li class="list-group-item" style="padding: 4px;">
+              <li class="list-group-item p-1">
                 {% if user.profile_image is not None %}
                 <span class="avatar me-2 avatar-xs" style="background-image: url({{ user.profile_image.get_url }})"></span>
                 {% else %}
@@ -33,12 +33,11 @@
           {% trans "No users have been added to this role yet." %}
         {% endif %}
       </div>
-    {% endfor %}
-    {% if department.roles.all|length == 0 %}
+    {% empty %}
       {% trans "No roles have been added to this department yet." %}
       <br/>
-      <a type="submit" class="btn btn-primary btn-sm mt-2" href="{% url "people:department_role_create" department.id %}">{% trans "Add role" %}</a>
-    {% endif %}
+      <a class="btn btn-primary btn-sm mt-2" href="{% url "people:department_role_create" department.id %}">{% trans "Add role" %}</a>
+    {% endfor %}
   </div>
 </div>
 {% empty %}

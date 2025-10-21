@@ -2,19 +2,52 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
-from users.factories import (
-    DepartmentFactory,
-)
 from users.models import Department
 
 
 @pytest.mark.django_db
-def test_create_new_department(client, django_user_model):
+def test_department_list(
+    client,
+    django_user_model,
+    department_factory,
+    new_hire_factory,
+    manager_factory,
+    department_role_factory,
+):
+    user = django_user_model.objects.create(role=get_user_model().Role.MANAGER)
+    client.force_login(user)
+
+    dep = department_factory()
+    dep2 = department_factory()
+    user.departments.add(dep)
+
+    user1 = new_hire_factory(departments=[dep])
+    user2 = new_hire_factory(departments=[dep2])
+    user3 = manager_factory(departments=[dep])
+    # not part of any departments, so available everywhere
+    user4 = manager_factory()
+
+    url = reverse("people:departments")
+    response = client.get(url)
+
+    # user1 and user3 are part of their own dep, so they will show up. user4 is not part of an dep, so shows up as well
+    assert user1.name in response.content.decode()
+    assert user3.name in response.content.decode()
+    assert user4.name in response.content.decode()
+    # user 2 is part of different dep, so doesn't show up
+    assert user2.name not in response.content.decode()
+
+    # dep does not show up
+    assert dep2.name not in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_create_new_department(client, django_user_model, department_factory):
     user = django_user_model.objects.create(role=get_user_model().Role.MANAGER)
     client.force_login(user)
 
     # make other department to make sure it's not showing this
-    dep2 = DepartmentFactory()
+    dep2 = department_factory()
 
     url = reverse("people:departments")
     response = client.get(url)
@@ -66,6 +99,14 @@ def test_update_department(client, django_user_model, department_factory):
     assert "Add role" in response.content.decode()
     assert "There are no departments yet." not in response.content.decode()
 
+
+@pytest.mark.django_db
+def test_update_department_manager_is_not_part_of(
+    client, django_user_model, department_factory
+):
+    user = django_user_model.objects.create(role=get_user_model().Role.MANAGER)
+    client.force_login(user)
+
     # 404 when trying to update a department they are not part of
     dep = department_factory()
     url = reverse("people:department_update", args=[dep.id])
@@ -75,7 +116,7 @@ def test_update_department(client, django_user_model, department_factory):
 
 @pytest.mark.django_db
 def test_create_new_role_in_department(
-    client, django_user_model, department_factory, role_factory
+    client, django_user_model, department_factory, department_role_factory
 ):
     user = django_user_model.objects.create(role=get_user_model().Role.MANAGER)
     client.force_login(user)
@@ -84,8 +125,8 @@ def test_create_new_role_in_department(
     user.departments.add(dep)
 
     # make other department to make sure it's not showing this
-    dep2 = DepartmentFactory()
-    role1 = role_factory(department=dep2)
+    dep2 = department_factory()
+    role1 = department_role_factory(department=dep2)
 
     url = reverse("people:department_role_create", args=[dep.id])
     response = client.get(url)
@@ -108,6 +149,17 @@ def test_create_new_role_in_department(
     # other role is not showing
     assert role1.name not in response.content.decode()
 
+
+@pytest.mark.django_db
+def test_create_new_role_in_department_manager_is_not_part_of(
+    client, django_user_model, department_factory
+):
+    # make other department to make sure it's not showing this
+    dep2 = department_factory()
+
+    user = django_user_model.objects.create(role=get_user_model().Role.MANAGER)
+    client.force_login(user)
+
     # 404 when trying to create a role for an org they are not part of
     url = reverse("people:department_role_create", args=[dep2.id])
     response = client.get(url)
@@ -116,13 +168,13 @@ def test_create_new_role_in_department(
 
 @pytest.mark.django_db
 def test_update_role_in_department(
-    client, django_user_model, department_factory, role_factory
+    client, django_user_model, department_factory, department_role_factory
 ):
     user = django_user_model.objects.create(role=get_user_model().Role.MANAGER)
     client.force_login(user)
 
     dep = department_factory()
-    role = role_factory(department=dep, name="testrole")
+    role = department_role_factory(department=dep, name="testrole")
     user.departments.add(dep)
 
     url = reverse("people:department_role_update", args=[dep.id, role.id])
@@ -137,9 +189,17 @@ def test_update_role_in_department(
     role.refresh_from_db()
     assert role.name == "testrole12"
 
+
+@pytest.mark.django_db
+def test_update_role_in_other_department(
+    client, django_user_model, department_factory, department_role_factory
+):
+    user = django_user_model.objects.create(role=get_user_model().Role.MANAGER)
+    client.force_login(user)
+
     # other role (not owned) gets 404
     dep = department_factory()
-    role = role_factory(department=dep, name="testrole")
+    role = department_role_factory(department=dep, name="testrole")
 
     url = reverse("people:department_role_update", args=[dep.id, role.id])
     response = client.get(url)
@@ -151,39 +211,20 @@ def test_add_user_to_role_in_department(
     client,
     django_user_model,
     department_factory,
-    role_factory,
-    new_hire_factory,
-    manager_factory,
+    department_role_factory,
 ):
     user = django_user_model.objects.create(role=get_user_model().Role.MANAGER)
     client.force_login(user)
 
     dep = department_factory()
-    dep2 = department_factory()
-    role = role_factory(department=dep, name="testrole")
+    role = department_role_factory(department=dep, name="testrole")
     user.departments.add(dep)
-
-    user1 = new_hire_factory(departments=[dep])
-    user2 = new_hire_factory(departments=[dep2])
-    user3 = manager_factory(departments=[dep])
-    # not part of any departments, so available everywhere
-    user4 = manager_factory()
-
-    url = reverse("people:departments")
-    response = client.get(url)
-
-    # user1 and user3 are part of their own dep, so they will show up. user4 is not part of an dep, so shows up as well
-    assert user1.name in response.content.decode()
-    assert user3.name in response.content.decode()
-    assert user4.name in response.content.decode()
-    # user 2 is part of different dep, so doesn't show up
-    assert user2.name not in response.content.decode()
 
     # user is not part of role
     assert user not in role.users.all()
 
     url = reverse("people:add_user_to_role", args=[role.id, user.id])
-    response = client.post(url)
+    client.post(url)
 
     # user is part of role
     role.refresh_from_db()

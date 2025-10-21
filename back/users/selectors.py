@@ -11,10 +11,10 @@ def get_available_departments_for_user(*, user):
 
 
 def get_available_roles_for_user(*, user):
-    from users.models import Role
+    from users.models import DepartmentRole
 
     departments = get_available_departments_for_user(user=user)
-    return Role.objects.filter(department__in=departments).distinct()
+    return DepartmentRole.objects.filter(department__in=departments).distinct()
 
 
 def get_departments_query(*, user):
