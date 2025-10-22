@@ -1,7 +1,7 @@
 {% load i18n %}
 
 {% for department in departments %}
-<div class="card mb-4">
+<div class="card mb-4 {% if sequences %}drop{% endif %}" {% if sequences %}data-department-id="{{department.id}}"{% endif %}>
   <div class="card-header">
     <div class="col-11">
       <h3 class="card-title">{{ department }}</h3>
@@ -13,6 +13,13 @@
     </div>
   </div>
   <div class="card-body">
+    {% if sequences %}
+      <ul class="list-group list-group-flush">
+      {% for seq in department.sequences.all %}
+        {% include "_departments_sequence_list_item.html" %}
+      {% endfor %}
+      </ul>
+    {% endif %}
     {% for role in department.roles.all %}
       <div class="drop mb-2" data-role-id="{{role.id}}">
         <h3 class="card-title mb-2">{{ role }}</h3>
@@ -37,9 +44,7 @@
           {% if role.sequences.all|length %}
               <ul class="list-group list-group-flush">
               {% for seq in role.sequences.all %}
-                <li class="list-group-item" style="padding: 4px;">
-                  {{ seq.name }}
-                </li>
+                {% include "_departments_sequence_list_item.html" %}
               {% endfor %}
               </ul>
           {% else %}

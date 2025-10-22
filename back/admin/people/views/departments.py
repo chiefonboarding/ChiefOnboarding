@@ -163,8 +163,8 @@ class DepartmentSequenceListView(AdminOrManagerPermMixin, ListView):
         return context
 
 
-class AddSequenceToRoleView(AdminOrManagerPermMixin, SuccessMessageMixin, View):
-    def post(self, request, role_pk, seq_pk, **kwargs):
+class ToggleSequenceRoleView(AdminOrManagerPermMixin, SuccessMessageMixin, View):
+    def post(self, request, role_pk, seq_pk, action, **kwargs):
         role = get_object_or_404(
             get_available_roles_for_user(user=request.user), id=role_pk
         )
@@ -172,13 +172,42 @@ class AddSequenceToRoleView(AdminOrManagerPermMixin, SuccessMessageMixin, View):
             get_sequences_for_user(user=request.user), id=seq_pk
         )
 
-        role.sequences.add(sequence)
+        if action == "delete":
+            role.sequences.remove(sequence)
+        else:
+            role.sequences.add(sequence)
         return render(
             request,
             "_departments_list.html",
             {
                 "departments": get_available_departments_for_user(
                     user=self.request.user
-                ).prefetch_related("roles__users")
+                ).prefetch_related("roles__users"),
+                "sequences": get_onboarding_sequences_for_user(user=self.request.user),
+            },
+        )
+
+
+class ToggleSequenceDepartmentView(AdminOrManagerPermMixin, SuccessMessageMixin, View):
+    def post(self, request, department_pk, seq_pk, action, **kwargs):
+        department = get_object_or_404(
+            get_available_departments_for_user(user=request.user), id=department_pk
+        )
+        sequence = get_object_or_404(
+            get_sequences_for_user(user=request.user), id=seq_pk
+        )
+
+        if action == "delete":
+            department.sequences.remove(sequence)
+        else:
+            department.sequences.add(sequence)
+        return render(
+            request,
+            "_departments_list.html",
+            {
+                "departments": get_available_departments_for_user(
+                    user=self.request.user
+                ).prefetch_related("roles__users"),
+                "sequences": get_onboarding_sequences_for_user(user=self.request.user),
             },
         )

@@ -129,9 +129,16 @@ document.addEventListener("drop", function( event ) {
   if (droppedPlace) {
     const itemId = dragged.dataset.itemId
     const roleId = droppedPlace.dataset.roleId
+    const departmentId = droppedPlace.dataset.departmentId
 
-    const urlPart = "{% if users %}user{% else %}seq{% endif %}"
-    htmx.ajax('POST', `/admin/people/colleagues/role/${roleId}/${urlPart}/${itemId}/`, {
+    let fullUrl = null
+    if (roleId !== undefined) {
+      const urlPart = "{% if users %}user{% else %}seq{% endif %}"
+      fullUrl = `/admin/people/colleagues/role/${roleId}/${urlPart}/${itemId}/add/`
+    } else {
+      fullUrl = `/admin/people/colleagues/department/${departmentId}/seq/${itemId}/add/`
+    }
+    htmx.ajax('POST', fullUrl, {
       target: "#departmentslist",
     })
   }
