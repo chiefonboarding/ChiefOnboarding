@@ -2,7 +2,7 @@
 {% if sequences %}
 <ul class="list-group list-group-flush">
   {% for seq in sequences %}
-    <li class="list-group-item" class="p-1">
+    <li class="list-group-item p-1">
       {{ seq.name }}
     <form hx-post="
       {% if role %}
