@@ -73,6 +73,9 @@ let draggedToElement;
 function markAsDroppable(element) {
   $(element).addClass("droppable");
 }
+function removeMarkAsDroppable(element) {
+  $(element).removeClass("droppable");
+}
 
 document.addEventListener("dragstart", function( event ) {
   dragged = event.target;
@@ -109,9 +112,9 @@ document.addEventListener("dragover", function( event ) {
 });
 
 document.addEventListener("dragend", function( event ) {
-  if (draggedToElement) {
-    draggedToElement.classList.remove("drag-hover");
-  }
+  $('.drop').each((index, element) => {
+    removeMarkAsDroppable(element);
+  });
 });
 
 document.addEventListener("dragleave", function( event ) {
