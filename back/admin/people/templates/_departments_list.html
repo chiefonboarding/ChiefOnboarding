@@ -1,7 +1,7 @@
 {% load i18n %}
 
 {% for department in departments %}
-<div class="card mb-4 {% if sequences %}drop{% endif %}" {% if sequences %}data-department-id="{{department.id}}"{% endif %}>
+<div class="card mb-4 ignore-styling {% if sequences %}drop{% endif %}" {% if sequences %}data-department-id="{{department.id}}"{% endif %}>
   <div class="card-header">
     <div class="col-11">
       <h3 class="card-title">{{ department }}</h3>
@@ -13,12 +13,8 @@
     </div>
   </div>
   <div class="card-body">
-    {% if sequences %}
-      <ul class="list-group list-group-flush">
-      {% for seq in department.sequences.all %}
-        {% include "_departments_sequence_list_item.html" %}
-      {% endfor %}
-      </ul>
+    {% if not users %}
+      {% include "_departments_sequences_list.html" with sequences=department.sequences.all %}
     {% endif %}
     {% for role in department.roles.all %}
       <div class="drop mb-2" data-role-id="{{role.id}}">
@@ -41,13 +37,8 @@
             {% trans "No users have been added to this role yet." %}
           {% endif %}
         {% else %}
-          {% if role.sequences.all|length %}
-              <ul class="list-group list-group-flush">
-              {% for seq in role.sequences.all %}
-                {% include "_departments_sequence_list_item.html" %}
-              {% endfor %}
-              </ul>
-          {% else %}
+          {% include "_departments_sequences_list.html" with sequences=role.sequences.all %}
+          {% if not role.sequences.all|length %}
             {% trans "No sequences have been added to this role yet." %}
           {% endif %}
         {% endif %}

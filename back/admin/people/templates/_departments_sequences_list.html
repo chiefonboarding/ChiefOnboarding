@@ -1,0 +1,20 @@
+{% load i18n %}
+{% if sequences %}
+<ul class="list-group list-group-flush">
+  {% for seq in sequences %}
+    <li class="list-group-item" class="p-1">
+      {{ seq.name }}
+    <form hx-post="
+      {% if role %}
+        {% url 'people:toggle_seq_role' role.pk seq.pk 'delete' %}
+      {% else %}
+        {% url 'people:toggle_seq_department' department.pk seq.pk 'delete' %}
+      {% endif %}
+    " hx-target="#departmentslist" class="d-inline">
+        {% csrf_token %}
+        <button class="btn btn-danger btn-sm inline">{% trans "remove" %}</button>
+      </form>
+    </li>
+  {% endfor %}
+</ul>
+{% endif %}

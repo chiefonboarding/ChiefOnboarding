@@ -94,7 +94,7 @@
     border-left-color: color-mix(in srgb,var(--tblr-primary) 10%,transparent);
     padding-left: 10px;
   }
-  .drop.droppable.drag-hover {
+  .drop.drag-hover {
     background-color: rgb(239, 242, 246)
   }
 </style>
@@ -114,7 +114,7 @@ function removeMarkAsDroppable(element) {
 
 document.addEventListener("dragstart", function( event ) {
   dragged = event.target;
-  $('.drop').each((index, element) => {
+  $('.drop').not('.ignore-styling').each((index, element) => {
     markAsDroppable(element);
   });
 });
