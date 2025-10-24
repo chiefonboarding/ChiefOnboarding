@@ -103,7 +103,8 @@ class AddUserToRoleView(AdminOrManagerPermMixin, SuccessMessageMixin, View):
             {
                 "departments": get_available_departments_for_user(
                     user=self.request.user
-                ).prefetch_related("roles__users")
+                ).prefetch_related("roles__users"),
+                "users": get_all_users_for_departments_of_user(user=self.request.user),
             },
         )
 

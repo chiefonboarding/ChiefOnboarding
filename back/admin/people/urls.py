@@ -249,7 +249,7 @@ urlpatterns = [
         name="department_role_create",
     ),
     path(
-        "colleagues/role/<int:role_pk>/user/<int:user_pk>/",
+        "colleagues/role/<int:role_pk>/user/<int:user_pk>/add/",
         views.AddUserToRoleView.as_view(),
         name="add_user_to_role",
     ),
