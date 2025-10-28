@@ -222,8 +222,8 @@ def test_add_user_to_role_in_department(
     # user is not part of role
     assert user not in role.users.all()
 
-    url = reverse("people:add_user_to_role", args=[role.id, user.id])
-    client.post(url)
+    url = reverse("people:add_user_to_role", args=[role.id])
+    client.post(url + f"?item={user.id}")
 
     # user is part of role
     role.refresh_from_db()
@@ -285,9 +285,88 @@ def test_add_seq_to_role_in_department(
     # seq is not part of role
     assert seq not in role.sequences.all()
 
-    url = reverse("people:add_seq_to_role", args=[role.id, seq.id])
-    client.post(url)
+    url = reverse("people:toggle_seq_role", args=[role.id])
+    client.post(url + f"?item={seq.id}")
 
     # seq is part of role
     role.refresh_from_db()
     assert seq in role.sequences.all()
+
+
+@pytest.mark.django_db
+def test_remove_seq_from_role(
+    client,
+    django_user_model,
+    department_factory,
+    department_role_factory,
+    sequence_factory,
+):
+    user = django_user_model.objects.create(role=get_user_model().Role.MANAGER)
+    client.force_login(user)
+
+    dep = department_factory()
+    role = department_role_factory(department=dep, name="testrole")
+    seq = sequence_factory(departments=[dep])
+    user.departments.add(dep)
+    role.sequences.add(seq)
+
+    # seq is part of role
+    assert seq in role.sequences.all()
+
+    url = reverse("people:toggle_seq_role", args=[role.id])
+    client.delete(url + f"?item={seq.id}")
+
+    # seq is not part of role
+    role.refresh_from_db()
+    assert seq not in role.sequences.all()
+
+
+@pytest.mark.django_db
+def test_add_seq_to_department(
+    client,
+    django_user_model,
+    department_factory,
+    sequence_factory,
+):
+    user = django_user_model.objects.create(role=get_user_model().Role.MANAGER)
+    client.force_login(user)
+
+    dep = department_factory()
+    seq = sequence_factory(departments=[dep])
+    user.departments.add(dep)
+
+    # seq is not part of department
+    assert seq not in dep.sequences.all()
+
+    url = reverse("people:toggle_seq_department", args=[dep.id])
+    client.post(url + f"?item={seq.id}")
+
+    # seq is part of department
+    dep.refresh_from_db()
+    assert seq in dep.sequences.all()
+
+
+@pytest.mark.django_db
+def test_remove_seq_from_department(
+    client,
+    django_user_model,
+    department_factory,
+    sequence_factory,
+):
+    user = django_user_model.objects.create(role=get_user_model().Role.MANAGER)
+    client.force_login(user)
+
+    dep = department_factory()
+    seq = sequence_factory(departments=[dep])
+    user.departments.add(dep)
+    dep.sequences.add(seq)
+
+    # seq is part of department
+    assert seq in dep.sequences.all()
+
+    url = reverse("people:toggle_seq_department", args=[dep.id])
+    client.delete(url + f"?item={seq.id}")
+
+    # seq is not part of department
+    dep.refresh_from_db()
+    assert seq not in dep.sequences.all()
