@@ -32,7 +32,30 @@ class DepartmentListView(AdminOrManagerPermMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["title"] = _("Roles and departments")
         context["subtitle"] = _("people")
-        context["users"] = get_all_users_for_departments_of_user(user=self.request.user)
+        context["users_or_sequences"] = get_all_users_for_departments_of_user(
+            user=self.request.user
+        )
+        context["is_users_page"] = True
+        return context
+
+
+class DepartmentSequenceListView(AdminOrManagerPermMixin, ListView):
+    template_name = "departments.html"
+    context_object_name = "departments"
+
+    def get_queryset(self):
+        return get_available_departments_for_user(
+            user=self.request.user
+        ).prefetch_related("roles__users")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("Roles and departments")
+        context["subtitle"] = _("sequences")
+        context["users_or_sequences"] = get_onboarding_sequences_for_user(
+            user=self.request.user
+        )
+        context["is_users_page"] = False
         return context
 
 
@@ -54,6 +77,24 @@ class DepartmentCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateV
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = _("Roles and departments")
+        context["subtitle"] = _("people")
+        return context
+
+
+class DepartmentUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView):
+    template_name = "department_update.html"
+    fields = [
+        "name",
+    ]
+    success_message = _("Department has been updated")
+    success_url = reverse_lazy("people:departments")
+
+    def get_queryset(self):
+        return get_available_departments_for_user(user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("Department")
         context["subtitle"] = _("people")
         return context
 
@@ -87,46 +128,6 @@ class DepartmentRoleCreateView(
         return context
 
 
-class AddUserToRoleView(AdminOrManagerPermMixin, SuccessMessageMixin, View):
-    def post(self, request, role_pk, user_pk, **kwargs):
-        role = get_object_or_404(
-            get_available_roles_for_user(user=request.user), id=role_pk
-        )
-        user = get_object_or_404(
-            get_all_users_for_departments_of_user(user=request.user), id=user_pk
-        )
-
-        role.users.add(user)
-        return render(
-            request,
-            "_departments_list.html",
-            {
-                "departments": get_available_departments_for_user(
-                    user=self.request.user
-                ).prefetch_related("roles__users"),
-                "users": get_all_users_for_departments_of_user(user=self.request.user),
-            },
-        )
-
-
-class DepartmentUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView):
-    template_name = "department_update.html"
-    fields = [
-        "name",
-    ]
-    success_message = _("Department has been updated")
-    success_url = reverse_lazy("people:departments")
-
-    def get_queryset(self):
-        return get_available_departments_for_user(user=self.request.user)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("Department")
-        context["subtitle"] = _("people")
-        return context
-
-
 class DepartmentRoleUpdateView(
     AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView
 ):
@@ -147,68 +148,100 @@ class DepartmentRoleUpdateView(
         return context
 
 
-class DepartmentSequenceListView(AdminOrManagerPermMixin, ListView):
-    template_name = "departments.html"
-    context_object_name = "departments"
+class AddUserToRoleView(AdminOrManagerPermMixin, SuccessMessageMixin, View):
+    def dispatch(self, *args, **kwargs):
+        self.role = get_object_or_404(
+            get_available_roles_for_user(user=self.request.user),
+            id=self.kwargs.get("role_pk", -1),
+        )
+        self.user = get_object_or_404(
+            get_all_users_for_departments_of_user(user=self.request.user),
+            id=self.request.GET.get("item", -1),
+        )
+        return super().dispatch(*args, **kwargs)
 
-    def get_queryset(self):
-        return get_available_departments_for_user(
-            user=self.request.user
-        ).prefetch_related("roles__users")
+    def _render_response(self):
+        return render(
+            self.request,
+            "_departments_list.html",
+            {
+                "departments": get_available_departments_for_user(
+                    user=self.request.user
+                ).prefetch_related("roles__users"),
+                "is_users_page": True,
+            },
+        )
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("Roles and departments")
-        context["subtitle"] = _("sequences")
-        context["sequences"] = get_onboarding_sequences_for_user(user=self.request.user)
-        return context
+    def delete(self, request, **kwargs):
+        self.role.users.remove(self.user)
+        return self._render_response()
+
+    def post(self, request, **kwargs):
+        self.role.users.add(self.user)
+        return self._render_response()
 
 
 class ToggleSequenceRoleView(AdminOrManagerPermMixin, SuccessMessageMixin, View):
-    def post(self, request, role_pk, seq_pk, action, **kwargs):
-        role = get_object_or_404(
-            get_available_roles_for_user(user=request.user), id=role_pk
+    def dispatch(self, *args, **kwargs):
+        self.role = get_object_or_404(
+            get_available_roles_for_user(user=self.request.user),
+            id=self.kwargs.get("role_pk", -1),
         )
-        sequence = get_object_or_404(
-            get_sequences_for_user(user=request.user), id=seq_pk
+        self.sequence = get_object_or_404(
+            get_sequences_for_user(user=self.request.user),
+            id=self.request.GET.get("item", -1),
         )
+        return super().dispatch(*args, **kwargs)
 
-        if action == "delete":
-            role.sequences.remove(sequence)
-        else:
-            role.sequences.add(sequence)
+    def _render_response(self):
         return render(
-            request,
+            self.request,
             "_departments_list.html",
             {
                 "departments": get_available_departments_for_user(
                     user=self.request.user
                 ).prefetch_related("roles__users"),
-                "sequences": get_onboarding_sequences_for_user(user=self.request.user),
+                "is_users_page": False,
             },
         )
+
+    def delete(self, request, **kwargs):
+        self.role.sequences.remove(self.sequence)
+        return self._render_response()
+
+    def post(self, request, **kwargs):
+        self.role.sequences.add(self.sequence)
+        return self._render_response()
 
 
 class ToggleSequenceDepartmentView(AdminOrManagerPermMixin, SuccessMessageMixin, View):
-    def post(self, request, department_pk, seq_pk, action, **kwargs):
-        department = get_object_or_404(
-            get_available_departments_for_user(user=request.user), id=department_pk
+    def dispatch(self, *args, **kwargs):
+        self.department = get_object_or_404(
+            get_available_departments_for_user(user=self.request.user),
+            id=self.kwargs.get("department_pk", -1),
         )
-        sequence = get_object_or_404(
-            get_sequences_for_user(user=request.user), id=seq_pk
+        self.sequence = get_object_or_404(
+            get_sequences_for_user(user=self.request.user),
+            id=self.request.GET.get("item", -1),
         )
+        return super().dispatch(*args, **kwargs)
 
-        if action == "delete":
-            department.sequences.remove(sequence)
-        else:
-            department.sequences.add(sequence)
+    def _render_response(self):
         return render(
-            request,
+            self.request,
             "_departments_list.html",
             {
                 "departments": get_available_departments_for_user(
                     user=self.request.user
                 ).prefetch_related("roles__users"),
-                "sequences": get_onboarding_sequences_for_user(user=self.request.user),
+                "is_users_page": False,
             },
         )
+
+    def post(self, request, *args, **kwargs):
+        self.department.sequences.add(self.sequence)
+        return self._render_response()
+
+    def delete(self, request, *args, **kwargs):
+        self.department.sequences.remove(self.sequence)
+        return self._render_response()

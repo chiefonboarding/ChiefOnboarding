@@ -4,11 +4,11 @@
   {% for seq in sequences %}
     <li class="list-group-item p-1">
       {{ seq.name }}
-    <form hx-post="
+    <form hx-delete="
       {% if role %}
-        {% url 'people:toggle_seq_role' role.pk seq.pk 'delete' %}
+        {% url 'people:toggle_seq_role' role.pk %}?item={{seq.pk}}
       {% else %}
-        {% url 'people:toggle_seq_department' department.pk seq.pk 'delete' %}
+        {% url 'people:toggle_seq_department' department.pk %}?item={{seq.pk}}
       {% endif %}
     " hx-target="#departmentslist" class="d-inline">
         {% csrf_token %}

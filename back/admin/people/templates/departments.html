@@ -5,7 +5,7 @@
   <div class="alert alert-warning mb-0" role="alert">
     {% translate "All changes will be saved automatically." %}
   </div>
-  {% if users %}
+  {% if is_users_page %}
     <a href="{% url 'people:departments_sequences' %}" class="btn btn-info btn-outline">
       {% trans "Sequences" %}
     </a>
@@ -31,7 +31,7 @@
     <div class="card sticky-top" style="max-height: calc(44rem + 10px)">
       <div class="card-header">
         <h3 class="card-title">
-          {% if users %}
+          {% if is_users_page %}
             {% translate "Users" %}
           {% else %}
             {% translate "Sequences" %}
@@ -40,24 +40,11 @@
       </div>
       <div class="card-body card-body-scrollable card-body-scrollable-shadow">
         <div class="divide-y">
-          {% for user in users %}
-          <div>
-            <div class="row" draggable="true" style="cursor:grab" data-item-id="{{user.id}}">
-              <div class="col">
-                <div class="text-truncate">
-                  <p class="mb-0">{{ user.full_name }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          {% endfor %}
-          {% for sequence in sequences %}
-          <div>
-            <div class="row" draggable="true" style="cursor:grab" data-item-id="{{sequence.id}}">
-              <div class="col">
-                <div class="text-truncate">
-                  <p style="mb-0">{{ sequence.name }}</p>
-                </div>
+          {% for item in users_or_sequences %}
+          <div class="row" draggable="true" style="cursor:grab" data-item-id="{{item.id}}">
+            <div class="col">
+              <div class="text-truncate">
+                <p class="mb-0">{{ item.name }}</p>
               </div>
             </div>
           </div>
@@ -67,7 +54,7 @@
     </div>
     <div class="text-center mt-2">
       <p>
-        {% if users %}
+        {% if is_users_page %}
           {% trans "Drag and drop the users in the roles you want them to be part of." %}
         {% else %}
           {% trans "Drag and drop the sequences in the roles." %}
@@ -128,17 +115,11 @@ document.addEventListener("drop", function( event ) {
 
   if (droppedPlace) {
     const itemId = dragged.dataset.itemId
-    const roleId = droppedPlace.dataset.roleId
-    const departmentId = droppedPlace.dataset.departmentId
+    const url = droppedPlace.dataset.url
+    const method = droppedPlace.dataset.method
+    console.log(method)
 
-    let fullUrl = null
-    if (roleId !== undefined) {
-      const urlPart = "{% if users %}user{% else %}seq{% endif %}"
-      fullUrl = `/admin/people/colleagues/role/${roleId}/${urlPart}/${itemId}/add/`
-    } else {
-      fullUrl = `/admin/people/colleagues/department/${departmentId}/seq/${itemId}/add/`
-    }
-    htmx.ajax('POST', fullUrl, {
+    htmx.ajax(method, url + "?item=" + itemId, {
       target: "#departmentslist",
     })
   }
