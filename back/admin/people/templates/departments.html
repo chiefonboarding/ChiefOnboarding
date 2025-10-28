@@ -5,7 +5,7 @@
   <div class="alert alert-warning mb-0" role="alert">
     {% translate "All changes will be saved automatically." %}
   </div>
-  {% if is_users_page %}
+  {% if users %}
     <a href="{% url 'people:departments_sequences' %}" class="btn btn-info btn-outline">
       {% trans "Sequences" %}
     </a>
@@ -31,7 +31,7 @@
     <div class="card sticky-top" style="max-height: calc(44rem + 10px)">
       <div class="card-header">
         <h3 class="card-title">
-          {% if is_users_page %}
+          {% if users %}
             {% translate "Users" %}
           {% else %}
             {% translate "Sequences" %}
@@ -40,11 +40,24 @@
       </div>
       <div class="card-body card-body-scrollable card-body-scrollable-shadow">
         <div class="divide-y">
-          {% for item in users_or_sequences %}
-          <div class="row" draggable="true" style="cursor:grab" data-item-id="{{item.id}}">
-            <div class="col">
-              <div class="text-truncate">
-                <p class="mb-0">{{ item.name }}</p>
+          {% for user in users %}
+          <div>
+            <div class="row" draggable="true" style="cursor:grab" data-item-id="{{user.id}}">
+              <div class="col">
+                <div class="text-truncate">
+                  <p class="mb-0">{{ user.full_name }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+          {% for sequence in sequences %}
+          <div>
+            <div class="row" draggable="true" style="cursor:grab" data-item-id="{{sequence.id}}">
+              <div class="col">
+                <div class="text-truncate">
+                  <p style="mb-0">{{ sequence.name }}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -54,7 +67,7 @@
     </div>
     <div class="text-center mt-2">
       <p>
-        {% if is_users_page %}
+        {% if users %}
           {% trans "Drag and drop the users in the roles you want them to be part of." %}
         {% else %}
           {% trans "Drag and drop the sequences in the roles." %}
@@ -81,7 +94,7 @@
     border-left-color: color-mix(in srgb,var(--tblr-primary) 10%,transparent);
     padding-left: 10px;
   }
-  .drop.drag-hover {
+  .drop.droppable.drag-hover {
     background-color: rgb(239, 242, 246)
   }
 </style>
@@ -101,7 +114,7 @@ function removeMarkAsDroppable(element) {
 
 document.addEventListener("dragstart", function( event ) {
   dragged = event.target;
-  $('.drop').not('.ignore-styling').each((index, element) => {
+  $('.drop').each((index, element) => {
     markAsDroppable(element);
   });
 });
@@ -115,11 +128,10 @@ document.addEventListener("drop", function( event ) {
 
   if (droppedPlace) {
     const itemId = dragged.dataset.itemId
-    const url = droppedPlace.dataset.url
-    const method = droppedPlace.dataset.method
-    console.log(method)
+    const roleId = droppedPlace.dataset.roleId
 
-    htmx.ajax(method, url + "?item=" + itemId, {
+    const urlPart = "{% if users %}user{% else %}seq{% endif %}"
+    htmx.ajax('POST', `/admin/people/colleagues/role/${roleId}/${urlPart}/${itemId}/`, {
       target: "#departmentslist",
     })
   }
