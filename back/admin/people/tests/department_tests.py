@@ -222,8 +222,8 @@ def test_add_user_to_role_in_department(
     # user is not part of role
     assert user not in role.users.all()
 
-    url = reverse("people:add_user_to_role", args=[role.id, user.id])
-    client.post(url)
+    url = reverse("people:add_user_to_role", args=[role.id])
+    client.post(url + f"?item={user.id}")
 
     # user is part of role
     role.refresh_from_db()
@@ -285,8 +285,8 @@ def test_add_seq_to_role_in_department(
     # seq is not part of role
     assert seq not in role.sequences.all()
 
-    url = reverse("people:toggle_seq_role", args=[role.id, seq.id, "add"])
-    client.post(url)
+    url = reverse("people:toggle_seq_role", args=[role.id])
+    client.post(url + f"?item={seq.id}")
 
     # seq is part of role
     role.refresh_from_db()
@@ -313,8 +313,8 @@ def test_remove_seq_from_role(
     # seq is part of role
     assert seq in role.sequences.all()
 
-    url = reverse("people:toggle_seq_role", args=[role.id, seq.id, "delete"])
-    client.post(url)
+    url = reverse("people:toggle_seq_role", args=[role.id])
+    client.delete(url + f"?item={seq.id}")
 
     # seq is not part of role
     role.refresh_from_db()
@@ -338,8 +338,8 @@ def test_add_seq_to_department(
     # seq is not part of department
     assert seq not in dep.sequences.all()
 
-    url = reverse("people:toggle_seq_department", args=[dep.id, seq.id, "add"])
-    client.post(url)
+    url = reverse("people:toggle_seq_department", args=[dep.id])
+    client.post(url + f"?item={seq.id}")
 
     # seq is part of department
     dep.refresh_from_db()
@@ -364,8 +364,8 @@ def test_remove_seq_from_department(
     # seq is part of department
     assert seq in dep.sequences.all()
 
-    url = reverse("people:toggle_seq_department", args=[dep.id, seq.id, "delete"])
-    client.post(url)
+    url = reverse("people:toggle_seq_department", args=[dep.id])
+    client.delete(url + f"?item={seq.id}")
 
     # seq is not part of department
     dep.refresh_from_db()
