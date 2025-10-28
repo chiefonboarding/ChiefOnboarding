@@ -117,8 +117,7 @@ document.addEventListener("drop", function( event ) {
     const itemId = dragged.dataset.itemId
     const url = droppedPlace.dataset.url
     const method = droppedPlace.dataset.method
-    console.log(method)
-
+    
     htmx.ajax(method, url + "?item=" + itemId, {
       target: "#departmentslist",
     })
