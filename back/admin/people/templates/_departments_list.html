@@ -1,7 +1,7 @@
 {% load i18n %}
 
 {% for department in departments %}
-<div class="card mb-4">
+<div class="card mb-4 ignore-styling {% if not is_users_page %}drop{% endif %}" {% if is_users_page %}data-url="{% url 'people:toggle_seq_department' department.id %}"{% endif %}>
   <div class="card-header">
     <div class="col-11">
       <h3 class="card-title">{{ department }}</h3>
@@ -13,10 +13,14 @@
     </div>
   </div>
   <div class="card-body">
+    {% if not is_users_page %}
+      {# sequences can be assigned to departments only, instead of roles #}
+      {% include "_departments_sequences_list.html" with sequences=department.sequences.all %}
+    {% endif %}
     {% for role in department.roles.all %}
-      <div class="drop mb-2" data-role-id="{{role.id}}">
+      <div class="drop mb-2" data-method="post" data-url="{% if is_users_page %}{% url "people:add_user_to_role" role.pk %}{% else %}{% url "people:toggle_seq_role" role.pk %}{% endif %}">
         <h3 class="card-title mb-2">{{ role }}</h3>
-        {% if users %}
+        {% if is_users_page %}
           {% if role.users.all|length %}
               <ul class="list-group list-group-flush">
               {% for user in role.users.all %}
@@ -34,15 +38,8 @@
             {% trans "No users have been added to this role yet." %}
           {% endif %}
         {% else %}
-          {% if role.sequences.all|length %}
-              <ul class="list-group list-group-flush">
-              {% for seq in role.sequences.all %}
-                <li class="list-group-item" style="padding: 4px;">
-                  {{ seq.name }}
-                </li>
-              {% endfor %}
-              </ul>
-          {% else %}
+          {% include "_departments_sequences_list.html" with sequences=role.sequences.all %}
+          {% if not role.sequences.all|length %}
             {% trans "No sequences have been added to this role yet." %}
           {% endif %}
         {% endif %}

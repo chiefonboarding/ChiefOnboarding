@@ -234,6 +234,11 @@ urlpatterns = [
         name="departments",
     ),
     path(
+        "colleagues/departments/seq/",
+        views.DepartmentSequenceListView.as_view(),
+        name="departments_sequences",
+    ),
+    path(
         "colleagues/departments/create/",
         views.DepartmentCreateView.as_view(),
         name="department_create",
@@ -249,14 +254,24 @@ urlpatterns = [
         name="department_role_create",
     ),
     path(
-        "colleagues/role/<int:role_pk>/user/<int:user_pk>/",
+        "colleagues/departments/<int:department_pk>/roles/<int:pk>/update/",
+        views.DepartmentRoleUpdateView.as_view(),
+        name="department_role_update",
+    ),
+    path(
+        "colleagues/role/<int:role_pk>/user/",
         views.AddUserToRoleView.as_view(),
         name="add_user_to_role",
     ),
     path(
-        "colleagues/departments/<int:department_pk>/roles/<int:pk>/update/",
-        views.DepartmentRoleUpdateView.as_view(),
-        name="department_role_update",
+        "colleagues/role/<int:role_pk>/seq/",
+        views.ToggleSequenceRoleView.as_view(),
+        name="toggle_seq_role",
+    ),
+    path(
+        "colleagues/department/<int:department_pk>/seq/",
+        views.ToggleSequenceDepartmentView.as_view(),
+        name="toggle_seq_department",
     ),
     path(
         "colleagues/departments/seq/",
