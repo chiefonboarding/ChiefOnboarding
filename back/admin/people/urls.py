@@ -278,9 +278,4 @@ urlpatterns = [
         views.DepartmentSequenceListView.as_view(),
         name="departments_sequences",
     ),
-    path(
-        "colleagues/role/<int:role_pk>/seq/<int:seq_pk>/",
-        views.AddSequenceToRoleView.as_view(),
-        name="add_seq_to_role",
-    ),
 ]
