@@ -6,6 +6,10 @@ from django.views.generic.base import View
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
+from admin.sequences.selectors import (
+    get_onboarding_sequences_for_user,
+    get_sequences_for_user,
+)
 from users.mixins import AdminOrManagerPermMixin
 from users.models import Department, DepartmentRole
 from users.selectors import (
@@ -140,3 +144,41 @@ class DepartmentRoleUpdateView(
         context["title"] = _("Role")
         context["subtitle"] = _("people")
         return context
+
+
+class DepartmentSequenceListView(AdminOrManagerPermMixin, ListView):
+    template_name = "departments.html"
+    context_object_name = "departments"
+
+    def get_queryset(self):
+        return get_available_departments_for_user(
+            user=self.request.user
+        ).prefetch_related("roles__users")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("Roles and departments")
+        context["subtitle"] = _("sequences")
+        context["sequences"] = get_onboarding_sequences_for_user(user=self.request.user)
+        return context
+
+
+class AddSequenceToRoleView(AdminOrManagerPermMixin, SuccessMessageMixin, View):
+    def post(self, request, role_pk, seq_pk, **kwargs):
+        role = get_object_or_404(
+            get_available_roles_for_user(user=request.user), id=role_pk
+        )
+        sequence = get_object_or_404(
+            get_sequences_for_user(user=request.user), id=seq_pk
+        )
+
+        role.sequences.add(sequence)
+        return render(
+            request,
+            "_departments_list.html",
+            {
+                "departments": get_available_departments_for_user(
+                    user=self.request.user
+                ).prefetch_related("roles__users")
+            },
+        )

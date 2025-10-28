@@ -5,6 +5,16 @@
   <div class="alert alert-warning mb-0" role="alert">
     {% translate "All changes will be saved automatically." %}
   </div>
+  {% if users %}
+    <a href="{% url 'people:departments_sequences' %}" class="btn btn-info btn-outline">
+      {% trans "Sequences" %}
+    </a>
+  {% else %}
+    <a href="{% url 'people:departments' %}" class="btn btn-info btn-outline">
+      {% trans "Users" %}
+    </a>
+  {% endif %}
+
   <a href="{% url 'people:department_create' %}" class="btn btn-primary">
     {% trans "Add" %}
   </a>
@@ -20,13 +30,19 @@
   <div class="col-5">
     <div class="card sticky-top" style="max-height: calc(44rem + 10px)">
       <div class="card-header">
-        <h3 class="card-title">{% translate "Users" %}</h3>
+        <h3 class="card-title">
+          {% if users %}
+            {% translate "Users" %}
+          {% else %}
+            {% translate "Sequences" %}
+          {% endif %}
+        </h3>
       </div>
       <div class="card-body card-body-scrollable card-body-scrollable-shadow">
         <div class="divide-y">
           {% for user in users %}
           <div>
-            <div class="row" draggable="true" style="cursor:grab" data-user-id="{{user.id}}">
+            <div class="row" draggable="true" style="cursor:grab" data-item-id="{{user.id}}">
               <div class="col">
                 <div class="text-truncate">
                   <p class="mb-0">{{ user.full_name }}</p>
@@ -35,10 +51,29 @@
             </div>
           </div>
           {% endfor %}
+          {% for sequence in sequences %}
+          <div>
+            <div class="row" draggable="true" style="cursor:grab" data-item-id="{{sequence.id}}">
+              <div class="col">
+                <div class="text-truncate">
+                  <p style="mb-0">{{ sequence.name }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
         </div>
       </div>
     </div>
-    <div class="text-center mt-2"><p>{% trans "Drag and drop the users in the roles you want them to be part of." %}</p></div>
+    <div class="text-center mt-2">
+      <p>
+        {% if users %}
+          {% trans "Drag and drop the users in the roles you want them to be part of." %}
+        {% else %}
+          {% trans "Drag and drop the sequences in the roles." %}
+        {% endif %}
+      </p>
+    </div>
   </div>
 </div>
 {% endblock %}
@@ -92,10 +127,11 @@ document.addEventListener("drop", function( event ) {
   draggedToElement = droppedPlace
 
   if (droppedPlace) {
-    const userId = dragged.dataset.userId
+    const itemId = dragged.dataset.itemId
     const roleId = droppedPlace.dataset.roleId
 
-    htmx.ajax('POST', `/admin/people/colleagues/role/${roleId}/user/${userId}/`, {
+    const urlPart = "{% if users %}user{% else %}seq{% endif %}"
+    htmx.ajax('POST', `/admin/people/colleagues/role/${roleId}/${urlPart}/${itemId}/`, {
       target: "#departmentslist",
     })
   }

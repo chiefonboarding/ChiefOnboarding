@@ -16,21 +16,35 @@
     {% for role in department.roles.all %}
       <div class="drop mb-2" data-role-id="{{role.id}}">
         <h3 class="card-title mb-2">{{ role }}</h3>
-        {% if role.users.all|length %}
-            <ul class="list-group list-group-flush">
-            {% for user in role.users.all %}
-              <li class="list-group-item p-1">
-                {% if user.profile_image is not None %}
-                <span class="avatar me-2 avatar-xs" style="background-image: url({{ user.profile_image.get_url }})"></span>
-                {% else %}
-                <span class="avatar me-2 avatar-xs">{{ user.initials }}</span>
-                {% endif %}
-                {{ user.name }}
-              </li>
-            {% endfor %}
-            </ul>
+        {% if users %}
+          {% if role.users.all|length %}
+              <ul class="list-group list-group-flush">
+              {% for user in role.users.all %}
+                <li class="list-group-item p-1">
+                  {% if user.profile_image is not None %}
+                  <span class="avatar me-2 avatar-xs" style="background-image: url({{ user.profile_image.get_url }})"></span>
+                  {% else %}
+                  <span class="avatar me-2 avatar-xs">{{ user.initials }}</span>
+                  {% endif %}
+                  {{ user.name }}
+                </li>
+              {% endfor %}
+              </ul>
+          {% else %}
+            {% trans "No users have been added to this role yet." %}
+          {% endif %}
         {% else %}
-          {% trans "No users have been added to this role yet." %}
+          {% if role.sequences.all|length %}
+              <ul class="list-group list-group-flush">
+              {% for seq in role.sequences.all %}
+                <li class="list-group-item" style="padding: 4px;">
+                  {{ seq.name }}
+                </li>
+              {% endfor %}
+              </ul>
+          {% else %}
+            {% trans "No sequences have been added to this role yet." %}
+          {% endif %}
         {% endif %}
       </div>
     {% empty %}

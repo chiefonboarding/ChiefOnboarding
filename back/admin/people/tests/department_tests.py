@@ -12,7 +12,6 @@ def test_department_list(
     department_factory,
     new_hire_factory,
     manager_factory,
-    department_role_factory,
 ):
     user = django_user_model.objects.create(role=get_user_model().Role.MANAGER)
     client.force_login(user)
@@ -229,3 +228,66 @@ def test_add_user_to_role_in_department(
     # user is part of role
     role.refresh_from_db()
     assert user in role.users.all()
+
+
+@pytest.mark.django_db
+def test_department_sequence_list(
+    client,
+    django_user_model,
+    department_factory,
+    sequence_factory,
+    new_hire_factory,
+    manager_factory,
+):
+    user = django_user_model.objects.create(role=get_user_model().Role.MANAGER)
+    client.force_login(user)
+
+    dep = department_factory()
+    dep2 = department_factory()
+    user.departments.add(dep)
+
+    seq1 = sequence_factory(departments=[dep])
+    seq2 = sequence_factory(departments=[dep2])
+    seq3 = sequence_factory(departments=[dep])
+    # not part of any departments, so available everywhere
+    seq4 = sequence_factory()
+
+    url = reverse("people:departments_sequences")
+    response = client.get(url)
+
+    # seq1 and seq2 are part of their own dep, so they will show up. seq4 is not part of an dep, so shows up as well
+    assert seq1.name in response.content.decode()
+    assert seq3.name in response.content.decode()
+    assert seq4.name in response.content.decode()
+    # seq2 is part of different dep, so doesn't show up
+    assert seq2.name not in response.content.decode()
+
+    # dep does not show up
+    assert dep2.name not in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_add_seq_to_role_in_department(
+    client,
+    django_user_model,
+    department_factory,
+    department_role_factory,
+    sequence_factory,
+):
+    user = django_user_model.objects.create(role=get_user_model().Role.MANAGER)
+    client.force_login(user)
+
+    dep = department_factory()
+    role = department_role_factory(department=dep, name="testrole")
+    seq = sequence_factory(departments=[dep])
+    user.departments.add(dep)
+
+    # seq is not part of role
+    assert seq not in role.sequences.all()
+
+    url = reverse("people:add_seq_to_role", args=[role.id, seq.id])
+    client.post(url)
+
+    # seq is part of role
+    role.refresh_from_db()
+    assert seq in role.sequences.all()
