@@ -456,7 +456,7 @@ class AddUsersToSequenceChoiceForm(forms.Form):
 class AddSequencesToUser(forms.Form):
     sequences = forms.ModelMultipleChoiceField(
         label=_("Select the sequences you want to add this user"),
-        widget=forms.CheckboxSelectMultiple,
+        widget=forms.CheckboxSelectMultiple(attrs={"checked":""}),
         queryset=Sequence.objects.none(),
         required=False,
     )
