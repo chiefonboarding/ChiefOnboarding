@@ -24,7 +24,7 @@
 <div class="row">
   <div class="col-12">
   </div>
-  <div class="col-7" id="departmentslist">
+  <div class="col-7">
     {% include "_departments_list.html" %}
   </div>
   <div class="col-5">
@@ -61,6 +61,15 @@
         {% endif %}
       </p>
     </div>
+  </div>
+</div>
+<div id="department-modals"
+  class="modal modal-blur fade"
+  style="display: none"
+  aria-hidden="false"
+  tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content"></div>
   </div>
 </div>
 {% endblock %}
@@ -117,9 +126,17 @@ document.addEventListener("drop", function( event ) {
     const itemId = dragged.dataset.itemId
     const url = droppedPlace.dataset.url
     const method = droppedPlace.dataset.method
-    
+
     htmx.ajax(method, url + "?item=" + itemId, {
-      target: "#departmentslist",
+      {% if not is_users_page %}
+        target: "#department-modals",
+      {% else %}
+        target: "#departmentslist",
+      {% endif %}
+    }).then(function () {
+      {% if not is_users_page %}
+        $('#department-modals').modal("toggle")
+      {% endif %}
     })
   }
 })
@@ -150,5 +167,10 @@ document.addEventListener("dragleave", function( event ) {
     droppedPlace.classList.remove("drag-hover");
   }
 });
+
+$(document).on("hide-modal", function(evt){
+  $('.modal').modal('hide')
+})
+
 </script>
 {% endblock extra_js %}

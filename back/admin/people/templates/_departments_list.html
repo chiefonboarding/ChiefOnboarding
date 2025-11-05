@@ -1,7 +1,8 @@
 {% load i18n %}
 
+<div id="departmentslist" hx-swap-oob="true">
 {% for department in departments %}
-<div class="card mb-4 ignore-styling {% if not is_users_page %}drop{% endif %}" {% if is_users_page %}data-url="{% url 'people:toggle_seq_department' department.id %}"{% endif %}>
+<div class="card mb-4 ignore-styling {% if not is_users_page %}drop{% endif %}" {% if not is_users_page %}data-method="POST" data-url="{% url 'people:toggle_seq_department' department.id %}"{% endif %}>
   <div class="card-header">
     <div class="col-11">
       <h3 class="card-title">{{ department }}</h3>
@@ -58,3 +59,4 @@
   </div>
 </div>
 {% endfor %}
+</div>

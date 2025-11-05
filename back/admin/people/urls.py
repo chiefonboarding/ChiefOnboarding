@@ -278,4 +278,14 @@ urlpatterns = [
         views.DepartmentSequenceListView.as_view(),
         name="departments_sequences",
     ),
+    path(
+        "colleagues/department/seq/<int:sequence>/<int:department_pk>/",
+        views.ApplySequenceToUsersDepartmentView.as_view(),
+        name="apply_sequence_to_users_in_department",
+    ),
+    path(
+        "colleagues/department/role/seq/<int:sequence>/<int:role_pk>/",
+        views.ApplySequenceToUsersRoleView.as_view(),
+        name="apply_sequence_to_users_in_role",
+    ),
 ]
