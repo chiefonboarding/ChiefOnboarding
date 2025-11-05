@@ -128,15 +128,9 @@ document.addEventListener("drop", function( event ) {
     const method = droppedPlace.dataset.method
 
     htmx.ajax(method, url + "?item=" + itemId, {
-      {% if not is_users_page %}
-        target: "#department-modals",
-      {% else %}
-        target: "#departmentslist",
-      {% endif %}
+      target: "#department-modals",
     }).then(function () {
-      {% if not is_users_page %}
-        $('#department-modals').modal("toggle")
-      {% endif %}
+      $('#department-modals').modal("toggle")
     })
   }
 })

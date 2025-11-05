@@ -7,7 +7,7 @@ from django.views.generic.base import View
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
 
-from admin.people.forms import AddUsersToSequenceChoiceForm
+from admin.people.forms import AddSequencesToUser, AddUsersToSequenceChoiceForm
 from admin.sequences.selectors import (
     get_onboarding_sequences_for_user,
     get_sequences_for_user,
@@ -163,14 +163,22 @@ class AddUserToRoleView(AdminOrManagerPermMixin, SuccessMessageMixin, View):
         return super().dispatch(*args, **kwargs)
 
     def _render_response(self):
+        sequence_pks = list(
+            self.role.sequences.all().values_list("pk", flat=True)
+        ) + list(self.role.department.sequences.all().values_list("pk", flat=True))
+        form = AddSequencesToUser(sequence_pks=sequence_pks)
         return render(
             self.request,
-            "_departments_list.html",
+            "_departments_list_with_sequences_to_user_modal.html",
             {
                 "departments": get_available_departments_for_user(
                     user=self.request.user
                 ).prefetch_related("roles__users"),
                 "is_users_page": True,
+                "modal_url": reverse_lazy(
+                    "people:apply_sequences_to_user", args=[self.role.pk, self.user.pk]
+                ),
+                "form": form,
             },
         )
 
@@ -220,6 +228,48 @@ class ToggleSequenceRoleView(AdminOrManagerPermMixin, SuccessMessageMixin, View)
     def post(self, request, **kwargs):
         self.role.sequences.add(self.sequence)
         return self._render_response()
+
+
+class ApplySequencesToUserView(AdminOrManagerPermMixin, SuccessMessageMixin, FormView):
+    form_class = AddSequencesToUser
+    template_name = "_departments_list_with_sequences_to_user_modal.html"
+
+    def dispatch(self, *args, **kwargs):
+        self.role = get_object_or_404(
+            get_available_roles_for_user(user=self.request.user),
+            id=self.kwargs.get("role_pk"),
+        )
+        self.user = get_object_or_404(
+            get_all_users_for_departments_of_user(user=self.request.user),
+            id=self.kwargs.get("user_pk"),
+        )
+        return super().dispatch(*args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        sequence_pks = list(
+            self.role.sequences.all().values_list("pk", flat=True)
+        ) + list(self.role.department.sequences.all().values_list("pk", flat=True))
+        kwargs["sequence_pks"] = sequence_pks
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["departments"] = (
+            get_available_departments_for_user(user=self.request.user).prefetch_related(
+                "roles__users"
+            ),
+        )
+        context["modal_url"] = reverse_lazy(
+            "people:apply_sequences_to_user", args=[self.role.pk, self.user.pk]
+        )
+        return context
+
+    def form_valid(self, form):
+        sequences = form.cleaned_data["sequences"]
+        for seq in sequences:
+            self.user.add_sequences([seq])
+        return HttpResponse(headers={"HX-Trigger": "hide-modal"})
 
 
 class ToggleSequenceDepartmentView(AdminOrManagerPermMixin, SuccessMessageMixin, View):

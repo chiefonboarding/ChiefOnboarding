@@ -1,0 +1,19 @@
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% include "_departments_list.html" %}
+
+<div class="modal-dialog modal-dialog-centered">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">{% trans "Add sequences to user" %}</h5>
+    </div>
+    <div class="modal-body">
+      <p>{% trans "The sequences within this role/department are added by default, feel free to unselect some if they are not applicable" %}</p>
+      <form hx-post="{{modal_url}}">
+        {{ form|crispy }}
+        <button class="btn btn-primary">{% trans "Submit" %}</button>
+      </form>
+
+    </div>
+  </div>
+</div>
