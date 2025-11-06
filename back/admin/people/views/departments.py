@@ -281,7 +281,7 @@ class ApplySequenceToUsersBaseView(
         context["departments"] = (
             get_available_departments_for_user(user=self.request.user).prefetch_related(
                 "roles__users"
-            ),
+            )
         )
         context["is_users_page"] = False
         return context
@@ -308,6 +308,16 @@ class ApplySequenceToUsersRoleView(ApplySequenceToUsersBaseView):
             args=[self.sequence.pk, self.department_or_role.pk],
         )
         return super().dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["departments"] = (
+            get_available_departments_for_user(user=self.request.user).prefetch_related(
+                "roles__users"
+            )
+        )
+        context["is_users_page"] = False
+        return context
 
 
 class ApplySequenceToUsersDepartmentView(ApplySequenceToUsersBaseView):
