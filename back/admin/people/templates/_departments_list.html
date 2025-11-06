@@ -19,23 +19,11 @@
       {% include "_departments_sequences_list.html" with sequences=department.sequences.all %}
     {% endif %}
     {% for role in department.roles.all %}
-      <div class="drop mb-2" data-method="post" data-url="{% if is_users_page %}{% url "people:add_user_to_role" role.pk %}{% else %}{% url "people:toggle_seq_role" role.pk %}{% endif %}">
+      <div class="drop mb-2" data-method="post" data-url="{% if is_users_page %}{% url "people:toggle_user_to_role" role.pk %}{% else %}{% url "people:toggle_seq_role" role.pk %}{% endif %}">
         <h3 class="card-title mb-2">{{ role }}</h3>
         {% if is_users_page %}
-          {% if role.users.all|length %}
-              <ul class="list-group list-group-flush">
-              {% for user in role.users.all %}
-                <li class="list-group-item p-1">
-                  {% if user.profile_image is not None %}
-                  <span class="avatar me-2 avatar-xs" style="background-image: url({{ user.profile_image.get_url }})"></span>
-                  {% else %}
-                  <span class="avatar me-2 avatar-xs">{{ user.initials }}</span>
-                  {% endif %}
-                  {{ user.name }}
-                </li>
-              {% endfor %}
-              </ul>
-          {% else %}
+          {% include "_departments_users_list.html" with users=role.users.all %}
+          {% if not role.users.all|length %}
             {% trans "No users have been added to this role yet." %}
           {% endif %}
         {% else %}

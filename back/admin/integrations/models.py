@@ -218,6 +218,9 @@ class Integration(models.Model):
     bot_token = EncryptedTextField(max_length=10000, default="", blank=True)
     bot_id = models.CharField(max_length=100, default="")
 
+    def __str__(self):
+        return self.name
+
     @property
     def skip_user_provisioning(self):
         return self.manifest_type == Integration.ManifestType.MANUAL_USER_PROVISIONING

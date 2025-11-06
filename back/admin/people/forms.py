@@ -1,3 +1,4 @@
+from admin.to_do.models import ToDo
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, Layout, Submit
 from django import forms
@@ -465,3 +466,17 @@ class AddSequencesToUser(forms.Form):
         sequence_pks = kwargs.pop("sequence_pks")
         super().__init__(*args, **kwargs)
         self.fields["sequences"].queryset = Sequence.objects.filter(pk__in=sequence_pks)
+
+
+class ItemsToBeRemovedForm(forms.Form):
+    integrations = forms.ModelMultipleChoiceField(
+        label=_("Select the integrations you want to remove from this user"),
+        widget=forms.CheckboxSelectMultiple(attrs={"checked":""}),
+        queryset=Integration.objects.none(),
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        items = kwargs.pop("items")
+        super().__init__(*args, **kwargs)
+        self.fields["integrations"].queryset = Integration.objects.filter(pk__in=items)
