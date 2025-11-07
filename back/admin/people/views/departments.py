@@ -1,6 +1,6 @@
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic.base import View
@@ -195,31 +195,21 @@ class ToggleSequenceRoleView(AdminOrManagerPermMixin, SuccessMessageMixin, View)
         )
         return super().dispatch(*args, **kwargs)
 
-    def _render_response(self):
-        form = AddUsersToSequenceChoiceForm(users=self.role.users.all())
-        return render(
-            self.request,
-            "_departments_list_with_sequence_apply_modal.html",
-            {
-                "departments": get_available_departments_for_user(
-                    user=self.request.user
-                ).prefetch_related("roles__users"),
-                "is_users_page": False,
-                "form": form,
-                "modal_url": reverse_lazy(
-                    "people:apply_sequence_to_users_in_role",
-                    args=[self.sequence.pk, self.role.pk],
-                ),
-            },
-        )
-
     def delete(self, request, **kwargs):
         self.role.sequences.remove(self.sequence)
-        return self._render_response()
+        return redirect(
+            "people:apply_sequence_to_users_in_role",
+            sequence=self.sequence.pk,
+            role_pk=self.role.pk,
+        )
 
     def post(self, request, **kwargs):
         self.role.sequences.add(self.sequence)
-        return self._render_response()
+        return redirect(
+            "people:apply_sequence_to_users_in_role",
+            sequence=self.sequence.pk,
+            role_pk=self.role.pk,
+        )
 
 
 class ToggleSequenceDepartmentView(AdminOrManagerPermMixin, SuccessMessageMixin, View):
@@ -258,31 +248,28 @@ class ToggleSequenceDepartmentView(AdminOrManagerPermMixin, SuccessMessageMixin,
 
     def post(self, request, *args, **kwargs):
         self.department.sequences.add(self.sequence)
-        return self._render_response()
+        return redirect(
+            "people:apply_sequence_to_users_in_department",
+            sequence=self.sequence.pk,
+            department_pk=self.department.pk,
+        )
 
     def delete(self, request, *args, **kwargs):
         self.department.sequences.remove(self.sequence)
         return self._render_response()
 
 
-class ApplySequenceToUsersBaseView(
+class BaseApplySequenceToUsersView(
     AdminOrManagerPermMixin, SuccessMessageMixin, FormView
 ):
     form_class = AddUsersToSequenceChoiceForm
     template_name = "_departments_list_with_sequence_apply_modal.html"
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["users"] = self.department_or_role.users.all()
-        return kwargs
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["departments"] = (
-            get_available_departments_for_user(user=self.request.user).prefetch_related(
-                "roles__users"
-            )
-        )
+        context["departments"] = get_available_departments_for_user(
+            user=self.request.user
+        ).prefetch_related("roles__users")
         context["is_users_page"] = False
         return context
 
@@ -293,45 +280,48 @@ class ApplySequenceToUsersBaseView(
         return HttpResponse(headers={"HX-Trigger": "hide-modal"})
 
 
-class ApplySequenceToUsersRoleView(ApplySequenceToUsersBaseView):
+class ApplySequenceToUsersRoleView(BaseApplySequenceToUsersView):
     def dispatch(self, *args, **kwargs):
         self.sequence = get_object_or_404(
             get_sequences_for_user(user=self.request.user),
             id=self.kwargs.get("sequence"),
         )
-        self.department_or_role = get_object_or_404(
+        self.role = get_object_or_404(
             get_available_roles_for_user(user=self.request.user),
             id=self.kwargs.get("role_pk"),
         )
         self.modal_url = reverse_lazy(
             "people:apply_sequence_to_users_in_role",
-            args=[self.sequence.pk, self.department_or_role.pk],
+            args=[self.sequence.pk, self.role.pk],
         )
         return super().dispatch(*args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["departments"] = (
-            get_available_departments_for_user(user=self.request.user).prefetch_related(
-                "roles__users"
-            )
-        )
-        context["is_users_page"] = False
-        return context
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["users"] = self.role.users.all()
+        return kwargs
 
 
-class ApplySequenceToUsersDepartmentView(ApplySequenceToUsersBaseView):
+class ApplySequenceToUsersDepartmentView(BaseApplySequenceToUsersView):
     def dispatch(self, *args, **kwargs):
         self.sequence = get_object_or_404(
             get_sequences_for_user(user=self.request.user),
             id=self.kwargs.get("sequence"),
         )
-        self.department_or_role = get_object_or_404(
+        self.department = get_object_or_404(
             get_available_departments_for_user(user=self.request.user),
             id=self.kwargs.get("department_pk"),
         )
         self.modal_url = reverse_lazy(
             "people:apply_sequence_to_users_in_department",
-            args=[self.sequence.pk, self.department_or_role.pk],
+            args=[self.sequence.pk, self.department.pk],
         )
         return super().dispatch(*args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        roles = DepartmentRole.objects.filter(department=self.department).values_list(
+            "pk", flat=True
+        )
+        kwargs["users"] = User.objects.filter(department_roles__in=roles).distinct()
+        return kwargs
