@@ -252,8 +252,7 @@ class ApplySequencesToUserView(AdminOrManagerPermMixin, SuccessMessageMixin, For
 
     def form_valid(self, form):
         sequences = form.cleaned_data["sequences"]
-        for seq in sequences:
-            self.user.add_sequences([seq])
+        self.user.add_sequences(sequences)
         return HttpResponse(headers={"HX-Trigger": "hide-modal"})
 
 
