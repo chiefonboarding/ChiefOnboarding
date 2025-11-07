@@ -383,7 +383,7 @@ class RemoveItemsFromUserView(AdminOrManagerPermMixin, SuccessMessageMixin, Form
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         integration_items = IntegrationConfig.objects.none()
-        for seq in self.role.sequences.all().prefetch_related(
+        for seq in (self.role.sequences.all() | self.role.department.sequences.all()).prefetch_related(
             "conditions__integration_configs__integration"
         ):
             for con in seq.conditions.all():
