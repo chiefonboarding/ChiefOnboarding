@@ -1,4 +1,3 @@
-from admin.sequences.models import IntegrationConfig
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
@@ -13,6 +12,7 @@ from admin.people.forms import (
     AddUsersToSequenceChoiceForm,
     ItemsToBeRemovedForm,
 )
+from admin.sequences.models import IntegrationConfig
 from admin.sequences.selectors import (
     get_onboarding_sequences_for_user,
     get_sequences_for_user,
@@ -382,12 +382,14 @@ class RemoveItemsFromUserView(AdminOrManagerPermMixin, SuccessMessageMixin, Form
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        integration_items = IntegrationConfig.objects.none() 
+        integration_items = IntegrationConfig.objects.none()
         for seq in self.role.sequences.all().prefetch_related(
             "conditions__integration_configs__integration"
         ):
             for con in seq.conditions.all():
-                integration_items |= con.integration_configs.filter(integration__manifest__revoke__isnull=False)
+                integration_items |= con.integration_configs.filter(
+                    integration__manifest__revoke__isnull=False
+                )
         kwargs["items"] = integration_items
         return kwargs
 
