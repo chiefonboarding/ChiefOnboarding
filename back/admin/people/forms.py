@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from admin.integrations.models import Integration
-from admin.sequences.models import Sequence
+from admin.sequences.models import IntegrationConfig, Sequence
 from admin.sequences.selectors import get_onboarding_sequences_for_user
 from admin.templates.forms import (
     MultiSelectField,
@@ -471,11 +471,12 @@ class ItemsToBeRemovedForm(forms.Form):
     integrations = forms.ModelMultipleChoiceField(
         label=_("Select the integrations you want to remove from this user"),
         widget=forms.CheckboxSelectMultiple(attrs={"checked": ""}),
-        queryset=Integration.objects.none(),
+        queryset=IntegrationConfig.objects.none(),
         required=False,
     )
 
     def __init__(self, *args, **kwargs):
+        # naming 'items' as it will likely be expanded to other types later
         items = kwargs.pop("items")
         super().__init__(*args, **kwargs)
-        self.fields["integrations"].queryset = Integration.objects.filter(pk__in=items)
+        self.fields["integrations"].queryset = items

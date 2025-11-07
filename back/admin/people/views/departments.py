@@ -1,3 +1,4 @@
+from admin.sequences.models import IntegrationConfig
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
@@ -381,14 +382,13 @@ class RemoveItemsFromUserView(AdminOrManagerPermMixin, SuccessMessageMixin, Form
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        integration_items = []
+        integration_items = IntegrationConfig.objects.none() 
         for seq in self.role.sequences.all().prefetch_related(
             "conditions__integration_configs__integration"
         ):
             for con in seq.conditions.all():
-                integration_items.extend(con.integration_configs.all())
-        integration_pks = [i.integration_id for i in integration_items]
-        kwargs["items"] = integration_pks
+                integration_items |= con.integration_configs.filter(integration__manifest__revoke__isnull=False)
+        kwargs["items"] = integration_items
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -403,7 +403,8 @@ class RemoveItemsFromUserView(AdminOrManagerPermMixin, SuccessMessageMixin, Form
         return context
 
     def form_valid(self, form):
-        sequences = form.cleaned_data["sequences"]
-        for seq in sequences:
-            self.user.add_sequences([seq])
+        items = form.cleaned_data["items"]
+        for integrationconfig in items:
+            # TODO: error handling
+            integrationconfig.revoke_user(self.user)
         return HttpResponse(headers={"HX-Trigger": "hide-modal"})
