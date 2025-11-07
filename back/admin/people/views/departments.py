@@ -245,10 +245,8 @@ class ApplySequencesToUserView(AdminOrManagerPermMixin, SuccessMessageMixin, For
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["departments"] = (
-            get_available_departments_for_user(user=self.request.user).prefetch_related(
-                "roles__users"
-            ),
+        context["departments"] = get_available_departments_for_user(user=self.request.user).prefetch_related(
+            "roles__users"
         )
         context["modal_url"] = reverse_lazy(
             "people:apply_sequences_to_user", args=[self.role.pk, self.user.pk]
@@ -257,8 +255,7 @@ class ApplySequencesToUserView(AdminOrManagerPermMixin, SuccessMessageMixin, For
 
     def form_valid(self, form):
         sequences = form.cleaned_data["sequences"]
-        for seq in sequences:
-            self.user.add_sequences([seq])
+        self.user.add_sequences(sequences)
         return HttpResponse(headers={"HX-Trigger": "hide-modal"})
 
 
