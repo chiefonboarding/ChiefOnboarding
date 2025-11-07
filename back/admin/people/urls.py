@@ -293,4 +293,9 @@ urlpatterns = [
         views.ApplySequencesToUserView.as_view(),
         name="apply_sequences_to_user",
     ),
+    path(
+        "colleagues/department/role/<int:role_pk>/user/<int:user_pk>/remove/",
+        views.RemoveItemsFromUserView.as_view(),
+        name="remove_items_from_user",
+    ),
 ]

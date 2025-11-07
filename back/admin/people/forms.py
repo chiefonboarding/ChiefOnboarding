@@ -1,4 +1,3 @@
-from admin.to_do.models import ToDo
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, Layout, Submit
 from django import forms
@@ -457,7 +456,7 @@ class AddUsersToSequenceChoiceForm(forms.Form):
 class AddSequencesToUser(forms.Form):
     sequences = forms.ModelMultipleChoiceField(
         label=_("Select the sequences you want to add this user"),
-        widget=forms.CheckboxSelectMultiple(attrs={"checked":""}),
+        widget=forms.CheckboxSelectMultiple(attrs={"checked": ""}),
         queryset=Sequence.objects.none(),
         required=False,
     )
@@ -471,7 +470,7 @@ class AddSequencesToUser(forms.Form):
 class ItemsToBeRemovedForm(forms.Form):
     integrations = forms.ModelMultipleChoiceField(
         label=_("Select the integrations you want to remove from this user"),
-        widget=forms.CheckboxSelectMultiple(attrs={"checked":""}),
+        widget=forms.CheckboxSelectMultiple(attrs={"checked": ""}),
         queryset=Integration.objects.none(),
         required=False,
     )
