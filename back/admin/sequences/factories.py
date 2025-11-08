@@ -8,7 +8,7 @@ from admin.introductions.factories import IntroductionFactory
 from admin.preboarding.factories import PreboardingFactory
 from admin.resources.factories import ResourceFactory
 from admin.to_do.factories import ToDoFactory
-from misc.mixins import DepartmentsPostGenerationMixin
+from misc.factories import DepartmentsPostGenerationMixin
 from users.factories import AdminFactory, EmployeeFactory
 
 from .models import (

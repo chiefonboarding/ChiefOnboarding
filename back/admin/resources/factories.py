@@ -3,7 +3,7 @@ from factory.fuzzy import FuzzyChoice, FuzzyText
 from pytest_factoryboy import register
 
 from admin.resources.models import Category, Chapter, Resource
-from misc.mixins import DepartmentsPostGenerationMixin
+from misc.factories import DepartmentsPostGenerationMixin
 
 
 @register
