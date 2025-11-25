@@ -16,6 +16,7 @@ from admin.templates.forms import (
 )
 from misc.mixins import FilterDepartmentsFieldByUserMixin
 from organization.models import Organization
+from users.models import User
 
 
 class NewHireAddForm(forms.ModelForm):
@@ -436,3 +437,17 @@ class UserRoleForm(forms.ModelForm):
     class Meta:
         model = get_user_model()
         fields = ("role",)
+
+
+class AddUsersToSequenceChoiceForm(forms.Form):
+    users = forms.ModelMultipleChoiceField(
+        label=_("Select the users you want to add this sequence to"),
+        widget=forms.CheckboxSelectMultiple,
+        queryset=User.objects.none(),
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        users = kwargs.pop("users")
+        super().__init__(*args, **kwargs)
+        self.fields["users"].queryset = users
