@@ -130,10 +130,16 @@ document.addEventListener("drop", function( event ) {
     htmx.ajax(method, url + "?item=" + itemId, {
       target: "#department-modals",
     }).then(function () {
-      $('#department-modals').modal("toggle")
+      openModal()
     })
   }
 })
+
+function openModal(){
+  if($(".modal-content")[0]) {
+    $('#department-modals').modal("toggle")
+  }
+}
 
 document.addEventListener("dragover", function( event ) {
   // prevent default action
