@@ -289,7 +289,7 @@ urlpatterns = [
         name="apply_sequence_to_users_in_role",
     ),
     path(
-        "colleagues/department/role/<int:role_pk>/user/<int:user_pk>/add/",
+        "colleagues/department/role/<int:role_pk>/user/<int:user_pk>/seq/",
         views.ApplySequencesToUserView.as_view(),
         name="apply_sequences_to_user",
     ),
