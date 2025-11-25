@@ -281,12 +281,17 @@ class ToggleSequenceDepartmentView(AdminOrManagerPermMixin, SuccessMessageMixin,
         self.department.sequences.remove(self.sequence)
         return render(
             self.request,
-            "_departments_list.html",
+            "_departments_list_with_sequence_apply_modal.html",
             {
                 "departments": get_available_departments_for_user(
                     user=self.request.user
                 ).prefetch_related("roles__users"),
                 "is_users_page": False,
+                "form": form,
+                "modal_url": reverse_lazy(
+                    "people:apply_sequence_to_users_in_department",
+                    args=[self.sequence.pk, self.department.pk],
+                ),
             },
         )
 
