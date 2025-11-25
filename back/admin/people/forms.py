@@ -451,3 +451,17 @@ class AddUsersToSequenceChoiceForm(forms.Form):
         users = kwargs.pop("users")
         super().__init__(*args, **kwargs)
         self.fields["users"].queryset = users
+
+
+class AddSequencesToUser(forms.Form):
+    sequences = forms.ModelMultipleChoiceField(
+        label=_("Select the sequences you want to add to this user"),
+        widget=forms.CheckboxSelectMultiple(attrs={"checked":"checked"}),
+        queryset=Sequence.objects.none(),
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        sequence_pks = kwargs.pop("sequence_pks")
+        super().__init__(*args, **kwargs)
+        self.fields["sequences"].queryset = Sequence.objects.filter(pk__in=sequence_pks)
