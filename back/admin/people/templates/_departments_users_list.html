@@ -1,0 +1,19 @@
+{% load i18n %}
+{% if users %}
+<ul class="list-group list-group-flush">
+{% for user in users %}
+  <li class="list-group-item p-1">
+    {% if user.profile_image is not None %}
+    <span class="avatar me-2 avatar-xs" style="background-image: url({{ user.profile_image.get_url }})"></span>
+    {% else %}
+    <span class="avatar me-2 avatar-xs">{{ user.initials }}</span>
+    {% endif %}
+    {{ user.name }}
+    <form hx-delete="{% url 'people:toggle_user_to_role' role.pk %}?item={{user.pk}}" hx-target="#department-modals" class="d-inline" hx-on::before-request="openModal()">
+        {% csrf_token %}
+        <button class="btn btn-danger btn-sm inline">{% trans "remove" %}</button>
+      </form>
+  </li>
+{% endfor %}
+</ul>
+{% endif %}

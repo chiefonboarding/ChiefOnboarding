@@ -222,7 +222,7 @@ def test_add_user_to_role_in_department(
     # user is not part of role
     assert user not in role.users.all()
 
-    url = reverse("people:add_user_to_role", args=[role.id])
+    url = reverse("people:toggle_user_to_role", args=[role.id])
     client.post(url + f"?item={user.id}")
 
     # user is part of role

@@ -260,8 +260,8 @@ urlpatterns = [
     ),
     path(
         "colleagues/role/<int:role_pk>/user/",
-        views.AddUserToRoleView.as_view(),
-        name="add_user_to_role",
+        views.ToggleUserToRoleView.as_view(),
+        name="toggle_user_to_role",
     ),
     path(
         "colleagues/role/<int:role_pk>/seq/",
@@ -292,5 +292,10 @@ urlpatterns = [
         "colleagues/department/role/<int:role_pk>/user/<int:user_pk>/seq/",
         views.ApplySequencesToUserView.as_view(),
         name="apply_sequences_to_user",
+    ),
+    path(
+        "colleagues/department/role/<int:role_pk>/user/<int:user_pk>/remove/",
+        views.RemoveItemsFromUserView.as_view(),
+        name="remove_items_from_user",
     ),
 ]

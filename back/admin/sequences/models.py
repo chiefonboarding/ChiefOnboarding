@@ -632,6 +632,9 @@ class IntegrationConfig(models.Model):
             self.person_type == IntegrationConfig.PersonType.BUDDY,
         )
 
+    def __str__(self):
+        return self.integration.name
+
     @property
     def name(self):
         return self.integration.name

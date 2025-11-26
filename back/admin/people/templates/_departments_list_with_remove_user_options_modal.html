@@ -3,13 +3,13 @@
 {% include "_departments_list.html" %}
 
 <div class="modal-dialog modal-dialog-centered">
-  {% if form.users.field.choices %}
+  {% if form.integrations.field.choices %}
   <div class="modal-content">
     <div class="modal-header">
-      <h5 class="modal-title">{% trans "Add sequence to users" %}</h5>
+      <h5 class="modal-title">{% trans "Remove additional items from user" %}</h5>
     </div>
     <div class="modal-body">
-      <p>{% trans "If you would like to apply this sequence to any current users directly, then feel free to do so here" %}</p>
+      <p>{% trans "If you would like to remove any items from the user, then please select/deselect them here" %}</p>
       <form hx-post="{{modal_url}}">
         {{ form|crispy }}
         <button class="btn btn-primary">{% trans "Submit" %}</button>
