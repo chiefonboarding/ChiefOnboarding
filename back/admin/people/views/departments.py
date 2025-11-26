@@ -1,6 +1,6 @@
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic.base import View
@@ -279,20 +279,9 @@ class ToggleSequenceDepartmentView(AdminOrManagerPermMixin, SuccessMessageMixin,
 
     def delete(self, request, *args, **kwargs):
         self.department.sequences.remove(self.sequence)
-        return render(
-            self.request,
-            "_departments_list_with_sequence_apply_modal.html",
-            {
-                "departments": get_available_departments_for_user(
-                    user=self.request.user
-                ).prefetch_related("roles__users"),
-                "is_users_page": False,
-                "form": form,
-                "modal_url": reverse_lazy(
-                    "people:apply_sequence_to_users_in_department",
-                    args=[self.sequence.pk, self.department.pk],
-                ),
-            },
+        return HttpResponseRedirect(
+            reverse_lazy("people:departments_sequences"),
+            status=303,
         )
 
 
