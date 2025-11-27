@@ -20,6 +20,7 @@ from admin.sequences.selectors import (
 from users.mixins import AdminOrManagerPermMixin
 from users.models import Department, DepartmentRole, User
 from users.selectors import (
+    get_all_normal_users_for_departments_of_user,
     get_all_users_for_departments_of_user,
     get_available_departments_for_user,
     get_available_roles_for_user,
@@ -39,7 +40,7 @@ class DepartmentListView(AdminOrManagerPermMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["title"] = _("Roles and departments")
         context["subtitle"] = _("people")
-        context["users_or_sequences"] = get_all_users_for_departments_of_user(
+        context["users_or_sequences"] = get_all_normal_users_for_departments_of_user(
             user=self.request.user
         )
         context["is_users_page"] = True
@@ -169,6 +170,7 @@ class ToggleUserToRoleView(AdminOrManagerPermMixin, SuccessMessageMixin, View):
 
     def delete(self, request, **kwargs):
         self.role.users.remove(self.user)
+        self.user.conditions.clear()
         return HttpResponseRedirect(
             reverse_lazy(
                 "people:remove_items_from_user", args=[self.role.pk, self.user.pk]
@@ -253,6 +255,9 @@ class ApplySequencesToUserView(AdminOrManagerPermMixin, SuccessMessageMixin, For
 
     def form_valid(self, form):
         sequences = form.cleaned_data["sequences"]
+        self.user.conditions.clear()
+        self.user.start_day = form.cleaned_data["start_day"]
+        self.user.save()
         self.user.add_sequences(sequences)
         return HttpResponse(headers={"HX-Trigger": "hide-modal"})
 

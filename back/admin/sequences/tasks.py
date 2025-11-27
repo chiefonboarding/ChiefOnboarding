@@ -163,7 +163,8 @@ def timed_triggers():
         org.timed_triggers_last_check = last_updated
         org.save()
 
-        for user in get_user_model().new_hires.all():
+        # all users excluding those who are offboarding
+        for user in get_user_model().objects.exclude(termination_date__isnull=False):
             amount_days = user.workday
             amount_days_before = user.days_before_starting
             current_time = user.get_local_time(last_updated).time()
