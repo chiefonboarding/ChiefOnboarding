@@ -1,6 +1,6 @@
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic.base import View
@@ -398,14 +398,25 @@ class RemoveItemsFromUserView(AdminOrManagerPermMixin, SuccessMessageMixin, Form
             user=self.request.user
         ).prefetch_related("roles__users")
         context["modal_url"] = reverse_lazy(
-            "people:apply_sequences_to_user", args=[self.role.pk, self.user.pk]
+            "people:remove_items_from_user", args=[self.role.pk, self.user.pk]
         )
         context["is_users_page"] = True
         return context
 
     def form_valid(self, form):
-        items = form.cleaned_data["items"]
+        items = form.cleaned_data["integrations"]
+        results = {}
         for integrationconfig in items:
-            # TODO: error handling
-            integrationconfig.revoke_user(self.user)
-        return HttpResponse(headers={"HX-Trigger": "hide-modal"})
+            results[integrationconfig.integration.name] = (
+                integrationconfig.integration.revoke_user(self.user)
+            )
+        return render(
+            self.request,
+            "_integration_revoke_errors.html",
+            context={
+                "results": results,
+                "access_url": reverse_lazy(
+                    "people:colleague_access", args=[self.user.pk]
+                ),
+            },
+        )

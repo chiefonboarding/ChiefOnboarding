@@ -10,7 +10,7 @@
     </div>
     <div class="modal-body">
       <p>{% trans "If you would like to remove any items from the user, then please select/deselect them here" %}</p>
-      <form hx-post="{{modal_url}}">
+      <form hx-post="{{modal_url}}" hx-target="#department-modals">
         {{ form|crispy }}
         <button class="btn btn-primary">{% trans "Submit" %}</button>
       </form>
