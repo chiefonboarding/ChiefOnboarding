@@ -9,7 +9,7 @@
       {% for integration_name, result in results.items %}
       <p>{{ integration_name }}: {% if result.0 %}<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>{% else %}<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg> - {{ result.1 }}{% endif %}</p>
       {% endfor %}
-      <a href="{{access_url}}" class="btn btn-primary">See active integrations</a>
+      <a href="{{access_url}}" class="btn btn-primary">{% trans "See active integrations" %}</a>
     </div>
   </div>
 </div>
