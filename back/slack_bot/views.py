@@ -340,7 +340,7 @@ def slack_create_new_hire_or_ask_perm(event):
 
         # Add default sequences
         joined_user.add_sequences(
-            Sequence.objects.filter(auto_add=True), base_date=timezone.now()
+            Sequence.objects.filter(auto_add=True), base_date=timezone.now().date()
         )
 
     else:

@@ -488,7 +488,7 @@ def test_complete_admin_task_linked_to_integration(
 
     new_hire = new_hire_factory()
 
-    new_hire.add_sequences([sequence], new_hire.get_local_time())
+    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
 
     # new hire has now one admin task linked to integration config
     assert (

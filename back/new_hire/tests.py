@@ -92,7 +92,7 @@ def test_show_over_due_to_do_view(client, new_hire_factory, to_do_user_factory):
         to_do__due_on_day=1, user=new_hire, base_date=start_day
     )
     print(to_do_item1.base_date)
-    print(start_day)
+
     # not overdue
     to_do_item2 = to_do_user_factory(
         to_do__due_on_day=2, user=new_hire, base_date=start_day

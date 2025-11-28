@@ -647,7 +647,7 @@ class ToDoUserManager(models.Manager):
 
     def overdue(self, user):
         base_date_day_map = self._get_base_date_day_mapping(user=user, completed=False)
-        print(base_date_day_map)
+
         objs = ToDoUser.objects.none()
         for base_date, workday in base_date_day_map.items():
             objs |= (
