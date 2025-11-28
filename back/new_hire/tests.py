@@ -80,9 +80,7 @@ def test_show_to_do_view(client, new_hire_factory, to_do_user_factory):
 @freeze_time("2021-01-13")
 def test_show_over_due_to_do_view(client, new_hire_factory, to_do_user_factory):
     start_day = datetime.datetime.fromisoformat("2021-01-12").date()
-    print(start_day)
     new_hire = new_hire_factory(start_day=start_day)
-    print(new_hire.start_day)
     client.force_login(new_hire)
 
     url = reverse("new_hire:todos")
@@ -91,7 +89,6 @@ def test_show_over_due_to_do_view(client, new_hire_factory, to_do_user_factory):
     to_do_item1 = to_do_user_factory(
         to_do__due_on_day=1, user=new_hire, base_date=start_day
     )
-    print(to_do_item1.base_date)
 
     # not overdue
     to_do_item2 = to_do_user_factory(

@@ -443,7 +443,7 @@ def test_complete_admin_task_trigger_condition(
 
     new_hire = new_hire_factory()
 
-    new_hire.add_sequences([sequence], new_hire.get_local_time())
+    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
 
     assert new_hire.conditions.count() == 1
 

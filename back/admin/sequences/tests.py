@@ -1454,7 +1454,7 @@ def test_sequence_assign_to_user_merge_to_do_condition(
     condition.to_do.add(to_do1)
 
     # Add to new hire
-    new_hire.add_sequences([sequence], new_hire.get_local_time())
+    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
 
     # there is now one condition (based on todo item)
     assert new_hire.conditions.all().count() == 1
@@ -1510,7 +1510,7 @@ def test_sequence_assign_to_user_merge_time_condition(
     condition.to_do.add(to_do1)
 
     # Add to new hire
-    new_hire.add_sequences([sequence], new_hire.get_local_time())
+    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
 
     # there is now one condition (based on todo item)
     assert new_hire.conditions.all().count() == 1
@@ -1538,7 +1538,7 @@ def test_sequence_assign_to_user_merge_time_condition(
     condition.to_do.add(to_do4)
 
     # Add again to new hire
-    new_hire.add_sequences([sequence], new_hire.get_local_time())
+    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
 
     # new condition has been added (not merged)
     assert new_hire.conditions.all().count() == 2
@@ -1566,7 +1566,7 @@ def test_sequence_assign_to_user_merge_admin_task_condition(
     condition.to_do.add(to_do1)
 
     # Add to new hire
-    new_hire.add_sequences([sequence], new_hire.get_local_time())
+    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
 
     # there is now one condition (based on admin task item)
     assert new_hire.conditions.all().count() == 1
@@ -1624,7 +1624,7 @@ def test_sequence_assign_to_user_merge_integrations_revoked_condition(
     condition.to_do.add(to_do1)
 
     # Add to new hire
-    new_hire.add_sequences([sequence], new_hire.get_local_time())
+    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
 
     # there is now one condition
     assert new_hire.conditions.all().count() == 1
@@ -1636,7 +1636,7 @@ def test_sequence_assign_to_user_merge_integrations_revoked_condition(
     condition.to_do.add(to_do3)
 
     # Add again to new hire
-    new_hire.add_sequences([sequence], new_hire.get_local_time())
+    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
 
     # Condition item was updated and not a new one created
     assert new_hire.conditions.all().count() == 1
