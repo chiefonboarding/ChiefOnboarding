@@ -168,19 +168,17 @@ def timed_triggers():
             current_time = user.get_local_time(last_updated).time()
 
             before_conditions = UserCondition.objects.filter(
-                user=user,
-                condition__condition_type=Condition.Type.BEFORE
+                user=user, condition__condition_type=Condition.Type.BEFORE
             ).distinct("base_date")
             after_conditions = UserCondition.objects.filter(
-                user=user,
-                condition__condition_type=Condition.Type.AFTER
+                user=user, condition__condition_type=Condition.Type.AFTER
             ).distinct("base_date")
             before_date_day_map = {
-                con.base_date: user.days_before_starting(con.base_date) for con in before_conditions
+                con.base_date: user.days_before_starting(con.base_date)
+                for con in before_conditions
             }
             after_date_day_map = {
-                con.base_date: user.workday(con.base_date)
-                for con in after_conditions
+                con.base_date: user.workday(con.base_date) for con in after_conditions
             }
 
             # Get conditions before/after they started
