@@ -479,7 +479,7 @@ def test_remove_sequence_from_new_hire(
     condition2.to_do.add(to_do3)
     condition3.to_do.add(to_do4)
 
-    new_hire1.add_sequences([sequence1, sequence2])
+    new_hire1.add_sequences([sequence1, sequence2], new_hire1.get_local_time().date())
 
     assert new_hire1.conditions.count() == 2
 

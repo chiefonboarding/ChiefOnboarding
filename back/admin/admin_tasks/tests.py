@@ -1,6 +1,7 @@
 import pytest
 from django.core.cache import cache
 from django.urls import reverse
+from django.utils import timezone
 
 from admin.admin_tasks.models import AdminTask
 from admin.sequences.models import IntegrationConfig
@@ -443,7 +444,7 @@ def test_complete_admin_task_trigger_condition(
 
     new_hire = new_hire_factory()
 
-    new_hire.add_sequences([sequence])
+    new_hire.add_sequences([sequence], new_hire.get_local_time())
 
     assert new_hire.conditions.count() == 1
 
@@ -488,7 +489,7 @@ def test_complete_admin_task_linked_to_integration(
 
     new_hire = new_hire_factory()
 
-    new_hire.add_sequences([sequence])
+    new_hire.add_sequences([sequence], new_hire.get_local_time())
 
     # new hire has now one admin task linked to integration config
     assert (

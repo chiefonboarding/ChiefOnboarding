@@ -103,7 +103,7 @@ def update_new_hire():
         tasks = ToDoUser.objects.due_today(user) | overdue_items
 
         courses_due = ResourceUser.objects.filter(
-            user=user, resource__on_day__lte=user.workday
+            user=user, resource__on_day__lte=user.workday()
         )
         # Filter out completed courses
         course_blocks = [

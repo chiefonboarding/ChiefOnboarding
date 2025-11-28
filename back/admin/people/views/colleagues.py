@@ -13,6 +13,7 @@ from django.views.generic.list import ListView
 from django_q.tasks import async_task
 from rest_framework import generics
 from rest_framework.authentication import SessionAuthentication
+from django.utils import timezone
 
 from admin.admin_tasks.models import AdminTask
 from admin.hardware.models import Hardware
@@ -381,7 +382,7 @@ class AddOffboardingSequenceView(
             integration.user_exists(employee)
 
         sequences = Sequence.offboarding.filter(id__in=sequence_ids)
-        employee.add_sequences(sequences)
+        employee.add_sequences(sequences, employee.get_local_time().date())
 
         # Check if there are items that will not be triggered since date passed
         conditions = Condition.objects.none()

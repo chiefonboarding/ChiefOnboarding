@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _
 from django.views.generic.base import View
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
+from django.utils import timezone
 
 from admin.people.forms import (
     AddSequencesToUser,
@@ -258,7 +259,7 @@ class ApplySequencesToUserView(AdminOrManagerPermMixin, SuccessMessageMixin, For
         self.user.conditions.clear()
         self.user.start_day = form.cleaned_data["start_day"]
         self.user.save()
-        self.user.add_sequences(sequences)
+        self.user.add_sequences(sequences, base_date=form.cleaned_data["start_day"])
         return HttpResponse(headers={"HX-Trigger": "hide-modal"})
 
 
@@ -311,7 +312,7 @@ class BaseApplySequenceToUsersView(
     def form_valid(self, form):
         users = form.cleaned_data["users"]
         for user in users:
-            user.add_sequences([self.sequence])
+            user.add_sequences([self.sequence], base_date=user.get_local_time().date())
         return HttpResponse(headers={"HX-Trigger": "hide-modal"})
 
 

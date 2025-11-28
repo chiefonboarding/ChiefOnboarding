@@ -35,7 +35,7 @@ def test_login_data_validation(email, password, logged_in, client, new_hire_fact
     "role, redirect_url",
     [
         (0, "/new_hire/todos/"),
-        (3, "/new_hire/colleagues/"),
+        (3, "/new_hire/todos/"),
         (1, "/admin/people/"),
         (2, "/admin/people/"),
     ],

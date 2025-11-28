@@ -14,7 +14,7 @@ from slack_bot.slack_intro import SlackIntro
 from slack_bot.slack_resource import SlackResource
 from slack_bot.slack_to_do import SlackToDo
 from slack_bot.utils import Slack, paragraph
-from users.models import ResourceUser, ToDoUser
+from users.models import ResourceUser, ToDoUser, UserCondition
 
 
 def process_condition(condition_id, user_id, send_email=True):
@@ -165,27 +165,37 @@ def timed_triggers():
 
         # all users excluding those who are offboarding
         for user in get_user_model().objects.exclude(termination_date__isnull=False):
-            amount_days = user.workday
-            amount_days_before = user.days_before_starting
             current_time = user.get_local_time(last_updated).time()
 
+            before_conditions = UserCondition.objects.filter(condition__condition_type=Condition.Type.BEFORE).distinct("base_date")
+            before_date_day_map = {
+                con.base_date: user.workday(con.base_date) for con in before_conditions
+            }
+            after_date_day_map = {
+                con.base_date: user.days_before_starting(con.base_date) for con in before_conditions
+            }
+
             # Get conditions before/after they started
-            # Generally, this should be only one, but just in case, we can handle more
             conditions = Condition.objects.none()
-            if amount_days == 0:
-                # Before starting
-                conditions = user.conditions.filter(
-                    condition_type=Condition.Type.BEFORE,
-                    days=amount_days_before,
-                    time=current_time,
+            # Before starting
+            for base_date, days_before_starting in before_date_day_map.items():
+                conditions |= UserCondition.objects.filter(
+                    user=user,
+                    base_date=base_date,
+                    condition__condition_type=Condition.Type.BEFORE,
+                    condition__days=days_before_starting,
+                    condition__time=current_time,
                 )
-            elif user.get_local_time(last_updated).weekday() < 5:
+            if user.get_local_time(last_updated).weekday() < 5:
                 # On workday x
-                conditions = user.conditions.filter(
-                    condition_type=Condition.Type.AFTER,
-                    days=amount_days,
-                    time=current_time,
-                )
+                for base_date, workday in after_date_day_map.items():
+                    conditions |= UserCondition.objects.filter(
+                        user=user,
+                        base_date=base_date,
+                        condition__condition_type=Condition.Type.AFTER,
+                        condition__days=workday,
+                        condition__time=current_time,
+                    )
 
             # Schedule conditions to be executed with new scheduled task, we do this to
             # avoid long standing tasks. I.e. sending lots of emails might take more
