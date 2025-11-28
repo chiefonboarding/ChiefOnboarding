@@ -97,7 +97,9 @@ class Sequence(models.Model):
             self.conditions.add(new_condition)
         return self
 
-    def assign_to_user(self, user):
+    def assign_to_user(self, user, base_date):
+        from users.models import UserCondition
+
         # adding conditions
         for sequence_condition in self.conditions.all():
             user_condition = None
@@ -108,11 +110,14 @@ class Sequence(models.Model):
                 Condition.Type.AFTER,
             ]:
                 # Get the timed based condition or return None if not exist
-                user_condition = user.conditions.filter(
-                    condition_type=sequence_condition.condition_type,
-                    days=sequence_condition.days,
-                    time=sequence_condition.time,
+                user_condition_through = UserCondition.objects.filter(
+                    user=user,
+                    condition__days=sequence_condition.days,
+                    condition__time=sequence_condition.time,
+                    base_date=base_date,
                 ).first()
+                if user_condition_through is not None:
+                    user_condition = user_condition_through.condition
 
             elif sequence_condition.condition_type == Condition.Type.TODO:
                 # For to_do items, filter all condition items to find if one matches
@@ -208,7 +213,9 @@ class Sequence(models.Model):
                 sequence_condition.include_other_condition(old_condition)
 
                 # Add newly created condition back to user
-                user.conditions.add(sequence_condition)
+                UserCondition.objects.create(
+                    user=user, condition=sequence_condition, base_date=base_date
+                )
 
     def remove_from_user(self, new_hire):
         from admin.admin_tasks.models import AdminTask

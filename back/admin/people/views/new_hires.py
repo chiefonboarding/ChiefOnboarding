@@ -83,7 +83,7 @@ class NewHireAddView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
         new_hire = form.save()
 
         # Add sequences to new hire
-        new_hire.add_sequences(sequences)
+        new_hire.add_sequences(sequences, base_date=new_hire.start_day)
 
         # Send credentials email if the user was created after their start day
         org = Organization.object.get()
@@ -116,12 +116,12 @@ class NewHireAddView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
         # Check if there are items that will not be triggered since date passed
         conditions = Condition.objects.none()
         for seq in sequences:
-            if new_hire.workday == 0:
+            if new_hire.workday() == 0:
                 # User has not started yet, so we only need the items before they new
                 # hire started that passed
                 conditions |= seq.conditions.filter(
                     condition_type=Condition.Type.BEFORE,
-                    days__gte=new_hire.days_before_starting,
+                    days__gte=new_hire.days_before_starting(),
                 )
             else:
                 # user has already started, check both before start day and after for
@@ -129,7 +129,7 @@ class NewHireAddView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
                 conditions |= seq.conditions.filter(
                     condition_type=Condition.Type.BEFORE
                 ) | seq.conditions.filter(
-                    condition_type=Condition.Type.AFTER, days__lte=new_hire.workday
+                    condition_type=Condition.Type.AFTER, days__lte=new_hire.workday()
                 )
 
         if conditions.count():
@@ -194,7 +194,7 @@ class NewHireAddSequenceView(
             get_new_hires_for_user(user=self.request.user), id=user_id
         )
         sequences = Sequence.objects.filter(id__in=form.cleaned_data["sequences"])
-        new_hire.add_sequences(sequences)
+        new_hire.add_sequences(sequences, new_hire.start_day)
         messages.success(
             self.request, _("Sequence(s) have been added to this new hire")
         )
@@ -202,12 +202,12 @@ class NewHireAddSequenceView(
         # Check if there are items that will not be triggered since date passed
         conditions = Condition.objects.none()
         for seq in sequences:
-            if new_hire.workday == 0:
+            if new_hire.workday() == 0:
                 # User has not started yet, so we only need the items before they new
                 # hire started that passed
                 conditions |= seq.conditions.filter(
                     condition_type=Condition.Type.BEFORE,
-                    days__gte=new_hire.days_before_starting,
+                    days__gte=new_hire.days_before_starting(),
                 )
             else:
                 # user has already started, check both before start day and after for
@@ -215,7 +215,7 @@ class NewHireAddSequenceView(
                 conditions |= seq.conditions.filter(
                     condition_type=Condition.Type.BEFORE
                 ) | seq.conditions.filter(
-                    condition_type=Condition.Type.AFTER, days__lte=new_hire.workday
+                    condition_type=Condition.Type.AFTER, days__lte=new_hire.workday()
                 )
 
         if conditions.count():
@@ -325,10 +325,10 @@ class NewHireSequenceView(AdminOrManagerPermMixin, DetailView):
         context["conditions"] = (
             (
                 conditions.filter(
-                    condition_type=2, days__lte=new_hire.days_before_starting
+                    condition_type=2, days__lte=new_hire.days_before_starting()
                 )
                 | conditions.filter(
-                    condition_type=Condition.Type.AFTER, days__gte=new_hire.workday
+                    condition_type=Condition.Type.AFTER, days__gte=new_hire.workday()
                 )
                 | conditions.filter(condition_type=Condition.Type.TODO)
                 | conditions.filter(condition_type=Condition.Type.ADMIN_TASK)

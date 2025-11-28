@@ -34,18 +34,12 @@ class NewHireDashboard(TemplateView):
     def get_context_data(self, **kwargs):
         new_hire = self.request.user
 
-        # Check that user is allowed to see page (only new hires)
-        if new_hire.role != get_user_model().Role.NEWHIRE:
-            raise Http404
-
         context = super().get_context_data(**kwargs)
 
         context["overdue_to_do_items"] = ToDoUser.objects.overdue(new_hire)
 
         to_do_items = (
-            ToDoUser.objects.filter(
-                user=new_hire, to_do__due_on_day__gte=new_hire.workday
-            )
+            ToDoUser.objects.upcoming_items(user=new_hire)
             .select_related("to_do")
             .defer("to_do__content")
             .order_by("to_do__due_on_day")
@@ -57,10 +51,16 @@ class NewHireDashboard(TemplateView):
             # Check if to do day is already in any of the new items_by_date
             to_do = to_do_user.to_do
             if not any(
-                [item for item in items_by_date if item["day"] == to_do.due_on_day]
+                [
+                    item
+                    for item in items_by_date
+                    if item["day"] == to_do.due_on_day
+                    and item["base_date"] == to_do_user.base_date
+                ]
             ):
                 new_date = {
                     "day": to_do.due_on_day,
+                    "base_date": to_do_user.base_date,
                     "items": [
                         to_do_user,
                     ],
@@ -69,7 +69,10 @@ class NewHireDashboard(TemplateView):
             else:
                 # If it does exist, then add it to the array of that type
                 existing_dates = [
-                    item for item in items_by_date if item["day"] == to_do.due_on_day
+                    item
+                    for item in items_by_date
+                    if item["day"] == to_do.due_on_day
+                    and item["base_date"] == to_do_user.base_date
                 ]
                 # Can never be more than one, since it's catching it if it already
                 # exists
@@ -77,7 +80,9 @@ class NewHireDashboard(TemplateView):
 
         # Convert days to date object
         for obj in items_by_date:
-            obj["date"] = self.request.user.workday_to_datetime(obj["day"])
+            obj["date"] = self.request.user.workday_to_datetime(
+                obj["day"], start_day=obj["base_date"]
+            )
 
         context["to_do_items"] = items_by_date
 

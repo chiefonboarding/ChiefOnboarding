@@ -40,7 +40,7 @@ class UserView(generics.CreateAPIView):
             # Add sequences to new hire
             if sequences is not None:
                 sequences = Sequence.objects.filter(id__in=sequences)
-                user.add_sequences(sequences)
+                user.add_sequences(sequences, serializer.validated_data["start_day"])
 
             # Send credentials email if the user was created after their start day
             org = Organization.object.get()

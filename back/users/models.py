@@ -68,6 +68,15 @@ class Department(models.Model):
         return "%s" % self.name
 
 
+class UserCondition(models.Model):
+    user = models.ForeignKey("users.User", on_delete=models.CASCADE)
+    condition = models.ForeignKey(Condition, on_delete=models.CASCADE)
+    base_date = models.DateField(default=None, null=True)
+
+    class Meta:
+        unique_together = ["user", "condition"]
+
+
 class CustomUserManager(BaseUserManager):
     def get_by_natural_key(self, email):
         # Make validation case sensitive
@@ -252,7 +261,7 @@ class User(AbstractBaseUser):
     )
 
     # Conditions copied over from chosen sequences
-    conditions = models.ManyToManyField(Condition)
+    conditions = models.ManyToManyField(Condition, through=UserCondition)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name"]
@@ -444,9 +453,9 @@ class User(AbstractBaseUser):
             self.unique_url = unique_string
         super(User, self).save(*args, **kwargs)
 
-    def add_sequences(self, sequences):
+    def add_sequences(self, sequences, base_date):
         for sequence in sequences:
-            sequence.assign_to_user(self)
+            sequence.assign_to_user(self, base_date)
             Notification.objects.create(
                 notification_type=Notification.Type.ADDED_SEQUENCE,
                 item_id=sequence.id,
@@ -457,9 +466,9 @@ class User(AbstractBaseUser):
     def remove_sequence(self, sequence):
         sequence.remove_from_user(self)
 
-    @cached_property
-    def workday(self):
-        start_day = self.start_day
+    def workday(self, start_day=None):
+        if start_day is None:
+            start_day = self.start_day
         local_day = self.get_local_time().date()
 
         if start_day > local_day:
@@ -473,8 +482,9 @@ class User(AbstractBaseUser):
 
         return amount_of_workdays
 
-    def workday_to_datetime(self, workdays):
-        start_day = self.start_day
+    def workday_to_datetime(self, workdays, start_day=None):
+        if start_day is None:
+            start_day = self.start_day
         if workdays == 0:
             return None
 
@@ -515,12 +525,13 @@ class User(AbstractBaseUser):
                 days += 1
         return days
 
-    @cached_property
-    def days_before_starting(self):
+    def days_before_starting(self, start_day=None):
+        if start_day is None:
+            start_day = self.start_day
         # not counting workdays here
-        if self.start_day <= self.get_local_time().date():
+        if start_day <= self.get_local_time().date():
             return 0
-        return (self.start_day - self.get_local_time().date()).days
+        return (start_day - self.get_local_time().date()).days
 
     def get_local_time(self, date=None):
         from organization.models import Organization
@@ -624,23 +635,65 @@ class User(AbstractBaseUser):
 
 
 class ToDoUserManager(models.Manager):
+    def _get_base_date_day_mapping(self, user, **kwargs):
+        to_do_items_queryset = self.filter(user=user, **kwargs).distinct("base_date")
+        return {
+            item.base_date: user.workday(item.base_date)
+            for item in to_do_items_queryset
+        }
+
     def all_to_do(self, user):
         return super().get_queryset().filter(user=user, completed=False)
 
     def overdue(self, user):
-        return (
-            super()
-            .get_queryset()
-            .filter(user=user, completed=False, to_do__due_on_day__lt=user.workday)
-            .exclude(to_do__due_on_day=0)
-        )
+        base_date_day_map = self._get_base_date_day_mapping(user=user, completed=False)
+
+        objs = ToDoUser.objects.none()
+        for base_date, workday in base_date_day_map.items():
+            objs |= (
+                super()
+                .get_queryset()
+                .filter(
+                    user=user,
+                    completed=False,
+                    to_do__due_on_day__lt=workday,
+                    base_date=base_date,
+                )
+                .exclude(to_do__due_on_day=0)
+            )
+        return objs
 
     def due_today(self, user):
-        return (
-            super()
-            .get_queryset()
-            .filter(user=user, completed=False, to_do__due_on_day=user.workday)
-        )
+        base_date_day_map = self._get_base_date_day_mapping(user=user, completed=False)
+        objs = ToDoUser.objects.none()
+        for base_date, workday in base_date_day_map.items():
+            objs |= (
+                super()
+                .get_queryset()
+                .filter(
+                    user=user,
+                    completed=False,
+                    to_do__due_on_day=workday,
+                    base_date=base_date,
+                )
+            )
+        return objs
+
+    def upcoming_items(self, user):
+        base_date_day_map = self._get_base_date_day_mapping(user=user)
+        objs = ToDoUser.objects.none()
+        for base_date, workday in base_date_day_map.items():
+            objs |= (
+                super()
+                .get_queryset()
+                .filter(
+                    user=user,
+                    completed=False,
+                    to_do__due_on_day__gte=workday,
+                    base_date=base_date,
+                )
+            )
+        return objs
 
 
 class ToDoUser(CompletedFormCheck, models.Model):
@@ -648,6 +701,7 @@ class ToDoUser(CompletedFormCheck, models.Model):
         get_user_model(), related_name="to_do_new_hire", on_delete=models.CASCADE
     )
     to_do = models.ForeignKey(ToDo, related_name="to_do", on_delete=models.CASCADE)
+    base_date = models.DateField(default=None, null=True)
     completed = models.BooleanField(default=False)
     form = models.JSONField(default=list)
     reminded = models.DateTimeField(null=True)
@@ -739,6 +793,7 @@ class ResourceUser(models.Model):
     answers = models.ManyToManyField(CourseAnswer)
     reminded = models.DateTimeField(null=True)
     completed_course = models.BooleanField(default=False)
+    base_date = models.DateField(default=None, null=True)
 
     def add_step(self):
         self.step += 1
