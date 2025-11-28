@@ -168,14 +168,19 @@ def timed_triggers():
             current_time = user.get_local_time(last_updated).time()
 
             before_conditions = UserCondition.objects.filter(
+                user=user,
                 condition__condition_type=Condition.Type.BEFORE
             ).distinct("base_date")
+            after_conditions = UserCondition.objects.filter(
+                user=user,
+                condition__condition_type=Condition.Type.AFTER
+            ).distinct("base_date")
             before_date_day_map = {
-                con.base_date: user.workday(con.base_date) for con in before_conditions
+                con.base_date: user.days_before_starting(con.base_date) for con in before_conditions
             }
             after_date_day_map = {
-                con.base_date: user.days_before_starting(con.base_date)
-                for con in before_conditions
+                con.base_date: user.workday(con.base_date)
+                for con in after_conditions
             }
 
             # Get conditions before/after they started
@@ -206,9 +211,9 @@ def timed_triggers():
             for i in conditions:
                 async_task(
                     process_condition,
-                    i.id,
+                    i.condition.id,
                     user.id,
-                    task_name=f"Process condition: {i.id} for {user.full_name}",
+                    task_name=f"Process condition: {i.condition.id} for {user.full_name}",
                 )
 
         for user in get_user_model().offboarding.all():
