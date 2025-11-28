@@ -635,13 +635,13 @@ class User(AbstractBaseUser):
 
 
 class ToDoUserManager(models.Manager):
-
     def _get_base_date_day_mapping(self, user, **kwargs):
         to_do_items_queryset = self.filter(user=user, **kwargs).distinct("base_date")
         return {
-            item.base_date: user.workday(item.base_date) for item in to_do_items_queryset
+            item.base_date: user.workday(item.base_date)
+            for item in to_do_items_queryset
         }
-            
+
     def all_to_do(self, user):
         return super().get_queryset().filter(user=user, completed=False)
 
@@ -650,21 +650,49 @@ class ToDoUserManager(models.Manager):
         print(base_date_day_map)
         objs = ToDoUser.objects.none()
         for base_date, workday in base_date_day_map.items():
-            objs |= super().get_queryset().filter(user=user, completed=False, to_do__due_on_day__lt=workday, base_date=base_date).exclude(to_do__due_on_day=0)
+            objs |= (
+                super()
+                .get_queryset()
+                .filter(
+                    user=user,
+                    completed=False,
+                    to_do__due_on_day__lt=workday,
+                    base_date=base_date,
+                )
+                .exclude(to_do__due_on_day=0)
+            )
         return objs
 
     def due_today(self, user):
         base_date_day_map = self._get_base_date_day_mapping(user=user, completed=False)
         objs = ToDoUser.objects.none()
         for base_date, workday in base_date_day_map.items():
-            objs |= super().get_queryset().filter(user=user, completed=False, to_do__due_on_day=workday, base_date=base_date)
+            objs |= (
+                super()
+                .get_queryset()
+                .filter(
+                    user=user,
+                    completed=False,
+                    to_do__due_on_day=workday,
+                    base_date=base_date,
+                )
+            )
         return objs
 
     def upcoming_items(self, user):
         base_date_day_map = self._get_base_date_day_mapping(user=user)
         objs = ToDoUser.objects.none()
         for base_date, workday in base_date_day_map.items():
-            objs |= super().get_queryset().filter(user=user, completed=False, to_do__due_on_day__gte=workday, base_date=base_date)
+            objs |= (
+                super()
+                .get_queryset()
+                .filter(
+                    user=user,
+                    completed=False,
+                    to_do__due_on_day__gte=workday,
+                    base_date=base_date,
+                )
+            )
         return objs
 
 

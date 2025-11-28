@@ -339,7 +339,9 @@ def slack_create_new_hire_or_ask_perm(event):
         joined_user.save()
 
         # Add default sequences
-        joined_user.add_sequences(Sequence.objects.filter(auto_add=True), base_date=timezone.now())
+        joined_user.add_sequences(
+            Sequence.objects.filter(auto_add=True), base_date=timezone.now()
+        )
 
     else:
         translation.activate(org.slack_confirm_person.language)

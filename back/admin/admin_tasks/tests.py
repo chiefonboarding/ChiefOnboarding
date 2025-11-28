@@ -1,7 +1,6 @@
 import pytest
 from django.core.cache import cache
 from django.urls import reverse
-from django.utils import timezone
 
 from admin.admin_tasks.models import AdminTask
 from admin.sequences.models import IntegrationConfig

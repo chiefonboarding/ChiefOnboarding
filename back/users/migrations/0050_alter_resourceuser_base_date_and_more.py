@@ -4,25 +4,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('users', '0049_resourceuser_base_date_todouser_base_date'),
+        ("users", "0049_resourceuser_base_date_todouser_base_date"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='resourceuser',
-            name='base_date',
+            model_name="resourceuser",
+            name="base_date",
             field=models.DateField(default=None, null=True),
         ),
         migrations.AlterField(
-            model_name='todouser',
-            name='base_date',
+            model_name="todouser",
+            name="base_date",
             field=models.DateField(default=None, null=True),
         ),
         migrations.AlterField(
-            model_name='usercondition',
-            name='base_date',
+            model_name="usercondition",
+            name="base_date",
             field=models.DateField(default=None, null=True),
         ),
     ]

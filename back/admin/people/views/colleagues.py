@@ -13,7 +13,6 @@ from django.views.generic.list import ListView
 from django_q.tasks import async_task
 from rest_framework import generics
 from rest_framework.authentication import SessionAuthentication
-from django.utils import timezone
 
 from admin.admin_tasks.models import AdminTask
 from admin.hardware.models import Hardware

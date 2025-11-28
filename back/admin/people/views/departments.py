@@ -6,7 +6,6 @@ from django.utils.translation import gettext as _
 from django.views.generic.base import View
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
-from django.utils import timezone
 
 from admin.people.forms import (
     AddSequencesToUser,

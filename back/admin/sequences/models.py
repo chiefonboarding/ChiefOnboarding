@@ -111,7 +111,7 @@ class Sequence(models.Model):
             ]:
                 # Get the timed based condition or return None if not exist
                 user_condition_through = UserCondition.objects.filter(
-                    user=user, 
+                    user=user,
                     condition__days=sequence_condition.days,
                     condition__time=sequence_condition.time,
                     base_date=base_date,
@@ -213,7 +213,9 @@ class Sequence(models.Model):
                 sequence_condition.include_other_condition(old_condition)
 
                 # Add newly created condition back to user
-                UserCondition.objects.create(user=user, condition=sequence_condition, base_date=base_date)
+                UserCondition.objects.create(
+                    user=user, condition=sequence_condition, base_date=base_date
+                )
 
     def remove_from_user(self, new_hire):
         from admin.admin_tasks.models import AdminTask

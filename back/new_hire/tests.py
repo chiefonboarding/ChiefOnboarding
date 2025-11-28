@@ -21,11 +21,21 @@ def test_show_to_do_view(client, new_hire_factory, to_do_user_factory):
 
     url = reverse("new_hire:todos")
 
-    to_do_item1 = to_do_user_factory(to_do__due_on_day=1, user=new_hire, base_date=start_day)
-    to_do_item2 = to_do_user_factory(to_do__due_on_day=1, user=new_hire, base_date=start_day)
-    to_do_item3 = to_do_user_factory(to_do__due_on_day=2, user=new_hire, base_date=start_day)
-    to_do_item4 = to_do_user_factory(to_do__due_on_day=5, user=new_hire, base_date=start_day)
-    to_do_item5 = to_do_user_factory(to_do__due_on_day=5, user=new_hire, base_date=start_day)
+    to_do_item1 = to_do_user_factory(
+        to_do__due_on_day=1, user=new_hire, base_date=start_day
+    )
+    to_do_item2 = to_do_user_factory(
+        to_do__due_on_day=1, user=new_hire, base_date=start_day
+    )
+    to_do_item3 = to_do_user_factory(
+        to_do__due_on_day=2, user=new_hire, base_date=start_day
+    )
+    to_do_item4 = to_do_user_factory(
+        to_do__due_on_day=5, user=new_hire, base_date=start_day
+    )
+    to_do_item5 = to_do_user_factory(
+        to_do__due_on_day=5, user=new_hire, base_date=start_day
+    )
 
     # Should not be considered - different user
     to_do_item6 = to_do_user_factory(to_do__due_on_day=2, base_date=start_day)
@@ -78,11 +88,15 @@ def test_show_over_due_to_do_view(client, new_hire_factory, to_do_user_factory):
     url = reverse("new_hire:todos")
 
     # overdue
-    to_do_item1 = to_do_user_factory(to_do__due_on_day=1, user=new_hire, base_date=start_day)
+    to_do_item1 = to_do_user_factory(
+        to_do__due_on_day=1, user=new_hire, base_date=start_day
+    )
     print(to_do_item1.base_date)
     print(start_day)
     # not overdue
-    to_do_item2 = to_do_user_factory(to_do__due_on_day=2, user=new_hire, base_date=start_day)
+    to_do_item2 = to_do_user_factory(
+        to_do__due_on_day=2, user=new_hire, base_date=start_day
+    )
 
     response = client.get(url)
 

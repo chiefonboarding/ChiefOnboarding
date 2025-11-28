@@ -51,7 +51,12 @@ class NewHireDashboard(TemplateView):
             # Check if to do day is already in any of the new items_by_date
             to_do = to_do_user.to_do
             if not any(
-                [item for item in items_by_date if item["day"] == to_do.due_on_day and item["base_date"] == to_do_user.base_date]
+                [
+                    item
+                    for item in items_by_date
+                    if item["day"] == to_do.due_on_day
+                    and item["base_date"] == to_do_user.base_date
+                ]
             ):
                 new_date = {
                     "day": to_do.due_on_day,
@@ -64,7 +69,10 @@ class NewHireDashboard(TemplateView):
             else:
                 # If it does exist, then add it to the array of that type
                 existing_dates = [
-                    item for item in items_by_date if item["day"] == to_do.due_on_day and item["base_date"] == to_do_user.base_date
+                    item
+                    for item in items_by_date
+                    if item["day"] == to_do.due_on_day
+                    and item["base_date"] == to_do_user.base_date
                 ]
                 # Can never be more than one, since it's catching it if it already
                 # exists
@@ -72,7 +80,9 @@ class NewHireDashboard(TemplateView):
 
         # Convert days to date object
         for obj in items_by_date:
-            obj["date"] = self.request.user.workday_to_datetime(obj["day"], start_day=obj["base_date"])
+            obj["date"] = self.request.user.workday_to_datetime(
+                obj["day"], start_day=obj["base_date"]
+            )
 
         context["to_do_items"] = items_by_date
 

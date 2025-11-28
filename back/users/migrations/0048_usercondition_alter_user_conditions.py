@@ -2,8 +2,8 @@
 
 import django.db.models.deletion
 from django.conf import settings
-from django.db import migrations, models
 from django.contrib.auth import get_user_model
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
@@ -21,8 +21,8 @@ class Migration(migrations.Migration):
             user.conditions.clear()
 
     dependencies = [
-        ('sequences', '0046_alter_sequence_options_sequence_departments'),
-        ('users', '0047_alter_department_name'),
+        ("sequences", "0046_alter_sequence_options_sequence_departments"),
+        ("users", "0047_alter_department_name"),
     ]
 
     operations = [
@@ -37,22 +37,44 @@ class Migration(migrations.Migration):
             ],
             state_operations=[
                 migrations.CreateModel(
-                    name='UserCondition',
+                    name="UserCondition",
                     fields=[
-                        ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                        ('condition', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='sequences.condition')),
-                        ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                        (
+                            "id",
+                            models.AutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        (
+                            "condition",
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="sequences.condition",
+                            ),
+                        ),
+                        (
+                            "user",
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to=settings.AUTH_USER_MODEL,
+                            ),
+                        ),
                     ],
                     options={
-                        'unique_together': {('user', 'condition')},
+                        "unique_together": {("user", "condition")},
                     },
                 ),
                 migrations.AlterField(
-                    model_name='user',
-                    name='conditions',
-                    field=models.ManyToManyField(through='users.UserCondition', to='sequences.condition'),
+                    model_name="user",
+                    name="conditions",
+                    field=models.ManyToManyField(
+                        through="users.UserCondition", to="sequences.condition"
+                    ),
                 ),
-            ]
+            ],
         ),
         migrations.AddField(
             model_name="UserCondition",

@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     def set_resource_user_base_date(apps, schema_editor):
         ResourceUser = apps.get_model("users", "ResourceUser")
         User = apps.get_model("users", "User")
@@ -18,18 +17,18 @@ class Migration(migrations.Migration):
             ToDoUser.objects.filter(user=user).update(base_date=user.start_day)
 
     dependencies = [
-        ('users', '0048_usercondition_alter_user_conditions'),
+        ("users", "0048_usercondition_alter_user_conditions"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='resourceuser',
-            name='base_date',
+            model_name="resourceuser",
+            name="base_date",
             field=models.DateField(auto_now=True),
         ),
         migrations.AddField(
-            model_name='todouser',
-            name='base_date',
+            model_name="todouser",
+            name="base_date",
             field=models.DateField(auto_now=True),
         ),
         migrations.RunPython(
