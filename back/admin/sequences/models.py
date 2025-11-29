@@ -184,7 +184,7 @@ class Sequence(models.Model):
             else:
                 # Condition (always just one) that will be assigned directly (type == 3)
                 # Just run the condition with the new hire
-                sequence_condition.process_condition(user)
+                sequence_condition.process_condition(user, base_date=base_date)
                 continue
 
             # Let's add the condition to the new hire. Either through adding it to the
@@ -916,7 +916,12 @@ class Condition(models.Model):
         # returning the new item
         return self, admin_tasks
 
-    def process_condition(self, user, skip_notification=False):
+    def process_condition(self, user, base_date=None, skip_notification=False):
+        from users.models import ResourceUser, ToDoUser, UserCondition
+
+        if base_date is None:
+            base_date = UserCondition.objects.get(user=user, condition=self).base_date
+
         # Loop over all m2m fields and add the ones that can be easily added
         for field in [
             "to_do",
@@ -927,7 +932,14 @@ class Condition(models.Model):
             "preboarding",
         ]:
             for item in getattr(self, field).all():
-                getattr(user, field).add(item)
+                if field == "to_do":
+                    ToDoUser.objects.create(user=user, to_do=item, base_date=base_date)
+                elif field == "resources":
+                    ResourceUser.objects.create(
+                        user=user, resource=item, base_date=base_date
+                    )
+                else:
+                    getattr(user, field).add(item)
 
                 Notification.objects.create(
                     notification_type=item.notification_add_type,
