@@ -194,7 +194,7 @@ class NewHireAddSequenceView(
             get_new_hires_for_user(user=self.request.user), id=user_id
         )
         sequences = Sequence.objects.filter(id__in=form.cleaned_data["sequences"])
-        new_hire.add_sequences(sequences)
+        new_hire.add_sequences(sequences, new_hire.get_local_time().date())
         messages.success(
             self.request, _("Sequence(s) have been added to this new hire")
         )

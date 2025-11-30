@@ -18,6 +18,7 @@ from admin.hardware.forms import HardwareForm
 from admin.integrations.models import Integration
 from admin.introductions.factories import IntroductionFactory
 from admin.introductions.forms import IntroductionForm
+from admin.people.revoke_result import RevokeResult
 from admin.preboarding.factories import PreboardingFactory
 from admin.preboarding.forms import PreboardingForm
 from admin.resources.factories import ResourceFactory
@@ -1995,7 +1996,7 @@ def test_execute_integration_revoke(
     # revoke part gets triggered
     with patch(
         "admin.integrations.models.Integration.revoke_user",
-        Mock(return_value=(True, "")),
+        Mock(return_value=RevokeResult(success=True, message="")),
     ) as revoke_user_mock:
         condition.process_condition(employee, start_date=timezone.now().date())
         assert revoke_user_mock.called

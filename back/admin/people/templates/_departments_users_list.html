@@ -9,7 +9,7 @@
     <span class="avatar me-2 avatar-xs">{{ user.initials }}</span>
     {% endif %}
     {{ user.name }}
-    <form hx-delete="{% url 'people:toggle_user_to_role' role.pk %}?item={{user.pk}}" hx-target="#department-modals" class="d-inline" hx-on::before-request="openModal()">
+    <form hx-delete="{% url 'people:toggle_user_to_role' role.pk %}?item={{user.pk}}" hx-target="#department-modals" class="d-inline">
         {% csrf_token %}
         <button class="btn btn-danger btn-sm inline">{% trans "remove" %}</button>
       </form>
