@@ -22,23 +22,23 @@ def test_show_to_do_view(client, new_hire_factory, to_do_user_factory):
     url = reverse("new_hire:todos")
 
     to_do_item1 = to_do_user_factory(
-        to_do__due_on_day=1, user=new_hire, base_date=start_day
+        to_do__due_on_day=1, user=new_hire, role_start_date=start_day
     )
     to_do_item2 = to_do_user_factory(
-        to_do__due_on_day=1, user=new_hire, base_date=start_day
+        to_do__due_on_day=1, user=new_hire, role_start_date=start_day
     )
     to_do_item3 = to_do_user_factory(
-        to_do__due_on_day=2, user=new_hire, base_date=start_day
+        to_do__due_on_day=2, user=new_hire, role_start_date=start_day
     )
     to_do_item4 = to_do_user_factory(
-        to_do__due_on_day=5, user=new_hire, base_date=start_day
+        to_do__due_on_day=5, user=new_hire, role_start_date=start_day
     )
     to_do_item5 = to_do_user_factory(
-        to_do__due_on_day=5, user=new_hire, base_date=start_day
+        to_do__due_on_day=5, user=new_hire, role_start_date=start_day
     )
 
     # Should not be considered - different user
-    to_do_item6 = to_do_user_factory(to_do__due_on_day=2, base_date=start_day)
+    to_do_item6 = to_do_user_factory(to_do__due_on_day=2, role_start_date=start_day)
 
     to_do_items = [
         to_do_item1.to_do,
@@ -87,12 +87,12 @@ def test_show_over_due_to_do_view(client, new_hire_factory, to_do_user_factory):
 
     # overdue
     to_do_item1 = to_do_user_factory(
-        to_do__due_on_day=1, user=new_hire, base_date=start_day
+        to_do__due_on_day=1, user=new_hire, role_start_date=start_day
     )
 
     # not overdue
     to_do_item2 = to_do_user_factory(
-        to_do__due_on_day=2, user=new_hire, base_date=start_day
+        to_do__due_on_day=2, user=new_hire, role_start_date=start_day
     )
 
     response = client.get(url)
@@ -199,7 +199,7 @@ def test_complete_to_do_item_view_with_trigger(
         condition_type=Condition.Type.TODO, sequence=sequence
     )
 
-    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
+    new_hire.add_sequences([sequence])
     # Add to do item from sequence to new hire. Once we have triggered this, all
     # other items should be added/triggered too.
     new_hire.to_do.add(con.condition_to_do.all().first())

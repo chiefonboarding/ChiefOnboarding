@@ -55,12 +55,12 @@ class NewHireDashboard(TemplateView):
                     item
                     for item in items_by_date
                     if item["day"] == to_do.due_on_day
-                    and item["base_date"] == to_do_user.base_date
+                    and item["role_start_date"] == to_do_user.role_start_date
                 ]
             ):
                 new_date = {
                     "day": to_do.due_on_day,
-                    "base_date": to_do_user.base_date,
+                    "role_start_date": to_do_user.role_start_date,
                     "items": [
                         to_do_user,
                     ],
@@ -72,7 +72,7 @@ class NewHireDashboard(TemplateView):
                     item
                     for item in items_by_date
                     if item["day"] == to_do.due_on_day
-                    and item["base_date"] == to_do_user.base_date
+                    and item["role_start_date"] == to_do_user.role_start_date
                 ]
                 # Can never be more than one, since it's catching it if it already
                 # exists
@@ -81,7 +81,7 @@ class NewHireDashboard(TemplateView):
         # Convert days to date object
         for obj in items_by_date:
             obj["date"] = self.request.user.workday_to_datetime(
-                obj["day"], start_day=obj["base_date"]
+                obj["day"], start_day=obj["role_start_date"]
             )
 
         context["to_do_items"] = items_by_date

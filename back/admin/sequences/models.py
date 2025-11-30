@@ -97,8 +97,11 @@ class Sequence(models.Model):
             self.conditions.add(new_condition)
         return self
 
-    def assign_to_user(self, user, base_date):
+    def assign_to_user(self, user, start_date=None):
         from users.models import UserCondition
+
+        if start_date is None:
+            start_date = user.start_day
 
         # adding conditions
         for sequence_condition in self.conditions.all():
@@ -114,7 +117,7 @@ class Sequence(models.Model):
                     user=user,
                     condition__days=sequence_condition.days,
                     condition__time=sequence_condition.time,
-                    base_date=base_date,
+                    role_start_date=start_date,
                 ).first()
                 if user_condition_through is not None:
                     user_condition = user_condition_through.condition
@@ -184,7 +187,7 @@ class Sequence(models.Model):
             else:
                 # Condition (always just one) that will be assigned directly (type == 3)
                 # Just run the condition with the new hire
-                sequence_condition.process_condition(user, base_date=base_date)
+                sequence_condition.process_condition(user, start_date=start_date)
                 continue
 
             # Let's add the condition to the new hire. Either through adding it to the
@@ -214,7 +217,7 @@ class Sequence(models.Model):
 
                 # Add newly created condition back to user
                 UserCondition.objects.create(
-                    user=user, condition=sequence_condition, base_date=base_date
+                    user=user, condition=sequence_condition, role_start_date=start_date
                 )
 
     def remove_from_user(self, new_hire):
@@ -916,11 +919,13 @@ class Condition(models.Model):
         # returning the new item
         return self, admin_tasks
 
-    def process_condition(self, user, base_date=None, skip_notification=False):
+    def process_condition(self, user, start_date=None, skip_notification=False):
         from users.models import ResourceUser, ToDoUser, UserCondition
 
-        if base_date is None:
-            base_date = UserCondition.objects.get(user=user, condition=self).base_date
+        if start_date is None:
+            start_date = UserCondition.objects.get(
+                user=user, condition=self
+            ).role_start_date
 
         # Loop over all m2m fields and add the ones that can be easily added
         for field in [
@@ -933,10 +938,12 @@ class Condition(models.Model):
         ]:
             for item in getattr(self, field).all():
                 if field == "to_do":
-                    ToDoUser.objects.create(user=user, to_do=item, base_date=base_date)
+                    ToDoUser.objects.create(
+                        user=user, to_do=item, role_start_date=start_date
+                    )
                 elif field == "resources":
                     ResourceUser.objects.create(
-                        user=user, resource=item, base_date=base_date
+                        user=user, resource=item, role_start_date=start_date
                     )
                 else:
                     getattr(user, field).add(item)

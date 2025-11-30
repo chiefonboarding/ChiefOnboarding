@@ -83,7 +83,7 @@ class NewHireAddView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
         new_hire = form.save()
 
         # Add sequences to new hire
-        new_hire.add_sequences(sequences, base_date=new_hire.start_day)
+        new_hire.add_sequences(sequences)
 
         # Send credentials email if the user was created after their start day
         org = Organization.object.get()
@@ -194,7 +194,7 @@ class NewHireAddSequenceView(
             get_new_hires_for_user(user=self.request.user), id=user_id
         )
         sequences = Sequence.objects.filter(id__in=form.cleaned_data["sequences"])
-        new_hire.add_sequences(sequences, new_hire.start_day)
+        new_hire.add_sequences(sequences)
         messages.success(
             self.request, _("Sequence(s) have been added to this new hire")
         )
@@ -274,7 +274,9 @@ class NewHireTriggerConditionView(AdminOrManagerPermMixin, TemplateView):
         new_hire = get_object_or_404(
             get_colleagues_for_user(user=self.request.user), id=pk
         )
-        condition.process_condition(new_hire, skip_notification=True)
+        condition.process_condition(
+            new_hire, start_date=timezone.now(), skip_notification=True
+        )
 
         # Update user amount completed
         new_hire.update_progress()

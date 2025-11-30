@@ -254,9 +254,7 @@ class ApplySequencesToUserView(AdminOrManagerPermMixin, SuccessMessageMixin, For
 
     def form_valid(self, form):
         sequences = form.cleaned_data["sequences"]
-        self.user.start_day = form.cleaned_data["start_day"]
-        self.user.save()
-        self.user.add_sequences(sequences, base_date=form.cleaned_data["start_day"])
+        self.user.add_sequences(sequences, start_date=form.cleaned_data["start_day"])
         return HttpResponse(headers={"HX-Trigger": "hide-modal"})
 
 
@@ -309,7 +307,7 @@ class BaseApplySequenceToUsersView(
     def form_valid(self, form):
         users = form.cleaned_data["users"]
         for user in users:
-            user.add_sequences([self.sequence], base_date=user.get_local_time().date())
+            user.add_sequences([self.sequence], start_date=user.get_local_time().date())
         return HttpResponse(headers={"HX-Trigger": "hide-modal"})
 
 

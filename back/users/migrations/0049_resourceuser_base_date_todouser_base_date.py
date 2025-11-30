@@ -4,17 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-    def set_resource_user_base_date(apps, schema_editor):
+    def set_resource_user_role_start_date(apps, schema_editor):
         ResourceUser = apps.get_model("users", "ResourceUser")
         User = apps.get_model("users", "User")
         for user in User.objects.all():
-            ResourceUser.objects.filter(user=user).update(base_date=user.start_day)
+            ResourceUser.objects.filter(user=user).update(
+                role_start_date=user.start_day
+            )
 
-    def set_to_do_user_base_date(apps, schema_editor):
+    def set_to_do_user_role_start_date(apps, schema_editor):
         ToDoUser = apps.get_model("users", "ToDoUser")
         User = apps.get_model("users", "User")
         for user in User.objects.all():
-            ToDoUser.objects.filter(user=user).update(base_date=user.start_day)
+            ToDoUser.objects.filter(user=user).update(role_start_date=user.start_day)
 
     dependencies = [
         ("users", "0048_usercondition_alter_user_conditions"),
@@ -32,9 +34,9 @@ class Migration(migrations.Migration):
             field=models.DateField(auto_now=True),
         ),
         migrations.RunPython(
-            set_resource_user_base_date, reverse_code=migrations.RunPython.noop
+            set_resource_user_role_start_date, reverse_code=migrations.RunPython.noop
         ),
         migrations.RunPython(
-            set_to_do_user_base_date, reverse_code=migrations.RunPython.noop
+            set_to_do_user_role_start_date, reverse_code=migrations.RunPython.noop
         ),
     ]

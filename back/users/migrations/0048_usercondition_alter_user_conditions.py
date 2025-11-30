@@ -7,11 +7,13 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-    def set_user_condition_base_date(apps, schema_editor):
+    def set_user_condition_role_start_date(apps, schema_editor):
         UserCondition = apps.get_model("users", "UserCondition")
         User = apps.get_model("users", "User")
         for user in User.objects.all():
-            UserCondition.objects.filter(user=user).update(base_date=user.start_day)
+            UserCondition.objects.filter(user=user).update(
+                role_start_date=user.start_day
+            )
 
     def clear_conditions_for_normal_users(apps, schema_editor):
         User = apps.get_model("users", "User")
@@ -29,7 +31,7 @@ class Migration(migrations.Migration):
         migrations.SeparateDatabaseAndState(
             database_operations=[
                 # Old table name from checking with sqlmigrate, new table
-                # name from AuthorBook._meta.db_table.
+                # name from UserCondition._meta.db_table.
                 migrations.RunSQL(
                     sql="ALTER TABLE users_user_conditions RENAME TO users_usercondition",
                     reverse_sql="ALTER TABLE users_usercondition RENAME TO users_user_conditions",
@@ -82,7 +84,7 @@ class Migration(migrations.Migration):
             field=models.DateField(auto_now=True),
         ),
         migrations.RunPython(
-            set_user_condition_base_date, reverse_code=migrations.RunPython.noop
+            set_user_condition_role_start_date, reverse_code=migrations.RunPython.noop
         ),
         migrations.RunPython(
             clear_conditions_for_normal_users, reverse_code=migrations.RunPython.noop
