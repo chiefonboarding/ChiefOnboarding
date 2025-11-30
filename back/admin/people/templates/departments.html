@@ -130,17 +130,9 @@ document.addEventListener("drop", function( event ) {
 
     htmx.ajax(method, url + "?item=" + itemId, {
       target: "#department-modals",
-    }).then(function () {
-      openModal()
     })
   }
 })
-
-function openModal(){
-  if($(".modal-content")[0]) {
-    $('#department-modals').modal("toggle")
-  }
-}
 
 document.addEventListener("dragover", function( event ) {
   // prevent default action
@@ -171,6 +163,10 @@ document.addEventListener("dragleave", function( event ) {
 
 $(document).on("hide-modal", function(evt){
   $('.modal').modal('hide')
+})
+
+$(document).on("show-modal", function(evt){
+  $('#department-modals').modal("toggle")
 })
 
 </script>

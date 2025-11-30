@@ -201,10 +201,7 @@ class ToggleSequenceRoleView(AdminOrManagerPermMixin, SuccessMessageMixin, View)
     def delete(self, request, **kwargs):
         self.role.sequences.remove(self.sequence)
         return HttpResponseRedirect(
-            reverse_lazy(
-                "people:apply_sequence_to_users_in_role",
-                args=[self.sequence.pk, self.role.pk],
-            ),
+            reverse_lazy("people:departments_sequences"),
             status=303,
         )
 
@@ -251,6 +248,12 @@ class ApplySequencesToUserView(AdminOrManagerPermMixin, SuccessMessageMixin, For
             "people:apply_sequences_to_user", args=[self.role.pk, self.user.pk]
         )
         return context
+
+    def render_to_response(self, context, **response_kwargs):
+        response = super().render_to_response(context, **response_kwargs)
+        if len(self.get_form_kwargs()["sequence_pks"]):
+            response["HX-Trigger"] = "show-modal"
+        return response
 
     def form_valid(self, form):
         sequences = form.cleaned_data["sequences"]
@@ -303,6 +306,12 @@ class BaseApplySequenceToUsersView(
         context["sequence"] = self.sequence
         context["modal_url"] = self.modal_url
         return context
+
+    def render_to_response(self, context, **response_kwargs):
+        response = super().render_to_response(context, **response_kwargs)
+        if len(self.get_form_kwargs()["users"]):
+            response["HX-Trigger"] = "show-modal"
+        return response
 
     def form_valid(self, form):
         users = form.cleaned_data["users"]
@@ -387,6 +396,12 @@ class RemoveItemsFromUserView(AdminOrManagerPermMixin, SuccessMessageMixin, Form
                 )
         kwargs["items"] = integration_items
         return kwargs
+
+    def render_to_response(self, context, **response_kwargs):
+        response = super().render_to_response(context, **response_kwargs)
+        if len(self.get_form_kwargs()["items"]):
+            response["HX-Trigger"] = "show-modal"
+        return response
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
