@@ -522,7 +522,8 @@ class IntegrationBuilderTestView(AdminPermMixin, View):
         elif test_type == "execute":
             result = integration.execute(user)
         elif test_type == "revoke":
-            result = integration.revoke_user(user)
+            revoke_result = integration.revoke_user(user)
+            result = (revoke_result.success, revoke_result.message)
 
         tracker = IntegrationTracker.objects.filter(
             integration=integration, for_user=user

@@ -1,4 +1,3 @@
-import factory
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
@@ -270,12 +269,3 @@ class FilterDepartmentsFieldByUserMixin:
                     _("You cannot remove a department that you are not part of")
                 )
         return new_departments
-
-
-class DepartmentsPostGenerationMixin(factory.Factory):
-    @factory.post_generation
-    def departments(self, create, extracted, **kwargs):
-        if not create:
-            return
-        if extracted:
-            self.departments.set(extracted)

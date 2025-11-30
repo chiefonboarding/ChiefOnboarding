@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from admin.integrations.models import Integration
-from admin.sequences.models import Sequence
+from admin.sequences.models import IntegrationConfig, Sequence
 from admin.sequences.selectors import get_onboarding_sequences_for_user
 from admin.templates.forms import (
     MultiSelectField,
@@ -16,6 +16,7 @@ from admin.templates.forms import (
 )
 from misc.mixins import FilterDepartmentsFieldByUserMixin
 from organization.models import Organization
+from users.models import User
 
 
 class NewHireAddForm(forms.ModelForm):
@@ -436,3 +437,50 @@ class UserRoleForm(forms.ModelForm):
     class Meta:
         model = get_user_model()
         fields = ("role",)
+
+
+class AddUsersToSequenceChoiceForm(forms.Form):
+    users = forms.ModelMultipleChoiceField(
+        label=_("Select the users you want to add this sequence to"),
+        widget=forms.CheckboxSelectMultiple,
+        queryset=User.objects.none(),
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        users = kwargs.pop("users")
+        super().__init__(*args, **kwargs)
+        self.fields["users"].queryset = users
+
+
+class AddSequencesToUser(forms.Form):
+    start_day = forms.DateField(
+        label=_("Date when they will start in this new role"),
+        widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
+    )
+    sequences = forms.ModelMultipleChoiceField(
+        label=_("Select the sequences you want to add to this user"),
+        widget=forms.CheckboxSelectMultiple(attrs={"checked": "checked"}),
+        queryset=Sequence.objects.none(),
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        sequence_pks = kwargs.pop("sequence_pks")
+        super().__init__(*args, **kwargs)
+        self.fields["sequences"].queryset = Sequence.objects.filter(pk__in=sequence_pks)
+
+
+class ItemsToBeRemovedForm(forms.Form):
+    integrations = forms.ModelMultipleChoiceField(
+        label=_("Select the integrations you want to remove from this user"),
+        widget=forms.CheckboxSelectMultiple(attrs={"checked": ""}),
+        queryset=IntegrationConfig.objects.none(),
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        # naming 'items' as it will likely be expanded to other types later
+        items = kwargs.pop("items")
+        super().__init__(*args, **kwargs)
+        self.fields["integrations"].queryset = items

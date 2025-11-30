@@ -7,13 +7,25 @@
   <div class="col-md-8 col-12">
     <div class="card mt-3">
       <div class="card-header">
-        <h3 class="card-title">{% translate "New department" %}</h3>
+        <h3 class="card-title">
+          {% if form.instance.pk %}
+            {{ object.name }}
+          {% else %}
+            {% translate "New role" %}
+          {% endif %}
+        </h3>
       </div>
       <div class="card-body">
         <form method="post">
           {% csrf_token %}
           {{ form|crispy }}
-          <button type="submit" class="btn btn-primary">{% trans "Create" %}</button>
+          <button type="submit" class="btn btn-primary">
+            {% if form.instance.pk %}
+              {% trans "Update" %}
+            {% else %}
+              {% trans "Create" %}
+            {% endif %}
+          </button>
         </form>
       </div>
     </div>

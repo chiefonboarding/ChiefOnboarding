@@ -11,3 +11,12 @@ class FileFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = File
+
+
+class DepartmentsPostGenerationMixin(factory.Factory):
+    @factory.post_generation
+    def departments(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            self.departments.set(extracted)

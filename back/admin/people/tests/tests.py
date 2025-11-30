@@ -14,6 +14,7 @@ from admin.appointments.factories import AppointmentFactory
 from admin.integrations.models import Integration
 from admin.introductions.factories import IntroductionFactory
 from admin.notes.models import Note
+from admin.people.revoke_result import RevokeResult
 from admin.preboarding.factories import PreboardingFactory
 from admin.resources.factories import ResourceFactory
 from admin.sequences.models import Condition
@@ -1792,7 +1793,7 @@ def test_new_hire_access_per_integration_toggle(
         ) as mock_user_execute,
         patch(
             "admin.integrations.models.Integration.revoke_user",
-            Mock(return_value=(True, "")),
+            Mock(return_value=RevokeResult(success=True, message="")),
         ) as mock_revoke_user,
     ):
         # New hire already has an account (email matches with return)
@@ -1830,7 +1831,7 @@ def test_new_hire_access_per_integration_toggle(
         ) as mock_user_execute,
         patch(
             "admin.integrations.models.Integration.revoke_user",
-            Mock(return_value=(True, "")),
+            Mock(return_value=RevokeResult(success=True, message="")),
         ) as mock_revoke_user,
     ):
         # New hire already has an account (email matches with return)
@@ -2027,7 +2028,7 @@ def test_new_hire_access_revoke(
         ) as mock_user_exists,
         patch(
             "admin.integrations.models.Integration.revoke_user",
-            Mock(return_value=(True, "")),
+            Mock(return_value=RevokeResult(success=True, message="")),
         ) as mock_revoke_user,
     ):
         # revoke all access

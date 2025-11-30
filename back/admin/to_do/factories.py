@@ -3,7 +3,7 @@ from factory.fuzzy import FuzzyText
 from pytest_factoryboy import register
 
 from admin.to_do.models import ToDo
-from misc.mixins import DepartmentsPostGenerationMixin
+from misc.factories import DepartmentsPostGenerationMixin
 
 
 @register

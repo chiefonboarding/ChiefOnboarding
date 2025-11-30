@@ -62,7 +62,7 @@ def test_workday(date, workday, new_hire_factory):
 
     freezer = freeze_time(date)
     freezer.start()
-    assert user.workday == workday
+    assert user.workday() == workday
     freezer.stop()
 
 
@@ -161,7 +161,7 @@ def test_days_before_starting(date, daybefore, new_hire_factory):
 
     freezer = freeze_time(date)
     freezer.start()
-    assert user.days_before_starting == daybefore
+    assert user.days_before_starting() == daybefore
     freezer.stop()
 
 
@@ -504,7 +504,7 @@ def test_integration_user_trigger(
     condition.to_do.add(to_do_factory())
     seq = sequence_factory()
     seq.conditions.add(condition)
-    employee.add_sequences([seq])
+    employee.add_sequences([seq], employee.get_local_time().date())
 
     # no items yet, because user access items have not been revoked yet
     assert employee.to_do.count() == 0
