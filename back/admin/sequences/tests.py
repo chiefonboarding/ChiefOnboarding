@@ -1225,7 +1225,7 @@ def test_offboarding_sequence_trigger_task(
     seq.conditions.add(condition)
 
     # Add sequence to user
-    emp1.add_sequences([seq], emp1.get_local_time().date())
+    emp1.add_sequences([seq])
 
     assert emp1.to_do.all().count() == 1
 
