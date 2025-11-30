@@ -274,11 +274,6 @@ urlpatterns = [
         name="toggle_seq_department",
     ),
     path(
-        "colleagues/departments/seq/",
-        views.DepartmentSequenceListView.as_view(),
-        name="departments_sequences",
-    ),
-    path(
         "colleagues/department/seq/<int:sequence>/<int:department_pk>/",
         views.ApplySequenceToUsersDepartmentView.as_view(),
         name="apply_sequence_to_users_in_department",
