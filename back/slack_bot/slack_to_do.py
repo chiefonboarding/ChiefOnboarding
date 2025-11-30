@@ -14,7 +14,7 @@ class SlackToDo:
         self.user = user
 
     def footer_text(self):
-        workday = self.user.workday(self.to_do_user.base_date)
+        workday = self.user.workday(self.to_do_user.role_start_date)
         if self.to_do_user.to_do.due_on_day == 0:
             return _("This task has no deadline.")
         if (self.to_do_user.to_do.due_on_day - workday) < 0:

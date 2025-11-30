@@ -274,7 +274,9 @@ class NewHireTriggerConditionView(AdminOrManagerPermMixin, TemplateView):
         new_hire = get_object_or_404(
             get_colleagues_for_user(user=self.request.user), id=pk
         )
-        condition.process_condition(new_hire, skip_notification=True)
+        condition.process_condition(
+            new_hire, start_date=timezone.now(), skip_notification=True
+        )
 
         # Update user amount completed
         new_hire.update_progress()

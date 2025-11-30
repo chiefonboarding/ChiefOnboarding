@@ -73,6 +73,7 @@ class UserDeleteView(AdminOrManagerPermMixin, SuccessMessageMixin, DeleteView):
 
     def form_valid(self, form):
         EmailAddress.objects.filter(user=self.object).delete()
+        self.object.conditions.clear()
         return super().form_valid(form)
 
 

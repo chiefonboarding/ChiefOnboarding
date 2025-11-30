@@ -10,7 +10,6 @@ def test_department_list(
     client,
     django_user_model,
     department_factory,
-    new_hire_factory,
     manager_factory,
 ):
     user = django_user_model.objects.create(role=get_user_model().Role.MANAGER)
@@ -20,8 +19,8 @@ def test_department_list(
     dep2 = department_factory()
     user.departments.add(dep)
 
-    user1 = new_hire_factory(departments=[dep])
-    user2 = new_hire_factory(departments=[dep2])
+    user1 = manager_factory(departments=[dep])
+    user2 = manager_factory(departments=[dep2])
     user3 = manager_factory(departments=[dep])
     # not part of any departments, so available everywhere
     user4 = manager_factory()

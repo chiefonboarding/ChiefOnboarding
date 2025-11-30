@@ -71,7 +71,11 @@ class Department(models.Model):
 class UserCondition(models.Model):
     user = models.ForeignKey("users.User", on_delete=models.CASCADE)
     condition = models.ForeignKey(Condition, on_delete=models.CASCADE)
-    base_date = models.DateField(default=None, null=True)
+    role_start_date = models.DateField(
+        default=None,
+        null=True,
+        help_text=_("Date used to calculate when to trigger the condition"),
+    )
 
     class Meta:
         unique_together = ["user", "condition"]
@@ -453,9 +457,12 @@ class User(AbstractBaseUser):
             self.unique_url = unique_string
         super(User, self).save(*args, **kwargs)
 
-    def add_sequences(self, sequences, base_date):
+    def add_sequences(self, sequences, start_date=None):
+        if start_date is None:
+            # fall back to user termination date or start date
+            start_date = self.termination_date or self.start_day
         for sequence in sequences:
-            sequence.assign_to_user(self, base_date)
+            sequence.assign_to_user(self, start_date)
             Notification.objects.create(
                 notification_type=Notification.Type.ADDED_SEQUENCE,
                 item_id=sequence.id,
@@ -498,14 +505,14 @@ class User(AbstractBaseUser):
     def offboarding_workday_to_date(self, workdays):
         # Converts the workday (before the end date) to the actual date on which it
         # triggers. This will skip any weekends.
-        base_date = self.termination_date
+        term_date = self.termination_date
 
         while workdays > 0:
-            base_date -= timedelta(days=1)
-            if base_date.weekday() not in [5, 6]:
+            term_date -= timedelta(days=1)
+            if term_date.weekday() not in [5, 6]:
                 workdays -= 1
 
-        return base_date
+        return term_date
 
     @cached_property
     def days_before_termination_date(self):
@@ -635,10 +642,12 @@ class User(AbstractBaseUser):
 
 
 class ToDoUserManager(models.Manager):
-    def _get_base_date_day_mapping(self, user, **kwargs):
-        to_do_items_queryset = self.filter(user=user, **kwargs).distinct("base_date")
+    def _start_date_to_workday_mapping(self, user, **kwargs):
+        to_do_items_queryset = self.filter(user=user, **kwargs).distinct(
+            "role_start_date"
+        )
         return {
-            item.base_date: user.workday(item.base_date)
+            item.role_start_date: user.workday(item.role_start_date)
             for item in to_do_items_queryset
         }
 
@@ -646,10 +655,12 @@ class ToDoUserManager(models.Manager):
         return super().get_queryset().filter(user=user, completed=False)
 
     def overdue(self, user):
-        base_date_day_map = self._get_base_date_day_mapping(user=user, completed=False)
+        start_date_workday_map = self._start_date_to_workday_mapping(
+            user=user, completed=False
+        )
 
         objs = ToDoUser.objects.none()
-        for base_date, workday in base_date_day_map.items():
+        for start_date, workday in start_date_workday_map.items():
             objs |= (
                 super()
                 .get_queryset()
@@ -657,16 +668,18 @@ class ToDoUserManager(models.Manager):
                     user=user,
                     completed=False,
                     to_do__due_on_day__lt=workday,
-                    base_date=base_date,
+                    role_start_date=start_date,
                 )
                 .exclude(to_do__due_on_day=0)
             )
         return objs
 
     def due_today(self, user):
-        base_date_day_map = self._get_base_date_day_mapping(user=user, completed=False)
+        start_date_workday_map = self._start_date_to_workday_mapping(
+            user=user, completed=False
+        )
         objs = ToDoUser.objects.none()
-        for base_date, workday in base_date_day_map.items():
+        for start_date, workday in start_date_workday_map.items():
             objs |= (
                 super()
                 .get_queryset()
@@ -674,15 +687,15 @@ class ToDoUserManager(models.Manager):
                     user=user,
                     completed=False,
                     to_do__due_on_day=workday,
-                    base_date=base_date,
+                    role_start_date=start_date,
                 )
             )
         return objs
 
     def upcoming_items(self, user):
-        base_date_day_map = self._get_base_date_day_mapping(user=user)
+        start_date_workday_map = self._start_date_to_workday_mapping(user=user)
         objs = ToDoUser.objects.none()
-        for base_date, workday in base_date_day_map.items():
+        for start_date, workday in start_date_workday_map.items():
             objs |= (
                 super()
                 .get_queryset()
@@ -690,7 +703,7 @@ class ToDoUserManager(models.Manager):
                     user=user,
                     completed=False,
                     to_do__due_on_day__gte=workday,
-                    base_date=base_date,
+                    role_start_date=start_date,
                 )
             )
         return objs
@@ -701,7 +714,11 @@ class ToDoUser(CompletedFormCheck, models.Model):
         get_user_model(), related_name="to_do_new_hire", on_delete=models.CASCADE
     )
     to_do = models.ForeignKey(ToDo, related_name="to_do", on_delete=models.CASCADE)
-    base_date = models.DateField(default=None, null=True)
+    role_start_date = models.DateField(
+        default=None,
+        null=True,
+        help_text=_("Date used to calculate due date for to do item."),
+    )
     completed = models.BooleanField(default=False)
     form = models.JSONField(default=list)
     reminded = models.DateTimeField(null=True)
@@ -793,7 +810,11 @@ class ResourceUser(models.Model):
     answers = models.ManyToManyField(CourseAnswer)
     reminded = models.DateTimeField(null=True)
     completed_course = models.BooleanField(default=False)
-    base_date = models.DateField(default=None, null=True)
+    role_start_date = models.DateField(
+        default=None,
+        null=True,
+        help_text=_("Date used to calculate due date for to do item."),
+    )
 
     def add_step(self):
         self.step += 1

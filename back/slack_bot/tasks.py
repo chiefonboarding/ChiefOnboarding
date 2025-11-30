@@ -102,9 +102,21 @@ def update_new_hire():
         overdue_items = ToDoUser.objects.overdue(user)
         tasks = ToDoUser.objects.due_today(user) | overdue_items
 
-        courses_due = ResourceUser.objects.filter(
-            user=user, resource__on_day__lte=user.workday()
+        resource_items_queryset = ResourceUser.objects.filter(user=user).distinct(
+            "role_start_date"
         )
+        start_date_workday_map = {
+            item.role_start_date: user.workday(item.role_start_date)
+            for item in resource_items_queryset
+        }
+        courses_due = ResourceUser.objects.none()
+        for start_date, workday in start_date_workday_map.items():
+            courses_due |= ResourceUser.objects.filter(
+                user=user,
+                resource__on_day__lte=workday,
+                role_start_date=start_date,
+            )
+
         # Filter out completed courses
         course_blocks = [
             SlackResource(course, user).get_block()
