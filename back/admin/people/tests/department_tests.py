@@ -1,8 +1,10 @@
 import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from admin.sequences.models import Condition
+from datetime import date
 
-from users.models import Department
+from users.models import Department, ToDoUser
 
 
 @pytest.mark.django_db
@@ -11,6 +13,7 @@ def test_department_list(
     django_user_model,
     department_factory,
     manager_factory,
+    new_hire_factory,
 ):
     user = django_user_model.objects.create(role=get_user_model().Role.MANAGER)
     client.force_login(user)
@@ -24,6 +27,7 @@ def test_department_list(
     user3 = manager_factory(departments=[dep])
     # not part of any departments, so available everywhere
     user4 = manager_factory()
+    user5 = new_hire_factory()
 
     url = reverse("people:departments")
     response = client.get(url)
@@ -34,6 +38,8 @@ def test_department_list(
     assert user4.name in response.content.decode()
     # user 2 is part of different dep, so doesn't show up
     assert user2.name not in response.content.decode()
+    # user 5 is a new hire and will therefore not show up
+    assert user5.name not in response.content.decode()
 
     # dep does not show up
     assert dep2.name not in response.content.decode()
@@ -210,6 +216,7 @@ def test_add_user_to_role_in_department(
     django_user_model,
     department_factory,
     department_role_factory,
+    sequence_factory
 ):
     user = django_user_model.objects.create(role=get_user_model().Role.MANAGER)
     client.force_login(user)
@@ -222,11 +229,58 @@ def test_add_user_to_role_in_department(
     assert user not in role.users.all()
 
     url = reverse("people:toggle_user_to_role", args=[role.id])
-    client.post(url + f"?item={user.id}")
+    response = client.post(url + f"?item={user.id}", follow=True)
 
     # user is part of role
     role.refresh_from_db()
     assert user in role.users.all()
+
+    # no sequences, so no popup
+    assert "The sequences within this role/department are added by default" not in response.content.decode()
+
+    # add sequence to both department and role
+    seq1 = sequence_factory()
+    dep.sequences.add(seq1)
+    seq2 = sequence_factory()
+    role.sequences.add(seq2)
+
+    # random sequence - not shown
+    sequence_factory()
+
+    response = client.post(url + f"?item={user.id}", follow=True)
+    # shows popup
+    assert "The sequences within this role/department are added by default" in response.content.decode()
+
+    # only shows two
+    assert len(response.context["form"]["sequences"].field.choices) == 2
+    sequences = [response.context["form"]["sequences"].field.choices[0][1], response.context["form"]["sequences"].field.choices[1][1]]
+    assert seq1.name in sequences
+    assert seq2.name in sequences
+
+@pytest.mark.django_db
+def test_add_sequences_to_user_in_new_role(
+    client,
+    django_user_model,
+    department_factory,
+    department_role_factory,
+    sequence_factory,
+    condition_with_items_factory
+):
+    user = django_user_model.objects.create(role=get_user_model().Role.MANAGER)
+    client.force_login(user)
+
+    dep = department_factory()
+    role = department_role_factory(department=dep)
+    user.departments.add(dep)
+
+    seq = sequence_factory()
+    condition_with_items_factory(sequence=seq, condition_type=Condition.Type.WITHOUT)
+    role.sequences.add(seq)
+    url = reverse("people:apply_sequences_to_user", args=[role.id, user.id])
+    client.post(url, data={"sequences": seq.id, "start_day": "2028-01-30"}, follow=True)
+
+    # check that role_start_date has been set correctly
+    assert ToDoUser.objects.get(user=user).role_start_date == date(2028, 1, 30)
 
 
 @pytest.mark.django_db
@@ -235,8 +289,6 @@ def test_department_sequence_list(
     django_user_model,
     department_factory,
     sequence_factory,
-    new_hire_factory,
-    manager_factory,
 ):
     user = django_user_model.objects.create(role=get_user_model().Role.MANAGER)
     client.force_login(user)
@@ -272,6 +324,7 @@ def test_add_seq_to_role_in_department(
     department_factory,
     department_role_factory,
     sequence_factory,
+    manager_factory
 ):
     user = django_user_model.objects.create(role=get_user_model().Role.MANAGER)
     client.force_login(user)
@@ -285,11 +338,30 @@ def test_add_seq_to_role_in_department(
     assert seq not in role.sequences.all()
 
     url = reverse("people:toggle_seq_role", args=[role.id])
-    client.post(url + f"?item={seq.id}")
+    response = client.post(url + f"?item={seq.id}", follow=True)
 
     # seq is part of role
     role.refresh_from_db()
     assert seq in role.sequences.all()
+
+    # no users are in this role yet, so no popup
+    assert "If you would like to apply this sequence to any current users directly" not in response.content.decode()
+
+    # add user to role
+    manager = manager_factory()
+    role.users.add(manager)
+
+    # create random sequence not in role
+    sequence_factory()
+
+    # add sequence to role
+    response = client.post(url + f"?item={seq.id}", follow=True)
+    # shows popup with option to add sequence to user
+    assert "If you would like to apply this sequence to any current users directly" in response.content.decode()
+
+    # only shows one
+    assert len(response.context["form"]["users"].field.choices) == 1
+    assert manager.full_name == response.context["form"]["users"].field.choices[0][1]
 
 
 @pytest.mark.django_db
@@ -325,7 +397,9 @@ def test_add_seq_to_department(
     client,
     django_user_model,
     department_factory,
+    department_role_factory,
     sequence_factory,
+    manager_factory,
 ):
     user = django_user_model.objects.create(role=get_user_model().Role.MANAGER)
     client.force_login(user)
@@ -338,11 +412,38 @@ def test_add_seq_to_department(
     assert seq not in dep.sequences.all()
 
     url = reverse("people:toggle_seq_department", args=[dep.id])
-    client.post(url + f"?item={seq.id}")
+    response = client.post(url + f"?item={seq.id}", follow=True)
 
     # seq is part of department
     dep.refresh_from_db()
     assert seq in dep.sequences.all()
+
+    # no users are in this department yet, so no popup
+    assert "If you would like to apply this sequence to any current users directly" not in response.content.decode()
+
+    # add user to department (role)
+    role1 = department_role_factory()
+    dep.roles.add(role1)
+    manager1 = manager_factory()
+    role1.users.add(manager1)
+
+    # add second role
+    role2 = department_role_factory()
+    dep.roles.add(role2)
+    manager2 = manager_factory()
+    role1.users.add(manager2)
+
+    # create manager that is not in any roles
+    manager_factory()
+
+    # add sequence to role
+    response = client.post(url + f"?item={seq.id}", follow=True)
+    # shows popup with option to add sequence to user
+    assert "If you would like to apply this sequence to any current users directly" in response.content.decode()
+    # only shows two users. They are in separate roles, but we are adding to the department
+    assert len(response.context["form"]["users"].field.choices) == 2
+    assert manager1.full_name == response.context["form"]["users"].field.choices[0][1]
+    assert manager2.full_name == response.context["form"]["users"].field.choices[1][1]
 
 
 @pytest.mark.django_db
