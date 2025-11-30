@@ -1145,7 +1145,7 @@ def test_onboarding_sequence_trigger_task(
     seq.conditions.add(condition)
 
     # Add sequence to user
-    new_hire1.add_sequences([seq], new_hire1.get_local_time().date())
+    new_hire1.add_sequences([seq])
 
     assert new_hire1.to_do.all().count() == 1
 
@@ -1295,8 +1295,8 @@ def test_sequence_trigger_two_people_same_time(
     seq.conditions.add(condition)
 
     # Add sequence to user
-    new_hire1.add_sequences([seq], new_hire1.get_local_time().date())
-    new_hire2.add_sequences([seq], new_hire2.get_local_time().date())
+    new_hire1.add_sequences([seq])
+    new_hire2.add_sequences([seq])
 
     assert new_hire1.to_do.all().count() == 0
     assert new_hire2.to_do.all().count() == 0
@@ -1400,11 +1400,11 @@ def test_sequence_assign_to_user(
     condition.to_do.add(to_do2)
     condition2.to_do.add(to_do3)
 
-    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
+    new_hire.add_sequences([sequence])
     assert new_hire.conditions.all().count() == 2
 
     # Adding it a second time won't change anything
-    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
+    new_hire.add_sequences([sequence])
     assert new_hire.conditions.all().count() == 2
 
 
@@ -1427,7 +1427,7 @@ def test_sequence_assign_to_user_conditions_on_same_day(
     condition.to_do.add(to_do2)
     condition2.to_do.add(to_do3)
 
-    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
+    new_hire.add_sequences([sequence])
     assert new_hire.conditions.all().count() == 2
 
 
@@ -1454,7 +1454,7 @@ def test_sequence_assign_to_user_merge_to_do_condition(
     condition.to_do.add(to_do1)
 
     # Add to new hire
-    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
+    new_hire.add_sequences([sequence])
 
     # there is now one condition (based on todo item)
     assert new_hire.conditions.all().count() == 1
@@ -1466,7 +1466,7 @@ def test_sequence_assign_to_user_merge_to_do_condition(
     condition.to_do.add(to_do3)
 
     # Add again to new hire
-    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
+    new_hire.add_sequences([sequence])
 
     # Condition item was updated and not a new one created
     assert new_hire.conditions.all().count() == 1
@@ -1485,7 +1485,7 @@ def test_sequence_assign_to_user_merge_to_do_condition(
     condition.to_do.add(to_do4)
 
     # Add again to new hire
-    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
+    new_hire.add_sequences([sequence])
 
     # new condition has been added (not merged)
     assert new_hire.conditions.all().count() == 2
@@ -1510,7 +1510,7 @@ def test_sequence_assign_to_user_merge_time_condition(
     condition.to_do.add(to_do1)
 
     # Add to new hire
-    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
+    new_hire.add_sequences([sequence])
 
     # there is now one condition (based on todo item)
     assert new_hire.conditions.all().count() == 1
@@ -1522,7 +1522,7 @@ def test_sequence_assign_to_user_merge_time_condition(
     condition.to_do.add(to_do3)
 
     # Add again to new hire
-    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
+    new_hire.add_sequences([sequence])
 
     # Condition item was updated and not a new one created
     assert new_hire.conditions.all().count() == 1
@@ -1538,7 +1538,7 @@ def test_sequence_assign_to_user_merge_time_condition(
     condition.to_do.add(to_do4)
 
     # Add again to new hire
-    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
+    new_hire.add_sequences([sequence])
 
     # new condition has been added (not merged)
     assert new_hire.conditions.all().count() == 2
@@ -1566,7 +1566,7 @@ def test_sequence_assign_to_user_merge_admin_task_condition(
     condition.to_do.add(to_do1)
 
     # Add to new hire
-    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
+    new_hire.add_sequences([sequence])
 
     # there is now one condition (based on admin task item)
     assert new_hire.conditions.all().count() == 1
@@ -1580,7 +1580,7 @@ def test_sequence_assign_to_user_merge_admin_task_condition(
     condition.to_do.add(to_do3)
 
     # Add again to new hire
-    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
+    new_hire.add_sequences([sequence])
 
     # Condition item was updated and not a new one created
     assert new_hire.conditions.all().count() == 1
@@ -1596,7 +1596,7 @@ def test_sequence_assign_to_user_merge_admin_task_condition(
     condition.to_do.add(to_do3)
 
     # Add again to new hire
-    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
+    new_hire.add_sequences([sequence])
 
     # new condition has been added (not merged)
     assert new_hire.conditions.all().count() == 2
@@ -1624,7 +1624,7 @@ def test_sequence_assign_to_user_merge_integrations_revoked_condition(
     condition.to_do.add(to_do1)
 
     # Add to new hire
-    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
+    new_hire.add_sequences([sequence])
 
     # there is now one condition
     assert new_hire.conditions.all().count() == 1
@@ -1636,7 +1636,7 @@ def test_sequence_assign_to_user_merge_integrations_revoked_condition(
     condition.to_do.add(to_do3)
 
     # Add again to new hire
-    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
+    new_hire.add_sequences([sequence])
 
     # Condition item was updated and not a new one created
     assert new_hire.conditions.all().count() == 1
@@ -1679,7 +1679,7 @@ def test_sequence_add_unconditional_item(
     unconditional_condition.add_item(intro2)
 
     # Add to new hire
-    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
+    new_hire.add_sequences([sequence])
 
     assert new_hire.to_do.all().count() == 2
     assert new_hire.resources.all().count() == 2

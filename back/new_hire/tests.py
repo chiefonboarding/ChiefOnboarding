@@ -199,7 +199,7 @@ def test_complete_to_do_item_view_with_trigger(
         condition_type=Condition.Type.TODO, sequence=sequence
     )
 
-    new_hire.add_sequences([sequence], new_hire.get_local_time().date())
+    new_hire.add_sequences([sequence])
     # Add to do item from sequence to new hire. Once we have triggered this, all
     # other items should be added/triggered too.
     new_hire.to_do.add(con.condition_to_do.all().first())

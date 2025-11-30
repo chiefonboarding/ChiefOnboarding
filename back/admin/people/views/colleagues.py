@@ -381,7 +381,7 @@ class AddOffboardingSequenceView(
             integration.user_exists(employee)
 
         sequences = Sequence.offboarding.filter(id__in=sequence_ids)
-        employee.add_sequences(sequences, employee.get_local_time().date())
+        employee.add_sequences(sequences)
 
         # Check if there are items that will not be triggered since date passed
         conditions = Condition.objects.none()
