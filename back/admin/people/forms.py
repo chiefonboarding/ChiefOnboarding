@@ -454,6 +454,10 @@ class AddUsersToSequenceChoiceForm(forms.Form):
 
 
 class AddSequencesToUser(forms.Form):
+    start_day = forms.DateField(
+        label=_("Date when they will start in this new role"),
+        widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
+    )
     sequences = forms.ModelMultipleChoiceField(
         label=_("Select the sequences you want to add to this user"),
         widget=forms.CheckboxSelectMultiple(attrs={"checked": "checked"}),

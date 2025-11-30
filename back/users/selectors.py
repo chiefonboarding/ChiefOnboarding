@@ -31,6 +31,15 @@ def get_all_users_for_departments_of_user(*, user):
     return get_user_model().objects.filter(get_departments_query(user=user)).distinct()
 
 
+def get_all_normal_users_for_departments_of_user(*, user):
+    return (
+        get_user_model()
+        .objects.filter(get_departments_query(user=user))
+        .exclude(role=get_user_model().Role.NEWHIRE)
+        .distinct()
+    )
+
+
 def get_all_managers_and_admins_for_departments_of_user(*, user):
     return (
         get_user_model()

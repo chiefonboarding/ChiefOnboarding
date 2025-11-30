@@ -55,7 +55,8 @@
     <div class="text-center mt-2">
       <p>
         {% if is_users_page %}
-          {% trans "Drag and drop the users in the roles you want them to be part of." %}
+          {% trans "Drag and drop the users in the roles you want them to be part of." %}<br/>
+          {% trans "New hires are not included. Please convert them to a normal user first." %}
         {% else %}
           {% trans "Drag and drop the sequences in the roles." %}
         {% endif %}
