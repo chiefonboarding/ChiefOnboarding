@@ -408,7 +408,7 @@ class RemoveItemsFromUserView(AdminOrManagerPermMixin, SuccessMessageMixin, Form
             )
         return render(
             self.request,
-            "_integration_revoke_errors.html",
+            "_integration_revoke_results.html",
             context={
                 "results": results,
                 "access_url": reverse_lazy(
