@@ -416,6 +416,7 @@ class RemoveItemsFromUserView(AdminOrManagerPermMixin, SuccessMessageMixin, Form
 
     def form_valid(self, form):
         items = form.cleaned_data["integrations"]
+
         results = {}
         for integrationconfig in items:
             results[integrationconfig.integration.name] = (
