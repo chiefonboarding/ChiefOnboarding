@@ -513,25 +513,25 @@ def test_integration_revoke_user(
         "admin.integrations.models.Integration.run_request",
         Mock(return_value=(True, Mock())),
     ):
-        success, error = integration.revoke_user(new_hire)
-        assert success
-        assert error == ""
+        result = integration.revoke_user(new_hire)
+        assert result.success
+        assert result.message == ""
 
     # Revoke user unsuccessfully
     with patch(
         "admin.integrations.models.Integration.run_request",
         Mock(return_value=(False, "Something went wrong")),
     ):
-        success, error = integration.revoke_user(new_hire)
-        assert not success
+        result = integration.revoke_user(new_hire)
+        assert not result.success
         assert "Something went wrong"
 
     # try the same with a manual integration, this doesn't work as it can't actually
     # revoke a user
     manual_integration = manual_user_provision_integration_factory()
-    success, error = manual_integration.revoke_user(new_hire)
-    assert not success
-    assert error == "Cannot revoke manual integration"
+    result = manual_integration.revoke_user(new_hire)
+    assert not result.success
+    assert result.message == "Cannot revoke manual integration"
 
 
 @pytest.mark.django_db

@@ -30,18 +30,55 @@ from slack_bot.utils import Slack, paragraph
 from .utils import CompletedFormCheck, parse_array_to_string
 
 
-class Department(models.Model):
+class DepartmentRole(models.Model):
     """
-    Department that has been attached to a user
+    Role within a department. Roles are unique to every department.
     """
 
     name = models.CharField(max_length=255)
+    department = models.ForeignKey(
+        "users.Department", related_name="roles", on_delete=models.PROTECT
+    )
+    sequences = models.ManyToManyField(
+        "sequences.Sequence", related_name="roles", blank=True
+    )
+    users = models.ManyToManyField("users.User", related_name="department_roles")
 
     class Meta:
         ordering = ("name",)
 
     def __str__(self):
         return "%s" % self.name
+
+
+class Department(models.Model):
+    """
+    Department that has been attached to a user
+    """
+
+    name = models.CharField(max_length=255, unique=True)
+    sequences = models.ManyToManyField(
+        "sequences.Sequence", related_name="+", blank=True
+    )
+
+    class Meta:
+        ordering = ("name",)
+
+    def __str__(self):
+        return "%s" % self.name
+
+
+class UserCondition(models.Model):
+    user = models.ForeignKey("users.User", on_delete=models.CASCADE)
+    condition = models.ForeignKey(Condition, on_delete=models.CASCADE)
+    role_start_date = models.DateField(
+        default=None,
+        null=True,
+        help_text=_("Date used to calculate when to trigger the condition"),
+    )
+
+    class Meta:
+        unique_together = ["user", "condition"]
 
 
 class CustomUserManager(BaseUserManager):
@@ -228,7 +265,7 @@ class User(AbstractBaseUser):
     )
 
     # Conditions copied over from chosen sequences
-    conditions = models.ManyToManyField(Condition)
+    conditions = models.ManyToManyField(Condition, through=UserCondition)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name"]
@@ -420,9 +457,12 @@ class User(AbstractBaseUser):
             self.unique_url = unique_string
         super(User, self).save(*args, **kwargs)
 
-    def add_sequences(self, sequences):
+    def add_sequences(self, sequences, start_date=None):
+        if start_date is None:
+            # fall back to user termination date or start date
+            start_date = self.termination_date or self.start_day
         for sequence in sequences:
-            sequence.assign_to_user(self)
+            sequence.assign_to_user(self, start_date)
             Notification.objects.create(
                 notification_type=Notification.Type.ADDED_SEQUENCE,
                 item_id=sequence.id,
@@ -433,9 +473,9 @@ class User(AbstractBaseUser):
     def remove_sequence(self, sequence):
         sequence.remove_from_user(self)
 
-    @cached_property
-    def workday(self):
-        start_day = self.start_day
+    def workday(self, start_day=None):
+        if start_day is None:
+            start_day = self.start_day
         local_day = self.get_local_time().date()
 
         if start_day > local_day:
@@ -449,8 +489,9 @@ class User(AbstractBaseUser):
 
         return amount_of_workdays
 
-    def workday_to_datetime(self, workdays):
-        start_day = self.start_day
+    def workday_to_datetime(self, workdays, start_day=None):
+        if start_day is None:
+            start_day = self.start_day
         if workdays == 0:
             return None
 
@@ -464,14 +505,14 @@ class User(AbstractBaseUser):
     def offboarding_workday_to_date(self, workdays):
         # Converts the workday (before the end date) to the actual date on which it
         # triggers. This will skip any weekends.
-        base_date = self.termination_date
+        term_date = self.termination_date
 
         while workdays > 0:
-            base_date -= timedelta(days=1)
-            if base_date.weekday() not in [5, 6]:
+            term_date -= timedelta(days=1)
+            if term_date.weekday() not in [5, 6]:
                 workdays -= 1
 
-        return base_date
+        return term_date
 
     @cached_property
     def days_before_termination_date(self):
@@ -491,12 +532,13 @@ class User(AbstractBaseUser):
                 days += 1
         return days
 
-    @cached_property
-    def days_before_starting(self):
+    def days_before_starting(self, start_day=None):
+        if start_day is None:
+            start_day = self.start_day
         # not counting workdays here
-        if self.start_day <= self.get_local_time().date():
+        if start_day <= self.get_local_time().date():
             return 0
-        return (self.start_day - self.get_local_time().date()).days
+        return (start_day - self.get_local_time().date()).days
 
     def get_local_time(self, date=None):
         from organization.models import Organization
@@ -600,23 +642,71 @@ class User(AbstractBaseUser):
 
 
 class ToDoUserManager(models.Manager):
+    def _start_date_to_workday_mapping(self, user, **kwargs):
+        to_do_items_queryset = self.filter(user=user, **kwargs).distinct(
+            "role_start_date"
+        )
+        return {
+            item.role_start_date: user.workday(item.role_start_date)
+            for item in to_do_items_queryset
+        }
+
     def all_to_do(self, user):
         return super().get_queryset().filter(user=user, completed=False)
 
     def overdue(self, user):
-        return (
-            super()
-            .get_queryset()
-            .filter(user=user, completed=False, to_do__due_on_day__lt=user.workday)
-            .exclude(to_do__due_on_day=0)
+        start_date_workday_map = self._start_date_to_workday_mapping(
+            user=user, completed=False
         )
 
+        objs = ToDoUser.objects.none()
+        for start_date, workday in start_date_workday_map.items():
+            objs |= (
+                super()
+                .get_queryset()
+                .filter(
+                    user=user,
+                    completed=False,
+                    to_do__due_on_day__lt=workday,
+                    role_start_date=start_date,
+                )
+                .exclude(to_do__due_on_day=0)
+            )
+        return objs
+
     def due_today(self, user):
-        return (
-            super()
-            .get_queryset()
-            .filter(user=user, completed=False, to_do__due_on_day=user.workday)
+        start_date_workday_map = self._start_date_to_workday_mapping(
+            user=user, completed=False
         )
+        objs = ToDoUser.objects.none()
+        for start_date, workday in start_date_workday_map.items():
+            objs |= (
+                super()
+                .get_queryset()
+                .filter(
+                    user=user,
+                    completed=False,
+                    to_do__due_on_day=workday,
+                    role_start_date=start_date,
+                )
+            )
+        return objs
+
+    def upcoming_items(self, user):
+        start_date_workday_map = self._start_date_to_workday_mapping(user=user)
+        objs = ToDoUser.objects.none()
+        for start_date, workday in start_date_workday_map.items():
+            objs |= (
+                super()
+                .get_queryset()
+                .filter(
+                    user=user,
+                    completed=False,
+                    to_do__due_on_day__gte=workday,
+                    role_start_date=start_date,
+                )
+            )
+        return objs
 
 
 class ToDoUser(CompletedFormCheck, models.Model):
@@ -624,6 +714,11 @@ class ToDoUser(CompletedFormCheck, models.Model):
         get_user_model(), related_name="to_do_new_hire", on_delete=models.CASCADE
     )
     to_do = models.ForeignKey(ToDo, related_name="to_do", on_delete=models.CASCADE)
+    role_start_date = models.DateField(
+        default=None,
+        null=True,
+        help_text=_("Date used to calculate due date for to do item."),
+    )
     completed = models.BooleanField(default=False)
     form = models.JSONField(default=list)
     reminded = models.DateTimeField(null=True)
@@ -715,6 +810,11 @@ class ResourceUser(models.Model):
     answers = models.ManyToManyField(CourseAnswer)
     reminded = models.DateTimeField(null=True)
     completed_course = models.BooleanField(default=False)
+    role_start_date = models.DateField(
+        default=None,
+        null=True,
+        help_text=_("Date used to calculate due date for to do item."),
+    )
 
     def add_step(self):
         self.step += 1

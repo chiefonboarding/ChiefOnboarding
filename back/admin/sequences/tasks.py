@@ -135,6 +135,8 @@ def timed_triggers():
     This gets triggered every 5 minutes to trigger conditions within sequences.
     These conditions are already assigned to new hires.
     """
+    from users.models import UserCondition
+
     org = Organization.object.get()
     if org is None:
         return
@@ -163,28 +165,49 @@ def timed_triggers():
         org.timed_triggers_last_check = last_updated
         org.save()
 
-        for user in get_user_model().new_hires.all():
-            amount_days = user.workday
-            amount_days_before = user.days_before_starting
+        # all users excluding those who are offboarding
+        for user in get_user_model().objects.exclude(termination_date__isnull=False):
             current_time = user.get_local_time(last_updated).time()
 
+            before_conditions = UserCondition.objects.filter(
+                user=user, condition__condition_type=Condition.Type.BEFORE
+            ).distinct("role_start_date")
+            after_conditions = UserCondition.objects.filter(
+                user=user, condition__condition_type=Condition.Type.AFTER
+            ).distinct("role_start_date")
+            before_start_date_workday_map = {
+                con.role_start_date: user.days_before_starting(con.role_start_date)
+                for con in before_conditions
+            }
+            after_start_date_workday_map = {
+                con.role_start_date: user.workday(con.role_start_date)
+                for con in after_conditions
+            }
+
             # Get conditions before/after they started
-            # Generally, this should be only one, but just in case, we can handle more
             conditions = Condition.objects.none()
-            if amount_days == 0:
-                # Before starting
-                conditions = user.conditions.filter(
-                    condition_type=Condition.Type.BEFORE,
-                    days=amount_days_before,
-                    time=current_time,
+            # Before starting
+            for (
+                start_date,
+                days_before_starting,
+            ) in before_start_date_workday_map.items():
+                conditions |= UserCondition.objects.filter(
+                    user=user,
+                    role_start_date=start_date,
+                    condition__condition_type=Condition.Type.BEFORE,
+                    condition__days=days_before_starting,
+                    condition__time=current_time,
                 )
-            elif user.get_local_time(last_updated).weekday() < 5:
+            if user.get_local_time(last_updated).weekday() < 5:
                 # On workday x
-                conditions = user.conditions.filter(
-                    condition_type=Condition.Type.AFTER,
-                    days=amount_days,
-                    time=current_time,
-                )
+                for start_date, workday in after_start_date_workday_map.items():
+                    conditions |= UserCondition.objects.filter(
+                        user=user,
+                        role_start_date=start_date,
+                        condition__condition_type=Condition.Type.AFTER,
+                        condition__days=workday,
+                        condition__time=current_time,
+                    )
 
             # Schedule conditions to be executed with new scheduled task, we do this to
             # avoid long standing tasks. I.e. sending lots of emails might take more
@@ -192,9 +215,9 @@ def timed_triggers():
             for i in conditions:
                 async_task(
                     process_condition,
-                    i.id,
+                    i.condition.id,
                     user.id,
-                    task_name=f"Process condition: {i.id} for {user.full_name}",
+                    task_name=f"Process condition: {i.condition.id} for {user.full_name}",
                 )
 
         for user in get_user_model().offboarding.all():

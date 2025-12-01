@@ -219,17 +219,28 @@ def test_slack_show_resources_items_in_category(
 @pytest.mark.django_db
 @freeze_time("2022-05-13")
 def test_slack_show_to_do_items_based_on_message(new_hire_factory, to_do_user_factory):
-    new_hire = new_hire_factory(
-        slack_user_id="slackx", start_day=datetime.now().today() - timedelta(days=2)
+    start_day = datetime.now().today() - timedelta(days=2)
+    new_hire = new_hire_factory(slack_user_id="slackx", start_day=start_day)
+
+    to_do_due_in_past1 = to_do_user_factory(
+        to_do__due_on_day=1, user=new_hire, role_start_date=start_day
+    )
+    to_do_due_in_past2 = to_do_user_factory(
+        to_do__due_on_day=1, user=new_hire, role_start_date=start_day
+    )
+    to_do_due_today1 = to_do_user_factory(
+        to_do__due_on_day=3, user=new_hire, role_start_date=start_day
+    )
+    to_do_due_today2 = to_do_user_factory(
+        to_do__due_on_day=3, user=new_hire, role_start_date=start_day
     )
 
-    to_do_due_in_past1 = to_do_user_factory(to_do__due_on_day=1, user=new_hire)
-    to_do_due_in_past2 = to_do_user_factory(to_do__due_on_day=1, user=new_hire)
-    to_do_due_today1 = to_do_user_factory(to_do__due_on_day=3, user=new_hire)
-    to_do_due_today2 = to_do_user_factory(to_do__due_on_day=3, user=new_hire)
-
-    to_do_due_future1 = to_do_user_factory(to_do__due_on_day=10, user=new_hire)
-    to_do_due_future2 = to_do_user_factory(to_do__due_on_day=5, user=new_hire)
+    to_do_due_future1 = to_do_user_factory(
+        to_do__due_on_day=10, user=new_hire, role_start_date=start_day
+    )
+    to_do_due_future2 = to_do_user_factory(
+        to_do__due_on_day=5, user=new_hire, role_start_date=start_day
+    )
 
     # test without extra text
     slack_show_to_do_items_based_on_message(

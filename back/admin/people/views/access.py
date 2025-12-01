@@ -73,6 +73,7 @@ class UserDeleteView(AdminOrManagerPermMixin, SuccessMessageMixin, DeleteView):
 
     def form_valid(self, form):
         EmailAddress.objects.filter(user=self.object).delete()
+        self.object.conditions.clear()
         return super().form_valid(form)
 
 
@@ -217,11 +218,12 @@ class UserToggleAccessView(AdminOrManagerPermMixin, View):
         created = False
         needs_user_info = integration.needs_user_info(user)
         if integration.user_exists(user):
-            success, error = integration.revoke_user(user)
-            if error:
+            result = integration.revoke_user(user)
+            error = result.message
+            if not result.success:
                 created = None
         else:
-            success, error = integration.execute(user)
+            _success, error = integration.execute(user)
             created = True
 
         return render(

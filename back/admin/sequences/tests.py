@@ -18,6 +18,7 @@ from admin.hardware.forms import HardwareForm
 from admin.integrations.models import Integration
 from admin.introductions.factories import IntroductionFactory
 from admin.introductions.forms import IntroductionForm
+from admin.people.revoke_result import RevokeResult
 from admin.preboarding.factories import PreboardingFactory
 from admin.preboarding.forms import PreboardingForm
 from admin.resources.factories import ResourceFactory
@@ -1985,7 +1986,7 @@ def test_execute_integration_revoke(
         "admin.integrations.models.Integration.execute",
         Mock(return_value=(True, "")),
     ) as execute_mock:
-        condition.process_condition(employee)
+        condition.process_condition(employee, start_date=timezone.now().date())
         assert execute_mock.called
 
     # integration has revoke part and employee is being offboarded
@@ -1995,9 +1996,9 @@ def test_execute_integration_revoke(
     # revoke part gets triggered
     with patch(
         "admin.integrations.models.Integration.revoke_user",
-        Mock(return_value=(True, "")),
+        Mock(return_value=RevokeResult(success=True, message="")),
     ) as revoke_user_mock:
-        condition.process_condition(employee)
+        condition.process_condition(employee, start_date=timezone.now().date())
         assert revoke_user_mock.called
 
     integration.manifest = {
@@ -2011,7 +2012,7 @@ def test_execute_integration_revoke(
         "admin.integrations.models.Integration.execute",
         Mock(return_value=(True, "")),
     ) as execute_mock:
-        condition.process_condition(employee)
+        condition.process_condition(employee, start_date=timezone.now().date())
         assert execute_mock.called
 
 
@@ -2097,6 +2098,7 @@ def test_send_slack_message_after_process_condition(
     condition.to_do.add(to_do)
     # New hire with Slack account
     new_hire = new_hire_factory(slack_user_id="test")
+    new_hire.conditions.add(condition)
 
     process_condition(condition.id, new_hire.id)
 

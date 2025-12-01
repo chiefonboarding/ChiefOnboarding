@@ -19,6 +19,13 @@ from admin.admin_tasks.models import AdminTask
 from admin.admin_tasks.selectors import get_admin_tasks_for_user
 from admin.integrations.forms import IntegrationExtraUserInfoForm
 from admin.notes.models import Note
+from admin.people.forms import (
+    NewHireAddForm,
+    NewHireProfileForm,
+    OnboardingSequenceChoiceForm,
+    PreboardingSendForm,
+    RemindMessageForm,
+)
 from admin.people.selectors import get_colleagues_for_user, get_new_hires_for_user
 from admin.sequences.models import Condition, Sequence
 from admin.sequences.selectors import get_sequences_for_user
@@ -37,14 +44,6 @@ from users.emails import (
 )
 from users.mixins import AdminOrManagerPermMixin
 from users.models import NewHireWelcomeMessage, PreboardingUser, ResourceUser, ToDoUser
-
-from .forms import (
-    NewHireAddForm,
-    NewHireProfileForm,
-    OnboardingSequenceChoiceForm,
-    PreboardingSendForm,
-    RemindMessageForm,
-)
 
 
 class NewHireListView(AdminOrManagerPermMixin, ListView):
@@ -117,12 +116,12 @@ class NewHireAddView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
         # Check if there are items that will not be triggered since date passed
         conditions = Condition.objects.none()
         for seq in sequences:
-            if new_hire.workday == 0:
+            if new_hire.workday() == 0:
                 # User has not started yet, so we only need the items before they new
                 # hire started that passed
                 conditions |= seq.conditions.filter(
                     condition_type=Condition.Type.BEFORE,
-                    days__gte=new_hire.days_before_starting,
+                    days__gte=new_hire.days_before_starting(),
                 )
             else:
                 # user has already started, check both before start day and after for
@@ -130,7 +129,7 @@ class NewHireAddView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
                 conditions |= seq.conditions.filter(
                     condition_type=Condition.Type.BEFORE
                 ) | seq.conditions.filter(
-                    condition_type=Condition.Type.AFTER, days__lte=new_hire.workday
+                    condition_type=Condition.Type.AFTER, days__lte=new_hire.workday()
                 )
 
         if conditions.count():
@@ -195,7 +194,7 @@ class NewHireAddSequenceView(
             get_new_hires_for_user(user=self.request.user), id=user_id
         )
         sequences = Sequence.objects.filter(id__in=form.cleaned_data["sequences"])
-        new_hire.add_sequences(sequences)
+        new_hire.add_sequences(sequences, new_hire.get_local_time().date())
         messages.success(
             self.request, _("Sequence(s) have been added to this new hire")
         )
@@ -203,12 +202,12 @@ class NewHireAddSequenceView(
         # Check if there are items that will not be triggered since date passed
         conditions = Condition.objects.none()
         for seq in sequences:
-            if new_hire.workday == 0:
+            if new_hire.workday() == 0:
                 # User has not started yet, so we only need the items before they new
                 # hire started that passed
                 conditions |= seq.conditions.filter(
                     condition_type=Condition.Type.BEFORE,
-                    days__gte=new_hire.days_before_starting,
+                    days__gte=new_hire.days_before_starting(),
                 )
             else:
                 # user has already started, check both before start day and after for
@@ -216,7 +215,7 @@ class NewHireAddSequenceView(
                 conditions |= seq.conditions.filter(
                     condition_type=Condition.Type.BEFORE
                 ) | seq.conditions.filter(
-                    condition_type=Condition.Type.AFTER, days__lte=new_hire.workday
+                    condition_type=Condition.Type.AFTER, days__lte=new_hire.workday()
                 )
 
         if conditions.count():
@@ -275,7 +274,9 @@ class NewHireTriggerConditionView(AdminOrManagerPermMixin, TemplateView):
         new_hire = get_object_or_404(
             get_colleagues_for_user(user=self.request.user), id=pk
         )
-        condition.process_condition(new_hire, skip_notification=True)
+        condition.process_condition(
+            new_hire, start_date=timezone.now(), skip_notification=True
+        )
 
         # Update user amount completed
         new_hire.update_progress()
@@ -326,10 +327,10 @@ class NewHireSequenceView(AdminOrManagerPermMixin, DetailView):
         context["conditions"] = (
             (
                 conditions.filter(
-                    condition_type=2, days__lte=new_hire.days_before_starting
+                    condition_type=2, days__lte=new_hire.days_before_starting()
                 )
                 | conditions.filter(
-                    condition_type=Condition.Type.AFTER, days__gte=new_hire.workday
+                    condition_type=Condition.Type.AFTER, days__gte=new_hire.workday()
                 )
                 | conditions.filter(condition_type=Condition.Type.TODO)
                 | conditions.filter(condition_type=Condition.Type.ADMIN_TASK)

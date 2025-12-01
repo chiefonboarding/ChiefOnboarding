@@ -45,6 +45,7 @@ from organization.factories import (
 from users.factories import (
     AdminFactory,
     DepartmentFactory,
+    DepartmentRoleFactory,
     EmployeeFactory,
     IntegrationUserFactory,
     ManagerFactory,
@@ -77,6 +78,7 @@ def run_around_tests(request, settings):
 
 
 register(DepartmentFactory)
+register(DepartmentRoleFactory)
 register(NewHireFactory)
 register(AdminFactory)
 register(ManagerFactory)

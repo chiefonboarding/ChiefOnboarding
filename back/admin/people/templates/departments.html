@@ -2,39 +2,172 @@
 {% load i18n %}
 
 {% block actions %}
+  <div class="alert alert-warning mb-0" role="alert">
+    {% translate "All changes will be saved automatically." %}
+  </div>
+  {% if is_users_page %}
+    <a href="{% url 'people:departments_sequences' %}" class="btn btn-info btn-outline">
+      {% trans "Sequences" %}
+    </a>
+  {% else %}
+    <a href="{% url 'people:departments' %}" class="btn btn-info btn-outline">
+      {% trans "Users" %}
+    </a>
+  {% endif %}
+
   <a href="{% url 'people:department_create' %}" class="btn btn-primary">
     {% trans "Add" %}
   </a>
 {% endblock %}
 
 {% block content %}
-<div class="col-12">
-  <div class="card">
-    <div class="table-responsive">
-      <table class="table card-table table-vcenter text-nowrap">
-        <thead>
-          <tr>
-            <th>{% translate "Name" %}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for department in object_list %}
-          <tr>
-            <td>
-              {{ department.name }}
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td>
-              {% trans "You haven't created any departments yet" %}
-            </td>
-          </tr>
+<div class="row">
+  <div class="col-12">
+  </div>
+  <div class="col-7">
+    {% include "_departments_list.html" %}
+  </div>
+  <div class="col-5">
+    <div class="card sticky-top" style="max-height: calc(44rem + 10px)">
+      <div class="card-header">
+        <h3 class="card-title">
+          {% if is_users_page %}
+            {% translate "Users" %}
+          {% else %}
+            {% translate "Sequences" %}
+          {% endif %}
+        </h3>
+      </div>
+      <div class="card-body card-body-scrollable card-body-scrollable-shadow">
+        <div class="divide-y">
+          {% for item in users_or_sequences %}
+          <div class="row" draggable="true" style="cursor:grab" data-item-id="{{item.id}}">
+            <div class="col">
+              <div class="text-truncate">
+                <p class="mb-0">{{ item.name }}</p>
+              </div>
+            </div>
+          </div>
           {% endfor %}
-        </tbody>
-      </table>
+        </div>
+      </div>
     </div>
-    {% include "_paginator.html" %}
+    <div class="text-center mt-2">
+      <p>
+        {% if is_users_page %}
+          {% trans "Drag and drop the users in the roles you want them to be part of." %}<br/>
+          {% trans "New hires are not included. Please convert them to a normal user first." %}
+        {% else %}
+          {% trans "Drag and drop the sequences in the roles." %}
+        {% endif %}
+      </p>
+    </div>
+  </div>
+</div>
+<div id="department-modals"
+  class="modal modal-blur fade"
+  style="display: none"
+  aria-hidden="false"
+  tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content"></div>
   </div>
 </div>
 {% endblock %}
+
+{% block extra_css %}
+<style>
+  .drop {
+    border-left: 2px solid transparent;
+    transform: translateX(0);
+    padding-left: 0px;
+    transition:
+      transform 0.2s ease,
+      border-left-color 0.1s ease,
+      padding-left 0.3s ease
+  }
+  .drop.droppable {
+    transform: translateX(5px);
+    border-left-color: color-mix(in srgb,var(--tblr-primary) 10%,transparent);
+    padding-left: 10px;
+  }
+  .drop.drag-hover {
+    background-color: rgb(239, 242, 246)
+  }
+</style>
+{% endblock extra_css %}
+{% block extra_js %}
+<script>
+
+let dragged;
+let draggedToElement;
+
+function markAsDroppable(element) {
+  $(element).addClass("droppable");
+}
+function removeMarkAsDroppable(element) {
+  $(element).removeClass("droppable");
+}
+
+document.addEventListener("dragstart", function( event ) {
+  dragged = event.target;
+  $('.drop').not('.ignore-styling').each((index, element) => {
+    markAsDroppable(element);
+  });
+});
+
+document.addEventListener("drop", function( event ) {
+  // prevent default action
+  event.preventDefault()
+
+  const droppedPlace = event.target.closest(".drop")
+  draggedToElement = droppedPlace
+
+  if (droppedPlace) {
+    const itemId = dragged.dataset.itemId
+    const url = droppedPlace.dataset.url
+    const method = droppedPlace.dataset.method
+
+    htmx.ajax(method, url + "?item=" + itemId, {
+      target: "#department-modals",
+    })
+  }
+})
+
+document.addEventListener("dragover", function( event ) {
+  // prevent default action
+  event.preventDefault();
+  event.stopPropagation();
+  const droppedPlace = event.target.closest(".drop")
+  if (droppedPlace) {
+    droppedPlace.classList.add("drag-hover");
+  }
+});
+
+document.addEventListener("dragend", function( event ) {
+  $('.drop').each((index, element) => {
+    removeMarkAsDroppable(element);
+  });
+});
+
+document.addEventListener("dragleave", function( event ) {
+  // prevent default action
+  event.preventDefault();
+  event.stopPropagation();
+  const droppedPlace = event.target.closest(".drop")
+  if (droppedPlace) {
+    const droppedPlace = event.target.closest(".drop")
+    droppedPlace.classList.remove("drag-hover");
+  }
+});
+
+$(document).on("hide-modal", function(evt){
+  $('.modal').modal('hide')
+})
+
+$(document).on("show-modal", function(evt){
+  $('#department-modals').modal("toggle")
+})
+
+</script>
+{% endblock extra_js %}

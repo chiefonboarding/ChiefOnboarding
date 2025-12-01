@@ -40,6 +40,7 @@ from admin.integrations.serializers import (
     WebhookManifestSerializer,
 )
 from admin.integrations.utils import get_value_from_notation
+from admin.people.revoke_result import RevokeResult
 from misc.fernet_fields import EncryptedTextField
 from misc.fields import EncryptedJSONField
 from organization.models import FilteredForManagerQuerySet, Notification
@@ -217,6 +218,9 @@ class Integration(models.Model):
     verification_token = models.CharField(max_length=100, default="")
     bot_token = EncryptedTextField(max_length=10000, default="", blank=True)
     bot_id = models.CharField(max_length=100, default="")
+
+    def __str__(self):
+        return self.name
 
     @property
     def skip_user_provisioning(self):
@@ -562,14 +566,16 @@ class Integration(models.Model):
     def revoke_user(self, user):
         if self.skip_user_provisioning:
             # should never be triggered
-            return False, "Cannot revoke manual integration"
+            return RevokeResult(
+                result=False, message="Cannot revoke manual integration"
+            )
 
         self.new_hire = user
         self.has_user_context = True
 
         # Renew token if necessary
         if not self.renew_key():
-            return False, "Couldn't renew key"
+            return RevokeResult(result=False, message="Couldn't renew key")
 
         revoke_manifest = self.manifest.get("revoke", [])
 
@@ -585,9 +591,9 @@ class Integration(models.Model):
             success, response = self.run_request(item)
 
             if not success or not self.tracker.steps.last().found_expected:
-                return False, self.clean_response(response)
+                return RevokeResult(result=False, message=self.clean_response(response))
 
-        return True, ""
+        return RevokeResult(result=True, message="")
 
     def renew_key(self):
         # Oauth2 refreshing access token if needed

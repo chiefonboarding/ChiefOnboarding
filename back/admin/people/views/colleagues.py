@@ -24,6 +24,13 @@ from admin.integrations.exceptions import (
 )
 from admin.integrations.models import Integration
 from admin.integrations.sync_userinfo import SyncUsers
+from admin.people.forms import (
+    ColleagueCreateForm,
+    ColleagueUpdateForm,
+    EmailIgnoreForm,
+    OffboardingSequenceChoiceForm,
+    UserRoleForm,
+)
 from admin.people.selectors import (
     get_colleagues_for_user,
     get_offboarding_colleagues_for_user,
@@ -41,21 +48,10 @@ from users.mixins import (
     AdminOrManagerPermMixin,
     AdminPermMixin,
 )
-from users.models import Department, ToDoUser
+from users.models import ToDoUser
 from users.selectors import (
     get_all_offboarding_users_for_departments_of_user,
-    get_available_departments_for_user,
 )
-
-from .forms import (
-    ColleagueCreateForm,
-    ColleagueUpdateForm,
-    EmailIgnoreForm,
-    OffboardingSequenceChoiceForm,
-    UserRoleForm,
-)
-
-# See new_hire_views.py for new hire functions!
 
 
 class ColleagueListView(AdminOrManagerPermMixin, ListView):
@@ -535,33 +531,3 @@ class ColleagueImportAddUsersView(generics.CreateAPIView):
             "Admins and managers will receive an email shortly."
         )
         return HttpResponse(f"<div class='alert alert-success'>{success_message}</div>")
-
-
-class DepartmentListView(AdminOrManagerPermMixin, ListView):
-    template_name = "departments.html"
-    paginate_by = 20
-
-    def get_queryset(self):
-        return get_available_departments_for_user(user=self.request.user)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("Roles and departments")
-        context["subtitle"] = _("people")
-        return context
-
-
-class DepartmentCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
-    template_name = "department_create.html"
-    model = Department
-    fields = [
-        "name",
-    ]
-    success_message = _("Department has been created")
-    success_url = reverse_lazy("people:departments")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("Roles and departments")
-        context["subtitle"] = _("people")
-        return context

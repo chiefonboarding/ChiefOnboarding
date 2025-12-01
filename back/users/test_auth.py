@@ -3,6 +3,8 @@ from django.contrib import auth
 from django.test import override_settings
 from django.urls import reverse
 
+from users.models import User
+
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
@@ -34,10 +36,10 @@ def test_login_data_validation(email, password, logged_in, client, new_hire_fact
 @pytest.mark.parametrize(
     "role, redirect_url",
     [
-        (0, "/new_hire/todos/"),
-        (3, "/new_hire/colleagues/"),
-        (1, "/admin/people/"),
-        (2, "/admin/people/"),
+        (User.Role.NEWHIRE, "/new_hire/todos/"),
+        (User.Role.OTHER, "/new_hire/todos/"),
+        (User.Role.ADMIN, "/admin/people/"),
+        (User.Role.MANAGER, "/admin/people/"),
     ],
 )
 def test_redirect_after_login(role, redirect_url, client, new_hire_factory):
