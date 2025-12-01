@@ -37,42 +37,77 @@ class Migration(migrations.Migration):
             ToDoUser.objects.filter(user=user).update(role_start_date=user.start_day)
 
     dependencies = [
-        ('sequences', '0046_alter_sequence_options_sequence_departments'),
-        ('users', '0044_alter_department_options'),
+        ("sequences", "0046_alter_sequence_options_sequence_departments"),
+        ("users", "0044_alter_department_options"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='department',
-            name='sequences',
-            field=models.ManyToManyField(blank=True, related_name='+', to='sequences.sequence'),
+            model_name="department",
+            name="sequences",
+            field=models.ManyToManyField(
+                blank=True, related_name="+", to="sequences.sequence"
+            ),
         ),
         migrations.AddField(
-            model_name='resourceuser',
-            name='role_start_date',
-            field=models.DateField(default=None, help_text='Date used to calculate due date for to do item.', null=True),
+            model_name="resourceuser",
+            name="role_start_date",
+            field=models.DateField(
+                default=None,
+                help_text="Date used to calculate due date for to do item.",
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='todouser',
-            name='role_start_date',
-            field=models.DateField(default=None, help_text='Date used to calculate due date for to do item.', null=True),
+            model_name="todouser",
+            name="role_start_date",
+            field=models.DateField(
+                default=None,
+                help_text="Date used to calculate due date for to do item.",
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='department',
-            name='name',
+            model_name="department",
+            name="name",
             field=models.CharField(max_length=255, unique=True),
         ),
         migrations.CreateModel(
-            name='DepartmentRole',
+            name="DepartmentRole",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('department', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='roles', to='users.department')),
-                ('sequences', models.ManyToManyField(blank=True, related_name='roles', to='sequences.sequence')),
-                ('users', models.ManyToManyField(related_name='department_roles', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                (
+                    "department",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="roles",
+                        to="users.department",
+                    ),
+                ),
+                (
+                    "sequences",
+                    models.ManyToManyField(
+                        blank=True, related_name="roles", to="sequences.sequence"
+                    ),
+                ),
+                (
+                    "users",
+                    models.ManyToManyField(
+                        related_name="department_roles", to=settings.AUTH_USER_MODEL
+                    ),
+                ),
             ],
             options={
-                'ordering': ('name',),
+                "ordering": ("name",),
             },
         ),
         migrations.SeparateDatabaseAndState(
@@ -86,27 +121,53 @@ class Migration(migrations.Migration):
             ],
             state_operations=[
                 migrations.CreateModel(
-                    name='UserCondition',
+                    name="UserCondition",
                     fields=[
-                        ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                        ('condition', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='sequences.condition')),
-                        ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                        (
+                            "id",
+                            models.AutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        (
+                            "condition",
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="sequences.condition",
+                            ),
+                        ),
+                        (
+                            "user",
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to=settings.AUTH_USER_MODEL,
+                            ),
+                        ),
                     ],
                     options={
-                        'unique_together': {('user', 'condition')},
+                        "unique_together": {("user", "condition")},
                     },
                 ),
                 migrations.AlterField(
-                    model_name='user',
-                    name='conditions',
-                    field=models.ManyToManyField(through='users.UserCondition', to='sequences.condition'),
+                    model_name="user",
+                    name="conditions",
+                    field=models.ManyToManyField(
+                        through="users.UserCondition", to="sequences.condition"
+                    ),
                 ),
-            ]
+            ],
         ),
         migrations.AddField(
             model_name="UserCondition",
             name="role_start_date",
-            field=models.DateField(default=None, help_text='Date used to calculate when to trigger the condition', null=True),
+            field=models.DateField(
+                default=None,
+                help_text="Date used to calculate when to trigger the condition",
+                null=True,
+            ),
         ),
         migrations.RunPython(
             set_user_condition_role_start_date, reverse_code=migrations.RunPython.noop

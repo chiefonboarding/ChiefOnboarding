@@ -14,7 +14,7 @@ from slack_bot.slack_intro import SlackIntro
 from slack_bot.slack_resource import SlackResource
 from slack_bot.slack_to_do import SlackToDo
 from slack_bot.utils import Slack, paragraph
-from users.models import ResourceUser, ToDoUser, UserCondition
+from users.models import ResourceUser, ToDoUser
 
 
 def process_condition(condition_id, user_id, send_email=True):
@@ -135,6 +135,8 @@ def timed_triggers():
     This gets triggered every 5 minutes to trigger conditions within sequences.
     These conditions are already assigned to new hires.
     """
+    from users.models import UserCondition
+
     org = Organization.object.get()
     if org is None:
         return
