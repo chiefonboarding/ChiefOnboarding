@@ -19,7 +19,7 @@ RUN pipenv install --system
 RUN django-admin compilemessages 
 
 # checkov:skip=CKV_DOCKER_7: zero-CVE fresh image every build
-FROM cgr.dev/chainguard/python:latest@sha256:136aad7020e00a98f617f3d3343cc7601b7823405eb2bc581eae5f5a8c21e8d0
+FROM nvcr.io/nvidia/distroless/python:3.13-v3.1.1
 USER 65532
 HEALTHCHECK NONE
 COPY --from=build /app /app
