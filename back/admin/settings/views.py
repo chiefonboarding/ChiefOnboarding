@@ -326,18 +326,20 @@ class IntegrationsListView(AdminPermMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context["title"] = _("Integrations")
         context["subtitle"] = _("settings")
-        context["slack_bot"] = Integration.objects.filter(
-            integration=Integration.Type.SLACK_BOT, active=True
-        ).first()
+        context["slack_bot"] = (
+            Integration.objects.for_user(user=self.request.user)
+            .filter(integration=Integration.Type.SLACK_BOT, active=True)
+            .first()
+        )
         context["slack_bot_environ"] = settings.SLACK_APP_TOKEN != ""
         context["base_url"] = settings.BASE_URL
 
-        context["custom_integrations"] = Integration.objects.filter(
-            integration=Integration.Type.CUSTOM, is_active=True
-        )
-        context["inactive_integrations"] = Integration.inactive.filter(
-            integration=Integration.Type.CUSTOM, is_active=False
-        )
+        context["custom_integrations"] = Integration.objects.for_user(
+            user=self.request.user
+        ).filter(integration=Integration.Type.CUSTOM, is_active=True)
+        context["inactive_integrations"] = Integration.inactive.for_user(
+            user=self.request.user
+        ).filter(integration=Integration.Type.CUSTOM, is_active=False)
         context["add_action"] = reverse_lazy("integrations:create")
         context["disable_update_channels_list"] = (
             settings.SLACK_DISABLE_AUTO_UPDATE_CHANNELS

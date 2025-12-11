@@ -11,6 +11,7 @@
           <tr>
             <th>{% translate "Name" %}</th>
             <th>{% translate "Tags" %}</th>
+            <th>{% translate "Departments" %}</th>
             <th></th>
           </tr>
         </thead>
@@ -19,6 +20,13 @@
           <tr>
             <td>{{ template.name }}</td>
             <td>{% for tag in template.tags %}<span class="badge bg-blue-lt text-blue-lt-fg" style="margin-right: 10px">{{ tag }}</span>{% endfor %}</td>
+            <td>
+              {% for department in template.departments.all %}
+                <span class="badge bg-blue-lt text-blue-lt-fg">{{ department }}</span>
+              {% empty %}
+                <span class="badge bg-lime-lt text-lime-lt-fg">{% trans "All" %}</span>
+              {% endfor %}
+            </td>
             <td class="text-end">
               <a href="{{ template.update_url }}" class="btn btn-white">
                 {% translate "View" %}

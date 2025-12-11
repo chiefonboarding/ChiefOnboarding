@@ -1,3 +1,6 @@
+from django.utils.translation import gettext_lazy as _
+
+
 class CompletedFormCheck:
     @property
     def completed_form_items(self):
@@ -20,3 +23,12 @@ class CompletedFormCheck:
                     completed_blocks.append(item)
 
         return completed_blocks
+
+
+def parse_array_to_string(words):
+    words = list(words)
+    if not words:
+        return ""
+    if len(words) == 1:
+        return words[0]
+    return ", ".join(words[:-1]) + " " + _("and") + " " + words[-1]
