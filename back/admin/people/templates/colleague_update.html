@@ -3,6 +3,7 @@
 {% load crispy_forms_tags %}
 
 {% block actions %}
+<a href="{% url 'people:new_hire' object.id %}" class="btn">{% translate "Progress" %}</a>
 {% if object.termination_date is None %}
 <a href="{% url 'people:terminate' object.id %}" class="btn">{% translate "Terminate" %}</a>
 {% else %}

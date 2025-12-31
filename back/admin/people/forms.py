@@ -14,9 +14,14 @@ from admin.templates.forms import (
     MultiSelectField,
     UploadField,
 )
-from misc.mixins import FilterDepartmentsFieldByUserMixin
 from organization.models import Organization
-from users.models import User
+from users.models import DepartmentRole, User
+from users.selectors import get_available_roles_for_user
+
+
+class RoleModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        return obj.department.name + " // " + obj.name
 
 
 class NewHireAddForm(forms.ModelForm):
@@ -25,7 +30,13 @@ class NewHireAddForm(forms.ModelForm):
         to_field_name="id",
         initial=Sequence.onboarding.filter(auto_add=True),
         required=False,
-        label=_("Sequences"),
+        label=_("Additional sequences"),
+    )
+    roles = RoleModelMultipleChoiceField(
+        queryset=DepartmentRole.objects.none(),
+        to_field_name="id",
+        required=False,
+        label=_("Roles"),
     )
     buddy = forms.ModelChoiceField(
         queryset=get_user_model().managers_and_admins_or_slack_users.all(),
@@ -41,7 +52,7 @@ class NewHireAddForm(forms.ModelForm):
         widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["buddy"].required = False
         self.fields["manager"].required = False
@@ -49,6 +60,10 @@ class NewHireAddForm(forms.ModelForm):
         self.fields["language"].initial = Organization.object.get().language
         self.fields["timezone"].initial = Organization.object.get().timezone
         self.fields["start_day"].initial = timezone.now().date()
+        self.fields["roles"].queryset = get_available_roles_for_user(
+            user=user
+        ).order_by("department")
+        print(self.fields["roles"].queryset)
         self.helper = FormHelper()
         layout = Layout(
             Div(
@@ -93,7 +108,7 @@ class NewHireAddForm(forms.ModelForm):
                 css_class="row",
             ),
             Div(
-                Div(Field("departments"), css_class="col-6"),
+                Div(Field("roles"), css_class="col-6"),
                 Div(
                     UploadField(
                         "profile_image",
@@ -140,7 +155,7 @@ class NewHireAddForm(forms.ModelForm):
             "language",
             "buddy",
             "manager",
-            "departments",
+            "roles",
             "profile_image",
         )
 
@@ -189,6 +204,10 @@ class NewHireProfileForm(forms.ModelForm):
                 Div(
                     Field("last_name"),
                     Field("phone"),
+                    UploadField(
+                        "profile_image",
+                        extra_context={"file": self.instance.profile_image},
+                    ),
                     Field("start_day"),
                     css_class="col-6",
                 ),
@@ -196,17 +215,6 @@ class NewHireProfileForm(forms.ModelForm):
             ),
             Div(
                 Div(Field("message"), css_class="col-12"),
-                css_class="row",
-            ),
-            Div(
-                Div(Field("departments"), css_class="col-6"),
-                Div(
-                    UploadField(
-                        "profile_image",
-                        extra_context={"file": self.instance.profile_image},
-                    ),
-                    css_class="col-6",
-                ),
                 css_class="row",
             ),
             Div(
@@ -228,19 +236,17 @@ class NewHireProfileForm(forms.ModelForm):
             "last_name",
             "position",
             "email",
-            "phone",
             "start_day",
             "message",
             "timezone",
             "language",
             "buddy",
             "manager",
-            "departments",
             "profile_image",
         )
 
 
-class ColleagueUpdateForm(FilterDepartmentsFieldByUserMixin, forms.ModelForm):
+class ColleagueUpdateForm(forms.ModelForm):
     birthday = forms.DateField(
         widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
         required=False,
@@ -259,7 +265,6 @@ class ColleagueUpdateForm(FilterDepartmentsFieldByUserMixin, forms.ModelForm):
             Div(
                 Div(Field("email"), css_class="col-12"),
                 Div(Field("position"), css_class="col-12"),
-                Div(Field("departments"), css_class="col-12"),
                 Div(Field("phone"), css_class="col-12"),
                 Div(Field("birthday"), css_class="col-12"),
                 Div(Field("message"), css_class="col-12"),
@@ -281,7 +286,6 @@ class ColleagueUpdateForm(FilterDepartmentsFieldByUserMixin, forms.ModelForm):
             "first_name",
             "last_name",
             "position",
-            "departments",
             "birthday",
             "email",
             "phone",
@@ -295,7 +299,7 @@ class ColleagueUpdateForm(FilterDepartmentsFieldByUserMixin, forms.ModelForm):
         )
 
 
-class ColleagueCreateForm(FilterDepartmentsFieldByUserMixin, forms.ModelForm):
+class ColleagueCreateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -311,7 +315,6 @@ class ColleagueCreateForm(FilterDepartmentsFieldByUserMixin, forms.ModelForm):
             Div(
                 Div(Field("email"), css_class="col-12"),
                 Div(Field("position"), css_class="col-12"),
-                Div(Field("departments"), css_class="col-12"),
                 Div(Field("phone"), css_class="col-12"),
                 Div(Field("message"), css_class="col-12"),
                 Div(Field("facebook"), css_class="col-12"),
@@ -332,7 +335,6 @@ class ColleagueCreateForm(FilterDepartmentsFieldByUserMixin, forms.ModelForm):
             "first_name",
             "last_name",
             "position",
-            "departments",
             "email",
             "phone",
             "message",

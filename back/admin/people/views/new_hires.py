@@ -43,7 +43,13 @@ from users.emails import (
     send_reminder_email,
 )
 from users.mixins import AdminOrManagerPermMixin
-from users.models import NewHireWelcomeMessage, PreboardingUser, ResourceUser, ToDoUser
+from users.models import (
+    NewHireWelcomeMessage,
+    PreboardingUser,
+    ResourceUser,
+    ToDoUser,
+    UserCondition,
+)
 
 
 class NewHireListView(AdminOrManagerPermMixin, ListView):
@@ -68,6 +74,11 @@ class NewHireAddView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
     success_message = _("New hire has been created")
     success_url = reverse_lazy("people:new_hires")
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = _("Add new hire")
@@ -82,8 +93,17 @@ class NewHireAddView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
 
         new_hire = form.save()
 
-        # Add sequences to new hire
-        new_hire.add_sequences(sequences)
+        # additional sequences, then add the ones from the roles
+        sequence_pks = list(sequences.values_list("pk", flat=True))
+
+        for role in form.cleaned_data["roles"]:
+            role.users.add(new_hire)
+            sequence_pks += list(
+                role.sequences.all().values_list("pk", flat=True)
+            ) + list(role.department.sequences.all().values_list("pk", flat=True))
+
+        sequences = Sequence.objects.filter(id__in=sequence_pks)
+        new_hire.add_sequences(Sequence.objects.filter(id__in=sequence_pks))
 
         # Send credentials email if the user was created after their start day
         org = Organization.object.get()
@@ -313,24 +333,31 @@ class NewHireSequenceView(AdminOrManagerPermMixin, DetailView):
     template_name = "new_hire_detail.html"
 
     def get_queryset(self):
-        return get_new_hires_for_user(user=self.request.user)
+        return get_colleagues_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         new_hire = context["object"]
         context["title"] = new_hire.full_name
-        context["subtitle"] = _("new hire")
+        context["subtitle"] = _("new hire") if new_hire.is_new_hire else _("employee")
 
         conditions = new_hire.conditions.prefetched()
+        user_conditions = UserCondition.objects.filter(
+            condition__in=conditions
+        ).values_list("condition", "role_start_date")
+        u_con = {}
+        for u, start_date in user_conditions:
+            u_con[u] = start_date
+        context["condition_start_date_map"] = u_con
 
         # condition items
         context["conditions"] = (
             (
                 conditions.filter(
-                    condition_type=2, days__lte=new_hire.days_before_starting()
+                    condition_type=2  # , days__lte=new_hire.days_before_starting()
                 )
                 | conditions.filter(
-                    condition_type=Condition.Type.AFTER, days__gte=new_hire.workday()
+                    condition_type=Condition.Type.AFTER  # , days__gte=new_hire.workday()
                 )
                 | conditions.filter(condition_type=Condition.Type.TODO)
                 | conditions.filter(condition_type=Condition.Type.ADMIN_TASK)

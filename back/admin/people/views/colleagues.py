@@ -40,7 +40,6 @@ from admin.resources.models import Resource
 from admin.resources.selectors import get_resource_templates_for_user
 from admin.sequences.models import Condition, Sequence
 from api.permissions import AdminPermission
-from misc.mixins import FormWithUserContextMixin
 from organization.models import Organization, WelcomeMessage
 from slack_bot.utils import Slack, actions, button, paragraph
 from users.emails import email_new_admin_cred
@@ -89,9 +88,7 @@ class OffboardingColleagueListView(AdminOrManagerPermMixin, ListView):
         return context
 
 
-class ColleagueCreateView(
-    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView
-):
+class ColleagueCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
     template_name = "colleague_create.html"
     model = get_user_model()
     form_class = ColleagueCreateForm
@@ -109,9 +106,7 @@ class ColleagueCreateView(
         return context
 
 
-class ColleagueUpdateView(
-    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView
-):
+class ColleagueUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "colleague_update.html"
     model = get_user_model()
     form_class = ColleagueUpdateForm

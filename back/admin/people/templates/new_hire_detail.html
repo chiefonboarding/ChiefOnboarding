@@ -19,7 +19,9 @@
   </div>
 </div>
 {% endif %}
-{% include "_new_hire_menu.html" %}
+{% if object.is_new_hire %}
+  {% include "_new_hire_menu.html" %}
+{% endif %}
 <div class="row mt-3">
   <div class="col-8">
     <div class="card">
@@ -29,7 +31,7 @@
       <div class="card-body">
         <ul class="timeline">
           {# only show preboarding if before first day #}
-          {% if object.workday == 0 and object.preboarding.all|length %}
+          {% if object.workday == 0 and object.preboarding.all|length and object.is_new_hire %}
             <li class="timeline-event">
               <div class="timeline-event-icon">
                 <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-stack-front"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 4l-8 4l8 4l8 -4l-8 -4" fill="currentColor" /><path d="M8 14l-4 2l8 4l8 -4l-4 -2" /><path d="M8 10l-4 2l8 4l8 -4l-4 -2" /></svg>
@@ -61,7 +63,7 @@
           {% endif %}
             {% for condition in conditions %}
               {% show_highlighted_date_card conditions forloop.counter0 object.start_day as show_start %}
-              {% if show_start %}
+              {% if show_start and object.is_new_hire %}
                 <li class="timeline-event">
                   <div class="timeline-event-icon">
                     <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-player-play"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 4v16l13 -8z" /></svg>
@@ -83,7 +85,7 @@
                   <div class="card">
                     <div class="card-header">
                       {% if condition.condition_type == ConditionType.AFTER or condition.condition_type == ConditionType.BEFORE %}
-                      <h4 class="card-title">{{ condition|new_hire_trigger_date:object }} {% trans "at" %} {{ condition.time }}</h4>
+                      <h4 class="card-title">{{ condition|new_hire_trigger_date:condition_start_date_map }} {% trans "at" %} {{ condition.time }}</h4>
                       {% elif condition.condition_type == ConditionType.ADMIN_TASK %}
                       <h4 class="card-title">
                         {% trans "When these admin tasks are completed:" %}

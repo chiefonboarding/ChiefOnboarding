@@ -111,6 +111,7 @@ class AdministratorCreateView(AdminPermMixin, SuccessMessageMixin, CreateView):
             # Change user if user already exists
             user = user.first()
             user.role = form.cleaned_data["role"]
+            user.departments = form.cleaned_data["departments"]
             user.save()
         else:
             user = form.save()

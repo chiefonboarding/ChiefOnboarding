@@ -489,19 +489,6 @@ class User(AbstractBaseUser):
 
         return amount_of_workdays
 
-    def workday_to_datetime(self, workdays, start_day=None):
-        if start_day is None:
-            start_day = self.start_day
-        if workdays == 0:
-            return None
-
-        start = 1
-        while start != workdays:
-            start_day += timedelta(days=1)
-            if start_day.weekday() not in [5, 6]:
-                start += 1
-        return start_day
-
     def offboarding_workday_to_date(self, workdays):
         # Converts the workday (before the end date) to the actual date on which it
         # triggers. This will skip any weekends.

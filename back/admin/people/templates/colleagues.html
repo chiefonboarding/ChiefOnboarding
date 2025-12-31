@@ -33,7 +33,7 @@
           <tr>
             <th>{% translate "Name" %}</th>
             <th>{% translate "Position" %}</th>
-            <th>{% translate "Departments" %}</th>
+            <th>{% translate "Has access to departments" %}</th>
             <th></th>
           </tr>
         </thead>
@@ -47,11 +47,17 @@
               {{ colleague.position }}
             </td>
             <td>
-              {% for department in colleague.departments.all %}
-                <span class="badge bg-blue-lt text-blue-lt-fg">{{ department }}</span>
-              {% empty %}
-                {% trans "Not in a department" %}
-              {% endfor %}
+              {% if colleague.is_admin %}
+                <span class="badge bg-lime-lt text-lime-lt-fg">{% trans "All" %}</span>
+              {% elif colleague.is_manager %}
+                {% for department in colleague.departments.all %}
+                  <span class="badge bg-blue-lt text-blue-lt-fg">{{ department }}</span>
+                {% empty %}
+                  <span class="badge bg-lime-lt text-lime-lt-fg">{% trans "All" %}</span>
+                {% endfor %}
+              {% else %}
+                User has no admin/manager access
+              {% endif %}
             </td>
             <td class="text-end">
               {% if slack_active %}

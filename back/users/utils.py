@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.utils.translation import gettext_lazy as _
 
 
@@ -32,3 +34,15 @@ def parse_array_to_string(words):
     if len(words) == 1:
         return words[0]
     return ", ".join(words[:-1]) + " " + _("and") + " " + words[-1]
+
+
+def workday_to_datetime(workdays, start_day):
+    if workdays == 0:
+        return None
+
+    start = 1
+    while start != workdays:
+        start_day += timedelta(days=1)
+        if start_day.weekday() not in [5, 6]:
+            start += 1
+    return start_day
