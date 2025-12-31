@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from admin.sequences.models import Condition
 from organization.models import File
+from users.utils import workday_to_datetime
 
 register = template.Library()
 
@@ -56,15 +57,17 @@ def personalize(text, user):
 
 
 @register.filter(name="new_hire_trigger_date")
-def new_hire_trigger_date(condition, new_hire):
+def new_hire_trigger_date(condition, condition_start_date_map):
     """
     Shows the actual date that the condition will trigger
     """
 
     if condition.condition_type == Condition.Type.BEFORE:
-        return new_hire.start_day - timedelta(days=condition.days)
+        return condition_start_date_map[condition.id] - timedelta(days=condition.days)
     else:
-        return new_hire.workday_to_datetime(condition.days)
+        return workday_to_datetime(
+            condition.days, condition_start_date_map[condition.id]
+        )
 
 
 @register.filter(name="offboarding_trigger_date")

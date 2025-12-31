@@ -24,6 +24,7 @@ from users.models import (
     ToDoUser,
     User,
 )
+from users.utils import workday_to_datetime
 
 from .forms import QuestionsForm
 
@@ -80,7 +81,7 @@ class NewHireDashboard(TemplateView):
 
         # Convert days to date object
         for obj in items_by_date:
-            obj["date"] = self.request.user.workday_to_datetime(
+            obj["date"] = workday_to_datetime(
                 obj["day"], start_day=obj["role_start_date"]
             )
 
