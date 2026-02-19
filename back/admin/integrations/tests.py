@@ -1279,3 +1279,141 @@ def test_integration_tracker(
 
     assert integration.name + " for " + new_hire.full_name in response.content.decode()
     assert "not_found" in response.content.decode()
+
+
+@pytest.mark.django_db
+@patch("requests.request")
+def test_integration_with_todo_forms_variables(
+    mock_request, new_hire_factory, to_do_factory, custom_integration_factory
+):
+    """Test that todo_forms variables work in integration manifests."""
+    # Set up mock response
+    mock_response = Mock()
+    mock_response.status_code = 200
+    mock_response.text = '{"success": true}'
+    mock_response.json.return_value = {"success": True}
+    mock_request.return_value = mock_response
+
+    # Create new hire
+    new_hire = new_hire_factory(first_name="John", last_name="Doe")
+
+    # Create completed to-dos with form data
+    todo1 = to_do_factory(name="Emergency Contact Info")
+    new_hire.to_do_new_hire.create(
+        to_do=todo1,
+        completed=True,
+        form=[
+            {"id": "item-1", "answer": "Jane Doe", "data": {"text": "Contact Name"}},
+            {"id": "item-2", "answer": "555-1234", "data": {"text": "Phone Number"}},
+        ],
+    )
+
+    todo2 = to_do_factory(name="Workspace Setup")
+    new_hire.to_do_new_hire.create(
+        to_do=todo2,
+        completed=True,
+        form=[
+            {"id": "item-5", "answer": "on", "data": {"text": "Needs Monitor"}},
+            {"id": "item-6", "answer": "Desk A-23", "data": {"text": "Desk Number"}},
+        ],
+    )
+
+    # Create integration with manifest using todo_forms variables
+    # Use numeric indices to access list items
+    integration = custom_integration_factory(
+        manifest={
+            "execute": [
+                {
+                    "url": "https://example.com/api/onboard",
+                    "method": "POST",
+                    "data": {
+                        "employee_name": "{{ first_name }} {{ last_name }}",
+                        "emergency_contact": "{{ todo_forms.emergency_contact_info.0 }}",
+                        "emergency_phone": "{{ todo_forms.emergency_contact_info.1 }}",
+                        "desk_assignment": "{{ todo_forms.workspace_setup.1 }}",
+                        "needs_monitor": "{{ todo_forms.workspace_setup.0 }}",
+                        "missing_field": "{{ todo_forms.nonexistent.0|default:'N/A' }}",
+                    },
+                }
+            ],
+        },
+    )
+
+    # Execute integration
+    integration.execute(new_hire, {})
+
+    # Verify request was made
+    assert mock_request.called
+    # Get the data that was sent - cast_to_json converts it to a dict
+    call_kwargs = mock_request.call_args[1]
+    sent_data = call_kwargs["data"]
+
+    # Check that the data was properly templated
+    assert sent_data["employee_name"] == "John Doe"
+    assert sent_data["emergency_contact"] == "Jane Doe"
+    assert sent_data["emergency_phone"] == "555-1234"
+    assert sent_data["desk_assignment"] == "Desk A-23"
+    assert sent_data["needs_monitor"] == "on"
+    assert sent_data["missing_field"] == "N/A"
+
+
+@pytest.mark.django_db
+@patch("requests.request")
+def test_integration_with_incomplete_todo_not_in_variables(
+    mock_request, new_hire_factory, to_do_factory, custom_integration_factory
+):
+    """Test that incomplete to-dos are not included in todo_forms variables."""
+    mock_response = Mock()
+    mock_response.status_code = 200
+    mock_response.text = '{"success": true}'
+    mock_response.json.return_value = {"success": True}
+    mock_request.return_value = mock_response
+
+    new_hire = new_hire_factory()
+
+    # Create incomplete to-do
+    incomplete_todo = to_do_factory(name="Incomplete Task")
+    new_hire.to_do_new_hire.create(
+        to_do=incomplete_todo,
+        completed=False,
+        form=[
+            {"id": "item-1", "answer": "Some data", "data": {"text": "Question"}},
+        ],
+    )
+
+    # Create completed to-do
+    complete_todo = to_do_factory(name="Complete Task")
+    new_hire.to_do_new_hire.create(
+        to_do=complete_todo,
+        completed=True,
+        form=[
+            {"id": "item-2", "answer": "Completed data", "data": {"text": "Answer"}},
+        ],
+    )
+
+    # Create integration
+    # Use numeric indices to access list items
+    integration = custom_integration_factory(
+        manifest={
+            "execute": [
+                {
+                    "url": "https://example.com/api/check",
+                    "method": "POST",
+                    "data": {
+                        "incomplete_data": "{{ todo_forms.incomplete_task.0|default:'Not available' }}",
+                        "complete_data": "{{ todo_forms.complete_task.0 }}",
+                    },
+                }
+            ],
+        },
+    )
+
+    # Execute integration
+    integration.execute(new_hire, {})
+
+    # Verify incomplete todo data is not available
+    assert mock_request.called
+    call_kwargs = mock_request.call_args[1]
+    sent_data = call_kwargs["data"]
+    assert sent_data["incomplete_data"] == "Not available"
+    assert sent_data["complete_data"] == "Completed data"
