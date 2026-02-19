@@ -1,0 +1,45 @@
+[project]
+name = "ChiefOnboarding"
+version = "2.4.0"
+requires-python = "~=3.13.0"
+dependencies = [
+    "boto3",
+    "cryptography",
+    "Django<6",
+    "django-anymail",
+    "django-axes[ipware]",
+    "django-crispy-forms",
+    "django-environ",
+    "djangorestframework",
+    "gunicorn",
+    "pyotp",
+    "requests",
+    "sentry-sdk",
+    "twilio",
+    "whitenoise",
+    "django-q-sentry",
+    "croniter",
+    "slack-bolt",
+    "django-q2",
+    "psycopg[binary]",
+    "django-allauth[mfa, socialaccount]",
+]
+
+[dependency-groups]
+dev = [
+    "coverage",
+    "pytest",
+    "pytest-cov",
+    "pytest-django",
+    "pytest-factoryboy",
+    "freezegun",
+    "django-debug-toolbar",
+    "ruff",
+]
+
+[tool.uv]
+package = false
+
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.python.org/simple"
