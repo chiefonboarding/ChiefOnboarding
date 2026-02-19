@@ -6,17 +6,20 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
+from admin.introductions.selectors import get_intro_templates_for_user
+from misc.mixins import FormWithUserContextMixin
 from users.mixins import AdminOrManagerPermMixin
-from users.models import User
+from users.selectors import get_all_users_for_departments_of_user
 
 from .forms import IntroductionForm
-from .models import Introduction
 
 
 class IntroductionListView(AdminOrManagerPermMixin, ListView):
     template_name = "templates.html"
-    queryset = Introduction.templates.all().order_by("name")
     paginate_by = settings.INTRO_PAGINATE_BY
+
+    def get_queryset(self):
+        return get_intro_templates_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -26,7 +29,9 @@ class IntroductionListView(AdminOrManagerPermMixin, ListView):
         return context
 
 
-class IntroductionCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
+class IntroductionCreateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView
+):
     template_name = "intro_update.html"
     form_class = IntroductionForm
     success_url = reverse_lazy("introductions:list")
@@ -41,7 +46,9 @@ class IntroductionCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, Creat
 
 class IntroductionColleaguePreviewView(AdminOrManagerPermMixin, DetailView):
     template_name = "_colleague_intro.html"
-    model = User
+
+    def get_queryset(self):
+        return get_all_users_for_departments_of_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -49,12 +56,16 @@ class IntroductionColleaguePreviewView(AdminOrManagerPermMixin, DetailView):
         return context
 
 
-class IntroductionUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView):
+class IntroductionUpdateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "intro_update.html"
     form_class = IntroductionForm
     success_url = reverse_lazy("introductions:list")
-    queryset = Introduction.templates.all()
     success_message = _("Introduction item has been updated")
+
+    def get_queryset(self):
+        return get_intro_templates_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -64,6 +75,8 @@ class IntroductionUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, Updat
 
 
 class IntroductionDeleteView(AdminOrManagerPermMixin, SuccessMessageMixin, DeleteView):
-    queryset = Introduction.objects.all()
     success_url = reverse_lazy("introductions:list")
     success_message = _("Introduction item has been removed")
+
+    def get_queryset(self):
+        return get_intro_templates_for_user(user=self.request.user)

@@ -16,10 +16,14 @@ from django_q.tasks import async_task
 from twilio.rest import Client
 
 from admin.admin_tasks.models import AdminTask
+from admin.admin_tasks.selectors import get_admin_tasks_for_user
 from admin.integrations.forms import IntegrationExtraUserInfoForm
 from admin.notes.models import Note
+from admin.people.selectors import get_colleagues_for_user, get_new_hires_for_user
 from admin.sequences.models import Condition, Sequence
+from admin.sequences.selectors import get_sequences_for_user
 from admin.templates.utils import get_templates_model, get_user_field
+from misc.mixins import FormWithUserContextMixin
 from organization.models import Notification, Organization, WelcomeMessage
 from slack_bot.slack_resource import SlackResource
 from slack_bot.slack_to_do import SlackToDo
@@ -31,10 +35,7 @@ from users.emails import (
     send_new_hire_preboarding,
     send_reminder_email,
 )
-from users.mixins import (
-    AdminOrManagerPermMixin,
-    IsAdminOrNewHireManagerMixin,
-)
+from users.mixins import AdminOrManagerPermMixin
 from users.models import NewHireWelcomeMessage, PreboardingUser, ResourceUser, ToDoUser
 
 from .forms import (
@@ -51,10 +52,7 @@ class NewHireListView(AdminOrManagerPermMixin, ListView):
     paginate_by = settings.NEW_HIRE_PAGINATE_BY
 
     def get_queryset(self):
-        all_new_hires = get_user_model().new_hires.all().order_by("-start_day")
-        if self.request.user.is_admin:
-            return all_new_hires
-        return all_new_hires.filter(manager=self.request.user)
+        return get_new_hires_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -150,12 +148,14 @@ class NewHireAddView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
         return super().form_valid(form)
 
 
-class NewHireSendPreboardingNotificationView(IsAdminOrNewHireManagerMixin, FormView):
+class NewHireSendPreboardingNotificationView(AdminOrManagerPermMixin, FormView):
     template_name = "trigger_preboarding_notification.html"
     form_class = PreboardingSendForm
 
     def form_valid(self, form):
-        new_hire = get_object_or_404(get_user_model(), id=self.kwargs.get("pk", -1))
+        new_hire = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), id=self.kwargs.get("pk", -1)
+        )
         if form.cleaned_data["send_type"] == "email":
             send_new_hire_preboarding(new_hire, form.cleaned_data["email"])
         else:
@@ -175,19 +175,25 @@ class NewHireSendPreboardingNotificationView(IsAdminOrNewHireManagerMixin, FormV
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user_id = self.kwargs.get("pk", -1)
-        new_hire = get_object_or_404(get_user_model(), id=user_id)
+        new_hire = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), id=user_id
+        )
         context["title"] = new_hire.full_name
         context["subtitle"] = "new hire"
         return context
 
 
-class NewHireAddSequenceView(IsAdminOrNewHireManagerMixin, FormView):
+class NewHireAddSequenceView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, FormView
+):
     template_name = "new_hire_add_sequence.html"
     form_class = OnboardingSequenceChoiceForm
 
     def form_valid(self, form):
         user_id = self.kwargs.get("pk", -1)
-        new_hire = get_object_or_404(get_user_model(), id=user_id)
+        new_hire = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), id=user_id
+        )
         sequences = Sequence.objects.filter(id__in=form.cleaned_data["sequences"])
         new_hire.add_sequences(sequences)
         messages.success(
@@ -233,16 +239,22 @@ class NewHireAddSequenceView(IsAdminOrNewHireManagerMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user_id = self.kwargs.get("pk", -1)
-        new_hire = get_object_or_404(get_user_model(), id=user_id)
+        new_hire = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), id=user_id
+        )
         context["title"] = new_hire.full_name
         context["subtitle"] = "new hire"
         return context
 
 
-class NewHireRemoveSequenceView(IsAdminOrNewHireManagerMixin, View):
+class NewHireRemoveSequenceView(AdminOrManagerPermMixin, View):
     def post(self, request, pk, sequence_pk, *args, **kwargs):
-        sequence = get_object_or_404(Sequence, id=sequence_pk)
-        new_hire = get_object_or_404(get_user_model(), id=pk)
+        sequence = get_object_or_404(
+            get_sequences_for_user(user=self.request.user), id=sequence_pk
+        )
+        new_hire = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), id=pk
+        )
         new_hire.remove_sequence(sequence)
 
         # Update user amount and completed
@@ -253,12 +265,16 @@ class NewHireRemoveSequenceView(IsAdminOrNewHireManagerMixin, View):
         return redirect("people:new_hire", pk=new_hire.id)
 
 
-class NewHireTriggerConditionView(IsAdminOrNewHireManagerMixin, TemplateView):
+class NewHireTriggerConditionView(AdminOrManagerPermMixin, TemplateView):
     template_name = "_trigger_sequence_items.html"
 
     def post(self, request, pk, condition_pk, *args, **kwargs):
         condition = get_object_or_404(Condition, id=condition_pk)
-        new_hire = get_object_or_404(get_user_model(), id=pk)
+        if condition.sequence not in get_sequences_for_user(user=self.request.user):
+            raise Http404
+        new_hire = get_object_or_404(
+            get_colleagues_for_user(user=self.request.user), id=pk
+        )
         condition.process_condition(new_hire, skip_notification=True)
 
         # Update user amount completed
@@ -271,6 +287,8 @@ class NewHireTriggerConditionView(IsAdminOrNewHireManagerMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         condition_id = self.kwargs.get("condition_pk", -1)
         condition = get_object_or_404(Condition, id=condition_id)
+        if condition.sequence not in get_sequences_for_user(user=self.request.user):
+            raise Http404
         context["completed"] = True
         context["condition"] = condition
         # not relevant, still needed for processing the template
@@ -280,17 +298,21 @@ class NewHireTriggerConditionView(IsAdminOrNewHireManagerMixin, TemplateView):
         return context
 
 
-class NewHireSendLoginEmailView(IsAdminOrNewHireManagerMixin, View):
+class NewHireSendLoginEmailView(AdminOrManagerPermMixin, View):
     def post(self, request, pk, *args, **kwargs):
-        new_hire = get_object_or_404(get_user_model(), id=pk)
+        new_hire = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), id=pk
+        )
         send_new_hire_credentials(new_hire.id)
         messages.success(request, _("Sent email to new hire"))
         return redirect("people:new_hire", pk=new_hire.id)
 
 
-class NewHireSequenceView(IsAdminOrNewHireManagerMixin, DetailView):
+class NewHireSequenceView(AdminOrManagerPermMixin, DetailView):
     template_name = "new_hire_detail.html"
-    model = get_user_model()
+
+    def get_queryset(self):
+        return get_new_hires_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -329,11 +351,13 @@ class NewHireSequenceView(IsAdminOrNewHireManagerMixin, DetailView):
         return context
 
 
-class NewHireProfileView(SuccessMessageMixin, IsAdminOrNewHireManagerMixin, UpdateView):
+class NewHireProfileView(SuccessMessageMixin, AdminOrManagerPermMixin, UpdateView):
     template_name = "new_hire_profile.html"
-    model = get_user_model()
     form_class = NewHireProfileForm
     success_message = _("New hire has been updated")
+
+    def get_queryset(self):
+        return get_new_hires_for_user(user=self.request.user)
 
     def get_success_url(self):
         return self.request.path
@@ -346,11 +370,9 @@ class NewHireProfileView(SuccessMessageMixin, IsAdminOrNewHireManagerMixin, Upda
         return context
 
 
-class NewHireMigrateToNormalAccountView(IsAdminOrNewHireManagerMixin, View):
+class NewHireMigrateToNormalAccountView(AdminOrManagerPermMixin, View):
     def post(self, request, pk, *args, **kwargs):
-        user = get_object_or_404(
-            get_user_model(), id=pk, role=get_user_model().Role.NEWHIRE
-        )
+        user = get_object_or_404(get_new_hires_for_user(user=request.user), id=pk)
         user.role = 3
         user.save()
         messages.info(request, _("New hire is now a normal account."))
@@ -359,13 +381,15 @@ class NewHireMigrateToNormalAccountView(IsAdminOrNewHireManagerMixin, View):
 
 class NewHireExtraInfoUpdateView(
     UpdateView,
-    IsAdminOrNewHireManagerMixin,
+    AdminOrManagerPermMixin,
     SuccessMessageMixin,
 ):
     template_name = "token_create.html"
     form_class = IntegrationExtraUserInfoForm
-    queryset = get_user_model().new_hires.all()
     success_message = _("Extra info has been added!")
+
+    def get_queryset(self):
+        return get_new_hires_for_user(user=self.request.user)
 
     def get_success_url(self):
         user = get_object_or_404(get_user_model(), pk=self.kwargs.get("pk"))
@@ -381,7 +405,7 @@ class NewHireExtraInfoUpdateView(
 
 
 class NewHireNotesView(
-    IsAdminOrNewHireManagerMixin,
+    AdminOrManagerPermMixin,
     SuccessMessageMixin,
     CreateView,
 ):
@@ -396,14 +420,18 @@ class NewHireNotesView(
         return self.request.path
 
     def form_valid(self, form):
-        new_hire = get_object_or_404(get_user_model(), pk=self.kwargs.get("pk"))
+        new_hire = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), pk=self.kwargs.get("pk")
+        )
         form.instance.admin = self.request.user
         form.instance.new_hire = new_hire
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        new_hire = get_object_or_404(get_user_model(), pk=self.kwargs.get("pk"))
+        new_hire = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), pk=self.kwargs.get("pk")
+        )
         context["object"] = new_hire
         context["title"] = new_hire.full_name
         context["subtitle"] = _("new hire")
@@ -415,11 +443,13 @@ class NewHireNotesView(
         return context
 
 
-class NewHireWelcomeMessagesView(IsAdminOrNewHireManagerMixin, ListView):
+class NewHireWelcomeMessagesView(AdminOrManagerPermMixin, ListView):
     template_name = "new_hire_welcome_messages.html"
 
     def get_queryset(self):
-        new_hire = get_object_or_404(get_user_model(), pk=self.kwargs.get("pk"))
+        new_hire = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), pk=self.kwargs.get("pk")
+        )
         return (
             NewHireWelcomeMessage.objects.filter(new_hire=new_hire)
             .order_by("-id")
@@ -428,19 +458,23 @@ class NewHireWelcomeMessagesView(IsAdminOrNewHireManagerMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        new_hire = get_object_or_404(get_user_model(), pk=self.kwargs.get("pk"))
+        new_hire = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), pk=self.kwargs.get("pk")
+        )
         context["object"] = new_hire
         context["title"] = new_hire.full_name
         context["subtitle"] = _("new hire")
         return context
 
 
-class NewHireAdminTasksView(IsAdminOrNewHireManagerMixin, TemplateView):
+class NewHireAdminTasksView(AdminOrManagerPermMixin, TemplateView):
     template_name = "new_hire_admin_tasks.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        new_hire = get_object_or_404(get_user_model(), pk=self.kwargs.get("pk"))
+        new_hire = get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), pk=self.kwargs.get("pk")
+        )
         context["object"] = new_hire
         context["title"] = new_hire.full_name
         context["subtitle"] = _("new hire")
@@ -453,9 +487,11 @@ class NewHireAdminTasksView(IsAdminOrNewHireManagerMixin, TemplateView):
         return context
 
 
-class NewHireFormsView(IsAdminOrNewHireManagerMixin, DetailView):
+class NewHireFormsView(AdminOrManagerPermMixin, DetailView):
     template_name = "new_hire_forms.html"
-    model = get_user_model()
+
+    def get_queryset(self):
+        return get_new_hires_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -476,9 +512,11 @@ class NewHireFormsView(IsAdminOrNewHireManagerMixin, DetailView):
         return context
 
 
-class NewHireProgressView(IsAdminOrNewHireManagerMixin, DetailView):
+class NewHireProgressView(AdminOrManagerPermMixin, DetailView):
     template_name = "new_hire_progress.html"
-    model = get_user_model()
+
+    def get_queryset(self):
+        return get_new_hires_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -496,8 +534,11 @@ class NewHireProgressView(IsAdminOrNewHireManagerMixin, DetailView):
         return context
 
 
-class NewHireRemindView(IsAdminOrNewHireManagerMixin, View):
+class NewHireRemindView(AdminOrManagerPermMixin, View):
     def post(self, request, pk, template_type, template_pk, *args, **kwargs):
+        get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), pk=self.kwargs.get("pk")
+        )
         if template_type not in ["todouser", "resourceuser"]:
             raise Http404
 
@@ -530,11 +571,14 @@ class NewHireRemindView(IsAdminOrNewHireManagerMixin, View):
         return redirect("people:new_hire_progress", pk=template_user_obj.user.id)
 
 
-class NewHireReopenTaskView(IsAdminOrNewHireManagerMixin, FormView):
+class NewHireReopenTaskView(AdminOrManagerPermMixin, FormView):
     template_name = "new_hire_reopen_task.html"
     form_class = RemindMessageForm
 
     def dispatch(self, *args, **kwargs):
+        get_object_or_404(
+            get_new_hires_for_user(user=self.request.user), pk=self.kwargs.get("pk")
+        )
         if self.request.user.is_authenticated:
             template_type = self.kwargs.get("template_type", "")
             if template_type not in ["todouser", "resourceuser"]:
@@ -590,9 +634,11 @@ class NewHireReopenTaskView(IsAdminOrNewHireManagerMixin, FormView):
         return redirect("people:new_hire_progress", pk=template_user_obj.user.id)
 
 
-class NewHireCourseAnswersView(IsAdminOrNewHireManagerMixin, DetailView):
+class NewHireCourseAnswersView(AdminOrManagerPermMixin, DetailView):
     template_name = "new_hire_course_answers.html"
-    model = get_user_model()
+
+    def get_queryset(self):
+        return get_new_hires_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -605,9 +651,11 @@ class NewHireCourseAnswersView(IsAdminOrNewHireManagerMixin, DetailView):
         return context
 
 
-class NewHireTasksView(IsAdminOrNewHireManagerMixin, DetailView):
+class NewHireTasksView(AdminOrManagerPermMixin, DetailView):
     template_name = "new_hire_tasks.html"
-    model = get_user_model()
+
+    def get_queryset(self):
+        return get_new_hires_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -616,9 +664,11 @@ class NewHireTasksView(IsAdminOrNewHireManagerMixin, DetailView):
         return context
 
 
-class NewHireTaskListView(IsAdminOrNewHireManagerMixin, DetailView):
+class NewHireTaskListView(AdminOrManagerPermMixin, DetailView):
     template_name = "new_hire_add_task.html"
-    model = get_user_model()
+
+    def get_queryset(self):
+        return get_new_hires_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -630,18 +680,18 @@ class NewHireTaskListView(IsAdminOrNewHireManagerMixin, DetailView):
             "name": self.object.full_name
         }
         context["subtitle"] = _("new hire")
-        context["object_list"] = templates_model.templates.defer_content().all()
+        context["object_list"] = templates_model.templates.all()
         context["user_items"] = getattr(
             self.object, get_user_field(self.kwargs.get("type", ""))
         ).values_list("id", flat=True)
         return context
 
 
-class NewHireToggleTaskView(IsAdminOrNewHireManagerMixin, TemplateView):
+class NewHireToggleTaskView(AdminOrManagerPermMixin, TemplateView):
     template_name = "_toggle_button_new_hire_template.html"
 
     def post(self, request, pk, template_id, type):
-        user = get_object_or_404(get_user_model(), id=pk)
+        user = get_object_or_404(get_new_hires_for_user(user=self.request.user), id=pk)
         templates_model = get_templates_model(type)
 
         if templates_model is None:
@@ -670,16 +720,21 @@ class NewHireToggleTaskView(IsAdminOrNewHireManagerMixin, TemplateView):
         return self.render_to_response(context)
 
 
-class NewHireDeleteView(IsAdminOrNewHireManagerMixin, SuccessMessageMixin, DeleteView):
+class NewHireDeleteView(AdminOrManagerPermMixin, SuccessMessageMixin, DeleteView):
     template_name = "new_hire_delete.html"
-    queryset = get_user_model().new_hires.all()
     success_url = reverse_lazy("people:new_hires")
     success_message = _("New hire has been removed")
 
+    def get_queryset(self):
+        return get_new_hires_for_user(user=self.request.user)
 
-class CompleteAdminTaskView(IsAdminOrNewHireManagerMixin, DetailView):
+
+class CompleteAdminTaskView(AdminOrManagerPermMixin, DetailView):
     def post(self, request, pk, admin_task_pk, *args, **kwargs):
-        task = get_object_or_404(AdminTask, id=admin_task_pk)
+        get_object_or_404(get_new_hires_for_user(user=self.request.user), id=pk)
+        task = get_object_or_404(
+            get_admin_tasks_for_user(user=self.request.user), id=admin_task_pk
+        )
         task.mark_completed()
 
         messages.success(request, _("The admin task was successfully completed"))

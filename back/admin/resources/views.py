@@ -5,16 +5,19 @@ from django.utils.translation import gettext as _
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
+from admin.resources.selectors import get_resource_templates_for_user
+from misc.mixins import FormWithUserContextMixin
 from users.mixins import AdminOrManagerPermMixin
 
 from .forms import ResourceForm
-from .models import Resource
 
 
 class ResourceListView(AdminOrManagerPermMixin, ListView):
     template_name = "templates.html"
-    queryset = Resource.templates.all().order_by("name")
     paginate_by = settings.RESOURCE_PAGINATE_BY
+
+    def get_queryset(self):
+        return get_resource_templates_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -24,7 +27,9 @@ class ResourceListView(AdminOrManagerPermMixin, ListView):
         return context
 
 
-class ResourceCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
+class ResourceCreateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView
+):
     template_name = "resource_update.html"
     form_class = ResourceForm
     success_url = reverse_lazy("resources:list")
@@ -37,12 +42,16 @@ class ResourceCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateVie
         return context
 
 
-class ResourceUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView):
+class ResourceUpdateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "resource_update.html"
     form_class = ResourceForm
     success_url = reverse_lazy("resources:list")
-    queryset = Resource.templates.all()
     success_message = _("Resource item has been updated")
+
+    def get_queryset(self):
+        return get_resource_templates_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -52,6 +61,8 @@ class ResourceUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateVie
 
 
 class ResourceDeleteView(AdminOrManagerPermMixin, SuccessMessageMixin, DeleteView):
-    queryset = Resource.objects.all()
     success_url = reverse_lazy("resources:list")
     success_message = _("Resource item has been removed")
+
+    def get_queryset(self):
+        return get_resource_templates_for_user(user=self.request.user)

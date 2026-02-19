@@ -34,7 +34,11 @@
             <div class="col-6">
               <h3>{% translate "Preview" %}</h3>
               <div class="update-intro">
-                {% include "_colleague_intro.html" with intro_person=object.intro_person  %}
+                {% if not object.intro_person %}
+                <p> {% trans "No colleague selected yet" %}</p>
+                {% else %}
+                  {% include "_colleague_intro.html" with intro_person=object.intro_person  %}
+                {% endif %}
               </div>
             </div>
           </div>
@@ -46,10 +50,11 @@
 {% endblock %}
 {% block extra_js %}
 <script>
-$("select#id_intro_person").on('change', function() {
-    const userId = $(this).val()
-    htmx.ajax('GET', `/templates/introductions/${userId}/preview/`, `.update-intro`)
+$(document).ready(function () {
+  const selectizeInstance = document.getElementById('id_intro_person').selectize;
+  selectizeInstance.on('change', function(value) {
+    htmx.ajax('GET', `/admin/templates/introductions/${value}/preview/`, `.update-intro`)
+  })
 })
 </script>
-
 {% endblock %}

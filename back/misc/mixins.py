@@ -1,5 +1,11 @@
+import factory
+from django.core.exceptions import ValidationError
+from django.db.models import Q
+from django.utils.translation import gettext_lazy as _
+
 from misc.models import File
 from misc.urlparser import URLParser
+from users.selectors import get_available_departments_for_user
 
 
 class ContentMixin:
@@ -222,3 +228,54 @@ class ContentMixin:
                     }
             slack_blocks.append(slack_block)
         return slack_blocks
+
+
+class FormWithUserContextMixin:
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+
+class FilterDepartmentsFieldByUserMixin:
+    def __init__(self, *args, **kwargs):
+        from users.models import Department
+
+        self.user = kwargs.pop("user")
+        super().__init__(*args, **kwargs)
+
+        available_departments = get_available_departments_for_user(user=self.user)
+
+        # also include existing ones
+        initial_departments = self.initial.get("departments", [])
+        self.fields["departments"].queryset = Department.objects.filter(
+            Q(pk__in=available_departments.values_list("pk", flat=True))
+            | Q(pk__in=[d.pk for d in initial_departments])
+        ).distinct()
+
+    def clean_departments(self):
+        from users.models import Department
+
+        new_departments = self.cleaned_data["departments"]
+        available_departments = get_available_departments_for_user(user=self.user)
+        initial_departments = Department.objects.filter(
+            pk__in=[d.pk for d in self.initial.get("departments", [])]
+        )
+        not_owned_departments = initial_departments.exclude(
+            pk__in=available_departments.values_list("pk", flat=True)
+        )
+        for d in not_owned_departments:
+            if d not in new_departments:
+                raise ValidationError(
+                    _("You cannot remove a department that you are not part of")
+                )
+        return new_departments
+
+
+class DepartmentsPostGenerationMixin(factory.Factory):
+    @factory.post_generation
+    def departments(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            self.departments.set(extracted)

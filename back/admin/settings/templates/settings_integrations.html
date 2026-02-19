@@ -53,7 +53,8 @@
     <tbody>
       {% for integration in custom_integrations %}
       <tr>
-        <td>{{ integration.name }}</td>
+        <td>{{ integration.name }}{% for dep in integration.departments.all %}<span class="badge bg-blue-lt text-blue-lt-fg" style="margin-left: 10px">{{ dep.name }}</span>{% endfor %}</td>
+            
         <td style="text-align: right">
           {% if integration.has_oauth and not integration.enabled_oauth %}
             <a href="{% url 'integrations:oauth' integration.id %}" class="btn btn-{% if integration.enabled_oauth %}success{% else %}primary{% endif %}">
@@ -95,7 +96,7 @@
     <tbody>
       {% for integration in inactive_integrations %}
       <tr>
-        <td>{{ integration.name }}</td>
+        <td>{{ integration.name }}{% for dep in integration.departments.all %}<span class="badge bg-blue-lt text-blue-lt-fg" style="margin-left: 10px">{{ dep.name }}</span>{% endfor %}</td>
         <td style="text-align: right">
           {% if integration.has_oauth and not integration.enabled_oauth %}
             <a href="{% url 'integrations:oauth' integration.id %}" class="btn btn-{% if integration.enabled_oauth %}success{% else %}primary{% endif %}">

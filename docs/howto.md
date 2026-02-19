@@ -95,7 +95,7 @@ On the right side, you have an example of how it looks for your new hire (in the
 
 `position`: new hire's position
 
-`department`: new hire's department (if any)
+`department`: New hire's department(s), if multiple it will be concatenated like: dep1, dep2 and dep3
 
 `buddy`: new hire's buddy's full name
 

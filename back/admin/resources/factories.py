@@ -3,6 +3,7 @@ from factory.fuzzy import FuzzyChoice, FuzzyText
 from pytest_factoryboy import register
 
 from admin.resources.models import Category, Chapter, Resource
+from misc.mixins import DepartmentsPostGenerationMixin
 
 
 @register
@@ -30,7 +31,9 @@ class ChapterFactory(factory.django.DjangoModelFactory):
 
 
 @register
-class ResourceFactory(factory.django.DjangoModelFactory):
+class ResourceFactory(
+    factory.django.DjangoModelFactory, DepartmentsPostGenerationMixin
+):
     name = FuzzyText()
     category = factory.SubFactory(CategoryFactory)
 

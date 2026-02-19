@@ -6,6 +6,8 @@ from django.utils.translation import gettext_lazy as _
 
 from admin.templates.forms import MultiSelectField, WYSIWYGField
 from admin.to_do.models import ToDo
+from admin.to_do.selectors import get_to_do_templates_for_user
+from misc.mixins import FilterDepartmentsFieldByUserMixin
 from users.models import User
 
 from .models import (
@@ -15,23 +17,33 @@ from .models import (
     PendingEmailMessage,
     PendingSlackMessage,
     PendingTextMessage,
+    Sequence,
 )
+
+
+class DepartmentForm(FilterDepartmentsFieldByUserMixin, forms.ModelForm):
+    class Meta:
+        model = Sequence
+        fields = [
+            "departments",
+        ]
 
 
 class ConditionForm(forms.ModelForm):
     condition_to_do = forms.ModelMultipleChoiceField(
-        queryset=ToDo.templates.defer_content().all(),
+        queryset=ToDo.objects.none(),
         to_field_name="id",
         required=False,
     )
     condition_admin_tasks = forms.ModelMultipleChoiceField(
-        queryset=PendingAdminTask.objects.all(),
+        queryset=PendingAdminTask.objects.none(),
         to_field_name="id",
         required=False,
     )
 
     def __init__(self, *args, **kwargs):
         sequence = kwargs.pop("sequence")
+        user = kwargs.pop("user")
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_tag = False
@@ -53,7 +65,9 @@ class ConditionForm(forms.ModelForm):
         )
         self.fields["time"].required = False
         self.fields["days"].required = False
-        self.fields["condition_to_do"].required = False
+        self.fields["condition_to_do"].queryset = get_to_do_templates_for_user(
+            user=user
+        )
         pending_tasks = PendingAdminTask.objects.filter(condition__sequence=sequence)
         self.fields["condition_admin_tasks"].queryset = pending_tasks
         # Remove last option, which will only be one of
@@ -174,7 +188,7 @@ class PendingAdminTaskForm(forms.ModelForm):
         widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["option"].initial = PendingAdminTask.Notification.NO
         self.fields["comment"].required = True
@@ -230,7 +244,7 @@ class PendingAdminTaskForm(forms.ModelForm):
 
 
 class PendingSlackMessageForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_tag = False
@@ -278,7 +292,7 @@ class PendingSlackMessageForm(forms.ModelForm):
 
 
 class PendingTextMessageForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_tag = False
@@ -318,7 +332,7 @@ class PendingTextMessageForm(forms.ModelForm):
 
 
 class PendingEmailMessageForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_tag = False
