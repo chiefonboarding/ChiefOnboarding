@@ -6,8 +6,8 @@ hero:
   text: "Streamline employee onboarding"
   tagline: "Structure your onboarding process for IT, HR, managers, buddies, and, of course, your new hires. \n\nWe are completely independent (bootstrapped), European-based and open-source!"
   image:
-    src: static/headerimage.png
-    alt: VitePress
+    src: /static/headerimage.png
+    alt: ChiefOnboarding hero header image
   actions:
     - theme: brand
       text: Get started
@@ -16,7 +16,7 @@ hero:
       text: Demo
       link: https://www.youtube.com/watch?v=8fYpB8WTH2M
     - theme: alt
-      text: Github
+      text: GitHub
       link: https://github.com/chiefonboarding/ChiefOnboarding/
 
 features:
@@ -33,8 +33,8 @@ features:
 
 ## Pricing
 
-ChiefOnboarding is free and open source software (FOSS), and it's therefore free to use, but comes as is with no guaranteed support if you would run into any issues. To keep things sustainable, we do provide support contracts and custom feature building. Need something very specific or have a specific user case? Then we can add it!
+ChiefOnboarding is free and open source software (FOSS), and it's therefore free to use, but comes as is with no guaranteed support if you would run into any issues. To keep things sustainable, we do provide support contracts and custom feature building. Need something very specific or have a specific use case? Then we can add it!
 
 Pricing support package: **249 euro/month** (excl VAT if applicable). This gets you full priority email support from a team member (a core developer) - best effort, but generally under 2 hours response time.
 
-If you need a **custom feature**, then please reach out to use through <a href="mailto:hello@chiefonboarding.com">hello@chiefonboarding.com</a> and we will get back to you as soon as possible.
+If you need a **custom feature**, then please reach out to us through <a href="mailto:hello@chiefonboarding.com">hello@chiefonboarding.com</a> and we will get back to you as soon as possible.
