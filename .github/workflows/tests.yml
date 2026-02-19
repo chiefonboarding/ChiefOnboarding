@@ -48,7 +48,7 @@ jobs:
     - name: Upload to coveralls
       run: |
         cd back
-        uv run python -m pip install coveralls
+        uv add coveralls
         uv run coveralls --service=github
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
