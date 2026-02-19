@@ -20,7 +20,7 @@ build:
 	docker compose build web
 
 lock:
-	docker compose run --rm web uv lock
+	docker compose run --rm web uv lock --upgrade
 
 format:
 	docker compose run --rm web uv run ruff format .
