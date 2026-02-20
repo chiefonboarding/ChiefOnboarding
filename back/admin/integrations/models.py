@@ -424,11 +424,11 @@ class Integration(models.Model):
 
             try:
                 json_headers_payload = json.loads(
-                    self.clean_response(self.headers(data.get("headers", {})))
+                    self.clean_response(headers)
                 )
             except (NativeJSONDecodeError, TypeError):
                 json_headers_payload = self.clean_response(
-                    self.headers(data.get("headers", {}))
+                    headers
                 )
 
             IntegrationTrackerStep.objects.create(
