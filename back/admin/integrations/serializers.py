@@ -78,6 +78,12 @@ class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):
             ("DELETE", "DELETE"),
         ]
     )
+    extra_headers = serializers.ChoiceField(
+        [
+            ("prituln", "prituln"),
+        ],
+        required=False,
+    )
     status_code = serializers.ListField(
         child=serializers.IntegerField(), required=False
     )

@@ -35,6 +35,7 @@ from requests.exceptions import (
 )
 from twilio.rest import Client
 
+from admin.integrations.helpers.pritunl import pritunl_headers
 from admin.integrations.serializers import (
     SyncUsersManifestSerializer,
     WebhookManifestSerializer,
@@ -352,11 +353,17 @@ class Integration(models.Model):
                 return False, error
 
         response = None
+        headers = self.headers(data.get("headers", {}))
+        if extra_headers := data.get("extra_headers"):
+            if extra_headers == "prituln":
+                headers.update(
+                    pritunl_headers(data.get("method", "POST"), url, self.extra_args)
+                )
         try:
             response = requests.request(
                 data.get("method", "POST"),
                 url,
-                headers=self.headers(data.get("headers", {})),
+                headers=headers,
                 data=post_data,
                 files=files_to_send,
                 timeout=120,
