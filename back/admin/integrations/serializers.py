@@ -54,6 +54,12 @@ class ManifestExistSerializer(ValidateMixin, serializers.Serializer):
     status_code = serializers.ListField(
         child=serializers.IntegerField(), required=False
     )
+    extra_headers = serializers.ChoiceField(
+        [
+            ("prituln", "prituln"),
+        ],
+        required=False,
+    )
     method = serializers.ChoiceField(
         [
             ("GET", "GET"),
@@ -108,6 +114,12 @@ class ManifestRevokeSerializer(ValidateMixin, serializers.Serializer):
     data = serializers.JSONField(required=False, default=dict)
     status_code = serializers.ListField(
         child=serializers.IntegerField(), required=False
+    )
+    extra_headers = serializers.ChoiceField(
+        [
+            ("prituln", "prituln"),
+        ],
+        required=False,
     )
     headers = serializers.DictField(child=serializers.CharField(), default=dict)
     method = serializers.ChoiceField(
