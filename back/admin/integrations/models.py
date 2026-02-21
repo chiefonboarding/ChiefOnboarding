@@ -423,13 +423,9 @@ class Integration(models.Model):
                 json_post_payload = self.clean_response(self.cast_to_json(post_data))
 
             try:
-                json_headers_payload = json.loads(
-                    self.clean_response(headers)
-                )
+                json_headers_payload = json.loads(self.clean_response(headers))
             except (NativeJSONDecodeError, TypeError):
-                json_headers_payload = self.clean_response(
-                    headers
-                )
+                json_headers_payload = self.clean_response(headers)
 
             IntegrationTrackerStep.objects.create(
                 status_code=0 if response is None else response.status_code,
@@ -814,10 +810,10 @@ class Integration(models.Model):
         return IntegrationConfigForm(instance=self, data=data)
 
     def clean_response(self, response) -> str:
-        if isinstance(response, dict):
+        if not isinstance(response, str):
             try:
                 response = json.dumps(response)
-            except ValueError:
+            except (TypeError, ValueError):
                 response = str(response)
 
         for name, value in self.extra_args.items():
@@ -834,7 +830,7 @@ class Integration(models.Model):
                 )
 
             if name == "Authorization" and value.startswith("Basic"):
-                response.replace(
+                response = response.replace(
                     base64.b64encode(value.split(" ", 1)[1].encode("ascii")).decode(
                         "ascii"
                     ),
