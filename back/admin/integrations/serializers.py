@@ -56,7 +56,7 @@ class ManifestExistSerializer(ValidateMixin, serializers.Serializer):
     )
     extra_headers = serializers.ChoiceField(
         [
-            ("prituln", "prituln"),
+            ("pritunl", "pritunl"),
         ],
         required=False,
     )
@@ -86,7 +86,7 @@ class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):
     )
     extra_headers = serializers.ChoiceField(
         [
-            ("prituln", "prituln"),
+            ("pritunl", "pritunl"),
         ],
         required=False,
     )
@@ -117,7 +117,7 @@ class ManifestRevokeSerializer(ValidateMixin, serializers.Serializer):
     )
     extra_headers = serializers.ChoiceField(
         [
-            ("prituln", "prituln"),
+            ("pritunl", "pritunl"),
         ],
         required=False,
     )

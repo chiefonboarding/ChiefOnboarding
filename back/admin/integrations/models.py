@@ -355,7 +355,7 @@ class Integration(models.Model):
         response = None
         headers = self.headers(data.get("headers", {}))
         if extra_headers := data.get("extra_headers"):
-            if extra_headers == "prituln":
+            if extra_headers == "pritunl":
                 headers.update(
                     pritunl_headers(data.get("method", "POST"), url, self.extra_args)
                 )
