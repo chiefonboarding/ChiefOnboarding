@@ -54,6 +54,12 @@ class ManifestExistSerializer(ValidateMixin, serializers.Serializer):
     status_code = serializers.ListField(
         child=serializers.IntegerField(), required=False
     )
+    extra_headers = serializers.ChoiceField(
+        [
+            ("pritunl", "pritunl"),
+        ],
+        required=False,
+    )
     method = serializers.ChoiceField(
         [
             ("GET", "GET"),
@@ -77,6 +83,12 @@ class ManifestExecuteSerializer(ValidateMixin, serializers.Serializer):
             ("PATCH", "PATCH"),
             ("DELETE", "DELETE"),
         ]
+    )
+    extra_headers = serializers.ChoiceField(
+        [
+            ("pritunl", "pritunl"),
+        ],
+        required=False,
     )
     status_code = serializers.ListField(
         child=serializers.IntegerField(), required=False
@@ -102,6 +114,12 @@ class ManifestRevokeSerializer(ValidateMixin, serializers.Serializer):
     data = serializers.JSONField(required=False, default=dict)
     status_code = serializers.ListField(
         child=serializers.IntegerField(), required=False
+    )
+    extra_headers = serializers.ChoiceField(
+        [
+            ("pritunl", "pritunl"),
+        ],
+        required=False,
     )
     headers = serializers.DictField(child=serializers.CharField(), default=dict)
     method = serializers.ChoiceField(
