@@ -1888,6 +1888,7 @@ def test_new_hire_access_per_integration_config_form(
 
     # Check that form is present
     assert "Personal email address" in response.content.decode()
+    print(integration1.manifest)
     print(response.content.decode())
     assert "Select team to add user to" in response.content.decode()
     assert (
