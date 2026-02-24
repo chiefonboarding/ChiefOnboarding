@@ -4,6 +4,7 @@ from datetime import timedelta
 from unittest.mock import Mock, patch
 
 import pytest
+import requests
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
@@ -430,7 +431,6 @@ def test_integration_oauth_redirect_view(
 
 
 @pytest.mark.django_db
-@pytest.mark.skip("TODO: fix")
 def test_integration_user_exists(
     client,
     django_user_model,
@@ -454,8 +454,8 @@ def test_integration_user_exists(
 
     # Didn't find user
     with patch(
-        "admin.integrations.models.Integration.run_request",
-        Mock(return_value=(True, Mock(text="[{'error': 'not_found'}]"))),
+        "admin.integrations.models.requests.request",
+        Mock(return_value=Mock(status_code=200, json=lambda: [{"error": "not_found"}])),
     ):
         exists = integration.user_exists(new_hire)
         assert IntegrationUser.objects.filter(
@@ -465,8 +465,10 @@ def test_integration_user_exists(
 
     # Found user
     with patch(
-        "admin.integrations.models.Integration.run_request",
-        Mock(return_value=(True, Mock(text="[{'user': '" + new_hire.email + "'}]"))),
+        "admin.integrations.models.requests.request",
+        Mock(
+            return_value=Mock(status_code=200, json=lambda: [{"user": new_hire.email}])
+        ),
     ):
         exists = integration.user_exists(new_hire)
         assert IntegrationUser.objects.filter(
@@ -476,8 +478,8 @@ def test_integration_user_exists(
 
     # Error went wrong
     with patch(
-        "admin.integrations.models.Integration.run_request",
-        Mock(return_value=(False, Mock(text="[{'user': '" + new_hire.email + "'}]"))),
+        "admin.integrations.models.requests.request",
+        side_effect=requests.exceptions.Timeout,
     ):
         exists = integration.user_exists(new_hire)
         assert exists is None
@@ -556,7 +558,6 @@ def test_integration_needs_user_info(
 
 
 @pytest.mark.django_db
-@pytest.mark.skip("TODO: fix")
 def test_integration_revoke_user(
     client,
     django_user_model,
@@ -581,8 +582,8 @@ def test_integration_revoke_user(
 
     # Revoke user successfully
     with patch(
-        "admin.integrations.models.Integration.run_request",
-        Mock(return_value=(True, Mock())),
+        "admin.integrations.models.requests.request",
+        Mock(return_value=Mock(status_code=200, json=lambda: [])),
     ):
         success, error = integration.revoke_user(new_hire)
         assert success
@@ -590,8 +591,8 @@ def test_integration_revoke_user(
 
     # Revoke user unsuccessfully
     with patch(
-        "admin.integrations.models.Integration.run_request",
-        Mock(return_value=(False, "Something went wrong")),
+        "admin.integrations.models.requests.request",
+        side_effect=requests.exceptions.Timeout,
     ):
         success, error = integration.revoke_user(new_hire)
         assert not success
