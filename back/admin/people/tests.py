@@ -1863,8 +1863,6 @@ def test_new_hire_access_per_integration_toggle(
         )
     ),
 )
-# TODO: fix broken script. Only broken in CI.
-@pytest.mark.skip(reason="works locally, but not in CI")
 def test_new_hire_access_per_integration_config_form(
     client, django_user_model, new_hire_factory, custom_integration_factory
 ):
@@ -1879,6 +1877,17 @@ def test_new_hire_access_per_integration_config_form(
             "id": "PERSONAL_EMAIL",
             "name": "Personal email address",
             "description": "Add the email address from the user",
+        }
+    ]
+    integration1.manifest["form"] = [
+        {
+            "id": "TEAM_ID",
+            "url": "https://example.com/api/1.0/organizations/{{ORG}}/teams",
+            "name": "Select team to add user to",
+            "type": "choice",
+            "data_from": "data",
+            "choice_value": "gid",
+            "choice_name": "name",
         }
     ]
     integration1.save()

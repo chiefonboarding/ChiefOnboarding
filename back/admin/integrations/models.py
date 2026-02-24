@@ -496,9 +496,6 @@ class Integration(models.Model):
     def user_exists(self, new_hire, save_result=True):
         from users.models import IntegrationUser
 
-        if not len(self.manifest.get("exists", [])):
-            return None
-
         # check if user has been created manually
         if self.skip_user_provisioning:
             try:
@@ -509,6 +506,9 @@ class Integration(models.Model):
                 return False
 
             return not user_integration.revoked
+
+        if not len(self.manifest.get("exists", [])):
+            return None
 
         self.tracker = IntegrationTracker.objects.create(
             category=IntegrationTracker.Category.EXISTS,
