@@ -498,7 +498,6 @@ class Integration(models.Model):
 
         # check if user has been created manually
         if self.skip_user_provisioning:
-            print("GOT HERE")
             try:
                 user_integration = IntegrationUser.objects.get(
                     user=new_hire, integration=self
