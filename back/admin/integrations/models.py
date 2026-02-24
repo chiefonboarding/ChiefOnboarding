@@ -7,6 +7,7 @@ from datetime import timedelta
 from json.decoder import JSONDecodeError as NativeJSONDecodeError
 
 import requests
+from admin.integrations.exceptions import PritunlMissingCredentialsError
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -354,12 +355,11 @@ class Integration(models.Model):
 
         response = None
         headers = self.headers(data.get("headers", {}))
-        if extra_headers := data.get("extra_headers"):
-            if extra_headers == "pritunl":
+        try:
+            if data.get("extra_headers", "") == "pritunl":
                 headers.update(
                     pritunl_headers(data.get("method", "POST"), url, self.extra_args)
                 )
-        try:
             response = requests.request(
                 data.get("method", "POST"),
                 url,
@@ -368,6 +368,9 @@ class Integration(models.Model):
                 files=files_to_send,
                 timeout=120,
             )
+        except PritunlMissingCredentialsError as e:
+            error = str(e)
+
         except (InvalidJSONError, JSONDecodeError):
             error = "JSON is invalid"
 
