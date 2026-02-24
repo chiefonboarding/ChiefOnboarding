@@ -1,5 +1,20 @@
 # Changelog
 
+## v2.4.0 (2026-02-26)
+* Fix skipped tests (#622)
+* Pritunl headers compatibility (#621)
+* fix missing uv run for gunicorn
+* Use --upgrade with lock and update dependencies (#620)
+* Migrate from pipenv to uv (#618)
+* Update dependencies 2026-02-19 (#617)
+* Documentation home page styling/changes (#616)
+* Update dependencies feb 2026 (#613)
+* Update dependencies jan 2026 (#610)
+* Chore(deps): bump urllib3 from 2.6.1 to 2.6.3 in /back (#609)
+* Update dependencies 2025-12-09 (#606)
+* Update dependencies november 2025 (#598)
+* Fix Google SSO login via provider-agnostic user data retrieval (#597)
+
 ## v2.3.1 (2025-10-10)
 * Update dependencies okt 2025 (#580)
 * Force HTTPS for urls allauth (#581)
