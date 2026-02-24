@@ -13,7 +13,9 @@ def pritunl_headers(method, url, extra_args):
     api_secret = extra_args.get("API_SECRET") or extra_args.get("PRITUNL_API_SECRET")
 
     if not api_token or not api_secret:
-        raise PritunlMissingCredentialsError("Missing API_TOKEN/API_SECRET (or legacy PRITUNL_API_* keys)")
+        raise PritunlMissingCredentialsError(
+            "Missing API_TOKEN/API_SECRET (or legacy PRITUNL_API_* keys)"
+        )
 
     auth_timestamp = str(int(time.time()))
     auth_nonce = uuid.uuid4().hex

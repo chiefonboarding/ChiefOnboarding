@@ -7,7 +7,6 @@ from datetime import timedelta
 from json.decoder import JSONDecodeError as NativeJSONDecodeError
 
 import requests
-from admin.integrations.exceptions import PritunlMissingCredentialsError
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -36,6 +35,7 @@ from requests.exceptions import (
 )
 from twilio.rest import Client
 
+from admin.integrations.exceptions import PritunlMissingCredentialsError
 from admin.integrations.helpers.pritunl import pritunl_headers
 from admin.integrations.serializers import (
     SyncUsersManifestSerializer,

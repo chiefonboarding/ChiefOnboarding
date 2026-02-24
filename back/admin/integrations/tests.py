@@ -2,15 +2,19 @@ import base64
 import json
 from datetime import timedelta
 from unittest.mock import Mock, patch
-from freezegun import freeze_time
 
 import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
 from django_q.models import Schedule
+from freezegun import freeze_time
 
-from admin.integrations.models import Integration, IntegrationTracker, IntegrationTrackerStep
+from admin.integrations.models import (
+    Integration,
+    IntegrationTracker,
+    IntegrationTrackerStep,
+)
 from admin.integrations.sync_userinfo import SyncUsers
 from admin.integrations.utils import get_value_from_notation
 from organization.models import Notification
@@ -344,7 +348,11 @@ def test_integration_pritunl_missing_credentials(custom_integration_factory):
     )
 
     success, result = integration.run_request(
-        {"method": "POST", "url": "http://localhost:8000/test/", "extra_headers": "pritunl"}
+        {
+            "method": "POST",
+            "url": "http://localhost:8000/test/",
+            "extra_headers": "pritunl",
+        }
     )
 
     assert not success
@@ -353,8 +361,14 @@ def test_integration_pritunl_missing_credentials(custom_integration_factory):
 
 @pytest.mark.django_db
 @freeze_time("2021-01-12")
-@patch("admin.integrations.models.requests.request", Mock(return_value=Mock(status_code=200, json=lambda: dict({}))))
-@patch("admin.integrations.helpers.pritunl.uuid.uuid4", Mock(return_value=Mock(hex="uuid-hex-value")))
+@patch(
+    "admin.integrations.models.requests.request",
+    Mock(return_value=Mock(status_code=200, json=lambda: dict({}))),
+)
+@patch(
+    "admin.integrations.helpers.pritunl.uuid.uuid4",
+    Mock(return_value=Mock(hex="uuid-hex-value")),
+)
 def test_integration_pritunl_happy_path(custom_integration_factory):
     integration = custom_integration_factory(
         manifest={
@@ -366,14 +380,25 @@ def test_integration_pritunl_happy_path(custom_integration_factory):
         }
     )
     integration.extra_args = {"API_TOKEN": "test", "API_SECRET": "test"}
-    integration.tracker = IntegrationTracker.objects.create(integration=integration, category=IntegrationTracker.Category.EXECUTE)
+    integration.tracker = IntegrationTracker.objects.create(
+        integration=integration, category=IntegrationTracker.Category.EXECUTE
+    )
 
     success, _ = integration.run_request(
-        {"method": "POST", "url": "http://localhost:8000/test/", "extra_headers": "pritunl"}
+        {
+            "method": "POST",
+            "url": "http://localhost:8000/test/",
+            "extra_headers": "pritunl",
+        }
     )
 
     assert success
-    assert IntegrationTrackerStep.objects.last().headers == {'Auth-Nonce': 'uuid-hex-value', 'Auth-Token': '***Secret value for API_TOKEN***', 'Auth-Signature': '55w8U79nZxF2Aj40bMkUXOSz5MZWHWqfCP6y8VbJU5M=', 'Auth-Timestamp': '1610409600'}
+    assert IntegrationTrackerStep.objects.last().headers == {
+        "Auth-Nonce": "uuid-hex-value",
+        "Auth-Token": "***Secret value for API_TOKEN***",
+        "Auth-Signature": "55w8U79nZxF2Aj40bMkUXOSz5MZWHWqfCP6y8VbJU5M=",
+        "Auth-Timestamp": "1610409600",
+    }
 
 
 @pytest.mark.django_db
