@@ -35,6 +35,8 @@ from requests.exceptions import (
 )
 from twilio.rest import Client
 
+from admin.integrations.exceptions import PritunlMissingCredentialsError
+from admin.integrations.helpers.pritunl import pritunl_headers
 from admin.integrations.serializers import (
     SyncUsersManifestSerializer,
     WebhookManifestSerializer,
@@ -352,15 +354,23 @@ class Integration(models.Model):
                 return False, error
 
         response = None
+        headers = self.headers(data.get("headers", {}))
         try:
+            if data.get("extra_headers", "") == "pritunl":
+                headers.update(
+                    pritunl_headers(data.get("method", "POST"), url, self.extra_args)
+                )
             response = requests.request(
                 data.get("method", "POST"),
                 url,
-                headers=self.headers(data.get("headers", {})),
+                headers=headers,
                 data=post_data,
                 files=files_to_send,
                 timeout=120,
             )
+        except PritunlMissingCredentialsError as e:
+            error = str(e)
+
         except (InvalidJSONError, JSONDecodeError):
             error = "JSON is invalid"
 
@@ -416,13 +426,9 @@ class Integration(models.Model):
                 json_post_payload = self.clean_response(self.cast_to_json(post_data))
 
             try:
-                json_headers_payload = json.loads(
-                    self.clean_response(self.headers(data.get("headers", {})))
-                )
+                json_headers_payload = json.loads(self.clean_response(headers))
             except (NativeJSONDecodeError, TypeError):
-                json_headers_payload = self.clean_response(
-                    self.headers(data.get("headers", {}))
-                )
+                json_headers_payload = self.clean_response(headers)
 
             IntegrationTrackerStep.objects.create(
                 status_code=0 if response is None else response.status_code,
@@ -807,10 +813,10 @@ class Integration(models.Model):
         return IntegrationConfigForm(instance=self, data=data)
 
     def clean_response(self, response) -> str:
-        if isinstance(response, dict):
+        if not isinstance(response, str):
             try:
                 response = json.dumps(response)
-            except ValueError:
+            except (TypeError, ValueError):
                 response = str(response)
 
         for name, value in self.extra_args.items():
@@ -827,7 +833,7 @@ class Integration(models.Model):
                 )
 
             if name == "Authorization" and value.startswith("Basic"):
-                response.replace(
+                response = response.replace(
                     base64.b64encode(value.split(" ", 1)[1].encode("ascii")).decode(
                         "ascii"
                     ),

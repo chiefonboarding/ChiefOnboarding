@@ -8,3 +8,7 @@ class KeyIsNotInDataError(Exception):
 
 class DataIsNotJSONError(Exception):
     pass
+
+
+class PritunlMissingCredentialsError(Exception):
+    pass
