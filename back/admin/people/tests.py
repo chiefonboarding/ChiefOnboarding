@@ -1879,6 +1879,17 @@ def test_new_hire_access_per_integration_config_form(
             "description": "Add the email address from the user",
         }
     ]
+    integration1.manifest["form"] = [
+        {
+            "id": "TEAM_ID",
+            "url": "https://example.com/api/1.0/organizations/{{ORG}}/teams",
+            "name": "Select team to add user to",
+            "type": "choice",
+            "data_from": "data",
+            "choice_value": "gid",
+            "choice_name": "name",
+        }
+    ]
     integration1.save()
 
     # New hire already has an account (email matches with return)
