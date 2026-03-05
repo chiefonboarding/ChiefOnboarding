@@ -131,7 +131,9 @@ def test_create_new_hire_endpoint(setup_rest, sequence_factory):
 
 
 @pytest.mark.django_db
-def test_offboard_user_endpoint(setup_rest, new_hire_factory, offboarding_sequence_factory):
+def test_offboard_user_endpoint(
+    setup_rest, new_hire_factory, offboarding_sequence_factory
+):
     client = setup_rest
 
     user = new_hire_factory()

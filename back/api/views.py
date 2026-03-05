@@ -1,18 +1,22 @@
-from admin.integrations.models import Integration
 from django.contrib.auth import get_user_model
 from django_q.tasks import async_task
-from rest_framework import generics
-
-from rest_framework.views import APIView
+from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework import status
-from admin.sequences.models import Condition, Sequence
+from rest_framework.views import APIView
+
+from admin.integrations.models import Integration
+from admin.sequences.models import Sequence
 from organization.models import Notification, Organization
 from slack_bot.tasks import link_slack_users
 from users.emails import email_new_admin_cred
 from users.models import User
 
-from .serializers import EmployeeSerializer, SequenceSerializer, UserOffboardingSerializer, UserSerializer
+from .serializers import (
+    EmployeeSerializer,
+    SequenceSerializer,
+    UserOffboardingSerializer,
+    UserSerializer,
+)
 
 
 class UserView(generics.CreateAPIView):
@@ -112,6 +116,7 @@ class UserOffboardingView(APIView):
         sequences = Sequence.offboarding.filter(id__in=sequence_ids)
         user.add_sequences(sequences)
         return Response(status=status.HTTP_200_OK)
+
 
 class EmployeeView(generics.ListAPIView):
     """
