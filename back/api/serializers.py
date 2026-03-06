@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 
 from admin.sequences.models import Sequence
@@ -32,6 +33,29 @@ class UserSerializer(serializers.ModelSerializer):
             "language",
             "sequences",
         ]
+
+
+class UserOffboardingSerializer(serializers.Serializer):
+    termination_date = serializers.DateField()
+    sequences = serializers.ListField(child=serializers.IntegerField(), required=False)
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.exclude(role=User.Role.ADMIN)
+    )
+
+    def validate_termination_date(self, value):
+        # date must be in the future
+        if value < timezone.now().date():
+            raise serializers.ValidationError(
+                "You cannot set an offboarding date in the past."
+            )
+        return value
+
+    def validate_sequences(self, value):
+        if Sequence.objects.filter(
+            category=Sequence.Category.OFFBOARDING, pk__in=value
+        ).count() != len(value):
+            raise serializers.ValidationError("Not all sequence ids are valid.")
+        return value
 
 
 class EmployeeSerializer(serializers.ModelSerializer):

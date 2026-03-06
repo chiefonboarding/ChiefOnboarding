@@ -131,6 +131,30 @@ def test_create_new_hire_endpoint(setup_rest, sequence_factory):
 
 
 @pytest.mark.django_db
+def test_offboard_user_endpoint(
+    setup_rest, new_hire_factory, offboarding_sequence_factory
+):
+    client = setup_rest
+
+    user = new_hire_factory()
+
+    seq1 = offboarding_sequence_factory()
+
+    response = client.post(
+        reverse("api:offboarding"),
+        data={
+            "user": user.id,
+            "termination_date": "2030-04-04",
+            "sequences": [seq1.id],
+        },
+        format="json",
+    )
+    assert response.status_code == 200
+    user.refresh_from_db()
+    assert user.termination_date is not None
+
+
+@pytest.mark.django_db
 def test_create_new_hire_with_invalid_options(setup_rest, sequence_factory):
     client = setup_rest
 
