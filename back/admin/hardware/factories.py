@@ -3,10 +3,13 @@ from factory.fuzzy import FuzzyText
 from pytest_factoryboy import register
 
 from admin.hardware.models import Hardware
+from misc.mixins import DepartmentsPostGenerationMixin
 
 
 @register
-class HardwareFactory(factory.django.DjangoModelFactory):
+class HardwareFactory(
+    factory.django.DjangoModelFactory, DepartmentsPostGenerationMixin
+):
     name = FuzzyText()
     content = {
         "time": 0,
@@ -20,3 +23,4 @@ class HardwareFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Hardware
+        skip_postgeneration_save = True
