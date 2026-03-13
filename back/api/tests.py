@@ -268,3 +268,24 @@ def test_create_admin_user(setup_rest, mailoutbox):
 
     user = User.objects.last()
     assert user.is_admin
+
+
+@pytest.mark.django_db
+def test_create_other_user(setup_rest):
+    client = setup_rest
+
+    response = client.post(
+        reverse("api:users"),
+        data={
+            "first_name": "john",
+            "last_name": "Do",
+            "email": "john@chiefonboarding.com",
+            "role": 3,
+        },
+        format="json",
+    )
+    assert response.status_code == 201
+    assert User.objects.count() == 2
+
+    user = User.objects.last()
+    assert user.role == User.Role.OTHER
