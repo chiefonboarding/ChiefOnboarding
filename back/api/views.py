@@ -74,12 +74,13 @@ class UserView(generics.CreateAPIView):
             else:
                 notification_type = Notification.Type.ADDED_MANAGER
 
-        Notification.objects.create(
-            notification_type=notification_type,
-            extra_text=user.full_name,
-            created_by=self.request.user,
-            created_for=user,
-        )
+        if role != get_user_model().Role.OTHER:
+            Notification.objects.create(
+                notification_type=notification_type,
+                extra_text=user.full_name,
+                created_by=self.request.user,
+                created_for=user,
+            )
 
 
 class EmployeeView(generics.ListAPIView):
