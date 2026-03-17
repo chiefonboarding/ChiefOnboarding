@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo, available_timezones
 
-import pytz
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.cache import cache
@@ -34,7 +34,7 @@ class Organization(models.Model):
         verbose_name=_("Timezone"),
         default="UTC",
         max_length=1000,
-        choices=[(x, x) for x in pytz.common_timezones],
+        choices=[(x, x) for x in sorted(available_timezones())],
     )
 
     # customization
@@ -169,10 +169,8 @@ class Organization(models.Model):
 
     @property
     def current_datetime(self):
-        local_tz = pytz.timezone("UTC")
-        us_tz = pytz.timezone(self.timezone)
-        local = local_tz.localize(datetime.now())
-        return us_tz.normalize(local.astimezone(us_tz))
+        local = datetime.now(tz=ZoneInfo("UTC"))
+        return local.astimezone(ZoneInfo(self.timezone))
 
     def create_email(self, context):
         if self.custom_email_template == "":

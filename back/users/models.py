@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo, available_timezones
 
-import pytz
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
@@ -151,7 +151,7 @@ class User(AbstractBaseUser):
         verbose_name=_("Timezone"),
         default="",
         max_length=1000,
-        choices=[(x, x) for x in pytz.common_timezones],
+        choices=[(x, x) for x in sorted(available_timezones())],
     )
     department = models.ForeignKey(
         Department, verbose_name=_("Department"), on_delete=models.SET_NULL, null=True
@@ -504,19 +504,14 @@ class User(AbstractBaseUser):
         if date is not None:
             date = date.replace(tzinfo=None)
 
-        local_tz = pytz.timezone("UTC")
         org = Organization.object.get()
-        us_tz = (
-            pytz.timezone(org.timezone)
-            if self.timezone == ""
-            else pytz.timezone(self.timezone)
-        )
+        us_tz = ZoneInfo(org.timezone if self.timezone == "" else self.timezone)
         local = (
-            local_tz.localize(datetime.now())
+            datetime.now(tz=ZoneInfo("UTC"))
             if date is None
-            else local_tz.localize(date)
+            else date.replace(tzinfo=ZoneInfo("UTC"))
         )
-        return us_tz.normalize(local.astimezone(us_tz))
+        return local.astimezone(us_tz)
 
     def personalize(self, text, extra_values=None):
         if extra_values is None:

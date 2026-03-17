@@ -1,4 +1,5 @@
-import pytz
+from zoneinfo import available_timezones
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Div, Field, Layout, Submit
 from django import forms
@@ -11,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 class InitalAdminAccountForm(UserCreationForm):
     name = forms.CharField(label=_("Name"), max_length=500)
     timezone = forms.ChoiceField(
-        label=_("Timezone"), choices=[(x, x) for x in pytz.common_timezones]
+        label=_("Timezone"), choices=[(x, x) for x in sorted(available_timezones())]
     )
     language = forms.ChoiceField(
         label=_("Language"),

@@ -1,4 +1,5 @@
-import pytz
+from zoneinfo import available_timezones
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, Layout, Submit
 from django import forms
@@ -13,7 +14,7 @@ from organization.models import Organization, WelcomeMessage
 
 class OrganizationGeneralForm(forms.ModelForm):
     timezone = forms.ChoiceField(
-        label=_("Timezone"), choices=[(x, x) for x in pytz.common_timezones]
+        label=_("Timezone"), choices=[(x, x) for x in sorted(available_timezones())]
     )
     default_sequences = forms.ModelMultipleChoiceField(
         label=_("Sequences that are preselected for all new hires:"),
