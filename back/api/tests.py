@@ -131,6 +131,119 @@ def test_create_new_hire_endpoint(setup_rest, sequence_factory):
 
 
 @pytest.mark.django_db
+def test_offboard_user_endpoint(
+    setup_rest, new_hire_factory, offboarding_sequence_factory
+):
+    client = setup_rest
+
+    user = new_hire_factory()
+
+    seq1 = offboarding_sequence_factory()
+
+    response = client.post(
+        reverse("api:offboarding"),
+        data={
+            "user": user.id,
+            "termination_date": "2030-04-04",
+            "sequences": [seq1.id],
+        },
+        format="json",
+    )
+    assert response.status_code == 200
+    user.refresh_from_db()
+    assert user.termination_date is not None
+
+
+@pytest.mark.django_db
+def test_offboard_user_endpoint_past_termination_date(
+    setup_rest, new_hire_factory, offboarding_sequence_factory
+):
+    client = setup_rest
+
+    user = new_hire_factory()
+    seq1 = offboarding_sequence_factory()
+
+    response = client.post(
+        reverse("api:offboarding"),
+        data={
+            "user": user.id,
+            "termination_date": "2020-01-01",
+            "sequences": [seq1.id],
+        },
+        format="json",
+    )
+    assert response.status_code == 400
+    assert response.json() == {
+        "termination_date": ["You cannot set an offboarding date in the past."]
+    }
+
+
+@pytest.mark.django_db
+def test_offboard_user_endpoint_invalid_sequence_id(setup_rest, new_hire_factory):
+    client = setup_rest
+
+    user = new_hire_factory()
+
+    response = client.post(
+        reverse("api:offboarding"),
+        data={
+            "user": user.id,
+            "termination_date": "2030-04-04",
+            "sequences": [99999],
+        },
+        format="json",
+    )
+    assert response.status_code == 400
+    assert response.json() == {"sequences": ["Not all sequence ids are valid."]}
+
+
+@pytest.mark.django_db
+def test_offboard_user_endpoint_non_offboarding_sequence(
+    setup_rest, new_hire_factory, sequence_factory
+):
+    client = setup_rest
+
+    user = new_hire_factory()
+    seq1 = sequence_factory()
+
+    response = client.post(
+        reverse("api:offboarding"),
+        data={
+            "user": user.id,
+            "termination_date": "2030-04-04",
+            "sequences": [seq1.id],
+        },
+        format="json",
+    )
+    assert response.status_code == 400
+    assert response.json() == {"sequences": ["Not all sequence ids are valid."]}
+
+
+@pytest.mark.django_db
+def test_offboard_user_endpoint_admin_user(
+    setup_rest, admin_factory, offboarding_sequence_factory
+):
+    client = setup_rest
+
+    admin = admin_factory()
+    seq1 = offboarding_sequence_factory()
+
+    response = client.post(
+        reverse("api:offboarding"),
+        data={
+            "user": admin.id,
+            "termination_date": "2030-04-04",
+            "sequences": [seq1.id],
+        },
+        format="json",
+    )
+    assert response.status_code == 400
+    assert response.json() == {
+        "user": [f'Invalid pk "{admin.id}" - object does not exist.']
+    }
+
+
+@pytest.mark.django_db
 def test_create_new_hire_with_invalid_options(setup_rest, sequence_factory):
     client = setup_rest
 

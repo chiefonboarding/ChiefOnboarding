@@ -80,3 +80,13 @@ The data part of that query (with explanation):
 ```
 
 It will return the full new hire object including the ID of the new hire.
+
+
+### Offboarding a user
+
+```bash
+curl -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' -H "Authorization: Token xxxxxxxxxxxxxxx" -d '{"termination_date":"2020-02-02", sequences: [1,4], user: 1 }' https://YOURDOMAIN/api/offboarding/
+```
+
+Note: sequence ids can only be sequences for offboarding sequences, not onboarding sequences. 
+"user" is the user id, you can get it through the `https://YOURDOMAIN/api/employees/` call.
