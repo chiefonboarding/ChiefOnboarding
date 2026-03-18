@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.4.1 (2026-03-18)
+* Add offboarding api endpoint (#625)
+* Fix issue with notification when creating "other" user through API (#627)
+* Update dependencies march 05 (#626)
+
 ## v2.4.0 (2026-02-26)
 * Fix skipped tests (#622)
 * Pritunl headers compatibility (#621)
