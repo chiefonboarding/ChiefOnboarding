@@ -23,6 +23,7 @@ dependencies = [
     "django-q2",
     "psycopg[binary]",
     "django-allauth[mfa, socialaccount]",
+    "pytz"
 ]
 
 [dependency-groups]
