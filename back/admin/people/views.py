@@ -16,6 +16,7 @@ from rest_framework.authentication import SessionAuthentication
 
 from admin.admin_tasks.models import AdminTask
 from admin.hardware.models import Hardware
+from admin.hardware.selectors import get_hardware_templates_for_user
 from admin.integrations.exceptions import (
     DataIsNotJSONError,
     FailedPaginatedResponseError,
@@ -23,19 +24,28 @@ from admin.integrations.exceptions import (
 )
 from admin.integrations.models import Integration
 from admin.integrations.sync_userinfo import SyncUsers
+from admin.people.selectors import (
+    get_colleagues_for_user,
+    get_offboarding_colleagues_for_user,
+)
 from admin.people.serializers import UserImportSerializer
 from admin.resources.models import Resource
+from admin.resources.selectors import get_resource_templates_for_user
 from admin.sequences.models import Condition, Sequence
 from api.permissions import AdminPermission
+from misc.mixins import FormWithUserContextMixin
 from organization.models import Organization, WelcomeMessage
 from slack_bot.utils import Slack, actions, button, paragraph
 from users.emails import email_new_admin_cred
 from users.mixins import (
     AdminOrManagerPermMixin,
     AdminPermMixin,
-    IsAdminOrNewHireManagerMixin,
 )
-from users.models import ToDoUser
+from users.models import Department, ToDoUser
+from users.selectors import (
+    get_all_offboarding_users_for_departments_of_user,
+    get_available_departments_for_user,
+)
 
 from .forms import (
     ColleagueCreateForm,
@@ -50,9 +60,11 @@ from .forms import (
 
 class ColleagueListView(AdminOrManagerPermMixin, ListView):
     template_name = "colleagues.html"
-    queryset = get_user_model().objects.all()
     paginate_by = settings.COLLEAGUE_PAGINATE_BY
     ordering = ["first_name", "last_name"]
+
+    def get_queryset(self):
+        return get_colleagues_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -68,9 +80,11 @@ class ColleagueListView(AdminOrManagerPermMixin, ListView):
 
 class OffboardingColleagueListView(AdminOrManagerPermMixin, ListView):
     template_name = "offboarding.html"
-    queryset = get_user_model().offboarding.all()
     paginate_by = settings.OFFBOARDING_USERS_PAGINATE_BY
     ordering = ["termination_date", "email"]
+
+    def get_queryset(self):
+        return get_offboarding_colleagues_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -79,7 +93,9 @@ class OffboardingColleagueListView(AdminOrManagerPermMixin, ListView):
         return context
 
 
-class ColleagueCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
+class ColleagueCreateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView
+):
     template_name = "colleague_create.html"
     model = get_user_model()
     form_class = ColleagueCreateForm
@@ -97,11 +113,16 @@ class ColleagueCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateVi
         return context
 
 
-class ColleagueUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView):
+class ColleagueUpdateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "colleague_update.html"
     model = get_user_model()
     form_class = ColleagueUpdateForm
     success_message = _("Employee has been updated")
+
+    def get_queryset(self):
+        return get_colleagues_for_user(user=self.request.user)
 
     def get_success_url(self):
         return self.request.path
@@ -116,7 +137,9 @@ class ColleagueUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateVi
 
 class ColleagueHardwareView(AdminOrManagerPermMixin, DetailView):
     template_name = "add_hardware.html"
-    model = get_user_model()
+
+    def get_queryset(self):
+        return get_colleagues_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -132,8 +155,12 @@ class ColleagueToggleHardwareView(AdminOrManagerPermMixin, View):
 
     def post(self, request, pk, template_id, *args, **kwargs):
         context = {}
-        user = get_object_or_404(get_user_model(), id=pk)
-        hardware = get_object_or_404(Hardware, id=template_id, template=True)
+        user = get_object_or_404(get_colleagues_for_user(user=request.user), id=pk)
+        hardware = get_object_or_404(
+            get_hardware_templates_for_user(user=request.user),
+            id=template_id,
+            template=True,
+        )
         if user.hardware.filter(id=hardware.id).exists():
             user.hardware.remove(hardware)
         else:
@@ -146,7 +173,9 @@ class ColleagueToggleHardwareView(AdminOrManagerPermMixin, View):
 
 class ColleagueResourceView(AdminOrManagerPermMixin, DetailView):
     template_name = "add_resources.html"
-    model = get_user_model()
+
+    def get_queryset(self):
+        return get_colleagues_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -155,7 +184,7 @@ class ColleagueResourceView(AdminOrManagerPermMixin, DetailView):
             "name": new_hire.full_name
         }
         context["subtitle"] = _("Employee")
-        context["object_list"] = Resource.templates.all()
+        context["object_list"] = Resource.templates.for_user(user=self.request.user)
         return context
 
 
@@ -164,8 +193,10 @@ class ColleagueToggleResourceView(AdminOrManagerPermMixin, View):
 
     def post(self, request, pk, template_id, *args, **kwargs):
         context = {}
-        user = get_object_or_404(get_user_model(), id=pk)
-        resource = get_object_or_404(Resource, id=template_id, template=True)
+        user = get_object_or_404(get_colleagues_for_user(user=self.request.user), id=pk)
+        resource = get_object_or_404(
+            get_resource_templates_for_user(user=self.request.user), id=template_id
+        )
         if user.resources.filter(id=resource.id).exists():
             user.resources.remove(resource)
         else:
@@ -239,7 +270,7 @@ class ColleagueGiveSlackAccessView(AdminOrManagerPermMixin, View):
 
     def post(self, request, pk, *args, **kwargs):
         context = {}
-        user = get_object_or_404(get_user_model(), pk=pk)
+        user = get_object_or_404(get_colleagues_for_user(user=self.request.user), pk=pk)
         context["colleague"] = user
         context["slack"] = True
         context["url_name"] = "people:connect-to-slack"
@@ -295,7 +326,9 @@ class ColleagueTogglePortalAccessView(AdminOrManagerPermMixin, View):
     def post(self, request, pk, *args, **kwargs):
         context = {}
         user = get_object_or_404(
-            get_user_model(), pk=pk, role=get_user_model().Role.OTHER
+            get_colleagues_for_user(user=self.request.user),
+            pk=pk,
+            role=get_user_model().Role.OTHER,
         )
         context["colleague"] = user
         context["url_name"] = "people:toggle-portal-access"
@@ -314,10 +347,14 @@ class ColleagueTogglePortalAccessView(AdminOrManagerPermMixin, View):
         return render(request, self.template_name, context)
 
 
-class AddOffboardingSequenceView(AdminPermMixin, SuccessMessageMixin, UpdateView):
+class AddOffboardingSequenceView(
+    AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "add_offboarding_sequence.html"
     form_class = OffboardingSequenceChoiceForm
-    model = get_user_model()
+
+    def get_queryset(self):
+        return get_colleagues_for_user(user=self.request.user)
 
     def dispatch(self, *args, **kwargs):
         # raise "login required" before 404
@@ -376,9 +413,11 @@ class AddOffboardingSequenceView(AdminPermMixin, SuccessMessageMixin, UpdateView
         return redirect("people:colleagues")
 
 
-class ColleagueOffboardingSequenceView(IsAdminOrNewHireManagerMixin, DetailView):
+class ColleagueOffboardingSequenceView(AdminOrManagerPermMixin, DetailView):
     template_name = "offboarding_detail.html"
-    queryset = get_user_model().offboarding.all()
+
+    def get_queryset(self):
+        return get_all_offboarding_users_for_departments_of_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -496,3 +535,33 @@ class ColleagueImportAddUsersView(generics.CreateAPIView):
             "Admins and managers will receive an email shortly."
         )
         return HttpResponse(f"<div class='alert alert-success'>{success_message}</div>")
+
+
+class DepartmentListView(AdminOrManagerPermMixin, ListView):
+    template_name = "departments.html"
+    paginate_by = 20
+
+    def get_queryset(self):
+        return get_available_departments_for_user(user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("Roles and departments")
+        context["subtitle"] = _("people")
+        return context
+
+
+class DepartmentCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
+    template_name = "department_create.html"
+    model = Department
+    fields = [
+        "name",
+    ]
+    success_message = _("Department has been created")
+    success_url = reverse_lazy("people:departments")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("Roles and departments")
+        context["subtitle"] = _("people")
+        return context
