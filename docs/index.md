@@ -35,7 +35,7 @@ features:
 
 Dedicated support and feature building is available when you purchase our support package.  Need a specific feature, or have a particular use-case? We can include it!
 
-**Support package**: 249 euro/month (excluding VAT, if applicable). You receive full priority email support from a core developer, often within just 2 hours! [Order here](/pricing/).
+**Support package**: 249 euro/month (excluding VAT, if applicable). You receive full priority email support from a core developer, often within just 2 hours!.
 
 If you need *New Custom Feature X*, please reach out to us at <a href="mailto:hello@chiefonboarding.com">hello@chiefonboarding.com</a> and we will get back to you as soon as possible.
 
