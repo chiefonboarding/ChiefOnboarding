@@ -3,10 +3,10 @@ layout: home
 
 hero:
   name: "ChiefOnboarding"
-  text: "Streamline employee onboarding"
-  tagline: "Structure your onboarding process for IT, HR, managers, buddies, and, of course, your new hires. \n\nWe are completely independent (bootstrapped), European-based and open-source!"
+  text: "A structured onboarding process loved by HR and IT"
+  tagline: "Create once.  Re-use forever! \n\nChiefOnboarding rolls out the red carpet for each new hire, guiding them through every milestone during their early days at your company.  No hand-holding required.  \n\nOpen-source: built independently within Europe, with collaborators world-wide."
   image:
-    src: /static/headerimage.png
+    src: /frontpage/headerimage.png
     alt: ChiefOnboarding hero header image
   actions:
     - theme: brand
@@ -21,20 +21,23 @@ hero:
 
 features:
   - icon: 🛠️
-    title: Build blueprints to fit your workflows
-    details: Build separate blueprints with to do items, resources, introductions and even rewards for your new hire and managers/buddies in one easy-to-use interface.
+    title: Build workflow blueprints
+    details: Create unique blueprints with to-do items, resources, introductions, and even rewards, for every role and team, in one easy-to-use interface.
   - icon: 🔗
     title: Provision user accounts and trigger APIs
-    details: "Through manifests, you can connect with almost any API available (even internal ones!) to hit the endpoints you need for your new hire. For example: provision user accounts or automatically create new documents for them to sign."
+    details: "Through manifests, you can connect with almost any API available (including external APIs).  For example: you can automatically provision user accounts, create new documents that need signing, and more."
   - icon: 🤖
-    title: Custom Slack bot integrated
-    details: Use a Slack bot to help guide your new hires through their onboarding experience, completely hands-off. It will remind your new hire of tasks to complete and even ping colleagues to complete their tasks for the new hire too!
+    title: Custom Slack bot integration
+    details: "Our Slack bot also guide new new hires, reminding them of incompleted tasks along their onboarding journey.  Colleageus can also be automatically reminded to complete welcoming tasks, ensuring new hires meet the whole team!"
 ---
 
 ## Pricing
 
-ChiefOnboarding is free and open source software (FOSS), and it's therefore free to use, but comes as is with no guaranteed support if you would run into any issues. To keep things sustainable, we do provide support contracts and custom feature building. Need something very specific or have a specific use case? Then we can add it!
+Dedicated support and feature building is available when you purchase our support package.  Need a specific feature, or have a particular use-case? We can include it!
 
-Pricing support package: **249 euro/month** (excl VAT if applicable). This gets you full priority email support from a team member (a core developer) - best effort, but generally under 2 hours response time.
+**Support package**: 249 euro/month (excluding VAT, if applicable). You receive full priority email support from a core developer, often within just 2 hours! [Order here](/pricing/).
 
-If you need a **custom feature**, then please reach out to us through <a href="mailto:hello@chiefonboarding.com">hello@chiefonboarding.com</a> and we will get back to you as soon as possible.
+If you need *New Custom Feature X*, please reach out to us at <a href="mailto:hello@chiefonboarding.com">hello@chiefonboarding.com</a> and we will get back to you as soon as possible.
+
+*ChiefOnboarding is **feature-rich** free and open source software (FOSS). It's free to use, comes as-is, and has no guaranteed support when used without the support package option.*
+
