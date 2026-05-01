@@ -48,7 +48,7 @@ class RedirectToSelfMixin:
 class IntegrationBuilderCreateView(AdminPermMixin, CreateView):
     template_name = "token_create.html"
     model = Integration
-    fields = ["name", "manifest_type"]
+    fields = ["name", "manifest_type", "departments"]
 
     def form_valid(self, form):
         form.instance.integration = Integration.Type.CUSTOM

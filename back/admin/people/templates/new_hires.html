@@ -11,6 +11,7 @@
             <th>{% translate "Name" %}</th>
             <th>{% translate "Start date" %}</th>
             <th>{% translate "Position" %}</th>
+            <th>{% translate "Departments" %}</th>
             <th>{% translate "Progress" %}</th>
             <th></th>
           </tr>
@@ -28,7 +29,14 @@
               {{ new_hire.position }}
             </td>
             <td>
-              <div class="progress mb-2">
+              {% for department in new_hire.departments.all %}
+                <span class="badge bg-blue-lt text-blue-lt-fg">{{ department.name }}</span>
+              {% empty %}
+              Not in any department
+              {% endfor %}
+            </td>
+            <td>
+              <div class="progress">
                 <div class="progress-bar" style="width: {{new_hire.progress|floatformat:"0" }}%" role="progressbar" aria-valuenow="{{ new_hire.completed_tasks }}" aria-valuemin="0" aria-valuemax="{{ new_hire.total_tasks }}">
                 </div>
               </div>

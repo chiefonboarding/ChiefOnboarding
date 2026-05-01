@@ -11,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 
 from misc.fields import ContentJSONField
 from misc.mixins import ContentMixin
-from organization.models import BaseItem, Notification
+from organization.models import BaseItem, Notification, ObjectsManager
 
 
 class Category(models.Model):
@@ -21,7 +21,7 @@ class Category(models.Model):
         return self.name
 
 
-class ResourceManager(models.Manager):
+class ResourceManager(ObjectsManager):
     def search(self, u, query):
         query = SearchQuery(query)
         vector = (

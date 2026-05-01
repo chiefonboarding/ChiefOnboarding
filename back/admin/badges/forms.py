@@ -7,11 +7,12 @@ from admin.templates.forms import (
     UploadField,
     WYSIWYGField,
 )
+from misc.mixins import FilterDepartmentsFieldByUserMixin
 
 from .models import Badge
 
 
-class BadgeForm(TagModelForm):
+class BadgeForm(FilterDepartmentsFieldByUserMixin, TagModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -20,6 +21,7 @@ class BadgeForm(TagModelForm):
             Div(
                 Div(
                     Field("name"),
+                    Field("departments"),
                     MultiSelectField("tags"),
                     UploadField("image", extra_context={"file": self.instance.image}),
                     css_class="col-4",
@@ -31,4 +33,4 @@ class BadgeForm(TagModelForm):
 
     class Meta:
         model = Badge
-        exclude = ("template",)
+        fields = ("image", "content", "name", "tags", "departments")

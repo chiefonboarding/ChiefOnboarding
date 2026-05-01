@@ -21,7 +21,7 @@ Throughout the manifest you can use the variables that you have defined in the `
 
 `position`: New hire's position
 
-`department`: New hire's department
+`department`: New hire's department(s), if multiple it will be concatenated like: dep1, dep2 and dep3
 
 `first_name`: New hire's first name
 

@@ -3,10 +3,11 @@ from factory.fuzzy import FuzzyText
 from pytest_factoryboy import register
 
 from admin.badges.models import Badge
+from misc.mixins import DepartmentsPostGenerationMixin
 
 
 @register
-class BadgeFactory(factory.django.DjangoModelFactory):
+class BadgeFactory(factory.django.DjangoModelFactory, DepartmentsPostGenerationMixin):
     name = FuzzyText()
     content = {
         "time": 0,
@@ -18,3 +19,4 @@ class BadgeFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Badge
+        skip_postgeneration_save = True

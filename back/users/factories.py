@@ -20,6 +20,23 @@ from .models import (
 )
 
 
+class BaseUserFactory(factory.django.DjangoModelFactory):
+    first_name = FuzzyText()
+    last_name = FuzzyText()
+
+    class Meta:
+        model = User
+        skip_postgeneration_save = True
+
+    @factory.post_generation
+    def departments(obj, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            obj.departments.set(extracted)
+
+
 class DepartmentFactory(factory.django.DjangoModelFactory):
     name = FuzzyText()
 
@@ -27,48 +44,28 @@ class DepartmentFactory(factory.django.DjangoModelFactory):
         model = Department
 
 
-class NewHireFactory(factory.django.DjangoModelFactory):
-    first_name = FuzzyText()
-    last_name = FuzzyText()
+class NewHireFactory(BaseUserFactory):
     role = get_user_model().Role.NEWHIRE
     start_day = factory.LazyFunction(lambda: datetime.datetime.now().date())
     email = factory.Sequence(lambda n: "fake_new_hire_{}@example.com".format(n))
 
-    class Meta:
-        model = User
 
-
-class AdminFactory(factory.django.DjangoModelFactory):
+class AdminFactory(BaseUserFactory):
     role = get_user_model().Role.ADMIN
-    first_name = FuzzyText()
-    last_name = FuzzyText()
     email = factory.Sequence(lambda n: "fake_admin_{}@example.com".format(n))
 
-    class Meta:
-        model = User
 
-
-class ManagerFactory(factory.django.DjangoModelFactory):
-    first_name = FuzzyText()
-    last_name = FuzzyText()
+class ManagerFactory(BaseUserFactory):
     role = get_user_model().Role.MANAGER
     email = factory.Sequence(lambda n: "fake_manager_{}@example.com".format(n))
 
-    class Meta:
-        model = User
 
-
-class EmployeeFactory(factory.django.DjangoModelFactory):
-    first_name = FuzzyText()
-    last_name = FuzzyText()
+class EmployeeFactory(BaseUserFactory):
     is_active = False
     role = get_user_model().Role.OTHER
     message = "Hi {{ first_name }}, how is it going? Great to have you with us!"
     position = "CEO"
     email = factory.Sequence(lambda n: "fake_employee_{}@example.com".format(n))
-
-    class Meta:
-        model = User
 
 
 class NewHireWelcomeMessageFactory(factory.django.DjangoModelFactory):
