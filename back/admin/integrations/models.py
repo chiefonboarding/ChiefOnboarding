@@ -221,6 +221,13 @@ class Integration(models.Model):
         return len(self.manifest.get("revoke", []))
 
     @property
+    def can_backfill_ids(self):
+        # True when the manifest's `exists` block declares `store_data`,
+        # meaning we can extract IDs from the lookup response and backfill
+        # them into existing users' extra_fields.
+        return bool(self.manifest.get("exists", {}).get("store_data"))
+
+    @property
     def update_url(self):
         return reverse("integrations:update", args=[self.id])
 
@@ -529,6 +536,28 @@ class Integration(models.Model):
             return None
 
         user_exists = self.tracker.steps.last().found_expected
+
+        # If the user was found and the manifest declares store_data on its
+        # exists block, capture those values into extra_fields. Lets a single
+        # lookup populate IDs (e.g. ATLASSIAN_USER_ID, bitwarden_id) for users
+        # that pre-existed in the upstream system.
+        store_data = self.manifest["exists"].get("store_data", {})
+        if user_exists and store_data:
+            try:
+                json_response = response.json()
+            except (ValueError, AttributeError):
+                json_response = {}
+            for new_hire_prop, notation in store_data.items():
+                try:
+                    value = get_value_from_notation(
+                        self._replace_vars(notation), json_response
+                    )
+                except KeyError:
+                    continue
+                if value is None:
+                    continue
+                new_hire.extra_fields[new_hire_prop] = value
+            new_hire.save()
 
         if save_result:
             IntegrationUser.objects.update_or_create(
