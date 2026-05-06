@@ -51,6 +51,7 @@ class ManifestPollingSerializer(ValidateMixin, serializers.Serializer):
 class ManifestExistSerializer(ValidateMixin, serializers.Serializer):
     url = serializers.CharField()
     expected = serializers.CharField()
+    store_data = serializers.DictField(child=serializers.CharField(), default=dict)
     status_code = serializers.ListField(
         child=serializers.IntegerField(), required=False
     )
