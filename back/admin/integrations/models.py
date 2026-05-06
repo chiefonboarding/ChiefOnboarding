@@ -525,6 +525,7 @@ class Integration(models.Model):
 
         self.new_hire = new_hire
         self.has_user_context = new_hire is not None
+        self.params = new_hire.extra_fields
 
         # Renew token if necessary
         if not self.renew_key():
