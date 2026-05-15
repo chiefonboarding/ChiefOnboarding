@@ -4,12 +4,18 @@ from datetime import timedelta
 from unittest.mock import Mock, patch
 
 import pytest
+import requests
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
 from django_q.models import Schedule
+from freezegun import freeze_time
 
-from admin.integrations.models import Integration, IntegrationTracker
+from admin.integrations.models import (
+    Integration,
+    IntegrationTracker,
+    IntegrationTrackerStep,
+)
 from admin.integrations.sync_userinfo import SyncUsers
 from admin.integrations.utils import get_value_from_notation
 from organization.models import Notification
@@ -331,6 +337,72 @@ def test_integration_request_basic_auth(custom_integration_factory):
 
 
 @pytest.mark.django_db
+def test_integration_pritunl_missing_credentials(custom_integration_factory):
+    integration = custom_integration_factory(
+        manifest={
+            "oauth": {
+                "access_token": {"url": "http://localhost:8000/test/"},
+                "authenticate_url": "http://localhost:8000/test/",
+            },
+            "headers": {},
+        }
+    )
+
+    success, result = integration.run_request(
+        {
+            "method": "POST",
+            "url": "http://localhost:8000/test/",
+            "extra_headers": "pritunl",
+        }
+    )
+
+    assert not success
+    assert result == "Missing API_TOKEN/API_SECRET (or legacy PRITUNL_API_* keys)"
+
+
+@pytest.mark.django_db
+@freeze_time("2021-01-12")
+@patch(
+    "admin.integrations.models.requests.request",
+    Mock(return_value=Mock(status_code=200, json=lambda: dict({}))),
+)
+@patch(
+    "admin.integrations.helpers.pritunl.uuid.uuid4",
+    Mock(return_value=Mock(hex="uuid-hex-value")),
+)
+def test_integration_pritunl_happy_path(custom_integration_factory):
+    integration = custom_integration_factory(
+        manifest={
+            "oauth": {
+                "access_token": {"url": "http://localhost:8000/test/"},
+                "authenticate_url": "http://localhost:8000/test/",
+            },
+            "headers": {},
+        }
+    )
+    integration.extra_args = {"API_TOKEN": "test", "API_SECRET": "test"}
+    integration.tracker = IntegrationTracker.objects.create(
+        integration=integration, category=IntegrationTracker.Category.EXECUTE
+    )
+
+    success, _ = integration.run_request(
+        {
+            "method": "POST",
+            "url": "http://localhost:8000/test/",
+            "extra_headers": "pritunl",
+        }
+    )
+
+    assert success
+    assert IntegrationTrackerStep.objects.last().headers == {
+        "Auth-Nonce": "uuid-hex-value",
+        "Auth-Token": "***Secret value for API_TOKEN***",
+        "Auth-Signature": "55w8U79nZxF2Aj40bMkUXOSz5MZWHWqfCP6y8VbJU5M=",
+        "Auth-Timestamp": "1610409600",
+    }
+
+
+@pytest.mark.django_db
 def test_integration_oauth_redirect_view(
     client, django_user_model, custom_integration_factory
 ):
@@ -359,7 +431,6 @@ def test_integration_oauth_redirect_view(
 
 
 @pytest.mark.django_db
-@pytest.mark.skip("TODO: fix")
 def test_integration_user_exists(
     client,
     django_user_model,
@@ -383,8 +454,8 @@ def test_integration_user_exists(
 
     # Didn't find user
     with patch(
-        "admin.integrations.models.Integration.run_request",
-        Mock(return_value=(True, Mock(text="[{'error': 'not_found'}]"))),
+        "admin.integrations.models.requests.request",
+        Mock(return_value=Mock(status_code=200, json=lambda: [{"error": "not_found"}])),
     ):
         exists = integration.user_exists(new_hire)
         assert IntegrationUser.objects.filter(
@@ -394,8 +465,10 @@ def test_integration_user_exists(
 
     # Found user
     with patch(
-        "admin.integrations.models.Integration.run_request",
-        Mock(return_value=(True, Mock(text="[{'user': '" + new_hire.email + "'}]"))),
+        "admin.integrations.models.requests.request",
+        Mock(
+            return_value=Mock(status_code=200, json=lambda: [{"user": new_hire.email}])
+        ),
     ):
         exists = integration.user_exists(new_hire)
         assert IntegrationUser.objects.filter(
@@ -405,8 +478,8 @@ def test_integration_user_exists(
 
     # Error went wrong
     with patch(
-        "admin.integrations.models.Integration.run_request",
-        Mock(return_value=(False, Mock(text="[{'user': '" + new_hire.email + "'}]"))),
+        "admin.integrations.models.requests.request",
+        side_effect=requests.exceptions.Timeout,
     ):
         exists = integration.user_exists(new_hire)
         assert exists is None
@@ -485,7 +558,6 @@ def test_integration_needs_user_info(
 
 
 @pytest.mark.django_db
-@pytest.mark.skip("TODO: fix")
 def test_integration_revoke_user(
     client,
     django_user_model,
@@ -510,8 +582,8 @@ def test_integration_revoke_user(
 
     # Revoke user successfully
     with patch(
-        "admin.integrations.models.Integration.run_request",
-        Mock(return_value=(True, Mock())),
+        "admin.integrations.models.requests.request",
+        Mock(return_value=Mock(status_code=200, json=lambda: [])),
     ):
         success, error = integration.revoke_user(new_hire)
         assert success
@@ -519,8 +591,8 @@ def test_integration_revoke_user(
 
     # Revoke user unsuccessfully
     with patch(
-        "admin.integrations.models.Integration.run_request",
-        Mock(return_value=(False, "Something went wrong")),
+        "admin.integrations.models.requests.request",
+        side_effect=requests.exceptions.Timeout,
     ):
         success, error = integration.revoke_user(new_hire)
         assert not success

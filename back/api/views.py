@@ -1,14 +1,22 @@
 from django.contrib.auth import get_user_model
 from django_q.tasks import async_task
-from rest_framework import generics
+from rest_framework import generics, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
+from admin.integrations.models import Integration
 from admin.sequences.models import Sequence
 from organization.models import Notification, Organization
 from slack_bot.tasks import link_slack_users
 from users.emails import email_new_admin_cred
 from users.models import User
 
-from .serializers import EmployeeSerializer, SequenceSerializer, UserSerializer
+from .serializers import (
+    EmployeeSerializer,
+    SequenceSerializer,
+    UserOffboardingSerializer,
+    UserSerializer,
+)
 
 
 class UserView(generics.CreateAPIView):
@@ -74,12 +82,41 @@ class UserView(generics.CreateAPIView):
             else:
                 notification_type = Notification.Type.ADDED_MANAGER
 
-        Notification.objects.create(
-            notification_type=notification_type,
-            extra_text=user.full_name,
-            created_by=self.request.user,
-            created_for=user,
-        )
+        if role != get_user_model().Role.OTHER:
+            Notification.objects.create(
+                notification_type=notification_type,
+                extra_text=user.full_name,
+                created_by=self.request.user,
+                created_for=user,
+            )
+
+
+class UserOffboardingView(APIView):
+    """
+    API endpoint that allows users to be offboarded
+    """
+
+    def post(self, request):
+        serializer = UserOffboardingSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        sequence_ids = serializer.validated_data.pop("sequences", [])
+        offboarding_date = serializer.validated_data.pop("termination_date")
+        user = serializer.validated_data.pop("user")
+        user.conditions.all().delete()
+        user.termination_date = offboarding_date
+        user.save()
+
+        # TODO: should become a background worker at some point
+        for integration in Integration.objects.filter(
+            manifest_type=Integration.ManifestType.WEBHOOK,
+            manifest__exists__isnull=False,
+        ):
+            integration.user_exists(user)
+
+        sequences = Sequence.offboarding.filter(id__in=sequence_ids)
+        user.add_sequences(sequences)
+        return Response(status=status.HTTP_200_OK)
 
 
 class EmployeeView(generics.ListAPIView):

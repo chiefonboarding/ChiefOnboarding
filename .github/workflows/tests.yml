@@ -31,40 +31,39 @@ jobs:
         python-version: 3.13
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install --upgrade pipenv
+        python -m pip install --upgrade uv
         sudo apt-get install -y gettext
         cd back
-        pipenv install --dev --system
+        uv sync --dev
     - name: Run migrations
       run: |
         mv .ci_env back/back/.env
         cd back
-        python manage.py migrate
+        uv run python manage.py migrate
     - name: Test with pytest
       run: |
         cd back
-        django-admin compilemessages 
-        pytest --cov=. --cov-report=xml
+        uv run django-admin compilemessages 
+        uv run pytest --cov=. --cov-report=xml
     - name: Upload to coveralls
       run: |
         cd back
-        python -m pip install coveralls
-        coveralls --service=github
+        uv add coveralls
+        uv run coveralls --service=github
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Check formatting/linting ruff and black
       run: |
         cd back
-        ruff check . && ruff format . --check
+        uv run ruff check . && uv run ruff format . --check
     - name: Check migrations
       run: |
         cd back
-        python manage.py makemigrations --check
+        uv run python manage.py makemigrations --check
     - name: Test fixtures
       run: |
         cd back
-        python manage.py shell < fixtures/init_testing.py
-        python manage.py loaddata all.json
-        python manage.py loaddata welcome_message.json
+        uv run python manage.py shell < fixtures/init_testing.py
+        uv run python manage.py loaddata all.json
+        uv run python manage.py loaddata welcome_message.json
 # credits: https://hacksoft.io/github-actions-in-action-setting-up-django-and-postgres/

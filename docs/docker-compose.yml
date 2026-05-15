@@ -1,10 +1,9 @@
 version: '3'
-
 services:
   vitepress:
     image: node:18-bullseye
     ports:
       - "5173:5173"
     volumes:
-      - .:/app
+      - .:/app:Z
     command: bash -c "cd /app && npm add -D vitepress && npm run docs:dev"

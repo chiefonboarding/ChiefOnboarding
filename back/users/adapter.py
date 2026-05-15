@@ -60,7 +60,11 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
 
     def populate_user(self, request, sociallogin, data):
         user = super().populate_user(request, sociallogin, data)
-        full_data = sociallogin.account.extra_data["id_token"]
+        # Different providers store user data at different nesting levels in `extra_data`
+        # (e.g., Google stores it flat, OpenID Connect nests it under "id_token").
+        # Using get_provider_account().get_user_data() abstracts away these differences.
+        provider_account = sociallogin.account.get_provider_account()
+        full_data = provider_account.get_user_data()
 
         if settings.OIDC_ROLE_PATH_IN_RETURN == "":
             # set default to OTHER

@@ -1,0 +1,13 @@
+:root {
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(120deg, #69abf9, #ffbc41);
+  --vp-home-hero-image-background-image:  linear-gradient(120deg, #69abf9, #ffbc41);
+  --vp-home-hero-image-filter: blur(68px);
+}
+
+.VPHero .image-src {
+  margin-top: 20px;
+  margin-left: 20px;
+  max-width: 439px;
+  max-height: 352px;
+}

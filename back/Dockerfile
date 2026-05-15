@@ -14,9 +14,10 @@ USER root
 RUN mkdir -p /app
 COPY ./back/ /app
 WORKDIR /app
-RUN python -m pip install pipenv 
-RUN pipenv install --system
-RUN django-admin compilemessages 
+COPY ./back/ .
+COPY ./back/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+RUN uv sync
+RUN uv run django-admin compilemessages 
 
 # checkov:skip=CKV_DOCKER_7: zero-CVE fresh image every build
 FROM nvcr.io/nvidia/distroless/python:3.13-v3.1.1
