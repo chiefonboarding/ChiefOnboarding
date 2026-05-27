@@ -874,6 +874,35 @@ def test_get_value_from_notation():
     with pytest.raises(KeyError):
         get_value_from_notation("two", test_data)
 
+    # filter syntax: top-level field (existing behavior, must keep working)
+    test_data = {
+        "data": [
+            {"id": "A", "email": "a@x.com"},
+            {"id": "B", "email": "b@x.com"},
+        ]
+    }
+    assert get_value_from_notation("data[email=b@x.com].id", test_data) == "B"
+
+    # filter syntax: nested field via dotted path (new behavior)
+    test_data = {
+        "data": [
+            {"id": "1", "attributes": {"email": "a@x.com"}},
+            {"id": "2", "attributes": {"email": "b@x.com"}},
+        ]
+    }
+    assert (
+        get_value_from_notation("data[attributes.email=b@x.com].id", test_data) == "2"
+    )
+
+    # filter syntax: nested miss raises KeyError, same as top-level miss
+    with pytest.raises(KeyError):
+        get_value_from_notation("data[attributes.email=nope@x.com].id", test_data)
+
+    # filter syntax: dotted path that doesn't exist on items raises KeyError
+    test_data = {"data": [{"id": "1", "attributes": {"email": "a@x.com"}}]}
+    with pytest.raises(KeyError):
+        get_value_from_notation("data[attributes.missing=a@x.com].id", test_data)
+
 
 @pytest.mark.django_db
 @patch(

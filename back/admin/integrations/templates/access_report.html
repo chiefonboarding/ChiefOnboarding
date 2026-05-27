@@ -1,0 +1,113 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="col-12">
+  <div class="card">
+    <div class="card-header">
+      <form method="get" class="row g-2 align-items-center w-100">
+        <div class="col-auto">
+          <select name="role" class="form-select" onchange="this.form.submit()">
+            <option value="all" {% if role_filter == "all" %}selected{% endif %}>{% translate "All users" %}</option>
+            <option value="newhire" {% if role_filter == "newhire" %}selected{% endif %}>{% translate "New hires only" %}</option>
+            <option value="colleague" {% if role_filter == "colleague" %}selected{% endif %}>{% translate "Colleagues only" %}</option>
+          </select>
+        </div>
+        <div class="col-auto">
+          <input type="search" name="q" value="{{ search }}" class="form-control" placeholder="{% translate 'Search by name or email...' %}">
+        </div>
+        <div class="col-auto">
+          <button type="submit" class="btn">{% translate "Search" %}</button>
+        </div>
+        <div class="col-auto">
+          <select name="per_page" class="form-select" onchange="this.form.submit()" aria-label="{% translate 'Users per page' %}">
+            {% for size in page_size_options %}
+              <option value="{{ size }}" {% if per_page == size %}selected{% endif %}>{% blocktranslate with size=size %}{{ size }} per page{% endblocktranslate %}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-auto ms-auto">
+          {% if request.user.is_admin %}
+            <button type="submit" form="access-report-refresh-form" class="btn">
+              {% translate "Refresh data" %}
+            </button>
+          {% endif %}
+          <a href="{% url 'integrations:access-report-csv' %}?{{ preserved_query }}" class="btn btn-primary">
+            {% translate "Download CSV" %}
+          </a>
+        </div>
+      </form>
+      {% if request.user.is_admin %}
+        <form id="access-report-refresh-form" method="post" action="{% url 'integrations:access-report-refresh' %}" class="d-none">
+          {% csrf_token %}
+        </form>
+      {% endif %}
+    </div>
+    <div class="table-responsive">
+      <table class="table table-vcenter table-nowrap">
+        <thead>
+          <tr>
+            <th style="position: sticky; left: 0; background: var(--tblr-card-bg, #fff); z-index: 2;">{% translate "User" %}</th>
+            {% for integration in integrations %}
+              <th>{{ integration.name }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+          <tr>
+            <td style="position: sticky; left: 0; background: var(--tblr-card-bg, #fff);">
+              <a href="{% if row.user.role == 0 %}{% url 'people:new_hire_access' row.user.id %}{% else %}{% url 'people:colleague_access' row.user.id %}{% endif %}">
+                {{ row.user.full_name }}
+              </a>
+              <div class="text-muted small">{{ row.user.email }}</div>
+            </td>
+            {% for cell in row.cells %}
+              {% if cell == "active" %}
+                <td><span class="badge bg-green-lt">{% translate "Active" %}</span></td>
+              {% elif cell == "revoked" %}
+                <td><span class="badge bg-secondary-lt">{% translate "Not Active" %}</span></td>
+              {% else %}
+                <td><span class="text-muted">—</span></td>
+              {% endif %}
+            {% endfor %}
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="{{ integrations|length|add:1 }}">{% translate "No users found" %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if page_obj.has_other_pages %}
+    <div class="card-footer d-flex align-items-center">
+      <p class="m-0 text-muted">
+        {% blocktranslate with start=page_obj.start_index end=page_obj.end_index total=paginator.count %}Showing {{ start }} to {{ end }} of {{ total }} users{% endblocktranslate %}
+      </p>
+      <ul class="pagination m-0 ms-auto">
+        {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?{{ preserved_query }}&page={{ page_obj.previous_page_number }}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><polyline points="15 6 9 12 15 18"></polyline></svg>
+              {% translate "prev" %}
+            </a>
+          </li>
+          <li class="page-item"><a class="page-link" href="?{{ preserved_query }}&page=1">1</a></li>
+        {% endif %}
+        <li class="page-item active"><a class="page-link" href="?{{ preserved_query }}&page={{ page_obj.number }}">{{ page_obj.number }}</a></li>
+        {% if page_obj.has_next %}
+          <li class="page-item"><a class="page-link" href="?{{ preserved_query }}&page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a></li>
+          <li class="page-item">
+            <a class="page-link" href="?{{ preserved_query }}&page={{ paginator.num_pages }}">
+              {% translate "last" %}
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><polyline points="9 6 15 12 9 18"></polyline></svg>
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

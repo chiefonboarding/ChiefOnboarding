@@ -1,16 +1,21 @@
+import csv
 import json
 from datetime import timedelta
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 
 import requests
+from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import Http404, HttpResponseRedirect
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from django.views.generic import View
+from django.views.generic import TemplateView, View
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
@@ -18,6 +23,7 @@ from django.views.generic.list import ListView
 from django_q.tasks import async_task
 
 from users.mixins import AdminOrManagerPermMixin, AdminPermMixin
+from users.models import IntegrationUser
 
 from .forms import IntegrationExtraArgsForm, IntegrationForm
 from .models import Integration, IntegrationTracker
@@ -267,3 +273,152 @@ class IntegrationBackfillIDsView(AdminPermMixin, View):
               "as the lookup runs in the background.") % {"name": integration.name},
         )
         return redirect("settings:integrations")
+
+
+STATUS_ACTIVE = "active"
+STATUS_REVOKED = "revoked"
+STATUS_NONE = "none"
+
+ACCESS_REPORT_PAGE_SIZES = [10, 25, 50, 100]
+
+
+def _resolve_per_page(value, default):
+    try:
+        per_page = int(value)
+    except (TypeError, ValueError):
+        return default
+    return per_page if per_page in ACCESS_REPORT_PAGE_SIZES else default
+
+
+def _filtered_users_queryset(role_filter=None, search=None):
+    User = get_user_model()
+    users_qs = User.objects.filter(is_active=True).order_by("first_name", "last_name")
+    if role_filter == "newhire":
+        users_qs = users_qs.filter(role=User.Role.NEWHIRE)
+    elif role_filter == "colleague":
+        users_qs = users_qs.exclude(role=User.Role.NEWHIRE)
+    if search:
+        users_qs = users_qs.filter(
+            Q(first_name__icontains=search)
+            | Q(last_name__icontains=search)
+            | Q(email__icontains=search)
+        )
+    return users_qs
+
+
+def _build_access_matrix(role_filter=None, search=None, users=None):
+    integrations = list(
+        Integration.objects.account_provision_options()
+        .filter(is_active=True)
+        .order_by("name")
+    )
+    integration_ids = [i.id for i in integrations]
+
+    if users is None:
+        users = list(_filtered_users_queryset(role_filter, search))
+
+    user_ids = [u.id for u in users]
+    access_lookup = {}
+    for iu in IntegrationUser.objects.filter(
+        integration_id__in=integration_ids,
+        user_id__in=user_ids,
+    ).only("user_id", "integration_id", "revoked"):
+        access_lookup[(iu.user_id, iu.integration_id)] = (
+            STATUS_REVOKED if iu.revoked else STATUS_ACTIVE
+        )
+
+    rows = []
+    for user in users:
+        cells = []
+        for integration in integrations:
+            cells.append(
+                access_lookup.get((user.id, integration.id), STATUS_NONE)
+            )
+        rows.append({"user": user, "cells": cells})
+
+    return integrations, rows
+
+
+class IntegrationAccessReportView(AdminOrManagerPermMixin, TemplateView):
+    template_name = "access_report.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        role_filter = self.request.GET.get("role", "all")
+        search = self.request.GET.get("q", "").strip()
+
+        per_page = _resolve_per_page(
+            self.request.GET.get("per_page"), settings.ACCESS_REPORT_PAGINATE_BY
+        )
+
+        users_qs = _filtered_users_queryset(role_filter=role_filter, search=search)
+        paginator = Paginator(users_qs, per_page)
+        page_obj = paginator.get_page(self.request.GET.get("page"))
+
+        integrations, rows = _build_access_matrix(
+            role_filter=role_filter,
+            search=search,
+            users=list(page_obj.object_list),
+        )
+
+        preserved = {"role": role_filter, "per_page": per_page}
+        if search:
+            preserved["q"] = search
+        context["title"] = _("Integration access report")
+        context["subtitle"] = _("reports")
+        context["integrations"] = integrations
+        context["rows"] = rows
+        context["role_filter"] = role_filter
+        context["search"] = search
+        context["per_page"] = per_page
+        context["page_size_options"] = ACCESS_REPORT_PAGE_SIZES
+        context["page_obj"] = page_obj
+        context["paginator"] = paginator
+        context["preserved_query"] = urlencode(preserved)
+        return context
+
+
+class IntegrationAccessReportRefreshView(AdminPermMixin, View):
+    def post(self, request, *args, **kwargs):
+        async_task(
+            "admin.integrations.tasks.refresh_access_report",
+            task_name="Refresh access report",
+        )
+        messages.success(
+            request,
+            _(
+                "Refreshing access data in the background. The report will update "
+                "as each integration finishes its lookups."
+            ),
+        )
+        return redirect("integrations:access-report")
+
+
+class IntegrationAccessReportCSVView(AdminOrManagerPermMixin, View):
+    def get(self, request, *args, **kwargs):
+        role_filter = request.GET.get("role", "all")
+        search = request.GET.get("q", "").strip()
+        integrations, rows = _build_access_matrix(
+            role_filter=role_filter, search=search
+        )
+
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = (
+            'attachment; filename="integration-access-report.csv"'
+        )
+        cell_labels = {
+            STATUS_ACTIVE: "Active",
+            STATUS_REVOKED: "Not Active",
+            STATUS_NONE: "",
+        }
+        writer = csv.writer(response)
+        writer.writerow(
+            ["Name", "Email"] + [i.name for i in integrations]
+        )
+        for row in rows:
+            user = row["user"]
+            writer.writerow(
+                [user.full_name, user.email]
+                + [cell_labels[c] for c in row["cells"]]
+            )
+        return response

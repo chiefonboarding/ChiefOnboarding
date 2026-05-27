@@ -49,6 +49,21 @@ urlpatterns = [
         name="tracker",
     ),
     path(
+        "access-report/",
+        views.IntegrationAccessReportView.as_view(),
+        name="access-report",
+    ),
+    path(
+        "access-report/csv/",
+        views.IntegrationAccessReportCSVView.as_view(),
+        name="access-report-csv",
+    ),
+    path(
+        "access-report/refresh/",
+        views.IntegrationAccessReportRefreshView.as_view(),
+        name="access-report-refresh",
+    ),
+    path(
         "builder/",
         builder_views.IntegrationBuilderCreateView.as_view(),
         name="builder",
