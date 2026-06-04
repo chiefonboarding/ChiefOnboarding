@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timedelta
 
 import pytz
@@ -11,6 +12,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property, lazy
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from django_q.tasks import async_task
 
@@ -535,6 +537,7 @@ class User(AbstractBaseUser):
         if self.buddy is not None:
             buddy = self.buddy.full_name
             buddy_email = self.buddy.email
+        todo_forms_data = self._get_todo_forms_data()
         new_hire_context = {
             "manager": manager,
             "buddy": buddy,
@@ -547,6 +550,8 @@ class User(AbstractBaseUser):
             "manager_email": manager_email,
             "access_overview": lazy(self.get_access_overview, str),
             "department": department,
+            "todo_forms": todo_forms_data,
+            "todo_forms_json": json.dumps(todo_forms_data),
         }
 
         text = t.render(Context(new_hire_context | extra_values))
@@ -554,6 +559,38 @@ class User(AbstractBaseUser):
         # Slack bot.
         text = text.replace("&nbsp;", " ")
         return text
+
+    def _get_todo_forms_data(self):
+        """
+        Returns a dictionary of completed to-do form data for use in integrations.
+        Structure: {todo_slug: [answer1, answer2, ...]}
+        Only includes to-dos marked as completed.
+        Returns answers as an ordered list.
+        """
+
+        todo_forms = {}
+
+        # Get only completed ToDoUser instances
+        todo_users = self.to_do_new_hire.select_related("to_do").filter(completed=True)
+
+        for todo_user in todo_users:
+            # Create a slug from the to-do name
+            todo_slug = slugify(todo_user.to_do.name).replace("-", "_")
+
+            # Handle duplicate to-do names by appending numeric suffix
+            original_slug = todo_slug
+            counter = 1
+            while todo_slug in todo_forms:
+                todo_slug = f"{original_slug}_{counter}"
+                counter += 1
+
+            # Extract answers from form field as a list
+            todo_forms[todo_slug] = []
+            for form_item in todo_user.form:
+                if "id" in form_item and "answer" in form_item:
+                    todo_forms[todo_slug].append(form_item["answer"])
+
+        return todo_forms
 
     def get_access_overview(self):
         all_access = []
