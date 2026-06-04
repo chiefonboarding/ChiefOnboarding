@@ -34,6 +34,11 @@ urlpatterns = [
         name="delete-creds",
     ),
     path(
+        "backfill_ids/<int:pk>/",
+        views.IntegrationBackfillIDsView.as_view(),
+        name="backfill-ids",
+    ),
+    path(
         "tracker/",
         views.IntegrationTrackerListView.as_view(),
         name="trackers",
@@ -42,6 +47,21 @@ urlpatterns = [
         "tracker/<int:pk>/",
         views.IntegrationTrackerDetailView.as_view(),
         name="tracker",
+    ),
+    path(
+        "access-report/",
+        views.IntegrationAccessReportView.as_view(),
+        name="access-report",
+    ),
+    path(
+        "access-report/csv/",
+        views.IntegrationAccessReportCSVView.as_view(),
+        name="access-report-csv",
+    ),
+    path(
+        "access-report/refresh/",
+        views.IntegrationAccessReportRefreshView.as_view(),
+        name="access-report-refresh",
     ),
     path(
         "builder/",
