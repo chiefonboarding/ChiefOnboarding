@@ -65,6 +65,15 @@
               {% translate "Update credentials" %}
             </a>
           {% endif %}
+          {% if integration.can_backfill_ids %}
+            <form action="{% url 'integrations:backfill-ids' integration.id %}" method="post" style="display:inline-block"
+                  onsubmit="return confirm('{% translate "Run a lookup against every user and store any IDs returned by the API? This will call the external API once per user." %}')">
+              {% csrf_token %}
+              <button class="btn btn-primary" style="float: unset">
+                {% translate "Backfill IDs" %}
+              </button>
+            </form>
+          {% endif %}
           <a href="{% url 'integrations:update' integration.id %}" class="btn btn-primary">
             {% translate "Update manifest" %}
           </a>

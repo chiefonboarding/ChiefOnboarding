@@ -1,27 +1,72 @@
+def _tokenize_notation(notation):
+    # split on '.' but keep [...] groups intact, so values inside a filter
+    # expression (which may themselves contain '.', e.g. emails) aren't split
+    tokens = []
+    buf = ""
+    depth = 0
+    for ch in notation:
+        if ch == "[":
+            depth += 1
+            buf += ch
+        elif ch == "]":
+            depth -= 1
+            buf += ch
+        elif ch == "." and depth == 0:
+            if buf:
+                tokens.append(buf)
+                buf = ""
+        else:
+            buf += ch
+    if buf:
+        tokens.append(buf)
+    return tokens
+
+
 def get_value_from_notation(notation, value):
     # if we don't need to go into props, then just return the value
     if notation == "":
         return value
 
-    notations = notation.split(".")
-    for notation in notations:
+    for token in _tokenize_notation(notation):
+        # filter form: optional_key[field=expected] - pick first list entry
+        # whose `field` equals `expected`. Useful when the upstream API returns
+        # an unfiltered list (e.g. Bitwarden /public/members).
+        if "[" in token and token.endswith("]"):
+            list_key, _, filter_expr = token.partition("[")
+            filter_expr = filter_expr[:-1]
+
+            if list_key:
+                try:
+                    value = value[list_key]
+                except (KeyError, TypeError):
+                    raise KeyError
+
+            if "=" not in filter_expr or not isinstance(value, list):
+                raise KeyError
+
+            field, _, expected = filter_expr.partition("=")
+            for item in value:
+                if isinstance(item, dict) and str(item.get(field, "")) == expected:
+                    value = item
+                    break
+            else:
+                raise KeyError
+            continue
+
         try:
-            value = value[notation]
+            value = value[token]
         except TypeError:
-            # check if array
             if not isinstance(value, list):
                 raise KeyError
 
             try:
-                index = int(notation)
+                index = int(token)
             except (TypeError, ValueError):
-                # keep errors consistent, we are only expecting a KeyError
                 raise KeyError
 
             try:
                 value = value[index]
             except (TypeError, ValueError, IndexError):
-                # keep errors consistent, we are only expecting a KeyError
                 raise KeyError
 
     return value

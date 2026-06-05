@@ -15,6 +15,7 @@ from django.views.generic.base import RedirectView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
+from django_q.tasks import async_task
 
 from users.mixins import AdminOrManagerPermMixin, AdminPermMixin
 
@@ -244,3 +245,25 @@ class IntegrationTrackerDetailView(AdminOrManagerPermMixin, DetailView):
         }
         context["subtitle"] = _("integrations")
         return context
+
+
+class IntegrationBackfillIDsView(AdminPermMixin, View):
+    def post(self, request, pk):
+        integration = get_object_or_404(Integration, pk=pk)
+        if not integration.can_backfill_ids:
+            messages.error(
+                request,
+                _("This integration has no store_data declared on its exists block."),
+            )
+            return redirect("settings:integrations")
+        async_task(
+            "admin.integrations.tasks.backfill_integration_ids",
+            integration.id,
+            task_name=f"Backfill IDs: {integration.name}",
+        )
+        messages.success(
+            request,
+            _("Backfill started for %(name)s. Users' extra fields will populate "
+              "as the lookup runs in the background.") % {"name": integration.name},
+        )
+        return redirect("settings:integrations")

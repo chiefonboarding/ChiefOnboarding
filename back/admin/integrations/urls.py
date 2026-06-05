@@ -34,6 +34,11 @@ urlpatterns = [
         name="delete-creds",
     ),
     path(
+        "backfill_ids/<int:pk>/",
+        views.IntegrationBackfillIDsView.as_view(),
+        name="backfill-ids",
+    ),
+    path(
         "tracker/",
         views.IntegrationTrackerListView.as_view(),
         name="trackers",
