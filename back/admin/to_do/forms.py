@@ -4,11 +4,12 @@ from django.utils.translation import gettext_lazy as _
 
 from admin.integrations.models import Integration
 from admin.templates.forms import MultiSelectField, TagModelForm, WYSIWYGField
+from misc.mixins import FilterDepartmentsFieldByUserMixin
 
 from .models import ToDo
 
 
-class ToDoForm(TagModelForm):
+class ToDoForm(FilterDepartmentsFieldByUserMixin, TagModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -26,6 +27,7 @@ class ToDoForm(TagModelForm):
                 Div(
                     Field("name"),
                     Field("due_on_day"),
+                    Field("departments"),
                     MultiSelectField("tags"),
                     css_class="col-4",
                 ),
@@ -61,7 +63,15 @@ class ToDoForm(TagModelForm):
 
     class Meta:
         model = ToDo
-        exclude = ("template",)
+        fields = (
+            "content",
+            "due_on_day",
+            "send_back",
+            "slack_channel",
+            "tags",
+            "departments",
+            "name",
+        )
         help_texts = {
             "send_back": _(
                 "Let your new hire now that the answers are going to be shared with the"

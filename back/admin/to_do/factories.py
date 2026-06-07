@@ -3,10 +3,11 @@ from factory.fuzzy import FuzzyText
 from pytest_factoryboy import register
 
 from admin.to_do.models import ToDo
+from misc.mixins import DepartmentsPostGenerationMixin
 
 
 @register
-class ToDoFactory(factory.django.DjangoModelFactory):
+class ToDoFactory(DepartmentsPostGenerationMixin, factory.django.DjangoModelFactory):
     name = FuzzyText()
     due_on_day = 0
     content = {
@@ -18,3 +19,4 @@ class ToDoFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = ToDo
+        skip_postgeneration_save = True

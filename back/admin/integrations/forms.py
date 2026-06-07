@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from admin.integrations.models import Integration
 from admin.integrations.utils import get_value_from_notation
 from admin.sequences.models import IntegrationConfig
+from misc.mixins import FilterDepartmentsFieldByUserMixin
 
 
 class IntegrationConfigForm(forms.ModelForm):
@@ -172,14 +173,14 @@ class PrettyJSONEncoder(json.JSONEncoder):
         super().__init__(*args, indent=4, **kwargs)
 
 
-class IntegrationForm(forms.ModelForm):
+class IntegrationForm(FilterDepartmentsFieldByUserMixin, forms.ModelForm):
     """Form used to register a new integration through the settings"""
 
     manifest = forms.JSONField(encoder=PrettyJSONEncoder, required=False, initial=dict)
 
     class Meta:
         model = Integration
-        fields = ("name", "manifest_type", "manifest")
+        fields = ("name", "manifest_type", "departments", "manifest")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -19,17 +19,25 @@ from admin.sequences.querysets import ConditionQuerySet
 from admin.to_do.models import ToDo
 from misc.fields import ContentJSONField, EncryptedJSONField
 from misc.mixins import ContentMixin
-from organization.models import Notification
+from organization.models import FilteredForManagerQuerySet, Notification
 from slack_bot.models import SlackChannel
 from slack_bot.utils import Slack
 
 
-class OnboardingSequenceManager(models.Manager):
+class SequenceManager(models.Manager):
+    def get_queryset(self):
+        return FilteredForManagerQuerySet(self.model, using=self._db)
+
+    def for_user(self, user):
+        return self.get_queryset().for_user(user)
+
+
+class OnboardingSequenceManager(SequenceManager):
     def get_queryset(self):
         return super().get_queryset().filter(category=Sequence.Category.ONBOARDING)
 
 
-class OffboardingSequenceManager(models.Manager):
+class OffboardingSequenceManager(SequenceManager):
     def get_queryset(self):
         return super().get_queryset().filter(category=Sequence.Category.OFFBOARDING)
 
@@ -42,10 +50,18 @@ class Sequence(models.Model):
     name = models.CharField(verbose_name=_("Name"), max_length=240)
     auto_add = models.BooleanField(default=False)
     category = models.IntegerField(choices=Category.choices)
+    departments = models.ManyToManyField(
+        "users.Department",
+        blank=True,
+        help_text=_("Leave empty to make it available to all managers"),
+    )
 
-    objects = models.Manager()
+    objects = SequenceManager()
     onboarding = OnboardingSequenceManager()
     offboarding = OffboardingSequenceManager()
+
+    class Meta:
+        ordering = ("name",)
 
     def __str__(self):
         return self.name
@@ -269,6 +285,10 @@ class ExternalMessageManager(models.Manager):
             person_type=ExternalMessage.PersonType.NEWHIRE
         )
 
+    def for_user(self, user):
+        # just return all as we filter on sequence
+        return self.get_queryset()
+
     def for_admins(self):
         return self.get_queryset().exclude(
             person_type=ExternalMessage.PersonType.NEWHIRE
@@ -461,6 +481,12 @@ class PendingTextMessage(ExternalMessage):
         proxy = True
 
 
+class PendingAdminTaskManager(models.Manager):
+    def for_user(self, user):
+        # just return all as we filter on sequence
+        return self.get_queryset()
+
+
 class PendingAdminTask(models.Model):
     class PersonType(models.IntegerChoices):
         NEWHIRE = 0, _("New hire/User to be offboarded")
@@ -519,6 +545,8 @@ class PendingAdminTask(models.Model):
             "functions (like duplicate)"
         ),
     )
+
+    objects = PendingAdminTaskManager()
 
     def __str__(self):
         return self.name

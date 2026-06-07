@@ -27,16 +27,18 @@ from misc.models import File
 from organization.models import Notification
 from slack_bot.utils import Slack, paragraph
 
-from .utils import CompletedFormCheck
+from .utils import CompletedFormCheck, parse_array_to_string
 
 
 class Department(models.Model):
     """
     Department that has been attached to a user
-    At the moment, only one department per user
     """
 
-    name = models.TextField()
+    name = models.CharField(max_length=255)
+
+    class Meta:
+        ordering = ("name",)
 
     def __str__(self):
         return "%s" % self.name
@@ -153,9 +155,7 @@ class User(AbstractBaseUser):
         max_length=1000,
         choices=[(x, x) for x in pytz.common_timezones],
     )
-    department = models.ForeignKey(
-        Department, verbose_name=_("Department"), on_delete=models.SET_NULL, null=True
-    )
+    departments = models.ManyToManyField(Department, blank=True, related_name="users")
     language = models.CharField(
         verbose_name=_("Language"),
         default="en",
@@ -167,8 +167,8 @@ class User(AbstractBaseUser):
         choices=Role.choices,
         default=3,
         help_text=_(
-            "An administrator has access to everything. A manager has only access to "
-            "their new hires and their tasks."
+            "An administrator has access to everything. A manager has no access to settings and only access to "
+            "the items in their departments"
         ),
     )
     is_active = models.BooleanField(default=True)
@@ -522,13 +522,13 @@ class User(AbstractBaseUser):
         if extra_values is None:
             extra_values = {}
         t = Template(text)
-        department = ""
+        department = parse_array_to_string(
+            self.departments.values_list("name", flat=True)
+        )
         manager = ""
         manager_email = ""
         buddy = ""
         buddy_email = ""
-        if self.department is not None:
-            department = self.department.name
         if self.manager is not None:
             manager = self.manager.full_name
             manager_email = self.manager.email
@@ -581,15 +581,19 @@ class User(AbstractBaseUser):
 
     @property
     def is_admin_or_manager(self):
-        return self.role in [get_user_model().Role.ADMIN, get_user_model().Role.MANAGER]
+        return self.role in [User.Role.ADMIN, User.Role.MANAGER]
+
+    @property
+    def is_manager(self):
+        return self.role == User.Role.MANAGER
 
     @property
     def is_admin(self):
-        return self.role == get_user_model().Role.ADMIN
+        return self.role == User.Role.ADMIN
 
     @property
     def is_new_hire(self):
-        return self.role == get_user_model().Role.NEWHIRE
+        return self.role == User.Role.NEWHIRE
 
     def __str__(self):
         return "%s" % self.full_name

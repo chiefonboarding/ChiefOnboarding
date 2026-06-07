@@ -5,16 +5,19 @@ from django.utils.translation import gettext as _
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
+from admin.badges.selectors import get_badge_templates_for_user
+from misc.mixins import FormWithUserContextMixin
 from users.mixins import AdminOrManagerPermMixin
 
 from .forms import BadgeForm
-from .models import Badge
 
 
 class BadgeListView(AdminOrManagerPermMixin, ListView):
     template_name = "templates.html"
-    queryset = Badge.templates.all().order_by("name")
     paginate_by = settings.BADGE_PAGINATE_BY
+
+    def get_queryset(self):
+        return get_badge_templates_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -24,7 +27,9 @@ class BadgeListView(AdminOrManagerPermMixin, ListView):
         return context
 
 
-class BadgeCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
+class BadgeCreateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, CreateView
+):
     template_name = "template_update.html"
     form_class = BadgeForm
     success_url = reverse_lazy("badges:list")
@@ -37,12 +42,16 @@ class BadgeCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateView):
         return context
 
 
-class BadgeUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView):
+class BadgeUpdateView(
+    AdminOrManagerPermMixin, FormWithUserContextMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "template_update.html"
     form_class = BadgeForm
     success_url = reverse_lazy("badges:list")
-    queryset = Badge.templates.all()
     success_message = _("Badge item has been updated")
+
+    def get_queryset(self):
+        return get_badge_templates_for_user(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -52,6 +61,8 @@ class BadgeUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView):
 
 
 class BadgeDeleteView(AdminOrManagerPermMixin, SuccessMessageMixin, DeleteView):
-    queryset = Badge.objects.all()
     success_url = reverse_lazy("badges:list")
     success_message = _("badge item has been removed")
+
+    def get_queryset(self):
+        return get_badge_templates_for_user(user=self.request.user)
