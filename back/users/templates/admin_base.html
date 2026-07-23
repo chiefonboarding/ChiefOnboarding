@@ -289,7 +289,7 @@
 
             $(this).parent().find(".upload-button").text('{% translate "uploading..." %}')
             $.ajax({
-              url: "/api/org/file",
+              url: "{% url 'organization:create_file' %}",
               type: 'post',
               data: {'name': newFileName},
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
@@ -316,7 +316,7 @@
       })
       function getSignedURL (file) {
         return $.ajax({
-          url: "/api/org/file",
+          url: "{% url 'organization:create_file' %}",
           type: 'post',
           data: {'name': file.name},
           headers: {'X-CSRFToken': '{{ csrf_token }}'},

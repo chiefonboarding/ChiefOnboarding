@@ -1,3 +1,6 @@
+import os
+from urllib.parse import quote
+
 import boto3
 from botocore.config import Config
 from django.conf import settings
@@ -25,6 +28,10 @@ class S3:
         if settings.AWS_STORAGE_BUCKET_NAME == "":
             return ""
 
+        cdn_url = os.getenv("AWS_CDN_URL", "").strip().rstrip("/")
+        if cdn_url:
+            return f"{cdn_url}/{quote(key, safe='/')}"
+
         try:
             return self.client.generate_presigned_url(
                 ClientMethod="get_object",
@@ -34,6 +41,21 @@ class S3:
         except Exception:
             print("Credentials are not set or incorrect")
             return ""
+
+    def put_file(
+        self,
+        key,
+        body,
+    ):
+        payload = {
+            "Bucket": settings.AWS_STORAGE_BUCKET_NAME,
+            "Key": key,
+            "Body": body,
+        }
+
+        return self.client.put_object(
+            **payload,
+        )
 
     def delete_file(self, key):
         return self.client.delete_object(

@@ -7,7 +7,9 @@ from django.contrib.auth.decorators import login_not_required
 from django.core import management
 from django.db import transaction
 from django.http import Http404
+from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.decorators import method_decorator
@@ -27,7 +29,7 @@ from slack_bot.models import SlackChannel
 from users.mixins import AdminPermMixin
 from users.models import User
 
-from .forms import InitalAdminAccountForm
+from .forms import FileForm, InitalAdminAccountForm
 from .models import Notification, Organization
 
 
@@ -60,18 +62,53 @@ class FileView(APIView):
         )
         f.key = key
         f.save()
+        if settings.AWS_USE_PRESIGNED_UPLOADS:
+            file_url = S3().get_presigned_url(key)
+            upload_headers = {}
+        else:
+            file_url = reverse_lazy("organizations:file", args=[f.id])
+            upload_headers = {"X-CSRFToken": get_token(request)}
+
         # Specifics based on Editor.js expectations
         return Response(
             {
                 "success": 1,
                 "file": {
-                    "url": S3().get_presigned_url(key),
+                    "url": file_url,
+                    "upload_headers": upload_headers,
                     "id": f.id,
                     "name": f.name,
                     "ext": f.ext,
                     "get_url": f.get_url(),
                     "size": None,
                     "title": f.name,
+                },
+            }
+        )
+
+    def put(self, request, id):
+        if settings.AWS_USE_PRESIGNED_UPLOADS:
+            raise Http404
+        file = get_object_or_404(File, pk=id)
+        form = FileForm(data=request.POST, files=request.FILES)
+        if not form.is_valid():
+            return Response(
+                {"success": 0, "error": _("Not a valid file")},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        S3().put_file(
+            file.key,
+            form.cleaned_data["uploaded_file"].read(),
+        )
+
+        return Response(
+            {
+                "success": 1,
+                "file": {
+                    "id": file.id,
+                    "url": file.get_url(),
+                    "get_url": file.get_url(),
                 },
             }
         )
