@@ -57,7 +57,6 @@ class SyncUsers(PaginatedResponse):
                 return serializer.validated_data
         else:
             # if we have errors, then only get the valid ones
-            valid_ones = []
             for index, errors in serializer.errors.items():
                 logger.info(
                     f"Couldn't save {new_users[index]['email']} due to {errors}"
