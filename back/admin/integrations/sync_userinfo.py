@@ -57,17 +57,22 @@ class SyncUsers(PaginatedResponse):
                 return serializer.validated_data
         else:
             # if we have errors, then only get the valid ones
+            valid_ones = []
             for index, errors in serializer.errors.items():
                 logger.info(
                     f"Couldn't save {new_users[index]['email']} due to {errors}"
                 )
-                new_users.pop(index)
+            valid_ones = [
+                user
+                for idx, user in enumerate(new_users)
+                if idx not in serializer.errors
+            ]
             if not commit:
-                return new_users
+                return valid_ones
 
             # push them again through the function to save the users that did pass
-            if len(new_users):
-                self.create_users(new_users)
+            if len(valid_ones):
+                self.create_users(valid_ones)
 
     def get_import_user_candidates(self):
         # Remove users that are already in the system or have been ignored
