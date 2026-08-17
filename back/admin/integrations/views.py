@@ -3,6 +3,7 @@ from datetime import timedelta
 from urllib.parse import urlparse
 
 import requests
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponseRedirect
@@ -220,6 +221,7 @@ class IntegrationTrackerListView(AdminOrManagerPermMixin, ListView):
         .order_by("-ran_at")
     )
     template_name = "tracker_list.html"
+    paginate_by = settings.INTEGRATION_TRACKER_PAGINATE_BY
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
