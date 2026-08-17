@@ -530,3 +530,238 @@ def test_integration_user_trigger(
 
     # another item from sequence won't be here
     assert employee.to_do.count() == 1
+
+
+@pytest.mark.django_db
+def test_get_todo_forms_data_single_completed_todo(new_hire_factory, to_do_factory):
+    """Test single completed to-do with form data."""
+    user = new_hire_factory()
+    todo = to_do_factory(name="Emergency Contact Info")
+
+    # Create completed ToDoUser with form data
+    todo_user = user.to_do_new_hire.create(
+        to_do=todo,
+        completed=True,
+        form=[
+            {"id": "item-1", "answer": "John Doe", "data": {"text": "Name"}},
+            {"id": "item-2", "answer": "555-1234", "data": {"text": "Phone"}},
+        ],
+    )
+
+    result = user._get_todo_forms_data()
+
+    assert "emergency_contact_info" in result
+    assert result["emergency_contact_info"][0] == "John Doe"
+    assert result["emergency_contact_info"][1] == "555-1234"
+
+
+@pytest.mark.django_db
+def test_get_todo_forms_data_multiple_completed_todos(new_hire_factory, to_do_factory):
+    """Test multiple completed to-dos with different names."""
+    user = new_hire_factory()
+    todo1 = to_do_factory(name="Emergency Contact")
+    todo2 = to_do_factory(name="Workspace Setup")
+
+    # Create first completed ToDoUser
+    user.to_do_new_hire.create(
+        to_do=todo1,
+        completed=True,
+        form=[
+            {"id": "item-1", "answer": "Jane Doe", "data": {"text": "Contact"}},
+        ],
+    )
+
+    # Create second completed ToDoUser
+    user.to_do_new_hire.create(
+        to_do=todo2,
+        completed=True,
+        form=[
+            {"id": "item-5", "answer": "on", "data": {"text": "Checkbox"}},
+            {"id": "item-6", "answer": "Desk A-23", "data": {"text": "Desk"}},
+        ],
+    )
+
+    result = user._get_todo_forms_data()
+
+    assert "emergency_contact" in result
+    assert "workspace_setup" in result
+    assert result["emergency_contact"][0] == "Jane Doe"
+    assert result["workspace_setup"][0] == "on"
+    assert result["workspace_setup"][1] == "Desk A-23"
+
+
+@pytest.mark.django_db
+def test_get_todo_forms_data_duplicate_names(new_hire_factory, to_do_factory):
+    """Test duplicate to-do names get numeric suffixes."""
+    user = new_hire_factory()
+    todo1 = to_do_factory(name="Setup")
+    todo2 = to_do_factory(name="Setup")
+    todo3 = to_do_factory(name="Setup")
+
+    # Create three completed ToDoUsers with same name
+    user.to_do_new_hire.create(
+        to_do=todo1,
+        completed=True,
+        form=[{"id": "item-1", "answer": "First", "data": {"text": "Q1"}}],
+    )
+
+    user.to_do_new_hire.create(
+        to_do=todo2,
+        completed=True,
+        form=[{"id": "item-2", "answer": "Second", "data": {"text": "Q2"}}],
+    )
+
+    user.to_do_new_hire.create(
+        to_do=todo3,
+        completed=True,
+        form=[{"id": "item-3", "answer": "Third", "data": {"text": "Q3"}}],
+    )
+
+    result = user._get_todo_forms_data()
+
+    assert "setup" in result
+    assert "setup_1" in result
+    assert "setup_2" in result
+    assert result["setup"][0] == "First"
+    assert result["setup_1"][0] == "Second"
+    assert result["setup_2"][0] == "Third"
+
+
+@pytest.mark.django_db
+def test_get_todo_forms_data_incomplete_todo_not_included(
+    new_hire_factory, to_do_factory
+):
+    """Test incomplete to-do is not included in data."""
+    user = new_hire_factory()
+    todo = to_do_factory(name="Incomplete Task")
+
+    # Create incomplete ToDoUser
+    user.to_do_new_hire.create(
+        to_do=todo,
+        completed=False,
+        form=[{"id": "item-1", "answer": "Some answer", "data": {"text": "Q"}}],
+    )
+
+    result = user._get_todo_forms_data()
+
+    assert "incomplete_task" not in result
+    assert result == {}
+
+
+@pytest.mark.django_db
+def test_get_todo_forms_data_no_completed_todos(new_hire_factory):
+    """Test user with no completed to-dos returns empty dict."""
+    user = new_hire_factory()
+
+    result = user._get_todo_forms_data()
+
+    assert result == {}
+
+
+@pytest.mark.django_db
+def test_get_todo_forms_data_special_characters(new_hire_factory, to_do_factory):
+    """Test special characters in to-do names are slugified."""
+    user = new_hire_factory()
+    todo1 = to_do_factory(name="Set up workspace!")
+    todo2 = to_do_factory(name="Tax Forms (W-4)")
+    todo3 = to_do_factory(name="Emergency Contact / Info")
+
+    user.to_do_new_hire.create(
+        to_do=todo1,
+        completed=True,
+        form=[{"id": "item-1", "answer": "Answer1", "data": {"text": "Q1"}}],
+    )
+
+    user.to_do_new_hire.create(
+        to_do=todo2,
+        completed=True,
+        form=[{"id": "item-2", "answer": "Answer2", "data": {"text": "Q2"}}],
+    )
+
+    user.to_do_new_hire.create(
+        to_do=todo3,
+        completed=True,
+        form=[{"id": "item-3", "answer": "Answer3", "data": {"text": "Q3"}}],
+    )
+
+    result = user._get_todo_forms_data()
+
+    assert "set_up_workspace" in result
+    assert "tax_forms_w_4" in result
+    assert "emergency_contact_info" in result
+
+
+@pytest.mark.django_db
+def test_get_todo_forms_data_empty_form(new_hire_factory, to_do_factory):
+    """Test to-do with empty form returns empty list for that todo."""
+    user = new_hire_factory()
+    todo = to_do_factory(name="Empty Form")
+
+    user.to_do_new_hire.create(
+        to_do=todo,
+        completed=True,
+        form=[],
+    )
+
+    result = user._get_todo_forms_data()
+
+    assert "empty_form" in result
+    assert result["empty_form"] == []
+
+
+@pytest.mark.django_db
+def test_get_todo_forms_data_form_without_id_or_answer(
+    new_hire_factory, to_do_factory
+):
+    """Test form items without id or answer are skipped."""
+    user = new_hire_factory()
+    todo = to_do_factory(name="Partial Data")
+
+    user.to_do_new_hire.create(
+        to_do=todo,
+        completed=True,
+        form=[
+            {"id": "item-1", "answer": "Valid", "data": {"text": "Valid field"}},
+            {"id": "item-2", "data": {"text": "No answer"}},  # missing answer
+            {"answer": "No id", "data": {"text": "No ID"}},  # missing id
+            {"data": {"text": "Neither"}},  # missing both
+        ],
+    )
+
+    result = user._get_todo_forms_data()
+
+    assert "partial_data" in result
+    assert result["partial_data"][0] == "Valid"
+    assert len(result["partial_data"]) == 1
+
+
+@pytest.mark.django_db
+def test_personalize_includes_todo_forms(new_hire_factory, to_do_factory):
+    """Test personalize() method includes todo_forms in context."""
+    user = new_hire_factory(first_name="John", last_name="Smith")
+    todo = to_do_factory(name="Contact Info")
+
+    user.to_do_new_hire.create(
+        to_do=todo,
+        completed=True,
+        form=[{"id": "item-1", "answer": "555-1234", "data": {"text": "Phone"}}],
+    )
+
+    # Test template rendering with todo_forms variable
+    # Access list items by numeric index
+    text = "Name: {{ first_name }} {{ last_name }}, Phone: {{ todo_forms.contact_info.0 }}"
+    result = user.personalize(text)
+
+    assert result == "Name: John Smith, Phone: 555-1234"
+
+
+@pytest.mark.django_db
+def test_personalize_todo_forms_with_default_filter(new_hire_factory, to_do_factory):
+    """Test personalize() with default filter for missing todo data."""
+    user = new_hire_factory(first_name="Jane")
+
+    # No completed to-dos
+    text = "Name: {{ first_name }}, Phone: {{ todo_forms.contact_info.0|default:'Not provided' }}"
+    result = user.personalize(text)
+
+    assert result == "Name: Jane, Phone: Not provided"
