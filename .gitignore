@@ -1,5 +1,6 @@
 .env
 .idea
 dump.rdb
+data
 .idea/dataSources.local.xml
 front/node_modules
