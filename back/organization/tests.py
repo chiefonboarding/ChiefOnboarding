@@ -217,7 +217,8 @@ def test_upload_file_without_presigned_url(
     url = reverse("organization:file", args=[file1.id, file1.uuid])
 
     # No file included in the form data
-    response = client.put(url, 
+    response = client.put(
+        url,
         data=b"",
         content_type="image/png",
         headers={"content-disposition": 'attachment; filename="test.png"'},
@@ -245,7 +246,9 @@ def test_upload_file_without_presigned_url(
     assert body == b"file contents"
 
     # Unknown file id returns a 404
-    url = reverse("organization:file", args=[999999999999, '08b7b22d-cbf3-48e2-991d-538520970238'])
+    url = reverse(
+        "organization:file", args=[999999999999, "08b7b22d-cbf3-48e2-991d-538520970238"]
+    )
     response = client.put(url, data, content_type=MULTIPART_CONTENT)
 
     assert response.status_code == 404

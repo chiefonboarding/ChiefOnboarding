@@ -18,10 +18,15 @@ from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication
+from rest_framework.parsers import (
+    FileUploadParser,
+    FormParser,
+    JSONParser,
+    MultiPartParser,
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.parsers import JSONParser, MultiPartParser, FormParser, FileUploadParser
 
 from misc.models import File
 from misc.s3 import S3

@@ -6,16 +6,20 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('misc', '0007_alter_file_ext'),
+        ("misc", "0007_alter_file_ext"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='file',
-            name='uploaded_by',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='uploaded_files', to=settings.AUTH_USER_MODEL),
+            model_name="file",
+            name="uploaded_by",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="uploaded_files",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]
