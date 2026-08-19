@@ -278,10 +278,11 @@
         initSelectize()
 
         $(".file-input").each(function (item) {
-          $(this).on('change', function (file) {
+          $(this).on('change', function () {
             // ugly, needs clean up
             const originalButtonText = $(this).parent().find(".upload-button").text()
             const fileField = $(this)
+            const file = fileField[0].files[0]
             const fileIdInput = $(this).parent().find(".file-id")
             const newFileName = fileField.val().match(/[^\\/]*$/)[0];
             const fileNameSpan = $(this).parent().find(".file-name");
@@ -289,7 +290,7 @@
 
             $(this).parent().find(".upload-button").text('{% translate "uploading..." %}')
             $.ajax({
-              url: "/api/org/file",
+              url: "{% url 'organization:create_file' %}",
               type: 'post',
               data: {'name': newFileName},
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
@@ -298,9 +299,10 @@
                 $.ajax({
                   type: 'PUT',
                   url: fileMetaData.file.url,
-                  contentType: 'binary/octet-stream',
+                  headers: {...fileMetaData.file.upload_headers, 'Content-Disposition': `attachment; filename="${newFileName}"`,},
                   processData: false,
-                  data: fileField.get()[0].files[0],
+                  contentType: false,
+                  data: file,
                   success: function () {
                     fileField.parent().find(".upload-button").text(originalButtonText)
                     fileIdInput.val(fileMetaData.file.id);
@@ -316,19 +318,20 @@
       })
       function getSignedURL (file) {
         return $.ajax({
-          url: "/api/org/file",
+          url: "{% url 'organization:create_file' %}",
           type: 'post',
           data: {'name': file.name},
           headers: {'X-CSRFToken': '{{ csrf_token }}'},
         })
       }
-      function uploadFile (file, response) {
+      function uploadFile (file, fileMetaData) {
         return $.ajax({
           type: 'PUT',
-          url: response.file.url,
-          contentType: 'binary/octet-stream',
+          url: fileMetaData.file.url,
+          headers: {...fileMetaData.file.upload_headers, 'Content-Disposition': `inline; filename="${fileMetaData.file.title}"`,},
           processData: false,
-          data: file
+          contentType: false,
+          data: file,
         })
       }
       function initWYSIWYGEditor(){

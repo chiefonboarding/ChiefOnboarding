@@ -4,3 +4,11 @@ DEBUG_LOGGING=True
 BASE_URL=http://0.0.0.0:8000
 DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
 DEFAULT_FROM_EMAIL=hello@chiefonboarding.com
+
+AWS_USE_PRESIGNED_UPLOADS=True
+AWS_ACCESS_KEY_ID=test
+AWS_SECRET_ACCESS_KEY=test
+AWS_REGION=us-east-1
+# If you are using presigned uploads (default). Then the S3 endpoint should be localhost. If you are not using presigned uploads, then set it to aws and set 'aws 127.0.0.1' in your hosts file
+AWS_S3_ENDPOINT_URL=http://localhost:4566
+AWS_STORAGE_BUCKET_NAME=my-bucket
