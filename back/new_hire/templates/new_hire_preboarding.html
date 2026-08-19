@@ -74,8 +74,9 @@
           $.ajax({
             type: 'PUT',
             url: fileMetaData.file.url,
-            contentType: 'binary/octet-stream',
+            headers: {...fileMetaData.file.upload_headers, 'Content-Disposition': `attachment; filename="${newFileName}"`},
             processData: false,
+            contentType: false,
             data: fileField.get()[0].files[0],
             success: function () {
               fileField.parent().find(".upload-button").text(originalButtonText)
@@ -88,24 +89,5 @@
       });
     })
   })
-  function getSignedURL (file) {
-    return $.ajax({
-      url: "{% url 'organization:create_file' %}",
-      type: 'post',
-      data: {'name': file.name},
-      headers: {'X-CSRFToken': '{{ csrf_token }}'},
-    })
-  }
-  function uploadFile (file, response) {
-    return $.ajax({
-      type: 'PUT',
-      url: response.file.url,
-      headers: response.file.upload_headers,
-      url: response.url,
-      contentType: 'binary/octet-stream',
-      processData: false,
-      data: file
-    })
-  }
 </script>
 {% endblock %}
