@@ -88,5 +88,5 @@ It will return the full new hire object including the ID of the new hire.
 curl -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' -H "Authorization: Token xxxxxxxxxxxxxxx" -d '{"termination_date":"2020-02-02", sequences: [1,4], user: 1 }' https://YOURDOMAIN/api/offboarding/
 ```
 
-Note: sequence ids can only be sequences for offboarding sequences, not onboarding sequences. 
+Note: sequence ids can only be sequences for offboarding sequences, not onboarding sequences. It might take a few minutes before the user's timeline is fully populated in the offboarding table.
 "user" is the user id, you can get it through the `https://YOURDOMAIN/api/employees/` call.

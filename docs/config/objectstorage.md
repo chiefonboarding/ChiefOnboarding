@@ -62,6 +62,20 @@ AWS_STORAGE_BUCKET_NAME=bucket-name
 AWS_DEFAULT_REGION=eu-west-1
 ```
 
+If you are using a CDN to deliver the files then you can set the CDN URL:
+
+```
+AWS_CDN_URL=https://cdn.example.com
+```
+
+If you cannot use the presigned upload feature, then there is an option to upload indirectly through the server to S3. This is not recommended, but possible. You will need to disable the normal presigned uploads:
+
+```
+AWS_USE_PRESIGNED_UPLOADS=False
+```
+Note that this can cause timeouts as slow connections could take a lot of time to complete an upload.
+
+
 If you want to use Minio (self-hosted), then you could use something like this as an example for both ChiefOnboarding and Minio:
 
 ```yaml
