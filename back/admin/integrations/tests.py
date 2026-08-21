@@ -215,7 +215,9 @@ def test_delete_integration(client, django_user_model, custom_integration_factor
 
 
 @pytest.mark.django_db
-def test_backfill_ids_view_not_admin(client, django_user_model, custom_integration_factory):
+def test_backfill_ids_view_not_admin(
+    client, django_user_model, custom_integration_factory
+):
     client.force_login(
         django_user_model.objects.create(role=get_user_model().Role.NEWHIRE)
     )
@@ -299,9 +301,7 @@ def test_backfill_ids_view_with_store_data(
         task_name=f"Backfill IDs: {integration.name}",
     )
     assert reverse("settings:integrations") in response.redirect_chain[-1][0]
-    assert (
-        f"Backfill started for {integration.name}." in response.content.decode()
-    )
+    assert f"Backfill started for {integration.name}." in response.content.decode()
 
 
 @pytest.mark.django_db
@@ -594,7 +594,9 @@ def test_integration_user_exists(
 
 
 @pytest.mark.django_db
-def test_integration_user_exists_store_data(new_hire_factory, custom_integration_factory):
+def test_integration_user_exists_store_data(
+    new_hire_factory, custom_integration_factory
+):
     integration = custom_integration_factory(
         manifest={
             "exists": {

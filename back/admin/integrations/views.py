@@ -265,7 +265,10 @@ class IntegrationBackfillIDsView(AdminPermMixin, View):
         )
         messages.success(
             request,
-            _("Backfill started for %(name)s. Users' extra fields will populate "
-              "as the lookup runs in the background.") % {"name": integration.name},
+            _(
+                "Backfill started for %(name)s. Users' extra fields will populate "
+                "as the lookup runs in the background."
+            )
+            % {"name": integration.name},
         )
         return redirect("settings:integrations")
