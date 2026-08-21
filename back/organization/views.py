@@ -7,7 +7,9 @@ from django.contrib.auth.decorators import login_not_required
 from django.core import management
 from django.db import transaction
 from django.http import Http404
+from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.decorators import method_decorator
@@ -16,6 +18,12 @@ from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication
+from rest_framework.parsers import (
+    FileUploadParser,
+    FormParser,
+    JSONParser,
+    MultiPartParser,
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -27,7 +35,7 @@ from slack_bot.models import SlackChannel
 from users.mixins import AdminPermMixin
 from users.models import User
 
-from .forms import InitalAdminAccountForm
+from .forms import FileForm, InitalAdminAccountForm
 from .models import Notification, Organization
 
 
@@ -36,6 +44,7 @@ class FileView(APIView):
     authentication_classes = [
         SessionAuthentication,
     ]
+    parser_classes = [JSONParser, MultiPartParser, FormParser, FileUploadParser]
 
     def get(self, request, id, uuid):
         file = get_object_or_404(File, uuid=uuid, id=id)
@@ -54,18 +63,26 @@ class FileView(APIView):
             }
         )
         serializer.is_valid(raise_exception=True)
-        f = serializer.save()
+        f = serializer.save(uploaded_by=request.user)
         key = (
             f"{f.id}-{serializer.data['name'].split('.')[0]}/{serializer.data['name']}"
         )
         f.key = key
         f.save()
+        if settings.AWS_USE_PRESIGNED_UPLOADS:
+            file_url = S3().get_presigned_url(key)
+            upload_headers = {}
+        else:
+            file_url = reverse_lazy("organization:file", args=[f.id, f.uuid])
+            upload_headers = {"X-CSRFToken": get_token(request)}
+
         # Specifics based on Editor.js expectations
         return Response(
             {
                 "success": 1,
                 "file": {
-                    "url": S3().get_presigned_url(key),
+                    "url": file_url,
+                    "upload_headers": upload_headers,
                     "id": f.id,
                     "name": f.name,
                     "ext": f.ext,
@@ -76,9 +93,36 @@ class FileView(APIView):
             }
         )
 
-    def delete(self, request, id):
+    def put(self, request, id, uuid):
+        if settings.AWS_USE_PRESIGNED_UPLOADS:
+            raise Http404
+        file = get_object_or_404(File, pk=id, uuid=uuid, uploaded_by=request.user)
+        form = FileForm(data=request.data, files=request.FILES)
+        if not form.is_valid():
+            return Response(
+                {"success": 0, "error": _("Not a valid file")},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        S3().put_file(
+            file.key,
+            form.cleaned_data["file"].read(),
+        )
+
+        return Response(
+            {
+                "success": 1,
+                "file": {
+                    "id": file.id,
+                    "url": file.get_url(),
+                    "get_url": file.get_url(),
+                },
+            }
+        )
+
+    def delete(self, request, id, uuid):
         if request.user.is_admin_or_manager:
-            file = get_object_or_404(File, pk=id)
+            file = get_object_or_404(File, pk=id, uuid=uuid)
             file.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

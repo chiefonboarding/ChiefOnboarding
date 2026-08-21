@@ -65,7 +65,7 @@
 
       $(this).parent().find(".upload-button").text('{% translate "uploading..." %}')
       $.ajax({
-        url: "/api/org/file",
+        url: "{% url 'organization:create_file' %}",
         type: 'post',
         data: {'name': newFileName},
         headers: {'X-CSRFToken': '{{ csrf_token }}'},
@@ -73,9 +73,10 @@
           const fileMetaData = data
           $.ajax({
             type: 'PUT',
-            url: data.file.url,
-            contentType: 'binary/octet-stream',
+            url: fileMetaData.file.url,
+            headers: {...fileMetaData.file.upload_headers, 'Content-Disposition': `attachment; filename="${newFileName}"`},
             processData: false,
+            contentType: false,
             data: fileField.get()[0].files[0],
             success: function () {
               fileField.parent().find(".upload-button").text(originalButtonText)
@@ -88,22 +89,5 @@
       });
     })
   })
-  function getSignedURL (file) {
-    return $.ajax({
-      url: "/api/org/file",
-      type: 'post',
-      data: {'name': file.name},
-      headers: {'X-CSRFToken': '{{ csrf_token }}'},
-    })
-  }
-  function uploadFile (file, response) {
-    return $.ajax({
-      type: 'PUT',
-      url: response.url,
-      contentType: 'binary/octet-stream',
-      processData: false,
-      data: file
-    })
-  }
 </script>
 {% endblock %}

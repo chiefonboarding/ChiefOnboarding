@@ -525,7 +525,8 @@ class Integration(models.Model):
 
         self.new_hire = new_hire
         self.has_user_context = new_hire is not None
-        self.params = new_hire.extra_fields
+        # copy, not alias - self.params gets mutated later
+        self.params = dict(new_hire.extra_fields)
 
         # Renew token if necessary
         if not self.renew_key():
@@ -543,11 +544,12 @@ class Integration(models.Model):
         # lookup populate IDs (e.g. ATLASSIAN_USER_ID, bitwarden_id) for users
         # that pre-existed in the upstream system.
         store_data = self.manifest["exists"].get("store_data", {})
-        if user_exists and store_data:
+        if save_result and user_exists and store_data:
             try:
                 json_response = response.json()
             except (ValueError, AttributeError):
                 json_response = {}
+            updated = False
             for new_hire_prop, notation in store_data.items():
                 try:
                     value = get_value_from_notation(
@@ -558,12 +560,13 @@ class Integration(models.Model):
                 if value is None:
                     continue
                 new_hire.extra_fields[new_hire_prop] = value
-            new_hire.save()
+                updated = True
+            if updated:
+                new_hire.save(update_fields=["extra_fields"])
 
-        if save_result:
-            IntegrationUser.objects.update_or_create(
-                integration=self, user=new_hire, defaults={"revoked": not user_exists}
-            )
+        IntegrationUser.objects.update_or_create(
+            integration=self, user=new_hire, defaults={"revoked": not user_exists}
+        )
 
         return user_exists
 
@@ -597,8 +600,8 @@ class Integration(models.Model):
 
         revoke_manifest = self.manifest.get("revoke", [])
 
-        # add extra fields directly to params
-        self.params = self.new_hire.extra_fields
+        # copy, not alias - self.params gets mutated later
+        self.params = dict(self.new_hire.extra_fields)
         self.tracker = IntegrationTracker.objects.create(
             category=IntegrationTracker.Category.REVOKE,
             integration=self if self.pk is not None else None,

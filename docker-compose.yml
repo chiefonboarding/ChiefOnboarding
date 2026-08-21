@@ -29,6 +29,21 @@ services:
     networks:
       - global
 
+  aws:
+    image: ministackorg/ministack:1.4.16
+    ports:
+      - "127.0.0.1:4566:4566"
+    environment:
+      MINISTACK_HOST: aws
+      SERVICES: s3
+      S3_PERSIST: 1
+      S3_DATA_DIR: /tmp/ministack-data/s3
+    volumes:
+      - ./init:/etc/localstack/init/ready.d
+      - ./data/s3:/tmp/ministack-data/s3
+    networks:
+      - global
+
 volumes:
   pgdata:
 

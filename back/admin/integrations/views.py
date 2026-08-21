@@ -227,6 +227,7 @@ class IntegrationTrackerListView(AdminOrManagerPermMixin, ListView):
         .order_by("-ran_at")
     )
     template_name = "tracker_list.html"
+    paginate_by = settings.INTEGRATION_TRACKER_PAGINATE_BY
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

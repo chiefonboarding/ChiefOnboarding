@@ -21,12 +21,18 @@ Whatever we expect. Generally this will probably be a positive message or the ne
 
 (optionally) This will overwrite the default headers.
 
+`store_data`
+
+ (optional) Store values from the exists lookup response onto the user’s `extra_fields`. The object key is the destination field name to write (e.g. `external_id`), and the object value is the notation/path to read from the returned JSON (e.g. `user.id`). You can backfill these users through the settings -> integrations page.
+
+
 ## Example
 ```
 "exists": {
     "url": "https://app.asana.com/api/1.0/users/{{email}}",
     "method": "GET",
-    "expected": "{{email}}"
-    "status_code": [200, 201]
+    "expected": "{{email}}",
+    "status_code": [200, 201],
+    "store_data": {"external_id": "id"}
 }
 ```

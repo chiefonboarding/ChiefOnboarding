@@ -4,11 +4,14 @@ from datetime import timedelta
 import pytest
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
+from django.test.client import BOUNDARY, MULTIPART_CONTENT, encode_multipart
 from django.urls import reverse
 from django.utils import timezone
 
 from misc.models import File
+from misc.s3 import S3
 
 from .models import Notification, Organization
 
@@ -146,6 +149,7 @@ def test_cache_logo_url(settings, file_factory, monkeypatch):
 @pytest.mark.django_db
 def test_file_url(settings, client, new_hire_factory, file_factory, monkeypatch):
     settings.AWS_ACCESS_KEY_ID = "xxx"
+    settings.AWS_USE_PRESIGNED_UPLOADS = True
     settings.AWS_STORAGE_BUCKET_NAME = "xxx"
     monkeypatch.setenv("AWS_STORAGE_BUCKET_NAME", "test")
     monkeypatch.setenv("AWS_ACCESS_KEY_ID", "test")
@@ -157,13 +161,13 @@ def test_file_url(settings, client, new_hire_factory, file_factory, monkeypatch)
     client.force_login(new_hire)
 
     # Invalid request
-    url = reverse("organization:get_file", args=[file1.id, file2.uuid])
+    url = reverse("organization:file", args=[file1.id, file2.uuid])
     response = client.get(url)
 
     assert response.status_code == 404
 
     # Valid request
-    url = reverse("organization:get_file", args=[file1.id, file1.uuid])
+    url = reverse("organization:file", args=[file1.id, file1.uuid])
     response = client.get(url)
 
     assert response.status_code == 200
@@ -188,6 +192,69 @@ def test_file_url(settings, client, new_hire_factory, file_factory, monkeypatch)
 
 
 @pytest.mark.django_db
+def test_upload_file_without_presigned_url(
+    settings, client, file_factory, admin_factory, monkeypatch
+):
+    settings.AWS_ACCESS_KEY_ID = "xxx"
+    settings.AWS_STORAGE_BUCKET_NAME = "xxx"
+    settings.AWS_USE_PRESIGNED_UPLOADS = False
+    monkeypatch.setenv("AWS_STORAGE_BUCKET_NAME", "test")
+    monkeypatch.setenv("AWS_ACCESS_KEY_ID", "test")
+    monkeypatch.setenv("AWS_SECRET_ACCESS_KEY", "test")
+
+    admin = admin_factory()
+    client.force_login(admin)
+
+    file1 = file_factory(uploaded_by=admin)
+
+    put_file_calls = []
+    monkeypatch.setattr(
+        S3,
+        "put_file",
+        lambda self, key, body: put_file_calls.append((key, body)),
+    )
+
+    url = reverse("organization:file", args=[file1.id, file1.uuid])
+
+    # No file included in the form data
+    response = client.put(
+        url,
+        data=b"",
+        content_type="image/png",
+        headers={"content-disposition": 'attachment; filename="test.png"'},
+    )
+
+    assert response.status_code == 400
+    response_json = json.loads(response.content.decode())
+    assert response_json["success"] == 0
+    assert put_file_calls == []
+
+    # Valid request
+    upload = SimpleUploadedFile("test.txt", b"file contents")
+    data = encode_multipart(BOUNDARY, {"file": upload})
+    response = client.put(url, data, content_type=MULTIPART_CONTENT)
+
+    assert response.status_code == 200
+    response_json = json.loads(response.content.decode())
+    assert response_json["success"] == 1
+    assert response_json["file"]["id"] == file1.id
+
+    # The uploaded file content was pushed to S3 under the existing file's key
+    assert len(put_file_calls) == 1
+    key, body = put_file_calls[0]
+    assert key == file1.key
+    assert body == b"file contents"
+
+    # Unknown file id returns a 404
+    url = reverse(
+        "organization:file", args=[999999999999, "08b7b22d-cbf3-48e2-991d-538520970238"]
+    )
+    response = client.put(url, data, content_type=MULTIPART_CONTENT)
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
 def test_file_delete_as_new_hire(client, new_hire_factory, file_factory):
     new_hire = new_hire_factory()
     file1 = file_factory()
@@ -197,7 +264,7 @@ def test_file_delete_as_new_hire(client, new_hire_factory, file_factory):
     assert File.objects.all().count() == 1
 
     # Cannot delete file object as a new hire
-    url = reverse("organization:file", args=[file1.id])
+    url = reverse("organization:file", args=[file1.id, file1.uuid])
     response = client.delete(url)
 
     assert File.objects.all().count() == 1

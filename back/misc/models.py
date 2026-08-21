@@ -1,5 +1,6 @@
 import uuid
 
+from django.conf import settings
 from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
@@ -12,6 +13,12 @@ class File(models.Model):
     key = models.CharField(max_length=100, blank=True)
     ext = models.CharField(max_length=10, blank=True)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="uploaded_files",
+    )
 
     def get_url(self):
         return S3().get_file(self.key)

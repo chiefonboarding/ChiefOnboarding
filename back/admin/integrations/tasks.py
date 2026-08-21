@@ -37,15 +37,19 @@ def backfill_integration_ids(integration_id):
 
     for user in users:
         # skip users who already have all backfill keys set
-        if store_keys and all(k in user.extra_fields for k in store_keys):
+        if store_keys and all(
+            user.extra_fields.get(k) not in (None, "") for k in store_keys
+        ):
             skipped += 1
             continue
         try:
-            result = integration.user_exists(user, save_result=False)
+            result = integration.user_exists(user)
         except Exception as e:
             logger.warning(
                 "Backfill error for integration %s, user %s: %s",
-                integration_id, user.email, e,
+                integration_id,
+                user.email,
+                e,
             )
             errored += 1
             continue
@@ -59,7 +63,11 @@ def backfill_integration_ids(integration_id):
     logger.info(
         "Backfill complete for integration %s: "
         "%s matched, %s skipped, %s not found, %s errored",
-        integration_id, matched, skipped, not_found, errored,
+        integration_id,
+        matched,
+        skipped,
+        not_found,
+        errored,
     )
     return {
         "matched": matched,

@@ -56,3 +56,7 @@ class InitalAdminAccountForm(UserCreationForm):
             "password1",
             "password2",
         )
+
+
+class FileForm(forms.Form):
+    file = forms.FileField()

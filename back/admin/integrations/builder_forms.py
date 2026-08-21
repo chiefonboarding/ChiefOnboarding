@@ -359,6 +359,11 @@ class ManifestExistsForm(forms.Form):
         help_text=_("(optionally) This will overwrite the default headers."),
         required=False,
     )
+    store_data = forms.JSONField(
+        initial=list,
+        help_text=_("(optionally) This is used to backfill data from current users."),
+        required=False,
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -379,6 +384,7 @@ class ManifestExistsForm(forms.Form):
                 IntegerListField("status_code"),
             ),
             ValueKeyArrayField("headers"),
+            ValueKeyArrayField("store_data"),
         )
 
 
