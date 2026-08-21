@@ -42,7 +42,7 @@ def backfill_integration_ids(integration_id):
             skipped += 1
             continue
         try:
-            result = integration.user_exists(user, save_result=False)
+            result = integration.user_exists(user)
         except Exception as e:
             logger.warning(
                 "Backfill error for integration %s, user %s: %s",
