@@ -49,5 +49,25 @@ You can do that by using:
 You can then use 
 ```
 {{ responses.0.form_id }}
-``` 
+```
 in any of the following requests in the same integration.
+
+### Getting data from json responses
+Besides, using the above, you can also select an item from a list of objects.
+
+Say if a server returns you this list:
+```
+test_data = {
+    "members": [
+        {"email": "a@example.com", "name": "A"},
+        {"email": "b@example.com", "name": "B"},
+    ]
+}
+```
+then you can do something like:
+```
+store_data: {
+  "external_service_name": "members[email=b@example.com].name"
+}
+```
+Which would store `B` in this case.
