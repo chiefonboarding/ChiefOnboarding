@@ -23,14 +23,15 @@ Whatever we expect. Generally this will probably be a positive message or the ne
 
 `store_data`
 
-(optional) This can be used to store data to the new hire. Let's say you need a specific ID to revoke the access of a user, but this user is already in the system (through import or manually added) then you won't have the ID. You can backfill these users through the settings -> integrations page. Key is the stored value, value is the key name in the returned JSON from the external service.
+ (optional) Store values from the exists lookup response onto the user’s `extra_fields`. The object key is the destination field name to write (e.g. `external_id`), and the object value is the notation/path to read from the returned JSON (e.g. `user.id`). You can backfill these users through the settings -> integrations page.
+
 
 ## Example
 ```
 "exists": {
     "url": "https://app.asana.com/api/1.0/users/{{email}}",
     "method": "GET",
-    "expected": "{{email}}"
+    "expected": "{{email}}",
     "status_code": [200, 201],
     "store_data": {"external_id": "id"}
 }
