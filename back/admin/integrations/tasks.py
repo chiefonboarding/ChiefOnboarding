@@ -36,7 +36,9 @@ def backfill_integration_ids(integration_id):
 
     for user in users:
         # skip users who already have all backfill keys set
-        if store_keys and all(k in user.extra_fields for k in store_keys):
+        if store_keys and all(
+             user.extra_fields.get(k) not in (None, "") for k in store_keys
+         ):
             skipped += 1
             continue
         try:
