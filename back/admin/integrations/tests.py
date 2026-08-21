@@ -215,6 +215,96 @@ def test_delete_integration(client, django_user_model, custom_integration_factor
 
 
 @pytest.mark.django_db
+def test_backfill_ids_view_not_admin(client, django_user_model, custom_integration_factory):
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.NEWHIRE)
+    )
+    integration = custom_integration_factory()
+
+    url = reverse("integrations:backfill-ids", args=[integration.id])
+    response = client.post(url, follow=True)
+
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_backfill_ids_view_unknown_integration(client, django_user_model):
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
+
+    url = reverse("integrations:backfill-ids", args=[999])
+    response = client.post(url, follow=True)
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_backfill_ids_view_no_store_data(
+    client, django_user_model, custom_integration_factory
+):
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
+    # default factory manifest has an `exists` block without `store_data`
+    integration = custom_integration_factory(
+        manifest={
+            "exists": {
+                "url": "http://localhost:8000/test",
+                "method": "GET",
+                "expected": "{{ email }}",
+            }
+        }
+    )
+    assert not integration.can_backfill_ids
+
+    url = reverse("integrations:backfill-ids", args=[integration.id])
+    with patch("admin.integrations.views.async_task") as mocked_async_task:
+        response = client.post(url, follow=True)
+
+    mocked_async_task.assert_not_called()
+    assert reverse("settings:integrations") in response.redirect_chain[-1][0]
+    assert (
+        "This integration has no store_data declared on its exists block."
+        in response.content.decode()
+    )
+
+
+@pytest.mark.django_db
+def test_backfill_ids_view_with_store_data(
+    client, django_user_model, custom_integration_factory
+):
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
+    integration = custom_integration_factory(
+        manifest={
+            "exists": {
+                "url": "http://localhost:8000/test",
+                "method": "GET",
+                "expected": "{{ email }}",
+                "store_data": {"external_id": "id"},
+            }
+        }
+    )
+    assert integration.can_backfill_ids
+
+    url = reverse("integrations:backfill-ids", args=[integration.id])
+    with patch("admin.integrations.views.async_task") as mocked_async_task:
+        response = client.post(url, follow=True)
+
+    mocked_async_task.assert_called_once_with(
+        "admin.integrations.tasks.backfill_integration_ids",
+        integration.id,
+        task_name=f"Backfill IDs: {integration.name}",
+    )
+    assert reverse("settings:integrations") in response.redirect_chain[-1][0]
+    assert (
+        f"Backfill started for {integration.name}." in response.content.decode()
+    )
+
+
+@pytest.mark.django_db
 def test_integration_extra_args_form(
     client, django_user_model, custom_integration_factory
 ):
@@ -501,6 +591,119 @@ def test_integration_user_exists(
     integration_user.save()
 
     assert not manual_integration.user_exists(new_hire)
+
+
+@pytest.mark.django_db
+def test_integration_user_exists_store_data(new_hire_factory, custom_integration_factory):
+    integration = custom_integration_factory(
+        manifest={
+            "exists": {
+                "url": "http://localhost:8000/test",
+                "method": "GET",
+                "expected": "{{ email }}",
+                "store_data": {
+                    "external_id": "user.id",
+                    "missing_field": "user.does_not_exist",
+                    "null_field": "user.nothing_here",
+                },
+            }
+        }
+    )
+    new_hire = new_hire_factory(extra_fields={"existing": "keepme"})
+
+    # User found: matching store_data notations get written to extra_fields,
+    # a notation that doesn't resolve is skipped, a resolved-to-None value is
+    # skipped, and pre-existing extra_fields are left untouched.
+    with patch(
+        "admin.integrations.models.requests.request",
+        Mock(
+            return_value=Mock(
+                status_code=200,
+                json=lambda: {
+                    "user": {
+                        "email": new_hire.email,
+                        "id": "abc123",
+                        "nothing_here": None,
+                    }
+                },
+            )
+        ),
+    ):
+        exists = integration.user_exists(new_hire)
+
+    assert exists
+    new_hire.refresh_from_db()
+    assert new_hire.extra_fields == {"existing": "keepme", "external_id": "abc123"}
+
+
+@pytest.mark.django_db
+def test_integration_user_exists_store_data_user_not_found(
+    new_hire_factory, custom_integration_factory
+):
+    integration = custom_integration_factory(
+        manifest={
+            "exists": {
+                "url": "http://localhost:8000/test",
+                "method": "GET",
+                "expected": "{{ email }}",
+                "store_data": {"external_id": "user.id"},
+            }
+        }
+    )
+    new_hire = new_hire_factory(extra_fields={})
+
+    # User not found: store_data is declared, but since the user wasn't
+    # found, nothing should get written to extra_fields.
+    with patch(
+        "admin.integrations.models.requests.request",
+        Mock(
+            return_value=Mock(
+                status_code=200,
+                json=lambda: {"user": {"email": "someone-else@chiefonboarding.com"}},
+            )
+        ),
+    ):
+        exists = integration.user_exists(new_hire)
+
+    assert not exists
+    new_hire.refresh_from_db()
+    assert new_hire.extra_fields == {}
+
+
+@pytest.mark.django_db
+def test_integration_user_exists_store_data_invalid_json_response(
+    new_hire_factory, custom_integration_factory
+):
+    integration = custom_integration_factory(
+        manifest={
+            "exists": {
+                "url": "http://localhost:8000/test",
+                "method": "GET",
+                "expected": "{{ email }}",
+                "store_data": {"external_id": "user.id"},
+            }
+        }
+    )
+    new_hire = new_hire_factory(extra_fields={})
+
+    # User found, but the response body isn't valid JSON: json_response
+    # falls back to {}, so every store_data lookup gets a KeyError and is
+    # skipped, without the view raising.
+    with patch(
+        "admin.integrations.models.requests.request",
+        Mock(
+            return_value=Mock(
+                status_code=200,
+                json=Mock(side_effect=ValueError),
+                text=new_hire.email,
+            )
+        ),
+    ):
+        exists = integration.user_exists(new_hire)
+
+    assert exists
+    new_hire.refresh_from_db()
+    assert new_hire.extra_fields == {}
 
 
 @pytest.mark.django_db
@@ -873,6 +1076,93 @@ def test_get_value_from_notation():
     test_data = {"one": "yes"}
     with pytest.raises(KeyError):
         get_value_from_notation("two", test_data)
+
+
+@pytest.mark.django_db
+def test_get_value_from_notation_empty_notation():
+    # an empty notation just returns the value as is, no lookup happens
+    test_data = {"one": "yes"}
+    assert get_value_from_notation("", test_data) == test_data
+    assert get_value_from_notation("", "just a string") == "just a string"
+
+
+@pytest.mark.django_db
+def test_get_value_from_notation_filter_expression():
+    # filter form: key[field=expected] picks the first list entry whose
+    # `field` matches `expected` (used for unfiltered list responses)
+    test_data = {
+        "members": [
+            {"email": "a@example.com", "name": "A"},
+            {"email": "b@example.com", "name": "B"},
+        ]
+    }
+
+    result = get_value_from_notation("members[email=b@example.com]", test_data)
+    assert result == {"email": "b@example.com", "name": "B"}
+
+    # notation can continue after the filter to dig into the matched item
+    result = get_value_from_notation("members[email=b@example.com].name", test_data)
+    assert result == "B"
+
+    # the expected value may itself contain dots (e.g. emails) - the
+    # tokenizer must not split on '.' while inside the [...] group
+    result = get_value_from_notation("members[email=a@example.com]", test_data)
+    assert result == {"email": "a@example.com", "name": "A"}
+
+    # non-dict items in the list are simply skipped, not fatal
+    test_data = {"members": ["not-a-dict", {"email": "b@example.com", "name": "B"}]}
+    result = get_value_from_notation("members[email=b@example.com]", test_data)
+    assert result == {"email": "b@example.com", "name": "B"}
+
+
+@pytest.mark.django_db
+def test_get_value_from_notation_filter_expression_without_list_key():
+    # filter form without a leading key, e.g. "[field=expected]", filters
+    # the current value directly instead of first looking up a sub-key
+    test_data = [{"field": "a"}, {"field": "b"}]
+
+    result = get_value_from_notation("[field=b]", test_data)
+    assert result == {"field": "b"}
+
+
+@pytest.mark.django_db
+def test_get_value_from_notation_filter_expression_no_match_raises():
+    # no item in the list matches the filter expression
+    test_data = {"members": [{"email": "a@example.com"}]}
+    with pytest.raises(KeyError):
+        get_value_from_notation("members[email=nomatch@example.com]", test_data)
+
+
+@pytest.mark.django_db
+def test_get_value_from_notation_filter_expression_missing_equals_raises():
+    # filter expression without "=" is invalid
+    test_data = {"members": [{"email": "a@example.com"}]}
+    with pytest.raises(KeyError):
+        get_value_from_notation("members[nofilter]", test_data)
+
+
+@pytest.mark.django_db
+def test_get_value_from_notation_filter_expression_not_a_list_raises():
+    # the value being filtered has to be a list
+    test_data = {"members": {"email": "a@example.com"}}
+    with pytest.raises(KeyError):
+        get_value_from_notation("members[email=a@example.com]", test_data)
+
+
+@pytest.mark.django_db
+def test_get_value_from_notation_filter_expression_missing_list_key_raises():
+    # the key before the filter expression doesn't exist on the value
+    test_data = {"members": [{"email": "a@example.com"}]}
+    with pytest.raises(KeyError):
+        get_value_from_notation("missing[email=a@example.com]", test_data)
+
+
+@pytest.mark.django_db
+def test_get_value_from_notation_non_integer_index_raises():
+    # indexing into a list with a token that isn't a valid integer
+    test_data = {"one": [{"deep": "yes"}]}
+    with pytest.raises(KeyError):
+        get_value_from_notation("one.notanumber", test_data)
 
 
 @pytest.mark.django_db

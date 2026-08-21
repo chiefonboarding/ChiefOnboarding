@@ -525,7 +525,8 @@ class Integration(models.Model):
 
         self.new_hire = new_hire
         self.has_user_context = new_hire is not None
-        self.params = new_hire.extra_fields
+        # copy, not alias - self.params gets mutated later
+        self.params = dict(new_hire.extra_fields)
 
         # Renew token if necessary
         if not self.renew_key():
@@ -597,8 +598,8 @@ class Integration(models.Model):
 
         revoke_manifest = self.manifest.get("revoke", [])
 
-        # add extra fields directly to params
-        self.params = self.new_hire.extra_fields
+        # copy, not alias - self.params gets mutated later
+        self.params = dict(self.new_hire.extra_fields)
         self.tracker = IntegrationTracker.objects.create(
             category=IntegrationTracker.Category.REVOKE,
             integration=self if self.pk is not None else None,

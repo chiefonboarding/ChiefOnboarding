@@ -66,8 +66,9 @@
             </a>
           {% endif %}
           {% if integration.can_backfill_ids %}
+            {% translate "Run a lookup against every user and store any IDs returned by the API? This will call the external API once per user." as backfill_ids_confirm_message %}
             <form action="{% url 'integrations:backfill-ids' integration.id %}" method="post" style="display:inline-block"
-                  onsubmit="return confirm('{% translate "Run a lookup against every user and store any IDs returned by the API? This will call the external API once per user." %}')">
+                  onsubmit="return confirm('{{ backfill_ids_confirm_message|escapejs }}')">
               {% csrf_token %}
               <button class="btn btn-primary" style="float: unset">
                 {% translate "Backfill IDs" %}
