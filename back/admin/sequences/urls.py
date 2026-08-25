@@ -14,6 +14,11 @@ urlpatterns = [
         name="update_name",
     ),
     path(
+        "<int:pk>/update_departments/",
+        views.SequenceDepartmentsUpdateView.as_view(),
+        name="update_departments",
+    ),
+    path(
         "<int:sequence_pk>/condition/",
         views.SequenceConditionCreateView.as_view(),
         name="condition-create",

@@ -1,0 +1,40 @@
+{% extends 'admin_base.html' %}
+{% load i18n %}
+
+{% block actions %}
+  <a href="{% url 'people:department_create' %}" class="btn btn-primary">
+    {% trans "Add" %}
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="col-12">
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table card-table table-vcenter text-nowrap">
+        <thead>
+          <tr>
+            <th>{% translate "Name" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for department in object_list %}
+          <tr>
+            <td>
+              {{ department.name }}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td>
+              {% trans "You haven't created any departments yet" %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% include "_paginator.html" %}
+  </div>
+</div>
+{% endblock %}

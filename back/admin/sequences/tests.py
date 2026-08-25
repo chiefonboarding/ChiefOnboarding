@@ -136,6 +136,26 @@ def test_sequence_update_name_view(client, admin_factory, sequence_factory):
 
 
 @pytest.mark.django_db
+def test_sequence_update_department_view(
+    client, admin_factory, sequence_factory, department_factory
+):
+    admin = admin_factory()
+    client.force_login(admin)
+
+    sequence1 = sequence_factory()
+    department1 = department_factory()
+
+    assert sequence1.departments.all().count() == 0
+
+    url = reverse("sequences:update_departments", args=[sequence1.id])
+    response = client.post(url, {"departments": [department1.id]}, follow=True)
+
+    sequence1.refresh_from_db()
+    assert sequence1.departments.all().count() == 1
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
 def test_sequence_create_condition_success_view(
     client, admin_factory, sequence_factory, to_do_factory
 ):
@@ -434,7 +454,7 @@ def test_sequence_form_view(
     url = reverse("sequences:forms", args=[sequence.id, template_type, 0])
     response = client.get(url)
 
-    response.context["form"] == form()
+    response.context["form"] == form(user=admin)
 
     item = factory()
     url = reverse("sequences:forms", args=[sequence.id, template_type, item.id])
@@ -532,8 +552,7 @@ def test_sequence_update_form_view(
     # Since 'template' was not provided, it will now have two items
     assert ToDo.objects.all().count() == 2
     # The second one is now not a template
-    new_to_do = ToDo.objects.last()
-    assert not new_to_do.template
+    new_to_do = ToDo.objects.get(template=False)
     assert new_to_do.name == "new todo"
 
     # New item should be added to condition
@@ -569,7 +588,7 @@ def test_sequence_update_form_view(
     )
 
     assert ToDo.objects.all().count() == 3
-    new_to_do = ToDo.objects.last()
+    new_to_do = ToDo.objects.order_by("id").last()
 
     assert to_do.template
     assert not new_to_do.template

@@ -18,13 +18,16 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 from django_q.tasks import async_task
 
+from misc.mixins import FormWithUserContextMixin
 from users.mixins import AdminOrManagerPermMixin, AdminPermMixin
 
 from .forms import IntegrationExtraArgsForm, IntegrationForm
 from .models import Integration, IntegrationTracker
 
 
-class IntegrationCreateView(AdminPermMixin, CreateView, SuccessMessageMixin):
+class IntegrationCreateView(
+    AdminPermMixin, FormWithUserContextMixin, CreateView, SuccessMessageMixin
+):
     template_name = "token_create.html"
     form_class = IntegrationForm
     success_message = _("Integration has been created!")
@@ -42,7 +45,9 @@ class IntegrationCreateView(AdminPermMixin, CreateView, SuccessMessageMixin):
         return super().form_valid(form)
 
 
-class IntegrationUpdateView(AdminPermMixin, UpdateView, SuccessMessageMixin):
+class IntegrationUpdateView(
+    AdminPermMixin, FormWithUserContextMixin, UpdateView, SuccessMessageMixin
+):
     template_name = "token_create.html"
     form_class = IntegrationForm
     queryset = Integration.objects.filter(integration=Integration.Type.CUSTOM)

@@ -1,5 +1,5 @@
 {% extends 'admin_base.html' %}
-{% load static %}
+{% load static crispy_forms_tags %}
 {% load i18n %}
 
 {% block actions %}
@@ -30,22 +30,29 @@
     </div>
     <div class="card">
       <div class="card-body">
-        <div class="d-flex">
-          <label for="id_name" class="form-label requiredField">{% translate "Name" %}</label>
-        </div>
-        <div class="input-icon">
-          <input class="form-control d-inline-block w-9 me-3"
-                 id="name"
-                 value="{{ object.name }}"
-                 placeholder="Sequence name"
-                 name="name"
-                 hx-post="{% url 'sequences:update_name' object.id %}"
-                 hx-trigger="keyup delay:500ms changed"
-                 hx-indicator="#name-spinner"
-                 >
-                 <span class="input-icon-addon requesting" id="name-spinner">
-                   <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
-                 </span>
+        <div class="row">
+          <div class="col-6">
+            <div class="d-flex">
+              <label for="id_name" class="form-label requiredField">{% translate "Name" %}</label>
+            </div>
+            <div class="input-icon">
+              <input class="form-control d-inline-block w-9 me-3"
+                     id="name"
+                     value="{{ object.name }}"
+                     placeholder="Sequence name"
+                     name="name"
+                     hx-post="{% url 'sequences:update_name' object.id %}"
+                     hx-trigger="keyup delay:500ms changed"
+                     hx-indicator="#name-spinner"
+                     >
+                     <span class="input-icon-addon requesting" id="name-spinner">
+                       <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
+                     </span>
+            </div>
+          </div>
+          <div class="col-6">
+            {{ department_form|crispy }}
+          </div>
         </div>
         <div class="card-body" id="timeline" hx-trigger="reload-sequence from:body" hx-select="#timeline" hx-get="{% url 'sequences:update' object.id %}" hx-swap="outerHTML">
           <ul class="timeline">
@@ -180,6 +187,8 @@
     </div>
   </div>
 </div>
+
+<div class="htmx-garbage"></div>
 
 {% endblock %}
 {% block extra_css %}
@@ -418,6 +427,20 @@ document.addEventListener("dragstart", function( event ) {
     }
   });
 }, false);
+
+$(document).ready(function () {
+  const selectizeInstance = document.getElementById('id_departments').selectize;
+
+  selectizeInstance.on('change', function(value) {
+    if (value && (Array.isArray(value) ? value.length > 0 : value !== '')) {
+      htmx.ajax('POST', "{% url 'sequences:update_departments' object.id %}", {
+        values: { departments: Array.isArray(value) ? value : [value] },
+        target: ".htmx-garbage"
+      });
+    }
+  });
+})
+
 
 document.addEventListener("drop", function( event ) {
   // prevent default action
