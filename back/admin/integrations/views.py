@@ -1,3 +1,4 @@
+import csv
 import json
 from datetime import timedelta
 from urllib.parse import urlparse
@@ -5,9 +6,10 @@ from urllib.parse import urlparse
 import requests
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -16,9 +18,12 @@ from django.views.generic.base import RedirectView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
+from django_filters.views import FilterView
 from django_q.tasks import async_task
 
+from admin.integrations.filters import PAGINATE_BY_CHOICES, AccessReportFilter
 from users.mixins import AdminOrManagerPermMixin, AdminPermMixin
+from users.models import IntegrationUser
 
 from .forms import IntegrationExtraArgsForm, IntegrationForm
 from .models import Integration, IntegrationTracker
@@ -272,3 +277,130 @@ class IntegrationBackfillIDsView(AdminPermMixin, View):
             % {"name": integration.name},
         )
         return redirect("settings:integrations")
+
+
+class IntegrationAccessReportView(AdminOrManagerPermMixin, FilterView):
+    template_name = "access_report.html"
+    model = get_user_model()
+    filterset_class = AccessReportFilter
+    paginate_by = settings.ACCESS_REPORT_PAGINATE_BY
+
+    def get_paginate_by(self, queryset):
+        if self.request.GET.get("format") == "csv":
+            return None
+
+        value = self.request.GET.get("per_page")
+        allowed = {c[0] for c in PAGINATE_BY_CHOICES}
+        if value in allowed:
+            return int(value)
+        return self.paginate_by
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        page_users = context["object_list"]
+
+        self.integrations = (
+            Integration.objects.account_provision_options()
+            .filter(is_active=True)
+            .order_by("name")
+        )
+        records = IntegrationUser.objects.filter(
+            integration__in=self.integrations,
+            user__in=page_users,
+        ).values_list("user_id", "integration_id", "revoked", "updating")
+
+        status = {
+            (user_id, integration_id): "Updating"
+            if updating
+            else "Not active"
+            if revoked
+            else "Active"
+            for user_id, integration_id, revoked, updating in records
+        }
+
+        self.rows = [
+            {
+                "user": user,
+                "cells": [
+                    (status.get((user.pk, i.pk), ""), user.pk, i.pk)
+                    for i in self.integrations
+                ],
+            }
+            for user in page_users
+        ]
+
+        context["title"] = _("Integration access report")
+        context["subtitle"] = _("reports")
+        context["integrations"] = self.integrations
+        context["rows"] = self.rows
+        return context
+
+    def render_to_response(self, context, **kwargs):
+        if self.request.GET.get("format") != "csv":
+            return super().render_to_response(context, **kwargs)
+
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = (
+            'attachment; filename="integration-access-report.csv"'
+        )
+        writer = csv.writer(response)
+        writer.writerow(["Name", "Email"] + [i.name for i in self.integrations])
+        for row in self.rows:
+            user = row["user"]
+            writer.writerow([user.full_name, user.email] + [c[0] for c in row["cells"]])
+        return response
+
+
+class IntegrationAccessReportRefreshView(AdminPermMixin, View):
+    def post(self, request, *args, **kwargs):
+
+        integrations = (
+            Integration.objects.account_provision_options()
+            .filter(is_active=True)
+            .exclude(manifest_type=Integration.ManifestType.MANUAL_USER_PROVISIONING)
+        )
+        integration_users = []
+        users = get_user_model().objects.all()
+        for user in users:
+            integration_users += [
+                IntegrationUser(integration=integration, user=user, updating=True)
+                for integration in integrations
+            ]
+        IntegrationUser.objects.filter(integration__in=integrations).update(
+            updating=True
+        )
+        IntegrationUser.objects.bulk_create(integration_users, ignore_conflicts=True)
+        async_task(
+            "admin.integrations.tasks.refresh_access_report",
+            task_name="Refresh access report",
+        )
+        messages.success(
+            request,
+            _(
+                "Refreshing access data in the background. The report will update "
+                "as each integration finishes its lookups."
+            ),
+        )
+        return redirect("integrations:access-report")
+
+
+class IntegrationAccessReportPollView(AdminOrManagerPermMixin, View):
+    def get(self, request, user_pk, integration_pk, *args, **kwargs):
+
+        try:
+            integration_user = IntegrationUser.objects.get(
+                integration_id=integration_pk, user_id=user_pk
+            )
+        except IntegrationUser.DoesNotExist:
+            return render(request, "_access_report_unknown.html")
+
+        if integration_user.updating:
+            return HttpResponse(status=204)
+
+        if integration_user.revoked:
+            response = render(request, "_access_report_not_active.html")
+        else:
+            response = render(request, "_access_report_active.html")
+        response.status_code = 286  # stop polling
+        return response

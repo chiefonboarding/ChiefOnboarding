@@ -1,0 +1,82 @@
+{% extends 'admin_base.html' %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block actions %}
+    {% if request.user.is_admin %}
+    <form method="post" action="{% url 'integrations:access-report-refresh' %}">
+      {% csrf_token %}
+      <button type="submit" class="btn">
+        {% translate "Refresh data" %}
+      </button>
+    </form>
+    {% endif %}
+    <a href="{% querystring format="csv" %}" class="btn btn-primary">{% translate "Download CSV" %}</a>
+{% endblock %}
+
+{% block content %}
+<div class="col-12">
+  <div class="card">
+    <div class="card-header">
+      <div class="row w-100">
+        <div class="col-12">
+          <div class="row">
+            {% crispy filter.form %}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-vcenter table-nowrap">
+        <thead>
+          <tr>
+            <th style="position: sticky; left: 0; background: var(--tblr-card-bg, #fff); z-index: 2;">{% translate "User" %}</th>
+            {% for integration in integrations %}
+              <th>{{ integration.name }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+          <tr>
+            <td style="position: sticky; left: 0; background: var(--tblr-card-bg, #fff);">
+              <a href="{% url 'people:colleague_access' row.user.id %}">
+                {{ row.user.full_name }}
+              </a>
+              <div class="text-muted small">{{ row.user.email }}</div>
+            </td>
+            {% for cell in row.cells %}
+              <td>
+              {% if cell.0 == "Active" %}
+                {% include "_access_report_active.html" %}
+              {% elif cell.0 == "Not active" %}
+                {% include "_access_report_not_active.html" %}
+              {% elif cell.0 == "Updating" %}
+                  <div
+                     hx-get="{% url 'integrations:access-report-poll' cell.1 cell.2 %}"
+                     hx-trigger="every 2s"
+                     hx-swap="outerHTML">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                      <span class="visually-hidden">Loading…</span>
+                    </div>
+                  </div>
+                </div>
+              {% else %}
+                {% include "_access_report_unknown.html" %}
+              {% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="{{ integrations|length|add:1 }}">{% translate "No users found" %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% include "_paginator.html" %}
+    </div>
+  </div>
+</div>
+{% endblock %}

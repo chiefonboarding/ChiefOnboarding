@@ -153,6 +153,21 @@
                       </a>
                   </div>
                 </li>
+                <li class="nav-item dropdown {% if 'access-report' in request.path %}active{% endif %}">
+                  <a class="nav-link dropdown-toggle" href="#navbar-reports" data-bs-toggle="dropdown" role="button" aria-expanded="false">
+                    <span class="nav-link-icon d-md-none d-lg-inline-block">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chart-bar" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><rect x="3" y="12" width="6" height="8" rx="1"></rect><rect x="9" y="8" width="6" height="12" rx="1"></rect><rect x="15" y="4" width="6" height="16" rx="1"></rect><line x1="4" y1="20" x2="18" y2="20"></line></svg>
+                    </span>
+                    <span class="nav-link-title">
+                      {% translate "Reports" %}
+                    </span>
+                  </a>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="{% url 'integrations:access-report' %}">
+                      {% translate "Access report" %}
+                    </a>
+                  </div>
+                </li>
                 <li class="nav-item {% if 'settings' in request.path %}active{% endif %}">
                   <a class="nav-link" href="{% if request.user.is_admin %}{% url 'settings:general' %}{% else %}{% url 'settings:personal-language' %}{% endif %}" role="button" aria-expanded="false">
                     <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/star -->

@@ -1079,6 +1079,35 @@ def test_get_value_from_notation():
     with pytest.raises(KeyError):
         get_value_from_notation("two", test_data)
 
+    # filter syntax: top-level field (existing behavior, must keep working)
+    test_data = {
+        "data": [
+            {"id": "A", "email": "a@x.com"},
+            {"id": "B", "email": "b@x.com"},
+        ]
+    }
+    assert get_value_from_notation("data[email=b@x.com].id", test_data) == "B"
+
+    # filter syntax: nested field via dotted path (new behavior)
+    test_data = {
+        "data": [
+            {"id": "1", "attributes": {"email": "a@x.com"}},
+            {"id": "2", "attributes": {"email": "b@x.com"}},
+        ]
+    }
+    assert (
+        get_value_from_notation("data[attributes.email=b@x.com].id", test_data) == "2"
+    )
+
+    # filter syntax: nested miss raises KeyError, same as top-level miss
+    with pytest.raises(KeyError):
+        get_value_from_notation("data[attributes.email=nope@x.com].id", test_data)
+
+    # filter syntax: dotted path that doesn't exist on items raises KeyError
+    test_data = {"data": [{"id": "1", "attributes": {"email": "a@x.com"}}]}
+    with pytest.raises(KeyError):
+        get_value_from_notation("data[attributes.missing=a@x.com].id", test_data)
+
 
 @pytest.mark.django_db
 def test_get_value_from_notation_empty_notation():
@@ -1643,3 +1672,258 @@ def test_integration_tracker(
 
     assert integration.name + " for " + new_hire.full_name in response.content.decode()
     assert "not_found" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_access_report_view_permissions(client, django_user_model):
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.NEWHIRE)
+    )
+    url = reverse("integrations:access-report")
+    response = client.get(url)
+
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_access_report_view_manager_can_access(client, manager_factory):
+    client.force_login(manager_factory())
+    url = reverse("integrations:access-report")
+    response = client.get(url)
+
+    assert response.status_code == 200
+    assert "Integration access report" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_access_report_view_statuses(
+    client,
+    admin_factory,
+    new_hire_factory,
+    custom_integration_factory,
+    manual_user_provision_integration_factory,
+):
+    client.force_login(admin_factory())
+
+    # webhook integration with an `exists` block is included in
+    # `account_provision_options`
+    webhook_integration = custom_integration_factory()
+    manual_integration = manual_user_provision_integration_factory()
+
+    active_user = new_hire_factory()
+    revoked_user = new_hire_factory()
+    updating_user = new_hire_factory()
+    unknown_user = new_hire_factory()
+
+    IntegrationUser.objects.create(
+        user=active_user, integration=webhook_integration, revoked=False
+    )
+    IntegrationUser.objects.create(
+        user=revoked_user, integration=webhook_integration, revoked=True
+    )
+    IntegrationUser.objects.create(
+        user=updating_user, integration=webhook_integration, updating=True
+    )
+    # unknown_user never got an IntegrationUser record
+
+    url = reverse("integrations:access-report")
+    response = client.get(url)
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert webhook_integration.name in content
+    assert manual_integration.name in content
+
+    poll_url = reverse(
+        "integrations:access-report-poll",
+        args=[updating_user.id, webhook_integration.id],
+    )
+    assert poll_url in content
+    assert active_user.full_name in content
+    assert revoked_user.full_name in content
+    assert unknown_user.full_name in content
+
+
+@pytest.mark.django_db
+def test_access_report_view_csv_export(
+    client, admin_factory, new_hire_factory, custom_integration_factory
+):
+    client.force_login(admin_factory())
+    integration = custom_integration_factory()
+    user = new_hire_factory()
+    IntegrationUser.objects.create(user=user, integration=integration, revoked=False)
+
+    url = reverse("integrations:access-report")
+    response = client.get(url, {"format": "csv"})
+
+    assert response.status_code == 200
+    assert response["Content-Type"] == "text/csv"
+    assert (
+        response["Content-Disposition"]
+        == 'attachment; filename="integration-access-report.csv"'
+    )
+
+    content = response.content.decode()
+    assert "Name,Email," + integration.name in content
+    assert f"{user.full_name},{user.email},Active" in content
+
+
+@pytest.mark.django_db
+def test_access_report_refresh_view_permissions(
+    client, django_user_model, manager_factory
+):
+    client.force_login(manager_factory())
+    url = reverse("integrations:access-report-refresh")
+    response = client.post(url, follow=True)
+
+    # manager is not allowed, only admins are
+    assert response.status_code == 403
+
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.NEWHIRE)
+    )
+    response = client.post(url, follow=True)
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_access_report_refresh_view(
+    client,
+    admin_factory,
+    new_hire_factory,
+    custom_integration_factory,
+    manual_user_provision_integration_factory,
+):
+    admin = admin_factory()
+    client.force_login(admin)
+
+    webhook_integration = custom_integration_factory()
+    # manual provisioning integrations should be excluded from the refresh
+    manual_integration = manual_user_provision_integration_factory()
+    new_hire = new_hire_factory()
+
+    url = reverse("integrations:access-report-refresh")
+    with patch("admin.integrations.views.async_task") as mocked_async_task:
+        response = client.post(url, follow=True)
+
+    mocked_async_task.assert_called_once_with(
+        "admin.integrations.tasks.refresh_access_report",
+        task_name="Refresh access report",
+    )
+
+    assert reverse("integrations:access-report") in response.redirect_chain[-1][0]
+    assert "Refreshing access data in the background." in response.content.decode()
+
+    # IntegrationUser objects got created (with `updating=True`) for every user
+    # and every account-provisioning integration, except the manual ones
+    assert (
+        IntegrationUser.objects.filter(
+            integration=webhook_integration, updating=True
+        ).count()
+        == get_user_model().objects.count()
+    )
+    assert not IntegrationUser.objects.filter(integration=manual_integration).exists()
+    assert IntegrationUser.objects.filter(
+        integration=webhook_integration, user=admin
+    ).exists()
+    assert IntegrationUser.objects.filter(
+        integration=webhook_integration, user=new_hire
+    ).exists()
+
+
+@pytest.mark.django_db
+def test_access_report_refresh_view_marks_existing_records_as_updating(
+    client, admin_factory, new_hire_factory, custom_integration_factory
+):
+    client.force_login(admin_factory())
+    integration = custom_integration_factory()
+    user = new_hire_factory()
+    existing = IntegrationUser.objects.create(
+        user=user, integration=integration, revoked=True, updating=False
+    )
+
+    url = reverse("integrations:access-report-refresh")
+    with patch("admin.integrations.views.async_task"):
+        client.post(url, follow=True)
+
+    existing.refresh_from_db()
+    assert existing.updating is True
+    # `bulk_create(..., ignore_conflicts=True)` should not have created a
+    # duplicate for the existing user/integration combination
+    assert (
+        IntegrationUser.objects.filter(user=user, integration=integration).count() == 1
+    )
+
+
+@pytest.mark.django_db
+def test_access_report_poll_view_permissions(client, django_user_model):
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.NEWHIRE)
+    )
+    url = reverse("integrations:access-report-poll", args=[1, 1])
+    response = client.get(url)
+
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_access_report_poll_view_unknown(client, manager_factory):
+    client.force_login(manager_factory())
+
+    url = reverse("integrations:access-report-poll", args=[999, 999])
+    response = client.get(url)
+
+    assert response.status_code == 200
+    assert "—" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_access_report_poll_view_still_updating(
+    client, manager_factory, new_hire_factory, custom_integration_factory
+):
+    client.force_login(manager_factory())
+    integration = custom_integration_factory()
+    user = new_hire_factory()
+    IntegrationUser.objects.create(user=user, integration=integration, updating=True)
+
+    url = reverse("integrations:access-report-poll", args=[user.id, integration.id])
+    response = client.get(url)
+
+    assert response.status_code == 204
+    assert response.content == b""
+
+
+@pytest.mark.django_db
+def test_access_report_poll_view_active(
+    client, manager_factory, new_hire_factory, custom_integration_factory
+):
+    client.force_login(manager_factory())
+    integration = custom_integration_factory()
+    user = new_hire_factory()
+    IntegrationUser.objects.create(
+        user=user, integration=integration, updating=False, revoked=False
+    )
+
+    url = reverse("integrations:access-report-poll", args=[user.id, integration.id])
+    response = client.get(url)
+
+    assert response.status_code == 286
+    assert "Active" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_access_report_poll_view_revoked(
+    client, manager_factory, new_hire_factory, custom_integration_factory
+):
+    client.force_login(manager_factory())
+    integration = custom_integration_factory()
+    user = new_hire_factory()
+    IntegrationUser.objects.create(
+        user=user, integration=integration, updating=False, revoked=True
+    )
+
+    url = reverse("integrations:access-report-poll", args=[user.id, integration.id])
+    response = client.get(url)
+
+    assert response.status_code == 286
+    assert "Not Active" in response.content.decode()

@@ -565,7 +565,9 @@ class Integration(models.Model):
                 new_hire.save(update_fields=["extra_fields"])
 
         IntegrationUser.objects.update_or_create(
-            integration=self, user=new_hire, defaults={"revoked": not user_exists}
+            integration=self,
+            user=new_hire,
+            defaults={"revoked": not user_exists, "updating": False},
         )
 
         return user_exists

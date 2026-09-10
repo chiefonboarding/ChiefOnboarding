@@ -49,6 +49,21 @@ urlpatterns = [
         name="tracker",
     ),
     path(
+        "access-report/",
+        views.IntegrationAccessReportView.as_view(),
+        name="access-report",
+    ),
+    path(
+        "access-report/refresh/",
+        views.IntegrationAccessReportRefreshView.as_view(),
+        name="access-report-refresh",
+    ),
+    path(
+        "access-report/<int:user_pk>/<int:integration_pk>/",
+        views.IntegrationAccessReportPollView.as_view(),
+        name="access-report-poll",
+    ),
+    path(
         "builder/",
         builder_views.IntegrationBuilderCreateView.as_view(),
         name="builder",

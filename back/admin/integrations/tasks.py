@@ -1,6 +1,7 @@
 import logging
 
 from django.contrib.auth import get_user_model
+from django_q.tasks import async_task
 
 from admin.integrations.models import Integration
 from admin.integrations.sync_userinfo import SyncUsers
@@ -74,3 +75,45 @@ def backfill_integration_ids(integration_id):
         "not_found": not_found,
         "errored": errored,
     }
+
+
+def refresh_access_for_user_integration(integration_id, user_id):
+    # One `exists` lookup for a single (integration, user) pair. Enqueued
+    # individually so a slow or failing integration can't stall the whole
+    # refresh. Errors are swallowed and logged — one bad lookup must not
+    # prevent the other queued tasks from running.
+    try:
+        integration = Integration.objects.get(id=integration_id)
+        user = get_user_model().objects.get(id=user_id)
+    except (Integration.DoesNotExist, get_user_model().DoesNotExist):
+        return
+    try:
+        integration.user_exists(user, save_result=True)
+    except Exception as e:
+        logger.warning(
+            "Refresh error for integration %s, user %s: %s",
+            integration_id,
+            user.email,
+            e,
+        )
+
+
+def refresh_access_report():
+    integrations = list(
+        Integration.objects.account_provision_options()
+        .filter(is_active=True)
+        .exclude(manifest_type=Integration.ManifestType.MANUAL_USER_PROVISIONING)
+    )
+    enqueued = 0
+    users = get_user_model().objects.all().only("id").iterator(chunk_size=1000)
+    for integration in integrations:
+        for user in users:
+            async_task(
+                "admin.integrations.tasks.refresh_access_for_user_integration",
+                integration.id,
+                user.id,
+                task_name=f"Refresh access: {integration.name} #{user.id}",
+            )
+            enqueued += 1
+
+    logger.info("Access report refresh enqueued: %s tasks", enqueued)

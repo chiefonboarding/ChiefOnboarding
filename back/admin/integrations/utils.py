@@ -45,8 +45,21 @@ def get_value_from_notation(notation, value):
                 raise KeyError
 
             field, _, expected = filter_expr.partition("=")
+            # field may be a dotted path (e.g. attributes.email) for APIs
+            # that nest values under attributes, like HackerOne / JSON:API.
+            # Single-segment paths preserve the original top-level behavior.
+            field_path = field.split(".")
             for item in value:
-                if isinstance(item, dict) and str(item.get(field, "")) == expected:
+                if not isinstance(item, dict):
+                    continue
+                candidate = item
+                for part in field_path:
+                    if isinstance(candidate, dict) and part in candidate:
+                        candidate = candidate[part]
+                    else:
+                        candidate = None
+                        break
+                if candidate is not None and str(candidate) == expected:
                     value = item
                     break
             else:
