@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('users', '0042_remove_user_requires_otp_remove_user_totp_secret_and_more'),
+        ("users", "0042_remove_user_requires_otp_remove_user_totp_secret_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='integrationuser',
-            name='updating',
+            model_name="integrationuser",
+            name="updating",
             field=models.BooleanField(default=False),
         ),
     ]

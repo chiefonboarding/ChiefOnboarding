@@ -5,7 +5,6 @@ from django_q.tasks import async_task
 
 from admin.integrations.models import Integration
 from admin.integrations.sync_userinfo import SyncUsers
-from users.models import IntegrationUser
 
 logger = logging.getLogger(__name__)
 
@@ -93,13 +92,17 @@ def refresh_access_for_user_integration(integration_id, user_id):
     except Exception as e:
         logger.warning(
             "Refresh error for integration %s, user %s: %s",
-            integration_id, user.email, e,
+            integration_id,
+            user.email,
+            e,
         )
 
 
 def refresh_access_report():
     integrations = (
-        Integration.objects.account_provision_options().filter(is_active=True).exclude(manifest_type=Integration.ManifestType.MANUAL_USER_PROVISIONING)
+        Integration.objects.account_provision_options()
+        .filter(is_active=True)
+        .exclude(manifest_type=Integration.ManifestType.MANUAL_USER_PROVISIONING)
     )
     enqueued = 0
     for integration in integrations:

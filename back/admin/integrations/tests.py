@@ -1816,9 +1816,12 @@ def test_access_report_refresh_view(
 
     # IntegrationUser objects got created (with `updating=True`) for every user
     # and every account-provisioning integration, except the manual ones
-    assert IntegrationUser.objects.filter(
-        integration=webhook_integration, updating=True
-    ).count() == get_user_model().objects.count()
+    assert (
+        IntegrationUser.objects.filter(
+            integration=webhook_integration, updating=True
+        ).count()
+        == get_user_model().objects.count()
+    )
     assert not IntegrationUser.objects.filter(integration=manual_integration).exists()
     assert IntegrationUser.objects.filter(
         integration=webhook_integration, user=admin
