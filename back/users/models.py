@@ -805,6 +805,7 @@ class IntegrationUser(models.Model):
         "integrations.Integration", on_delete=models.CASCADE
     )
     revoked = models.BooleanField(default=False)
+    updating = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ["user", "integration"]

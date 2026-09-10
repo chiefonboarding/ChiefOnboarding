@@ -5,6 +5,7 @@ from django_q.tasks import async_task
 
 from admin.integrations.models import Integration
 from admin.integrations.sync_userinfo import SyncUsers
+from users.models import IntegrationUser
 
 logger = logging.getLogger(__name__)
 
@@ -97,35 +98,18 @@ def refresh_access_for_user_integration(integration_id, user_id):
 
 
 def refresh_access_report():
-    # Enqueue one background task per (integration, user) pair instead of
-    # running every lookup inline — a single big task was timing out on
-    # orgs with lots of staff. The worker pool processes the queue, which
-    # also provides natural throttling against per-service rate limits.
-    User = get_user_model()
     integrations = (
-        Integration.objects.account_provision_options().filter(is_active=True)
+        Integration.objects.account_provision_options().filter(is_active=True).exclude(manifest_type=Integration.ManifestType.MANUAL_USER_PROVISIONING)
     )
-    user_ids = list(
-        User.objects.filter(is_active=True)
-        .exclude(email="")
-        .order_by("id")
-        .values_list("id", flat=True)
-    )
-
     enqueued = 0
     for integration in integrations:
-        # Manual-provisioning integrations don't make HTTP calls; their
-        # IntegrationUser rows only change via the toggle button. Skip them.
-        if integration.skip_user_provisioning:
-            continue
-        for user_id in user_ids:
+        for user in get_user_model().objects.all():
             async_task(
                 "admin.integrations.tasks.refresh_access_for_user_integration",
                 integration.id,
-                user_id,
-                task_name=f"Refresh access: {integration.name} #{user_id}",
+                user.id,
+                task_name=f"Refresh access: {integration.name} #{user.id}",
             )
             enqueued += 1
 
     logger.info("Access report refresh enqueued: %s tasks", enqueued)
-    return {"enqueued": enqueued}

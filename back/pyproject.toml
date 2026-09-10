@@ -17,7 +17,7 @@ dependencies = [
     "sentry-sdk",
     "twilio",
     "whitenoise",
-    "django-q-sentry",
+    "django-filter",
     "croniter",
     "slack-bolt",
     "django-q2",

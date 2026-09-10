@@ -54,14 +54,14 @@ urlpatterns = [
         name="access-report",
     ),
     path(
-        "access-report/csv/",
-        views.IntegrationAccessReportCSVView.as_view(),
-        name="access-report-csv",
-    ),
-    path(
         "access-report/refresh/",
         views.IntegrationAccessReportRefreshView.as_view(),
         name="access-report-refresh",
+    ),
+    path(
+        "access-report/<int:user_pk>/<int:integration_pk>/",
+        views.IntegrationAccessReportPollView.as_view(),
+        name="access-report-poll",
     ),
     path(
         "builder/",
