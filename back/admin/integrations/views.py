@@ -283,6 +283,7 @@ class IntegrationAccessReportView(AdminOrManagerPermMixin, FilterView):
     template_name = "access_report.html"
     model = get_user_model()
     filterset_class = AccessReportFilter
+    paginate_by = settings.ACCESS_REPORT_PAGINATE_BY
 
     def get_paginate_by(self, queryset):
         if self.request.GET.get("format") == "csv":

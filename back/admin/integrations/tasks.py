@@ -99,14 +99,15 @@ def refresh_access_for_user_integration(integration_id, user_id):
 
 
 def refresh_access_report():
-    integrations = (
+    integrations = list(
         Integration.objects.account_provision_options()
         .filter(is_active=True)
         .exclude(manifest_type=Integration.ManifestType.MANUAL_USER_PROVISIONING)
     )
     enqueued = 0
+    users = get_user_model().objects.all().only("id").iterator(chunk_size=1000)
     for integration in integrations:
-        for user in get_user_model().objects.all():
+        for user in users:
             async_task(
                 "admin.integrations.tasks.refresh_access_for_user_integration",
                 integration.id,
