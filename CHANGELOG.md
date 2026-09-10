@@ -1,5 +1,21 @@
 # Changelog
 
+## v2.5.0 (2026-09-10)
+* Adding reports (#667)
+* Add backfill option for user ids (#665)
+* Allow s3 upload through server (#664)
+* Update dependencies august 2026 (#663)
+* Fix pagination tracker list (#661)
+* Update dependencies august 2026 (#660)
+* Move offboarding user exists check to backgroundworker (#658)
+* Update dependencies 2026-06-05 (#651)
+* fix variable name typo for sso setup in docs
+* Update dependencies May 19 (#647)
+* Remove link on home page to fix lint
+* Docs edits on landing page. (#642)
+* Update dependencies April 9 (#641)
+* Update dependencies march 31 (#634)
+
 ## v2.4.1 (2026-03-18)
 * Add offboarding api endpoint (#625)
 * Fix issue with notification when creating "other" user through API (#627)
