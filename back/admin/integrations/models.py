@@ -835,7 +835,7 @@ class Integration(models.Model):
                 extra_text=self.name,
                 created_for=new_hire,
             )
-        return True, response
+        return True, None
 
     def config_form(self, data=None):
         if self.skip_user_provisioning:
