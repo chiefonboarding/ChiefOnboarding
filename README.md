@@ -51,6 +51,10 @@ See details here: [ChiefOnboarding on Docker Hub](https://hub.docker.com/r/chief
 
 [![Deploy on Easypanel](https://easypanel.io/img/deploy-on-easypanel-40.svg)](https://easypanel.io/templates/chiefonboarding)
 
+**ZopDay**
+
+[![Deploy on ZopDay](https://zop.dev/deploytozopday-inkhard.svg)](https://zop.dev/zopday/app/deploy?image=chiefonboarding/chiefonboarding:latest&port=8000)
+
 ## Support
 This software is provided under an open source license and comes as is. If you have any questions, then you will have to open an issue on Github for that. If you want guaranteed, quick support, then we offer a paid support package for that (best effort - generally under 2 hours response time). Please see our [pricing page](https://chiefonboarding.com/pricing) for more details. 
 
