@@ -18,6 +18,10 @@
     </form>
     <a class="dropdown-item" href="{% url 'people:add_sequence' object.id %}">{% translate "Add Sequence" %}</a>
     <div class="dropdown-divider"></div>
+    <form method="post" class="mb-0" action="{% url 'people:migrate-to-normal' object.id %}">
+      {% csrf_token %}
+      <button type="submit" class="dropdown-item">{% translate "Migrate account to normal account" %}</button>
+    </form>
     <a class="dropdown-item" href="{% url 'people:delete' object.id %}">{% translate "Delete user" %}</a>
   </div>
 </div>

@@ -21,13 +21,13 @@ from admin.integrations.exceptions import (
     FailedPaginatedResponseError,
     KeyIsNotInDataError,
 )
-from admin.integrations.models import Integration
+from admin.integrations.models import Integration, IntegrationTracker
 from admin.integrations.sync_userinfo import SyncUsers
 from admin.people.serializers import UserImportSerializer
 from admin.resources.models import Resource
 from admin.sequences.models import Condition, Sequence
 from api.permissions import AdminPermission
-from organization.models import Organization, WelcomeMessage
+from organization.models import Notification, Organization, WelcomeMessage
 from slack_bot.utils import Slack, actions, button, paragraph
 from users.emails import email_new_admin_cred
 from users.mixins import (
@@ -388,15 +388,16 @@ class ColleagueOffboardingSequenceView(IsAdminOrNewHireManagerMixin, DetailView)
 
         conditions = employee.conditions.prefetched()
 
-        # condition items
+        # Show all offboarding conditions, including those whose trigger has already
+        # passed, so dated sequence steps remain visible.
         context["conditions"] = (
-            (
-                conditions.filter(
-                    condition_type=Condition.Type.BEFORE,
-                    days__lte=employee.days_before_termination_date,
-                )
-                | conditions.filter(condition_type=Condition.Type.TODO)
-                | conditions.filter(condition_type=Condition.Type.ADMIN_TASK)
+            conditions.filter(
+                condition_type__in=[
+                    Condition.Type.BEFORE,
+                    Condition.Type.TODO,
+                    Condition.Type.ADMIN_TASK,
+                    Condition.Type.INTEGRATIONS_REVOKED,
+                ]
             )
             .alias_days_order()
             .order_by("days_order")
@@ -408,6 +409,26 @@ class ColleagueOffboardingSequenceView(IsAdminOrNewHireManagerMixin, DetailView)
         context["completed_admin_tasks"] = AdminTask.objects.filter(
             new_hire=employee, completed=True
         ).values_list("based_on__pk", flat=True)
+        # Immediate sequence actions aren't saved as employee conditions. Display
+        # their existing activity records, and the separate automated revoke logs.
+        context["notifications"] = Notification.objects.filter(
+            created_for=employee
+        ).select_related("created_by")
+        context["revocation_runs"] = (
+            IntegrationTracker.objects.filter(
+                for_user=employee, category=IntegrationTracker.Category.REVOKE
+            )
+            .select_related("integration")
+            .prefetch_related("steps")
+            .order_by("-ran_at", "-pk")
+        )
+        for run in context["revocation_runs"]:
+            steps = list(run.steps.all())
+            run.has_recorded_steps = bool(steps)
+            run.requests_succeeded = bool(steps) and all(
+                step.has_succeeded and step.found_expected and not step.error
+                for step in steps
+            )
         return context
 
 
