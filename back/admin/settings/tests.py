@@ -318,7 +318,7 @@ def test_totp_views(client, admin_factory):
     assert "TOTP 2FA" in response.content.decode()
 
     with patch(
-        "allauth.account.internal.flows.reauthentication.did_recently_authenticate",
+        "allauth.account.internal.flows.reauthentication.did_recently_reauthenticate",
         Mock(return_value=True),
     ):
         response = client.get(reverse("settings:mfa_activate_totp"))
@@ -343,7 +343,7 @@ def test_totp_views(client, admin_factory):
     )
 
     with patch(
-        "allauth.account.internal.flows.reauthentication.did_recently_authenticate",
+        "allauth.account.internal.flows.reauthentication.did_recently_reauthenticate",
         Mock(return_value=True),
     ):
         response = client.get(reverse("settings:mfa_deactivate_totp"))
