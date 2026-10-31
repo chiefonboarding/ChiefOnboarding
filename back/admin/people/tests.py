@@ -1757,6 +1757,49 @@ def test_new_hire_access_per_integration_compact_view(
 
 
 @pytest.mark.django_db
+def test_new_hire_access_execute_truthy_response_no_error(
+    client,
+    django_user_model,
+    new_hire_factory,
+    custom_integration_factory,
+):
+    """execute() may return a truthy Response object on success.
+
+    The view must not display it as an error.
+    """
+    client.force_login(
+        django_user_model.objects.create(role=get_user_model().Role.ADMIN)
+    )
+
+    new_hire1 = new_hire_factory(email="stan@example.com")
+    integration1 = custom_integration_factory(name="Asana")
+
+    mock_response = Mock()
+    mock_response.__bool__ = Mock(return_value=True)
+
+    with (
+        patch(
+            "admin.integrations.models.Integration.needs_user_info",
+            Mock(return_value=False),
+        ),
+        patch(
+            "admin.integrations.models.Integration.user_exists",
+            Mock(return_value=False),
+        ),
+        patch(
+            "admin.integrations.models.Integration.execute",
+            Mock(return_value=(True, mock_response)),
+        ),
+    ):
+        url = reverse("people:toggle_access", args=[new_hire1.id, integration1.id])
+        response = client.post(url)
+
+        content = response.content.decode()
+        assert "Activated" in content
+        assert "Request failed" not in content
+
+
+@pytest.mark.django_db
 def test_new_hire_access_per_integration_toggle(
     client,
     django_user_model,
