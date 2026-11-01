@@ -503,7 +503,9 @@ class NewHireRemindView(IsAdminOrNewHireManagerMixin, View):
 
         template_user_model = apps.get_model("users", template_type)
 
-        template_user_obj = template_user_model.objects.get(pk=template_pk)
+        template_user_obj = get_object_or_404(
+            template_user_model, pk=template_pk, user__pk=pk
+        )
         template_user_obj.reminded = timezone.now()
         template_user_obj.save()
 
@@ -548,7 +550,9 @@ class NewHireReopenTaskView(IsAdminOrNewHireManagerMixin, FormView):
 
         template_user_model = apps.get_model("users", template_type)
 
-        template_user_obj = template_user_model.objects.get(pk=template_pk)
+        template_user_obj = get_object_or_404(
+            template_user_model, pk=template_pk, user__pk=self.kwargs.get("pk")
+        )
         if template_type == "todouser":
             template_user_obj.completed = False
             template_user_obj.form = []
@@ -679,7 +683,7 @@ class NewHireDeleteView(IsAdminOrNewHireManagerMixin, SuccessMessageMixin, Delet
 
 class CompleteAdminTaskView(IsAdminOrNewHireManagerMixin, DetailView):
     def post(self, request, pk, admin_task_pk, *args, **kwargs):
-        task = get_object_or_404(AdminTask, id=admin_task_pk)
+        task = get_object_or_404(AdminTask, id=admin_task_pk, new_hire__pk=pk)
         task.mark_completed()
 
         messages.success(request, _("The admin task was successfully completed"))
