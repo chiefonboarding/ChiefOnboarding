@@ -1994,6 +1994,5 @@ def test_integration_tracker_detail_manager_only_sees_own_new_hires(
     response = client.get(url)
     assert response.status_code == 200
     assert (
-        integration.name + " for " + own_new_hire.full_name
-        in response.content.decode()
+        integration.name + " for " + own_new_hire.full_name in response.content.decode()
     )
