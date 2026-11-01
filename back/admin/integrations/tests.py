@@ -1927,3 +1927,73 @@ def test_access_report_poll_view_revoked(
 
     assert response.status_code == 286
     assert "Not Active" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_integration_tracker_list_manager_only_sees_own_new_hires(
+    client, manager_factory, new_hire_factory, custom_integration_factory
+):
+    manager = manager_factory()
+    client.force_login(manager)
+    integration = custom_integration_factory()
+
+    own_new_hire = new_hire_factory(manager=manager)
+    other_new_hire = new_hire_factory()
+
+    IntegrationTracker.objects.create(
+        integration=integration,
+        category=IntegrationTracker.Category.EXISTS,
+        for_user=own_new_hire,
+    )
+    IntegrationTracker.objects.create(
+        integration=integration,
+        category=IntegrationTracker.Category.EXISTS,
+        for_user=other_new_hire,
+    )
+
+    url = reverse("integrations:trackers")
+    response = client.get(url)
+
+    assert response.status_code == 200
+    assert list(response.context["object_list"].values_list("for_user", flat=True)) == [
+        own_new_hire.id
+    ]
+    assert own_new_hire.full_name in response.content.decode()
+    assert other_new_hire.full_name not in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_integration_tracker_detail_manager_only_sees_own_new_hires(
+    client, manager_factory, new_hire_factory, custom_integration_factory
+):
+    manager = manager_factory()
+    client.force_login(manager)
+    integration = custom_integration_factory()
+
+    own_new_hire = new_hire_factory(manager=manager)
+    other_new_hire = new_hire_factory()
+
+    own_tracker = IntegrationTracker.objects.create(
+        integration=integration,
+        category=IntegrationTracker.Category.EXISTS,
+        for_user=own_new_hire,
+    )
+    other_tracker = IntegrationTracker.objects.create(
+        integration=integration,
+        category=IntegrationTracker.Category.EXISTS,
+        for_user=other_new_hire,
+    )
+
+    # Tracker of a new hire not managed by this manager
+    url = reverse("integrations:tracker", args=[other_tracker.id])
+    response = client.get(url)
+    assert response.status_code == 404
+
+    # Tracker of a new hire managed by this manager
+    url = reverse("integrations:tracker", args=[own_tracker.id])
+    response = client.get(url)
+    assert response.status_code == 200
+    assert (
+        integration.name + " for " + own_new_hire.full_name
+        in response.content.decode()
+    )
