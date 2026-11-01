@@ -1473,7 +1473,7 @@ def test_join_user_auto_create_with_request_for_approval(admin_factory):
     slack_create_new_hire_or_ask_perm(event)
     # Both admin and user exist
     assert get_user_model().objects.count() == 2
-    new_hire = get_user_model().objects.last()
+    new_hire = get_user_model().objects.latest("id")
     # New hire is not active
     assert new_hire.role == get_user_model().Role.OTHER
     assert not new_hire.is_active
