@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.5.1 (2026-11-01)
+* Add history of integrations, steps from history and profile/delete buttons to offboarding page (#673)
+* Fix filtering on reports page for manager (#681)
+* Fix filtering for manager on integration tracker views (#680) - reported by kta1kri
+* Fix missing check if object is from user on sending reminders, reopenings and completion of to do (#679) - reported by kta1kri
+* Fix execute() success response displayed as error in toggle access view (#669)
+* Update dependencies Oct 2026 (#678)
+* docs(readme): add ZopDay to the Deployment section (#670)
+* Add Easypanel one-click deploy button (#668)
+
 ## v2.5.0 (2026-09-10)
 * Adding reports (#667)
 * Add backfill option for user ids (#665)
