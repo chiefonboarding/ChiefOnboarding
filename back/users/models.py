@@ -239,9 +239,9 @@ class User(AbstractBaseUser):
     new_hires = NewHireManager()
     admins = AdminManager()
     offboarding = OffboardingManager()
-    ordering = ("first_name",)
 
     class Meta:
+        ordering = ("first_name", "last_name", "id")
         constraints = [
             CheckConstraint(
                 condition=~Q(unique_url=""),

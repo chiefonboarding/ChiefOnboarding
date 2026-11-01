@@ -350,7 +350,7 @@ def test_create_new_hire_with_buddy_and_manager(setup_rest, admin_factory, mailo
     assert response.status_code == 201
     assert User.objects.count() == 4
 
-    new_hire = User.objects.last()
+    new_hire = User.objects.latest("id")
     assert new_hire.buddy == admin1
 
 
@@ -379,7 +379,7 @@ def test_create_admin_user(setup_rest, mailoutbox):
     assert response.status_code == 201
     assert User.objects.count() == 2
 
-    user = User.objects.last()
+    user = User.objects.latest("id")
     assert user.is_admin
 
 
@@ -400,5 +400,5 @@ def test_create_other_user(setup_rest):
     assert response.status_code == 201
     assert User.objects.count() == 2
 
-    user = User.objects.last()
+    user = User.objects.latest("id")
     assert user.role == User.Role.OTHER
