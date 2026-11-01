@@ -411,3 +411,26 @@ def test_search(
     assert employee1.full_name in response.content.decode()
     # doesn't have the "test" query in it
     assert employee2.full_name not in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_search_manager_only_sees_own_new_hires(
+    client, manager_factory, new_hire_factory, employee_factory
+):
+    manager = manager_factory()
+    client.force_login(manager)
+
+    own_new_hire = new_hire_factory(first_name="john", last_name="test")
+    own_new_hire.manager = manager
+    own_new_hire.save()
+    other_new_hire = new_hire_factory(first_name="jane", last_name="test")
+    employee = employee_factory(first_name="jack", last_name="test")
+
+    url = reverse("organization:search")
+    response = client.get(url + "?q=test")
+    content = response.content.decode()
+
+    assert own_new_hire.full_name in content
+    assert other_new_hire.full_name not in content
+    # Colleagues (not new hires) are still shown
+    assert employee.full_name in content

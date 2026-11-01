@@ -44,8 +44,11 @@ class AdminTaskCreateForm(forms.ModelForm):
         widget=forms.DateInput(attrs={"type": "date"}, format=("%Y-%m-%d")),
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
+        # Managers can only create tasks for new hires they manage
+        if user is not None and not user.is_admin:
+            self.fields["new_hire"].queryset = User.new_hires.filter(manager=user)
         self.fields["option"].initial = 0
         self.fields["slack_user"].required = False
 
