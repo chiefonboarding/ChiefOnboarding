@@ -1881,9 +1881,10 @@ def test_access_report_poll_view_unknown(client, manager_factory):
 def test_access_report_poll_view_still_updating(
     client, manager_factory, new_hire_factory, custom_integration_factory
 ):
-    client.force_login(manager_factory())
+    manager = manager_factory()
+    client.force_login(manager)
     integration = custom_integration_factory()
-    user = new_hire_factory()
+    user = new_hire_factory(manager=manager)
     IntegrationUser.objects.create(user=user, integration=integration, updating=True)
 
     url = reverse("integrations:access-report-poll", args=[user.id, integration.id])
@@ -1897,9 +1898,10 @@ def test_access_report_poll_view_still_updating(
 def test_access_report_poll_view_active(
     client, manager_factory, new_hire_factory, custom_integration_factory
 ):
-    client.force_login(manager_factory())
+    manager = manager_factory()
+    client.force_login(manager)
     integration = custom_integration_factory()
-    user = new_hire_factory()
+    user = new_hire_factory(manager=manager)
     IntegrationUser.objects.create(
         user=user, integration=integration, updating=False, revoked=False
     )
@@ -1915,9 +1917,10 @@ def test_access_report_poll_view_active(
 def test_access_report_poll_view_revoked(
     client, manager_factory, new_hire_factory, custom_integration_factory
 ):
-    client.force_login(manager_factory())
+    manager = manager_factory()
+    client.force_login(manager)
     integration = custom_integration_factory()
-    user = new_hire_factory()
+    user = new_hire_factory(manager=manager)
     IntegrationUser.objects.create(
         user=user, integration=integration, updating=False, revoked=True
     )
@@ -1927,3 +1930,53 @@ def test_access_report_poll_view_revoked(
 
     assert response.status_code == 286
     assert "Not Active" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_access_report_view_manager_only_sees_own_new_hires(
+    client, manager_factory, new_hire_factory, custom_integration_factory
+):
+    manager = manager_factory()
+    client.force_login(manager)
+    custom_integration_factory()
+
+    own_new_hire = new_hire_factory(manager=manager)
+    other_new_hire = new_hire_factory()
+
+    url = reverse("integrations:access-report")
+    response = client.get(url)
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert [row["user"] for row in response.context["rows"]] == [own_new_hire]
+    assert own_new_hire.full_name in content
+    assert other_new_hire.full_name not in content
+
+    # CSV export is filtered as well
+    response = client.get(url, {"format": "csv"})
+    content = response.content.decode()
+
+    assert own_new_hire.email in content
+    assert other_new_hire.email not in content
+
+
+@pytest.mark.django_db
+def test_access_report_poll_view_manager_other_new_hire(
+    client, manager_factory, new_hire_factory, custom_integration_factory
+):
+    client.force_login(manager_factory())
+    integration = custom_integration_factory()
+    other_new_hire = new_hire_factory()
+    IntegrationUser.objects.create(
+        user=other_new_hire, integration=integration, updating=False, revoked=False
+    )
+
+    url = reverse(
+        "integrations:access-report-poll", args=[other_new_hire.id, integration.id]
+    )
+    response = client.get(url)
+
+    # Treated as unknown, status is not exposed
+    assert response.status_code == 200
+    assert "Active" not in response.content.decode()
+    assert "—" in response.content.decode()

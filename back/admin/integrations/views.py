@@ -285,6 +285,12 @@ class IntegrationAccessReportView(AdminOrManagerPermMixin, FilterView):
     filterset_class = AccessReportFilter
     paginate_by = settings.ACCESS_REPORT_PAGINATE_BY
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.request.user.is_admin:
+            return queryset
+        return queryset.filter(manager=self.request.user)
+
     def get_paginate_by(self, queryset):
         if self.request.GET.get("format") == "csv":
             return None
@@ -388,8 +394,12 @@ class IntegrationAccessReportRefreshView(AdminPermMixin, View):
 class IntegrationAccessReportPollView(AdminOrManagerPermMixin, View):
     def get(self, request, user_pk, integration_pk, *args, **kwargs):
 
+        integration_users = IntegrationUser.objects.all()
+        if not request.user.is_admin:
+            integration_users = integration_users.filter(user__manager=request.user)
+
         try:
-            integration_user = IntegrationUser.objects.get(
+            integration_user = integration_users.get(
                 integration_id=integration_pk, user_id=user_pk
             )
         except IntegrationUser.DoesNotExist:
