@@ -42,6 +42,11 @@ class SearchHXView(AdminOrManagerPermMixin, TemplateView):
                 objects = model.objects.filter(
                     Q(first_name__search=query) | Q(last_name__search=query)
                 )
+                # Managers can only see new hires they manage
+                if not self.request.user.is_admin:
+                    objects = objects.exclude(
+                        Q(role=User.Role.NEWHIRE) & ~Q(manager=self.request.user)
+                    )
             elif hasattr(model, "templates") and isinstance(
                 model.template, TemplateManager
             ):

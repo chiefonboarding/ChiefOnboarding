@@ -504,3 +504,130 @@ def test_complete_admin_task_linked_to_integration(
     assert IntegrationUser.objects.filter(
         user=new_hire, integration=integration_config.integration, revoked=False
     ).exists()
+
+
+@pytest.mark.django_db
+def test_all_tasks_view_manager_only_sees_own_new_hires(
+    client, manager_factory, new_hire_factory, admin_task_factory
+):
+    manager = manager_factory()
+    client.force_login(manager)
+
+    own_task = admin_task_factory(new_hire=new_hire_factory(manager=manager))
+    assigned_task = admin_task_factory(assigned_to=manager)
+    other_task = admin_task_factory()
+
+    url = reverse("admin_tasks:all")
+    response = client.get(url)
+    content = response.content.decode()
+
+    assert own_task.name in content
+    # Tasks assigned to the manager are visible as well
+    assert assigned_task.name in content
+    assert other_task.name not in content
+
+
+@pytest.mark.django_db
+def test_admin_task_detail_manager_other_new_hire(
+    client, manager_factory, new_hire_factory, admin_task_factory
+):
+    manager = manager_factory()
+    client.force_login(manager)
+
+    own_task = admin_task_factory(new_hire=new_hire_factory(manager=manager))
+    other_task = admin_task_factory()
+
+    url = reverse("admin_tasks:detail", args=[other_task.id])
+    response = client.get(url)
+    assert response.status_code == 404
+
+    # Can't update the task either
+    response = client.post(
+        url,
+        data={"name": "changed", "priority": 1, "assigned_to": manager.id},
+    )
+    assert response.status_code == 404
+    other_task.refresh_from_db()
+    assert other_task.name != "changed"
+
+    url = reverse("admin_tasks:detail", args=[own_task.id])
+    response = client.get(url)
+    assert response.status_code == 200
+    assert own_task.name in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_admin_task_complete_manager_other_new_hire(
+    client, manager_factory, new_hire_factory, admin_task_factory
+):
+    manager = manager_factory()
+    client.force_login(manager)
+
+    own_task = admin_task_factory(new_hire=new_hire_factory(manager=manager))
+    other_task = admin_task_factory()
+
+    url = reverse("admin_tasks:completed", args=[other_task.id])
+    response = client.post(url)
+    assert response.status_code == 404
+    other_task.refresh_from_db()
+    assert not other_task.completed
+
+    url = reverse("admin_tasks:completed", args=[own_task.id])
+    response = client.post(url, follow=True)
+    assert response.status_code == 200
+    own_task.refresh_from_db()
+    assert own_task.completed
+
+
+@pytest.mark.django_db
+def test_admin_task_comment_manager_other_new_hire(
+    client, manager_factory, admin_task_factory
+):
+    manager = manager_factory()
+    client.force_login(manager)
+
+    other_task = admin_task_factory()
+
+    url = reverse("admin_tasks:comment", args=[other_task.id])
+    response = client.post(url, {"content": "Hi, this is a new comment"})
+
+    assert response.status_code == 404
+    assert not other_task.comment.filter(content="Hi, this is a new comment").exists()
+
+
+@pytest.mark.django_db
+def test_create_admin_task_manager_only_own_new_hires(
+    client, manager_factory, admin_factory, new_hire_factory
+):
+    manager = manager_factory()
+    admin = admin_factory()
+    client.force_login(manager)
+
+    own_new_hire = new_hire_factory(manager=manager)
+    other_new_hire = new_hire_factory()
+
+    url = reverse("admin_tasks:create")
+    response = client.get(url)
+    content = response.content.decode()
+
+    assert own_new_hire.full_name in content
+    assert other_new_hire.full_name not in content
+
+    data = {
+        "name": "Set up a tour",
+        "priority": 1,
+        "new_hire": other_new_hire.id,
+        "assigned_to": admin.id,
+        "comment": "please do this",
+        "option": 0,
+    }
+    response = client.post(url, data=data, follow=True)
+
+    assert "Task has been created" not in response.content.decode()
+    assert AdminTask.objects.count() == 0
+
+    data["new_hire"] = own_new_hire.id
+    response = client.post(url, data=data, follow=True)
+
+    assert "Task has been created" in response.content.decode()
+    assert AdminTask.objects.get().new_hire == own_new_hire

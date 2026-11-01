@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
@@ -12,6 +13,17 @@ from users.mixins import AdminOrManagerPermMixin
 
 from .forms import AdminTaskCommentForm, AdminTaskCreateForm, AdminTaskUpdateForm
 from .models import AdminTask, AdminTaskComment
+
+
+def admin_tasks_for(user):
+    """
+    Admin tasks the user is allowed to see. Admins can see all of them, managers
+    only the ones of new hires they manage and the ones assigned to them.
+    """
+    admin_tasks = AdminTask.objects.all()
+    if user.is_admin:
+        return admin_tasks
+    return admin_tasks.filter(Q(new_hire__manager=user) | Q(assigned_to=user))
 
 
 class MyAdminTasksListView(AdminOrManagerPermMixin, ListView):
@@ -36,7 +48,9 @@ class AllAdminTasksListView(AdminOrManagerPermMixin, ListView):
     paginate_by = settings.ADMINTASK_PAGINATE_BY
 
     def get_queryset(self):
-        return AdminTask.objects.all().select_related("new_hire", "assigned_to")
+        return admin_tasks_for(self.request.user).select_related(
+            "new_hire", "assigned_to"
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -47,7 +61,8 @@ class AllAdminTasksListView(AdminOrManagerPermMixin, ListView):
 
 
 class AdminTaskCompleteView(AdminOrManagerPermMixin, BaseDetailView):
-    model = AdminTask
+    def get_queryset(self):
+        return admin_tasks_for(self.request.user)
 
     def post(self, request, *args, **kwargs):
         admin_task = self.get_object()
@@ -61,6 +76,11 @@ class AdminTasksCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateV
     model = AdminTask
     success_message = _("Task has been created")
     success_url = reverse_lazy("admin_tasks:all")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
 
     def form_valid(self, form):
         self.object = form.save()
@@ -87,15 +107,21 @@ class AdminTasksCreateView(AdminOrManagerPermMixin, SuccessMessageMixin, CreateV
 class AdminTasksUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateView):
     template_name = "admin_tasks_detail.html"
     form_class = AdminTaskUpdateForm
-    model = AdminTask
     success_message = _("Task has been updated")
 
+    def get_queryset(self):
+        return admin_tasks_for(self.request.user)
+
     def get_success_url(self):
+        if not self.get_queryset().filter(pk=self.object.pk).exists():
+            return reverse("admin_tasks:all")
         return self.request.path
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        task = get_object_or_404(AdminTask, pk=self.kwargs.get("pk"))
+        task = get_object_or_404(
+            admin_tasks_for(self.request.user), pk=self.kwargs.get("pk")
+        )
         context["object"] = task
         context["title"] = _("Task: %(name)s") % {"name": task.name}
         context["subtitle"] = _("Tasks")
@@ -125,11 +151,15 @@ class AdminTasksCommentCreateView(
     success_message = _("Comment has been posted")
 
     def get_success_url(self):
-        task = get_object_or_404(AdminTask, pk=self.kwargs.get("pk"))
+        task = get_object_or_404(
+            admin_tasks_for(self.request.user), pk=self.kwargs.get("pk")
+        )
         return reverse("admin_tasks:detail", args=[task.id])
 
     def form_valid(self, form):
-        task = get_object_or_404(AdminTask, pk=self.kwargs.get("pk"))
+        task = get_object_or_404(
+            admin_tasks_for(self.request.user), pk=self.kwargs.get("pk")
+        )
         # Can't post comments when item is completed
         if task.completed:
             raise Http404
