@@ -113,6 +113,8 @@ class AdminTasksUpdateView(AdminOrManagerPermMixin, SuccessMessageMixin, UpdateV
         return admin_tasks_for(self.request.user)
 
     def get_success_url(self):
+        if not self.get_queryset().filter(pk=self.object.pk).exists():
+            return reverse("admin_tasks:all")
         return self.request.path
 
     def get_context_data(self, **kwargs):
