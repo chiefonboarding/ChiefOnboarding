@@ -3312,3 +3312,82 @@ def test_import_users_create_users(
     # the `save` method
     user = django_user_model.objects.get(email="stan@chiefonboarding.com")
     assert len(user.unique_url) == 8
+
+
+@pytest.mark.django_db
+def test_new_hire_remind_item_of_other_new_hire(
+    client, manager_factory, new_hire_factory, to_do_user_factory, mailoutbox
+):
+    manager = manager_factory()
+    client.force_login(manager)
+
+    # new hire managed by the logged in manager
+    new_hire1 = new_hire_factory(manager=manager)
+    # item that belongs to a new hire not managed by this manager
+    to_do_user_other = to_do_user_factory()
+
+    url = reverse(
+        "people:new_hire_remind",
+        args=[new_hire1.id, "todouser", to_do_user_other.id],
+    )
+    response = client.post(url, follow=True)
+
+    assert response.status_code == 404
+    assert len(mailoutbox) == 0
+    to_do_user_other.refresh_from_db()
+    assert to_do_user_other.reminded is None
+
+
+@pytest.mark.django_db
+def test_new_hire_reopen_item_of_other_new_hire(
+    client, manager_factory, new_hire_factory, to_do_user_factory, mailoutbox
+):
+    manager = manager_factory()
+    client.force_login(manager)
+
+    new_hire1 = new_hire_factory(manager=manager)
+    to_do_user_other = to_do_user_factory(completed=True)
+
+    url = reverse(
+        "people:new_hire_reopen",
+        args=[new_hire1.id, "todouser", to_do_user_other.id],
+    )
+    response = client.post(url, data={"message": "You forgot this one!"}, follow=True)
+
+    assert response.status_code == 404
+    assert len(mailoutbox) == 0
+    to_do_user_other.refresh_from_db()
+    assert to_do_user_other.completed
+
+
+@pytest.mark.django_db
+def test_complete_admin_task_of_other_new_hire(
+    client, manager_factory, new_hire_factory, admin_task_factory
+):
+    manager = manager_factory()
+    client.force_login(manager)
+
+    new_hire1 = new_hire_factory(manager=manager)
+    admin_task_other = admin_task_factory()
+
+    url = reverse(
+        "people:new_hire_admin_task_complete",
+        args=[new_hire1.id, admin_task_other.id],
+    )
+    response = client.post(url, follow=True)
+
+    assert response.status_code == 404
+    admin_task_other.refresh_from_db()
+    assert not admin_task_other.completed
+
+    # Task of the new hire itself can be completed
+    admin_task_own = admin_task_factory(new_hire=new_hire1)
+    url = reverse(
+        "people:new_hire_admin_task_complete",
+        args=[new_hire1.id, admin_task_own.id],
+    )
+    response = client.post(url, follow=True)
+
+    assert response.status_code == 200
+    admin_task_own.refresh_from_db()
+    assert admin_task_own.completed
