@@ -354,12 +354,12 @@ class ManifestExistsForm(forms.Form):
         initial=[],
         validators=[validate_status_code],
     )
-    headers = forms.JSONField(
+    headers = JSONToDict(
         initial=list,
         help_text=_("(optionally) This will overwrite the default headers."),
         required=False,
     )
-    store_data = forms.JSONField(
+    store_data = JSONToDict(
         initial=list,
         help_text=_("(optionally) This is used to backfill data from current users."),
         required=False,
@@ -369,7 +369,9 @@ class ManifestExistsForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_tag = False
-        self.initial = prepare_initial_data(self.initial)
+        self.initial = prepare_initial_data(
+            self.initial, keys=("headers", "store_data")
+        )
 
         self.helper.layout = Layout(
             Div(
@@ -502,7 +504,7 @@ class ManifestExecuteForm(forms.Form):
         ),
         required=False,
     )
-    headers = forms.JSONField(
+    headers = JSONToDict(
         initial=list,
         help_text=_("(optionally) This will overwrite the default headers."),
         required=False,
