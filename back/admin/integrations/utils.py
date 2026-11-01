@@ -93,10 +93,17 @@ def convert_object_to_array(obj):
     return [{"key": key, "value": value} for key, value in obj.items()]
 
 
-def prepare_initial_data(obj):
-    if isinstance(obj, dict):
-        if obj.get("headers") and not isinstance(obj["headers"], list):
-            obj["headers"] = convert_object_to_array(obj["headers"])
+def prepare_initial_data(obj, keys=("headers",)):
+    """
+    Convert the dicts of the given keys to a list of key/value items, so they can be
+    used with the `ValueKeyArrayField` widget.
+    """
+    if not isinstance(obj, dict):
         return obj
 
+    # Copy, so the original (often the integration manifest) is not changed
+    obj = {**obj}
+    for key in keys:
+        if isinstance(obj.get(key), dict):
+            obj[key] = convert_object_to_array(obj[key])
     return obj

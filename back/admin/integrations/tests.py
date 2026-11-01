@@ -2049,3 +2049,123 @@ def test_integration_tracker_detail_manager_only_sees_own_new_hires(
     assert (
         integration.name + " for " + own_new_hire.full_name in response.content.decode()
     )
+
+
+@pytest.mark.django_db
+def test_builder_exists_saves_key_value_fields_as_object(
+    client, admin_factory, custom_integration_factory
+):
+    client.force_login(admin_factory())
+    integration = custom_integration_factory()
+
+    url = reverse("integrations:manifest-exists-update", args=[integration.id])
+    response = client.post(
+        url,
+        {
+            "url": "https://example.com/users/{{email}}",
+            "method": "GET",
+            "expected": "{{email}}",
+            "headers": json.dumps([{"key": "test", "value": "hi"}]),
+            "store_data": json.dumps([{"key": "external_id", "value": "id"}]),
+        },
+    )
+    assert response.status_code == 302
+
+    integration.refresh_from_db()
+    assert integration.manifest["exists"]["headers"] == {"test": "hi"}
+    assert integration.manifest["exists"]["store_data"] == {"external_id": "id"}
+
+    # When editing again, the widget gets the key/value list
+    response = client.get(url)
+    assert response.context["form"].initial["headers"] == [
+        {"key": "test", "value": "hi"}
+    ]
+    assert response.context["form"].initial["store_data"] == [
+        {"key": "external_id", "value": "id"}
+    ]
+    # Original manifest is untouched
+    integration.refresh_from_db()
+    assert integration.manifest["exists"]["headers"] == {"test": "hi"}
+
+
+@pytest.mark.django_db
+def test_builder_execute_saves_headers_as_object(
+    client, admin_factory, custom_integration_factory
+):
+    client.force_login(admin_factory())
+    integration = custom_integration_factory()
+    data = {
+        "url": "https://example.com/users",
+        "method": "POST",
+        "data": "{}",
+        "headers": json.dumps([{"key": "test", "value": "hi"}]),
+    }
+
+    url = reverse("integrations:manifest-execute-add", args=[integration.id])
+    response = client.post(url, data)
+    assert response.status_code == 302
+
+    integration.refresh_from_db()
+    assert integration.manifest["execute"][-1]["headers"] == {"test": "hi"}
+
+    index = len(integration.manifest["execute"]) - 1
+    url = reverse("integrations:manifest-execute-update", args=[integration.id, index])
+    data["headers"] = json.dumps([{"key": "test", "value": "updated"}])
+    response = client.post(url, data)
+    assert response.status_code == 200
+
+    integration.refresh_from_db()
+    assert integration.manifest["execute"][index]["headers"] == {"test": "updated"}
+
+
+@pytest.mark.django_db
+def test_migration_converts_key_value_lists_to_objects(custom_integration_factory):
+    from importlib import import_module
+
+    from django.apps import apps
+
+    migration = import_module(
+        "admin.integrations.migrations.0027_convert_key_value_lists_to_objects"
+    )
+
+    form_items = [{"key": "a", "value": "Option A"}]
+    integration = custom_integration_factory(
+        manifest={
+            "headers": [{"key": "Authorization", "value": "Bearer {{TOKEN}}"}],
+            "form": [{"id": "TEAM", "items": form_items, "headers": []}],
+            "exists": {
+                "url": "https://example.com/{{email}}",
+                "headers": [{"key": "test", "value": "hi"}],
+                "store_data": [{"key": "external_id", "value": "id"}],
+            },
+            "execute": [
+                {"url": "https://example.com", "headers": [{"key": "a", "value": "b"}]},
+                {"url": "https://example.com", "headers": {"already": "object"}},
+                {"url": "https://example.com"},
+            ],
+            "revoke": [{"url": "https://example.com", "headers": []}],
+        }
+    )
+    correct_manifest = {
+        "headers": {"Authorization": "Bearer {{TOKEN}}"},
+        "exists": {"url": "https://example.com", "store_data": {"id": "id"}},
+    }
+    correct_integration = custom_integration_factory(manifest=correct_manifest)
+
+    migration.convert_key_value_lists(apps, None)
+
+    integration.refresh_from_db()
+    manifest = integration.manifest
+    assert manifest["headers"] == {"Authorization": "Bearer {{TOKEN}}"}
+    assert manifest["exists"]["headers"] == {"test": "hi"}
+    assert manifest["exists"]["store_data"] == {"external_id": "id"}
+    assert manifest["execute"][0]["headers"] == {"a": "b"}
+    assert manifest["execute"][1]["headers"] == {"already": "object"}
+    assert "headers" not in manifest["execute"][2]
+    assert manifest["revoke"][0]["headers"] == {}
+    assert manifest["form"][0]["headers"] == {}
+    # Choice items are meant to be a list and are left alone
+    assert manifest["form"][0]["items"] == form_items
+
+    correct_integration.refresh_from_db()
+    assert correct_integration.manifest == correct_manifest
