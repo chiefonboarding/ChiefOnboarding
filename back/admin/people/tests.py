@@ -11,7 +11,11 @@ from freezegun import freeze_time
 from rest_framework.test import APIClient
 
 from admin.appointments.factories import AppointmentFactory
-from admin.integrations.models import Integration
+from admin.integrations.models import (
+    Integration,
+    IntegrationTracker,
+    IntegrationTrackerStep,
+)
 from admin.introductions.factories import IntroductionFactory
 from admin.notes.models import Note
 from admin.preboarding.factories import PreboardingFactory
@@ -582,6 +586,122 @@ def test_user_offboarding_sequence_view(
     assert "Employee's last day: Nov. 10, 2023" in response.content.decode()
     assert "Nov. 3" in response.content.decode()
     assert "On their last day" in response.content.decode()
+
+    with freeze_time("2023-11-11 08:00:00"):
+        response = client.get(url)
+    assert todo1.name in response.content.decode()
+    assert todo2.name in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_offboarding_immediate_actions_history(
+    client,
+    admin_factory,
+    employee_factory,
+    offboarding_sequence_factory,
+    integration_config_factory,
+    manual_user_provision_integration_factory,
+):
+    client.force_login(admin_factory())
+    employee = employee_factory(termination_date=timezone.now().date())
+    sequence = offboarding_sequence_factory(name="Immediate offboarding")
+    integration = manual_user_provision_integration_factory(
+        name="Manual access removed"
+    )
+    sequence.conditions.get(
+        condition_type=Condition.Type.WITHOUT
+    ).integration_configs.add(integration_config_factory(integration=integration))
+    employee.add_sequences([sequence])
+    assert not employee.conditions.exists()
+    NotificationFactory(
+        created_for=employee_factory(), extra_text="Other colleague only"
+    )
+
+    response = client.get(reverse("people:offboarding-detail", args=[employee.id]))
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert "Manual access removed" in content
+    assert "Disable manual integration" in content
+    assert "Immediate offboarding" in content
+    assert "Other colleague only" not in content
+    assert "No items left!" not in content
+    assert reverse("people:colleague", args=[employee.id]) in content
+    assert reverse("people:delete", args=[employee.id]) in content
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ("status_code", "error", "expected", "label"),
+    [
+        (200, "", "", "Succeeded"),
+        (500, "", "", "Failed"),
+        (200, "Request error", "", "Failed"),
+        (200, "", "Missing expected response", "Failed"),
+        (None, "", "", "No requests recorded"),
+    ],
+)
+def test_offboarding_revocation_history(
+    client,
+    admin_factory,
+    employee_factory,
+    integration_factory,
+    status_code,
+    error,
+    expected,
+    label,
+):
+    client.force_login(admin_factory())
+    employee = employee_factory(termination_date=timezone.now().date())
+    run = IntegrationTracker.objects.create(
+        integration=integration_factory(name="Revoked service"),
+        for_user=employee,
+        category=IntegrationTracker.Category.REVOKE,
+    )
+    if status_code is not None:
+        IntegrationTrackerStep.objects.create(
+            tracker=run,
+            status_code=status_code,
+            json_response={},
+            text_response="Sensitive response not shown",
+            post_data={},
+            headers={},
+            expected=expected,
+            error=error,
+        )
+    IntegrationTracker.objects.create(
+        integration=integration_factory(name="Another colleague's revocation"),
+        for_user=employee_factory(),
+        category=IntegrationTracker.Category.REVOKE,
+    )
+    IntegrationTracker.objects.create(
+        integration=integration_factory(name="Provisioning not revocation"),
+        for_user=employee,
+        category=IntegrationTracker.Category.EXECUTE,
+    )
+
+    response = client.get(reverse("people:offboarding-detail", args=[employee.id]))
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert "Revoked service" in content
+    assert label in content
+    assert reverse("integrations:tracker", args=[run.id]) in content
+    assert "Another colleague&#x27;s revocation" not in content
+    assert "Provisioning not revocation" not in content
+    assert "Sensitive response not shown" not in content
+
+
+@pytest.mark.django_db
+def test_offboarding_empty_history(client, admin_factory, employee_factory):
+    client.force_login(admin_factory())
+    employee = employee_factory(termination_date=timezone.now().date())
+
+    response = client.get(reverse("people:offboarding-detail", args=[employee.id]))
+
+    assert response.status_code == 200
+    assert "No activity recorded for this colleague." in response.content.decode()
+    assert "No items left!" not in response.content.decode()
 
 
 @pytest.mark.django_db

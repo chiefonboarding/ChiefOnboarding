@@ -1,6 +1,11 @@
 {% extends 'admin_base.html' %}
-{% load i18n %}
+{% load i18n tz %}
 {% load general %}
+
+{% block actions %}
+<a href="{% url 'people:colleague' object.id %}" class="btn">{% translate "Profile" %}</a>
+<a href="{% url 'people:delete' object.id %}" class="btn btn-danger">{% translate "Delete" %}</a>
+{% endblock %}
 
 {% block content %}
 {% if object.missing_extra_info|length %}
@@ -66,9 +71,57 @@
                 </div>
               </li>
             {% empty %}
-              No items left!
+              <li class="text-muted">{% translate "No conditional sequence steps." %}</li>
             {% endfor %}
         </ul>
+        {% if revocation_runs %}
+        <hr>
+        <h3>{% translate "Access revocation history" %}</h3>
+        <div class="table-responsive">
+          <table class="table table-vcenter">
+            <thead>
+              <tr>
+                <th>{% translate "Integration" %}</th>
+                <th>{% translate "Recorded requests" %}</th>
+                <th>{% translate "Date" %}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for run in revocation_runs %}
+              <tr>
+                <td>{{ run.integration.name|default:_('Unknown integration') }}</td>
+                <td>
+                  {% if not run.has_recorded_steps %}
+                    <span class="badge bg-yellow-lt">{% translate "No requests recorded" %}</span>
+                  {% elif run.requests_succeeded %}
+                    <span class="badge bg-green-lt">{% translate "Succeeded" %}</span>
+                  {% else %}
+                    <span class="badge bg-red-lt">{% translate "Failed" %}</span>
+                  {% endif %}
+                </td>
+                <td>{% timezone org.timezone %}{{ run.ran_at }}{% endtimezone %}</td>
+                <td class="text-end"><a href="{% url 'integrations:tracker' run.id %}" class="btn btn-sm">{% translate "Check steps" %}</a></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %}
+        <hr>
+        <h3>{% translate "Activity history" %}</h3>
+        <p class="text-muted">{% translate "Recorded activity for this colleague, including onboarding and offboarding." %}</p>
+        <div class="divide-y" style="max-height: 500px; overflow-y: auto;">
+          {% for notification in notifications %}
+          <div class="py-2">
+            <strong>{{ notification.extra_text }}</strong>
+            <div>{{ notification.get_notification_type_display }}</div>
+            <div class="text-muted">{% translate "By" %}{% if notification.created_by %} {{ notification.created_by.full_name }}{% else %} ChiefOnboarding{% endif %} - {% timezone org.timezone %}{{ notification.created }}{% endtimezone %}</div>
+          </div>
+          {% empty %}
+          <p class="text-muted">{% translate "No activity recorded for this colleague." %}</p>
+          {% endfor %}
+        </div>
       </div>
     </div>
   </div>

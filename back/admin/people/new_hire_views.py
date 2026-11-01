@@ -351,10 +351,10 @@ class NewHireMigrateToNormalAccountView(IsAdminOrNewHireManagerMixin, View):
         user = get_object_or_404(
             get_user_model(), id=pk, role=get_user_model().Role.NEWHIRE
         )
-        user.role = 3
+        user.role = get_user_model().Role.OTHER
         user.save()
         messages.info(request, _("New hire is now a normal account."))
-        return redirect("people:new_hires")
+        return redirect("people:colleagues")
 
 
 class NewHireExtraInfoUpdateView(
