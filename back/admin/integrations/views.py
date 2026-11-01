@@ -229,6 +229,12 @@ class IntegrationTrackerListView(AdminOrManagerPermMixin, ListView):
     template_name = "tracker_list.html"
     paginate_by = settings.INTEGRATION_TRACKER_PAGINATE_BY
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.request.user.is_admin:
+            return queryset
+        return queryset.filter(for_user__manager=self.request.user)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = _("All integration runs")
@@ -239,6 +245,12 @@ class IntegrationTrackerListView(AdminOrManagerPermMixin, ListView):
 class IntegrationTrackerDetailView(AdminOrManagerPermMixin, DetailView):
     model = IntegrationTracker
     template_name = "tracker.html"
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.request.user.is_admin:
+            return queryset
+        return queryset.filter(for_user__manager=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
