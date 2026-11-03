@@ -12,3 +12,4 @@ AWS_REGION=us-east-1
 # If you are using presigned uploads (default). Then the S3 endpoint should be localhost. If you are not using presigned uploads, then set it to aws and set 'aws 127.0.0.1' in your hosts file
 AWS_S3_ENDPOINT_URL=http://localhost:4566
 AWS_STORAGE_BUCKET_NAME=my-bucket
+TEST_INTEGRATIONS_ENDPOINT=True

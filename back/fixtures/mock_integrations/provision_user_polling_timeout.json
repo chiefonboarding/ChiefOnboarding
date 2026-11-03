@@ -1,0 +1,21 @@
+{
+  "headers": {
+    "Accept": "application/json",
+    "Content-Type": "application/json"
+  },
+  "execute": [
+    {
+      "url": "http://localhost:8000/test-integrations/?body={\"state\": \"processing\"}",
+      "method": "GET",
+      "status_code": ["200"],
+      "polling": {
+        "interval": 2,
+        "amount": 3
+      },
+      "continue_if": {
+        "response_notation": "state",
+        "value": "ready"
+      }
+    }
+  ]
+}

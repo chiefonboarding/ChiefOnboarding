@@ -176,6 +176,11 @@ LOGIN_URL = "account_login"
 
 RUNNING_TESTS = "pytest" in sys.modules
 FAKE_SLACK_API = False
+
+# Exposes /test-integrations/ which returns configurable fake responses, so
+# integrations can be pointed at it instead of a real third party. Never enable
+# this in production.
+TEST_INTEGRATIONS_ENDPOINT = env.bool("TEST_INTEGRATIONS_ENDPOINT", default=False)
 SLACK_USE_SOCKET = env.bool("SLACK_USE_SOCKET", default=False)
 SLACK_APP_TOKEN = env("SLACK_APP_TOKEN", default="")
 SLACK_BOT_TOKEN = env("SLACK_BOT_TOKEN", default="")

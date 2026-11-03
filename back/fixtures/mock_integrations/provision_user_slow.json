@@ -1,0 +1,29 @@
+{
+  "headers": {
+    "Accept": "application/json",
+    "Content-Type": "application/json"
+  },
+  "exists": {
+    "url": "http://localhost:8000/test-integrations/?delay=3&body={\"users\": []}",
+    "method": "GET",
+    "expected": "{{ email }}"
+  },
+  "execute": [
+    {
+      "url": "http://localhost:8000/test-integrations/?delay=8&status=201&body={\"id\": \"mock-slow-1\"}",
+      "method": "POST",
+      "data": {
+        "email": "{{ email }}"
+      },
+      "status_code": ["201"]
+    },
+    {
+      "url": "http://localhost:8000/test-integrations/?delay=8",
+      "method": "POST",
+      "data": {
+        "email": "{{ email }}"
+      },
+      "status_code": ["200"]
+    }
+  ]
+}

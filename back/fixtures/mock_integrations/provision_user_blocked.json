@@ -1,0 +1,27 @@
+{
+  "headers": {
+    "Accept": "application/json",
+    "Content-Type": "application/json"
+  },
+  "execute": [
+    {
+      "url": "http://localhost:8000/test-integrations/?body={\"status\": \"pending_approval\"}",
+      "method": "POST",
+      "data": {
+        "email": "{{ email }}"
+      },
+      "status_code": ["200"],
+      "continue_if": {
+        "response_notation": "status",
+        "value": "active"
+      }
+    },
+    {
+      "url": "http://localhost:8000/test-integrations/?echo=true",
+      "method": "POST",
+      "data": {
+        "note": "This step never runs because the first step is blocked"
+      }
+    }
+  ]
+}

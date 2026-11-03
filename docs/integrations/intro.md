@@ -71,3 +71,67 @@ store_data: {
 }
 ```
 Which would store `B` in this case.
+
+
+## Testing integrations with a mock endpoint
+When building or debugging an integration, you can point it at a fake endpoint built into ChiefOnboarding instead of a real third-party API. You choose what it returns, and how slowly, through query parameters in the URL.
+
+### Enabling it
+Set this environment variable and restart ChiefOnboarding:
+
+```
+TEST_INTEGRATIONS_ENDPOINT=True
+```
+
+It defaults to `False`. When disabled, the endpoint does not exist and returns a 404.
+
+!!!
+The endpoint does not require a login. Only enable it on development or test instances, never on a publicly reachable production server.
+!!!
+
+### Usage
+Use this URL in your integration manifest:
+
+```
+https://YOURDOMAIN/test-integrations/
+```
+
+It accepts `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD` and `OPTIONS` requests.
+Control the response with these query parameters:
+
+| Parameter      | Description                                                        | Default            |
+|----------------|--------------------------------------------------------------------|--------------------|
+| `status`       | HTTP status code to return (100–599)                               | `200`              |
+| `delay`        | Seconds to wait before responding (decimals allowed, max 10)       | `0`                |
+| `body`         | Raw response body                                                  | `{}`               |
+| `content_type` | `Content-Type` header of the response                              | `application/json` |
+| `echo`         | If `true`, return the incoming request instead of `body` (see below) | off              |
+
+If a parameter is invalid (for example `status=abc` or `delay=20`), the endpoint returns a `400` with an explanation.
+Values in `body` must be URL-encoded if they contain characters like `&`, `#` or `+`.
+
+### Examples
+Simulate a user being created:
+
+```
+https://YOURDOMAIN/test-integrations/?status=201&body={"id":"abc123"}
+```
+
+Simulate a slow server error:
+
+```
+https://YOURDOMAIN/test-integrations/?status=500&delay=5&body=Internal error&content_type=text/plain
+```
+
+### Inspecting what your integration sends
+
+With `echo=true`, the endpoint responds with what it received, so you can check
+that your manifest fills in its values correctly:
+
+```json
+{
+  "method": "POST",
+  "query": {"echo": ["true"]},
+  "body": "{\"email\": \"jane@example.com\"}"
+}
+```

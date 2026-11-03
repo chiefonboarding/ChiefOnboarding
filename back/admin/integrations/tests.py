@@ -2116,3 +2116,105 @@ def test_builder_execute_saves_headers_as_object(
 
     integration.refresh_from_db()
     assert integration.manifest["execute"][index]["headers"] == {"test": "updated"}
+
+
+@pytest.fixture
+def mock_integration_urls(settings):
+    import importlib
+
+    from django.urls import clear_url_caches
+
+    import back.urls
+
+    settings.TEST_INTEGRATIONS_ENDPOINT = True
+    importlib.reload(back.urls)
+    clear_url_caches()
+    yield
+    settings.TEST_INTEGRATIONS_ENDPOINT = False
+    importlib.reload(back.urls)
+    clear_url_caches()
+
+
+@pytest.mark.django_db
+def test_mock_integration_endpoint_not_routed_by_default(client):
+    response = client.get("/test-integrations/")
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_mock_integration_endpoint_view_disabled(rf, settings):
+    from django.http import Http404
+
+    from admin.integrations.mock_views import MockIntegrationView
+
+    settings.TEST_INTEGRATIONS_ENDPOINT = False
+    with pytest.raises(Http404):
+        MockIntegrationView.as_view()(rf.get("/test-integrations/"))
+
+
+@pytest.mark.django_db
+def test_mock_integration_endpoint_defaults(client, mock_integration_urls):
+    # No login needed
+    response = client.get("/test-integrations/")
+    assert response.status_code == 200
+    assert response["Content-Type"] == "application/json"
+    assert response.json() == {}
+
+
+@pytest.mark.django_db
+def test_mock_integration_endpoint_no_subpaths(client, mock_integration_urls):
+    response = client.get("/test-integrations/users")
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_mock_integration_endpoint_custom_response(client, mock_integration_urls):
+    response = client.post("/test-integrations/?status=201&body=" + '{"id": "abc"}')
+    assert response.status_code == 201
+    assert response.json() == {"id": "abc"}
+
+
+@pytest.mark.django_db
+def test_mock_integration_endpoint_content_type(client, mock_integration_urls):
+    response = client.delete(
+        "/test-integrations/?status=500&body=oops&content_type=text/plain"
+    )
+    assert response.status_code == 500
+    assert response["Content-Type"] == "text/plain"
+    assert response.content == b"oops"
+
+
+@pytest.mark.django_db
+@patch("admin.integrations.mock_views.time.sleep")
+def test_mock_integration_endpoint_delay(sleep, client, mock_integration_urls):
+    client.get("/test-integrations/?delay=2.5")
+    sleep.assert_called_once_with(2.5)
+
+    sleep.reset_mock()
+    client.get("/test-integrations/")
+    sleep.assert_not_called()
+
+
+@pytest.mark.django_db
+def test_mock_integration_endpoint_echo(client, mock_integration_urls):
+    response = client.put(
+        "/test-integrations/?echo=true&status=202&body=ignored",
+        data=json.dumps({"name": "x"}),
+        content_type="application/json",
+    )
+    assert response.status_code == 202
+    assert response["Content-Type"] == "application/json"
+    data = response.json()
+    assert data["method"] == "PUT"
+    assert data["query"] == {"echo": ["true"], "status": ["202"], "body": ["ignored"]}
+    assert json.loads(data["body"]) == {"name": "x"}
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "query",
+    ["status=abc", "status=99", "status=600", "delay=abc", "delay=-1", "delay=10.1"],
+)
+def test_mock_integration_endpoint_invalid_params(query, client, mock_integration_urls):
+    response = client.get(f"/test-integrations/?{query}")
+    assert response.status_code == 400
