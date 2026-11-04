@@ -6,6 +6,7 @@ from admin.admin_tasks import urls as admin_tasks_urls
 from admin.appointments import urls as appointment_urls
 from admin.badges import urls as badge_urls
 from admin.hardware import urls as hardware_urls
+from admin.integrations import mock_views as integrations_mock_views
 from admin.integrations import urls as integrations_urls
 from admin.introductions import urls as intro_urls
 from admin.people import urls as people_urls
@@ -51,6 +52,16 @@ urlpatterns = [
 if settings.API_ACCESS:
     urlpatterns += [
         path("api/", include(public_api_urls)),
+    ]
+
+# Fake third party endpoint for testing integrations
+if settings.TEST_INTEGRATIONS_ENDPOINT:
+    urlpatterns += [
+        path(
+            "test-integrations/",
+            integrations_mock_views.MockIntegrationView.as_view(),
+            name="test-integrations",
+        ),
     ]
 
 # DJANGO DEBUG BAR

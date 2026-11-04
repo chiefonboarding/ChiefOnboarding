@@ -1,0 +1,53 @@
+{
+  "headers": {
+    "Accept": "application/json",
+    "Content-Type": "application/json"
+  },
+  "form": [
+    {
+      "id": "TEAM_ID",
+      "name": "Team to add the user to",
+      "type": "choice",
+      "url": "http://localhost:8000/test-integrations/?body={\"teams\": [{\"id\": \"t1\", \"name\": \"Engineering\"}, {\"id\": \"t2\", \"name\": \"Sales\"}]}",
+      "data_from": "teams",
+      "choice_value": "id",
+      "choice_name": "name"
+    }
+  ],
+  "exists": {
+    "url": "http://localhost:8000/test-integrations/?body={\"users\": []}",
+    "method": "GET",
+    "expected": "{{ email }}"
+  },
+  "execute": [
+    {
+      "url": "http://localhost:8000/test-integrations/?status=201&body={\"id\": \"mock-user-1\", \"email\": \"{{ email }}\"}",
+      "method": "POST",
+      "data": {
+        "email": "{{ email }}",
+        "first_name": "{{ first_name }}",
+        "last_name": "{{ last_name }}"
+      },
+      "status_code": ["201"],
+      "store_data": {
+        "MOCK_USER_ID": "id"
+      }
+    },
+    {
+      "url": "http://localhost:8000/test-integrations/?echo=true",
+      "method": "POST",
+      "data": {
+        "user_id": "{{ MOCK_USER_ID }}",
+        "team_id": "{{ TEAM_ID }}"
+      },
+      "status_code": ["200"]
+    }
+  ],
+  "revoke": [
+    {
+      "url": "http://localhost:8000/test-integrations/?status=204&body=",
+      "method": "DELETE",
+      "status_code": ["204"]
+    }
+  ]
+}
