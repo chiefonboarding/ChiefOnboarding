@@ -22,6 +22,6 @@
     "aptPackages": [
       "gettext"
     ],
-    "startCommand": "python manage.py collectstatic --no-input && python manage.py createcachetable && python manage.py migrate && exec gunicorn --worker-tmp-dir /dev/shm --access-logfile '-' back.wsgi -b 0.0.0.0:${PORT:-8000}"
+    "startCommand": "if [ \"${APP_ROLE:-web}\" = \"scheduler\" ]; then exec python manage.py qcluster; else python manage.py collectstatic --no-input && python manage.py createcachetable && python manage.py migrate && exec gunicorn --worker-tmp-dir /dev/shm --access-logfile '-' back.wsgi -b 0.0.0.0:${PORT:-8000}; fi"
   }
 }
