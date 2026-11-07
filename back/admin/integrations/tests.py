@@ -1708,8 +1708,8 @@ def test_access_report_view_statuses(
 
     # webhook integration with an `exists` block is included in
     # `account_provision_options`
-    webhook_integration = custom_integration_factory()
-    manual_integration = manual_user_provision_integration_factory()
+    webhook_integration = custom_integration_factory(name="B")
+    manual_integration = manual_user_provision_integration_factory(name="A")
 
     active_user = new_hire_factory()
     revoked_user = new_hire_factory()
@@ -1738,12 +1738,11 @@ def test_access_report_view_statuses(
     # Only the row of the user that is still updating polls
     assert content.count('hx-trigger="every 2s"') == 1
     # The rendered column ids (ordered by name) are pinned in the poll url
-    ordered_ids = [
-        i.id
-        for i in sorted([webhook_integration, manual_integration], key=lambda i: i.name)
-    ]
     poll_url = reverse("integrations:access-report-poll", args=[updating_user.id])
-    assert f"{poll_url}?integrations={ordered_ids[0]},{ordered_ids[1]}" in content
+    assert (
+        f"{poll_url}?integrations={manual_integration.id},{webhook_integration.id}"
+        in content
+    )
     assert active_user.full_name in content
     assert revoked_user.full_name in content
     assert unknown_user.full_name in content
