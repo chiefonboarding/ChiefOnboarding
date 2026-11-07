@@ -291,6 +291,42 @@ class IntegrationBackfillIDsView(AdminPermMixin, View):
         return redirect("settings:integrations")
 
 
+def access_report_integrations():
+    return (
+        Integration.objects.account_provision_options()
+        .filter(is_active=True)
+        .order_by("name")
+    )
+
+
+def build_access_report_rows(users, integrations):
+    records = IntegrationUser.objects.filter(
+        integration__in=integrations,
+        user__in=users,
+    ).values_list("user_id", "integration_id", "revoked", "updating")
+
+    status = {
+        (user_id, integration_id): "Updating"
+        if updating
+        else "Not active"
+        if revoked
+        else "Active"
+        for user_id, integration_id, revoked, updating in records
+    }
+
+    rows = []
+    for user in users:
+        cells = [(status.get((user.pk, i.pk), ""), user.pk, i.pk) for i in integrations]
+        rows.append(
+            {
+                "user": user,
+                "cells": cells,
+                "updating": any(cell[0] == "Updating" for cell in cells),
+            }
+        )
+    return rows
+
+
 class IntegrationAccessReportView(AdminOrManagerPermMixin, FilterView):
     template_name = "access_report.html"
     model = get_user_model()
@@ -318,35 +354,8 @@ class IntegrationAccessReportView(AdminOrManagerPermMixin, FilterView):
 
         page_users = context["object_list"]
 
-        self.integrations = (
-            Integration.objects.account_provision_options()
-            .filter(is_active=True)
-            .order_by("name")
-        )
-        records = IntegrationUser.objects.filter(
-            integration__in=self.integrations,
-            user__in=page_users,
-        ).values_list("user_id", "integration_id", "revoked", "updating")
-
-        status = {
-            (user_id, integration_id): "Updating"
-            if updating
-            else "Not active"
-            if revoked
-            else "Active"
-            for user_id, integration_id, revoked, updating in records
-        }
-
-        self.rows = [
-            {
-                "user": user,
-                "cells": [
-                    (status.get((user.pk, i.pk), ""), user.pk, i.pk)
-                    for i in self.integrations
-                ],
-            }
-            for user in page_users
-        ]
+        self.integrations = access_report_integrations()
+        self.rows = build_access_report_rows(page_users, self.integrations)
 
         context["title"] = _("Integration access report")
         context["subtitle"] = _("reports")
@@ -404,25 +413,16 @@ class IntegrationAccessReportRefreshView(AdminPermMixin, View):
 
 
 class IntegrationAccessReportPollView(AdminOrManagerPermMixin, View):
-    def get(self, request, user_pk, integration_pk, *args, **kwargs):
+    """Poll a single row (user) of the access report, covering all integrations."""
 
-        integration_users = IntegrationUser.objects.all()
+    def get(self, request, user_pk, *args, **kwargs):
+        users = get_user_model().objects.all()
         if not request.user.is_admin:
-            integration_users = integration_users.filter(user__manager=request.user)
+            users = users.filter(manager=request.user)
+        user = get_object_or_404(users, pk=user_pk)
 
-        try:
-            integration_user = integration_users.get(
-                integration_id=integration_pk, user_id=user_pk
-            )
-        except IntegrationUser.DoesNotExist:
-            return render(request, "_access_report_unknown.html")
-
-        if integration_user.updating:
-            return HttpResponse(status=204)
-
-        if integration_user.revoked:
-            response = render(request, "_access_report_not_active.html")
-        else:
-            response = render(request, "_access_report_active.html")
-        response.status_code = 286  # stop polling
+        row = build_access_report_rows([user], access_report_integrations())[0]
+        response = render(request, "_access_report_row.html", {"row": row})
+        if not row["updating"]:
+            response.status_code = 286  # stop polling
         return response

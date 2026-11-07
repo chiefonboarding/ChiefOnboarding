@@ -59,7 +59,7 @@ urlpatterns = [
         name="access-report-refresh",
     ),
     path(
-        "access-report/<int:user_pk>/<int:integration_pk>/",
+        "access-report/<int:user_pk>/",
         views.IntegrationAccessReportPollView.as_view(),
         name="access-report-poll",
     ),

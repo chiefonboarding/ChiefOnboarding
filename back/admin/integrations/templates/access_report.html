@@ -38,36 +38,7 @@
         </thead>
         <tbody>
           {% for row in rows %}
-          <tr>
-            <td style="position: sticky; left: 0; background: var(--tblr-card-bg, #fff);">
-              <a href="{% url 'people:colleague_access' row.user.id %}">
-                {{ row.user.full_name }}
-              </a>
-              <div class="text-muted small">{{ row.user.email }}</div>
-            </td>
-            {% for cell in row.cells %}
-              <td>
-              {% if cell.0 == "Active" %}
-                {% include "_access_report_active.html" %}
-              {% elif cell.0 == "Not active" %}
-                {% include "_access_report_not_active.html" %}
-              {% elif cell.0 == "Updating" %}
-                  <div
-                     hx-get="{% url 'integrations:access-report-poll' cell.1 cell.2 %}"
-                     hx-trigger="every 2s"
-                     hx-swap="outerHTML">
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="spinner-border spinner-border-sm text-primary" role="status">
-                      <span class="visually-hidden">Loading…</span>
-                    </div>
-                  </div>
-                </div>
-              {% else %}
-                {% include "_access_report_unknown.html" %}
-              {% endif %}
-              </td>
-            {% endfor %}
-          </tr>
+            {% include "_access_report_row.html" %}
           {% empty %}
           <tr>
             <td colspan="{{ integrations|length|add:1 }}">{% translate "No users found" %}</td>

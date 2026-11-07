@@ -1734,11 +1734,11 @@ def test_access_report_view_statuses(
     assert webhook_integration.name in content
     assert manual_integration.name in content
 
-    poll_url = reverse(
-        "integrations:access-report-poll",
-        args=[updating_user.id, webhook_integration.id],
+    # Only the row of the user that is still updating polls
+    assert content.count('hx-trigger="every 2s"') == 1
+    assert (
+        reverse("integrations:access-report-poll", args=[updating_user.id]) in content
     )
-    assert poll_url in content
     assert active_user.full_name in content
     assert revoked_user.full_name in content
     assert unknown_user.full_name in content
@@ -1860,20 +1860,35 @@ def test_access_report_poll_view_permissions(client, django_user_model):
     client.force_login(
         django_user_model.objects.create(role=get_user_model().Role.NEWHIRE)
     )
-    url = reverse("integrations:access-report-poll", args=[1, 1])
+    url = reverse("integrations:access-report-poll", args=[1])
     response = client.get(url)
 
     assert response.status_code == 403
 
 
 @pytest.mark.django_db
-def test_access_report_poll_view_unknown(client, manager_factory):
+def test_access_report_poll_view_unknown_user(client, manager_factory):
     client.force_login(manager_factory())
 
-    url = reverse("integrations:access-report-poll", args=[999, 999])
+    url = reverse("integrations:access-report-poll", args=[999])
     response = client.get(url)
 
-    assert response.status_code == 200
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_access_report_poll_view_no_record(
+    client, manager_factory, new_hire_factory, custom_integration_factory
+):
+    manager = manager_factory()
+    client.force_login(manager)
+    custom_integration_factory()
+    user = new_hire_factory(manager=manager)
+
+    url = reverse("integrations:access-report-poll", args=[user.id])
+    response = client.get(url)
+
+    assert response.status_code == 286
     assert "—" in response.content.decode()
 
 
@@ -1883,53 +1898,51 @@ def test_access_report_poll_view_still_updating(
 ):
     manager = manager_factory()
     client.force_login(manager)
-    integration = custom_integration_factory()
+    integration1 = custom_integration_factory(name="A")
+    integration2 = custom_integration_factory(name="B")
     user = new_hire_factory(manager=manager)
-    IntegrationUser.objects.create(user=user, integration=integration, updating=True)
+    IntegrationUser.objects.create(
+        user=user, integration=integration1, updating=False, revoked=False
+    )
+    IntegrationUser.objects.create(user=user, integration=integration2, updating=True)
 
-    url = reverse("integrations:access-report-poll", args=[user.id, integration.id])
+    url = reverse("integrations:access-report-poll", args=[user.id])
     response = client.get(url)
+    content = response.content.decode()
 
-    assert response.status_code == 204
-    assert response.content == b""
+    # Row keeps polling, but already finished cells are rendered
+    assert response.status_code == 200
+    assert "Active" in content
+    assert "spinner-border" in content
+    assert url in content
+    assert 'hx-trigger="every 2s"' in content
 
 
 @pytest.mark.django_db
-def test_access_report_poll_view_active(
+def test_access_report_poll_view_all_completed(
     client, manager_factory, new_hire_factory, custom_integration_factory
 ):
     manager = manager_factory()
     client.force_login(manager)
-    integration = custom_integration_factory()
+    integration1 = custom_integration_factory(name="A")
+    integration2 = custom_integration_factory(name="B")
     user = new_hire_factory(manager=manager)
     IntegrationUser.objects.create(
-        user=user, integration=integration, updating=False, revoked=False
+        user=user, integration=integration1, updating=False, revoked=False
     )
-
-    url = reverse("integrations:access-report-poll", args=[user.id, integration.id])
-    response = client.get(url)
-
-    assert response.status_code == 286
-    assert "Active" in response.content.decode()
-
-
-@pytest.mark.django_db
-def test_access_report_poll_view_revoked(
-    client, manager_factory, new_hire_factory, custom_integration_factory
-):
-    manager = manager_factory()
-    client.force_login(manager)
-    integration = custom_integration_factory()
-    user = new_hire_factory(manager=manager)
     IntegrationUser.objects.create(
-        user=user, integration=integration, updating=False, revoked=True
+        user=user, integration=integration2, updating=False, revoked=True
     )
 
-    url = reverse("integrations:access-report-poll", args=[user.id, integration.id])
+    url = reverse("integrations:access-report-poll", args=[user.id])
     response = client.get(url)
+    content = response.content.decode()
 
     assert response.status_code == 286
-    assert "Not Active" in response.content.decode()
+    assert "Active" in content
+    assert "Not Active" in content
+    assert "spinner-border" not in content
+    assert "hx-get" not in content
 
 
 @pytest.mark.django_db
@@ -1971,15 +1984,11 @@ def test_access_report_poll_view_manager_other_new_hire(
         user=other_new_hire, integration=integration, updating=False, revoked=False
     )
 
-    url = reverse(
-        "integrations:access-report-poll", args=[other_new_hire.id, integration.id]
-    )
+    url = reverse("integrations:access-report-poll", args=[other_new_hire.id])
     response = client.get(url)
 
-    # Treated as unknown, status is not exposed
-    assert response.status_code == 200
-    assert "Active" not in response.content.decode()
-    assert "—" in response.content.decode()
+    # Status is not exposed
+    assert response.status_code == 404
 
 
 @pytest.mark.django_db
