@@ -8,7 +8,12 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import (
+    Http404,
+    HttpResponse,
+    HttpResponseBadRequest,
+    HttpResponseRedirect,
+)
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -291,6 +296,52 @@ class IntegrationBackfillIDsView(AdminPermMixin, View):
         return redirect("settings:integrations")
 
 
+def access_report_integrations():
+    return (
+        Integration.objects.account_provision_options()
+        .filter(is_active=True)
+        .order_by("name")
+    )
+
+
+def build_access_report_rows(users, integration_ids):
+    """
+    Build one row per user with a cell per integration id, in the given order.
+
+    Ids that are no longer part of the report (deleted, deactivated, ...) still
+    get a (placeholder) cell, so cells keep lining up with already rendered
+    column headers.
+    """
+    records = IntegrationUser.objects.filter(
+        integration__in=access_report_integrations().filter(pk__in=integration_ids),
+        user__in=users,
+    ).values_list("user_id", "integration_id", "revoked", "updating")
+
+    status = {
+        (user_id, integration_id): "Updating"
+        if updating
+        else "Not active"
+        if revoked
+        else "Active"
+        for user_id, integration_id, revoked, updating in records
+    }
+
+    rows = []
+    for user in users:
+        cells = [
+            (status.get((user.pk, integration_id), ""), user.pk, integration_id)
+            for integration_id in integration_ids
+        ]
+        rows.append(
+            {
+                "user": user,
+                "cells": cells,
+                "updating": any(cell[0] == "Updating" for cell in cells),
+            }
+        )
+    return rows
+
+
 class IntegrationAccessReportView(AdminOrManagerPermMixin, FilterView):
     template_name = "access_report.html"
     model = get_user_model()
@@ -318,40 +369,16 @@ class IntegrationAccessReportView(AdminOrManagerPermMixin, FilterView):
 
         page_users = context["object_list"]
 
-        self.integrations = (
-            Integration.objects.account_provision_options()
-            .filter(is_active=True)
-            .order_by("name")
-        )
-        records = IntegrationUser.objects.filter(
-            integration__in=self.integrations,
-            user__in=page_users,
-        ).values_list("user_id", "integration_id", "revoked", "updating")
-
-        status = {
-            (user_id, integration_id): "Updating"
-            if updating
-            else "Not active"
-            if revoked
-            else "Active"
-            for user_id, integration_id, revoked, updating in records
-        }
-
-        self.rows = [
-            {
-                "user": user,
-                "cells": [
-                    (status.get((user.pk, i.pk), ""), user.pk, i.pk)
-                    for i in self.integrations
-                ],
-            }
-            for user in page_users
-        ]
+        self.integrations = access_report_integrations()
+        integration_ids = [i.pk for i in self.integrations]
+        self.rows = build_access_report_rows(page_users, integration_ids)
 
         context["title"] = _("Integration access report")
         context["subtitle"] = _("reports")
         context["integrations"] = self.integrations
         context["rows"] = self.rows
+        # Pinned in the poll urls, so polled rows keep matching these headers
+        context["integration_ids"] = ",".join(str(pk) for pk in integration_ids)
         return context
 
     def render_to_response(self, context, **kwargs):
@@ -404,25 +431,32 @@ class IntegrationAccessReportRefreshView(AdminPermMixin, View):
 
 
 class IntegrationAccessReportPollView(AdminOrManagerPermMixin, View):
-    def get(self, request, user_pk, integration_pk, *args, **kwargs):
+    """
+    Poll a single row (user) of the access report, covering all integrations.
 
-        integration_users = IntegrationUser.objects.all()
-        if not request.user.is_admin:
-            integration_users = integration_users.filter(user__manager=request.user)
+    The `integrations` query param holds the integration ids of the rendered
+    columns, in order, so the returned cells line up with the table headers even
+    if integrations got renamed, added or removed in the meantime.
+    """
 
+    def get(self, request, user_pk, *args, **kwargs):
+        raw_ids = request.GET.get("integrations", "")
         try:
-            integration_user = integration_users.get(
-                integration_id=integration_pk, user_id=user_pk
-            )
-        except IntegrationUser.DoesNotExist:
-            return render(request, "_access_report_unknown.html")
+            integration_ids = [int(pk) for pk in raw_ids.split(",") if pk]
+        except ValueError:
+            return HttpResponseBadRequest()
 
-        if integration_user.updating:
-            return HttpResponse(status=204)
+        users = get_user_model().objects.all()
+        if not request.user.is_admin:
+            users = users.filter(manager=request.user)
+        user = get_object_or_404(users, pk=user_pk)
 
-        if integration_user.revoked:
-            response = render(request, "_access_report_not_active.html")
-        else:
-            response = render(request, "_access_report_active.html")
-        response.status_code = 286  # stop polling
+        row = build_access_report_rows([user], integration_ids)[0]
+        response = render(
+            request,
+            "_access_report_row.html",
+            {"row": row, "integration_ids": raw_ids},
+        )
+        if not row["updating"]:
+            response.status_code = 286  # stop polling
         return response
