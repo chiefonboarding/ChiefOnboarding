@@ -1,5 +1,5 @@
 <tr{% if row.updating %}
-  hx-get="{% url 'integrations:access-report-poll' row.user.id %}"
+  hx-get="{% url 'integrations:access-report-poll' row.user.id %}?integrations={{ integration_ids }}"
   hx-trigger="every 2s"
   hx-swap="outerHTML"{% endif %}>
   <td style="position: sticky; left: 0; background: var(--tblr-card-bg, #fff);">

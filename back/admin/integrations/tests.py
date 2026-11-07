@@ -1,5 +1,6 @@
 import base64
 import json
+import re
 from datetime import timedelta
 from unittest.mock import Mock, patch
 
@@ -1736,9 +1737,13 @@ def test_access_report_view_statuses(
 
     # Only the row of the user that is still updating polls
     assert content.count('hx-trigger="every 2s"') == 1
-    assert (
-        reverse("integrations:access-report-poll", args=[updating_user.id]) in content
-    )
+    # The rendered column ids (ordered by name) are pinned in the poll url
+    ordered_ids = [
+        i.id
+        for i in sorted([webhook_integration, manual_integration], key=lambda i: i.name)
+    ]
+    poll_url = reverse("integrations:access-report-poll", args=[updating_user.id])
+    assert f"{poll_url}?integrations={ordered_ids[0]},{ordered_ids[1]}" in content
     assert active_user.full_name in content
     assert revoked_user.full_name in content
     assert unknown_user.full_name in content
@@ -1882,11 +1887,11 @@ def test_access_report_poll_view_no_record(
 ):
     manager = manager_factory()
     client.force_login(manager)
-    custom_integration_factory()
+    integration = custom_integration_factory()
     user = new_hire_factory(manager=manager)
 
     url = reverse("integrations:access-report-poll", args=[user.id])
-    response = client.get(url)
+    response = client.get(url, {"integrations": str(integration.id)})
 
     assert response.status_code == 286
     assert "—" in response.content.decode()
@@ -1906,15 +1911,17 @@ def test_access_report_poll_view_still_updating(
     )
     IntegrationUser.objects.create(user=user, integration=integration2, updating=True)
 
+    ids = f"{integration1.id},{integration2.id}"
     url = reverse("integrations:access-report-poll", args=[user.id])
-    response = client.get(url)
+    response = client.get(url, {"integrations": ids})
     content = response.content.decode()
 
     # Row keeps polling, but already finished cells are rendered
     assert response.status_code == 200
     assert "Active" in content
     assert "spinner-border" in content
-    assert url in content
+    # Same columns are pinned for the next poll
+    assert f"{url}?integrations={ids}" in content
     assert 'hx-trigger="every 2s"' in content
 
 
@@ -1935,7 +1942,7 @@ def test_access_report_poll_view_all_completed(
     )
 
     url = reverse("integrations:access-report-poll", args=[user.id])
-    response = client.get(url)
+    response = client.get(url, {"integrations": f"{integration1.id},{integration2.id}"})
     content = response.content.decode()
 
     assert response.status_code == 286
@@ -1943,6 +1950,75 @@ def test_access_report_poll_view_all_completed(
     assert "Not Active" in content
     assert "spinner-border" not in content
     assert "hx-get" not in content
+
+
+def _poll_row_cells(content):
+    # Contents of every cell, skipping the first (user) cell
+    cells = re.findall(r"<td[^>]*>(.*?)</td>", content, re.S)[1:]
+    return [
+        "Not Active"
+        if "Not Active" in cell
+        else "Active"
+        if "Active" in cell
+        else "Updating"
+        if "spinner-border" in cell
+        else "—"
+        for cell in cells
+    ]
+
+
+@pytest.mark.django_db
+def test_access_report_poll_view_keeps_rendered_column_order(
+    client, admin_factory, new_hire_factory, custom_integration_factory
+):
+    client.force_login(admin_factory())
+    integration_a = custom_integration_factory(name="A")
+    integration_b = custom_integration_factory(name="B")
+    integration_c = custom_integration_factory(name="C")
+    user = new_hire_factory()
+    IntegrationUser.objects.create(
+        user=user, integration=integration_a, updating=False, revoked=False
+    )
+    IntegrationUser.objects.create(
+        user=user, integration=integration_b, updating=False, revoked=True
+    )
+    IntegrationUser.objects.create(user=user, integration=integration_c, updating=True)
+
+    # Columns as initially rendered: A, B, C
+    ids = f"{integration_a.id},{integration_b.id},{integration_c.id}"
+
+    # While polling: A gets renamed (would now sort last), B gets deleted and a
+    # new integration is added that would sort first
+    integration_a.name = "Z"
+    integration_a.save()
+    integration_b.delete()
+    new_integration = custom_integration_factory(name="0")
+    IntegrationUser.objects.create(
+        user=user, integration=new_integration, updating=False, revoked=False
+    )
+
+    url = reverse("integrations:access-report-poll", args=[user.id])
+    response = client.get(url, {"integrations": ids})
+    content = response.content.decode()
+
+    # Cells still line up with the original A, B, C headers; the deleted
+    # integration gets a placeholder and the new one is left out
+    assert response.status_code == 200
+    assert _poll_row_cells(content) == ["Active", "—", "Updating"]
+    assert f"{url}?integrations={ids}" in content
+
+
+@pytest.mark.django_db
+def test_access_report_poll_view_invalid_integrations_param(
+    client, admin_factory, new_hire_factory
+):
+    client.force_login(admin_factory())
+    user = new_hire_factory()
+
+    url = reverse("integrations:access-report-poll", args=[user.id])
+    response = client.get(url, {"integrations": "1,abc"})
+
+    assert response.status_code == 400
 
 
 @pytest.mark.django_db
