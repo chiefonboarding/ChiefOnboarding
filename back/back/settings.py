@@ -371,6 +371,9 @@ Q_CLUSTER = {
     "orm": "default",
     "catch_up": False,
     "max_attempts": 2,
+    "poll": 10,
+    "guard_cycle": 10
+
 }
 
 if DEBUG and RUNNING_TESTS:
