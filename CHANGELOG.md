@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.5.2 (2026-11-08)
+* Set guard_cycle and polling to higher values to make it less resource hungry (#689)
+* Refresh reporting row based instead of cell based (#688)
+* Add railpack config files and update dependencies (#687)
+* Add test integrations endpoint and fix for access report scheduling (#685)
+* Fix ValueKeyArrayfield stores values with key/value instead of just the values (#684)
+* Add manager filtering on admin tasks and search (#683)
+* Fix default ordering of users set to first_name (#682)
+
 ## v2.5.1 (2026-11-01)
 * Add history of integrations, steps from history and profile/delete buttons to offboarding page (#673)
 * Fix filtering on reports page for manager (#681)
