@@ -1896,7 +1896,15 @@ msgstr "Ya has completado todos los pendientes"
 msgid "Overdue"
 msgstr "Atrasado"
 
-#: new_hire/templates/new_hire_to_dos.html:35
+#: back/templatetags/general.py:77
+msgid "Due today"
+msgstr "Fecha límite hoy"
+
+#: back/templatetags/general.py:79
+msgid "Due tomorrow"
+msgstr "Fecha límite mañana"
+
+#: back/templatetags/general.py:80
 msgid "Due on "
 msgstr "Fecha límite "
 

@@ -1,6 +1,6 @@
 {% extends 'new_hire_base.html' %}
 {% load i18n %}
-{% load humanize %}
+{% load general %}
 
 {% block actions %}{% endblock %}
 
@@ -32,7 +32,7 @@
     <div class="card">
       <div class="card-body" style="position: relative;">
         {% for obj in to_do_items %}
-        <h3 class="card-title">{% if obj.date is not None %}{% translate "Due on " %}{{ obj.date|naturalday }}{% else %}{% trans "Not urgent" %}{% endif %}</h3>
+        <h3 class="card-title">{% if obj.date is not None %}{{ obj.date|due_on }}{% else %}{% trans "Not urgent" %}{% endif %}</h3>
           <table class="table table-vcenter">
             <tbody>
               {% for to_do in obj.items %}

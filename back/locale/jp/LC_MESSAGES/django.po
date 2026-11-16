@@ -1882,7 +1882,15 @@ msgstr "すべてのTo Doアイテムを完了しました"
 msgid "Overdue"
 msgstr "締め切り超過"
 
-#: new_hire/templates/new_hire_to_dos.html:35
+#: back/templatetags/general.py:77
+msgid "Due today"
+msgstr "期限 今日"
+
+#: back/templatetags/general.py:79
+msgid "Due tomorrow"
+msgstr "期限 明日"
+
+#: back/templatetags/general.py:80
 msgid "Due on "
 msgstr "期限 "
 

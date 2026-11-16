@@ -1896,7 +1896,15 @@ msgstr "Vous avez terminé tous les éléments à faire"
 msgid "Overdue"
 msgstr "En retard"
 
-#: new_hire/templates/new_hire_to_dos.html:35
+#: back/templatetags/general.py:77
+msgid "Due today"
+msgstr "Dû aujourd'hui"
+
+#: back/templatetags/general.py:79
+msgid "Due tomorrow"
+msgstr "Dû demain"
+
+#: back/templatetags/general.py:80
 msgid "Due on "
 msgstr "Dû le "
 

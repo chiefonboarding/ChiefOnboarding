@@ -1889,7 +1889,15 @@ msgstr "Você completou todas as tarefas"
 msgid "Overdue"
 msgstr "Atrasado"
 
-#: new_hire/templates/new_hire_to_dos.html:35
+#: back/templatetags/general.py:77
+msgid "Due today"
+msgstr "Vencimento hoje"
+
+#: back/templatetags/general.py:79
+msgid "Due tomorrow"
+msgstr "Vencimento amanhã"
+
+#: back/templatetags/general.py:80
 msgid "Due on "
 msgstr "Vencimento em "
 

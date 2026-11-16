@@ -3000,7 +3000,15 @@ msgstr "Ik hebt alle items voltooid!"
 msgid "Overdue"
 msgstr "Te laat"
 
-#: new_hire/templates/new_hire_to_dos.html:35
+#: back/templatetags/general.py:77
+msgid "Due today"
+msgstr "Loopt vandaag af"
+
+#: back/templatetags/general.py:79
+msgid "Due tomorrow"
+msgstr "Loopt morgen af"
+
+#: back/templatetags/general.py:80
 msgid "Due on "
 msgstr "Loopt af op "
 

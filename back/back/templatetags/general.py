@@ -4,6 +4,8 @@ from datetime import timedelta
 
 from django import template
 from django.utils import timezone
+from django.utils.formats import date_format
+from django.utils.translation import gettext as _
 
 from admin.sequences.models import Condition
 from organization.models import File
@@ -65,6 +67,17 @@ def new_hire_trigger_date(condition, new_hire):
         return new_hire.start_day - timedelta(days=condition.days)
     else:
         return new_hire.workday_to_datetime(condition.days)
+
+
+@register.filter(name="due_on")
+def due_on(day):
+    """Heading for to do items due on `day`, e.g. "Due today"."""
+    days_left = (day - timezone.now().date()).days
+    if days_left == 0:
+        return _("Due today")
+    if days_left == 1:
+        return _("Due tomorrow")
+    return _("Due on ") + date_format(day)
 
 
 @register.filter(name="offboarding_trigger_date")
