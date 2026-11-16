@@ -2707,7 +2707,15 @@ msgstr "Dokončili jste všechny úkoly"
 msgid "Overdue"
 msgstr "Zpoždění"
 
-#: new_hire/templates/new_hire_to_dos.html:35
+#: back/templatetags/general.py:77
+msgid "Due today"
+msgstr "Splatnost dnes"
+
+#: back/templatetags/general.py:79
+msgid "Due tomorrow"
+msgstr "Splatnost zítra"
+
+#: back/templatetags/general.py:80
 msgid "Due on "
 msgstr "Splatnost dne "
 

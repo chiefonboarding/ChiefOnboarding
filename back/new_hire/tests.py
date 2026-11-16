@@ -68,6 +68,45 @@ def test_show_to_do_view(client, new_hire_factory, to_do_user_factory):
 
 
 @pytest.mark.django_db
+@freeze_time("2021-01-12")
+def test_to_do_headings_name_today_and_tomorrow(
+    client, new_hire_factory, to_do_user_factory
+):
+    new_hire = new_hire_factory(
+        start_day=datetime.datetime.fromisoformat("2021-01-12").date()
+    )
+    client.force_login(new_hire)
+    for day in [1, 2, 5]:
+        to_do_user_factory(to_do__due_on_day=day, user=new_hire)
+
+    content = client.get(reverse("new_hire:todos")).content.decode()
+
+    assert "Due today" in content
+    assert "Due tomorrow" in content
+    assert "Due on Jan. 18, 2021" in content
+    assert "Due on today" not in content
+    assert "Due on tomorrow" not in content
+
+
+@pytest.mark.django_db
+@freeze_time("2021-01-16")
+def test_to_do_heading_on_a_weekend_shows_the_date(
+    client, new_hire_factory, to_do_user_factory
+):
+    # Friday's to dos aren't overdue until Monday, so they're still listed
+    new_hire = new_hire_factory(
+        start_day=datetime.datetime.fromisoformat("2021-01-12").date()
+    )
+    client.force_login(new_hire)
+    to_do_user_factory(to_do__due_on_day=4, user=new_hire)
+
+    content = client.get(reverse("new_hire:todos")).content.decode()
+
+    assert "Due on Jan. 15, 2021" in content
+    assert "Due on yesterday" not in content
+
+
+@pytest.mark.django_db
 @freeze_time("2021-01-13")
 def test_show_over_due_to_do_view(client, new_hire_factory, to_do_user_factory):
     new_hire = new_hire_factory(

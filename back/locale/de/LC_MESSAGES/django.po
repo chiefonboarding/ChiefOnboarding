@@ -1911,7 +1911,15 @@ msgstr "Du hast alle To-Do-Einträge erledigt"
 msgid "Overdue"
 msgstr "überfällig"
 
-#: new_hire/templates/new_hire_to_dos.html:35
+#: back/templatetags/general.py:77
+msgid "Due today"
+msgstr "Heute fällig"
+
+#: back/templatetags/general.py:79
+msgid "Due tomorrow"
+msgstr "Morgen fällig"
+
+#: back/templatetags/general.py:80
 msgid "Due on "
 msgstr "Fällig am "
 
