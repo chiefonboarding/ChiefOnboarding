@@ -11,3 +11,10 @@
   max-width: 439px;
   max-height: 352px;
 }
+
+@media only screen and (max-width: 640px) {
+  .VPHero .image-src {
+    margin-left: 0px;
+    max-width: 90%;
+  }
+}
